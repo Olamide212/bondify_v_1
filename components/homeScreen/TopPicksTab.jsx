@@ -51,7 +51,7 @@ const TopPicksTab = ({ profile }) => {
       onPress={() => handleNavigateToProfile(item.id)}
     >
       <Image source={{ uri: item.images[0] }} style={styles.gridImage} />
-      <View className='flex-1 flex-row gap-1  px-3 items-center absolute bg-white/80 left-0 right-0  bottom-2 py-2 mx-2 rounded-xl'>
+      <View className='flex-1 flex-row gap-1  px-3 items-center absolute bg-white/70 left-0 right-0  bottom-2 py-2 mx-2 rounded-full'>
         <Text className='text-lg font-SatoshiBold '>{item.name}</Text>
         {item.verified && (
           <View style={styles.gridVerified}>

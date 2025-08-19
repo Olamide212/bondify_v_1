@@ -29,7 +29,7 @@ const About = () => {
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View className="flex-1 px-3">
             <View className="flex-1 mt-8">
-              <Text className="text-[25px] font-SatoshiBold text-app mb-4">
+              <Text className="text-3xl font-SatoshiBold  mb-4">
                 Tell us a little about yourself
               </Text>
 
@@ -55,12 +55,12 @@ const About = () => {
                   Or you can answer with
                 </Text>
 
-                <View className="flex-row  justify-between items-center p-5 rounded-lg mt-4">
+                <View className="flex-row  justify-between items-center rounded-lg my-8">
                   <View className="bg-pink-50 p-8 rounded-lg flex-row items-center gap-3 relative">
                     <Video color="#FF0066" />
                     <Text className="text-2xl font-SatoshiMedium">Video</Text>
 
-                    <View className="absolute bottom-[70px] ">
+                    <View className="absolute bottom-[75px] ">
                       <Text className="bg-primary py-1 px-3 text-xs text-white rounded-s-full rounded-se-full font-SatoshiBold">
                         Recommended
                       </Text>
@@ -71,7 +71,7 @@ const About = () => {
                     <Text className="text-2xl font-SatoshiMedium">Audio</Text>
                   </View>
                 </View>
-                <View className="mt-3 p-4 bg-pink-50 border-[0.2px] border-primary rounded-lg flex-row items-center gap-3">
+                <View className=" p-4 bg-pink-50 border-[0.2px] border-primary rounded-lg flex-row items-center gap-3">
                   <View className="w-10 h-10 bg-primary justify-center items-center rounded-full">
                     <Video size={20} color="white" />
                   </View>

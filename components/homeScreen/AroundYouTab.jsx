@@ -12,6 +12,7 @@ import { Heart, MapPin, User, Star, Briefcase } from "lucide-react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { BlurView } from "expo-blur";
 import { useRouter } from "expo-router";
+import CommentButton from "../../components/ui/CommentButton"
 
 const AroundYouTab = ({ profile, actionMessage }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -75,13 +76,16 @@ const AroundYouTab = ({ profile, actionMessage }) => {
           />
           {/* Dark overlay */}
           <View style={styles.overlay} />
+          <View className='z-40 absolute right-4 top-4'>
+            <CommentButton />
+          </View>
         </Animated.View>
 
         <View style={styles.topInfo}>
           <View style={styles.topInfoLeft}>
             {/* Bond Score */}
             {profile.bondScore !== undefined && (
-              <View style={styles.bondScore}>
+              <View className="bg-white/20 flex-row items-center p-2 rounded-full">
                 <Heart size={16} color="white" fill="white" />
                 <Text style={styles.bondText}>{profile.bondScore}%</Text>
               </View>
@@ -109,7 +113,7 @@ const AroundYouTab = ({ profile, actionMessage }) => {
           colors={["transparent", "rgba(0,0,0,0.8)"]}
           style={styles.bottomGradient}
         >
-          <BlurView intensity={60} tint="light" style={styles.profileInfo}>
+          <BlurView className="bg-white/70 p-6 mx-4 left-0 right-0  rounded-2xl absolute overflow-hidden  ">
             <View style={styles.profileHeader}>
               <View style={styles.nameContainer}>
                 <Text style={styles.name}>{profile.name}</Text>
@@ -131,7 +135,7 @@ const AroundYouTab = ({ profile, actionMessage }) => {
             </View>
 
             {/* Occupation */}
-            <View style={styles.detailsContainer}>
+            <View className="flex-row justify-between">
               {profile.occupation && (
                 <View style={styles.occupationContainer}>
                   <Briefcase size={16} color="rgba(255,255,255,0.8)" />
@@ -157,7 +161,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   imageTouchContainer: {
-    height: 560,
+    height: 650,
     borderRadius: 30,
     overflow: "hidden",
   },
@@ -225,14 +229,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     marginLeft: 10,
   },
-  bondScore: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#FF0066",
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
-  },
+
   bondText: {
     color: "white",
     fontSize: 14,
@@ -259,7 +256,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 12,
+    marginBottom: 5,
   },
   nameContainer: {
     flexDirection: "row",
@@ -290,7 +287,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   detailsContainer: {
-    flexDirection: "row",
+    flexDirection: "col",
+    gap: 5,
     justifyContent: "space-between",
     marginBottom: 12,
   },

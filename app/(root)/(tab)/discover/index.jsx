@@ -1,53 +1,56 @@
-import { View, ScrollView, Text } from "react-native";
-import React from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { View, Text, StyleSheet } from "react-native";
+import React, { useState } from "react";
+import HomeHeader from "../../../../components/headers/HomeHeader";
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+import ActionButtons from "../../../../components/homeScreen/ActionButtons";
+import { profiles } from "../../../../data/profileData";
+import AroundYouTab from "../../../../components/homeScreen/AroundYouTab";
+import TopPicksTab from "../../../../components/homeScreen/TopPicksTab";
+import MatchmakingTab from "../../../../components/homeScreen/MatchmakingTab";
+import HomeScreenTabs from "../../../../components/homeScreen/HomeScreenTabs";
 import GeneralHeader from "../../../../components/headers/GeneralHeader";
-import DiscoverCard from "../../../../components/discoverScreen/DiscoverCard";
 
 const Discover = () => {
-  const cards = [
-    {
-      title: "Nearby Hangouts",
-      description: "Join fun events happening around you.",
-      image: require("../../../../assets/images/2290.jpg"),
-      route: "/discover/hangouts",
-    },
-    {
-      title: "Bond Circles",
-      description: "Join topic-based community groups.",
-      image: require("../../../../assets/images/2290.jpg"),
-      route: "/discover/circles",
-    },
-    {
-      title: "Bond Moments",
-      description: "Explore public posts and shared thoughts.",
-      image: require("../../../../assets/images/2290.jpg"),
-      route: "/discover/moments",
-    },
-    {
-      title: "Community Map",
-      description: "See events and users around your area.",
-      image: require("../../../../assets/images/2290.jpg"),
-      route: "/discover/map",
-    },
-    {
-      title: "Polls & Questions",
-      description: "Answer trending questions in the community.",
-      image: require("../../../../assets/images/2290.jpg"),
-      route: "/discover/polls",
-    },
-  ];
+  const [currentProfileIndex, setCurrentProfileIndex] = useState(0);
+  const [matches, setMatches] = useState(12);
+  const [likes, setLikes] = useState(48);
+  const [flashMessage, setFlashMessage] = useState(null);
+  const [activeTab, setActiveTab] = useState("Around you");
+
+  const currentProfile = profiles[currentProfileIndex];
+
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
-      <GeneralHeader title="Discover" />
-      <ScrollView className="px-4 mt-2">
-        {cards.map((card, index) => (
-          <DiscoverCard key={index} {...card} />
-        ))}
-      </ScrollView>
-    </SafeAreaView>
+    <SafeAreaProvider>
+      <SafeAreaView className="flex-1 z-40  bg-white">
+        <View style={{ flex: 1 }}>
+    <GeneralHeader title="Discover" />
+
+          {/* Tab Navigation */}
+          <HomeScreenTabs activeTab={activeTab} setActiveTab={setActiveTab} />
+
+          {activeTab === "Top picks" && (
+            <TopPicksTab profile={currentProfile} />
+          )}
+
+          {activeTab === "Matchmaker pick" && <MatchmakingTab />}
+
+        </View>
+      </SafeAreaView>
+    </SafeAreaProvider>
   );
 };
+
+const styles = StyleSheet.create({
+  actionButtonWrapper: {
+    position: "absolute",
+    bottom: -5,
+    left: 0,
+    right: 0,
+    paddingHorizontal: 20,
+    alignItems: "center",
+    zIndex: 10,
+  },
+});
 
 export default Discover;

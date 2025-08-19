@@ -28,7 +28,7 @@ const Register = () => {
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View className="flex-1 px-2">
             <View className="flex-1 mt-8">
-              <Text className="text-2xl font-SatoshiBold text-black mb-2">
+              <Text className="text-3xl font-SatoshiBold text-black mb-2">
                 Create an account
               </Text>
               <Text className="mb-7 text-black text-lg font-Satoshi">
@@ -41,14 +41,19 @@ const Register = () => {
                   onChangeCountry={(country) => console.log(country)}
                 />
                 <TextInput
+                  placeholder="First name"
+                  className=""
+                />
+                <TextInput
+                  placeholder="Last name"
+                  className=""
+                />
+                <TextInput
                   placeholder="Enter your email address"
                   className=""
                 />
                 <TextInput placeholder="Create your password" secureTextEntry />
-                <TextInput
-                  placeholder="Confirm your password"
-                  secureTextEntry
-                />
+              
               </View>
             </View>
 

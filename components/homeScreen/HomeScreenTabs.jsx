@@ -2,7 +2,7 @@ import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 
 const HomeScreenTabs = ({ activeTab, setActiveTab }) => {
-  const tabs = ["Around you", "Top Picks", "Matchmaker pick"];
+  const tabs = ["Around you", "Top picks", "Matchmaker pick"];
 
   return (
     <View style={styles.tabsContainer}>
@@ -46,8 +46,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-around",
     paddingTop: 8,
     marginBottom: 14,
-    borderBottomWidth: 1,
-    borderBottomColor: "#f1f1f1",
+
   },
   tabWrapper: {
     alignItems: "center",
@@ -61,20 +60,14 @@ const styles = StyleSheet.create({
   activeTabButton: {
     // Additional styling if needed
   },
-  underline: {
-    height: 2,
-    width: 30,
-    backgroundColor: "#FF0066",
-    marginTop: 4,
-    borderRadius: 1,
-  },
+
   tabText: {
     fontSize: 16,
     color: "#888",
     fontFamily: "SatoshiMedium",
   },
   activeTabText: {
-    color: "#FF0066",
+    color: "#000",
     fontFamily: "SatoshiBold",
   },
   aiBadge: {

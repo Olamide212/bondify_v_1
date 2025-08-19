@@ -1,0 +1,15 @@
+export const ETHNICITY_OPTIONS = [
+  { label: "Asian", value: "asian" },
+  { label: "Black / African descent", value: "black" },
+  { label: "East Asian", value: "east-asian" },
+  { label: "Hispanic / Latino", value: "hispanic-latino" },
+  { label: "Indigenous / Native", value: "indigenous" },
+  { label: "Middle Eastern", value: "middle-eastern" },
+  { label: "Pacific Islander", value: "pacific-islander" },
+  { label: "South Asian", value: "south-asian" },
+  { label: "Southeast Asian", value: "southeast-asian" },
+  { label: "White / Caucasian", value: "white" },
+  { label: "Mixed ethnicity", value: "mixed" },
+  { label: "Other", value: "other" },
+  { label: "Prefer not to say", value: "prefer-not" },
+];

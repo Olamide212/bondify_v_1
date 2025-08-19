@@ -30,10 +30,10 @@ const MaritalStatus = () => {
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View className="flex-1 px-2">
             <View className="flex-1 mt-8">
-              <Text className="text-[25px] font-SatoshiBold text-app mb-2">
+              <Text className="text-3xl font-SatoshiBold text-app mb-2">
               Marital Status?
               </Text>
-              <Text className="text-app font-Satoshi">
+              <Text className="text-lg font-Satoshi">
                 Please let us know your marital status.
               
               </Text>

@@ -65,7 +65,7 @@ const Occupation = () => {
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View className="flex-1 px-2">
             <View className="flex-1 mt-8">
-              <Text className="text-[25px] font-SatoshiBold text-app mb-4">
+              <Text className="text-3xl font-SatoshiBold  mb-4">
                 What's your occupation?
               </Text>
 

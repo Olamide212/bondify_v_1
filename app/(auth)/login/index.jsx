@@ -8,6 +8,7 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   TouchableOpacity,
+  Pressable,
 } from "react-native";
 import GlobalPhoneInput from "../../../components/inputs/PhoneInput";
 import NextButton from "../../../components/ui/NextButton";
@@ -28,24 +29,24 @@ const PhoneLogin = () => {
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View className="flex-1 px-2">
             <View className="flex-1 mt-8">
-              <Text className="text-3xl font-SatoshiBold text-black ">
+              <Text className="text-4xl font-SatoshiBold text-black ">
                 Welcome back!
               </Text>
               <Text className="mb-5 text-black text-lg font-Satoshi">
-              Login into your Bondify account
+                Login into your Bondify account
               </Text>
 
-          
-                <GlobalPhoneInput
-                  onChangePhone={(phone) => console.log(phone)}
-                  onChangeCountry={(country) => console.log(country)}
-                />
-
-              <TextInput
-                placeholder="Enter your password"
-                className="mt-4"
-                secureTextEntry
+              <GlobalPhoneInput
+                onChangePhone={(phone) => console.log(phone)}
+                onChangeCountry={(country) => console.log(country)}
               />
+
+              <TextInput placeholder="Enter your password" secureTextEntry />
+              <Pressable onPress={() => router.push("/forgot-password")}>
+                <Text className="text-right font-SatoshiMedium text-primary">
+                  Forgot Password ?
+                </Text>
+              </Pressable>
             </View>
 
             <View className="w-full items-end pb-6">

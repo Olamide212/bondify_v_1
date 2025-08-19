@@ -78,7 +78,7 @@ const Interests = () => {
         >
           <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <View className="flex-1 px-4">
-              <Text className="text-[25px] font-SatoshiBold text-app mt-8 mb-4">
+              <Text className="text-3xl font-SatoshiBold  mt-8 mb-4">
                 What are your interests?
               </Text>
 

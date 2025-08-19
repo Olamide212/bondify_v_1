@@ -47,11 +47,11 @@ const Validation = () => {
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View className="flex-1 ">
 
-            <View className="flex-1 mx-4 mt-8">
+            <View className="flex-1 px-2 mt-8">
               <Text className="text-3xl font-SatoshiBold text-black">
                 Enter verification code
               </Text>
-              <Text className="mb-7 text-black text-lg font-SatoshiMedium">
+              <Text className="mb-7 text-black text-lg font-Satoshi">
                 Please enter verification code sent to your phone number
               </Text>
 

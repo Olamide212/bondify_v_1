@@ -3,18 +3,15 @@ import {
   SafeAreaView,
   Text,
   View,
-  KeyboardAvoidingView,
-  Platform,
   TouchableWithoutFeedback,
   Keyboard,
   TouchableOpacity,
   Image,
-  FlatList,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import NextButton from "../../../../components/ui/NextButton";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import NextButton from "../../../../components/ui/NextButton";
 
 const UploadPhoto = () => {
   const router = useRouter();
@@ -39,26 +36,32 @@ const UploadPhoto = () => {
     }
   };
 
+  const removeImage = (index) => {
+    const updatedPhotos = [...photos];
+    updatedPhotos[index] = null;
+    setPhotos(updatedPhotos);
+  };
+
   return (
     <SafeAreaView className="flex-1 bg-white">
-    
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <View className="flex-1 px-4">
-            <View className="mt-8 mb-6">
-              <Text className="text-[25px] font-SatoshiBold text-app mb-2">
-                Upload your photos
-              </Text>
-              <Text className="text-app  text-sm">
-                We'd love to see you. Upload a photo for your dating journey. Upload at least 3 clearer pictures
-              </Text>
-            </View>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <View className="flex-1 px-2">
+          {/* Title + Subtitle */}
+          <View className="mb-6 mt-8">
+            <Text className="text-3xl font-SatoshiBold  mb-2">
+              Add your photos
+            </Text>
+            <Text className="text-lg  font-Satoshi">
+              Members with 6 photos find their match faster
+            </Text>
+          </View>
 
-            {/* Photo Upload Boxes */}
-            <View className="flex-1 flex-row flex-wrap  justify-between gap-y-4">
-              {photos.map((photo, index) => (
+          {/* Photo grid */}
+          <View className="flex-row flex-wrap justify-between gap-y-4">
+            {photos.map((photo, index) => (
+              <View key={index} className="w-[30%] aspect-square relative">
                 <TouchableOpacity
-                  key={index}
-                  className="w-[30%] h-[22%] border  border-[#dadada]  rounded-xl items-center justify-center"
+                  className="w-full h-full border-2 border-dashed border-gray-300 rounded-xl items-center justify-center bg-gray-50"
                   onPress={() => pickImage(index)}
                   activeOpacity={0.7}
                 >
@@ -66,27 +69,61 @@ const UploadPhoto = () => {
                     <Image
                       source={{ uri: photo }}
                       className="w-full h-full rounded-xl"
-                      contentFit="cover"
+                      resizeMode="cover"
                     />
                   ) : (
-                    <Ionicons name="camera" size={28} color="#dadada" />
+                    <Ionicons name="add" size={32} color="#FF0066" />
                   )}
                 </TouchableOpacity>
-              ))}
-            </View>
-            {/* Next Button */}
-            <View className="w-full items-end pb-6 mt-10">
-              <NextButton
-                variant="gradient"
-                onPress={() => {
-                  // You could validate or store `photos` here
-                  router.push("/profile-answers");
-                }}
+
+                {/* Remove button */}
+                {photo && (
+                  <TouchableOpacity
+                    onPress={() => removeImage(index)}
+                    className="absolute -top-2 -right-2 bg-black rounded-full p-1"
+                  >
+                    <Ionicons name="close" size={16} color="white" />
+                  </TouchableOpacity>
+                )}
+              </View>
+            ))}
+          </View>
+
+          {/* Info text */}
+          <View className="mt-6 gap-2">
+            <View className="flex-row items-start">
+              <Ionicons
+                name="information-circle-outline"
+                size={16}
+                color="gray"
+                style={{ marginTop: 2 }}
               />
+              <Text className="ml-2 font-Satoshi text-gray-600 text-sm">
+                Add photos of you where you can clearly see your face.
+              </Text>
+            </View>
+            <View className="flex-row items-start">
+              <Ionicons
+                name="information-circle-outline"
+                size={16}
+                color="gray"
+                style={{ marginTop: 2 }}
+              />
+              <Text className="ml-2 font-Satoshi text-gray-600 text-sm">
+                Photos that don’t clearly show you will be removed.
+              </Text>
             </View>
           </View>
-        </TouchableWithoutFeedback>
-    
+
+          {/* Next button */}
+          <View className="absolute bottom-6 right-4">
+            <NextButton
+              variant="gradient"
+              onPress={() => router.push("/location-access")}
+            />
+          </View>
+        </View>
+      </TouchableWithoutFeedback>
     </SafeAreaView>
   );
 };

@@ -14,8 +14,8 @@ const Height = () => {
   return (
     <View className="bg-white flex-1">
       <View style={styles.container}>
-        <Text style={styles.title}>How Tall Are You?</Text>
-        <Text style={styles.subtitle}>
+        <Text className="text-3xl font-SatoshiBold">How Tall Are You?</Text>
+        <Text className='text-lg font-Satoshi mb-4'>
           Please provide your height in centimeters
         </Text>
 

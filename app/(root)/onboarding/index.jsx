@@ -38,12 +38,8 @@ const Onboarding = () => {
 
           {/* Text + Buttons */}
           <View className="items-center -mt-56 px-3">
-            <Text className="text-white font-SatoshiBold text-4xl text-center mb-4">
+            <Text className="text-white font-GeneralSansBold text-4xl text-center mb-4">
               Discover Love where your story begins.
-            </Text>
-            <Text className="text-white font-SatoshiMedium text-sm text-center mb-4 px-4">
-              Bondies are waiting for you, Join us to discover your ideal
-              partner and ignite the sparks of romance in your journey.
             </Text>
 
             {/* Buttons */}
@@ -56,13 +52,15 @@ const Onboarding = () => {
                 variant="white"
               />
               <Button
-                title="Create Account"
+                title="Create an Account"
                 onPress={() => router.push("/register")}
-                className="mb-3"
+                className="mb-3 bg-transparent border-[1.5px] border-white"
                 textClassName="font-santoshiMedium"
                 variant="black"
-            
               />
+              <Text className="text-white font-GeneralSansMedium text-lg text-center mb-4 px-4">
+              By joining our platform, you agree to our Terms and Condtion
+              </Text>
             </View>
           </View>
         </View>

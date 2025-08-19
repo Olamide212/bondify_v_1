@@ -31,10 +31,10 @@ const Gender = () => {
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View className="flex-1 px-2">
             <View className="flex-1 mt-8">
-              <Text className="text-[25px] font-SatoshiBold text-app mb-2">
+              <Text className="text-3xl font-SatoshiBold mb-2">
                 What’s Your Gender?
               </Text>
-              <Text className="text-app font-Satoshi">
+              <Text className="text-lg font-Satoshi">
                 Tell us about your gender
               </Text>
 

@@ -30,7 +30,7 @@ const Religion = () => {
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View className="flex-1 px-2">
             <View className="flex-1 mt-8">
-              <Text className="text-[25px] font-SatoshiBold text-app mb-2">
+              <Text className="text-3xl font-SatoshiBold text-app mb-2">
             Your religion or spiritual belief?
               </Text>
 

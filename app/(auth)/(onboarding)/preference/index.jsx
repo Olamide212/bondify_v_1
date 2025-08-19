@@ -30,12 +30,11 @@ const Preference = () => {
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View className="flex-1 px-2">
             <View className="flex-1 mt-8">
-              <Text className="text-[25px] font-SatoshiBold text-app mb-2">
-              What are you hoping to find on Bondify?
+              <Text className="text-3xl font-SatoshiBold  mb-2">
+                What are you hoping to find on Bondify?
               </Text>
-              <Text className="text-app font-Satoshi">
+              <Text className="text-lg font-Satoshi">
                 Provide us with further insights into your preferences
-              
               </Text>
 
               <View>
@@ -43,12 +42,20 @@ const Preference = () => {
                   value={gender}
                   onChange={setGender}
                   options={[
-                    { label: "A committed relationship", value: "relationship" },
-                    { label: "Something Casual", value: "casual" },
-                    { label: "Marriage", value: "marriage" },
-                    { label: "Finding a Date", value: "finding-a-date" },
-                    { label: "Meet business oriented people", value: "business" },
-                    { label: "I am not sure", value: "not-sure" },
+                    {
+                      label: "A committed relationship",
+                      value: "A committed relationship",
+                    },
+                    { label: "Something Casual", value: "Something Casual" },
+                    { label: "Long Term Fun", value: "Long Term Fun" },
+                    { label: "Short Term Fun", value: "Short Term Fun" },
+                    { label: "Marriage", value: "Marriage" },
+                    { label: "Finding a Date", value: "Finding a Date" },
+                    { label: "New Friend", value: "New Friend" },
+                    {
+                      label: "Meet business oriented people",
+                      value: "Meet business oriented people",
+                    },
                   ]}
                   className="mt-2"
                 />

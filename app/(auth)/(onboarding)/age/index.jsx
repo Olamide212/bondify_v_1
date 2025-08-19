@@ -40,8 +40,8 @@ const Age = () => {
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 100 }, (_, i) => currentYear - i); 
 
-  const [selectedDay, setSelectedDay] = useState(5);
-  const [selectedMonth, setSelectedMonth] = useState(0); 
+  const [selectedDay, setSelectedDay] = useState(4);
+  const [selectedMonth, setSelectedMonth] = useState(4); 
   const [selectedYear, setSelectedYear] = useState(currentYear - 25);
   const [age, setAge] = useState(null);
 
@@ -59,8 +59,8 @@ const Age = () => {
   return (
     <View className="bg-white flex-1">
       <View style={styles.container}>
-        <Text style={styles.title}>Whats your date of birth?</Text>
-        <Text style={styles.subtitle}>
+        <Text className='text-3xl font-SatoshiBold'>Whats your date of birth?</Text>
+        <Text className='text-lg font-Satoshi'>
           We’ll use this to calculate your age
         </Text>
 

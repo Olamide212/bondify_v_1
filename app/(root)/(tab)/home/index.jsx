@@ -48,32 +48,20 @@ const Home = () => {
         <View style={{ flex: 1 }}>
           <HomeHeader title="Home" />
 
-          {/* Tab Navigation */}
-          <HomeScreenTabs activeTab={activeTab} setActiveTab={setActiveTab} />
-
-          {/* Tab Content */}
-          {activeTab === "Around you" && (
             <AroundYouTab
               profile={currentProfile}
               actionMessage={flashMessage}
             />
-          )}
-
-          {activeTab === "Top Picks" && (
-            <TopPicksTab profile={currentProfile} />
-          )}
-
-          {activeTab === "Matchmaker pick" && <MatchmakingTab />}
 
           {/* Action Buttons (only for Around You tab) */}
-          {activeTab === "Around you" && (
+
             <View style={styles.actionButtonWrapper}>
               <ActionButtons
                 onSwipe={handleSwipe}
                 onSuperLike={handleSuperLike}
               />
             </View>
-          )}
+    
         </View>
       </SafeAreaView>
     </SafeAreaProvider>
@@ -83,7 +71,7 @@ const Home = () => {
 const styles = StyleSheet.create({
   actionButtonWrapper: {
     position: "absolute",
-    bottom: -15,
+    bottom: 0,
     left: 0,
     right: 0,
     paddingHorizontal: 20,

@@ -22,18 +22,13 @@ import { images } from "../constant/images";
 // ✅ TabIcon Component
 const TabIcon = ({ focused, Icon, customImage }) => {
   return focused ? (
-    <LinearGradient
-      colors={["#FD465C", "#A80EC1"]}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-      style={styles.gradientIcon}
-    >
+    <View style={styles.gradientIcon}>
       {customImage ? (
         <Image source={customImage} style={styles.iconImageWhite} />
       ) : (
-        <Icon size={26} color="#fff" />
+        <Icon size={28} color="#FF0066" />
       )}
-    </LinearGradient>
+    </View>
   ) : (
     <View style={styles.iconContainer}>
       {customImage ? (
@@ -54,12 +49,12 @@ const RootTabs = () => {
       screenOptions={{
         tabBarShowLabel: false,
         tabBarStyle: {
-          height: 100,
-          paddingBottom: 40,
+          height: 90,
           borderTopWidth: 0,
           elevation: 0,
           shadowOpacity: 0,
           paddingTop: 10,
+
         },
       }}
     >
@@ -139,14 +134,14 @@ const styles = StyleSheet.create({
     borderRadius: 25,
   },
   iconImageWhite: {
-    width: 24,
-    height: 24,
-    tintColor: "#fff",
+    width: 27,
+    height: 27,
+    tintColor: "#FF0066",
     resizeMode: "contain",
   },
   iconImageGray: {
-    width: 26,
-    height: 26,
+    width: 24,
+    height: 24,
     tintColor: "#8E8E8E",
     resizeMode: "contain",
   },

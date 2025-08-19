@@ -281,7 +281,7 @@ export default function LikesMatches() {
                   style={{
                     fontFamily: "SatoshiBold",
                     fontSize: 14,
-                    color: activeTab === "visitedYou" ? "#FF0066" : "#6B7280",
+                    color: activeTab === "visitedYou" ? "#000" : "#6B7280",
                   }}
                 >
                   Visited You ({VisitedYou.length})
@@ -302,7 +302,7 @@ export default function LikesMatches() {
                   style={{
                     fontFamily: "SatoshiBold",
                     fontSize: 14,
-                    color: activeTab === "likedYou" ? "#FF0066" : "#6B7280",
+                    color: activeTab === "likedYou" ? "#000" : "#6B7280",
                   }}
                 >
                   Liked You ({LikedYou.length})
@@ -323,7 +323,7 @@ export default function LikesMatches() {
                   style={{
                     fontFamily: "SatoshiBold",
                     fontSize: 14,
-                    color: activeTab === "youLiked" ? "#FF0066" : "#6B7280",
+                    color: activeTab === "youLiked" ? "#000" : "#6B7280",
                   }}
                 >
                   You Liked ({YouLiked.length})

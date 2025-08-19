@@ -1,6 +1,4 @@
-import { View, Text } from 'react-native'
-import React from 'react'
-import { Stack } from 'expo-router'
+import { Stack } from "expo-router";
 
 export default function _layout() {
   return (
@@ -9,6 +7,16 @@ export default function _layout() {
       <Stack.Screen name="splash-screen" />
       <Stack.Screen name="onboarding" />
       <Stack.Screen name="welcome" />
+
+      <Stack.Screen
+        name="filter"
+        options={{
+          presentation: "modal", // Native modal style
+          animation: "slide_from_bottom", // iOS-style slide up
+          gestureDirection: "vertical", // Swipe down to close
+          headerShown: false,
+        }}
+      />
     </Stack>
   );
 }

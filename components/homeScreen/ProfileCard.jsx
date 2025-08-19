@@ -28,6 +28,7 @@ import { colors } from "../../constant/colors";
 import { useRouter } from "expo-router";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { ScrollView } from "react-native-gesture-handler";
+import CommentButton from "../ui/CommentButton";
 
 const MAX_BIO_LENGTH = 120;
 const { width } = Dimensions.get("window");
@@ -65,24 +66,50 @@ const ProfileCard = ({ profile }) => {
   return (
     <View className="relative ">
       {/* Fixed Back Icon */}
-      <Pressable
-        className="absolute top-16 left-6 bg-black/40 rounded-full p-3 z-50"
-        onPress={() => router.back()}
-      >
-        <ChevronLeft color="white" size={20} />
-      </Pressable>
+
       <ScrollView contentContainerStyle={{ paddingBottom: 80 }}>
+        <View>
+          <Pressable
+            className="absolute top-16 left-6 bg-black/40 rounded-full p-3 z-50"
+            onPress={() => router.back()}
+          >
+            <ChevronLeft color="white" size={20} />
+          </Pressable>
+        </View>
+
         <View className="">
-          <View className=" shadow-lg overflow-hidden bg-white">
+          <View
+            className=" shadow-lg overflow-hidden bg-white"
+            style={{
+              width: "100%",
+              height: 600,
+              borderBottomLeftRadius: 30,
+              borderBottomRightRadius: 30,
+            }}
+          >
             <TouchableWithoutFeedback onPress={handlePress}>
               <View className="relative h-[600px] w-full">
                 <Image
-                  source={{ uri: profile?.images?.[currentImageIndex] }}
+                  source={{ uri: profile?.images?.[1] }}
                   className="w-full h-full"
                   contentFit="cover"
+                  style={{
+                    width: "100%",
+                    height: 600,
+                    borderBottomLeftRadius: 30,
+                    borderBottomRightRadius: 30,
+                  }}
                 />
 
-                <View className="absolute inset-0 bg-black/20 rounded-b-3xl" />
+                <View
+                  className="absolute inset-0 bg-black/20 rounded-b-3xl"
+                  style={{
+                    width: "100%",
+                    height: 600,
+                    borderBottomLeftRadius: 30,
+                    borderBottomRightRadius: 30,
+                  }}
+                />
 
                 <View className="absolute bottom-6 left-6 right-6">
                   <View className="flex-row items-center mb-2">
@@ -196,7 +223,7 @@ const ProfileCard = ({ profile }) => {
                 {profile.distance && (
                   <View className="w-1/2 px-1.5 mb-3">
                     <View className="bg-gray-100 rounded-lg p-3 flex-row items-center gap-3">
-                      <MapPin color={colors.primary} size={20} />
+                      <MapPin color={"black"} size={20} />
                       <Text className="text-app text-lg">
                         {profile.distance}
                       </Text>
@@ -207,7 +234,7 @@ const ProfileCard = ({ profile }) => {
                 {profile.occupation && (
                   <View className="w-1/2 px-1.5 mb-3">
                     <View className="bg-gray-100 rounded-lg p-3 flex-row items-center gap-3">
-                      <Briefcase color={colors.primary} size={20} />
+                      <Briefcase color={"black"} size={20} />
                       <Text className="text-app text-lg">
                         {profile.occupation}
                       </Text>
@@ -218,7 +245,7 @@ const ProfileCard = ({ profile }) => {
                 {profile.height && (
                   <View className="w-1/2 px-1.5 mb-3">
                     <View className="bg-gray-100 rounded-lg p-3 flex-row items-center gap-3">
-                      <Ruler color={colors.primary} size={20} />
+                      <Ruler color={"black"} size={20} />
                       <Text className="text-app text-lg">{profile.height}</Text>
                     </View>
                   </View>
@@ -230,7 +257,7 @@ const ProfileCard = ({ profile }) => {
                       <MaterialCommunityIcons
                         name="hands-pray"
                         size={24}
-                        color={colors.primary}
+                        color={"black"}
                       />
                       <Text className="text-app text-lg">
                         {profile.religion}
@@ -242,7 +269,7 @@ const ProfileCard = ({ profile }) => {
                 {profile.drinking && (
                   <View className="w-1/2 px-1.5 mb-3">
                     <View className="bg-gray-100 rounded-lg p-3 flex-row items-center gap-3">
-                      <Wine color={colors.primary} size={20} />
+                      <Wine color={"black"} size={20} />
                       <Text className="text-app text-lg">
                         {profile.drinking}
                       </Text>
@@ -253,7 +280,7 @@ const ProfileCard = ({ profile }) => {
                 {profile.smoking && (
                   <View className="w-1/2 px-1.5 mb-3">
                     <View className="bg-gray-100 rounded-lg p-3 flex-row items-center gap-3">
-                      <Cigarette color={colors.primary} size={20} />
+                      <Cigarette color={"black"} size={20} />
                       <Text className="text-app text-lg">
                         {profile.smoking}
                       </Text>
@@ -264,7 +291,7 @@ const ProfileCard = ({ profile }) => {
                 {profile.children && (
                   <View className="w-1/2 px-1.5 mb-3">
                     <View className="bg-gray-100 rounded-lg p-3 flex-row items-center gap-3">
-                      <Baby color={colors.primary} size={20} />
+                      <Baby color={"black"} size={20} />
                       <Text className="text-app text-lg">
                         {profile.children}
                       </Text>
@@ -275,7 +302,7 @@ const ProfileCard = ({ profile }) => {
                 {profile.pets && (
                   <View className="w-1/2 px-1.5 mb-3">
                     <View className="bg-gray-100 rounded-lg p-3 flex-row items-center gap-3">
-                      <Dog color={colors.primary} size={20} />
+                      <Dog color={"black"} size={20} />
                       <Text className="text-app text-lg">{profile.pets}</Text>
                     </View>
                   </View>
@@ -284,7 +311,7 @@ const ProfileCard = ({ profile }) => {
                 {profile.exercise && (
                   <View className="w-1/2 px-1.5 mb-3">
                     <View className="bg-gray-100 rounded-lg p-3 flex-row items-center gap-3">
-                      <Dumbbell color={colors.primary} size={20} />
+                      <Dumbbell color={"black"} size={20} />
                       <Text className="text-app text-lg">
                         {profile.exercise}
                       </Text>
@@ -294,14 +321,25 @@ const ProfileCard = ({ profile }) => {
               </View>
             </View>
 
-            <View className="relative h-[500px] w-full mb-4">
+            <View
+              className="relative h-[500px] w-full mb-4"
+              style={{ borderRadius: 20 }}
+            >
               <Image
-                source={{ uri: profile?.images?.[1] }}
+                source={{ uri: profile?.images?.[0] }}
                 className="w-full h-full"
                 contentFit="cover"
+                style={{ width: "100%", height: 500, borderRadius: 20 }}
               />
 
-              <View className="absolute inset-0 bg-black/20 rounded-3xl" />
+              <View
+                className="absolute inset-0 bg-black/20"
+                style={{ borderRadius: 20 }}
+              />
+              <View className="absolute bottom-4 right-4">
+                {" "}
+                <CommentButton />
+              </View>
             </View>
 
             {/* Education */}
@@ -319,29 +357,39 @@ const ProfileCard = ({ profile }) => {
             )}
 
             {/* Questions */}
-            {profile.questions?.length > 0 &&
-              profile.questions.map((item, index) => (
-                <View
-                  key={index}
-                  className="bg-white mb-4 p-5 rounded-2xl"
-                >
-                  <Text className="text-app font-Satoshi text-base mb-2">
-                    {item.question}
-                  </Text>
-                  <Text className="text-app font-SatoshiBold text-2xl leading-relaxed">
-                    {item.answer}
-                  </Text>
-                </View>
-              ))}
+            <>
+              {profile.questions?.length > 0 &&
+                profile.questions.map((item, index) => (
+                  <View key={index} className="bg-white  mb-4 p-5 rounded-2xl">
+                    <Text className="text-app font-Satoshi text-base mb-2">
+                      {item.question}
+                    </Text>
+                    <Text className="text-app font-SatoshiBold text-2xl leading-relaxed">
+                      {item.answer}
+                    </Text>
+                  </View>
+                ))}
+            </>
 
-            <View className="relative h-[500px] w-full mb-4">
+            <View
+              className="relative h-[500px] w-full mb-4"
+              style={{ borderRadius: 20 }}
+            >
               <Image
-                source={{ uri: profile?.images?.[2] }}
+                source={{ uri: profile?.images?.[1] }}
                 className="w-full h-full"
                 contentFit="cover"
+                style={{ width: "100%", height: 500, borderRadius: 20 }}
               />
 
-              <View className="absolute inset-0 bg-black/20 rounded-3xl" />
+              <View
+                className="absolute inset-0 bg-black/20"
+                style={{ borderRadius: 20 }}
+              />
+              <View className="absolute bottom-4 right-4">
+                {" "}
+                <CommentButton />
+              </View>
             </View>
 
             {/* Interests */}

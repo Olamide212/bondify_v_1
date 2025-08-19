@@ -8,6 +8,7 @@ import { View, StatusBar, StyleSheet } from "react-native";
 
 
 
+
 // Prevent auto-hide as soon as app starts
 SplashScreen.preventAutoHideAsync();
 
