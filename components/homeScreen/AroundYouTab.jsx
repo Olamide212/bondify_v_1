@@ -76,9 +76,7 @@ const AroundYouTab = ({ profile, actionMessage }) => {
           />
           {/* Dark overlay */}
           <View style={styles.overlay} />
-          <View className='z-40 absolute right-4 top-4'>
-            <CommentButton />
-          </View>
+          
         </Animated.View>
 
         <View style={styles.topInfo}>

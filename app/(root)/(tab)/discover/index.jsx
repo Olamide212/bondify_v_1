@@ -22,19 +22,20 @@ const Discover = () => {
 
   return (
     <SafeAreaProvider>
-      <SafeAreaView className="flex-1 z-40  bg-white">
+      <SafeAreaView className="flex-1 z-40  bg-white relative">
         <View style={{ flex: 1 }}>
-    <GeneralHeader title="Discover" />
+          <GeneralHeader title="Discover" />
 
           {/* Tab Navigation */}
-          <HomeScreenTabs activeTab={activeTab} setActiveTab={setActiveTab} />
+          <View style={styles.actionButtonWrapper} >
+            <HomeScreenTabs activeTab={activeTab} setActiveTab={setActiveTab} />
+          </View>
 
           {activeTab === "Top picks" && (
             <TopPicksTab profile={currentProfile} />
           )}
 
-          {activeTab === "Matchmaker pick" && <MatchmakingTab />}
-
+          {activeTab === "Matchmaker" && <MatchmakingTab />}
         </View>
       </SafeAreaView>
     </SafeAreaProvider>
@@ -44,10 +45,9 @@ const Discover = () => {
 const styles = StyleSheet.create({
   actionButtonWrapper: {
     position: "absolute",
-    bottom: -5,
+    top: 80,
     left: 0,
     right: 0,
-    paddingHorizontal: 20,
     alignItems: "center",
     zIndex: 10,
   },

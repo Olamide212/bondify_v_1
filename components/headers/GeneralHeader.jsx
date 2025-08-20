@@ -5,13 +5,14 @@ import Entypo from "@expo/vector-icons/Entypo";
 import { useRouter } from "expo-router";
 import {images} from "../../constant/images"
 
-const HeaderWithLogo = ({ title }) => {
+const HeaderWithLogo = ({ title, icon, onPress }) => {
 const router = useRouter()    
 
   return (
     <View className="flex-row items-center justify-between px-4 py-4 ">
-    
       <Text className="text-black  text-3xl font-SatoshiBold">{title}</Text>
+      <Pressable onPress={onPress}>{icon}</Pressable>
+
     </View>
   );
 };
