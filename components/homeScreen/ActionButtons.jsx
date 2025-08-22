@@ -1,8 +1,16 @@
 import React from "react";
-import { View, TouchableOpacity } from "react-native";
-import { X, Heart, WandSparkles, ThumbsUp } from "lucide-react-native";
+import { View, TouchableOpacity, Image } from "react-native";
+import {
+  X,
+  Heart,
+  WandSparkles,
+  ThumbsUp,
+  ThumbsDown,
+} from "lucide-react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import Entypo from "@expo/vector-icons/Entypo";
+import { images } from "../../constant/images"
+import { colors } from "../../constant/colors";
 
 const ActionButtons = ({ onSwipe, onSuperLike }) => (
   <View className="flex-row justify-between items-center gap-4 px-8 py-6">
@@ -11,7 +19,7 @@ const ActionButtons = ({ onSwipe, onSuperLike }) => (
       onPress={() => onSwipe("left")}
       className="w-16 h-16 bg-white rounded-full items-center justify-center shadow"
     >
-      <Entypo name="hand" size={26} color="#FF0066" />
+      <ThumbsDown size={26} color={colors.primary} />
     </TouchableOpacity>
 
     {/* Superlike Button with Gradient 
@@ -49,9 +57,20 @@ const ActionButtons = ({ onSwipe, onSuperLike }) => (
     {/* Like Button */}
     <TouchableOpacity
       onPress={() => onSwipe("right")}
-      className="w-16 h-16 bg-[#FF0066] rounded-full items-center justify-center shadow"
+      className="w-20 h-20 bg-primary rounded-full items-center justify-center shadow"
     >
-      <Heart color="#FFf" size={28} fill="#FFf" />
+      <WandSparkles size={26} color="#FFf" />
+    </TouchableOpacity>
+
+    <TouchableOpacity
+      onPress={() => onSwipe("left")}
+      className="w-16 h-16 bg-white rounded-full items-center justify-center shadow"
+    >
+      <Image
+        source={images.bondifyIconColored}
+        resizeMode="contain"
+        style={{ width: 25, height: 25 }}
+      />
     </TouchableOpacity>
   </View>
 );

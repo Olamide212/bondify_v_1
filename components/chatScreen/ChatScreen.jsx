@@ -14,6 +14,7 @@ import Header from "../headers/ChatHeader";
 import MessageBubble from "./MessageBubble";
 import InputToolbar from "./InputToolbar";
 import { formatRelativeDate } from "../../utils/helper";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 
 const ChatScreen = ({ matchedUser, onBack }) => {
@@ -68,51 +69,53 @@ const ChatScreen = ({ matchedUser, onBack }) => {
   if (!matchedUser) return null;
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-    >
-      <Header matchedUser={matchedUser} onBack={onBack} />
-
-      <ScrollView
-        ref={scrollViewRef}
-        style={styles.messagesContainer}
-        contentContainerStyle={styles.messagesContent}
-        onContentSizeChange={() =>
-          scrollViewRef.current?.scrollToEnd({ animated: true })
-        }
+    <SafeAreaView className='flex-1'>
+      <KeyboardAvoidingView
+        style={styles.container}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
-        <View style={styles.matchBanner}>
-          <View style={styles.bannerContent}>
-            <Text style={styles.bannerText}>
-              You matched with {matchedUser.name}{" "}
-              {formatRelativeDate(matchedUser.matchedDate)}
-            </Text>
-          </View>
-        </View>
+        <Header matchedUser={matchedUser} onBack={onBack} />
 
-        {messages.map((message) => (
-          <MessageBubble key={message.id} message={message} />
-        ))}
-
-        {isTyping && (
-          <View
-            style={[
-              styles.messageBubbleContainer,
-              styles.theirMessageContainer,
-            ]}
-          >
-            <View style={[styles.messageBubble, styles.theirMessageBubble]}>
-              <Text style={[styles.messageText, styles.theirMessageText]}>
-                Typing...
+        <ScrollView
+          ref={scrollViewRef}
+          style={styles.messagesContainer}
+          contentContainerStyle={styles.messagesContent}
+          onContentSizeChange={() =>
+            scrollViewRef.current?.scrollToEnd({ animated: true })
+          }
+        >
+          <View style={styles.matchBanner}>
+            <View style={styles.bannerContent}>
+              <Text style={styles.bannerText}>
+                You matched with {matchedUser.name}{" "}
+                {formatRelativeDate(matchedUser.matchedDate)}
               </Text>
             </View>
           </View>
-        )}
-      </ScrollView>
 
-      <InputToolbar sendMessage={sendMessage} />
-    </KeyboardAvoidingView>
+          {messages.map((message) => (
+            <MessageBubble key={message.id} message={message} />
+          ))}
+
+          {isTyping && (
+            <View
+              style={[
+                styles.messageBubbleContainer,
+                styles.theirMessageContainer,
+              ]}
+            >
+              <View style={[styles.messageBubble, styles.theirMessageBubble]}>
+                <Text style={[styles.messageText, styles.theirMessageText]}>
+                  Typing...
+                </Text>
+              </View>
+            </View>
+          )}
+        </ScrollView>
+
+        <InputToolbar sendMessage={sendMessage} />
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };
 

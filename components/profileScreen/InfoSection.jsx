@@ -44,9 +44,9 @@ const InfoSection = () => {
             onPress={() => console.log("Navigate to:", link)}
           >
             <View className="flex-row items-center gap-3 flex-1">
-              <Icon size={22} color="#fff" fill="#000" />
+              <Icon size={22} color="#fff" fill="#6C47FF" />
               <View className="flex-1">
-                <Text className="text-lg text-gray-800  font-SatoshiMedium">
+                <Text className="text-[18px] text-gray-800  font-SatoshiMedium">
                   {title}
                 </Text>
                 <Text className="text-base text-gray-500 font-Satoshi">
@@ -54,7 +54,6 @@ const InfoSection = () => {
                 </Text>
               </View>
             </View>
-  
           </TouchableOpacity>
         );
       })}

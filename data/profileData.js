@@ -3,6 +3,7 @@ export const profiles = [
     id: 1,
     name: "Ibitayo",
     age: 26,
+    gender: "Female",
     location: "New York, NY",
     distance: "2 km away",
     bondScore: 87,

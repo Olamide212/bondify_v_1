@@ -7,6 +7,7 @@ import {
   User,
   Star,
   Briefcase,
+    BadgeCheck,
   Pencil,
 } from "lucide-react-native";
 import { useRouter } from "expo-router";
@@ -29,7 +30,7 @@ const ProfileSection = ({ profile }) => {
         {/* Background Circle */}
         <Svg width={size} height={size} style={styles.svg}>
           <Circle
-            stroke="#e6e6e6"
+            stroke="#fff"
             fill="none"
             cx={size / 2}
             cy={size / 2}
@@ -38,7 +39,7 @@ const ProfileSection = ({ profile }) => {
           />
           {/* Progress Circle */}
           <Circle
-            stroke="#FF0066" // primary color
+            stroke="#6C47FF" // primary color
             fill="none"
             cx={size / 2}
             cy={size / 2}
@@ -59,7 +60,7 @@ const ProfileSection = ({ profile }) => {
           />
         </View>
         {profile.completion && (
-          <View className="w-16 absolute bg-[#FF0066] px-2 py-1 rounded-full top-0 z-50  right-6 flex-row justify-center items-center ">
+          <View className="w-16 absolute bg-[#6C47FF] px-2 py-1 rounded-full top-0 z-50  right-6 flex-row justify-center items-center ">
             <Text className="text-white font-SatoshiMedium font-sm">
               {completion}%
             </Text>
@@ -74,14 +75,14 @@ const ProfileSection = ({ profile }) => {
             {profile.name}, {profile.age} {profile.verified}
           </Text>
           {profile.verified && (
-            <View style={styles.verifiedBadge}>
-              <Star size={14} color="white" fill="white" />
+            <View>
+              <BadgeCheck size={18} color="#EFBF04" fill="#fff" />
             </View>
           )}
         </View>
 
         <Pressable
-          className="flex-row justify-center items-center gap-2  py-2 rounded-full mt-3 bg-black"
+          className="flex-row justify-center items-center gap-2  py-2 rounded-full mt-3 bg-[#6C47FF] "
           onPress={() => router.push("/profile-details")}
         >
           <Pencil color="white" size={16} />
@@ -126,7 +127,7 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 22,
     fontFamily: "SatoshiBold",
-    color: "#000",
+    color: "#fff",
     textAlign: "center",
   },
   percentage: {

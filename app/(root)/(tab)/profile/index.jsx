@@ -10,14 +10,17 @@ import SubscriptionBannerSlider from '../../../../components/profileScreen/Subsc
 import InfoSection from '../../../../components/profileScreen/InfoSection'
 import Perks from '../../../../components/profileScreen/BoostAndChat'
 import { ScrollView } from 'react-native-gesture-handler'
-
+import { useRouter } from 'expo-router'
 
 
 const ProfileScreen = () => {
+const router = useRouter()
+
+
   return (
     <SafeAreaProvider>
-      <SafeAreaView className="flex-1 ">
-        <GeneralHeader title="Profile" icon=<Bolt /> />
+      <SafeAreaView className="flex-1 bg-primary ">
+        <GeneralHeader title="Profile" icon=<Bolt color="#fff"  /> className='text-white' onPress={()=> router.push("/profile-details")} />
         <ScrollView contentContainerStyle={{ paddingBottom: 80 }}>
           <ProfileSection profile={profiles[0]} />
 

@@ -1,28 +1,17 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  Image,
-  TouchableOpacity,
-  Dimensions,
-  FlatList,
-} from "react-native";
-import {
-  Heart,
-  MessageCircle,
-  Star,
-  SlidersHorizontal,
-} from "lucide-react-native";
-import { LinearGradient } from "expo-linear-gradient";
+import { View, ScrollView, Dimensions, StyleSheet } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-import { ScrollView } from "react-native-gesture-handler";
 import GeneralHeader from "../../../../components/headers/GeneralHeader";
+import TabNavigation from "../../../../components/explore/exploreScreenTab";
+import VisitedYou from "../../../../components/explore/visitedYou";
+import LikedYou from "../../../../components/explore/LikedYou";
+import YouLiked from "../../../../components/explore/YouLiked";
 
 const { width } = Dimensions.get("window");
-const CARD_MARGIN = 8;
-const CARD_WIDTH = (width - 30) / 2; // Adjusted for padding and gap
+const CARD_WIDTH = (width - 30) / 2;
 
-const VisitedYou = [
+// Mock data (would typically come from API or state management)
+const VisitedYouData = [
   {
     id: 1,
     name: "Emma",
@@ -47,7 +36,7 @@ const VisitedYou = [
   },
 ];
 
-const LikedYou = [
+const LikedYouData = [
   {
     id: 3,
     name: "Sophia",
@@ -83,7 +72,7 @@ const LikedYou = [
   },
 ];
 
-const YouLiked = [
+const YouLikedData = [
   {
     id: 6,
     name: "Olivia",
@@ -108,29 +97,9 @@ const YouLiked = [
   },
 ];
 
-export default function LikesMatches() {
+export default function ExploreTabComponents() {
   const [activeTab, setActiveTab] = useState("visitedYou");
   const [selectedUsers, setSelectedUsers] = useState([]);
-
-  const currentData =
-    activeTab === "visitedYou"
-      ? VisitedYou
-      : activeTab === "likedYou"
-        ? LikedYou
-        : YouLiked;
-
-  const getTabCount = (tab) => {
-    switch (tab) {
-      case "visitedYou":
-        return VisitedYou.length;
-      case "likedYou":
-        return LikedYou.length;
-      case "youLiked":
-        return YouLiked.length;
-      default:
-        return 0;
-    }
-  };
 
   const handleUserPress = (userId) => {
     if (activeTab === "likedYou") {
@@ -142,314 +111,57 @@ export default function LikesMatches() {
     }
   };
 
-  const renderUserCard = ({ item: user }) => (
-    <TouchableOpacity
-      onPress={() => handleUserPress(user.id)}
-      style={{
-        width: CARD_WIDTH,
-        marginBottom: 16,
-        marginHorizontal: CARD_MARGIN / 2,
-        opacity: selectedUsers.includes(user.id) ? 0.75 : 1,
-      }}
-    >
-      <View
-        style={{
-          backgroundColor: "#fff",
-          borderRadius: 16,
-          overflow: "hidden",
-          elevation: 2,
-        }}
-      >
-        <View style={{ position: "relative" }}>
-          <Image
-            source={{ uri: user.image }}
-            style={{ width: "100%", height: 220 }}
-            resizeMode="cover"
+  const renderActiveTab = () => {
+    switch (activeTab) {
+      case "visitedYou":
+        return (
+          <VisitedYou data={VisitedYouData} onUserPress={handleUserPress} />
+        );
+      case "likedYou":
+        return (
+          <LikedYou
+            data={LikedYouData}
+            onUserPress={handleUserPress}
+            selectedUsers={selectedUsers}
           />
-
-          <LinearGradient
-            colors={["transparent", "rgba(0,0,0,0.7)"]}
-            style={{
-              position: "absolute",
-              left: 0,
-              right: 0,
-              bottom: 0,
-              height: 100,
-            }}
-          />
-
-          <View
-            style={{
-              position: "absolute",
-              top: 10,
-              left: 10,
-              backgroundColor: "rgba(0,0,0,0.4)",
-              borderRadius: 12,
-              paddingHorizontal: 8,
-              paddingVertical: 4,
-            }}
-          >
-            <Text style={{ color: "white", fontSize: 12 }}>{user.timeAgo}</Text>
-          </View>
-
-          {user.verified && (
-            <View
-              style={{
-                position: "absolute",
-                top: 10,
-                right: 10,
-                backgroundColor: "#3B82F6",
-                padding: 6,
-                borderRadius: 20,
-              }}
-            >
-              <Star size={14} color="white" fill="white" />
-            </View>
-          )}
-
-          {user.isMatch && (
-            <View
-              style={{
-                position: "absolute",
-                top: 10,
-                right: 10,
-                backgroundColor: "#FF0066",
-                paddingHorizontal: 10,
-                paddingVertical: 4,
-                borderRadius: 20,
-              }}
-            >
-              <Text
-                style={{ color: "white", fontSize: 12, fontWeight: "bold" }}
-              >
-                MATCH
-              </Text>
-            </View>
-          )}
-
-          <View
-            style={{
-              padding: 12,
-              position: "absolute",
-              bottom: 0,
-              left: 0,
-              right: 0,
-            }}
-          >
-            <Text style={{ color: "white", fontSize: 16, fontWeight: "bold" }}>
-              {user.name}, {user.age}
-            </Text>
-            <Text style={{ color: "rgba(255,255,255,0.8)", fontSize: 12 }}>
-              {user.distance}
-            </Text>
-          </View>
-        </View>
-      </View>
-    </TouchableOpacity>
-  );
+        );
+      case "youLiked":
+        return <YouLiked data={YouLikedData} onUserPress={handleUserPress} />;
+      default:
+        return (
+          <VisitedYou data={VisitedYouData} onUserPress={handleUserPress} />
+        );
+    }
+  };
 
   return (
     <SafeAreaProvider>
-      <SafeAreaView className="flex-1 bg-white">
-        <View>
-          <GeneralHeader title="Explore" />
+      <SafeAreaView style={{ flex: 1, }}>
+        <GeneralHeader title="Explore" />
+        <View >
+          <TabNavigation
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+            visitedCount={VisitedYouData.length}
+            likedCount={LikedYouData.length}
+            youLikedCount={YouLikedData.length}
+          />
         </View>
-        <View style={{ flex: 1 }}>
-          
-          
-          <ScrollView>
-            
-          
-            {/* Updated Tabs with consistent styling */}
-            <View
-              style={{
-                flexDirection: "row",
-                borderColor: "#E5E7EB",
-              }}
-            >
-              {/* Visited You Tab */}
-              <TouchableOpacity
-                onPress={() => setActiveTab("visitedYou")}
-                style={{
-                  flex: 1,
-                  paddingVertical: 14,
-                  alignItems: "center",
-          
-                }}
-              >
-                <Text
-                  style={{
-                    fontFamily: "SatoshiBold",
-                    fontSize: 14,
-                    color: activeTab === "visitedYou" ? "#000" : "#6B7280",
-                  }}
-                >
-                  Visited You ({VisitedYou.length})
-                </Text>
-              </TouchableOpacity>
 
-              {/* Liked You Tab */}
-              <TouchableOpacity
-                onPress={() => setActiveTab("likedYou")}
-                style={{
-                  flex: 1,
-                  paddingVertical: 14,
-                  alignItems: "center",
-                
-                }}
-              >
-                <Text
-                  style={{
-                    fontFamily: "SatoshiBold",
-                    fontSize: 14,
-                    color: activeTab === "likedYou" ? "#000" : "#6B7280",
-                  }}
-                >
-                  Liked You ({LikedYou.length})
-                </Text>
-              </TouchableOpacity>
-
-              {/* You Liked Tab */}
-              <TouchableOpacity
-                onPress={() => setActiveTab("youLiked")}
-                style={{
-                  flex: 1,
-                  paddingVertical: 14,
-                  alignItems: "center",
-                
-                }}
-              >
-                <Text
-                  style={{
-                    fontFamily: "SatoshiBold",
-                    fontSize: 14,
-                    color: activeTab === "youLiked" ? "#000" : "#6B7280",
-                  }}
-                >
-                  You Liked ({YouLiked.length})
-                </Text>
-              </TouchableOpacity>
-            </View>
-
-            <View style={{ padding: 16 }}>
-              {/* Visited You Banner */}
-              {activeTab === "visitedYou" && (
-                <LinearGradient
-                  colors={["#4F46E5", "#7C3AED"]}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 0 }}
-                  style={{
-                    borderRadius: 16,
-                    padding: 16,
-                    marginBottom: 16,
-                  }}
-                >
-                  <Text
-                    style={{
-                      color: "white",
-                      fontSize: 16,
-                      fontFamily: "SatoshiBold",
-                      marginBottom: 4,
-                    }}
-                  >
-                    👀 {VisitedYou.length} people visited your profile!
-                  </Text>
-                  <Text
-                    style={{
-                      color: "white",
-                      fontSize: 14,
-                      fontFamily: "SatoshiMedium",
-                    }}
-                  >
-                    Check out who's interested in you.
-                  </Text>
-                </LinearGradient>
-              )}
-
-              {/* Liked You Banner */}
-              {activeTab === "likedYou" && (
-                <LinearGradient
-                  colors={["#FD465C", "#A80EC1"]}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 0 }}
-                  style={{
-                    borderRadius: 16,
-                    padding: 16,
-                    marginBottom: 16,
-                  }}
-                >
-                  <Text
-                    style={{
-                      color: "white",
-                      fontSize: 16,
-                      fontFamily: "SatoshiBold",
-                      marginBottom: 4,
-                    }}
-                  >
-                    💕 {LikedYou.length} people like you!
-                  </Text>
-                  <Text
-                    style={{
-                      color: "white",
-                      fontSize: 14,
-                      fontFamily: "SatoshiMedium",
-                    }}
-                  >
-                    Like them back to start a conversation.
-                  </Text>
-                </LinearGradient>
-              )}
-
-              {/* You Liked Banner */}
-              {activeTab === "youLiked" && (
-                <LinearGradient
-                  colors={["#0EA5E9", "#06B6D4"]}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 0 }}
-                  style={{
-                    borderRadius: 16,
-                    padding: 16,
-                    marginBottom: 16,
-                  }}
-                >
-                  <Text
-                    style={{
-                      color: "white",
-                      fontSize: 16,
-                      fontFamily: "SatoshiBold",
-                      marginBottom: 4,
-                    }}
-                  >
-                    🎉 You like {YouLiked.length} people!
-                  </Text>
-                  <Text
-                    style={{
-                      color: "white",
-                      fontSize: 14,
-                      fontFamily: "SatoshiMedium",
-                    }}
-                  >
-                    Stay calm while they like you back.
-                  </Text>
-                </LinearGradient>
-              )}
-            </View>
-
-            {/* Card Grid */}
-            <FlatList
-              data={currentData}
-              keyExtractor={(item) => item.id.toString()}
-              renderItem={renderUserCard}
-              numColumns={2}
-              contentContainerStyle={{
-                paddingHorizontal: 8,
-                paddingBottom: 100,
-              }}
-              showsVerticalScrollIndicator={false}
-            />
-          </ScrollView>
-        </View>
+        <ScrollView style={{ flex: 1,  }}>{renderActiveTab()}</ScrollView>
       </SafeAreaView>
     </SafeAreaProvider>
   );
 }
+
+
+const styles = StyleSheet.create({
+  actionButtonWrapper: {
+    position: "absolute",
+    top: 110,
+    left: 0,
+    right: 0,
+    alignItems: "center",
+    zIndex: 10,
+  },
+});

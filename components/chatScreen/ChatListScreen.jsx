@@ -10,26 +10,28 @@ import {
 import { MoreVertical } from "lucide-react-native";
 import { formatRelativeDate } from "../../utils/helper";
 import { colors } from "../../constant/colors";
+import GeneralHeader from "../headers/GeneralHeader";
+import { EllipsisVertical, Shield } from "lucide-react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const ChatListScreen = ({ users, onSelectUser }) => {
   const newMatches = users.filter((user) => !user.hasChatted); 
 
   return (
-    <View style={styles.listContainer}>
-      <View className="px-4 flex-row justify-between pb-4">
-        <Text className="text-black text-xl font-SatoshiBold">
-          New Matches
-        </Text>
-        <TouchableOpacity>
-          <MoreVertical color="#6B7280" />
-        </TouchableOpacity>
-      </View>
-
+    <SafeAreaView style={styles.listContainer}>
+      <GeneralHeader
+        title="Messages"
+        icon=<Shield color="#fff" fill="#fff" />
+        className="text-white"
+      />
       {/* Horizontal Scroll of New Matches */}
+      <Text className="text-white font-SatoshiBold pl-5 pb-2 text-lg pt-2">
+        New Matches
+      </Text>
       {newMatches.length > 0 && (
-        <View style={styles.newMatchesWrapper}>
+        <View style={styles.newMatchesWrapper} className="">
           <FlatList
-            data={[{ id: "summary" }, ...newMatches]} 
+            data={[{ id: "summary" }, ...newMatches]}
             horizontal
             keyExtractor={(item) => item.id}
             showsHorizontalScrollIndicator={false}
@@ -37,9 +39,13 @@ const ChatListScreen = ({ users, onSelectUser }) => {
             renderItem={({ item, index }) => {
               if (item.id === "summary") {
                 return (
-                  <View className='bg-primary mr-5 w-28 justify-center items-center rounded-lg'>
-                    <Text className='text-white font-SatoshiBold text-3xl '>{newMatches.length}</Text>
-                    <Text className='text-center text-white font-SatoshiBold'>New{"\n"}Matches</Text>
+                  <View className="bg-secondary mr-5 w-28 justify-center items-center rounded-lg">
+                    <Text className="text-white font-SatoshiBold text-3xl ">
+                      {newMatches.length}
+                    </Text>
+                    <Text className="text-center text-white font-SatoshiBold">
+                      New{"\n"}Matches
+                    </Text>
                   </View>
                 );
               }
@@ -53,7 +59,11 @@ const ChatListScreen = ({ users, onSelectUser }) => {
                     source={{ uri: item.profileImage }}
                     style={styles.newMatchImage}
                   />
-                  <Text style={styles.newMatchName} numberOfLines={1}>
+                  <Text
+                    style={styles.newMatchName}
+                    numberOfLines={1}
+                    className="font-SatoshiBold"
+                  >
                     {item.name}
                   </Text>
                 </TouchableOpacity>
@@ -63,10 +73,8 @@ const ChatListScreen = ({ users, onSelectUser }) => {
         </View>
       )}
 
-      <View>
-        <Text className="px-4 mt-2 text-app font-SatoshiBold text-xl">
-          All Messages
-        </Text>
+      <View className="bg-white flex-1 rounded-t-3xl pt-3">
+        <Text className="pl-5 pt-4 font-SatoshiBold text-lg">Active chats</Text>
         <FlatList
           data={users}
           keyExtractor={(item) => item.id}
@@ -85,7 +93,11 @@ const ChatListScreen = ({ users, onSelectUser }) => {
 
               <View style={styles.matchInfo}>
                 <Text style={styles.matchName}>{item.name}</Text>
-                <Text style={styles.matchMessage} numberOfLines={1}>
+                <Text
+                  style={styles.matchMessage}
+                  numberOfLines={1}
+                  className="font-Satoshi"
+                >
                   {item.lastMessage}
                 </Text>
               </View>
@@ -105,15 +117,15 @@ const ChatListScreen = ({ users, onSelectUser }) => {
         />
       </View>
       {/* Chat List */}
-    </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   listContainer: {
     flex: 1,
-    backgroundColor: "#fff",
-    paddingTop: 16,
+    backgroundColor: colors.primary,
+
   },
 
   listTitle: {
@@ -122,7 +134,7 @@ const styles = StyleSheet.create({
     color: "#111",
   },
   newMatchesWrapper: {
-    paddingBottom: 12,
+    paddingBottom: 20,
     flexDirection: "row",
     justifyContent: "space-between",
   },
@@ -139,9 +151,10 @@ const styles = StyleSheet.create({
   },
   newMatchName: {
     fontSize: 12,
-    color: "#374151",
+    color: "#fff",
     marginTop: 4,
     textAlign: "center",
+
   },
   matchItem: {
     flexDirection: "row",

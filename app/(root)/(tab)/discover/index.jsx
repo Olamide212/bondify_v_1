@@ -27,15 +27,16 @@ const Discover = () => {
           <GeneralHeader title="Discover" />
 
           {/* Tab Navigation */}
-          <View style={styles.actionButtonWrapper} >
+          <View>
             <HomeScreenTabs activeTab={activeTab} setActiveTab={setActiveTab} />
           </View>
+          <View className='mt-3'>
+            {activeTab === "Top picks" && (
+              <TopPicksTab profile={currentProfile} />
+            )}
 
-          {activeTab === "Top picks" && (
-            <TopPicksTab profile={currentProfile} />
-          )}
-
-          {activeTab === "Matchmaker" && <MatchmakingTab />}
+            {activeTab === "Matchmaker" && <MatchmakingTab />}
+          </View>
         </View>
       </SafeAreaView>
     </SafeAreaProvider>
@@ -45,7 +46,7 @@ const Discover = () => {
 const styles = StyleSheet.create({
   actionButtonWrapper: {
     position: "absolute",
-    top: 80,
+    top: 60,
     left: 0,
     right: 0,
     alignItems: "center",

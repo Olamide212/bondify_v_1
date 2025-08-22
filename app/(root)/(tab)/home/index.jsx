@@ -5,9 +5,7 @@ import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import ActionButtons from "../../../../components/homeScreen/ActionButtons";
 import { profiles } from "../../../../data/profileData";
 import AroundYouTab from "../../../../components/homeScreen/AroundYouTab";
-import TopPicksTab from "../../../../components/homeScreen/TopPicksTab";
-import MatchmakingTab from "../../../../components/homeScreen/MatchmakingTab";
-import HomeScreenTabs from "../../../../components/homeScreen/HomeScreenTabs";
+
 
 const Home = () => {
   const [currentProfileIndex, setCurrentProfileIndex] = useState(0);
@@ -71,7 +69,7 @@ const Home = () => {
 const styles = StyleSheet.create({
   actionButtonWrapper: {
     position: "absolute",
-    bottom: 0,
+    bottom: -9,
     left: 0,
     right: 0,
     paddingHorizontal: 20,

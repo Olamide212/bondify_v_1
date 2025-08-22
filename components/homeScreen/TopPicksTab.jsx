@@ -82,6 +82,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "white",
+    marginHorizontal: 14
   },
   topPicksTitle: {
     fontSize: 18,
@@ -96,7 +97,7 @@ const styles = StyleSheet.create({
   },
   gridItem: {
     flex: 1,
-    margin: 4,
+    margin: 6,
     borderRadius: 16,
     overflow: "hidden",
     aspectRatio: 0.8,

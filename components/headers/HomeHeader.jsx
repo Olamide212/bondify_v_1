@@ -13,7 +13,7 @@ const HomeHeader = () => {
   return (
     <View className="flex-row items-center justify-between bg-transparent  py-2">
       <Image
-        source={images.bondifyLogoColored}
+        source={images.bondifyMainLogo}
         style={{ width: 110, height: 40 }}
         contentFit="contain"
       />

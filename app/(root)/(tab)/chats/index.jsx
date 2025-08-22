@@ -6,6 +6,10 @@ import ChatScreen from "../../../../components/chatScreen/ChatScreen";
 import { matchedUsers } from "../../../../data/mockData";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 
+
+import { colors } from "../../../../constant/colors";
+import { StatusBar } from "expo-status-bar";
+
 export default function Chat() {
   const [currentScreen, setCurrentScreen] = useState("list");
   const [selectedUser, setSelectedUser] = useState(null);
@@ -22,7 +26,9 @@ export default function Chat() {
 
   return (
     <SafeAreaProvider>
-      <SafeAreaView style={styles.container}>
+
+      <View style={styles.container}>
+    
         {currentScreen === "list" ? (
           <ChatListScreen
             users={matchedUsers}
@@ -31,7 +37,7 @@ export default function Chat() {
         ) : (
           <ChatScreen matchedUser={selectedUser} onBack={handleBackToList} />
         )}
-      </SafeAreaView>
+      </View>
     </SafeAreaProvider>
   );
 }

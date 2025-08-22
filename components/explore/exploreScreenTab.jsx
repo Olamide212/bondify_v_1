@@ -2,35 +2,60 @@ import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { colors } from "../../constant/colors";
 
-const HomeScreenTabs = ({ activeTab, setActiveTab }) => {
-  const tabs = ["Around you", "Top picks", "Matchmaker"];
+const ExploreScreenTab = ({
+  activeTab,
+  setActiveTab,
+  visitedCount,
+  likedCount,
+  youLikedCount,
+}) => {
+  // map tabs with their counts
+  const tabs = [
+    { key: "visitedYou", label: "Visited You", count: visitedCount },
+    { key: "likedYou", label: "Liked You", count: likedCount },
+    { key: "youLiked", label: "You Liked", count: youLikedCount },
+  ];
 
   return (
     <View>
       <View style={styles.tabsContainer}>
-        {tabs.map((tab) => (
+        {tabs.map(({ key, label, count }) => (
           <TouchableOpacity
-            key={tab}
+            key={key}
             style={styles.tabWrapper}
-            onPress={() => setActiveTab(tab)}
+            onPress={() => setActiveTab(key)}
           >
             <View
               style={[
                 styles.tabButton,
-                activeTab === tab && styles.activeTabButton,
+                activeTab === key && styles.activeTabButton,
               ]}
             >
               <Text
                 style={[
                   styles.tabText,
-                  activeTab === tab && styles.activeTabText,
+                  activeTab === key && styles.activeTabText,
                 ]}
               >
-                {tab}
+                {label}
               </Text>
-              {tab === "Matchmaker" && (
-                <View style={styles.aiBadge}>
-                  <Text style={styles.aiBadgeText}>AI</Text>
+
+              {/* badge */}
+              {typeof count === "number" && (
+                <View
+                  style={[
+                    styles.badge,
+                    activeTab === key && styles.activeBadge,
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.badgeText,
+                      activeTab === key && styles.activeBadgeText,
+                    ]}
+                  >
+                    {count}
+                  </Text>
                 </View>
               )}
             </View>
@@ -52,19 +77,17 @@ const styles = StyleSheet.create({
     borderRadius: 100,
     alignSelf: "center",
 
-
     // Drop shadow
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.15,
     shadowRadius: 6,
-    elevation: 5, // required for Android
+    elevation: 5,
   },
 
   tabWrapper: {
-    flex: 1, // each tab shares equal space
+    flex: 1,
     alignItems: "center",
-    alignSelf: "center"
   },
   tabButton: {
     flexDirection: "row",
@@ -73,13 +96,9 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 16,
     borderRadius: 50,
-    alignSelf: "center", // makes active tab wrap its content
   },
   activeTabButton: {
     backgroundColor: colors.primary,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center"
   },
   tabText: {
     fontSize: 13,
@@ -90,18 +109,26 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontFamily: "SatoshiBold",
   },
-  aiBadge: {
-    backgroundColor: "#000",
-    borderRadius: 8,
+
+  badge: {
+    backgroundColor: "#eee",
+    borderRadius: 10,
     paddingHorizontal: 6,
     paddingVertical: 2,
-    marginLeft: 4,
+    marginLeft: 6,
   },
-  aiBadgeText: {
-    color: "white",
-    fontSize: 10,
-    fontWeight: "bold",
+  badgeText: {
+    color: "#333",
+    fontSize: 11,
+    fontFamily: "SatoshiMedium",
+  },
+  activeBadge: {
+    backgroundColor: "#fff",
+  },
+  activeBadgeText: {
+    color: colors.primary,
+    fontFamily: "SatoshiBold",
   },
 });
 
-export default HomeScreenTabs;
+export default ExploreScreenTab;

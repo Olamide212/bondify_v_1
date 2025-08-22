@@ -1,14 +1,13 @@
-import React from "react";
-import { View, Text } from "react-native";
-import { Briefcase, GraduationCap, MapPin } from "lucide-react-native";
+import { View, Text } from 'react-native'
+import React from 'react'
 
-const BasicInfo = ({ profile }) => {
+const ProfileCard = ({profile, title, subTitle, name}) => {
   return (
-    <View className="px-6 py-4 bg-white mx-4 rounded-2xl">
+   <View className="px-6 py-4 bg-white mx-4 rounded-2xl">
       <Text className="mb-2 font-SatoshiMedium text-lg text-gray-500">Basic Bio</Text>
       <View className="flex-row items-center mb-1">
         <Text className="text-black text-3xl font-SatoshiBold">
-          {profile.name}{" "}
+          {name}
         </Text>
       </View>
       <View className="flex-row items-center mb-1">
@@ -17,7 +16,7 @@ const BasicInfo = ({ profile }) => {
         </Text>
       </View>
     </View>
-  );
-};
+  )
+}
 
-export default BasicInfo;
+export default ProfileCard
