@@ -8,7 +8,14 @@ import {
   Animated,
   useWindowDimensions,
 } from "react-native";
-import { Heart, MapPin, User, Star, Briefcase } from "lucide-react-native";
+import {
+  Heart,
+  MapPin,
+  User,
+  Star,
+  Briefcase,
+  ChevronRight,
+} from "lucide-react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { BlurView } from "expo-blur";
 import { useRouter } from "expo-router";
@@ -75,19 +82,18 @@ const AroundYouTab = ({ profile, actionMessage }) => {
             style={styles.image}
           />
           {/* Dark overlay */}
-          <View style={styles.overlay} />
-          
+        
         </Animated.View>
 
         <View style={styles.topInfo}>
           <View style={styles.topInfoLeft}>
-            {/* Bond Score */}
+            {/* Bond Score 
             {profile.bondScore !== undefined && (
               <View className="bg-white/20 flex-row items-center p-2 rounded-full">
                 <Heart size={16} color="white" fill="white" />
                 <Text style={styles.bondText}>{profile.bondScore}%</Text>
               </View>
-            )}
+            )}*/}
 
             {/* Image Pagination */}
             {totalImages > 1 && (
@@ -111,7 +117,7 @@ const AroundYouTab = ({ profile, actionMessage }) => {
           colors={["transparent", "rgba(0,0,0,0.8)"]}
           style={styles.bottomGradient}
         >
-          <BlurView className="bg-white/70 p-6 mx-4 left-0 right-0  rounded-2xl absolute overflow-hidden  ">
+          <View className="px-5 flex-row justify-between items-center">
             <View style={styles.profileHeader}>
               <View style={styles.nameContainer}>
                 <Text style={styles.name}>{profile.name}</Text>
@@ -123,31 +129,24 @@ const AroundYouTab = ({ profile, actionMessage }) => {
                   </View>
                 )}
               </View>
-
-              <TouchableOpacity
-                style={styles.profileButton}
-                onPress={handleNavigateToProfile}
-              >
-                <User size={24} color="white" />
-              </TouchableOpacity>
+              {/* Occupation */}
+              <View className="flex-row justify-between mt-2">
+                {profile.location && (
+                  <View style={styles.occupationContainer}>
+                    <MapPin size={18} color="rgba(255,255,255,0.8)" />
+                    <Text style={styles.occupation}>{profile.distance}</Text>
+                  </View>
+                )}
+              </View>
             </View>
 
-            {/* Occupation */}
-            <View className="flex-row justify-between">
-              {profile.occupation && (
-                <View style={styles.occupationContainer}>
-                  <Briefcase size={16} color="rgba(255,255,255,0.8)" />
-                  <Text style={styles.occupation}>{profile.occupation}</Text>
-                </View>
-              )}
-              {profile.location && (
-                <View style={styles.occupationContainer}>
-                  <MapPin size={16} color="rgba(255,255,255,0.8)" />
-                  <Text style={styles.occupation}>{profile.distance}</Text>
-                </View>
-              )}
-            </View>
-          </BlurView>
+            <TouchableOpacity
+              style={styles.profileButton}
+              onPress={handleNavigateToProfile}
+            >
+              <ChevronRight size={24} color="white" />
+            </TouchableOpacity>
+          </View>
         </LinearGradient>
       </TouchableOpacity>
     </View>
@@ -159,24 +158,24 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   imageTouchContainer: {
-    height: 650,
-    borderRadius: 30,
+    height: "100%",
+
     overflow: "hidden",
   },
   imageContainer: {
     flex: 1,
-    borderRadius: 24,
+
     overflow: "hidden",
   },
   image: {
     width: "100%",
     height: "100%",
-    borderRadius: 30,
+
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: "rgba(0,0,0,0.15)",
-    borderRadius: 24,
+
   },
 
   actionMessage: {
@@ -210,12 +209,12 @@ const styles = StyleSheet.create({
   },
   topInfo: {
     position: "absolute",
-    top: 20,
+    top: 70,
     left: 0,
     right: 0,
     flexDirection: "row",
     justifyContent: "space-between",
-    paddingHorizontal: 20,
+    paddingHorizontal: 5,
     zIndex: 20,
   },
   topInfoLeft: {
@@ -251,9 +250,7 @@ const styles = StyleSheet.create({
     marginLeft: 15,
   },
   profileHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+
     marginBottom: 5,
   },
   nameContainer: {
@@ -262,12 +259,12 @@ const styles = StyleSheet.create({
   },
   name: {
     color: "white",
-    fontSize: 28,
+    fontSize: 30,
     fontFamily: "SatoshiBold",
   },
   age: {
     color: "white",
-    fontSize: 28,
+    fontSize: 30,
     fontFamily: "SatoshiBold",
   },
   verifiedBadge: {
@@ -296,7 +293,7 @@ const styles = StyleSheet.create({
   },
   occupation: {
     color: "rgba(255,255,255,0.9)",
-    fontSize: 16,
+    fontSize: 18,
     marginLeft: 8,
     fontFamily: "SatoshiMedium",
     maxWidth: 150,

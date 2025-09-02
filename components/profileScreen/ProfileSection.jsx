@@ -18,7 +18,7 @@ const ProfileSection = ({ profile }) => {
   const router = useRouter()
 
   // Circle setup
-  const size = 150; // overall size
+  const size = 110; // overall size
   const strokeWidth = 6;
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
@@ -30,7 +30,7 @@ const ProfileSection = ({ profile }) => {
         {/* Background Circle */}
         <Svg width={size} height={size} style={styles.svg}>
           <Circle
-            stroke="#fff"
+            stroke="#dadada"
             fill="none"
             cx={size / 2}
             cy={size / 2}
@@ -39,7 +39,7 @@ const ProfileSection = ({ profile }) => {
           />
           {/* Progress Circle */}
           <Circle
-            stroke="#6C47FF" // primary color
+            stroke="#4B164C" // primary color
             fill="none"
             cx={size / 2}
             cy={size / 2}
@@ -60,7 +60,7 @@ const ProfileSection = ({ profile }) => {
           />
         </View>
         {profile.completion && (
-          <View className="w-16 absolute bg-[#6C47FF] px-2 py-1 rounded-full top-0 z-50  right-6 flex-row justify-center items-center ">
+          <View className="w-16 absolute bg-primary px-2 py-1 rounded-full top-0 z-50  right-6 flex-row justify-center items-center ">
             <Text className="text-white font-SatoshiMedium font-sm">
               {completion}%
             </Text>
@@ -76,13 +76,14 @@ const ProfileSection = ({ profile }) => {
           </Text>
           {profile.verified && (
             <View>
-              <BadgeCheck size={18} color="#EFBF04" fill="#fff" />
+              <BadgeCheck size={25} color="#fff" fill="#EFBF04" />
             </View>
           )}
         </View>
 
         <Pressable
-          className="flex-row justify-center items-center gap-2  py-2 rounded-full mt-3 bg-[#6C47FF] "
+          className="flex-row justify-center items-center gap-2  py-2 rounded-full mt-3 
+          bg-primary "
           onPress={() => router.push("/profile-details")}
         >
           <Pencil color="white" size={16} />
@@ -95,10 +96,14 @@ const ProfileSection = ({ profile }) => {
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: "col",
+    flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
-    marginVertical: 20,
+    gap: 10,
+    backgroundColor: "#fff",
+    marginHorizontal: 15,
+    marginTop: 20,
+    padding: 20,
+    borderRadius: 10
   },
   svg: {
     position: "absolute",
@@ -117,17 +122,17 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   image: {
-    width: 130,
-    height: 130,
+    width: 90,
+    height: 90,
     borderRadius: 100,
   },
   infoWrapper: {
     marginTop: 10,
   },
   name: {
-    fontSize: 22,
+    fontSize: 26,
     fontFamily: "SatoshiBold",
-    color: "#fff",
+    color: "#000",
     textAlign: "center",
   },
   percentage: {

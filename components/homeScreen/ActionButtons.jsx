@@ -13,13 +13,13 @@ import { images } from "../../constant/images"
 import { colors } from "../../constant/colors";
 
 const ActionButtons = ({ onSwipe, onSuperLike }) => (
-  <View className="flex-row justify-between items-center gap-4 px-8 py-6">
+  <View className="flex-row justify-between items-center gap-2 px-8 py-6">
     {/* Dislike Button */}
     <TouchableOpacity
       onPress={() => onSwipe("left")}
-      className="w-16 h-16 bg-white rounded-full items-center justify-center shadow"
+      className="w-14 h-14 bg-white rounded-full items-center justify-center shadow"
     >
-      <ThumbsDown size={26} color={colors.primary} />
+      <X size={26} color="black" fill="#979797" />
     </TouchableOpacity>
 
     {/* Superlike Button with Gradient 
@@ -56,21 +56,17 @@ const ActionButtons = ({ onSwipe, onSuperLike }) => (
 
     {/* Like Button */}
     <TouchableOpacity
-      onPress={() => onSwipe("right")}
-      className="w-20 h-20 bg-primary rounded-full items-center justify-center shadow"
+
+      className="w-[70px] h-[70px] bg-primary rounded-full items-center justify-center shadow"
     >
-      <WandSparkles size={26} color="#FFf" />
+      <WandSparkles size={30} color="white" fill="white" />
     </TouchableOpacity>
 
     <TouchableOpacity
-      onPress={() => onSwipe("left")}
-      className="w-16 h-16 bg-white rounded-full items-center justify-center shadow"
+      onPress={() => onSwipe("right")}
+      className="w-14 h-14 bg-white rounded-full items-center justify-center shadow"
     >
-      <Image
-        source={images.bondifyIconColored}
-        resizeMode="contain"
-        style={{ width: 25, height: 25 }}
-      />
+      <Heart size={26} color="#FB3857" fill="#FB3857" />
     </TouchableOpacity>
   </View>
 );

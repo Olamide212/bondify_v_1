@@ -19,9 +19,19 @@ const router = useRouter()
 
   return (
     <SafeAreaProvider>
-      <SafeAreaView className="flex-1 bg-primary ">
-        <GeneralHeader title="Profile" icon=<Bolt color="#fff"  /> className='text-white' onPress={()=> router.push("/profile-details")} />
-        <ScrollView contentContainerStyle={{ paddingBottom: 80 }}>
+      <SafeAreaView className="flex-1 bg-[#fff] ">
+        <GeneralHeader
+          title="Profile"
+          icon=<Bolt color="#4B164C" />
+          className="text-black"
+          onPress={() => router.push("/profile-details")}
+        />
+        <ScrollView
+          contentContainerStyle={{
+            paddingBottom: 80,
+            backgroundColor: "#f1f1f1",
+          }}
+        >
           <ProfileSection profile={profiles[0]} />
 
           <InfoSection />

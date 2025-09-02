@@ -4,15 +4,15 @@ import {
   FlatList,
   TouchableOpacity,
   TextInput,
-  StyleSheet,
+    StyleSheet,
   Modal
 } from "react-native";
 import React, { useState, useMemo } from "react";
-import { useLocalSearchParams, useRouter } from "expo-router";
-import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-import GeneralHeader from "../../../../components/headers/GeneralHeader";
-import { ArrowLeft } from "lucide-react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { SafeAreaView } from "react-native-safe-area-context";
+import GeneralHeader from "../../components/headers/GeneralHeader"
+import { ArrowLeft } from "lucide-react-native";
+
 
 const africanCountries = [
   { key: "dz", value: "Algeria" },
@@ -71,7 +71,7 @@ const africanCountries = [
   { key: "zw", value: "Zimbabwe" },
 ];
 
-const Nationality = ({ visible, onClose, onSelect }) => {
+const NationalityModal = ({ visible, onClose, onSelect }) => {
   const [search, setSearch] = useState("");
 
   const filteredCountries = africanCountries.filter((country) =>
@@ -85,45 +85,45 @@ const Nationality = ({ visible, onClose, onSelect }) => {
       visible={visible}
       onRequestClose={onClose}
     >
-      <View style={styles.container}>
-        {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity onPress={onClose} style={styles.backButton}>
-            <Ionicons name="arrow-back" size={24} color="black" />
-          </TouchableOpacity>
-          <Text style={styles.headerText}>Select Nationality</Text>
+      <SafeAreaView style={styles.container}>
+        <View>
+          {/* Header */}
+          <GeneralHeader
+            title="Select Nationality"
+            leftIcon=<ArrowLeft onPress={onClose} />
+          />
+
+          {/* Search */}
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search nationality..."
+            value={search}
+            onChangeText={setSearch}
+          />
+
+          {/* List */}
+          <FlatList
+            data={filteredCountries}
+            keyExtractor={(item) => item.key}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                style={styles.item}
+                onPress={() => {
+                  onSelect(item.value);
+                  onClose();
+                }}
+              >
+                <Text style={styles.itemText}>{item.value}</Text>
+              </TouchableOpacity>
+            )}
+          />
         </View>
-
-        {/* Search */}
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Search nationality..."
-          value={search}
-          onChangeText={setSearch}
-        />
-
-        {/* List */}
-        <FlatList
-          data={filteredCountries}
-          keyExtractor={(item) => item.key}
-          renderItem={({ item }) => (
-            <TouchableOpacity
-              style={styles.item}
-              onPress={() => {
-                onSelect(item.value);
-                onClose();
-              }}
-            >
-              <Text style={styles.itemText}>{item.value}</Text>
-            </TouchableOpacity>
-          )}
-        />
-      </View>
+      </SafeAreaView>
     </Modal>
   );
 };
 
-export default Nationality;
+export default NationalityModal;
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "white" },
@@ -134,15 +134,18 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: "#ddd",
   },
-  backButton: { marginRight: 10 },
-  headerText: { fontSize: 18, fontWeight: "bold" },
   searchInput: {
     borderWidth: 1,
     borderColor: "#ddd",
     borderRadius: 8,
     margin: 15,
-    padding: 10,
+    padding: 15,
   },
-  item: { padding: 15, borderBottomWidth: 1, borderBottomColor: "#eee" },
+  item: {
+    padding: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: "#eee",
+    fontFamily: "SatoshiMedium",
+  },
   itemText: { fontSize: 16 },
 });

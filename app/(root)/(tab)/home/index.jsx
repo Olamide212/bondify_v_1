@@ -41,28 +41,19 @@ const Home = () => {
   };
 
   return (
-    <SafeAreaProvider>
-      <SafeAreaView className="flex-1 z-40 px-4 bg-white">
-        <View style={{ flex: 1 }}>
-          <HomeHeader title="Home" />
+    <View style={{ flex: 1 }} className='relative'>
+      <View className='absolute top-12 right-4 z-50'>
+        <HomeHeader title="Home" />
+      </View>
 
-            <AroundYouTab
-              profile={currentProfile}
-              actionMessage={flashMessage}
-            />
+      <AroundYouTab profile={currentProfile} actionMessage={flashMessage} />
 
-          {/* Action Buttons (only for Around You tab) */}
+      {/* Action Buttons (only for Around You tab) */}
 
-            <View style={styles.actionButtonWrapper}>
-              <ActionButtons
-                onSwipe={handleSwipe}
-                onSuperLike={handleSuperLike}
-              />
-            </View>
-    
-        </View>
-      </SafeAreaView>
-    </SafeAreaProvider>
+      <View style={styles.actionButtonWrapper}>
+        <ActionButtons onSwipe={handleSwipe} onSuperLike={handleSuperLike} />
+      </View>
+    </View>
   );
 };
 
@@ -72,7 +63,7 @@ const styles = StyleSheet.create({
     bottom: -9,
     left: 0,
     right: 0,
-    paddingHorizontal: 20,
+
     alignItems: "center",
     zIndex: 10,
   },

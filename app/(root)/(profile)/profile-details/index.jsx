@@ -57,28 +57,7 @@ const ProfileDetails = () => {
       "https://picsum.photos/id/1013/300/300",
       "https://picsum.photos/id/1014/300/300",
     ],
-    name: "Samantha, 24",
-    location: "New York",
-    verification: "Gold Verified",
-    work: "Art Director",
-    about: "👼 Hi. When a user passes on a match...",
-    answers: [
-      {
-        prompt: "A pro and a con of dating me...",
-        answer: "I’m funny but stubborn",
-      },
-      { prompt: "Perfect first date...", answer: "On the beach" },
-    ],
-    info: [
-      { label: "Ethnicity", value: "Black/African Descent" },
-      { label: "Height", value: "172 cm" },
-      { label: "Kids", value: "Don’t have kids, Don’t want kids" },
-      { label: "Education level", value: "" },
-      { label: "Drinking", value: "Sometimes" },
-      { label: "Smoking", value: "Non-smoker" },
-      { label: "Religion", value: "" },
-      { label: "Covid-19 Vaccination", value: "" },
-    ],
+
   };
 
   return (
@@ -89,7 +68,13 @@ const ProfileDetails = () => {
           leftIcon=<ArrowLeft />
           className="bg-white"
         />
-        <ScrollView className="flex-1 pb-0 bg-gray-100">
+        <ScrollView
+          className="flex-1"
+          contentContainerStyle={{
+            paddingBottom: 40,
+            backgroundColor: "#f1f1f1",
+          }}
+        >
           <ProfilePhotoGrid photos={user.photos} />
           <Verification profile={profiles[0]} />
           <BasicInfo profile={profiles[0]} />
@@ -97,7 +82,7 @@ const ProfileDetails = () => {
 
           <Location profile={profiles[0]} />
           <Education profile={profiles[0]} />
-          <School profile={profiles[0]} />
+          <School onUpdateSchool={profile} />
           <Occupation profile={profiles[0]} />
 
           <ProfileAnswers profile={profiles[0]} />

@@ -18,6 +18,7 @@ import ChatScreen from "./(root)/(tab)/chats";
 import ProfileScreen from "./(root)/(tab)/profile";
 import MatchesScreen from "./(root)/(tab)/matches";
 import { images } from "../constant/images";
+import { colors } from "../constant/colors";
 
 // ✅ TabIcon Component
 const TabIcon = ({ focused, Icon, customImage }) => {
@@ -26,7 +27,7 @@ const TabIcon = ({ focused, Icon, customImage }) => {
       {customImage ? (
         <Image source={customImage} style={styles.iconImageWhite} />
       ) : (
-        <Icon size={28} color="#FF0066" />
+        <Icon size={28} color={colors.primary} />
       )}
     </View>
   ) : (
@@ -136,7 +137,7 @@ const styles = StyleSheet.create({
   iconImageWhite: {
     width: 27,
     height: 27,
-    tintColor: "#FF0066",
+    tintColor: colors.primary,
     resizeMode: "contain",
   },
   iconImageGray: {

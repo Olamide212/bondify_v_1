@@ -1,5 +1,4 @@
 // components/modals/BaseModal.js
-
 import React, { useEffect, useRef, useState } from "react";
 import {
   Modal,
@@ -12,7 +11,7 @@ import {
 
 const { height } = Dimensions.get("window");
 
-const BaseModal = ({ visible, onClose, children }) => {
+const BaseModal = ({ visible, onClose, children, fullScreen = false }) => {
   const [showModal, setShowModal] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(height)).current;
@@ -20,58 +19,75 @@ const BaseModal = ({ visible, onClose, children }) => {
   useEffect(() => {
     if (visible) {
       setShowModal(true);
-      Animated.parallel([
-        Animated.timing(fadeAnim, {
-          toValue: 1,
-          duration: 300,
-          useNativeDriver: true,
-        }),
-        Animated.timing(slideAnim, {
-          toValue: 0,
-          duration: 300,
-          useNativeDriver: true,
-        }),
-      ]).start();
+
+      if (!fullScreen) {
+        // Animate only for bottom-sheet
+        Animated.parallel([
+          Animated.timing(fadeAnim, {
+            toValue: 1,
+            duration: 300,
+            useNativeDriver: true,
+          }),
+          Animated.timing(slideAnim, {
+            toValue: 0,
+            duration: 300,
+            useNativeDriver: true,
+          }),
+        ]).start();
+      }
     } else {
-      Animated.parallel([
-        Animated.timing(fadeAnim, {
-          toValue: 0,
-          duration: 200,
-          useNativeDriver: true,
-        }),
-        Animated.timing(slideAnim, {
-          toValue: height,
-          duration: 200,
-          useNativeDriver: true,
-        }),
-      ]).start(() => {
+      if (!fullScreen) {
+        Animated.parallel([
+          Animated.timing(fadeAnim, {
+            toValue: 0,
+            duration: 200,
+            useNativeDriver: true,
+          }),
+          Animated.timing(slideAnim, {
+            toValue: height,
+            duration: 200,
+            useNativeDriver: true,
+          }),
+        ]).start(() => {
+          setShowModal(false);
+        });
+      } else {
         setShowModal(false);
-      });
+      }
     }
-  }, [visible]);
+  }, [visible, fullScreen]);
 
   if (!showModal) return null;
 
   return (
     <Modal
       visible={showModal}
-      transparent
-      animationType="none"
+      transparent={!fullScreen}
+      animationType={fullScreen ? "slide" : "none"}
+      presentationStyle={fullScreen ? "fullScreen" : "overFullScreen"}
       onRequestClose={onClose}
     >
-      <TouchableWithoutFeedback onPress={onClose}>
-        <Animated.View style={[styles.overlay, { opacity: fadeAnim }]} />
-      </TouchableWithoutFeedback>
+      {!fullScreen && (
+        <TouchableWithoutFeedback onPress={onClose}>
+          <Animated.View style={[styles.overlay, { opacity: fadeAnim }]} />
+        </TouchableWithoutFeedback>
+      )}
 
-      <Animated.View
-        style={[
-          styles.modalContent,
-          { transform: [{ translateY: slideAnim }] },
-        ]}
-      >
-        <View style={styles.handle} />
-        {children}
-      </Animated.View>
+      {fullScreen ? (
+        // Full screen content
+        <View style={styles.fullScreenContent}>{children}</View>
+      ) : (
+        // Bottom sheet content
+        <Animated.View
+          style={[
+            styles.modalContent,
+            { transform: [{ translateY: slideAnim }] },
+          ]}
+        >
+          <View style={styles.handle} />
+          {children}
+        </Animated.View>
+      )}
     </Modal>
   );
 };
@@ -89,8 +105,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     backgroundColor: "#fff",
-
-    maxHeight: "100%", // Limit modal height
+    maxHeight: "100%",
     width: "100%",
     paddingVertical: 20,
     borderTopLeftRadius: 20,
@@ -103,5 +118,9 @@ const styles = StyleSheet.create({
     borderRadius: 3,
     alignSelf: "center",
     marginBottom: 20,
+  },
+  fullScreenContent: {
+    flex: 1,
+    backgroundColor: "#fff",
   },
 });

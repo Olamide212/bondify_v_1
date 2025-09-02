@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   SafeAreaView,
   Text,
@@ -10,10 +10,8 @@ import {
   ScrollView,
   TouchableOpacity,
 } from "react-native";
-import NextButton from "../../../../components/ui/NextButton";
-import { useRouter } from "expo-router";
+import BaseModal from "./BaseModal";
 
-// Example occupation list
 const occupationOptions = [
   "Software Developer",
   "Graphic Designer",
@@ -47,41 +45,55 @@ const occupationOptions = [
   "Others",
 ];
 
-const Occupation = () => {
-  const router = useRouter();
-  const [selectedOccupation, setSelectedOccupation] = useState(null);
+const OccupationModal = ({ visible, onClose, onSelect, initialSelected }) => {
+  const [selectedOccupation, setSelectedOccupation] = useState(initialSelected);
+
+  useEffect(() => {
+    setSelectedOccupation(initialSelected);
+  }, [initialSelected]);
 
   const handleSelect = (item) => {
     setSelectedOccupation(item);
+    onSelect(item); // send to parent
+    onClose(); // close after selection
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
-      <KeyboardAvoidingView
-        className="flex-1"
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 20 : 0}
-      >
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <View className="flex-1 px-2">
-            <View className="flex-1 mt-8">
-              <Text className="text-3xl font-SatoshiBold  mb-4">
-                What's your occupation?
-              </Text>
+    <BaseModal
+      onClose={onClose}
+      visible={visible}
+    fullScreen
+    >
+      <SafeAreaView className="flex-1 bg-white">
+        <KeyboardAvoidingView
+          className="flex-1"
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          keyboardVerticalOffset={Platform.OS === "ios" ? 20 : 0}
+        >
+          <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+            <View className="flex-1 px-4">
+              {/* Header */}
+              <View className="mt-6 mb-6">
+                <Text className="text-3xl font-SatoshiBold">
+                  What's your occupation?
+                </Text>
+              </View>
 
+              {/* Options */}
               <ScrollView
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={{
-                  flexWrap: "wrap",
                   flexDirection: "row",
+                  flexWrap: "wrap",
                   gap: 8,
+                  paddingBottom: 50,
                 }}
               >
                 {occupationOptions.map((item) => (
                   <TouchableOpacity
                     key={item}
                     onPress={() => handleSelect(item)}
-                    className={`px-4 py-2 rounded-full  border ${
+                    className={`px-4 py-2 rounded-full border ${
                       selectedOccupation === item
                         ? "bg-primary border-primary"
                         : "bg-white border-[#D1D1D1]"
@@ -100,19 +112,11 @@ const Occupation = () => {
                 ))}
               </ScrollView>
             </View>
-
-            <View className="w-full items-end pb-6">
-              <NextButton
-                variant="gradient"
-                onPress={() => router.push("/smoke")}
-                disabled={!selectedOccupation}
-              />
-            </View>
-          </View>
-        </TouchableWithoutFeedback>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+          </TouchableWithoutFeedback>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+    </BaseModal>
   );
 };
 
-export default Occupation;
+export default OccupationModal;

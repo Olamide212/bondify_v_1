@@ -59,7 +59,7 @@ const [selectedCommunicationOption, setSelectedCommunicationOption] = useState("
 
   const filters = [
     {
-      label: "Looking for",
+      label: "People interested",
       value: selectedOption ? selectedOption : "Select",
       key: "looking",
     },
@@ -136,18 +136,7 @@ const [selectedCommunicationOption, setSelectedCommunicationOption] = useState("
           contentContainerStyle={{ padding: 16 }}
           showsVerticalScrollIndicator={false}
         >
-          {/* Bot Suggestion */}
-          <TouchableOpacity className="bg-primary/5 flex-row items-center justify-center px-4 py-2 rounded-full mb-5">
-            <Ionicons
-              name="heart"
-              size={16}
-              color={colors.primary}
-              style={{ marginRight: 6 }}
-            />
-            <Text className="text-primary font-semibold">
-              Talk to Bondify Match Maker Bot
-            </Text>
-          </TouchableOpacity>
+        
 
           {/* Gender */}
           <Text className="text-lg font-SatoshiBold mb-2">
@@ -159,7 +148,7 @@ const [selectedCommunicationOption, setSelectedCommunicationOption] = useState("
                 key={option}
                 onPress={() => setSelectedGender(option)}
                 className={`px-4 py-2 rounded-full mr-2 mb-2 ${
-                  selectedGender === option ? "bg-[#FF0066]" : "bg-gray-200"
+                  selectedGender === option ? "bg-primary" : "bg-gray-200"
                 }`}
               >
                 <Text
@@ -229,7 +218,7 @@ const [selectedCommunicationOption, setSelectedCommunicationOption] = useState("
           {filters.map((item) => (
             <TouchableOpacity
               key={item.key}
-              className="flex-row justify-between items-center py-4 border-b border-gray-200"
+              className="flex-row justify-between items-center py-6 border-b border-gray-200"
               onPress={() => setVisibleModal(item.key)}
             >
               <Text className="text-[16px] font-SatoshiMedium">

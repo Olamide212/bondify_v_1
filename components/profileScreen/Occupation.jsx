@@ -1,25 +1,49 @@
-import React from "react";
-import { View, Text, Pressable, TouchableOpacity } from "react-native";
-import { Briefcase, GraduationCap, MapPin } from "lucide-react-native";
+import React, { useState } from "react";
+import { View, Text, TouchableOpacity } from "react-native";
+import OccupationModal from "../modals/ProfileOccupationModal"; // adjust path
 
-const Occupation = ({ profile }) => {
+const Occupation = () => {
+  const [selectedOccupation, setSelectedOccupation] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+
   return (
-    <TouchableOpacity className="px-6 py-4 bg-white mx-4 rounded-2xl mt-4">
-      <Text className="mb-2 font-SatoshiMedium text-lg text-gray-500 ">
-    Occupation
-      </Text>
-      <View className=" mb-1">
-        <Text className="text-black text-2xl font-SatoshiMedium">
-          {profile.occupation}
+    <>
+      <TouchableOpacity
+        className="px-6 py-4 bg-white mx-4 rounded-2xl mt-4"
+        onPress={() => setShowModal(true)}
+      >
+        <Text className="mb-2 font-SatoshiMedium text-lg text-gray-500">
+          Occupation
         </Text>
-        <Text className="flex-1  text-lg text-primary font-SatoshiMedium">
-          Add My Occupation
-        </Text>
-      </View>
-    </TouchableOpacity>
+        <View className="mb-1">
+          {selectedOccupation ? (
+            <Text className="text-black text-2xl font-SatoshiMedium">
+              {selectedOccupation}
+            </Text>
+          ) : (
+            <Text className="text-gray-400  font-SatoshiMediumItalic">
+            No occupation added yet
+            </Text>
+          )}
+
+          <Text className="flex-1 text-lg text-primary font-SatoshiMedium mt-2">
+            {selectedOccupation ? "Change occupation" : "Add My Occupation"}
+          </Text>
+        </View>
+      </TouchableOpacity>
+
+      {/* Fullscreen modal for selecting occupation */}
+      <OccupationModal
+        visible={showModal}
+        onClose={() => setShowModal(false)}
+        onSelect={(occupation) => {
+          setSelectedOccupation(occupation);
+          setShowModal(false);
+        }}
+        initialSelected={selectedOccupation}
+      />
+    </>
   );
 };
 
 export default Occupation;
-
-

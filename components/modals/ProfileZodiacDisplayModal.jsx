@@ -1,24 +1,26 @@
 import { View } from "react-native";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import BaseModal from "./BaseModal";
 import ModalHeader from "../headers/ModalHeader";
 import { FILTER_OPTIONS } from "../../data/filterOptions";
-import OptionBox from "../../components/ui/optionBox"; // import your reusable option box
+import OptionBox from "../../components/ui/optionBox";
 
-const ZodiacModal = ({ onClose, visible, initialSelected = null, onApply }) => {
+const ProfileDisplayZodiacModal = ({
+  visible,
+  onClose,
+  onSelect,
+  initialSelected = null,
+}) => {
   const [selectedOption, setSelectedOption] = useState(initialSelected);
+
+  // keep state in sync if profileData changes
+  useEffect(() => {
+    setSelectedOption(initialSelected);
+  }, [initialSelected]);
 
   return (
     <BaseModal onClose={onClose} visible={visible}>
-      <ModalHeader
-        centerText="Zodiac Sign"
-        rightText="Apply"
-        onClose={onClose}
-        onRightPress={() => {
-          onApply(selectedOption);
-          onClose();
-        }}
-      />
+      <ModalHeader centerText="Zodiac Sign" onClose={onClose} />
 
       <View className="flex-row flex-wrap p-4">
         {FILTER_OPTIONS.zodiacSign.map((option) => {
@@ -29,7 +31,11 @@ const ZodiacModal = ({ onClose, visible, initialSelected = null, onApply }) => {
               label={option.label}
               value={option.value}
               selected={isSelected}
-              onPress={() => setSelectedOption(option.value)}
+              onPress={() => {
+                setSelectedOption(option.value);
+                onSelect(option.value); // ✅ update immediately
+                onClose(); // ✅ close immediately
+              }}
             />
           );
         })}
@@ -38,4 +44,4 @@ const ZodiacModal = ({ onClose, visible, initialSelected = null, onApply }) => {
   );
 };
 
-export default ZodiacModal;
+export default ProfileDisplayZodiacModal;

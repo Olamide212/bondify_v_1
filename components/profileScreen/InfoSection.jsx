@@ -44,7 +44,7 @@ const InfoSection = () => {
             onPress={() => console.log("Navigate to:", link)}
           >
             <View className="flex-row items-center gap-3 flex-1">
-              <Icon size={22} color="#fff" fill="#6C47FF" />
+              <Icon size={22} color="#fff" fill="#4B164C" />
               <View className="flex-1">
                 <Text className="text-[18px] text-gray-800  font-SatoshiMedium">
                   {title}
