@@ -41,16 +41,16 @@ const SplashScreen = () => {
   }));
 
   return (
-      <View className="flex-1 bg-app items-center justify-center">
-      <View className="flex-row items-center">
+    <View className="flex-1 bg-primary items-center justify-center">
+      <View className="flex-col items-center justify-center">
         <Animated.Image
-          source={require("../../../assets/images/B-icon.png")}
+          source={require("../../../assets/images/bondify-icon-white.png")}
           style={[{ width: 100, height: 100 }, iconStyle]}
           resizeMode="contain"
         />
         <Animated.Image
-          source={require("../../../assets/images/bondify.png")}
-          style={[{ width: 140, height: 60, marginLeft: -18 }, textStyle]}
+          source={require("../../../assets/images/bondies-logo-white (1).png")}
+          style={[{ width: 180, height: 80, marginTop: -20  }, textStyle]}
           resizeMode="contain"
         />
       </View>

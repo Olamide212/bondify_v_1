@@ -16,7 +16,7 @@ const router = useRouter()
       </Pressable>
 
       <Image
-        source={require("../../assets/images/bondify-icon-color.png")}
+        source={require("../../assets/images/bondiesIcon-colored.png")}
         style={{ width: 60, height: 40 }}
         contentFit="contain"
       />

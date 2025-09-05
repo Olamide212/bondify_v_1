@@ -7,10 +7,19 @@ export default function ProfileLayout() {
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen
-        name="profile-details"
-        screenOptions={{ presentation: "modal" }}
+        name="profile-details/index"
       />
-      <Stack.Screen name="nationality" />
+      <Stack.Screen
+        name="profile-detail/index"
+      />
+      <Stack.Screen
+        name="profiles/index"
+      />
+      <Stack.Screen
+        name="badges"
+      />
+      <Stack.Screen name="nationality/index" />
+      <Stack.Screen name="index" />
     </Stack>
   );
 }

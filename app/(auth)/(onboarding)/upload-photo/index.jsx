@@ -12,6 +12,7 @@ import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import NextButton from "../../../../components/ui/NextButton";
+import Button from "../../../../components/ui/Button"
 
 const UploadPhoto = () => {
   const router = useRouter();
@@ -46,78 +47,81 @@ const UploadPhoto = () => {
     <SafeAreaView className="flex-1 bg-white">
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View className="flex-1 px-2">
-          {/* Title + Subtitle */}
-          <View className="mb-6 mt-8">
-            <Text className="text-3xl font-SatoshiBold  mb-2">
-              Add your photos
-            </Text>
-            <Text className="text-lg  font-Satoshi">
-              Members with 6 photos find their match faster
-            </Text>
-          </View>
-
-          {/* Photo grid */}
-          <View className="flex-row flex-wrap justify-between gap-y-4">
-            {photos.map((photo, index) => (
-              <View key={index} className="w-[30%] aspect-square relative">
-                <TouchableOpacity
-                  className="w-full h-full border-2 border-dashed border-gray-300 rounded-xl items-center justify-center bg-gray-50"
-                  onPress={() => pickImage(index)}
-                  activeOpacity={0.7}
-                >
-                  {photo ? (
-                    <Image
-                      source={{ uri: photo }}
-                      className="w-full h-full rounded-xl"
-                      resizeMode="cover"
-                    />
-                  ) : (
-                    <Ionicons name="add" size={32} color="#FF0066" />
-                  )}
-                </TouchableOpacity>
-
-                {/* Remove button */}
-                {photo && (
-                  <TouchableOpacity
-                    onPress={() => removeImage(index)}
-                    className="absolute -top-2 -right-2 bg-black rounded-full p-1"
-                  >
-                    <Ionicons name="close" size={16} color="white" />
-                  </TouchableOpacity>
-                )}
-              </View>
-            ))}
-          </View>
-
-          {/* Info text */}
-          <View className="mt-6 gap-2">
-            <View className="flex-row items-start">
-              <Ionicons
-                name="information-circle-outline"
-                size={16}
-                color="gray"
-                style={{ marginTop: 2 }}
-              />
-              <Text className="ml-2 font-Satoshi text-gray-600 text-sm">
-                Add photos of you where you can clearly see your face.
+          <View className='flex-1'>
+            {/* Title + Subtitle */}
+            <View className="mb-6 mt-8">
+              <Text className="text-3xl font-SatoshiBold  mb-2">
+                Add your photos
+              </Text>
+              <Text className="text-lg  font-Satoshi">
+                Members with 6 photos find their match faster
               </Text>
             </View>
-            <View className="flex-row items-start">
-              <Ionicons
-                name="information-circle-outline"
-                size={16}
-                color="gray"
-                style={{ marginTop: 2 }}
-              />
-              <Text className="ml-2 font-Satoshi text-gray-600 text-sm">
-                Photos that don’t clearly show you will be removed.
-              </Text>
+
+            {/* Photo grid */}
+            <View className="flex-row flex-wrap justify-between gap-y-4">
+              {photos.map((photo, index) => (
+                <View key={index} className="w-[30%] aspect-square relative">
+                  <TouchableOpacity
+                    className="w-full h-full border-2 border-dashed border-gray-300 rounded-xl items-center justify-center bg-gray-50"
+                    onPress={() => pickImage(index)}
+                    activeOpacity={0.7}
+                  >
+                    {photo ? (
+                      <Image
+                        source={{ uri: photo }}
+                        className="w-full h-full rounded-xl"
+                        resizeMode="cover"
+                      />
+                    ) : (
+                      <Ionicons name="add" size={32} color="#FF0066" />
+                    )}
+                  </TouchableOpacity>
+
+                  {/* Remove button */}
+                  {photo && (
+                    <TouchableOpacity
+                      onPress={() => removeImage(index)}
+                      className="absolute -top-2 -right-2 bg-black rounded-full p-1"
+                    >
+                      <Ionicons name="close" size={16} color="white" />
+                    </TouchableOpacity>
+                  )}
+                </View>
+              ))}
+            </View>
+
+            {/* Info text */}
+            <View className="mt-6 gap-2">
+              <View className="flex-row items-start">
+                <Ionicons
+                  name="information-circle-outline"
+                  size={16}
+                  color="gray"
+                  style={{ marginTop: 2 }}
+                />
+                <Text className="ml-2 font-Satoshi text-gray-600 text-sm">
+                  Add photos of you where you can clearly see your face.
+                </Text>
+              </View>
+              <View className="flex-row items-start">
+                <Ionicons
+                  name="information-circle-outline"
+                  size={16}
+                  color="gray"
+                  style={{ marginTop: 2 }}
+                />
+                <Text className="ml-2 font-Satoshi text-gray-600 text-sm">
+                  Photos that don’t clearly show you will be removed.
+                </Text>
+              </View>
             </View>
           </View>
 
           {/* Next button */}
-          <View className="absolute bottom-6 right-4">
-            <NextButton
+          <View className="items-end">
+            <Button
+              title="Continue"
               variant="gradient"
               onPress={() => router.push("/location-access")}
             />

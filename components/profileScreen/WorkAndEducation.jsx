@@ -32,20 +32,20 @@ const Education = () => {
         className="px-6 py-4 bg-white mx-4 rounded-2xl mt-4"
         onPress={() => setModalVisible(true)}
       >
-        <Text className="mb-2 font-SatoshiMedium text-lg text-gray-500">
+        <Text className="mb-2 font-GeneralSansMedium text-lg text-black">
           Education Level
         </Text>
         <View className="mb-1">
           {selectedEducation ? (
-  <Text className="text-black text-2xl font-SatoshiMedium">
-            {getEducationLabel(selectedEducation)}
-          </Text>
+            <Text className="text-black text-2xl font-SatoshiMedium">
+              {getEducationLabel(selectedEducation)}
+            </Text>
           ) : (
-                <Text className="text-gray-400  font-SatoshiMediumItalic">
-                            No education added yet
-                          </Text>
+            <Text className="text-gray-400  font-SatoshiMediumItalic">
+              No education added yet
+            </Text>
           )}
-        
+
           <Text className="flex-1 text-lg text-primary font-SatoshiMedium mt-2">
             {selectedEducation ? "Change Education" : "Add My Education"}
           </Text>

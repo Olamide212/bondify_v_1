@@ -13,6 +13,7 @@ import {
 import NextButton from "../../../../components/ui/NextButton";
 import { useRouter } from "expo-router";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import Button from "../../../../components/ui/Button";
 
 const INTEREST_CATEGORIES = [
   {
@@ -78,10 +79,6 @@ const Interests = () => {
         >
           <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <View className="flex-1 px-4">
-              <Text className="text-3xl font-SatoshiBold  mt-8 mb-4">
-                What are your interests?
-              </Text>
-
               <ScrollView
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={{
@@ -89,41 +86,47 @@ const Interests = () => {
                   paddingTop: 4,
                 }}
               >
-                {INTEREST_CATEGORIES.map((category) => (
-                  <View key={category.title} className="mb-6">
-                    <Text className="text-app font-SatoshiBold text-lg mb-3">
-                      {category.title}
-                    </Text>
-                    <View className="flex-row flex-wrap gap-2">
-                      {category.items.map((interest) => {
-                        const selected = selectedInterests.includes(interest);
-                        return (
-                          <TouchableOpacity
-                            key={interest}
-                            onPress={() => toggleInterest(interest)}
-                            className={`px-4 py-2 rounded-full border ${
-                              selected
-                                ? "bg-[#FF0066] border-[#FF0066]"
-                                : "bg-white border-[#D1D1D1]"
-                            }`}
-                          >
-                            <Text
-                              className={`font-SatoshiMedium ${
-                                selected ? "text-white" : "text-app"
+                <View className="flex-1">
+                  <Text className="text-3xl font-SatoshiBold  mt-8 mb-4">
+                    What are your interests?
+                  </Text>
+                  {INTEREST_CATEGORIES.map((category) => (
+                    <View key={category.title} className="mb-6">
+                      <Text className="text-app font-SatoshiBold text-lg mb-3">
+                        {category.title}
+                      </Text>
+                      <View className="flex-row flex-wrap gap-2">
+                        {category.items.map((interest) => {
+                          const selected = selectedInterests.includes(interest);
+                          return (
+                            <TouchableOpacity
+                              key={interest}
+                              onPress={() => toggleInterest(interest)}
+                              className={`px-4 py-2 rounded-full border ${
+                                selected
+                                  ? "bg-[#FF0066] border-[#FF0066]"
+                                  : "bg-white border-[#D1D1D1]"
                               }`}
                             >
-                              {interest}
-                            </Text>
-                          </TouchableOpacity>
-                        );
-                      })}
+                              <Text
+                                className={`font-SatoshiMedium ${
+                                  selected ? "text-white" : "text-app"
+                                }`}
+                              >
+                                {interest}
+                              </Text>
+                            </TouchableOpacity>
+                          );
+                        })}
+                      </View>
                     </View>
-                  </View>
-                ))}
+                  ))}
+                </View>
               </ScrollView>
 
-              <View className="absolute bottom-6 right-4">
-                <NextButton
+              <View className="w-full items-end mt-4">
+                <Button
+                  title="Continue"
                   variant="gradient"
                   onPress={() => router.push("/upload-photo")}
                   disabled={selectedInterests.length === 0}

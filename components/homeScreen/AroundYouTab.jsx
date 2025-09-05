@@ -76,7 +76,7 @@ const AroundYouTab = ({ profile, actionMessage }) => {
         activeOpacity={1}
         onPress={handleTap}
       >
-        <Animated.View style={[styles.imageContainer, { opacity: fadeAnim }]}>
+        <Animated.View style={[styles.imageContainer]}>
           <Image
             source={{ uri: profile?.images?.[currentImageIndex] }}
             style={styles.image}
@@ -156,6 +156,7 @@ const AroundYouTab = ({ profile, actionMessage }) => {
 const styles = StyleSheet.create({
   tabContent: {
     flex: 1,
+    
   },
   imageTouchContainer: {
     height: "100%",

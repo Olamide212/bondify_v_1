@@ -31,13 +31,13 @@ const TextInput = ({
         <Text className="text-lg  font-SatoshiMedium mb-2">{label}</Text>
       )}
       <View
-        className={`flex-row items-center  px-4 border bg-white border-[#dadada] ${className} `}
+        className={`flex-row items-center  px-4 border bg-white border-[#929292] ${className} `}
         style={{ height: 50, borderRadius: 10, marginBottom: 10 }}
       >
         <RNTextInput
-          className="flex-1 text-app   bg-white font-SatoshiMedium "
+          className="flex-1 text-app   bg-white font-GeneralSansMedium "
           placeholder={placeholder}
-          placeholderTextColor="#ccc"
+          placeholderTextColor="#929292"
           autoCapitalize="none"
           secureTextEntry={secureTextEntry && !isPasswordVisible}
           keyboardType={keyboardType}
@@ -45,6 +45,7 @@ const TextInput = ({
           onChangeText={onChangeText}
           maxLength={phone ? 11 : maxLength}
           {...rest}
+          style={{fontSize: 16}}
         />
 
         {/* Show toggle icon for password */}

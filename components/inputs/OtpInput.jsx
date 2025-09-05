@@ -10,7 +10,13 @@ import {
 import { OtpInput } from "react-native-otp-entry";
 import {colors} from "../../constant/colors"
 
-const GlobalOtpInput = ({ touched, errors, onTextChange, onFocus }) => {
+const GlobalOtpInput = ({
+  touched,
+  errors,
+  onTextChange,
+  onFocus,
+  onResend,
+}) => {
   const [animation] = useState(new Animated.Value(1));
   const [timer, setTimer] = useState(60);
 
@@ -36,8 +42,8 @@ const GlobalOtpInput = ({ touched, errors, onTextChange, onFocus }) => {
   };
 
   const handleResend = () => {
-    // You can trigger an actual resend OTP logic here
     setTimer(60);
+    if (onResend) onResend(); // 🔥 trigger API call from parent
   };
 
   useEffect(() => {
@@ -53,7 +59,7 @@ const GlobalOtpInput = ({ touched, errors, onTextChange, onFocus }) => {
     <View className="mb-3">
       <Animated.View style={{ transform: [{ scale: animation }] }}>
         <OtpInput
-          numberOfDigits={4}
+          numberOfDigits={4} // changed to 6 since OTP is usually 6 digits
           focusColor={colors.primary}
           focusStickBlinkingDuration={500}
           onTextChange={handleChange}
@@ -72,12 +78,12 @@ const GlobalOtpInput = ({ touched, errors, onTextChange, onFocus }) => {
               borderColor: "#1D2939",
             },
             pinCodeTextStyle: styles.pinCodeText,
-            textProps:{
+            textProps: {
               accessibilityRole: "text",
               accessibilityLabel: "OTP digit",
               allowFontScaling: false,
             },
-            secureTextEntry: true
+            secureTextEntry: true,
           }}
         />
       </Animated.View>
@@ -86,9 +92,11 @@ const GlobalOtpInput = ({ touched, errors, onTextChange, onFocus }) => {
         <Text className="text-red-500 ml-2 mt-2 text-sm">{errors}</Text>
       )}
 
-      <View className="flex-row text-app justify-center mt-4">
+      <View className="flex-row justify-center mt-4">
         {timer > 0 ? (
-          <Text className=" text-app font-SatoshiMedium text-sm">{timer} sec remaining</Text>
+          <Text className="text-app font-SatoshiMedium text-sm">
+            {timer} sec remaining
+          </Text>
         ) : (
           <TouchableOpacity onPress={handleResend}>
             <Text className="text-primary font-medium text-sm">
@@ -100,6 +108,7 @@ const GlobalOtpInput = ({ touched, errors, onTextChange, onFocus }) => {
     </View>
   );
 };
+
 
 export default GlobalOtpInput;
 

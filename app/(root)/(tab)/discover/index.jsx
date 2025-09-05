@@ -9,6 +9,7 @@ import TopPicksTab from "../../../../components/homeScreen/TopPicksTab";
 import MatchmakingTab from "../../../../components/homeScreen/MatchmakingTab";
 import HomeScreenTabs from "../../../../components/homeScreen/HomeScreenTabs";
 import GeneralHeader from "../../../../components/headers/GeneralHeader";
+import MapDiscoveryScreen from "../../../../components/homeScreen/MapDiscover";
 
 const Discover = () => {
   const [currentProfileIndex, setCurrentProfileIndex] = useState(0);
@@ -31,6 +32,10 @@ const Discover = () => {
             <HomeScreenTabs activeTab={activeTab} setActiveTab={setActiveTab} />
           </View>
           <View className='mt-3'>
+            {activeTab === "Around you" && (
+              <MapDiscoveryScreen />
+            )}
+            
             {activeTab === "Top picks" && (
               <TopPicksTab profile={currentProfile} />
             )}

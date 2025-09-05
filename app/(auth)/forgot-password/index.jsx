@@ -14,6 +14,7 @@ import GlobalPhoneInput from "../../../components/inputs/PhoneInput";
 import NextButton from "../../../components/ui/NextButton";
 import { useRouter } from "expo-router";
 import TextInput from "../../../components/inputs/TextInput";
+import Button from "../../../components/ui/Button";
 
 const ForgotPassword = () => {
   const [useEmail, setUseEmail] = useState(false);
@@ -24,15 +25,15 @@ const ForgotPassword = () => {
       <KeyboardAvoidingView
         className="flex-1"
         behavior={Platform.OS === "ios" ? "padding" : "height"}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 20 : 0}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 0}
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View className="flex-1 px-2">
             <View className="flex-1 mt-8">
-              <Text className="text-3xl font-SatoshiBold text-black ">
+              <Text className="text-3xl font-GeneralSansSemiBold text-black ">
                 Forgot password
               </Text>
-              <Text className="mb-5 text-black text-lg font-Satoshi">
+              <Text className="mb-5 text-black text-lg font-GeneralSans">
           Input your email address to reset your password
               </Text>
 
@@ -43,7 +44,8 @@ const ForgotPassword = () => {
             </View>
 
             <View className="w-full items-end pb-6">
-              <NextButton
+              <Button
+                title="Submit"
                 variant="gradient"
                 onPress={() => router.push("/validation")}
               />

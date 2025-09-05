@@ -74,7 +74,12 @@ const MyInfo = ({ profile }) => {
       title: "Kids",
       icon: Baby,
       type: "modal",
-      options: ["Want someday", "No"],
+      options: [
+        "I want children",
+        "I don't want children",
+        "I have children and want more",
+        "I have children and don't want more",
+      ],
     },
     {
       key: "drink",
@@ -122,14 +127,27 @@ const MyInfo = ({ profile }) => {
       title: "Relationship Status",
       icon: Heart,
       type: "modal",
-      options: ["Single", "Taken", "It’s complicated"],
+      options: [
+        "never-married",
+        "divorced",
+        "widowed",
+        "separated",
+        "complicated",
+      ],
     },
     {
       key: "interestedIn",
       title: "I'm interested in...",
       icon: Users,
       type: "modal",
-      options: ["Men", "Women", "Everyone"],
+      options: [
+        "a-committed-relationship",
+        "something-casual",
+        "marriage",
+        "finding-a-date",
+        "meet-business-oriented-people",
+        "i-am-not-sure",
+      ],
     },
     {
       key: "financialStyle",
@@ -175,7 +193,7 @@ const MyInfo = ({ profile }) => {
       title: "Dating someone with the same beliefs...",
       icon: HeartHandshake,
       type: "modal",
-      options: ["Important", "Not important"],
+      options: ["is-very-important", "is-quite-important", "not-important"],
     },
   ];
 
@@ -186,9 +204,7 @@ const MyInfo = ({ profile }) => {
 
   return (
     <View className="bg-white mt-3 mx-4 p-5 rounded-2xl">
-      <Text className="mb-2 font-SatoshiMedium text-lg text-gray-500">
-        My Info
-      </Text>
+    
       {items.map(({ key, title, icon: Icon, screen, type, options }, index) => {
         const isLast = index === items.length - 1;
         const value = profileData?.[key];
@@ -221,22 +237,25 @@ const MyInfo = ({ profile }) => {
           >
             <View className="flex-row items-center gap-3 flex-1">
               {key === "zodiac" ? (
-              <Image source={Icons.zodiacSign} style={{width: 22, height: 22}} />
+                <Image
+                  source={Icons.zodiacSign}
+                  style={{ width: 22, height: 22 }}
+                />
               ) : (
                 <Icon size={22} color={colors.primary} />
               )}
 
               <View className="flex-1">
-                <Text className="text-lg text-gray-900 font-SatoshiMedium">
+                <Text className="text-xl text-gray-900 font-GeneralSansMedium">
                   {title}
                 </Text>
                 {!value && (
-                  <Text className="text-base text-red-500 font-SatoshiMedium">
+                  <Text className="text-lg text-red-500 font-SatoshiMedium">
                     Tap to Answer
                   </Text>
                 )}
                 {value && (
-                  <Text className="text-base text-gray-700 font-SatoshiMedium capitalize">
+                  <Text className="text-lg text-gray-700 font-SatoshiMedium capitalize">
                     {value}
                   </Text>
                 )}

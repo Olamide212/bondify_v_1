@@ -84,7 +84,7 @@ const ProfileSection = ({ profile }) => {
         <Pressable
           className="flex-row justify-center items-center gap-2  py-2 rounded-full mt-3 
           bg-primary "
-          onPress={() => router.push("/profile-details")}
+          onPress={() => router.push("/profiles")}
         >
           <Pencil color="white" size={16} />
           <Text className="text-white font-SatoshiMedium">Edit Profile</Text>

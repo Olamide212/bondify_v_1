@@ -13,6 +13,7 @@ import { useRouter } from "expo-router";
 
 import RadioSelect from "../../../../components/inputs/RadioSelect";
 import Info from "../../../../components/ui/Info";
+import Button from "../../../../components/ui/Button";
 
 
 const Education = () => {
@@ -39,7 +40,7 @@ const Education = () => {
                   value={gender}
                   onChange={setGender}
                   options={[
-                    { label: "Bachellor", value: "bachelor" },
+                    { label: "Bachelor Degree", value: "bachelor" },
                     { label: "Diploma", value: "diploma" },
                     { label: "Masters", value: "master" },
                     { label: "PhD", value: "phd" },
@@ -54,7 +55,8 @@ const Education = () => {
             </View>
 
             <View className="w-full items-end pb-6">
-              <NextButton
+              <Button
+                title="Continue"
                 variant="gradient"
                 onPress={() => router.push("/occupation")}
               />

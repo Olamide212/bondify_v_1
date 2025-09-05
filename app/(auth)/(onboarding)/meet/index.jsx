@@ -15,6 +15,7 @@ import TextInput from "../../../../components/inputs/TextInput";
 import RadioSelect from "../../../../components/inputs/RadioSelect";
 import Info from "../../../../components/ui/Info";
 import CheckboxSelect from "../../../../components/inputs/CheckboxSelect";
+import Button from "../../../../components/ui/Button";
 
 
 const Meet = () => {
@@ -33,7 +34,7 @@ const Meet = () => {
           <View className="flex-1 px-2">
             <View className="flex-1 mt-8">
               <Text className="text-3xl font-SatoshiBold mb-2">
-                I would like to meet
+                I would like to meet...
               </Text>
 
               <View>
@@ -52,7 +53,8 @@ const Meet = () => {
             </View>
 
             <View className="w-full items-end pb-6">
-              <NextButton
+              <Button
+                title="Continue"
                 variant="gradient"
                 onPress={() => router.push("/marital-status")}
               />

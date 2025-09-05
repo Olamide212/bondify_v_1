@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import NextButton from "../../../../components/ui/NextButton";
 import { useRouter } from "expo-router";
+import Button from "../../../../components/ui/Button";
 
 // Example occupation list
 const occupationOptions = [
@@ -102,7 +103,8 @@ const Occupation = () => {
             </View>
 
             <View className="w-full items-end pb-6">
-              <NextButton
+              <Button
+                title="Continue"
                 variant="gradient"
                 onPress={() => router.push("/smoke")}
                 disabled={!selectedOccupation}

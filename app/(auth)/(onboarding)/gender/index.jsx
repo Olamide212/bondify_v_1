@@ -14,6 +14,7 @@ import TextInput from "../../../../components/inputs/TextInput";
 
 import RadioSelect from "../../../../components/inputs/RadioSelect";
 import Info from "../../../../components/ui/Info";
+import Button from "../../../../components/ui/Button";
 
 
 const Gender = () => {
@@ -49,11 +50,12 @@ const Gender = () => {
                   className="mt-2"
                 />
               </View>
-              <Info title="You can change this details later from your profile" />
+              <Info title="You can't change this details later from your profile" />
             </View>
 
             <View className="w-full items-end pb-6">
-              <NextButton
+              <Button
+                title="Continue"
                 variant="gradient"
                 onPress={() => router.push("/meet")}
               />

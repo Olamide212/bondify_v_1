@@ -28,11 +28,10 @@ const School = () => {
         className="px-6 py-4 bg-white mx-4 rounded-2xl mt-4"
         onPress={() => setModalVisible(true)}
       >
-        <Text className="mb-2 font-SatoshiMedium text-lg text-gray-500">
-          School
-        </Text>
-
         <View className="mb-1">
+          <Text className="text-xl text-gray-900 font-GeneralSansMedium">
+          School
+          </Text>
           {!schoolName ? (
             <Text className="text-gray-400  font-SatoshiMediumItalic">
               No school added yet
@@ -44,7 +43,7 @@ const School = () => {
           )}
 
           <Text className="flex-1 text-lg text-primary mt-2 font-SatoshiMedium">
-          {schoolName ? "Change school" :   "Add my school"}
+            {schoolName ? "Change school" : "Add my school"}
           </Text>
         </View>
       </TouchableOpacity>
@@ -77,7 +76,6 @@ const School = () => {
 
           {/* Save Button */}
           <Button title="Save" onPress={handleSave} disabled={!schoolName} />
-      
         </SafeAreaView>
       </Modal>
     </>

@@ -13,6 +13,7 @@ import { useRouter } from "expo-router";
 
 import RadioSelect from "../../../../components/inputs/RadioSelect";
 import Info from "../../../../components/ui/Info";
+import Button from "../../../../components/ui/Button";
 
 
 const ReligionQuestions = () => {
@@ -31,7 +32,7 @@ const ReligionQuestions = () => {
           <View className="flex-1 px-2">
             <View className="flex-1 mt-8">
               <Text className="text-3xl font-SatoshiBold text-app mb-2">
-            Dating someone with the same beliefs...
+                Dating someone with the same beliefs...
               </Text>
 
               <View>
@@ -39,9 +40,12 @@ const ReligionQuestions = () => {
                   value={gender}
                   onChange={setGender}
                   options={[
-                    { label: "is very important", value: "very-important" },
-                    { label: "is quite important but i may still consider someone from another faith", value: "quite-important" },
-                    { label: "it doesn't matter to me at all", value: "not-matter" },
+                    { label: "Is very important", value: "very-important" },
+                    { label: "Is quiteimportant", value: "quite-important" },
+                    {
+                      label: "It doesn't matter to me at all",
+                      value: "not-matter",
+                    },
                   ]}
                   className="mt-2"
                 />
@@ -50,7 +54,8 @@ const ReligionQuestions = () => {
             </View>
 
             <View className="w-full items-end pb-6">
-              <NextButton
+              <Button
+                title="Continue"
                 variant="gradient"
                 onPress={() => router.push("/education")}
               />

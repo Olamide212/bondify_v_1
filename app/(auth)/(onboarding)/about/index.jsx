@@ -13,6 +13,7 @@ import NextButton from "../../../../components/ui/NextButton";
 import { useRouter } from "expo-router";
 import Info from "../../../../components/ui/Info";
 import { Video, Mic } from "lucide-react-native";
+import Button from "../../../../components/ui/Button"
 
 
 const About = () => {
@@ -39,10 +40,11 @@ const About = () => {
                 value={aboutText}
                 onChangeText={setAboutText}
                 multiline
-                numberOfLines={6}
+                numberOfLines={10}
                 style={{
                   backgroundColor: "#f1f1f1",
                   color: "#000",
+                  height: 100,
                   padding: 16,
                   borderRadius: 12,
                   textAlignVertical: "top",
@@ -50,7 +52,7 @@ const About = () => {
                 }}
               />
 
-              <View className="mt-4 p-4 rounded-2xl ">
+            {/*  <View className="mt-4 p-4 rounded-2xl ">
                 <Text className="text-center text-xl font-SatoshiMedium">
                   Or you can answer with
                 </Text>
@@ -81,11 +83,12 @@ const About = () => {
                     and help you find a relationship faster
                   </Text>
                 </View>
-              </View>
+              </View>*/}
             </View>
 
             <View className="w-full items-end pb-6">
-              <NextButton
+              <Button
+                title="Continue"
                 variant="gradient"
                 onPress={() => {
                   // Optional: validate before routing

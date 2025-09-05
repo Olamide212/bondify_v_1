@@ -13,6 +13,7 @@ import { useRouter } from "expo-router";
 
 import RadioSelect from "../../../../components/inputs/RadioSelect";
 import Info from "../../../../components/ui/Info";
+import Button from "../../../../components/ui/Button"
 
 
 const Preference = () => {
@@ -47,14 +48,16 @@ const Preference = () => {
                       value: "A committed relationship",
                     },
                     { label: "Something Casual", value: "Something Casual" },
-                    { label: "Long Term Fun", value: "Long Term Fun" },
-                    { label: "Short Term Fun", value: "Short Term Fun" },
                     { label: "Marriage", value: "Marriage" },
                     { label: "Finding a Date", value: "Finding a Date" },
-                    { label: "New Friend", value: "New Friend" },
+          
                     {
                       label: "Meet business oriented people",
                       value: "Meet business oriented people",
+                    },
+                    {
+                      label: "I am not sure",
+                      value: "not sure",
                     },
                   ]}
                   className="mt-2"
@@ -64,7 +67,8 @@ const Preference = () => {
             </View>
 
             <View className="w-full items-end pb-6">
-              <NextButton
+              <Button
+                title="Continue"
                 variant="gradient"
                 onPress={() => router.push("/religion")}
               />

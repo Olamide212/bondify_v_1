@@ -42,9 +42,7 @@ const ProfileAnswers = () => {
 
   return (
     <View className="px-6 py-4 bg-white mx-4 rounded-2xl mt-4">
-      <Text className="mb-2 font-SatoshiMedium text-lg text-gray-500">
-        My Answers
-      </Text>
+    
 
       {/* Show answers */}
       {answers.length > 0 ? (
@@ -59,7 +57,9 @@ const ProfileAnswers = () => {
           </View>
         ))
       ) : (
-        <Text className="text-gray-400  font-SatoshiMediumItalic">No answers yet.</Text>
+        <Text className="text-gray-400  font-SatoshiMediumItalic">
+          No answers yet.
+        </Text>
       )}
 
       {/* Add Question Button */}
@@ -79,7 +79,6 @@ const ProfileAnswers = () => {
         <SafeAreaView className="flex-1 bg-white p-6">
           {!selectedQuestion ? (
             <>
-              
               <Text className="text-xl text-center font-SatoshiBold mb-4">
                 Choose a question
               </Text>
@@ -116,7 +115,7 @@ const ProfileAnswers = () => {
                   Choose another question
                 </Text>
               </TouchableOpacity>
-          
+
               <Button
                 className="border border-primary bg-white mt-4"
                 variant="secondary"

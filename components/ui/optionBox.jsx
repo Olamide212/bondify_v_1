@@ -23,7 +23,12 @@ export default function OptionBox({
         backgroundColor: isActive ? colors.primary : "#fff",
       }}
     >
-      <Text style={{ color: isActive ? "#fff" : "#333", fontWeight: "600" }}>
+      <Text
+        style={{
+          color: isActive ? "#fff" : "#333",
+          fontFamily: "GeneralSansSemiBold",
+        }}
+      >
         {label || value}
       </Text>
     </TouchableOpacity>

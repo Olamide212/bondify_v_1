@@ -12,9 +12,7 @@ const Occupation = () => {
         className="px-6 py-4 bg-white mx-4 rounded-2xl mt-4"
         onPress={() => setShowModal(true)}
       >
-        <Text className="mb-2 font-SatoshiMedium text-lg text-gray-500">
-          Occupation
-        </Text>
+        
         <View className="mb-1">
           {selectedOccupation ? (
             <Text className="text-black text-2xl font-SatoshiMedium">
@@ -22,7 +20,7 @@ const Occupation = () => {
             </Text>
           ) : (
             <Text className="text-gray-400  font-SatoshiMediumItalic">
-            No occupation added yet
+              No occupation added yet
             </Text>
           )}
 

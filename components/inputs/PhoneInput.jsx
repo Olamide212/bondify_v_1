@@ -36,7 +36,7 @@ const GlobalPhoneInput = ({ onChangePhone, onChangeCountry }) => {
       <TextInput
         style={styles.input}
         placeholder="Phone Number"
-        placeholderTextColor="#ccc"
+        placeholderTextColor="#929292"
         keyboardType="phone-pad"
         value={phoneNumber}
         onChangeText={(text) => {
@@ -52,18 +52,18 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
     borderWidth: 1,
-    borderColor: "#dadada",
+    borderColor: "#929292",
     borderRadius: 10,
     alignItems: "center",
     height: 50,
     overflow: "hidden",
-    marginBottom: 17
+    marginBottom: 17,
   },
   countryPickerContainer: {
     borderRightWidth: 1,
-    borderColor: "#dadada",
+    borderColor: "#929292",
     paddingHorizontal: 10,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     height: "100%",
     justifyContent: "center",
   },
@@ -74,10 +74,10 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     paddingHorizontal: 12,
-    fontSize: 14,
+    fontSize: 16,
     color: "#000",
-    backgroundColor: '#fff',
-    fontFamily: "SatoshiMedium",
+    backgroundColor: "#fff",
+    fontFamily: "GeneralSansMedium",
     height: "100%",
   },
 });

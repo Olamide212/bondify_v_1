@@ -5,6 +5,8 @@ export const profiles = [
     age: 26,
     gender: "Female",
     location: "New York, NY",
+    ethnicity: "African/American",
+    nationality: "Nigeria",
     distance: "2 km away",
     bondScore: 87,
     verified: true,
@@ -12,7 +14,7 @@ export const profiles = [
     completion: 60,
     religion: "Christian",
     education: "Master's in Design, NYU",
-    school: "NYU",
+    school: "National Open university",
     height: "5'6\"",
     lookingFor: "Long-term relationship",
     relationshipType: "Monogamous",
@@ -37,6 +39,12 @@ export const profiles = [
       "🥘 Cooking",
       "📚 Reading",
     ],
+    personalities: [
+      "👂 Active listener",
+      "🎯 Ambituous",
+      "💃 Confident",
+      "🥰 Affectionate",
+    ],
     bio: `Adventure seeker, coffee enthusiast, and dog lover. Looking for someone to explore the city with! I love hiking on weekends, trying new restaurants, and capturing beautiful moments through photography. Life is too short not to laugh every day! 🌟\n\nCurrently working as a UX designer and passionate about creating meaningful experiences. When I'm not designing, you'll find me at a local coffee shop, planning my next adventure, or cuddling with my golden retriever, Max.`,
     questions: [
       {
@@ -56,6 +64,7 @@ export const profiles = [
       "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=400&h=600&fit=crop",
       "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400&h=600&fit=crop",
       "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=400&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=600&fit=crop",
     ],
   },
   {

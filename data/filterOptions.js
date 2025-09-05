@@ -22,6 +22,7 @@ export const FILTER_OPTIONS = {
   ],
   religion: [
     { label: "Christianity", value: "christianity" },
+    { label: "Catholic", value: "catholic" },
     { label: "Islam", value: "islam" },
     { label: "Hinduism", value: "hinduism" },
     { label: "Buddhism", value: "buddhism" },

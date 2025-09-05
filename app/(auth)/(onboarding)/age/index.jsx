@@ -4,6 +4,7 @@ import { Picker } from "@react-native-picker/picker";
 import NextButton from "../../../../components/ui/NextButton";
 import { useRouter } from "expo-router";
 import Info from "../../../../components/ui/Info";
+import Button from "../../../../components/ui/Button";
 
 const months = [
   "January",
@@ -107,7 +108,7 @@ const Age = () => {
       </View>
 
       <View className="w-full items-end pb-6">
-        <NextButton variant="gradient" onPress={() => router.push("/height")} />
+        <Button title="Continue" variant="gradient" onPress={() => router.push("/height")} />
       </View>
     </View>
   );
@@ -141,7 +142,7 @@ const styles = StyleSheet.create({
     width: "30%",
     backgroundColor: "#fff",
     color: "#333",
-    height: Platform.OS === "ios" ? 180 : 50,
+    height: Platform.OS === "ios" ? 200 : 50,
   },
   ageText: {
     marginTop: 60,

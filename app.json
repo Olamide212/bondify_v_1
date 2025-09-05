@@ -10,7 +10,10 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.olabid212.bondify"
+      "bundleIdentifier": "com.olabid212.bondify",
+            "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "This app needs access to your location to show nearby users."
+      }
     },
     "android": {
       "adaptiveIcon": {

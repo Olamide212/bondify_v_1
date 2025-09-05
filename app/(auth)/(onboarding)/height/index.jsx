@@ -4,6 +4,7 @@ import { View, Text, StyleSheet } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import NextButton from "../../../../components/ui/NextButton";
 import { useRouter } from "expo-router";
+import Button from "../../../../components/ui/Button";
 
 const Height = () => {
   const [selectedHeight, setSelectedHeight] = useState(170); // default to 170 cm
@@ -32,7 +33,7 @@ const Height = () => {
         </View>
       </View>
       <View className="w-full items-end pb-6">
-        <NextButton variant="gradient" onPress={() => router.push("/gender")} />
+        <Button title="Continue" variant="gradient" onPress={() => router.push("/gender")} />
       </View>
     </View>
   );

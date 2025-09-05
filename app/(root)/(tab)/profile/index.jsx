@@ -24,7 +24,7 @@ const router = useRouter()
           title="Profile"
           icon=<Bolt color="#4B164C" />
           className="text-black"
-          onPress={() => router.push("/profile-details")}
+          onPress={() => router.push("/settings")}
         />
         <ScrollView
           contentContainerStyle={{

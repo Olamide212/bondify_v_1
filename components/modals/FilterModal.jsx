@@ -76,20 +76,11 @@ const [selectedCommunicationOption, setSelectedCommunicationOption] = useState("
       key: "ethnicity",
     },
     {
-      label: "Family plan",
-      value: selectedFamilyPlanOption ? selectedFamilyPlanOption : "Select",
-      key: "kids",
-    },
-    {
       label: "Education level",
       value: selectedEducationOption ? selectedEducationOption : "Select",
       key: "education",
     },
-    {
-      label: "Language",
-      value: selectedLanguageOption ? selectedLanguageOption : "Select",
-      key: "language",
-    },
+
     {
       label: "Drinking",
       value: selectedDrinkingOption ? selectedDrinkingOption : "Select",
@@ -119,7 +110,7 @@ const [selectedCommunicationOption, setSelectedCommunicationOption] = useState("
     },
 
     { label: "Workout", value: selectedWorkOutOption ? selectedWorkOutOption : "Select", key: "workout" },
-    { label: "Financial lifestyle", value: selectedFinanceOption ? selectedFinanceOption : "Select", key: "finance" },
+
   ];
 
   return (

@@ -11,7 +11,7 @@ const Onboarding = () => {
 
   return (
     <LinearGradient
-      colors={["#FD465C", "#A80EC1"]}
+      colors={["#FD465C", "#4B164C"]}
       start={{ x: 0, y: 0 }}
       end={{ x: 0, y: 1 }}
       style={{ flex: 1 }}
@@ -21,7 +21,7 @@ const Onboarding = () => {
           {/* Logo at top */}
           <View className="justify-center items-center pt-4">
             <Image
-              source={require("../../../assets/images/Bondify-white.png")}
+              source={require("../../../assets/images/bondies-logo.png")}
               style={{ width: 120, height: 40 }}
               resizeMode="contain"
             />
@@ -38,7 +38,7 @@ const Onboarding = () => {
 
           {/* Text + Buttons */}
           <View className="items-center -mt-56 px-3">
-            <Text className="text-white font-GeneralSansBold text-4xl text-center mb-4">
+            <Text className="text-white font-GeneralSansBold text-3xl text-center mb-4">
               Discover Love where your story begins.
             </Text>
 
@@ -59,7 +59,7 @@ const Onboarding = () => {
                 variant="black"
               />
               <Text className="text-white font-GeneralSansMedium text-lg text-center mb-4 px-4">
-              By joining our platform, you agree to our Terms and Condtion
+                By joining our platform, you agree to our Terms and Condtion
               </Text>
             </View>
           </View>

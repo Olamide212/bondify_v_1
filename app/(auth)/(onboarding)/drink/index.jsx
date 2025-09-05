@@ -13,6 +13,7 @@ import { useRouter } from "expo-router";
 
 import RadioSelect from "../../../../components/inputs/RadioSelect";
 import Info from "../../../../components/ui/Info";
+import Button from "../../../../components/ui/Button"
 
 
 const Drink = () => {
@@ -52,7 +53,8 @@ const Drink = () => {
             </View>
 
             <View className="w-full items-end pb-6">
-              <NextButton
+              <Button
+                title="Continue"
                 variant="gradient"
                 onPress={() => router.push("/about")}
               />

@@ -23,13 +23,15 @@ const RadioSelect = ({
         {options.map((option) => (
           <TouchableOpacity
             key={option.value}
-            className={`px-4 py-3 rounded-xl border border-[#dadada] ${className}`}
+            className={`px-4 py-3 rounded-xl border  ${className}
+               ${value === option.value ? "border-primary" : "border-[#dadada]"}`}
             onPress={() => onChange(option.value)}
             style={{ borderRadius: 10 }}
           >
             <View className="flex-row justify-between items-center">
               <Text
-                className="text-app text-lg font-SatoshiMedium flex-1 pr-4"
+                className={`text-app text-lg font-SatoshiMedium flex-1 pr-4 
+                  ${value === option.value ? "text-primary" : ""} `}
                 style={{ flexWrap: "wrap" }}
               >
                 {option.label}

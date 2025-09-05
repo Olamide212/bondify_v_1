@@ -13,6 +13,7 @@ import { useRouter } from "expo-router";
 
 import RadioSelect from "../../../../components/inputs/RadioSelect";
 import Info from "../../../../components/ui/Info";
+import Button from "../../../../components/ui/Button"
 
 
 const Kids = () => {
@@ -31,11 +32,10 @@ const Kids = () => {
           <View className="flex-1 px-2">
             <View className="flex-1 mt-8">
               <Text className="text-3xl font-SatoshiBold  mb-2">
-            Do you have kids?
+                Do you want kids?
               </Text>
               <Text className="text-lg font-Satoshi">
                 Please select an option.
-              
               </Text>
 
               <View>
@@ -43,8 +43,13 @@ const Kids = () => {
                   value={maritalStatus}
                   onChange={setMaritalStatus}
                   options={[
-                    { label: "Yes", value: "yes" },
-                    { label: "No", value: "no" },
+                    { label: "I want children", value: "i want" },
+                    { label: "I don't want children", value: "i don't" },
+                    { label: "I have children and want more", value: "i have" },
+                    {
+                      label: "I have children and don't want more",
+                      value: "don't want",
+                    },
                   ]}
                   className="mt-2"
                 />
@@ -53,7 +58,8 @@ const Kids = () => {
             </View>
 
             <View className="w-full items-end pb-6">
-              <NextButton
+              <Button
+                title="Continue"
                 variant="gradient"
                 onPress={() => router.push("/preference")}
               />

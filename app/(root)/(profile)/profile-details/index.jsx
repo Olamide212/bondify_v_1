@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import { ScrollView } from "react-native";
-import ProfilePhotoGrid from "../../../../components/profileScreen/ProfilePhotoGrid";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-import GeneralHeader from "../../../../components/headers/GeneralHeader";
 import { ArrowLeft } from "lucide-react-native";
+import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
+
+import ProfilePhotoGrid from "../../../../components/profileScreen/ProfilePhotoGrid";
+import GeneralHeader from "../../../../components/headers/GeneralHeader";
 import BasicInfo from "../../../../components/profileScreen/BasicInfo";
 import { profiles } from "../../../../data/profileData";
 import Verification from "../../../../components/profileScreen/Verification";
@@ -14,12 +16,12 @@ import School from "../../../../components/profileScreen/School";
 import AboutMe from "../../../../components/profileScreen/About";
 import ProfileAnswers from "../../../../components/profileScreen/ProfileAnswers";
 import MyInfo from "../../../../components/profileScreen/MyInfo";
-import { useFocusEffect, useLocalSearchParams } from "expo-router";
+import MySelf from "../../../../components/profileScreen/MySelf"
 
-const ProfileDetails = () => {
+export default function ProfileDetails() {
   const [profile, setProfile] = useState({});
   const params = useLocalSearchParams();
-
+  const router = useRouter();
 
   useFocusEffect(
     React.useCallback(() => {
@@ -35,9 +37,8 @@ const ProfileDetails = () => {
           updatedValue: undefined,
         });
       }
-    }, [params])
+    }, [params, router])
   );
-
 
   const handleUpdateField = (field, value) => {
     setProfile((prev) => ({
@@ -45,8 +46,6 @@ const ProfileDetails = () => {
       [field]: value,
     }));
   };
-
-
 
   const user = {
     progress: 0.98,
@@ -57,7 +56,6 @@ const ProfileDetails = () => {
       "https://picsum.photos/id/1013/300/300",
       "https://picsum.photos/id/1014/300/300",
     ],
-
   };
 
   return (
@@ -65,7 +63,7 @@ const ProfileDetails = () => {
       <SafeAreaView className="flex-1 pb-0 bg-white">
         <GeneralHeader
           title="Edit Profile"
-          leftIcon=<ArrowLeft />
+          leftIcon={<ArrowLeft />}
           className="bg-white"
         />
         <ScrollView
@@ -79,18 +77,21 @@ const ProfileDetails = () => {
           <Verification profile={profiles[0]} />
           <BasicInfo profile={profiles[0]} />
           <AboutMe profile={profiles[0]} />
-
           <Location profile={profiles[0]} />
           <Education profile={profiles[0]} />
           <School onUpdateSchool={profile} />
           <Occupation profile={profiles[0]} />
+          <ProfileAnswers />
+          <MySelf />
 
-          <ProfileAnswers profile={profiles[0]} />
-          <MyInfo profile={profile} onUpdateField={handleUpdateField} />
+          <View>
+            <Text className="mb-2 font-GeneralSansMedium text-lg text-black">
+              My Info
+            </Text>
+            <MyInfo profile={profile} onUpdateField={handleUpdateField} />
+          </View>
         </ScrollView>
       </SafeAreaView>
     </SafeAreaProvider>
   );
-};
-
-export default ProfileDetails;
+}

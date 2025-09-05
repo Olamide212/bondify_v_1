@@ -13,6 +13,7 @@ import { useRouter } from "expo-router";
 
 import RadioSelect from "../../../../components/inputs/RadioSelect";
 import Info from "../../../../components/ui/Info";
+import Button from "../../../../components/ui/Button";
 
 
 const MaritalStatus = () => {
@@ -31,10 +32,10 @@ const MaritalStatus = () => {
           <View className="flex-1 px-2">
             <View className="flex-1 mt-8">
               <Text className="text-3xl font-SatoshiBold text-app mb-2">
-              Marital Status?
+              Relationship Status?
               </Text>
               <Text className="text-lg font-Satoshi">
-                Please let us know your marital status.
+                Please let us know your relationship status.
               
               </Text>
 
@@ -56,7 +57,8 @@ const MaritalStatus = () => {
             </View>
 
             <View className="w-full items-end pb-6">
-              <NextButton
+              <Button
+                title="Continue"
                 variant="gradient"
                 onPress={() => router.push("/kids")}
               />
