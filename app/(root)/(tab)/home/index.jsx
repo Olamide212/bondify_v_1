@@ -1,5 +1,12 @@
-import React, { useState, useRef, useEffect } from "react";
-import { View, StyleSheet, Text, ScrollView, Pressable } from "react-native";
+import React, { useRef, useEffect } from "react";
+import {
+  View,
+  StyleSheet,
+  Text,
+  ScrollView,
+  Pressable,
+  useWindowDimensions,
+} from "react-native";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -8,35 +15,40 @@ import Animated, {
   runOnJS,
   useAnimatedScrollHandler,
   interpolateColor,
-  useAnimatedProps,
 } from "react-native-reanimated";
 import { Image } from "expo-image";
-import HomeHeader from "../../../../components/headers/HomeHeader";
+import { useRouter } from "expo-router";
 import ActionButtons from "../../../../components/homeScreen/ActionButtons";
-import { profiles } from "../../../../data/profileData";
-import ProfileCard from "../../../../components/homeScreen/ProfileCard";
 import FilterModal from "../../../../components/modals/FilterModal";
-import {
-  ListFilter,
-  RotateCcw,
-  SlidersHorizontal,
-  Star,
-} from "lucide-react-native";
+import { Icons } from "../../../../constant/icons";
+import AroundYou from "../../../../components/homeScreen/AroundYouTab";
+import { useProfile } from "../../../../context/ProfileContext";
 
 const Home = () => {
-  const [currentProfileIndex, setCurrentProfileIndex] = useState(0);
-  const [flashMessage, setFlashMessage] = useState(null);
-  const [showModal, setShowModal] = useState("");
+  const router = useRouter();
+  const {
+    currentProfileIndex,
+    handleSwipe: contextHandleSwipe,
+    handleSuperLike: contextHandleSuperLike,
+    profiles,
+  } = useProfile();
+
+  const [flashMessage, setFlashMessage] = React.useState(null);
+  const [showModal, setShowModal] = React.useState(false);
+  const { height: windowHeight } = useWindowDimensions();
 
   const animation = useSharedValue(1);
   const flashAnim = useSharedValue(0);
   const scrollY = useSharedValue(0);
   const scrollRef = useRef(null);
 
-  const currentProfile = profiles[currentProfileIndex];
+  // Add safety check for profiles array
+  const currentProfile =
+    profiles && profiles.length > 0
+      ? profiles[currentProfileIndex % profiles.length]
+      : null;
 
   useEffect(() => {
-    // animate whenever profile changes
     animation.value = 0;
     animation.value = withTiming(1, { duration: 600 });
   }, [currentProfileIndex]);
@@ -61,11 +73,17 @@ const Home = () => {
 
   const handleSwipe = (direction) => {
     showFlashMessage(direction);
+    contextHandleSwipe(direction);
 
-    // move to next profile
-    setCurrentProfileIndex((prev) => (prev + 1) % profiles.length);
+    if (scrollRef.current) {
+      scrollRef.current.scrollTo({ y: 0, animated: false });
+    }
+  };
 
-    // reset scroll to top
+  const handleSuperLike = () => {
+    showFlashMessage("right");
+    contextHandleSuperLike();
+
     if (scrollRef.current) {
       scrollRef.current.scrollTo({ y: 0, animated: false });
     }
@@ -90,7 +108,6 @@ const Home = () => {
     };
   });
 
-  // Animated style for the profile header that appears on scroll
   const profileHeaderStyle = useAnimatedStyle(() => {
     const opacity = interpolate(scrollY.value, [0, 60], [0, 1], "clamp");
     const translateY = interpolate(scrollY.value, [0, 50], [-20, 0], "clamp");
@@ -101,124 +118,119 @@ const Home = () => {
     };
   });
 
-  // Create animated components
-  const AnimatedRotateCcw = Animated.createAnimatedComponent(RotateCcw);
-  const AnimatedSlidersHorizontal =
-    Animated.createAnimatedComponent(SlidersHorizontal);
-
-  // Animated style for icon colors
-  const iconColorStyle = useAnimatedStyle(() => {
-    const color = interpolateColor(
-      scrollY.value,
-      [0, 60],
-      ["#ffffff", "#000000"]
-    );
-
-    return { color };
-  });
-
-  // Animated style for the image tint color
   const imageTintStyle = useAnimatedStyle(() => {
     const tintColor = interpolateColor(
       scrollY.value,
       [0, 60],
-      ["#ffffff", "#000000"]
+      ["#ffffff", "#ffffff"]
     );
 
     return { tintColor };
   });
 
+  const navigateToProfile = () => {
+    if (currentProfile) {
+      router.push(`/profile/${currentProfile.id}`);
+    }
+  };
 
-  
+  // Show loading state if no profile is available
+  if (!profiles || profiles.length === 0) {
+    return (
+      <View style={styles.container}>
+        <Text>Loading profiles...</Text>
+      </View>
+    );
+  }
+
+  if (!currentProfile) {
+    return (
+      <View style={styles.container}>
+        <Text>No profiles available</Text>
+      </View>
+    );
+  }
+
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1 }} className="">
       <View style={styles.headerWrapper}>
-        <View className="flex-row justify-between gap-4">
-          <Pressable onPress={() => setShowModal(true)}>
-            <View className="justify-center items-center rounded-full">
-              <Animated.Image
-                source={require("../../../../assets/icons/bell.png")}
-                style={[
-                  {
-                    width: 18,
-                    height: 20,
-                  },
-                  imageTintStyle,
-                ]}
-                contentFit="cover"
-              />
-            </View>
-          </Pressable>
+        <View className="flex-row justify-end gap-4">
+          <View className="flex-row items-center gap-2">
+            <Pressable onPress={() => setShowModal(true)}>
+              <View className="justify-center items-center rounded-full bg-white/5  w-12 h-12 ">
+                <Animated.Image
+                  source={require("../../../../assets/icons/bell.png")}
+                  style={[
+                    {
+                      width: 18,
+                      height: 20,
+                    },
+                    imageTintStyle,
+                  ]}
+                  contentFit="cover"
+                />
+              </View>
+            </Pressable>
+            <Pressable onPress={() => setShowModal(true)}>
+              <View className="justify-center items-center rounded-full bg-white/5  w-12 h-12">
+                <Animated.Image
+                  source={Icons.redo}
+                  style={[
+                    {
+                      width: 18,
+                      height: 18,
+                    },
+                    imageTintStyle,
+                  ]}
+                  contentFit="contain"
+                />
+              </View>
+            </Pressable>
 
-          <Pressable onPress={() => setShowModal(true)}>
-            <View className="justify-center items-center rounded-full">
-              <Animated.Image
-                source={require("../../../../assets/icons/Slider-white.png")}
-                style={[
-                  {
-                    width: 18,
-                    height: 18,
-                  },
-                  imageTintStyle,
-                ]}
-                contentFit="contain"
-              />
-            </View>
-          </Pressable>
+            <Pressable onPress={() => setShowModal(true)}>
+              <View className="justify-center items-center rounded-full bg-white/5  w-12 h-12">
+                <Animated.Image
+                  source={require("../../../../assets/icons/Slider-white.png")}
+                  style={[
+                    {
+                      width: 18,
+                      height: 18,
+                    },
+                    imageTintStyle,
+                  ]}
+                  contentFit="contain"
+                />
+              </View>
+            </Pressable>
+          </View>
         </View>
       </View>
 
-      {/* Profile Header that appears on scroll */}
-      <Animated.View style={[styles.profileHeader, profileHeaderStyle]}>
-        <View className="flex-row items-center">
-          <Text className="text-black text-xl font-SatoshiBold mr-2">
-            {currentProfile.name}
-          </Text>
+    
 
-          <View className='flex-row items-center gap-1'>
-            <Text className="text-black text-xl font-Satoshi">
-              {currentProfile.age}
-            </Text>
-            {currentProfile.verified && (
-              <View>
-                <Image
-                  source={require("../../../../assets/icons/verified-1.png")}
-                  style={{ width: 18, height: 18 }}
-                />
-              </View>
-            )}
-          </View>
-        </View>
-
-        <View className="w-30" />
-      </Animated.View>
-
-      {/* Flash Message */}
       {flashMessage && (
         <Animated.View style={[styles.flashMessage, flashStyle]}>
           <Text style={styles.flashText}>{flashMessage}</Text>
         </Animated.View>
       )}
 
-      {/* Profile Card */}
-      <Animated.ScrollView
-        ref={scrollRef}
-        onScroll={scrollHandler}
-        scrollEventThrottle={16}
-        contentContainerStyle={{ flexGrow: 1 }}
-        showsVerticalScrollIndicator={false}
-      >
-        <Animated.View style={[animatedStyle, { flex: 1 }]}>
-          <ProfileCard profile={currentProfile} />
-        </Animated.View>
-      </Animated.ScrollView>
+      <Pressable onPress={navigateToProfile} style={styles.aroundYouContainer}>
+        <Animated.ScrollView
+          ref={scrollRef}
+          onScroll={scrollHandler}
+          scrollEventThrottle={16}
+          contentContainerStyle={{ flexGrow: 1 }}
+          showsVerticalScrollIndicator={false}
+        >
+          <Animated.View style={[animatedStyle, { flex: 1 }]}>
+            {/* Use AroundYou with proper styling */}
+            <AroundYou profile={currentProfile} />
+          </Animated.View>
+        </Animated.ScrollView>
+      </Pressable>
 
-      {/* Action Buttons */}
       <View style={styles.actionButtonWrapper}>
-        <ActionButtons
-          onSwipe={handleSwipe}
-          onSuperLike={() => handleSwipe("right")}
-        />
+        <ActionButtons onSwipe={handleSwipe} onSuperLike={handleSuperLike} />
       </View>
       <FilterModal visible={showModal} onClose={() => setShowModal(false)} />
     </View>
@@ -226,11 +238,17 @@ const Home = () => {
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#F8F9FA",
+  },
   headerWrapper: {
     position: "absolute",
-    top: 60,
-    left: 20, // 👈 add this
-    right: 20, // 👈 keep this so it spans across
+    top: 50,
+    left: 20,
+    right: 20,
     zIndex: 50,
   },
   profileHeader: {
@@ -240,7 +258,7 @@ const styles = StyleSheet.create({
     right: 0,
     backgroundColor: "white",
     paddingTop: 60,
-    paddingBottom: 10,
+    paddingBottom: 15,
     alignItems: "center",
     zIndex: 40,
     borderBottomWidth: 1,
@@ -248,7 +266,7 @@ const styles = StyleSheet.create({
   },
   actionButtonWrapper: {
     position: "absolute",
-    bottom: -9,
+    bottom: 85,
     left: 0,
     right: 0,
     zIndex: 10,
@@ -267,6 +285,10 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 16,
     fontWeight: "bold",
+  },
+  aroundYouContainer: {
+    flex: 1,
+ 
   },
 });
 

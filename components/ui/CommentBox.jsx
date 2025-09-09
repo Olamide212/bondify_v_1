@@ -10,8 +10,8 @@ import {
 } from "react-native";
 import { Image } from "expo-image";
 import { SendHorizonal as PaperPlane, Sparkles, X } from "lucide-react-native";
-import VoiceRecorder from "./VoiceRecorder";
-import SuggestionModal from "../modals/AiSuggestionModal"; 
+import SuggestionModal from "../modals/AiSuggestionModal";
+import { colors } from "../../constant/colors";
 
 // Define suggestions for the modal
 const suggestions = [
@@ -27,11 +27,11 @@ export default function ImageSection({
   index = 0,
   onPress,
   onSendMessage,
-  onSendAudio,
+  scrollPosition, // New prop to track scroll position
+  commentThreshold = 0.7, // When to show comment box (70% of image visible)
 }) {
   const [text, setText] = useState("");
   const [showComposer, setShowComposer] = useState(false);
-  const [isRecording, setIsRecording] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
 
   // Animated value for sliding
@@ -44,13 +44,14 @@ export default function ImageSection({
     setText("");
   };
 
-  const handleSendAudio = (uri) => {
-    onSendAudio?.(uri, index);
-  };
-
-  const handleRecordingStateChange = (recording) => {
-    setIsRecording(recording);
-  };
+  // Determine if comment box should be visible based on scroll position
+  useEffect(() => {
+    if (scrollPosition !== undefined) {
+      // Show comment box when image is 70% visible
+      const shouldShow = scrollPosition >= commentThreshold;
+      setShowComposer(shouldShow);
+    }
+  }, [scrollPosition, commentThreshold]);
 
   useEffect(() => {
     if (showComposer) {
@@ -88,7 +89,7 @@ export default function ImageSection({
             style={styles.sparkBtn}
             onPress={() => setShowComposer(true)}
           >
-            <Sparkles size={28} color="white" />
+            <Sparkles size={26} color="#371f7d" />
           </TouchableOpacity>
         ) : (
           // Animated Composer
@@ -106,39 +107,31 @@ export default function ImageSection({
               <X size={20} color="#6B7280" />
             </TouchableOpacity>
 
-            {/* Text input (hidden during recording) */}
-            {!isRecording && (
-              <View style={styles.inputContainer}>
-                <TextInput
-                  value={text}
-                  onChangeText={setText}
-                  placeholder="Type a message..."
-                  style={styles.input}
-                />
-                <TouchableOpacity
-                  style={styles.inputSparkle}
-                  onPress={() => setShowSuggestions(true)}
-                >
-                  <Sparkles size={18} color="#3B82F6" />
-                </TouchableOpacity>
-              </View>
-            )}
+            {/* Text input */}
+            <View style={styles.inputContainer}>
+              <TextInput
+                value={text}
+                onChangeText={setText}
+                placeholder="Type a message..."
+                placeholderTextColor="#ccc"
+                style={styles.input}
+                multiline
+                maxLength={200}
+              />
+              <TouchableOpacity
+                style={styles.inputSparkle}
+                onPress={() => setShowSuggestions(true)}
+              >
+                <Sparkles size={18} color={colors.primary} />
+              </TouchableOpacity>
+            </View>
 
-            {/* Send button (hidden during recording) */}
-            {!isRecording && text.length > 0 && (
+            {/* Send button */}
+            {text.length > 0 && (
               <TouchableOpacity style={styles.sendBtn} onPress={handleSend}>
-                <PaperPlane size={20} color="#2563EB" />
+                <PaperPlane size={20} color="#371f7d" />
               </TouchableOpacity>
             )}
-
-            {/* Voice recorder - always rendered but conditionally visible */}
-            <View style={isRecording ? styles.visible : styles.hidden}>
-              <VoiceRecorder
-                onSendAudio={handleSendAudio}
-                onCancel={() => setShowComposer(false)}
-                onRecordingStateChange={handleRecordingStateChange}
-              />
-            </View>
           </Animated.View>
         )}
       </View>
@@ -159,12 +152,12 @@ export default function ImageSection({
 
 const styles = StyleSheet.create({
   wrapper: {
-    marginBottom: 12,
     position: "relative",
+    marginBottom: 20,
   },
   image: {
     width: "100%",
-    height: 700,
+    height: 600, // Reduced height for better scrolling experience
     backgroundColor: "#eee",
   },
   commentRow: {
@@ -174,14 +167,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     position: "absolute",
     bottom: 10,
-    width: "100%",
+    right: 10,
     justifyContent: "flex-end",
   },
   sparkBtn: {
-    backgroundColor: "#2A343D",
+    backgroundColor: "#d7ff81",
     padding: 12,
     borderRadius: 30,
-    alignSelf: "right",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
   },
   composer: {
     flexDirection: "row",
@@ -190,11 +187,13 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     paddingHorizontal: 12,
     paddingVertical: 8,
-    width: "95%",
+    width: "85%",
     shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowRadius: 5,
     elevation: 3,
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
   },
   closeBtn: {
     marginRight: 8,
@@ -209,14 +208,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     borderWidth: 1,
     borderColor: "#E5E7EB",
+    minHeight: 40,
   },
   input: {
     flex: 1,
     fontSize: 16,
     paddingVertical: 6,
+    maxHeight: 100,
   },
   inputSparkle: {
     padding: 4,
+    marginLeft: 8,
   },
   sendBtn: {
     marginLeft: 8,
@@ -225,11 +227,5 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     alignItems: "center",
     justifyContent: "center",
-  },
-  visible: {
-    display: "flex",
-  },
-  hidden: {
-    display: "none",
   },
 });

@@ -4,6 +4,7 @@ export const profiles = [
     name: "Ibitayo",
     age: 26,
     gender: "Female",
+    zodiac: "Cancer",
     location: "New York, NY",
     ethnicity: "African/American",
     nationality: "Nigeria",
@@ -16,7 +17,10 @@ export const profiles = [
     education: "Master's in Design, NYU",
     school: "National Open university",
     height: "5'6\"",
-    lookingFor: "Long-term relationship",
+    loveStyle: "Nice gesture",
+    communicationStyle: "Phone caller",
+    financialStyle: "Big time spender",
+    lookingFor: "Christian searching for Love",
     relationshipType: "Monogamous",
     drinking: "Socially",
     smoking: "Never",
@@ -24,6 +28,7 @@ export const profiles = [
     pets: "Dog lover",
     children: "Want someday",
     lastActive: "Active today",
+    joined: "Just joined",
     language: ["English", "Yoruba", "French"],
     mutualFriends: 3,
     mutualInterests: ["📸 Photography", "☕️ Coffee", "✈️ Travel"],
@@ -48,7 +53,7 @@ export const profiles = [
     bio: `Adventure seeker, coffee enthusiast, and dog lover. Looking for someone to explore the city with! I love hiking on weekends, trying new restaurants, and capturing beautiful moments through photography. Life is too short not to laugh every day! 🌟\n\nCurrently working as a UX designer and passionate about creating meaningful experiences. When I'm not designing, you'll find me at a local coffee shop, planning my next adventure, or cuddling with my golden retriever, Max.`,
     questions: [
       {
-        question: "What’s your perfect Sunday?",
+        question: "What's your perfect Sunday?",
         answer: "Hiking in nature followed by brunch with friends.",
       },
       {
@@ -57,7 +62,7 @@ export const profiles = [
       },
       {
         question: "A fun fact about you?",
-        answer: "I’ve been to 12 countries in the past 3 years!",
+        answer: "I've been to 12 countries in the past 3 years!",
       },
     ],
     images: [
@@ -81,7 +86,7 @@ export const profiles = [
     education: "Master's in Fashion, UI",
     school: "University of Ibadan",
     height: "5'7\"",
-    lookingFor: "Something serious",
+    lookingFor: "muslim searching for love",
     relationshipType: "Monogamous",
     drinking: "Occasionally",
     smoking: "Never",
@@ -107,7 +112,7 @@ export const profiles = [
     bio: `Designer with a love for art and expression. Obsessed with aesthetic spaces and meaningful conversations. I enjoy walks in nature, curating outfits, and making connections with people who have great energy.`,
     questions: [
       {
-        question: "What’s your dream destination?",
+        question: "What's your dream destination?",
         answer: "Bali or Florence!",
       },
       {
@@ -115,7 +120,7 @@ export const profiles = [
         answer: "Sarcasm and clever puns.",
       },
       {
-        question: "What’s your guilty pleasure?",
+        question: "What's your guilty pleasure?",
         answer: "Reality TV and spicy ramen.",
       },
     ],
@@ -138,7 +143,7 @@ export const profiles = [
     education: "Culinary School",
     school: "Brooklyn Culinary Institute",
     height: "5'5\"",
-    lookingFor: "Friendship, maybe more",
+    lookingFor: "Short-term fun",
     relationshipType: "Open to ideas",
     drinking: "No",
     smoking: "Occasionally",
@@ -150,7 +155,7 @@ export const profiles = [
     mutualFriends: 1,
     mutualInterests: ["#Food", "#Art"],
     interests: ["#Art", "#Food", "#Music", "#Dancing"],
-    bio: `Artist by day, foodie by night. I'm spontaneous and love trying new things. If you’re into deep convos and delicious desserts, we’ll get along just fine.`,
+    bio: `Artist by day, foodie by night. I'm spontaneous and love trying new things. If you're into deep convos and delicious desserts, we'll get along just fine.`,
     questions: [
       {
         question: "What's your favorite dessert?",
@@ -168,6 +173,61 @@ export const profiles = [
     images: [
       "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400&h=600&fit=crop",
       "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=600&fit=crop",
+    ],
+  },
+  {
+    id: 4,
+    name: "Michael",
+    age: 32,
+    location: "Lagos, NG",
+    distance: "10 km away",
+    bondScore: 91,
+    verified: true,
+    occupation: "Software Engineer",
+    completion: 85,
+    religion: "Christian",
+    education: "Bachelor's in Computer Science",
+    school: "University of Lagos",
+    height: "6'0\"",
+    lookingFor: "Long-term relationship",
+    relationshipType: "Monogamous",
+    drinking: "Socially",
+    smoking: "Never",
+    exercise: "Regularly",
+    pets: "Dog lover",
+    children: "Want someday",
+    lastActive: "Active today",
+    joined: "2 weeks ago",
+    language: ["English", "Yoruba"],
+    mutualFriends: 5,
+    mutualInterests: ["#Technology", "#Travel", "#Fitness"],
+    interests: [
+      "#Technology",
+      "#Travel",
+      "#Fitness",
+      "#Reading",
+      "#Movies",
+      "#Music",
+      "#Cooking",
+    ],
+    bio: `Software engineer with a passion for technology and travel. Looking for a serious relationship with someone who shares my values and interests. I enjoy staying active, trying new foods, and exploring new places.`,
+    questions: [
+      {
+        question: "What's your idea of a perfect date?",
+        answer: "A hike followed by a picnic with a view.",
+      },
+      {
+        question: "What are you most passionate about?",
+        answer: "Using technology to solve real-world problems.",
+      },
+      {
+        question: "What's your favorite travel destination?",
+        answer: "Anywhere with mountains and good food!",
+      },
+    ],
+    images: [
+      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=600&fit=crop",
     ],
   },
 ];

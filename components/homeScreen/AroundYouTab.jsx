@@ -19,14 +19,13 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import { BlurView } from "expo-blur";
 import { useRouter } from "expo-router";
-import CommentButton from "../../components/ui/CommentButton"
 
 const AroundYouTab = ({ profile, actionMessage }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [fadeAnim] = useState(new Animated.Value(1));
   const totalImages = profile?.images?.length || 1;
   const router = useRouter();
-  const { width: screenWidth } = useWindowDimensions();
+  const { width: screenWidth, height: screenHeight } = useWindowDimensions();
 
   const handleImageChange = (newIndex) => {
     Animated.timing(fadeAnim, {
@@ -62,7 +61,7 @@ const AroundYouTab = ({ profile, actionMessage }) => {
   };
 
   return (
-    <View style={styles.tabContent}>
+    <View style={[styles.tabContent, { height: screenHeight - 200 }]}>
       {/* Action Message */}
       {actionMessage && (
         <View style={styles.actionMessage}>
@@ -71,83 +70,66 @@ const AroundYouTab = ({ profile, actionMessage }) => {
       )}
 
       {/* Main Image with Fade Animation */}
+      {/* Main Image with Fade Animation */}
       <TouchableOpacity
         style={styles.imageTouchContainer}
         activeOpacity={1}
         onPress={handleTap}
       >
-        <Animated.View style={[styles.imageContainer]}>
+        <Animated.View style={[styles.imageContainer, { opacity: fadeAnim }]}>
           <Image
             source={{ uri: profile?.images?.[currentImageIndex] }}
             style={styles.image}
+            contentFit="cover"
           />
           {/* Dark overlay */}
-        
-        </Animated.View>
+          <View style={styles.overlay} />
 
-        <View style={styles.topInfo}>
-          <View style={styles.topInfoLeft}>
-            {/* Bond Score 
-            {profile.bondScore !== undefined && (
-              <View className="bg-white/20 flex-row items-center p-2 rounded-full">
-                <Heart size={16} color="white" fill="white" />
-                <Text style={styles.bondText}>{profile.bondScore}%</Text>
-              </View>
-            )}*/}
+          {/* Gradient just for fade */}
+          <LinearGradient
+            colors={["transparent", "rgba(0,0,0,0.8)"]}
+            style={styles.bottomGradient}
+          />
 
-            {/* Image Pagination */}
-            {totalImages > 1 && (
-              <View style={styles.inlinePagination}>
-                {[...Array(totalImages)].map((_, index) => (
-                  <View
-                    key={index}
-                    style={[
-                      styles.paginationDot,
-                      index === currentImageIndex && styles.activeDot,
-                    ]}
-                  />
-                ))}
-              </View>
-            )}
-          </View>
-        </View>
+          {/* Floating Profile Info */}
+          <View style={styles.profileInfo}>
+            <View style={{ flex: 1 }}>
+              {/* Name + Age + Verified + Chevron */}
+              <View style={styles.nameRow}>
+                <View style={styles.nameLeft}>
+                  <Text style={styles.name}>
+                    {profile.name}, {profile.age}
+                  </Text>
+                  {profile.verified && (
+                    <View style={styles.verifiedBadge}>
+                      <Star size={16} color="white" fill="white" />
+                    </View>
+                  )}
+                </View>
 
-        {/* Bottom Profile Info */}
-        <LinearGradient
-          colors={["transparent", "rgba(0,0,0,0.8)"]}
-          style={styles.bottomGradient}
-        >
-          <View className="px-5 flex-row justify-between items-center">
-            <View style={styles.profileHeader}>
-              <View style={styles.nameContainer}>
-                <Text style={styles.name}>{profile.name}</Text>
-                <Text style={styles.age}>, {profile.age}</Text>
+                {/* Chevron on same line, pushed to right */}
+                <TouchableOpacity
+                  style={styles.profileButton}
+                  onPress={handleNavigateToProfile}
+                  className='bg-secondary'
+                >
+                  <Text className='text-primary text-sm leading-[15px] font-SatoshiBold text-center'>view profile</Text>
+                </TouchableOpacity>
+              </View>
 
-                {profile.verified && (
-                  <View style={styles.verifiedBadge}>
-                    <Star size={16} color="white" fill="white" />
-                  </View>
-                )}
-              </View>
-              {/* Occupation */}
-              <View className="flex-row justify-between mt-2">
-                {profile.location && (
-                  <View style={styles.occupationContainer}>
-                    <MapPin size={18} color="rgba(255,255,255,0.8)" />
-                    <Text style={styles.occupation}>{profile.distance}</Text>
-                  </View>
-                )}
-              </View>
+              {/* Location under name */}
+              {profile.location && (
+                <View style={styles.locationContainer}>
+                  <MapPin size={18} color="rgba(255,255,255,0.8)" />
+                  <Text style={styles.locationText}>
+                    {profile.location}
+                    {profile.distance ? `,  ${profile.distance}` : ""}
+                  </Text>
+                </View>
+              )}
             </View>
-
-            <TouchableOpacity
-              style={styles.profileButton}
-              onPress={handleNavigateToProfile}
-            >
-              <ChevronRight size={24} color="white" />
-            </TouchableOpacity>
           </View>
-        </LinearGradient>
+        </Animated.View>
       </TouchableOpacity>
     </View>
   );
@@ -156,29 +138,23 @@ const AroundYouTab = ({ profile, actionMessage }) => {
 const styles = StyleSheet.create({
   tabContent: {
     flex: 1,
-    
   },
   imageTouchContainer: {
-    height: "100%",
-
+    flex: 1,
     overflow: "hidden",
   },
   imageContainer: {
     flex: 1,
-
-    overflow: "hidden",
+    position: "relative",
   },
   image: {
     width: "100%",
     height: "100%",
-
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: "rgba(0,0,0,0.15)",
-
   },
-
   actionMessage: {
     position: "absolute",
     top: 100,
@@ -195,7 +171,6 @@ const styles = StyleSheet.create({
     color: "#333",
     fontSize: 16,
     fontWeight: "600",
-    fontFamily: "SatoshiMedium",
   },
   paginationDot: {
     width: 6,
@@ -227,77 +202,68 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     marginLeft: 10,
   },
-
-  bondText: {
-    color: "white",
-    fontSize: 14,
-    fontWeight: "600",
-    marginLeft: 4,
-  },
   bottomGradient: {
     position: "absolute",
     bottom: 0,
     left: 0,
     right: 0,
     height: 200,
-    paddingTop: 30,
+    justifyContent: "flex-end",
+    paddingHorizontal: 20,
+    paddingBottom: 20,
   },
   profileInfo: {
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 20,
-    overflow: "hidden",
-    marginRight: 15,
-    marginLeft: 15,
+    position: "absolute",
+    bottom: 200, 
+    left: 20,
+    right: 20,
+    zIndex: 10,
   },
-  profileHeader: {
 
-    marginBottom: 5,
+  nameRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+
   },
-  nameContainer: {
+
+  nameLeft: {
     flexDirection: "row",
     alignItems: "center",
   },
+
   name: {
     color: "white",
-    fontSize: 30,
+    fontSize: 28,
     fontFamily: "SatoshiBold",
   },
-  age: {
-    color: "white",
-    fontSize: 30,
-    fontFamily: "SatoshiBold",
-  },
+
   verifiedBadge: {
     marginLeft: 8,
     backgroundColor: "#3B82F6",
     padding: 4,
     borderRadius: 12,
   },
-  profileButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: "rgba(255,255,255,0.2)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  detailsContainer: {
-    flexDirection: "col",
-    gap: 5,
-    justifyContent: "space-between",
-    marginBottom: 12,
-  },
-  occupationContainer: {
+
+  locationContainer: {
     flexDirection: "row",
     alignItems: "center",
   },
-  occupation: {
+
+  locationText: {
     color: "rgba(255,255,255,0.9)",
-    fontSize: 18,
-    marginLeft: 8,
+    fontSize: 16,
+    marginLeft: 6,
     fontFamily: "SatoshiMedium",
-    maxWidth: 150,
+  },
+
+  profileButton: {
+    width: 60,
+    height: 60,
+    borderRadius: 100,
+    justifyContent: "center",
+    alignItems: "center",
+    marginLeft: 10,
   },
 });
 

@@ -33,15 +33,17 @@ export default function DirectMessageBox({ profile, onSendMessage }) {
   const hasMessage = message.trim().length > 0;
 
   return (
-    <View style={styles.container}>
+    <View className=" bg-white p-6">
       <Text className="text-lg font-GeneralSansMedium mb-6">
-        Ready to Bond? Send a direct message to {profile.name || "them"} now.
+        Ready to Bond? Send {profile.name || "them"} a direct message now.
+        Starting a conversation boosts your chances of matching—type your own
+        message or let our AI suggest one for you.
       </Text>
 
       {/* Comment box */}
       <View style={styles.commentBox}>
         <TextInput
-          placeholder="Write something about this profile..."
+          placeholder="Type a message...."
           placeholderTextColor="#ccc"
           style={styles.input}
           multiline
@@ -55,10 +57,10 @@ export default function DirectMessageBox({ profile, onSendMessage }) {
 
       <View className="flex-row items-center bg-primary mt-4 px-2 py-2 rounded-full">
         <TouchableOpacity
-          className="w-10 h-10 flex-row items-center justify-center rounded-full bg-white"
+          className="w-10 h-10 flex-row items-center justify-center rounded-full bg-secondary "
           onPress={() => setShowSuggestions(true)}
         >
-          <Sparkles size={22} color="#E94057" />
+          <Sparkles size={22} color="#371f7d" />
         </TouchableOpacity>
         <TouchableOpacity
           className="w-[80%]  flex-row justify-center text-center"
@@ -84,10 +86,10 @@ export default function DirectMessageBox({ profile, onSendMessage }) {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: "white",
-    marginHorizontal: 16,
+
     padding: 24,
-    marginTop: 24,
-    borderRadius: 16,
+
+
     borderWidth: 1,
     borderColor: "#E5E7EB",
   },

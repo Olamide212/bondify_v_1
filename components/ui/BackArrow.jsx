@@ -3,7 +3,7 @@ import React from 'react'
 import { useRouter } from 'expo-router'
 import { ArrowLeft } from "lucide-react-native";
 
-const arrowLeft = () => {
+const BackArrow = () => {
   const router = useRouter()
 
   return (
@@ -15,4 +15,4 @@ const arrowLeft = () => {
   );
 }
 
-export default arrowLeft
+export default BackArrow

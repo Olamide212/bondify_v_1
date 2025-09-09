@@ -1,62 +1,111 @@
-import { View, Text, StyleSheet } from "react-native";
 import React, { useState } from "react";
-import HomeHeader from "../../../../components/headers/HomeHeader";
-import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-import ActionButtons from "../../../../components/homeScreen/ActionButtons";
-import { profiles } from "../../../../data/profileData";
-import AroundYouTab from "../../../../components/homeScreen/AroundYouTab";
-import TopPicksTab from "../../../../components/homeScreen/TopPicksTab";
-import MatchmakingTab from "../../../../components/homeScreen/MatchmakingTab";
-import HomeScreenTabs from "../../../../components/homeScreen/HomeScreenTabs";
+import {
+  View,
+  Text,
+  FlatList,
+  SafeAreaView,
+  StatusBar,
+  TouchableOpacity,
+} from "react-native";
+import { useRouter } from "expo-router";
+import DiscoverCard from "../../../../components/discoverScreen/DiscoverCard";
+import { styles } from "../../../../styles/discoverStyles";
 import GeneralHeader from "../../../../components/headers/GeneralHeader";
-import MapDiscoveryScreen from "../../../../components/homeScreen/MapDiscover";
 
-const Discover = () => {
-  const [currentProfileIndex, setCurrentProfileIndex] = useState(0);
-  const [matches, setMatches] = useState(12);
-  const [likes, setLikes] = useState(48);
-  const [flashMessage, setFlashMessage] = useState(null);
-  const [activeTab, setActiveTab] = useState("Around you");
+const DiscoverScreen = () => {
+  const router = useRouter();
+  const [activeTab, setActiveTab] = useState("all");
 
-  const currentProfile = profiles[currentProfileIndex];
+  // Define discover categories
+  const discoverCategories = [
+    {
+      id: "1",
+      name: "Christian searching for Love",
+      members: "12.4k",
+      icon: "🙏",
+      description:
+        "Connect with Christian singles seeking meaningful relationships",
+      preference: "Christian searching for Love",
+      recentActivity: "124 active today",
+    },
+    {
+      id: "2",
+      name: "Muslim searching for love",
+      members: "8.7k",
+      icon: "☪️",
+      description: "Connect with Muslim singles in a halal environment",
+      preference: "muslim searching for love",
+      recentActivity: "87 active today",
+    },
+    {
+      id: "3",
+      name: "Traditionalist searching for love",
+      members: "6.2k",
+      icon: "🪔",
+      description:
+        "Meet traditionalists who value culture and spiritual connection",
+      preference: "Traditionalist searching for love",
+      recentActivity: "45 active today",
+    },
+    {
+      id: "4",
+      name: "Short-term fun",
+      members: "15.2k",
+      icon: "🎉",
+      description: "For those looking for short-term relationships and fun",
+      preference: "Short-term fun",
+      recentActivity: "215 active today",
+    },
+    {
+      id: "5",
+      name: "Long-term relationship",
+      members: "20.1k",
+      icon: "💑",
+      description: "Find someone for a long-term committed relationship",
+      preference: "Long-term relationship",
+      recentActivity: "189 active today",
+    },
+  ];
 
+  // Background colors for each list item
+  const backgroundColors = [
+    "#FFE5E5", // light red
+    "#E5F7FF", // light blue
+    "#E5FFE9", // light green
+    "#FFF6E5", // light orange
+    "#F0E5FF", // light purple
+  ];
+
+  const navigateToCategory = (category) => {
+    router.push({
+      pathname: "/profiles",
+      params: {
+        preference: category.preference,
+        title: category.name,
+      },
+    });
+  };
 
   return (
-    <SafeAreaProvider>
-      <SafeAreaView className="flex-1 z-40  bg-white relative">
-        <View style={{ flex: 1 }}>
-          <GeneralHeader title="Discover" />
+    <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="dark-content" />
+      <GeneralHeader title="Discover" />
 
-          {/* Tab Navigation */}
-          <View>
-            <HomeScreenTabs activeTab={activeTab} setActiveTab={setActiveTab} />
-          </View>
-          <View className='mt-3'>
-            {activeTab === "Around you" && (
-              <MapDiscoveryScreen />
-            )}
-            
-            {activeTab === "Top picks" && (
-              <TopPicksTab profile={currentProfile} />
-            )}
-
-            {activeTab === "Matchmaker" && <MatchmakingTab />}
-          </View>
-        </View>
-      </SafeAreaView>
-    </SafeAreaProvider>
+      <FlatList
+        data={discoverCategories}
+        renderItem={({ item, index }) => (
+          <DiscoverCard
+            category={item}
+            onPress={() => navigateToCategory(item)}
+            backgroundColor={backgroundColors[index % backgroundColors.length]}
+          />
+        )}
+        keyExtractor={(item) => item.id}
+        contentContainerStyle={styles.listContainer}
+        showsVerticalScrollIndicator={false}
+      />
+    </SafeAreaView>
   );
 };
 
-const styles = StyleSheet.create({
-  actionButtonWrapper: {
-    position: "absolute",
-    top: 60,
-    left: 0,
-    right: 0,
-    alignItems: "center",
-    zIndex: 10,
-  },
-});
-
-export default Discover;
+export default DiscoverScreen;

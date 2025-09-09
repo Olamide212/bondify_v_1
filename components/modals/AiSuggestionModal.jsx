@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Modal, View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { RotateCcw } from "lucide-react-native";
+import { colors } from "../../constant/colors";
 
 const SuggestionModal = ({
   visible,
@@ -31,8 +32,8 @@ const SuggestionModal = ({
           <Text style={styles.suggestionText}>{suggestions[currentIndex]}</Text>
 
           <View style={styles.actions}>
-            <TouchableOpacity onPress={handleReload} style={styles.reloadBtn}>
-              <RotateCcw size={22} color="#3B82F6" />
+            <TouchableOpacity onPress={handleReload} className='bg-primary/20 p-3 rounded-lg'>
+              <RotateCcw size={22} color={colors.primary} />
             </TouchableOpacity>
             <TouchableOpacity onPress={handlePick} style={styles.pickBtn}>
               <Text style={styles.pickBtnText}>Use this</Text>
@@ -75,7 +76,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 20,
     borderRadius: 10,
-    backgroundColor: "#3B82F6",
+    backgroundColor: colors.primary,
   },
   pickBtnText: {
     color: "white",

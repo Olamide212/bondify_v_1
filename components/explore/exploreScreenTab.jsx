@@ -1,5 +1,11 @@
-import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import React, { useRef } from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView,
+} from "react-native";
 import { colors } from "../../constant/colors";
 
 const ExploreScreenTab = ({
@@ -9,85 +15,87 @@ const ExploreScreenTab = ({
   likedCount,
   youLikedCount,
 }) => {
-  // map tabs with their counts
+  const scrollViewRef = useRef(null);
+
   const tabs = [
     { key: "visitedYou", label: "Visited You", count: visitedCount },
     { key: "likedYou", label: "Liked You", count: likedCount },
     { key: "youLiked", label: "You Liked", count: youLikedCount },
+    { key: "passed", label: "Passed", count: youLikedCount },
+    { key: "bondSent", label: "Bond", count: youLikedCount },
   ];
 
+  const handleTabPress = (key, index) => {
+    setActiveTab(key);
+
+    // estimate width of each tab (adjust if tabs are wider)
+    const tabWidth = 120; // <-- tweak to match your design
+    const scrollToX = Math.max(index * tabWidth - tabWidth, 0);
+
+    if (scrollViewRef.current) {
+      scrollViewRef.current.scrollTo({
+        x: scrollToX,
+        animated: true,
+      });
+    }
+  };
+
   return (
-    <View>
-      <View style={styles.tabsContainer}>
-        {tabs.map(({ key, label, count }) => (
-          <TouchableOpacity
-            key={key}
-            style={styles.tabWrapper}
-            onPress={() => setActiveTab(key)}
+    <ScrollView
+      ref={scrollViewRef}
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      contentContainerStyle={styles.scrollContainer}
+    >
+      {tabs.map(({ key, label, count }, index) => (
+        <TouchableOpacity
+          key={key}
+          style={styles.tabWrapper}
+          onPress={() => handleTabPress(key, index)}
+        >
+          <View
+            style={[
+              styles.tabButton,
+              activeTab === key && styles.activeTabButton,
+            ]}
           >
-            <View
+            <Text
               style={[
-                styles.tabButton,
-                activeTab === key && styles.activeTabButton,
+                styles.tabText,
+                activeTab === key && styles.activeTabText,
               ]}
             >
-              <Text
-                style={[
-                  styles.tabText,
-                  activeTab === key && styles.activeTabText,
-                ]}
-              >
-                {label}
-              </Text>
+              {label}
+            </Text>
 
-              {/* badge */}
-              {typeof count === "number" && (
-                <View
+            {typeof count === "number" && (
+              <View
+                style={[styles.badge, activeTab === key && styles.activeBadge]}
+              >
+                <Text
                   style={[
-                    styles.badge,
-                    activeTab === key && styles.activeBadge,
+                    styles.badgeText,
+                    activeTab === key && styles.activeBadgeText,
                   ]}
                 >
-                  <Text
-                    style={[
-                      styles.badgeText,
-                      activeTab === key && styles.activeBadgeText,
-                    ]}
-                  >
-                    {count}
-                  </Text>
-                </View>
-              )}
-            </View>
-          </TouchableOpacity>
-        ))}
-      </View>
-    </View>
+                  {count}
+                </Text>
+              </View>
+            )}
+          </View>
+        </TouchableOpacity>
+      ))}
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
-  tabsContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: 10,
-    backgroundColor: "#fff",
-    marginHorizontal: 20,
-    borderRadius: 100,
-    alignSelf: "center",
-
-    // Drop shadow
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 6,
-    elevation: 5,
+  scrollContainer: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
   },
-
   tabWrapper: {
-    flex: 1,
-    alignItems: "center",
+    marginRight: 12,
   },
   tabButton: {
     flexDirection: "row",
@@ -96,6 +104,14 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 16,
     borderRadius: 50,
+    backgroundColor: "#f9f9f9",
+
+    // Shadow
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 3,
   },
   activeTabButton: {
     backgroundColor: colors.primary,
@@ -109,7 +125,6 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontFamily: "SatoshiBold",
   },
-
   badge: {
     backgroundColor: "#eee",
     borderRadius: 10,

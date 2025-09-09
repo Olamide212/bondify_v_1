@@ -3,7 +3,7 @@ import { View, TouchableOpacity, Image } from "react-native";
 import {
   X,
   Heart,
-  WandSparkles,
+ Sparkles,
   ThumbsUp,
   ThumbsDown,
 } from "lucide-react-native";
@@ -13,29 +13,23 @@ import { images } from "../../constant/images"
 import { colors } from "../../constant/colors";
 
 const ActionButtons = ({ onSwipe, onSuperLike }) => (
-  <View className="flex-row justify-between items-center gap-2 px-4 py-6">
+  <View className="flex-row justify-center items-center gap-2 px-4 py-6">
     <TouchableOpacity
       onPress={() => onSwipe("left")}
-      className="w-[65px] h-[65px] bg-white rounded-full items-center justify-center shadow"
+      className="w-[55px] h-[55px] bg-white rounded-full items-center justify-center shadow"
     >
-      <Image
-        source={require("../../assets/images/cancel.png")}
-        resizeMode="contain"
-        style={{ width: 28, height: 28 }}
-      />
+      <X size={26} color="#000" fill="#000" />
     </TouchableOpacity>
 
-    <View className="flex-row items-center gap-3">
-      <TouchableOpacity className="w-[60px] h-[60px] bg-primary rounded-full items-center justify-center shadow">
-        <WandSparkles size={30} color="white" fill="white" />
-      </TouchableOpacity>
-      <TouchableOpacity
-        onPress={() => onSwipe("right")}
-        className="w-[65px] h-[65px] bg-white rounded-full items-center justify-center shadow"
-      >
-        <Heart size={35} color="#FB3857" fill="#FB3857" />
-      </TouchableOpacity>
-    </View>
+    <TouchableOpacity className="w-[70px] h-[70px] bg-primary rounded-full items-center justify-center shadow">
+      <Sparkles size={30} color="#fff" fill="#fff" />
+    </TouchableOpacity>
+    <TouchableOpacity
+      onPress={() => onSwipe("right")}
+      className="w-[55px] h-[55px] bg-white rounded-full items-center justify-center shadow"
+    >
+      <Heart size={26} color="#FB3857" fill="#FB3857" />
+    </TouchableOpacity>
   </View>
 );
 

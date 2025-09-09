@@ -1,0 +1,577 @@
+import { StyleSheet } from "react-native";
+
+export const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#F8F9FA",
+  },
+  header: {
+    padding: 20,
+    backgroundColor: "#FFFFFF",
+    borderBottomWidth: 1,
+    borderBottomColor: "#E0E0E0",
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#1A1A1A",
+    marginBottom: 5,
+  },
+  headerSubtitle: {
+    fontSize: 14,
+    color: "#666",
+  },
+  tabContainer: {
+    flexDirection: "row",
+    backgroundColor: "#FFFFFF",
+    borderBottomWidth: 1,
+    borderBottomColor: "#E0E0E0",
+  },
+  tab: {
+    flex: 1,
+    paddingVertical: 15,
+    alignItems: "center",
+  },
+  activeTab: {
+    borderBottomWidth: 2,
+    borderBottomColor: "#3B82F6",
+  },
+  tabText: {
+    fontSize: 14,
+    color: "#666",
+    fontWeight: "500",
+  },
+  activeTabText: {
+    color: "#3B82F6",
+  },
+  listContainer: {
+    padding: 15,
+    paddingBottom: 80,
+  },
+  communityCard: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 12,
+    padding: 15,
+    marginBottom: 15,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  communityHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  communityIcon: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    marginRight: 12,
+    backgroundColor: "#F0F2F5",
+  },
+  communityInfo: {
+    flex: 1,
+  },
+  communityName: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#1A1A1A",
+    marginBottom: 3,
+  },
+  communityMembers: {
+    fontSize: 14,
+    color: "#666",
+  },
+  communityDescription: {
+    fontSize: 14,
+    color: "#333",
+    marginBottom: 15,
+    lineHeight: 20,
+  },
+  recentPost: {
+    backgroundColor: "#F7F9FC",
+    borderRadius: 8,
+    padding: 12,
+  },
+  recentPostLabel: {
+    fontSize: 12,
+    color: "#666",
+    marginBottom: 5,
+  },
+  recentPostContent: {
+    fontSize: 14,
+    color: "#333",
+    marginBottom: 10,
+    fontStyle: "italic",
+  },
+  postMeta: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  postUser: {
+    fontSize: 12,
+    color: "#666",
+  },
+  postStats: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  statItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginRight: 15,
+  },
+  statText: {
+    fontSize: 12,
+    color: "#666",
+    marginLeft: 4,
+  },
+  postTime: {
+    fontSize: 12,
+    color: "#666",
+  },
+  communityHeaderDetail: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 20,
+    backgroundColor: "#FFFFFF",
+    borderBottomWidth: 1,
+    borderBottomColor: "#E0E0E0",
+  },
+  communityIconLarge: {
+    width: 70,
+    height: 70,
+    borderRadius: 35,
+    marginRight: 15,
+    backgroundColor: "#F0F2F5",
+  },
+  communityInfoDetail: {
+    flex: 1,
+  },
+  communityNameDetail: {
+    fontSize: 22,
+    fontWeight: "bold",
+    color: "#1A1A1A",
+    marginBottom: 5,
+  },
+  communityMembersDetail: {
+    fontSize: 14,
+    color: "#666",
+    marginBottom: 8,
+  },
+  communityDescriptionDetail: {
+    fontSize: 14,
+    color: "#333",
+    lineHeight: 20,
+  },
+  topicCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#FFFFFF",
+    borderRadius: 12,
+    padding: 15,
+    marginBottom: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  topicIcon: {
+    fontSize: 24,
+    marginRight: 15,
+  },
+  topicInfo: {
+    flex: 1,
+  },
+  topicTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#1A1A1A",
+    marginBottom: 4,
+  },
+  topicPosts: {
+    fontSize: 14,
+    color: "#666",
+  },
+  topicHeader: {
+    padding: 20,
+    backgroundColor: "#FFFFFF",
+    borderBottomWidth: 1,
+    borderBottomColor: "#E0E0E0",
+  },
+  topicTitleHeader: {
+    fontSize: 22,
+    fontWeight: "bold",
+    color: "#1A1A1A",
+    marginBottom: 5,
+  },
+  topicPostsCount: {
+    fontSize: 14,
+    color: "#666",
+  },
+  postCard: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 12,
+    padding: 15,
+    marginBottom: 15,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  postHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  postAvatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    marginRight: 10,
+    backgroundColor: "#F0F2F5",
+  },
+  postUserInfo: {
+    flex: 1,
+  },
+  postUserName: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#1A1A1A",
+    marginBottom: 2,
+  },
+  postTime: {
+    fontSize: 12,
+    color: "#666",
+  },
+  verifiedIcon: {
+    width: 16,
+    height: 16,
+    marginLeft: 5,
+  },
+  postContent: {
+    fontSize: 15,
+    color: "#333",
+    lineHeight: 20,
+    marginBottom: 15,
+  },
+  postActions: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    borderTopWidth: 1,
+    borderTopColor: "#F0F0F0",
+    paddingTop: 12,
+  },
+  actionButton: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  actionText: {
+    marginLeft: 6,
+    color: "#666",
+    fontSize: 14,
+  },
+  likedText: {
+    color: "#E91E63",
+    fontWeight: "600",
+  },
+  createPostButton: {
+    position: "absolute",
+    bottom: 20,
+    left: 20,
+    right: 20,
+    backgroundColor: "#3B82F6",
+    borderRadius: 25,
+    padding: 15,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  createPostText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+
+  // Add to existing styles
+  createPostHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: "#E0E0E0",
+    backgroundColor: "#FFFFFF",
+  },
+  createPostTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#1A1A1A",
+  },
+  postButton: {
+    backgroundColor: "#3B82F6",
+    paddingHorizontal: 15,
+    paddingVertical: 8,
+    borderRadius: 20,
+  },
+  postButtonText: {
+    color: "#FFFFFF",
+    fontWeight: "600",
+  },
+  disabledButton: {
+    opacity: 0.5,
+  },
+  createPostContainer: {
+    flex: 1,
+    padding: 15,
+  },
+  postContentInput: {
+    fontSize: 16,
+    color: "#333",
+    minHeight: 150,
+    marginBottom: 15,
+  },
+  imagePreviewContainer: {
+    position: "relative",
+    marginBottom: 15,
+  },
+  imagePreview: {
+    width: "100%",
+    height: 200,
+    borderRadius: 10,
+  },
+  removeImageButton: {
+    position: "absolute",
+    top: 10,
+    right: 10,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    borderRadius: 15,
+    width: 30,
+    height: 30,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  createPostActions: {
+    flexDirection: "row",
+    borderTopWidth: 1,
+    borderTopColor: "#F0F0F0",
+    paddingTop: 15,
+  },
+  actionButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginRight: 20,
+  },
+  actionButtonText: {
+    marginLeft: 5,
+    color: "#666",
+    fontSize: 14,
+  },
+  postDetailHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: "#E0E0E0",
+    backgroundColor: "#FFFFFF",
+  },
+  postDetailTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#1A1A1A",
+  },
+  postDetailCard: {
+    backgroundColor: "#FFFFFF",
+    padding: 15,
+    marginBottom: 1,
+  },
+  postImage: {
+    width: "100%",
+    height: 200,
+    borderRadius: 10,
+    marginVertical: 10,
+  },
+  commentsList: {
+    paddingBottom: 70,
+  },
+  commentContainer: {
+    backgroundColor: "#FFFFFF",
+    padding: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: "#F0F0F0",
+  },
+  commentHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  commentAvatar: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    marginRight: 10,
+  },
+  commentUserInfo: {
+    flex: 1,
+  },
+  commentUserName: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#1A1A1A",
+    marginBottom: 2,
+  },
+  commentTime: {
+    fontSize: 12,
+    color: "#666",
+  },
+  commentContent: {
+    fontSize: 14,
+    color: "#333",
+    lineHeight: 20,
+    marginBottom: 10,
+  },
+  commentActions: {
+    flexDirection: "row",
+  },
+  commentActionButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginRight: 15,
+  },
+  commentActionText: {
+    marginLeft: 4,
+    color: "#666",
+    fontSize: 12,
+  },
+  repliesContainer: {
+    marginTop: 10,
+    marginLeft: 10,
+    borderLeftWidth: 2,
+    borderLeftColor: "#F0F0F0",
+    paddingLeft: 10,
+  },
+  toggleRepliesButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  toggleRepliesText: {
+    fontSize: 12,
+    color: "#666",
+    marginRight: 5,
+  },
+  replyContainer: {
+    marginBottom: 15,
+  },
+  replyHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 5,
+  },
+  replyAvatar: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    marginRight: 8,
+  },
+  replyUserInfo: {
+    flex: 1,
+  },
+  replyUserName: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: "#1A1A1A",
+    marginBottom: 2,
+  },
+  replyTime: {
+    fontSize: 11,
+    color: "#666",
+  },
+  replyContent: {
+    fontSize: 13,
+    color: "#333",
+    lineHeight: 18,
+    marginBottom: 5,
+  },
+  replyActions: {
+    flexDirection: "row",
+  },
+  replyActionButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginRight: 10,
+  },
+  replyActionText: {
+    marginLeft: 4,
+    color: "#666",
+    fontSize: 11,
+  },
+  showMoreButton: {
+    marginTop: 5,
+  },
+  showMoreText: {
+    fontSize: 12,
+    color: "#3B82F6",
+  },
+  commentInputContainer: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: "#FFFFFF",
+    borderTopWidth: 1,
+    borderTopColor: "#E0E0E0",
+    padding: 10,
+  },
+  replyingToContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    backgroundColor: "#F7F9FC",
+    padding: 8,
+    borderRadius: 5,
+    marginBottom: 5,
+  },
+  replyingToText: {
+    fontSize: 12,
+    color: "#666",
+  },
+  commentInputRow: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  commentInput: {
+    flex: 1,
+    backgroundColor: "#F0F2F5",
+    borderRadius: 20,
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    marginRight: 10,
+    maxHeight: 100,
+  },
+  sendButton: {
+    padding: 8,
+  },
+  sendButtonDisabled: {
+    opacity: 0.5,
+  },
+  verifiedIconSmall: {
+    width: 14,
+    height: 14,
+    marginLeft: 5,
+  },
+  flex1: {
+    flex: 1,
+  },
+});
+
+

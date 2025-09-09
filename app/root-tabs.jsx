@@ -1,6 +1,6 @@
 import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { View, StyleSheet, Image, Text } from "react-native";
+import { View, StyleSheet, Image, Platform } from "react-native";
 import {
   Home,
   Heart,
@@ -20,151 +20,149 @@ import { colors } from "../constant/colors";
 
 const Tab = createBottomTabNavigator();
 
-
-// ✅ Custom Icon Component with label
-const TabIcon = ({ focused, Icon, customImage, label }) => {
+// Custom Icon Component without label
+const TabIcon = ({ focused, Icon, customImage }) => {
   return (
     <View
-      style={{
-        alignItems: "center",
-        justifyContent: "center",
-        width: 70, // enough width to prevent wrapping
-      }}
+      style={[styles.tabIconContainer, focused && styles.activeTabContainer]}
     >
-      {focused ? (
-        <View style={styles.gradientIcon}>
-          {customImage ? (
-            <Image source={customImage} style={styles.iconImageWhite} />
-          ) : (
-            <Icon size={28} color={colors.primary} />
-          )}
-        </View>
+      {customImage ? (
+        <Image
+          source={customImage}
+          style={[
+            styles.iconImage,
+            focused ? styles.activeIconImage : styles.inactiveIconImage,
+          ]}
+        />
       ) : (
-        <View style={styles.iconContainer}>
-          {customImage ? (
-            <Image source={customImage} style={styles.iconImageGray} />
-          ) : (
-            <Icon size={26} color="#8E8E8E" />
-          )}
-        </View>
+        <Icon size={24} color={focused ? colors.white : colors.gray} />
       )}
-      <Text
-        numberOfLines={1} // ✅ force one line
-        ellipsizeMode="clip"
-        style={{
-          fontSize: 12,
-          textAlign: "center",
-          color: focused ? "#000" : "#8E8E8E",
-          fontWeight: focused ? "600" : "400", // ✅ bold when active
-        }}
-      >
-        {label}
-      </Text>
     </View>
   );
 };
 
-
 const RootTabs = () => {
   return (
-    <Tab.Navigator
-      screenOptions={{
-        headerShown: false,
-        tabBarShowLabel: false, // we’re handling labels manually in TabIcon
-        tabBarStyle: {
-          height: 90,
-          borderTopWidth: 0,
-          elevation: 0,
-          shadowOpacity: 0,
-          paddingTop: 10,
-          backgroundColor: "#fff",
-        },
-      }}
-    >
-      <Tab.Screen
-        name="Home"
-        component={HomeScreen}
-        options={{
-          tabBarIcon: ({ focused }) => (
-            <TabIcon
-              focused={focused}
-              customImage={images.bondifyIcon}
-              label="Home"
-            />
-          ),
+    <View style={styles.container}>
+      <Tab.Navigator
+        screenOptions={{
+          headerShown: false,
+          tabBarShowLabel: false, // No labels
+          tabBarStyle: styles.tabBar,
         }}
-      />
+      >
+        <Tab.Screen
+          name="Home"
+          component={HomeScreen}
+          options={{
+            tabBarIcon: ({ focused }) => (
+              <TabIcon focused={focused} customImage={images.bondifyIcon} />
+            ),
+          }}
+        />
 
-      <Tab.Screen
-        name="Discover"
-        component={DiscoverScreen}
-        options={{
-          tabBarIcon: ({ focused }) => (
-            <TabIcon focused={focused} customImage={Icons.compass} label="Discover" />
-          ),
-        }}
-      />
+        <Tab.Screen
+          name="Discover"
+          component={DiscoverScreen}
+          options={{
+            tabBarIcon: ({ focused }) => (
+              <TabIcon focused={focused} customImage={Icons.compass} />
+            ),
+          }}
+        />
 
-      <Tab.Screen
-        name="Matches"
-        component={MatchesScreen}
-        options={{
-          tabBarIcon: ({ focused }) => (
-            <TabIcon focused={focused} customImage={Icons.heart} label="Matches" />
-          ),
-        }}
-      />
+        <Tab.Screen
+          name="Matches"
+          component={MatchesScreen}
+          options={{
+            tabBarIcon: ({ focused }) => (
+              <TabIcon focused={focused} customImage={Icons.heart} />
+            ),
+          }}
+        />
 
-      <Tab.Screen
-        name="Chat"
-        component={ChatScreen}
-        options={{
-          tabBarIcon: ({ focused }) => (
-            <TabIcon focused={focused} customImage={Icons.message} label="Chat" />
-          ),
-        }}
-      />
+        <Tab.Screen
+          name="Chat"
+          component={ChatScreen}
+          options={{
+            tabBarIcon: ({ focused }) => (
+              <TabIcon focused={focused} customImage={Icons.message} />
+            ),
+          }}
+        />
 
-      <Tab.Screen
-        name="Profile"
-        component={ProfileScreen}
-        options={{
-          tabBarIcon: ({ focused }) => (
-            <TabIcon focused={focused} customImage={Icons.people} label="Profile" />
-          ),
-        }}
-      />
-    </Tab.Navigator>
+        <Tab.Screen
+          name="Profile"
+          component={ProfileScreen}
+          options={{
+            tabBarIcon: ({ focused }) => (
+              <TabIcon focused={focused} customImage={Icons.people} />
+            ),
+          }}
+        />
+      </Tab.Navigator>
+    </View>
   );
 };
 
 export default RootTabs;
 
 const styles = StyleSheet.create({
-  iconContainer: {
-    justifyContent: "center",
-    alignItems: "center",
-    height: 35,
-    width: 70,
-
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
   },
-  gradientIcon: {
-    justifyContent: "center",
+  tabBar: {
+    position: "absolute",
+    bottom: 30,
+    left: 20,
+    right: 20,
+    height: 65,
+    borderRadius: 100,
+    backgroundColor: colors.primary,
+    borderTopWidth: 0,
+    marginHorizontal: 30,
+    elevation: 8,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+  
+    ...Platform.select({
+      ios: {
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.15,
+        shadowRadius: 6,
+      },
+      android: {
+        elevation: 8,
+      },
+    }),
+  },
+  tabIconContainer: {
     alignItems: "center",
-    height: 35,
-    width: 45,
+    justifyContent: "center",
+    height: 50,
+    width: 50,
     borderRadius: 25,
+    marginTop: 25
   },
-  iconImageWhite: {
-    width: 27,
-    height: 27,
-    tintColor: "#000",
-    resizeMode: "contain",
+  activeTabContainer: {
+    backgroundColor: colors.secondary, // Purple color
   },
-  iconImageGray: {
+  iconImage: {
     width: 24,
     height: 24,
-    tintColor: "#8E8E8E",
     resizeMode: "contain",
+  },
+  activeIconImage: {
+    tintColor: colors.primary,
+  },
+  inactiveIconImage: {
+    tintColor: "#fff",
   },
 });

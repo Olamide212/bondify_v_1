@@ -10,6 +10,8 @@ import {
   Animated,
   TextInput,
   ScrollView as RNScrollView,
+  findNodeHandle,
+  UIManager,
 } from "react-native";
 import { Image } from "expo-image";
 import {
@@ -28,6 +30,8 @@ import {
   Baby,
   Sparkles,
   X,
+  Wallet,
+  Heart,
   Ban,
   ChevronRight,
   ChevronLeft as LeftIcon,
@@ -37,14 +41,13 @@ import {
 import { colors } from "../../constant/colors";
 import { useRouter } from "expo-router";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import { ScrollView } from "react-native-gesture-handler";
-import CommentButton from "../ui/CommentButton";
 import { Share2, Slash, Flag } from "lucide-react-native";
 import CommentBox from "../ui/CommentBox";
-import DirectMessageBox from "../ui/DirectMessageBox"
+import DirectMessageBox from "../ui/DirectMessageBox";
+import { Icons } from "../../constant/icons";
 
 const MAX_BIO_LENGTH = 120;
-const { width } = Dimensions.get("window");
+const { width, height } = Dimensions.get("window");
 
 const ProfileCard = ({ profile }) => {
   const [showFullBio, setShowFullBio] = useState(false);
@@ -53,9 +56,12 @@ const ProfileCard = ({ profile }) => {
   const [modalImageIndex, setModalImageIndex] = useState(0);
   const [showHeader, setShowHeader] = useState(false);
   const [imageLayouts, setImageLayouts] = useState({});
+  const [visibleCommentBoxIndex, setVisibleCommentBoxIndex] = useState(null);
+  const [scrollOffset, setScrollOffset] = useState(0);
 
   const scrollY = useRef(new Animated.Value(0)).current;
   const scrollViewRef = useRef(null);
+  const commentBoxRefs = useRef([]);
 
   const totalImages = profile?.images?.length || 1;
   const router = useRouter();
@@ -99,18 +105,42 @@ const ProfileCard = ({ profile }) => {
     setModalImageIndex((prev) => (prev - 1 + totalImages) % totalImages);
   };
 
-  // // Handle scroll events to show/hide header
-  // const handleScroll = Animated.event(
-  //   [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-  //   {
-  //     listener: (event) => {
-  //       const offsetY = event.nativeEvent.contentOffset.y;
-  //       setShowHeader(offsetY > 100);
-  //       checkVisibleImages(offsetY);
-  //     },
-  //     useNativeDriver: false,
-  //   }
-  // );
+  // Handle scroll events to show/hide header and check comment box visibility
+  const handleScroll = (event) => {
+    const offsetY = event.nativeEvent.contentOffset.y;
+    setScrollOffset(offsetY);
+    setShowHeader(offsetY > 100);
+    checkCommentBoxVisibility(offsetY);
+  };
+
+  // Check which comment boxes should be visible based on scroll position
+  const checkCommentBoxVisibility = (scrollOffset) => {
+    if (!scrollViewRef.current) return;
+
+    // Calculate visibility for each comment box
+    const viewportTop = scrollOffset;
+    const viewportBottom = scrollOffset + height;
+
+    commentBoxRefs.current.forEach((ref, index) => {
+      if (!ref) return;
+
+      UIManager.measure(ref, (x, y, width, height, pageX, pageY) => {
+        const elementTop = pageY;
+        const elementBottom = pageY + height;
+
+        // Check if element is in viewport (with some threshold)
+        const isVisible =
+          elementBottom > viewportTop + 200 &&
+          elementTop < viewportBottom - 200;
+
+        if (isVisible) {
+          setVisibleCommentBoxIndex(index);
+        } else if (visibleCommentBoxIndex === index) {
+          setVisibleCommentBoxIndex(null);
+        }
+      });
+    });
+  };
 
   // Store layout information for each image
   const handleImageLayout = (index, event) => {
@@ -121,34 +151,19 @@ const ProfileCard = ({ profile }) => {
     }));
   };
 
-  // // Check which images are visible based on scroll position
-  // const checkVisibleImages = (scrollOffset) => {
-  //   const screenHeight = Dimensions.get("window").height;
+  // Store comment box refs
+  const setCommentBoxRef = (index, ref) => {
+    if (ref) {
+      commentBoxRefs.current[index] = findNodeHandle(ref);
+    }
+  };
 
-  //   Object.entries(imageLayouts).forEach(([index, layout]) => {
-  //     const imageY = layout.y - scrollOffset;
-  //     const imageBottom = imageY + layout.height;
-
-  //     // Image is visible if any part is in the viewport
-  //     const isVisible = imageBottom > 100 && imageY < screenHeight - 100;
-
-  //     if (isVisible) {
-  //       // Animate in the comment indicator
-  //       Animated.timing(commentAnimations[index], {
-  //         toValue: 1,
-  //         duration: 500,
-  //         useNativeDriver: true,
-  //       }).start();
-  //     } else {
-  //       // Animate out the comment indicator
-  //       Animated.timing(commentAnimations[index], {
-  //         toValue: 0,
-  //         duration: 300,
-  //         useNativeDriver: true,
-  //       }).start();
-  //     }
-  //   });
-  // };
+  useEffect(() => {
+    // Initial check after layouts are set
+    if (Object.keys(imageLayouts).length > 0) {
+      checkCommentBoxVisibility(scrollOffset);
+    }
+  }, [imageLayouts, scrollOffset]);
 
   if (!profile) return null;
 
@@ -156,8 +171,6 @@ const ProfileCard = ({ profile }) => {
   const displayedBio = showFullBio
     ? profile.bio
     : profile.bio?.slice(0, MAX_BIO_LENGTH) + (isBioLong ? "..." : "");
-
-  // Animated header background
 
   return (
     <View className="relative ">
@@ -202,21 +215,6 @@ const ProfileCard = ({ profile }) => {
             )}
           </View>
 
-          <Animated.View
-            className="absolute bottom-6 right-6"
-            style={{
-              opacity:
-                commentAnimations[modalImageIndex] || new Animated.Value(1),
-            }}
-          >
-            <TouchableOpacity className="bg-white/90 rounded-full p-3 flex-row items-center">
-              <MessageCircle size={20} color={colors.primary} />
-              <Text className="text-primary font-SatoshiMedium ml-2">
-                Comment
-              </Text>
-            </TouchableOpacity>
-          </Animated.View>
-
           <View className="absolute bottom-10 left-0 right-0 flex-row justify-center">
             {profile.images.map((_, index) => (
               <View
@@ -230,13 +228,12 @@ const ProfileCard = ({ profile }) => {
         </View>
       </Modal>
 
-      {/* Fixed Back Icon */}
-
       <Animated.ScrollView
         ref={scrollViewRef}
         contentContainerStyle={{ paddingBottom: 80 }}
         scrollEventThrottle={16}
         showsVerticalScrollIndicator={false}
+        onScroll={handleScroll}
       >
         <View className="">
           {/* Make the main image clickable */}
@@ -265,18 +262,18 @@ const ProfileCard = ({ profile }) => {
 
                   <View className="absolute bottom-72 left-6 right-6">
                     <View className="flex-row items-center mb-2">
-                      <Text className="text-white text-3xl font-SatoshiBold mr-2">
+                      <Text className="text-white text-4xl font-SatoshiBold mr-2">
                         {profile.name}
                       </Text>
 
                       <View className="flex-row gap-2">
-                        <Text className="text-white text-3xl font-Satoshi">
+                        <Text className="text-white text-4xl font-Satoshi">
                           {profile.age}
                         </Text>
                         {profile.verified && (
                           <View>
                             <Image
-                              source={require("../../assets/icons/verified-1.png")}
+                              source={require("../../assets/icons/verified-icon.png")}
                               style={{ width: 23, height: 23 }}
                               contentFit="contain"
                             />
@@ -285,48 +282,46 @@ const ProfileCard = ({ profile }) => {
                       </View>
                     </View>
 
-                    <View className="flex-row items-center flex-wrap gap-x-6 gap-y-2">
-                      {profile.occupation && (
-                        <View className="flex-row items-center">
-                          <Briefcase size={18} color="white" />
+                    <View className="flex-row items-center flex-wrap gap-x-4 gap-y-4">
+                      {profile.lastActive && (
+                        <View className="flex-row items-center bg-primary px-4 py-2 rounded-full">
+                          <View className="w-3 h-3 bg-secondary rounded-full" />
                           <Text className="text-white font-SatoshiMedium ml-2 capitalize">
+                            {profile.lastActive}
+                          </Text>
+                        </View>
+                      )}
+                      {profile.occupation && (
+                        <View className="flex-row items-center bg-white px-4 py-2 rounded-full">
+                          <Briefcase size={18} color="#000" />
+                          <Text className="text-black font-SatoshiMedium ml-2 capitalize">
                             {profile.occupation}
+                          </Text>
+                        </View>
+                      )}
+                      {profile.religion && (
+                        <View className="flex-row items-center bg-white px-4 py-2 rounded-full">
+                          <MaterialCommunityIcons
+                            name="hands-pray"
+                            size={20}
+                            color={"black"}
+                          />
+                          <Text className="text-black font-SatoshiMedium ml-2 capitalize">
+                            {profile.religion}
                           </Text>
                         </View>
                       )}
 
                       {profile.location && (
-                        <View className="flex-row items-center">
-                          <GraduationCap size={18} color="white" />
-                          <Text className="text-white font-SatoshiMedium ml-2">
+                        <View className="flex-row items-center bg-white px-4 py-2 rounded-full">
+                          <MapPin size={18} color="#000" />
+                          <Text className="text-black font-SatoshiMedium ml-2">
                             {profile.distance}, {profile.location}
                           </Text>
                         </View>
                       )}
                     </View>
                   </View>
-
-                  <Animated.View
-                    className="absolute bottom-4 right-4"
-                    style={{
-                      opacity: commentAnimations[0],
-                      transform: [
-                        {
-                          translateY: commentAnimations[0].interpolate({
-                            inputRange: [0, 1],
-                            outputRange: [20, 0],
-                          }),
-                        },
-                      ],
-                    }}
-                  >
-                    <TouchableOpacity className="bg-white/90 rounded-full p-3 flex-row items-center">
-                      <MessageCircle size={20} color={colors.primary} />
-                      <Text className="text-primary font-SatoshiMedium ml-2">
-                        Comment
-                      </Text>
-                    </TouchableOpacity>
-                  </Animated.View>
                 </View>
               </TouchableWithoutFeedback>
             </View>
@@ -345,7 +340,7 @@ const ProfileCard = ({ profile }) => {
                     {profile.mutualInterests.map((interest, index) => (
                       <View
                         key={index}
-                        className="bg-gray-100 border border-[#D1D1D1] px-4 py-2 rounded-full"
+                        className="bg-gray-100  px-4 py-2 rounded-full"
                       >
                         <Text className="text-black text-[16px] font-Satoshi">
                           {interest}
@@ -366,7 +361,7 @@ const ProfileCard = ({ profile }) => {
                   </Text>
                 </View>
 
-                <View className="self-start items-center justify-center bg-gray-100 border border-[#D1D1D1] px-5 py-2 rounded-full">
+                <View className="self-start items-center justify-center bg-gray-100   px-5 py-2 rounded-full">
                   <Text className="text-black text-[16px] font-Satoshi">
                     {profile.lookingFor}
                   </Text>
@@ -397,11 +392,36 @@ const ProfileCard = ({ profile }) => {
               </View>
             )}
 
+            {/* First question after bio */}
+            {profile.questions?.[0] && (
+              <View className="bg-white p-5 rounded-xl">
+                <Text className="text-app font-Satoshi text-base mb-2">
+                  {profile.questions[0].question}
+                </Text>
+                <Text className="text-app font-SatoshiBold text-2xl leading-relaxed">
+                  {profile.questions[0].answer}
+                </Text>
+              </View>
+            )}
+
+            {/* First additional image with comment indicator */}
+            <View ref={(ref) => setCommentBoxRef(0, ref)}>
+              <CommentBox
+                imageUri={profile?.images?.[1]}
+                index={1}
+                onPress={() => openImageModal(1)}
+                onSendMessage={(message, idx) => {
+                  console.log("Send message for image", idx, message);
+                }}
+                showComposer={visibleCommentBoxIndex === 0}
+              />
+            </View>
+
             {/* Essentials */}
             <View className="bg-white p-6 mb-2">
               <View className="flex-row items-center mb-4">
                 <Text className="text-[20px] font-GeneralSansSemiBold text-app ml-2">
-                  About me
+                  Essentials
                 </Text>
               </View>
 
@@ -409,7 +429,7 @@ const ProfileCard = ({ profile }) => {
               <View className="flex-row flex-wrap -mx-1.5">
                 {profile.distance && (
                   <View className="w-1/2 px-1.5 mb-3">
-                    <View className="bg-gray-100 border border-[#D1D1D1] rounded-full px-4 py-2 flex-row items-center gap-3">
+                    <View className="bg-gray-100  rounded-full px-4 py-2 flex-row items-center gap-3">
                       <MapPin color={"black"} size={18} />
                       <Text className="text-app  text-base font-GeneralSansMedium">
                         {profile.distance}
@@ -420,7 +440,7 @@ const ProfileCard = ({ profile }) => {
 
                 {profile.occupation && (
                   <View className="w-1/2 px-1.5 mb-3">
-                    <View className="bg-gray-100 border border-[#D1D1D1] rounded-full px-4 py-2 flex-row items-center gap-3">
+                    <View className="bg-gray-100 rounded-full px-4 py-2 flex-row items-center gap-3">
                       <Briefcase color={"black"} size={18} />
                       <Text className="text-app  text-base font-GeneralSansMedium">
                         {profile.occupation}
@@ -431,7 +451,7 @@ const ProfileCard = ({ profile }) => {
 
                 {profile.height && (
                   <View className="w-1/2 px-1.5 mb-3">
-                    <View className="bg-gray-100 border border-[#D1D1D1] rounded-full px-4 py-2 flex-row items-center gap-3">
+                    <View className="bg-gray-100  rounded-full px-4 py-2 flex-row items-center gap-3">
                       <Ruler color={"black"} size={18} />
                       <Text className="text-app  text-base font-GeneralSansMedium">
                         {profile.height}
@@ -442,7 +462,7 @@ const ProfileCard = ({ profile }) => {
 
                 {profile.religion && (
                   <View className="w-1/2 px-1.5 mb-3">
-                    <View className="bg-gray-100 border border-[#D1D1D1] rounded-full px-4 py-2 flex-row items-center gap-3">
+                    <View className="bg-gray-100  rounded-full px-4 py-2 flex-row items-center gap-3">
                       <MaterialCommunityIcons
                         name="hands-pray"
                         size={20}
@@ -457,7 +477,7 @@ const ProfileCard = ({ profile }) => {
 
                 {profile.drinking && (
                   <View className="w-1/2 px-1.5 mb-3">
-                    <View className="bg-gray-100 border border-[#D1D1D1] rounded-full px-4 py-2 flex-row items-center gap-3">
+                    <View className="bg-gray-100  rounded-full px-4 py-2 flex-row items-center gap-3">
                       <Wine color={"black"} size={18} />
                       <Text className="text-app  text-base font-GeneralSansMedium">
                         {profile.drinking}
@@ -468,7 +488,7 @@ const ProfileCard = ({ profile }) => {
 
                 {profile.smoking && (
                   <View className="w-1/2 px-1.5 mb-3">
-                    <View className="bg-gray-100 border border-[#D1D1D1] rounded-full px-4 py-2 flex-row items-center gap-3">
+                    <View className="bg-gray-100  rounded-full px-4 py-2 flex-row items-center gap-3">
                       <Cigarette color={"black"} size={18} />
                       <Text className=" text-base font-GeneralSansMedium">
                         {profile.smoking}
@@ -479,7 +499,7 @@ const ProfileCard = ({ profile }) => {
 
                 {profile.children && (
                   <View className="w-1/2 px-1.5 mb-3">
-                    <View className="bg-gray-100 border border-[#D1D1D1] rounded-full px-4 py-2 flex-row items-center gap-3">
+                    <View className="bg-gray-100  rounded-full px-4 py-2 flex-row items-center gap-3">
                       <Baby color={"black"} size={18} />
                       <Text className="text-app  text-base font-GeneralSansMedium">
                         {profile.children}
@@ -490,7 +510,7 @@ const ProfileCard = ({ profile }) => {
 
                 {profile.pets && (
                   <View className="w-1/2 px-1.5 mb-3">
-                    <View className="bg-gray-100 border border-[#D1D1D1] rounded-full px-4 py-2 flex-row items-center gap-3">
+                    <View className="bg-gray-100  rounded-full px-4 py-2 flex-row items-center gap-3">
                       <Dog color={"black"} size={18} />
                       <Text className="text-app  text-base font-GeneralSansMedium">
                         {profile.pets}
@@ -501,7 +521,7 @@ const ProfileCard = ({ profile }) => {
 
                 {profile.exercise && (
                   <View className="w-1/2 px-1.5 mb-3">
-                    <View className="bg-gray-100 border border-[#D1D1D1] rounded-full px-4 py-2 flex-row items-center gap-3">
+                    <View className="bg-gray-100  rounded-full px-4 py-2 flex-row items-center gap-3">
                       <Dumbbell color={"black"} size={18} />
                       <Text className="text-app text-base font-GeneralSansMedium">
                         {profile.exercise}
@@ -512,59 +532,65 @@ const ProfileCard = ({ profile }) => {
               </View>
             </View>
 
-            {/* First additional image with comment indicator */}
+            {/* Basics */}
+            <View className="bg-white p-6 mb-2">
+              <View className="flex-row items-center mb-4">
+                <Text className="text-[20px] font-GeneralSansSemiBold text-app ml-2">
+                  Basics
+                </Text>
+              </View>
 
-            <CommentBox
-              imageUri={profile?.images?.[1]}
-              index={1}
-              onPress={() => openImageModal(1)}
-              onSendMessage={(message, idx) => {
-                console.log("Send message for image", idx, message);
-                // TODO: call your API to send message
-              }}
-              onSendAudio={(audioUri, idx) => {
-                console.log("Send audio for image", idx, audioUri);
-                // TODO: upload the audio file & link to profile/image
-              }}
-            />
-
-            {/* Interests */}
-            {profile.interests?.length > 0 && (
-              <View className="mb-3 bg-white  p-6 ">
-                <View className="flex-row items-center mb-3">
-                  <Text className="text-[20px] font-GeneralSansSemiBold text-app">
-                    Interests
-                  </Text>
-                </View>
-                <View className="flex-row flex-wrap">
-                  {profile.interests.map((interest, index) => (
-                    <View
-                      key={index}
-                      className={`rounded-full border px-4 py-2 mr-2 mb-2 ${
-                        profile.mutualInterests?.includes(interest)
-                          ? "bg-pink-50 border border-primary"
-                          : "bg-gray-100 border-[#D1D1D1]"
-                      }`}
-                    >
-                      <Text
-                        className={`font-SatoshiMedium ${
-                          profile.mutualInterests?.includes(interest)
-                            ? "text-primary"
-                            : "text-black"
-                        }`}
-                      >
-                        {interest}
-                        {profile.mutualInterests?.includes(interest)}
+              {/* Two-column grid layout */}
+              <View className="flex-row flex-wrap -mx-1.5">
+                {profile.zodiac && (
+                  <View className="w-1/2 px-1.5 mb-3">
+                    <View className="bg-gray-100 rounded-full px-4 py-2 flex-row items-center gap-3">
+                      <Image source={Icons.zodiacSign} />
+                      <Text className="text-app  text-base font-GeneralSansMedium">
+                        {profile.zodiac}
                       </Text>
                     </View>
-                  ))}
-                </View>
+                  </View>
+                )}
+
+                {profile.loveStyle && (
+                  <View className="w-1/2 px-1.5 mb-3">
+                    <View className="bg-gray-100  rounded-full px-4 py-2 flex-row items-center gap-3">
+                      <Heart color={"black"} size={18} />
+                      <Text className="text-app  text-base font-GeneralSansMedium">
+                        {profile.loveStyle}
+                      </Text>
+                    </View>
+                  </View>
+                )}
+
+                {profile.communicationStyle && (
+                  <View className="w-1/2 px-1.5 mb-3">
+                    <View className="bg-gray-100  rounded-full px-4 py-2 flex-row items-center gap-3">
+                      <Heart color={"black"} size={18} />
+                      <Text className="text-app  text-base font-GeneralSansMedium">
+                        {profile.communicationStyle}
+                      </Text>
+                    </View>
+                  </View>
+                )}
+
+                {profile.financialStyle && (
+                  <View className="w-1/2 px-1.5 mb-3">
+                    <View className="bg-gray-100  rounded-full px-4 py-2 flex-row items-center gap-3">
+                      <Wallet size={20} color={"black"} />
+                      <Text className="text-app  text-base font-GeneralSansMedium">
+                        {profile.financialStyle}
+                      </Text>
+                    </View>
+                  </View>
+                )}
               </View>
-            )}
+            </View>
 
             {/* Personalities */}
             {profile.personalities?.length > 0 && (
-              <View className="mb-2 bg-white  p-6 ">
+              <View className=" bg-white  p-6 ">
                 <View className="flex-row items-center mb-3">
                   <Text className="text-[20px] font-GeneralSansSemiBold text-app">
                     Personalities
@@ -574,9 +600,9 @@ const ProfileCard = ({ profile }) => {
                   {profile.personalities.map((personality, index) => (
                     <View
                       key={index}
-                      className={`rounded-full border px-4 py-2 mr-2 mb-2 
+                      className={`rounded-full  px-4 py-2 mr-2 mb-2 
                         
-                           bg-gray-100 border-[#D1D1D1]
+                           bg-gray-100 
                       }`}
                     >
                       <Text
@@ -592,6 +618,19 @@ const ProfileCard = ({ profile }) => {
               </View>
             )}
 
+            {/* Second additional image with comment indicator */}
+            <View ref={(ref) => setCommentBoxRef(1, ref)}>
+              <CommentBox
+                imageUri={profile?.images?.[2]}
+                index={2}
+                onPress={() => openImageModal(2)}
+                onSendMessage={(message, idx) => {
+                  console.log("Send message for image", idx, message);
+                }}
+                showComposer={visibleCommentBoxIndex === 1}
+              />
+            </View>
+
             {/* Education */}
             {profile.school && (
               <View className="bg-white  mb-2 p-6 ">
@@ -601,13 +640,13 @@ const ProfileCard = ({ profile }) => {
                   </Text>
                 </View>
                 <View className="flex-1 flex-row flex-wrap gap-2 ">
-                  <View className="bg-gray-100 border border-[#D1D1D1] flex-row items-center gap-2 px-4 py-2 rounded-full">
+                  <View className="bg-gray-100  flex-row items-center gap-2 px-4 py-2 rounded-full">
                     <GraduationCap color={"black"} size={18} />
                     <Text className="text-app  text-base font-GeneralSansMedium">
                       {profile.school}
                     </Text>
                   </View>
-                  <View className="bg-gray-100 border border-[#D1D1D1] flex-row items-center gap-2 px-4 py-2 rounded-full">
+                  <View className="bg-gray-100  flex-row items-center gap-2 px-4 py-2 rounded-full">
                     <GraduationCap color={"black"} size={18} />
                     <Text className="text-app  text-base font-GeneralSansMedium">
                       {profile.education}
@@ -630,7 +669,7 @@ const ProfileCard = ({ profile }) => {
                   {profile.language.map((lang, index) => (
                     <View
                       key={index}
-                      className="bg-gray-100 border border-[#D1D1D1] flex-row items-center gap-2 px-4 py-2 rounded-full"
+                      className="bg-gray-100  flex-row items-center gap-2 px-4 py-2 rounded-full"
                     >
                       <Text className="text-app text-base font-GeneralSansMedium">
                         {lang}
@@ -642,12 +681,12 @@ const ProfileCard = ({ profile }) => {
                 {profile.nationality && (
                   <View className="mt-2">
                     <View className="flex-1 flex-row flex-wrap gap-2 ">
-                      <View className="bg-gray-100 border border-[#D1D1D1] flex-row items-center gap-2 px-4 py-2 rounded-full">
+                      <View className="bg-gray-100  flex-row items-center gap-2 px-4 py-2 rounded-full">
                         <Text className="text-app  text-base font-GeneralSansMedium">
                           {profile.nationality}
                         </Text>
                       </View>
-                      <View className="bg-gray-100 border border-[#D1D1D1] flex-row items-center gap-2 px-4 py-2 rounded-full">
+                      <View className="bg-gray-100  flex-row items-center gap-2 px-4 py-2 rounded-full">
                         <Text className="text-app  text-base font-GeneralSansMedium">
                           {profile.ethnicity}
                         </Text>
@@ -657,54 +696,78 @@ const ProfileCard = ({ profile }) => {
                 )}
               </View>
             )}
+            {/* Another question later */}
+            {profile.questions?.[2] && (
+              <View className="bg-white  p-5 rounded-xl">
+                <Text className="text-app font-Satoshi text-base mb-2">
+                  {profile.questions[1].question}
+                </Text>
+                <Text className="text-app font-SatoshiBold text-2xl leading-relaxed">
+                  {profile.questions[1].answer}
+                </Text>
+              </View>
+            )}
 
-            {/* Second additional image with comment indicator */}
-            <CommentBox
-              imageUri={profile?.images?.[2]}
-              index={1}
-              onPress={() => openImageModal(2)}
-              onSendMessage={(message, idx) => {
-                console.log("Send message for image", idx, message);
-                // TODO: call your API to send message
-              }}
-              onSendAudio={(audioUri, idx) => {
-                console.log("Send audio for image", idx, audioUri);
-                // TODO: upload the audio file & link to profile/image
-              }}
-            />
+            {/* Third additional image with comment indicator */}
+            <View ref={(ref) => setCommentBoxRef(2, ref)}>
+              <CommentBox
+                imageUri={profile?.images?.[3]}
+                index={3}
+                onPress={() => openImageModal(3)}
+                onSendMessage={(message, idx) => {
+                  console.log("Send message for image", idx, message);
+                }}
+                showComposer={visibleCommentBoxIndex === 2}
+              />
+            </View>
 
-            {/* Questions */}
-            <>
-              {profile.questions?.length > 0 &&
-                profile.questions.map((item, index) => (
-                  <View key={index} className="bg-white  mb-2 p-5 ">
-                    <Text className="text-app font-Satoshi text-base mb-2">
-                      {item.question}
-                    </Text>
-                    <Text className="text-app font-SatoshiBold text-2xl leading-relaxed">
-                      {item.answer}
-                    </Text>
-                  </View>
-                ))}
-            </>
+            {/* Another question later */}
+            {profile.questions?.[2] && (
+              <View className="bg-white mb-2 p-5 rounded-xl">
+                <Text className="text-app font-Satoshi text-base mb-2">
+                  {profile.questions[1].question}
+                </Text>
+                <Text className="text-app font-SatoshiBold text-2xl leading-relaxed">
+                  {profile.questions[1].answer}
+                </Text>
+              </View>
+            )}
 
-            {/* First additional image with comment indicator */}
-            <CommentBox
-              imageUri={profile?.images?.[3]}
-              index={1}
-              onPress={() => openImageModal(3)}
-              onSendMessage={(message, idx) => {
-                console.log("Send message for image", idx, message);
-                // TODO: call your API to send message
-              }}
-              onSendAudio={(audioUri, idx) => {
-                console.log("Send audio for image", idx, audioUri);
-                // TODO: upload the audio file & link to profile/image
-              }}
-            />
+            {/* Interests */}
+            {profile.interests?.length > 0 && (
+              <View className="mb-3 bg-white  p-6 ">
+                <View className="flex-row items-center mb-3">
+                  <Text className="text-[20px] font-GeneralSansSemiBold text-app">
+                    Interests
+                  </Text>
+                </View>
+                <View className="flex-row flex-wrap">
+                  {profile.interests.map((interest, index) => (
+                    <View
+                      key={index}
+                      className={`rounded-full  px-4 py-2 mr-2 mb-2 ${
+                        profile.mutualInterests?.includes(interest)
+                          ? "bg-secondary "
+                          : "bg-gray-100 "
+                      }`}
+                    >
+                      <Text
+                        className={`font-SatoshiMedium ${
+                          profile.mutualInterests?.includes(interest)
+                            ? "text-primary"
+                            : "text-black"
+                        }`}
+                      >
+                        {interest}
+                        {profile.mutualInterests?.includes(interest)}
+                      </Text>
+                    </View>
+                  ))}
+                </View>
+              </View>
+            )}
 
             {/* Final Comment Section at End */}
-
             <DirectMessageBox profile={profile} />
 
             {/* Buttons */}
