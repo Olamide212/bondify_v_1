@@ -153,7 +153,6 @@ export default function ImageSection({
 const styles = StyleSheet.create({
   wrapper: {
     position: "relative",
-    marginBottom: 20,
   },
   image: {
     width: "100%",

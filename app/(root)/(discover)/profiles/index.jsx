@@ -289,7 +289,7 @@ const ProfilesByPreferenceScreen = () => {
         contentContainerStyle={{ flexGrow: 1 }}
         showsVerticalScrollIndicator={false}
       >
-        <Animated.View style={[animatedStyle, { flex: 1 }]}>
+        <Animated.View style={[ { flex: 1 }]}>
           <ProfileCard profile={currentProfile} />
         </Animated.View>
       </Animated.ScrollView>
@@ -334,7 +334,6 @@ const ProfilesByPreferenceScreen = () => {
 const localStyles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "white",
   },
   header: {
     flexDirection: "row",
