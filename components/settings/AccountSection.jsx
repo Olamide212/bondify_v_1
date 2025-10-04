@@ -32,7 +32,7 @@ const AccountSettings = () => {
     },
   ];
 
-  return <SettingCard  items={items} />;
+  return <SettingCard title="Account"  items={items} />;
 };
 
 export default AccountSettings;

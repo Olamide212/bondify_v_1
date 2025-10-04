@@ -58,12 +58,12 @@ const InfoSection = () => {
       icon: Plane,
       modal: "passport",
     },
-    {
-      title: "Coin Wallet & Gifts",
-      description: "Check your coin balance, buy coins, and send gifts.",
-      icon: Coins,
-      modal: "wallet", // 🔑 opens wallet modal
-    },
+    // {
+    //   title: "Coin Wallet & Gifts",
+    //   description: "Check your coin balance, buy coins, and send gifts.",
+    //   icon: Coins,
+    //   modal: "wallet", 
+    // },
     {
       title: "Settings",
       description: "Manage your preferences, notifications, and privacy.",

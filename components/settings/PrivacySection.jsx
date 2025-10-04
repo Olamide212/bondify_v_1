@@ -17,7 +17,7 @@ const PrivacySection = () => {
  
   ];
 
-  return <SettingCard items={items} />;
+  return <SettingCard title={"Privacy Policy"} items={items} />;
 };
 
 export default PrivacySection;

@@ -19,7 +19,7 @@ const LegalSection = () => {
 
   ];
 
-  return <SettingCard  items={items} />;
+  return <SettingCard title={"Legal"} items={items} />;
 };
 
 export default LegalSection;

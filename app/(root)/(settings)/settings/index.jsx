@@ -23,30 +23,29 @@ const SettingScreen = () => {
         }}
       >
         <View>
-          <TextHeadingOne name="Account" />
           <AccountSection />
         </View>
         <View>
-          <TextHeadingOne name="Privacy Policy" />
+
 
           <PrivacySection />
         </View>
         <View>
-          <TextHeadingOne name="App Preferences" />
+
 
           <PreferencesSection />
         </View>
         <View>
-          <TextHeadingOne name="Support" />
+
 
           <SupportSection />
         </View>
         <View>
-          <TextHeadingOne name="Legal" />
+  
           <LegalSection />
         </View>
         <View>
-          <TextHeadingOne name="Account Action" />
+
           <AccountAction />
         </View>
       </ScrollView>

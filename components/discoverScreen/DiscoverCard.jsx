@@ -1,101 +1,156 @@
 import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import {
-  ChevronRight,
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Dimensions,
+} from "react-native";
+import {
   Cross,
   Star,
   Home,
   Clock,
   Heart,
+  Users,
+  Moon,
 } from "lucide-react-native";
-import { LinearGradient } from "expo-linear-gradient";
 
-// Icon mapping for each category
-const categoryIcons = {
-  "Christian searching for Love": Cross,
-  "Muslim searching for love": Star,
-  "Traditionalist searching for love": Home,
-  "Short-term fun": Clock,
-  "Long-term relationship": Heart,
-};
+const { width } = Dimensions.get("window");
+const CARD_MARGIN = 16;
+const CARD_WIDTH = width - CARD_MARGIN * 2;
+const FRONT_CARD_HEIGHT = 170;
+const BACK_CARD_HEIGHT = 210;
 
-// Gradient colors for each category
-const categoryGradients = {
-  "Christian searching for Love": ["#6A1B9A", "#4A148C"], // Purple
-  "Muslim searching for love": ["#00695C", "#004D40"], // Teal
-  "Traditionalist searching for love": ["#B71C1C", "#880E4F"], // Red to pink
-  "Short-term fun": ["#FF5722", "#E64A19"], // Orange
-  "Long-term relationship": ["#388E3C", "#1B5E20"], // Green
+const renderIcon = (iconName, color) => {
+  switch (iconName) {
+    case "Cross":
+      return <Cross size={20} color={color} />;
+    case "Star":
+      return <Moon size={20} color={color} />;
+    case "Home":
+      return <Home size={20} color={color} />;
+    case "Clock":
+      return <Clock size={20} color={color} />;
+    case "Heart":
+      return <Heart size={20} color={color} />;
+    default:
+      return <Heart size={20} color={color} />;
+  }
 };
 
 const DiscoverCard = ({ category, onPress }) => {
-  const IconComponent = categoryIcons[category.name] || Cross;
-  const gradientColors = categoryGradients[category.name] || [
-    "#6A1B9A",
-    "#4A148C",
-  ];
+  const color = category.color || "#FF4D4D";
 
   return (
     <TouchableOpacity
-      style={styles.cardContainer}
-      onPress={onPress}
       activeOpacity={0.9}
+      onPress={onPress}
+      style={styles.wrapper}
     >
-      <LinearGradient
-        colors={gradientColors}
-        style={styles.gradientBackground}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-      >
-        <View style={styles.content}>
-          <View style={styles.iconContainer}>
-            <IconComponent size={28} color="#fff" />
-          </View>
-
-          <View style={styles.textContainer}>
-            <Text style={styles.categoryName} className="font-SatoshiMedium">
-              {category.name}
-            </Text>
-          </View>
-
-          <ChevronRight size={20} color="#fff" />
+      {/* BACK COLORED CARD */}
+      <View style={[styles.backCard, { backgroundColor: `${color}` }]}>
+        <View style={styles.memberRow}>
+          <Users size={13} color="#fff" />
+          <Text style={styles.memberText}>{category.members}</Text>
         </View>
-      </LinearGradient>
+      </View>
+
+      {/* FRONT WHITE CARD */}
+      <View style={[styles.frontCard, { shadowColor: color }]}>
+        {/* Corner Accent 
+        <View style={[styles.cornerAccent, { backgroundColor: color }]}>
+          <View style={styles.cornerIcon}>
+            {renderIcon(category.icon, "#fff")}
+          </View>
+        </View>*/}
+
+        {/* Text Content */}
+        <View style={styles.textSection}>
+          <Text style={styles.title}>{category.name}</Text>
+          <Text style={styles.subtitle}>
+            {category.description ||
+              "Connect with singles sharing your values and goals"}
+          </Text>
+        </View>
+      </View>
     </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
-  cardContainer: {
-    borderRadius: 16,
-    marginBottom: 16,
+  wrapper: {
+    width: CARD_WIDTH,
+    alignSelf: "center",
+    marginVertical: 10,
+  },
 
+  // BACK CARD (COLORED)
+  backCard: {
+    height: BACK_CARD_HEIGHT,
+    borderRadius: 22,
+    justifyContent: "flex-end",
+    paddingHorizontal: 16,
+    paddingBottom: 10,
   },
-  gradientBackground: {
-    padding: 20,
-    minHeight: 100,
-    justifyContent: "center",
-  },
-  content: {
+  memberRow: {
     flexDirection: "row",
     alignItems: "center",
+    gap: 6,
   },
-  iconContainer: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: "rgba(255, 255, 255, 0.2)",
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: 15,
-  },
-  textContainer: {
-    flex: 1,
-  },
-  categoryName: {
-    fontSize: 18,
+  memberText: {
     color: "#fff",
     fontWeight: "600",
+    fontSize: 13,
+  },
+
+  // FRONT CARD (WHITE)
+  frontCard: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    height: FRONT_CARD_HEIGHT,
+    backgroundColor: "#fff",
+    borderRadius: 20,
+    padding: 20,
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.19,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+
+  // Corner accent
+  cornerAccent: {
+    position: "absolute",
+    top: 0,
+    right: 0,
+    width: 80,
+    height: 80,
+    borderBottomLeftRadius: 80,
+    justifyContent: "flex-start",
+    alignItems: "flex-end",
+    padding: 10,
+  },
+  cornerIcon: {
+    marginTop: 8,
+    marginRight: 8,
+  },
+
+  // Text
+  textSection: {
+    marginTop: 20,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: "700",
+    color: "#000",
+  },
+  subtitle: {
+    fontSize: 14,
+    color: "#444",
+    marginTop: 6,
+    lineHeight: 20,
   },
 });
 

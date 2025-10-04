@@ -22,7 +22,7 @@ const SupportSection = () => {
     },
   ];
 
-  return <SettingCard items={items} />;
+  return <SettingCard title={"Support"} items={items} />;
 };
 
 export default SupportSection;

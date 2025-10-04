@@ -19,7 +19,7 @@ const PreferencesSection = () => {
     },
   ];
 
-  return <SettingCard  items={items} />;
+  return <SettingCard title={"App Preferences"} items={items} />;
 };
 
 export default PreferencesSection;

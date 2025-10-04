@@ -6,7 +6,7 @@ const SettingsSection = ({ title, items }) => {
   return (
     <View className="bg-white mt-4 mx-4 p-5 rounded-xl">
       {title && (
-        <Text className="text-lg font-SatoshiMedium text-gray-700 mb-3">
+        <Text className="text-xl font-SatoshiMedium text-gray-700 mb-3">
           {title}
         </Text>
       )}
