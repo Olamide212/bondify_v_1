@@ -7,7 +7,6 @@ import {
   Pressable,
   Dimensions,
 } from "react-native";
-import { useLocalSearchParams, useRouter } from "expo-router";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -17,41 +16,48 @@ import Animated, {
   useAnimatedScrollHandler,
 } from "react-native-reanimated";
 import { Image } from "expo-image";
-import ProfileCard from "../../../components/homeScreen/ProfileCard";
-import ActionButtons from "../../../components/homeScreen/ActionButtons";
-import { useProfile } from "../../../context/ProfileContext";
-import { Icons } from "../../../constant/icons";
-import BackArrow from "../../../components/ui/BackArrow";
-import { ChevronLeft } from "lucide-react-native";
-import VerifiedIcon from "../../../components/ui/VerifiedIcon";
+import ProfileCard from "../homeScreen/ProfileCard";
+import ActionButtons from "../homeScreen/ActionButtons";
+import { useProfile } from "../../context/ProfileContext";
+import { Icons } from "../../constant/icons";
+import BaseModal from "./BaseModal";
+import { ChevronLeft, X } from "lucide-react-native";
 
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 
-const UserProfile = () => {
-  const { id } = useLocalSearchParams();
-  const router = useRouter();
-  const { handleHomeSwipe, handleHomeSuperLike, homeProfiles } = useProfile();
+const UserProfileModal = ({ visible, onClose, profileId }) => {
+  const {
+    handleSwipe: contextHandleSwipe,
+    handleSuperLike: contextHandleSuperLike,
+    profiles,
+  } = useProfile();
 
   const [flashMessage, setFlashMessage] = useState(null);
   const [currentProfile, setCurrentProfile] = useState(null);
 
-  const animation = useSharedValue(1);
+  const animation = useSharedValue(0);
   const flashAnim = useSharedValue(0);
   const scrollY = useSharedValue(0);
   const scrollRef = useRef(null);
 
   useEffect(() => {
-    // Find the profile based on ID
-    if (homeProfiles && homeProfiles.length > 0) {
-      const profile = homeProfiles.find((item) => item.id === Number(id));
+    if (visible) {
+      animation.value = withTiming(1, { duration: 300 });
+    } else {
+      animation.value = 0;
+    }
+  }, [visible]);
+
+  // In UserProfileModal.js, add this useEffect
+  useEffect(() => {
+    console.log("Profile ID:", profileId);
+    console.log("Profiles:", profiles);
+    if (profileId && profiles) {
+      const profile = profiles.find((item) => item.id === Number(profileId));
+      console.log("Found profile:", profile);
       setCurrentProfile(profile);
     }
-  }, [id, homeProfiles]);
-
-  useEffect(() => {
-    animation.value = 0;
-    animation.value = withTiming(1, { duration: 600 });
-  }, [id]);
+  }, [profileId, profiles]);
 
   const scrollHandler = useAnimatedScrollHandler({
     onScroll: (event) => {
@@ -76,10 +82,10 @@ const UserProfile = () => {
 
     showFlashMessage(direction);
 
-    // Use a small delay to show the flash message before navigating
+    // Use a small delay to show the flash message before closing
     setTimeout(() => {
-      handleHomeSwipe(direction, currentProfile);
-      router.back();
+      contextHandleSwipe(direction, currentProfile);
+      onClose();
     }, 800);
   };
 
@@ -88,20 +94,17 @@ const UserProfile = () => {
 
     showFlashMessage("right");
 
-    // Use a small delay to show the flash message before navigating
+    // Use a small delay to show the flash message before closing
     setTimeout(() => {
-      handleHomeSuperLike(currentProfile);
-      router.back();
+      contextHandleSuperLike(currentProfile);
+      onClose();
     }, 800);
   };
 
   const animatedStyle = useAnimatedStyle(() => {
-    const translateY = interpolate(animation.value, [0, 1], [60, 0]);
-    const scale = interpolate(animation.value, [0, 1], [0.9, 1]);
-
+    const translateY = interpolate(animation.value, [0, 1], [SCREEN_HEIGHT, 0]);
     return {
-      transform: [{ translateY }, { scale }],
-      opacity: animation.value,
+      transform: [{ translateY }],
     };
   });
 
@@ -135,87 +138,98 @@ const UserProfile = () => {
   });
 
   if (!currentProfile) {
-    return (
-      <View className="flex-1 items-center justify-center bg-black">
-        <Text className="text-white">Profile not found.</Text>
-      </View>
-    );
+    return null;
   }
 
   return (
-    <View className="flex-1 ">
-      {/* Static Header (visible by default, fades out when scrolling) */}
-      <Animated.View style={[styles.staticHeader, staticHeaderStyle]}>
-        <View style={styles.staticHeaderRow}>
-          <Pressable
-            onPress={() => router.back()}
-            style={styles.staticBackButton}
-          >
-            <View style={styles.backButtonCircle}>
-              <ChevronLeft size={24} color="#FFF" />
-            </View>
-          </Pressable>
-        </View>
-      </Animated.View>
+    <BaseModal
+      visible={visible}
+      onClose={onClose}
+      animationType="slide"
+      style={styles.modalContainer}
+    >
+      <Animated.View style={[styles.modalContent, animatedStyle]}>
+        {/* Static Header (visible by default, fades out when scrolling) */}
+        <Animated.View style={[styles.staticHeader, staticHeaderStyle]}>
+          <View style={styles.staticHeaderRow}>
+            <Pressable onPress={onClose} style={styles.staticBackButton}>
+              <View style={styles.backButtonCircle}>
+                <X size={24} color="#FFF" />
+              </View>
+            </Pressable>
+          </View>
+        </Animated.View>
 
-      {/* Animated Header that appears on scroll */}
-      <Animated.View style={[styles.profileHeader, profileHeaderStyle]}>
-        <View style={styles.headerRow}>
-          {/* Left: Back Arrow */}
-          <Pressable onPress={() => router.back()} style={styles.leftIcon}>
-            <BackArrow color="#000" />
-          </Pressable>
+        {/* Animated Header that appears on scroll */}
+        <Animated.View style={[styles.profileHeader, profileHeaderStyle]}>
+          <View style={styles.headerRow}>
+            {/* Left: Close Button */}
+            <Pressable onPress={onClose} style={styles.leftIcon}>
+              <X size={24} color="#000" />
+            </Pressable>
 
-          {/* Center: Name & Age */}
-          <View style={styles.centerContent}>
-            <View className="flex-row items-center gap-1">
-              <View className='flex-row items-center'>
-                <Text className="text-black text-2xl font-SatoshiBold mr-2">
+            {/* Center: Name & Age */}
+            <View style={styles.centerContent}>
+              <View className="flex-row items-center">
+                <Text className="text-black text-xl font-SatoshiBold mr-2">
                   {currentProfile.name}
                 </Text>
-                <Text className="text-black text-2xl font-Satoshi">
+                <Text className="text-black text-xl font-Satoshi">
                   {currentProfile.age}
                 </Text>
+                {currentProfile.verified && (
+                  <Image
+                    source={Icons.verified}
+                    style={{ width: 18, height: 18 }}
+                  />
+                )}
               </View>
-
-              {currentProfile.verified && (
-                <VerifiedIcon style={{ width: 18 }} />
-              )}
             </View>
-          </View>
 
-          {/* Right: Empty spacer to balance center alignment */}
-          <View style={styles.rightSpacer} />
+            {/* Right: Empty spacer to balance center alignment */}
+            <View style={styles.rightSpacer} />
+          </View>
+        </Animated.View>
+
+        {/* Flash Message */}
+        {flashMessage && (
+          <Animated.View style={[styles.flashMessage, flashStyle]}>
+            <Text style={styles.flashText}>{flashMessage}</Text>
+          </Animated.View>
+        )}
+
+        <Animated.ScrollView
+          ref={scrollRef}
+          onScroll={scrollHandler}
+          scrollEventThrottle={16}
+          contentContainerStyle={{ flexGrow: 1 }}
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={{ flex: 1 }}>
+            <ProfileCard profile={currentProfile} />
+          </View>
+        </Animated.ScrollView>
+
+        <View style={styles.actionButtonWrapper}>
+          <ActionButtons onSwipe={handleSwipe} onSuperLike={handleSuperLike} />
         </View>
       </Animated.View>
-
-      {/* Flash Message */}
-      {flashMessage && (
-        <Animated.View style={[styles.flashMessage, flashStyle]}>
-          <Text style={styles.flashText}>{flashMessage}</Text>
-        </Animated.View>
-      )}
-
-      <Animated.ScrollView
-        ref={scrollRef}
-        onScroll={scrollHandler}
-        scrollEventThrottle={16}
-        contentContainerStyle={{ flexGrow: 1 }}
-        showsVerticalScrollIndicator={false}
-      >
-        <Animated.View style={[{ flex: 1 }]}>
-          <ProfileCard profile={currentProfile} />
-        </Animated.View>
-      </Animated.ScrollView>
-
-      <View style={styles.actionButtonWrapper}>
-        <ActionButtons onSwipe={handleSwipe} onSuperLike={handleSuperLike} />
-      </View>
-    </View>
+    </BaseModal>
   );
 };
 
 const styles = StyleSheet.create({
+  modalContainer: {
+    margin: 0,
+    justifyContent: "flex-end",
+  },
+  modalContent: {
+    height: SCREEN_HEIGHT,
+    backgroundColor: "white",
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    overflow: "hidden",
+  },
   staticHeader: {
     position: "absolute",
     top: 60,
@@ -251,16 +265,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
   },
   leftIcon: {
-    width: 40, // reserve space for balancing
+    width: 40,
     justifyContent: "center",
     alignItems: "flex-start",
   },
   centerContent: {
     flex: 1,
-    alignItems: "center", // centers text horizontally
+    alignItems: "center",
   },
   rightSpacer: {
-    width: 40, // balances the back arrow space
+    width: 40,
   },
   profileHeader: {
     position: "absolute",
@@ -299,4 +313,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default UserProfile;
+export default UserProfileModal;

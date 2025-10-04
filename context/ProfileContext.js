@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { profiles } from "../data/profileData"; // Import the profiles data
+import { profiles } from "../data/profileData";
 
 const ProfileContext = createContext();
 
@@ -12,40 +12,94 @@ export const useProfile = () => {
 };
 
 export const ProfileProvider = ({ children }) => {
-  const [currentProfileIndex, setCurrentProfileIndex] = useState(0);
+  // Global stats
   const [matches, setMatches] = useState(12);
   const [likes, setLikes] = useState(48);
   const [profilesData, setProfilesData] = useState([]);
 
+  // Separate states for home and discover screens
+  const [homeSwipedProfiles, setHomeSwipedProfiles] = useState([]);
+  const [discoverSwipedProfiles, setDiscoverSwipedProfiles] = useState([]);
+  const [homeCurrentIndex, setHomeCurrentIndex] = useState(0);
+  const [discoverCurrentIndex, setDiscoverCurrentIndex] = useState(0);
+
   useEffect(() => {
-    // Set the profiles data on component mount
     setProfilesData(profiles);
   }, []);
 
-  const handleSwipe = (direction) => {
+  // Home screen actions
+  const addHomeSwipedProfile = (profileId) => {
+    setHomeSwipedProfiles((prev) => [...prev, profileId]);
+  };
+
+  const handleHomeSwipe = (direction, profile) => {
     if (direction === "right") {
       setMatches((prev) => prev + 1);
       setLikes((prev) => prev + 1);
     }
 
-    // Move to next profile
-    setCurrentProfileIndex((prev) => (prev + 1) % profilesData.length);
+    addHomeSwipedProfile(profile.id);
+    setHomeCurrentIndex((prev) => (prev + 1) % profilesData.length);
   };
 
-  const handleSuperLike = () => {
+  const handleHomeSuperLike = (profile) => {
     setMatches((prev) => prev + 1);
     setLikes((prev) => prev + 1);
-    setCurrentProfileIndex((prev) => (prev + 1) % profilesData.length);
+    addHomeSwipedProfile(profile.id);
+    setHomeCurrentIndex((prev) => (prev + 1) % profilesData.length);
   };
 
+  // Discover screen actions
+  const addDiscoverSwipedProfile = (profileId) => {
+    setDiscoverSwipedProfiles((prev) => [...prev, profileId]);
+  };
+
+  const handleDiscoverSwipe = (direction, profile) => {
+    if (direction === "right") {
+      setMatches((prev) => prev + 1);
+      setLikes((prev) => prev + 1);
+    }
+
+    addDiscoverSwipedProfile(profile.id);
+    setDiscoverCurrentIndex((prev) => (prev + 1) % profilesData.length);
+  };
+
+  const handleDiscoverSuperLike = (profile) => {
+    setMatches((prev) => prev + 1);
+    setLikes((prev) => prev + 1);
+    addDiscoverSwipedProfile(profile.id);
+    setDiscoverCurrentIndex((prev) => (prev + 1) % profilesData.length);
+  };
+
+  // Filter profiles for each screen
+  const homeProfiles = profilesData.filter(
+    (profile) => !homeSwipedProfiles.includes(profile.id)
+  );
+
+  const discoverProfiles = profilesData.filter(
+    (profile) => !discoverSwipedProfiles.includes(profile.id)
+  );
+
   const value = {
-    currentProfileIndex,
+    // Home screen
+    homeCurrentProfileIndex: homeCurrentIndex,
+    homeProfiles,
+    handleHomeSwipe,
+    handleHomeSuperLike,
+
+    // Discover screen
+    discoverCurrentProfileIndex: discoverCurrentIndex,
+    discoverProfiles,
+    handleDiscoverSwipe,
+    handleDiscoverSuperLike,
+
+    // Global stats
     matches,
     likes,
-    handleSwipe,
-    handleSuperLike,
-    setCurrentProfileIndex,
-    profiles: profilesData, // Use the state variable
+
+    // Utility functions
+    setHomeCurrentIndex,
+    setDiscoverCurrentIndex,
   };
 
   return (

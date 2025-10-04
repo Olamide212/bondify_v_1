@@ -1,9 +1,9 @@
-import React, { useRef, useEffect } from "react";
+// Home.js (updated)
+import React, { useState, useEffect } from "react";
 import {
   View,
   StyleSheet,
   Text,
-  ScrollView,
   Pressable,
   useWindowDimensions,
 } from "react-native";
@@ -13,51 +13,48 @@ import Animated, {
   withTiming,
   interpolate,
   runOnJS,
-  useAnimatedScrollHandler,
-  interpolateColor,
 } from "react-native-reanimated";
 import { Image } from "expo-image";
-import { useRouter } from "expo-router";
 import ActionButtons from "../../../../components/homeScreen/ActionButtons";
 import FilterModal from "../../../../components/modals/FilterModal";
 import { Icons } from "../../../../constant/icons";
 import AroundYou from "../../../../components/homeScreen/AroundYouTab";
 import { useProfile } from "../../../../context/ProfileContext";
+import LogoLoader from "../../../../components/ui/LogoLoader";
+import UserProfileModal from "../../../../components/modals/UserProfileModal";
+import AIAssistantModal from "../../../../components/modals/AIAssistantModal"; // New import
+import { colors } from "../../../../constant/colors";
+import { Bot } from "lucide-react-native";
 
 const Home = () => {
-  const router = useRouter();
   const {
-    currentProfileIndex,
-    handleSwipe: contextHandleSwipe,
-    handleSuperLike: contextHandleSuperLike,
-    profiles,
+    homeCurrentProfileIndex,
+    homeProfiles,
+    handleHomeSwipe,
+    handleHomeSuperLike,
+    matches,
+    likes,
   } = useProfile();
 
-  const [flashMessage, setFlashMessage] = React.useState(null);
-  const [showModal, setShowModal] = React.useState(false);
+  const [flashMessage, setFlashMessage] = useState(null);
+  const [showFilterModal, setShowFilterModal] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [showAIModal, setShowAIModal] = useState(false); // AI Modal state
+  const [selectedProfileId, setSelectedProfileId] = useState(null);
   const { height: windowHeight } = useWindowDimensions();
 
   const animation = useSharedValue(1);
   const flashAnim = useSharedValue(0);
-  const scrollY = useSharedValue(0);
-  const scrollRef = useRef(null);
 
-  // Add safety check for profiles array
   const currentProfile =
-    profiles && profiles.length > 0
-      ? profiles[currentProfileIndex % profiles.length]
+    homeProfiles.length > 0
+      ? homeProfiles[homeCurrentProfileIndex % homeProfiles.length]
       : null;
 
   useEffect(() => {
     animation.value = 0;
     animation.value = withTiming(1, { duration: 600 });
-  }, [currentProfileIndex]);
-
-  const scrollHandler = useAnimatedScrollHandler({
-    onScroll: (event) => {
-      scrollY.value = event.contentOffset.y;
-    },
-  });
+  }, [homeCurrentProfileIndex]);
 
   const showFlashMessage = (direction) => {
     const message = direction === "right" ? "Liked ❤️" : "Passed 👎";
@@ -72,20 +69,23 @@ const Home = () => {
   };
 
   const handleSwipe = (direction) => {
-    showFlashMessage(direction);
-    contextHandleSwipe(direction);
+    if (!currentProfile) return;
 
-    if (scrollRef.current) {
-      scrollRef.current.scrollTo({ y: 0, animated: false });
-    }
+    showFlashMessage(direction);
+    handleHomeSwipe(direction, currentProfile);
   };
 
   const handleSuperLike = () => {
-    showFlashMessage("right");
-    contextHandleSuperLike();
+    if (!currentProfile) return;
 
-    if (scrollRef.current) {
-      scrollRef.current.scrollTo({ y: 0, animated: false });
+    showFlashMessage("right");
+    handleHomeSuperLike(currentProfile);
+  };
+
+  const handleViewProfile = () => {
+    if (currentProfile) {
+      setSelectedProfileId(currentProfile.id);
+      setShowProfileModal(true);
     }
   };
 
@@ -108,96 +108,52 @@ const Home = () => {
     };
   });
 
-  const profileHeaderStyle = useAnimatedStyle(() => {
-    const opacity = interpolate(scrollY.value, [0, 60], [0, 1], "clamp");
-    const translateY = interpolate(scrollY.value, [0, 50], [-20, 0], "clamp");
-
-    return {
-      opacity,
-      transform: [{ translateY }],
-    };
-  });
-
-  const imageTintStyle = useAnimatedStyle(() => {
-    const tintColor = interpolateColor(
-      scrollY.value,
-      [0, 60],
-      ["#ffffff", "#ffffff"]
-    );
-
-    return { tintColor };
-  });
-
-  const navigateToProfile = () => {
-    if (currentProfile) {
-      router.push(`/profile/${currentProfile.id}`);
-    }
-  };
-
   // Show loading state if no profile is available
-  if (!profiles || profiles.length === 0) {
-    return (
-      <View style={styles.container}>
-        <Text>Loading profiles...</Text>
-      </View>
-    );
+  if (!homeProfiles || homeProfiles.length === 0) {
+    return <LogoLoader color={colors.primary} />;
   }
 
   if (!currentProfile) {
-    return (
-      <View style={styles.container}>
-        <Text>No profiles available</Text>
-      </View>
-    );
+    return <LogoLoader />;
   }
 
   return (
-    <View style={{ flex: 1 }} className="">
+    <View style={styles.container}>
+      {/* Header */}
       <View style={styles.headerWrapper}>
-        <View className="flex-row justify-end gap-4">
-          <View className="flex-row items-center gap-2">
-            <Pressable onPress={() => setShowModal(true)}>
-              <View className="justify-center items-center rounded-full bg-white/5  w-12 h-12 ">
-                <Animated.Image
+        <View className="flex-row justify-between gap-4">
+          {/* AI Assistant Button */}
+          <Pressable onPress={() => setShowAIModal(true)}>
+            <View className="justify-center gap-2 rounded-full bg-secondary w-auto px-3 h-10 flex-row items-center ">
+              <Bot size={22} color={colors.primary} />
+              <Text className="font-GeneralSansMedium text-primary">AI Chat</Text>
+            </View>
+          </Pressable>
+
+          <View className='flex-row gap-2'>
+            <Pressable onPress={() => setShowFilterModal(true)}>
+              <View className="justify-center items-center rounded-full bg-black/10 w-12 h-12 ">
+                <Image
                   source={require("../../../../assets/icons/bell.png")}
-                  style={[
-                    {
-                      width: 18,
-                      height: 20,
-                    },
-                    imageTintStyle,
-                  ]}
+                  style={{
+                    width: 18,
+                    height: 20,
+                    tintColor: "#ffffff",
+                  }}
                   contentFit="cover"
                 />
               </View>
             </Pressable>
-            <Pressable onPress={() => setShowModal(true)}>
-              <View className="justify-center items-center rounded-full bg-white/5  w-12 h-12">
-                <Animated.Image
-                  source={Icons.redo}
-                  style={[
-                    {
-                      width: 18,
-                      height: 18,
-                    },
-                    imageTintStyle,
-                  ]}
-                  contentFit="contain"
-                />
-              </View>
-            </Pressable>
 
-            <Pressable onPress={() => setShowModal(true)}>
-              <View className="justify-center items-center rounded-full bg-white/5  w-12 h-12">
-                <Animated.Image
+            <Pressable onPress={() => setShowFilterModal(true)}>
+              <View className="justify-center items-center rounded-full bg-black/10  w-12 h-12">
+                <Image
                   source={require("../../../../assets/icons/Slider-white.png")}
-                  style={[
-                    {
-                      width: 18,
-                      height: 18,
-                    },
-                    imageTintStyle,
-                  ]}
+                  style={{
+                    width: 18,
+                    height: 18,
+                    tintColor: "#ffffff",
+                  }}
                   contentFit="contain"
                 />
               </View>
@@ -206,33 +162,43 @@ const Home = () => {
         </View>
       </View>
 
-    
-
       {flashMessage && (
         <Animated.View style={[styles.flashMessage, flashStyle]}>
           <Text style={styles.flashText}>{flashMessage}</Text>
         </Animated.View>
       )}
 
-      <Pressable onPress={navigateToProfile} style={styles.aroundYouContainer}>
-        <Animated.ScrollView
-          ref={scrollRef}
-          onScroll={scrollHandler}
-          scrollEventThrottle={16}
-          contentContainerStyle={{ flexGrow: 1 }}
-          showsVerticalScrollIndicator={false}
-        >
-          <Animated.View style={[animatedStyle, { flex: 1 }]}>
-            {/* Use AroundYou with proper styling */}
-            <AroundYou profile={currentProfile} />
-          </Animated.View>
-        </Animated.ScrollView>
-      </Pressable>
+      {/* Main content without scrolling */}
+      <View style={styles.aroundYouContainer}>
+        <Animated.View style={[animatedStyle, { flex: 1 }]}>
+          <AroundYou
+            profile={currentProfile}
+            onViewProfile={handleViewProfile}
+          />
+        </Animated.View>
+      </View>
 
       <View style={styles.actionButtonWrapper}>
-        <ActionButtons onSwipe={handleSwipe} onSuperLike={handleSuperLike} />
+        <ActionButtons onSwipe={handleSwipe} onSuperLike={handleSuperLike} Redo={true} />
       </View>
-      <FilterModal visible={showModal} onClose={() => setShowModal(false)} />
+
+      <FilterModal
+        visible={showFilterModal}
+        onClose={() => setShowFilterModal(false)}
+      />
+
+      <UserProfileModal
+        visible={showProfileModal}
+        onClose={() => setShowProfileModal(false)}
+        profileId={selectedProfileId}
+      />
+
+      {/* AI Assistant Modal */}
+      <AIAssistantModal
+        visible={showAIModal}
+        onClose={() => setShowAIModal(false)}
+        fullScreen
+      />
     </View>
   );
 };
@@ -240,29 +206,14 @@ const Home = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#F8F9FA",
+    backgroundColor: "#000",
   },
   headerWrapper: {
     position: "absolute",
-    top: 50,
+    top: 60,
     left: 20,
     right: 20,
     zIndex: 50,
-  },
-  profileHeader: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: "white",
-    paddingTop: 60,
-    paddingBottom: 15,
-    alignItems: "center",
-    zIndex: 40,
-    borderBottomWidth: 1,
-    borderBottomColor: "#f0f0f0",
   },
   actionButtonWrapper: {
     position: "absolute",
@@ -288,7 +239,6 @@ const styles = StyleSheet.create({
   },
   aroundYouContainer: {
     flex: 1,
- 
   },
 });
 

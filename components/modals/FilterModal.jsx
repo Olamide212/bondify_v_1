@@ -19,16 +19,14 @@ import FamilyPlanModal from "./FamilyPlanModal";
 import EducationModal from "./EducationModal";
 import DrinkingModal from "./DrinkingModal";
 import SmokingModal from "./SmokingModal";
-import ReligionModal from "./ReligionModal"
-import CommunicationModal from "./CommunicationModal"
+import ReligionModal from "./ReligionModal";
+import CommunicationModal from "./CommunicationModal";
 import LoveStyleModal from "./LoveStyle";
-import ZodiacModal from "./ZodiacModal"
-import WorkOutModal from "./WorkOutModal"
+import ZodiacModal from "./ZodiacModal";
+import WorkOutModal from "./WorkOutModal";
 import FinanceModal from "./FinanceModal";
-import LanguageModal from "./LanguageModal"
-
-
-
+import LanguageModal from "./LanguageModal";
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 
 const FilterModal = ({ visible, onClose }) => {
   const [selectedGender, setSelectedGender] = useState("Everyone");
@@ -40,20 +38,20 @@ const FilterModal = ({ visible, onClose }) => {
 
   // Track selections
   const [selectedInterests, setSelectedInterests] = useState([]);
-const [selectedOption, setSelectedOption] = useState("");
-const [selectedEthnicityOption, setSelectedEthnicityOption] = useState("");
-const [selectedFamilyPlanOption, setSelectedFamilyPlanOption] = useState("");
-const [selectedEducationOption, setSelectedEducationOption] = useState("");
-const [selectedDrinkingOption, setSelectedDrinkingOption] = useState("");
-const [selectedSmokingOption, setSelectedSmokingOption] = useState("");
-const [selectedReligionOption, setSelectedReligionOption] = useState("");
-const [selectedCommunicationOption, setSelectedCommunicationOption] = useState("");
+  const [selectedOption, setSelectedOption] = useState("");
+  const [selectedEthnicityOption, setSelectedEthnicityOption] = useState("");
+  const [selectedFamilyPlanOption, setSelectedFamilyPlanOption] = useState("");
+  const [selectedEducationOption, setSelectedEducationOption] = useState("");
+  const [selectedDrinkingOption, setSelectedDrinkingOption] = useState("");
+  const [selectedSmokingOption, setSelectedSmokingOption] = useState("");
+  const [selectedReligionOption, setSelectedReligionOption] = useState("");
+  const [selectedCommunicationOption, setSelectedCommunicationOption] =
+    useState("");
   const [selectedLoveOption, setSelectedLoveOption] = useState("");
   const [selectedZodiacOption, setSelectedZodiacOption] = useState("");
   const [selectedWorkOutOption, setSelectedWorkOutOption] = useState("");
   const [selectedFinanceOption, setSelectedFinanceOption] = useState("");
   const [selectedLanguageOption, setSelectedLanguageOption] = useState("");
-  
 
   const genderOptions = ["Male", "Female", "Nonbinary", "Everyone"];
 
@@ -69,7 +67,11 @@ const [selectedCommunicationOption, setSelectedCommunicationOption] = useState("
         selectedInterests.length > 0 ? selectedInterests.join(", ") : "Select",
       key: "interests",
     },
-    { label: "Zodiac", value:selectedZodiacOption ? selectedZodiacOption : "Select", key: "zodiac" },
+    {
+      label: "Zodiac",
+      value: selectedZodiacOption ? selectedZodiacOption : "Select",
+      key: "zodiac",
+    },
     {
       label: "Ethnicity",
       value: selectedEthnicityOption ? selectedEthnicityOption : "Select",
@@ -109,242 +111,221 @@ const [selectedCommunicationOption, setSelectedCommunicationOption] = useState("
       key: "love",
     },
 
-    { label: "Workout", value: selectedWorkOutOption ? selectedWorkOutOption : "Select", key: "workout" },
-
+    {
+      label: "Workout",
+      value: selectedWorkOutOption ? selectedWorkOutOption : "Select",
+      key: "workout",
+    },
   ];
 
   return (
     <BaseModal visible={visible} onClose={onClose}>
-      <View className="flex-1 bg-white rounded-t-3xl overflow-hidden ">
-        <ModalHeader
-          onClose={onClose}
-          centerText="Filter"
-          rightText="Apply"
-          onRightPress={onClose}
-        />
+      <SafeAreaProvider>
+        <SafeAreaView className="flex-1 bg-white rounded-t-3xl overflow-hidden ">
+          <ModalHeader
+            onClose={onClose}
+            centerText="Filter"
+            rightText="Apply"
+            onRightPress={onClose}
+          />
 
-        <ScrollView
-          contentContainerStyle={{ padding: 16 }}
-          showsVerticalScrollIndicator={false}
-        >
-        
+          <ScrollView
+            contentContainerStyle={{ padding: 16 }}
+            showsVerticalScrollIndicator={false}
+          >
+            {/* Age */}
+            <Text className="text-lg font-SatoshiBold mb-1">Age</Text>
+            <Text className="mb-2 text-gray-500 font-Satoshi">
+              {ageRange[0]} – {ageRange[1]}
+            </Text>
+            <MultiSlider
+              sliderLength={350}
+              values={ageRange}
+              onValuesChange={(values) => setAgeRange(values)}
+              min={18}
+              max={100}
+              step={1}
+              trackStyle={{ height: 4, borderRadius: 50 }}
+              selectedStyle={{
+                backgroundColor: colors.primary,
+              }}
+              unselectedStyle={{
+                backgroundColor: "#d3d3d3",
+              }}
+              markerStyle={{
+                backgroundColor: colors.primary,
+                height: 25,
+                width: 25,
+                borderColor: colors.primary,
+              }}
+            />
 
-          {/* Gender */}
-          <Text className="text-lg font-SatoshiBold mb-2">
-            I want to date a
-          </Text>
-          <View className="flex-row flex-wrap mb-6">
-            {genderOptions.map((option) => (
-              <Pressable
-                key={option}
-                onPress={() => setSelectedGender(option)}
-                className={`px-4 py-2 rounded-full mr-2 mb-2 ${
-                  selectedGender === option ? "bg-primary" : "bg-gray-200"
-                }`}
+            {/* Distance */}
+            <Text className="text-lg font-SatoshiBold mt-6 mb-1">
+              Distance (km)
+            </Text>
+            <Text className="mb-2 text-gray-500">{distance}km</Text>
+            <Slider
+              style={{ width: "100%", height: 40 }}
+              minimumValue={2}
+              maximumValue={1000}
+              step={1}
+              value={distance}
+              onValueChange={(value) => setDistance(value)}
+              minimumTrackTintColor="#FF0066"
+              maximumTrackTintColor="#d3d3d3"
+              thumbTintColor="#FF0066"
+            />
+
+            {/* Advanced Filters */}
+            <View className="flex-row justify-between items-center mt-8 mb-4">
+              <Text className="text-lg font-bold">Advanced filters</Text>
+              <TouchableOpacity>
+                <Text className="text-primary font-semibold">Reset</Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Filter rows */}
+            {filters.map((item) => (
+              <TouchableOpacity
+                key={item.key}
+                className="flex-row justify-between items-center py-6 border-b border-gray-200"
+                onPress={() => setVisibleModal(item.key)}
               >
+                <Text className="text-[16px] font-SatoshiMedium">
+                  {item.label}
+                </Text>
                 <Text
                   className={`${
-                    selectedGender === option ? "text-white" : "text-black"
-                  } font-SatoshiMedium`}
+                    item.value === "Select"
+                      ? "text-gray-500"
+                      : "text-black capitalize"
+                  }`}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  style={{ maxWidth: "60%" }}
                 >
-                  {option}
+                  {item.value}
                 </Text>
-              </Pressable>
+              </TouchableOpacity>
             ))}
-          </View>
+          </ScrollView>
 
-          {/* Age */}
-          <Text className="text-lg font-SatoshiBold mb-1">Age</Text>
-          <Text className="mb-2 text-gray-500 font-Satoshi">
-            {ageRange[0]} – {ageRange[1]}
-          </Text>
-          <MultiSlider
-            sliderLength={350}
-            values={ageRange}
-            onValuesChange={(values) => setAgeRange(values)}
-            min={18}
-            max={100}
-            step={1}
-            trackStyle={{ height: 4, borderRadius: 50 }}
-            selectedStyle={{
-              backgroundColor: colors.primary,
-            }}
-            unselectedStyle={{
-              backgroundColor: "#d3d3d3",
-            }}
-            markerStyle={{
-              backgroundColor: colors.primary,
-              height: 25,
-              width: 25,
-              borderColor: colors.primary,
-            }}
+          {/* Interests Modal */}
+          <InterestsModal
+            visible={visibleModal === "interests"}
+            initialSelected={selectedInterests}
+            onApply={(interests) => setSelectedInterests(interests)}
+            onClose={() => setVisibleModal(null)}
           />
 
-          {/* Distance */}
-          <Text className="text-lg font-SatoshiBold mt-6 mb-1">
-            Distance (km)
-          </Text>
-          <Text className="mb-2 text-gray-500">{distance}km</Text>
-          <Slider
-            style={{ width: "100%", height: 40 }}
-            minimumValue={2}
-            maximumValue={1000}
-            step={1}
-            value={distance}
-            onValueChange={(value) => setDistance(value)}
-            minimumTrackTintColor="#FF0066"
-            maximumTrackTintColor="#d3d3d3"
-            thumbTintColor="#FF0066"
+          {/* Looking for modal*/}
+          <LookingForModal
+            visible={visibleModal === "looking"}
+            initialSelected={selectedOption}
+            onApply={(looking) => setSelectedOption(looking)}
+            onClose={() => setVisibleModal(null)}
           />
 
-          {/* Advanced Filters */}
-          <View className="flex-row justify-between items-center mt-8 mb-4">
-            <Text className="text-lg font-bold">Advanced filters</Text>
-            <TouchableOpacity>
-              <Text className="text-primary font-semibold">Reset</Text>
-            </TouchableOpacity>
-          </View>
+          {/*Ethnicity modal*/}
+          <EthnicityModal
+            visible={visibleModal === "ethnicity"}
+            initialSelected={selectedEthnicityOption}
+            onApply={(ethnicity) => setSelectedEthnicityOption(ethnicity)}
+            onClose={() => setVisibleModal(null)}
+          />
 
-          {/* Filter rows */}
-          {filters.map((item) => (
-            <TouchableOpacity
-              key={item.key}
-              className="flex-row justify-between items-center py-6 border-b border-gray-200"
-              onPress={() => setVisibleModal(item.key)}
-            >
-              <Text className="text-[16px] font-SatoshiMedium">
-                {item.label}
-              </Text>
-              <Text
-                className={`${
-                  item.value === "Select"
-                    ? "text-gray-500"
-                    : "text-black capitalize"
-                }`}
-                numberOfLines={1}
-                ellipsizeMode="tail"
-                style={{ maxWidth: "60%" }}
-              >
-                {item.value}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
+          {/*Family modal*/}
+          <FamilyPlanModal
+            visible={visibleModal === "kids"}
+            initialSelected={selectedFamilyPlanOption}
+            onApply={(kids) => setSelectedFamilyPlanOption(kids)}
+            onClose={() => setVisibleModal(null)}
+          />
 
-        {/* Interests Modal */}
-        <InterestsModal
-          visible={visibleModal === "interests"}
-          initialSelected={selectedInterests}
-          onApply={(interests) => setSelectedInterests(interests)}
-          onClose={() => setVisibleModal(null)}
-        />
+          {/*Education modal*/}
+          <EducationModal
+            visible={visibleModal === "education"}
+            initialSelected={selectedEducationOption}
+            onApply={(education) => setSelectedEducationOption(education)}
+            onClose={() => setVisibleModal(null)}
+          />
 
-        {/* Looking for modal*/}
-        <LookingForModal
-          visible={visibleModal === "looking"}
-          initialSelected={selectedOption}
-          onApply={(looking) => setSelectedOption(looking)}
-          onClose={() => setVisibleModal(null)}
-        />
+          {/*Drinking modal*/}
+          <DrinkingModal
+            visible={visibleModal === "drinking"}
+            initialSelected={selectedDrinkingOption}
+            onApply={(drinking) => setSelectedDrinkingOption(drinking)}
+            onClose={() => setVisibleModal(null)}
+          />
 
-        {/*Ethnicity modal*/}
-        <EthnicityModal
-          visible={visibleModal === "ethnicity"}
-          initialSelected={selectedEthnicityOption}
-          onApply={(ethnicity) => setSelectedEthnicityOption(ethnicity)}
-          onClose={() => setVisibleModal(null)}
-        />
+          {/*Smoking modal*/}
+          <SmokingModal
+            visible={visibleModal === "smoking"}
+            initialSelected={selectedSmokingOption}
+            onApply={(smoking) => setSelectedSmokingOption(smoking)}
+            onClose={() => setVisibleModal(null)}
+          />
 
-        {/*Family modal*/}
-        <FamilyPlanModal
-          visible={visibleModal === "kids"}
-          initialSelected={selectedFamilyPlanOption}
-          onApply={(kids) => setSelectedFamilyPlanOption(kids)}
-          onClose={() => setVisibleModal(null)}
-        />
+          {/*Religion modal*/}
+          <ReligionModal
+            visible={visibleModal === "religion"}
+            initialSelected={selectedReligionOption}
+            onApply={(religion) => setSelectedReligionOption(religion)}
+            onClose={() => setVisibleModal(null)}
+          />
 
-        {/*Education modal*/}
-        <EducationModal
-          visible={visibleModal === "education"}
-          initialSelected={selectedEducationOption}
-          onApply={(education) => setSelectedEducationOption(education)}
-          onClose={() => setVisibleModal(null)}
-        />
+          {/*Communication Style modal*/}
+          <CommunicationModal
+            visible={visibleModal === "communication"}
+            initialSelected={selectedCommunicationOption}
+            onApply={(communication) =>
+              setSelectedCommunicationOption(communication)
+            }
+            onClose={() => setVisibleModal(null)}
+          />
 
-        {/*Drinking modal*/}
-        <DrinkingModal
-          visible={visibleModal === "drinking"}
-          initialSelected={selectedDrinkingOption}
-          onApply={(drinking) => setSelectedDrinkingOption(drinking)}
-          onClose={() => setVisibleModal(null)}
-        />
+          {/*Love Style modal*/}
+          <LoveStyleModal
+            visible={visibleModal === "love"}
+            initialSelected={selectedLoveOption}
+            onApply={(love) => setSelectedLoveOption(love)}
+            onClose={() => setVisibleModal(null)}
+          />
 
-        {/*Smoking modal*/}
-        <SmokingModal
-          visible={visibleModal === "smoking"}
-          initialSelected={selectedSmokingOption}
-          onApply={(smoking) => setSelectedSmokingOption(smoking)}
-          onClose={() => setVisibleModal(null)}
-        />
+          {/*Zodiac modal*/}
+          <ZodiacModal
+            visible={visibleModal === "zodiac"}
+            initialSelected={selectedZodiacOption}
+            onApply={(zodiac) => setSelectedZodiacOption(zodiac)}
+            onClose={() => setVisibleModal(null)}
+          />
 
-        {/*Religion modal*/}
-        <ReligionModal
-          visible={visibleModal === "religion"}
-          initialSelected={selectedReligionOption}
-          onApply={(religion) => setSelectedReligionOption(religion)}
-          onClose={() => setVisibleModal(null)}
-        />
+          {/*Workout modal*/}
+          <WorkOutModal
+            visible={visibleModal === "workout"}
+            initialSelected={selectedWorkOutOption}
+            onApply={(workout) => setSelectedWorkOutOption(workout)}
+            onClose={() => setVisibleModal(null)}
+          />
 
-        {/*Communication Style modal*/}
-        <CommunicationModal
-          visible={visibleModal === "communication"}
-          initialSelected={selectedCommunicationOption}
-          onApply={(communication) =>
-            setSelectedCommunicationOption(communication)
-          }
-          onClose={() => setVisibleModal(null)}
-        />
+          {/*Finance modal*/}
+          <FinanceModal
+            visible={visibleModal === "finance"}
+            initialSelected={selectedFinanceOption}
+            onApply={(finance) => setSelectedFinanceOption(finance)}
+            onClose={() => setVisibleModal(null)}
+          />
 
-        {/*Love Style modal*/}
-        <LoveStyleModal
-          visible={visibleModal === "love"}
-          initialSelected={selectedLoveOption}
-          onApply={(love) => setSelectedLoveOption(love)}
-          onClose={() => setVisibleModal(null)}
-        />
-
-        {/*Zodiac modal*/}
-        <ZodiacModal
-          visible={visibleModal === "zodiac"}
-          initialSelected={selectedZodiacOption}
-          onApply={(zodiac) => setSelectedZodiacOption(zodiac)}
-          onClose={() => setVisibleModal(null)}
-        />
-
-        {/*Workout modal*/}
-        <WorkOutModal
-          visible={visibleModal === "workout"}
-          initialSelected={selectedWorkOutOption}
-          onApply={(workout) => setSelectedWorkOutOption(workout)}
-          onClose={() => setVisibleModal(null)}
-        />
-
-        {/*Finance modal*/}
-        <FinanceModal
-          visible={visibleModal === "finance"}
-          initialSelected={selectedFinanceOption}
-          onApply={(finance) => setSelectedFinanceOption(finance)}
-          onClose={() => setVisibleModal(null)}
-        />
-
-        {/*Language modal*/}
-        <LanguageModal
-          visible={visibleModal === "language"}
-          initialSelected={selectedLanguageOption}
-          onApply={(finance) => setSelectedLanguageOption(finance)}
-          onClose={() => setVisibleModal(null)}
-        />
-      </View>
+          {/*Language modal*/}
+          <LanguageModal
+            visible={visibleModal === "language"}
+            initialSelected={selectedLanguageOption}
+            onApply={(finance) => setSelectedLanguageOption(finance)}
+            onClose={() => setVisibleModal(null)}
+          />
+        </SafeAreaView>
+      </SafeAreaProvider>
     </BaseModal>
   );
 };

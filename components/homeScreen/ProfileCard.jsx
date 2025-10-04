@@ -45,6 +45,7 @@ import { Share2, Slash, Flag } from "lucide-react-native";
 import CommentBox from "../ui/CommentBox";
 import DirectMessageBox from "../ui/DirectMessageBox";
 import { Icons } from "../../constant/icons";
+import VerifiedIcon from "../ui/VerifiedIcon";
 
 const MAX_BIO_LENGTH = 120;
 const { width, height } = Dimensions.get("window");
@@ -243,7 +244,7 @@ const ProfileCard = ({ profile }) => {
               className=" shadow-lg overflow-hidden bg-white"
               style={{
                 width: "100%",
-                height: 760,
+                height: 820,
               }}
             >
               <TouchableWithoutFeedback
@@ -256,28 +257,22 @@ const ProfileCard = ({ profile }) => {
                     contentFit="cover"
                     style={{
                       width: "100%",
-                      height: 900,
+                      height: 950,
                     }}
                   />
 
-                  <View className="absolute bottom-72 left-6 right-6">
-                    <View className="flex-row items-center mb-2">
+                  <View className="absolute bottom-64 left-6 right-6">
+                    <View className="flex-row items-center mb-6">
                       <Text className="text-white text-4xl font-SatoshiBold mr-2">
                         {profile.name}
                       </Text>
 
-                      <View className="flex-row gap-2">
+                      <View className="flex-row items-center gap-2">
                         <Text className="text-white text-4xl font-Satoshi">
                           {profile.age}
                         </Text>
                         {profile.verified && (
-                          <View>
-                            <Image
-                              source={require("../../assets/icons/verified-icon.png")}
-                              style={{ width: 23, height: 23 }}
-                              contentFit="contain"
-                            />
-                          </View>
+                          <VerifiedIcon />
                         )}
                       </View>
                     </View>
@@ -292,19 +287,19 @@ const ProfileCard = ({ profile }) => {
                         </View>
                       )}
                       {profile.occupation && (
-                        <View className="flex-row items-center bg-white px-4 py-2 rounded-full">
-                          <Briefcase size={18} color="#000" />
+                        <View className="flex-row items-center bg-secondary px-4 py-2 rounded-full">
+                          <Briefcase size={18} color={"#000"} />
                           <Text className="text-black font-SatoshiMedium ml-2 capitalize">
                             {profile.occupation}
                           </Text>
                         </View>
                       )}
                       {profile.religion && (
-                        <View className="flex-row items-center bg-white px-4 py-2 rounded-full">
+                        <View className="flex-row items-center bg-secondary px-4 py-2 rounded-full">
                           <MaterialCommunityIcons
                             name="hands-pray"
                             size={20}
-                            color={"black"}
+                      color={"#000"}
                           />
                           <Text className="text-black font-SatoshiMedium ml-2 capitalize">
                             {profile.religion}
@@ -313,8 +308,8 @@ const ProfileCard = ({ profile }) => {
                       )}
 
                       {profile.location && (
-                        <View className="flex-row items-center bg-white px-4 py-2 rounded-full">
-                          <MapPin size={18} color="#000" />
+                        <View className="flex-row items-center bg-secondary px-4 py-2 rounded-full">
+                          <MapPin size={18} color={"#000"} />
                           <Text className="text-black font-SatoshiMedium ml-2">
                             {profile.distance}, {profile.location}
                           </Text>
@@ -340,9 +335,9 @@ const ProfileCard = ({ profile }) => {
                     {profile.mutualInterests.map((interest, index) => (
                       <View
                         key={index}
-                        className="bg-gray-100  px-4 py-2 rounded-full"
+                        className="bg-primary/20   px-4 py-2 rounded-full"
                       >
-                        <Text className="text-black text-[16px] font-Satoshi">
+                        <Text className="text-primary text-[16px] font-Satoshi">
                           {interest}
                         </Text>
                       </View>

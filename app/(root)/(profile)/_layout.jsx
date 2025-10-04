@@ -13,7 +13,7 @@ export default function ProfileLayout() {
         name="profile-detail/index"
       />
       <Stack.Screen
-        name="profiles/index"
+        name="edit-profiles/index"
       />
       <Stack.Screen
         name="badges"

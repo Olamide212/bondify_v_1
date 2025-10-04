@@ -18,19 +18,21 @@ import Animated, {
   interpolate,
   runOnJS,
   useAnimatedScrollHandler,
-  interpolateColor,
 } from "react-native-reanimated";
 import { Image } from "expo-image";
 
-import { styles } from "../../../../styles/discoverStyles";
 import { profiles } from "../../../../data/profileData";
 import ProfileCard from "../../../../components/homeScreen/ProfileCard";
 import ActionButtons from "../../../../components/homeScreen/ActionButtons";
 import { useProfile } from "../../../../context/ProfileContext";
-import BackArrow from "../../../../components/ui/BackArrow";
+import { Icons } from "../../../../constant/icons";
+import LogoLoader from "../../../../components/ui/LogoLoader";
+import { colors } from "../../../../constant/colors";
 
-const ProfilesByPreferenceScreen = () => {
-  const { preference, title } = useLocalSearchParams();
+
+const ProfileScreen = () => {
+  const { id, fromDiscover, categoryTitle, categoryPreference } =
+    useLocalSearchParams();
   const router = useRouter();
   const [filteredProfiles, setFilteredProfiles] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -39,32 +41,50 @@ const ProfilesByPreferenceScreen = () => {
   const [showNoMoreProfiles, setShowNoMoreProfiles] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
 
-  const {
-    handleSwipe: contextHandleSwipe,
-    handleSuperLike: contextHandleSuperLike,
-  } = useProfile();
+  const { handleHomeSwipe, handleHomeSuperLike, homeProfiles } = useProfile();
 
+  // Use react-native-reanimated's shared values
   const animation = useSharedValue(1);
   const flashAnim = useSharedValue(0);
   const scrollY = useSharedValue(0);
   const scrollRef = useRef(null);
+
+  // Check if we're viewing a single profile or swiping through multiple
+  const isSingleProfile = Boolean(id && fromDiscover);
 
   useEffect(() => {
     const filterProfiles = () => {
       setLoading(true);
 
       setTimeout(() => {
-        const filtered = profiles.filter(
-          (profile) =>
-            profile.lookingFor.toLowerCase() === preference.toLowerCase()
-        );
+        let filtered;
+
+        if (isSingleProfile) {
+          // If we're viewing a single profile, find just that one
+          filtered = homeProfiles.filter(
+            (profile) => profile.id === parseInt(id)
+          );
+        } else {
+          // Otherwise, filter by preference as before
+          filtered = homeProfiles.filter(
+            (profile) =>
+              profile.lookingFor.toLowerCase() ===
+              categoryPreference.toLowerCase()
+          );
+        }
+
         setFilteredProfiles(filtered);
         setLoading(false);
+
+        // If we're viewing a single profile, set the index to 0
+        if (isSingleProfile) {
+          setCurrentProfileIndex(0);
+        }
       }, 500);
     };
 
     filterProfiles();
-  }, [preference]);
+  }, [id, isSingleProfile, categoryPreference, homeProfiles]);
 
   useEffect(() => {
     animation.value = 0;
@@ -96,13 +116,24 @@ const ProfilesByPreferenceScreen = () => {
 
     // Use a small delay to show the flash message before moving to next profile
     setTimeout(() => {
-      contextHandleSwipe(direction, filteredProfiles[currentProfileIndex]);
+      const currentProfile = filteredProfiles[currentProfileIndex];
+      handleHomeSwipe(direction, currentProfile);
 
       if (currentProfileIndex < filteredProfiles.length - 1) {
         setCurrentProfileIndex(currentProfileIndex + 1);
       } else {
-        // Show no more profiles message instead of navigating back
-        setShowNoMoreProfiles(true);
+        // Navigate back to discover screen after the last profile
+        if (fromDiscover) {
+          router.push({
+            pathname: "/discover-profile",
+            params: {
+              preference: categoryPreference,
+              title: categoryTitle,
+            },
+          });
+        } else {
+          router.back();
+        }
       }
     }, 800);
   };
@@ -114,13 +145,24 @@ const ProfilesByPreferenceScreen = () => {
 
     // Use a small delay to show the flash message before moving to next profile
     setTimeout(() => {
-      contextHandleSuperLike(filteredProfiles[currentProfileIndex]);
+      const currentProfile = filteredProfiles[currentProfileIndex];
+      handleHomeSuperLike(currentProfile);
 
       if (currentProfileIndex < filteredProfiles.length - 1) {
         setCurrentProfileIndex(currentProfileIndex + 1);
       } else {
-        // Show no more profiles message instead of navigating back
-        setShowNoMoreProfiles(true);
+        // Navigate back to discover screen after the last profile
+        if (fromDiscover) {
+          router.push({
+            pathname: "/discover-profiles",
+            params: {
+              preference: categoryPreference,
+              title: categoryTitle,
+            },
+          });
+        } else {
+          router.back();
+        }
       }
     }, 800);
   };
@@ -136,6 +178,22 @@ const ProfilesByPreferenceScreen = () => {
       setShowNoMoreProfiles(false);
       setLoadingMore(false);
     }, 1500);
+  };
+
+  const handleBack = () => {
+    if (fromDiscover) {
+      // If we came from discover, go back to the discover profiles screen
+      router.push({
+        pathname: "/discover-profiles",
+        params: {
+          preference: categoryPreference,
+          title: categoryTitle,
+        },
+      });
+    } else {
+      // Otherwise, just go back
+      router.back();
+    }
   };
 
   const animatedStyle = useAnimatedStyle(() => {
@@ -181,9 +239,7 @@ const ProfilesByPreferenceScreen = () => {
     return (
       <SafeAreaView style={styles.container}>
         <StatusBar barStyle="dark-content" />
-        <View style={styles.loadingContainer}>
-          <Text>Finding profiles...</Text>
-        </View>
+        <LogoLoader color={colors.primary} />
       </SafeAreaView>
     );
   }
@@ -194,11 +250,13 @@ const ProfilesByPreferenceScreen = () => {
         <StatusBar barStyle="dark-content" />
 
         {/* Header */}
-        <View style={localStyles.header}>
-          <TouchableOpacity onPress={() => router.back()}>
+        <View style={styles.header}>
+          <TouchableOpacity onPress={handleBack}>
             <ChevronLeft size={24} color="#333" />
           </TouchableOpacity>
-          <Text style={styles.profilesTitle}>{title || "Profiles"}</Text>
+          <Text style={styles.profilesTitle}>
+            {categoryTitle || "Profiles"}
+          </Text>
           <TouchableOpacity>
             <Filter size={24} color="#333" />
           </TouchableOpacity>
@@ -206,7 +264,7 @@ const ProfilesByPreferenceScreen = () => {
 
         <View style={styles.noResultsContainer}>
           <Text style={styles.noResultsText}>
-            No profiles found for this categoryj
+            No profiles found for this category
           </Text>
           <Text style={styles.noResultsSubtext}>
             Check back later or try a different category
@@ -219,66 +277,52 @@ const ProfilesByPreferenceScreen = () => {
   const currentProfile = filteredProfiles[currentProfileIndex];
 
   return (
-    <View style={localStyles.container}>
+    <View style={styles.container}>
       <StatusBar barStyle="dark-content" />
 
       {/* Static Header (visible by default, fades out when scrolling) */}
-      <Animated.View style={[localStyles.staticHeader, staticHeaderStyle]}>
-        <View style={localStyles.staticHeaderRow}>
-          <Pressable
-            onPress={() => router.back()}
-            style={localStyles.staticBackButton}
-          >
-            <View style={localStyles.backButtonCircle}>
+      <Animated.View style={[styles.staticHeader, staticHeaderStyle]}>
+        <View style={styles.staticHeaderRow}>
+          <Pressable onPress={handleBack} style={styles.staticBackButton}>
+            <View style={styles.backButtonCircle}>
               <ChevronLeft size={24} color="#FFF" />
             </View>
           </Pressable>
-
-          <View style={localStyles.staticHeaderRight}>
-            <TouchableOpacity>
-              <View style={localStyles.iconCircle}>
-                <Filter size={20} color="#FFF" />
-              </View>
-            </TouchableOpacity>
-          </View>
         </View>
       </Animated.View>
 
       {/* Animated Header that appears on scroll */}
-      <Animated.View style={[localStyles.profileHeader, profileHeaderStyle]}>
-        <View style={localStyles.headerRow}>
+      <Animated.View style={[styles.profileHeader, profileHeaderStyle]}>
+        <View style={styles.headerRow}>
           {/* Left: Back Arrow */}
-          <Pressable onPress={() => router.back()} style={localStyles.leftIcon}>
-            <BackArrow color="#000" />
+          <Pressable onPress={handleBack} style={styles.leftIcon}>
+            <ChevronLeft size={24} color="#333" />
           </Pressable>
 
           {/* Center: Name & Age */}
-          <View style={localStyles.centerContent}>
-            <View style={localStyles.nameContainer}>
-              <Text style={localStyles.nameText}>{currentProfile.name}</Text>
-              <Text style={localStyles.ageText}>{currentProfile.age}</Text>
+          <View style={styles.centerContent}>
+            <View style={styles.nameContainer}>
+              <Text className="text-black text-xl font-SatoshiBold mr-2">
+                {currentProfile.name}
+              </Text>
+              <Text className="text-black text-xl font-Satoshi">
+                {currentProfile.age}
+              </Text>
               {currentProfile.verified && (
                 <Image
-                  source={require("../../../../assets/icons/verified.png")}
+                  source={Icons.verified}
                   style={{ width: 18, height: 18 }}
                 />
               )}
             </View>
-          </View>
-
-          {/* Right: Filter Icon */}
-          <View style={localStyles.rightIcon}>
-            <TouchableOpacity>
-              <Filter size={24} color="#333" />
-            </TouchableOpacity>
           </View>
         </View>
       </Animated.View>
 
       {/* Flash Message */}
       {flashMessage && (
-        <Animated.View style={[localStyles.flashMessage, flashStyle]}>
-          <Text style={localStyles.flashText}>{flashMessage}</Text>
+        <Animated.View style={[styles.flashMessage, flashStyle]}>
+          <Text style={styles.flashText}>{flashMessage}</Text>
         </Animated.View>
       )}
 
@@ -289,41 +333,41 @@ const ProfilesByPreferenceScreen = () => {
         contentContainerStyle={{ flexGrow: 1 }}
         showsVerticalScrollIndicator={false}
       >
-        <Animated.View style={[ { flex: 1 }]}>
+        <Animated.View style={[{ flex: 1 }]}>
           <ProfileCard profile={currentProfile} />
         </Animated.View>
       </Animated.ScrollView>
 
       {showNoMoreProfiles ? (
-        <View style={localStyles.noMoreContainer}>
-          <Text style={localStyles.noMoreTitle}>You've reached the end!</Text>
-          <Text style={localStyles.noMoreText}>
+        <View style={styles.noMoreContainer}>
+          <Text style={styles.noMoreTitle}>You've reached the end!</Text>
+          <Text style={styles.noMoreText}>
             You've seen all profiles in this category.
           </Text>
 
-          <View style={localStyles.noMoreButtons}>
+          <View style={styles.noMoreButtons}>
             <TouchableOpacity
-              style={[localStyles.noMoreButton, localStyles.loadMoreButton]}
+              style={[styles.noMoreButton, styles.loadMoreButton]}
               onPress={loadMoreProfiles}
               disabled={loadingMore}
             >
               {loadingMore ? (
                 <ActivityIndicator color="#fff" />
               ) : (
-                <Text style={localStyles.noMoreButtonText}>Load More</Text>
+                <Text style={styles.noMoreButtonText}>Load More</Text>
               )}
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={[localStyles.noMoreButton, localStyles.backButton]}
-              onPress={() => router.back()}
+              style={[styles.noMoreButton, styles.backButton]}
+              onPress={handleBack}
             >
-              <Text style={localStyles.noMoreButtonText}>Go Back</Text>
+              <Text style={styles.noMoreButtonText}>Go Back</Text>
             </TouchableOpacity>
           </View>
         </View>
       ) : (
-        <View style={localStyles.actionButtonWrapper}>
+        <View style={styles.actionButtonWrapper}>
           <ActionButtons onSwipe={handleSwipe} onSuperLike={handleSuperLike} />
         </View>
       )}
@@ -331,9 +375,10 @@ const ProfilesByPreferenceScreen = () => {
   );
 };
 
-const localStyles = StyleSheet.create({
+const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "#fff",
   },
   header: {
     flexDirection: "row",
@@ -343,6 +388,27 @@ const localStyles = StyleSheet.create({
     paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: "#f0f0f0",
+  },
+  profilesTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  noResultsContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+  noResultsText: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 10,
+    textAlign: "center",
+  },
+  noResultsSubtext: {
+    fontSize: 16,
+    color: "#666",
+    textAlign: "center",
   },
   staticHeader: {
     position: "absolute",
@@ -365,18 +431,6 @@ const localStyles = StyleSheet.create({
     alignItems: "flex-start",
   },
   backButtonCircle: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  staticHeaderRight: {
-    width: 40,
-    alignItems: "flex-end",
-  },
-  iconCircle: {
     width: 40,
     height: 40,
     borderRadius: 20,
@@ -413,28 +467,13 @@ const localStyles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
   },
-  rightIcon: {
-    width: 40,
-    alignItems: "flex-end",
-  },
   nameContainer: {
     flexDirection: "row",
     alignItems: "center",
   },
-  nameText: {
-    color: "black",
-    fontSize: 20,
-    fontWeight: "bold",
-    marginRight: 8,
-  },
-  ageText: {
-    color: "black",
-    fontSize: 20,
-    marginRight: 8,
-  },
   actionButtonWrapper: {
     position: "absolute",
-    bottom: 30,
+    bottom: 10,
     left: 0,
     right: 0,
     zIndex: 10,
@@ -509,4 +548,4 @@ const localStyles = StyleSheet.create({
   },
 });
 
-export default ProfilesByPreferenceScreen;
+export default ProfileScreen;

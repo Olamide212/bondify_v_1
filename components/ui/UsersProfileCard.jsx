@@ -1,10 +1,16 @@
 import React from "react";
-import { View, Text, FlatList, StyleSheet, Dimensions, TouchableOpacity, ImageBackground } from "react-native";
+import {
+  View,
+  Text,
+  ImageBackground,
+  TouchableOpacity,
+  StyleSheet,
+  Dimensions,
+} from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 
 const { width } = Dimensions.get("window");
 
-// UsersProfileCard component with safe data handling
 const UsersProfileCard = ({ profile, height = 200, onPress }) => {
   // Safe access to profile properties with fallbacks
   const profileImages = profile?.images || [];
@@ -18,7 +24,7 @@ const UsersProfileCard = ({ profile, height = 200, onPress }) => {
   const imageSource =
     profileImages.length > 0
       ? { uri: profileImages[0] }
-      : { uri: "https://via.placeholder.com/150" }; // Fallback to placeholder
+      : { uri: "https://via.placeholder.com/150" };
 
   return (
     <View style={[styles.cardContainer, { height }]}>
@@ -71,79 +77,26 @@ const UsersProfileCard = ({ profile, height = 200, onPress }) => {
   );
 };
 
-// VisitedYou component with proper layout
-const VisitedYou = ({ data, onUserPress }) => {
-  return (
-    <View style={styles.tabContent}>
-      <LinearGradient
-        colors={["#4F46E5", "#7C3AED"]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 0 }}
-        style={styles.banner}
-      >
-        <Text style={styles.bannerTitle}>
-          👀 {data.length} people visited your profile!
-        </Text>
-        <Text style={styles.bannerSubtitle}>
-          Check out who's interested in you.
-        </Text>
-      </LinearGradient>
-
-      <FlatList
-        data={data}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => (
-          <UsersProfileCard
-            profile={item}
-            onPress={() => onUserPress(item)}
-            height={270}
-          />
-        )}
-        numColumns={2}
-        contentContainerStyle={styles.listContent}
-        columnWrapperStyle={styles.columnWrapper}
-        showsVerticalScrollIndicator={false}
-      />
-    </View>
-  );
-};
-
 const styles = StyleSheet.create({
-  tabContent: {
-    flex: 1,
-    padding: 16,
-  },
-  banner: {
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 16,
-  },
-  bannerTitle: {
-    color: "white",
-    fontSize: 16,
-    fontWeight: "bold",
-    marginBottom: 4,
-  },
-  bannerSubtitle: {
-    color: "white",
-    fontSize: 14,
-  },
-  listContent: {
-    alignItems: "center",
-    paddingBottom: 100,
-  },
-  columnWrapper: {
-    justifyContent: "space-between",
-    marginBottom: 16,
-  },
   cardContainer: {
-    width: (width - 48) / 2, // Adjusted to account for padding and margins
+    width: (width - 48) / 2,
     marginHorizontal: 8,
   },
   touchable: {
     flex: 1,
     borderRadius: 16,
     overflow: "hidden",
+    backgroundColor: "#fff",
+    borderWidth: 2,
+    borderColor: "#FFFFFF",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    elevation: 6,
   },
   image: {
     flex: 1,
@@ -177,4 +130,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default VisitedYou;
+export default UsersProfileCard;

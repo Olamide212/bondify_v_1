@@ -65,7 +65,7 @@ const LikedYouData = [
     age: 25,
     distance: "4 miles away",
     image:
-      "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&h=600&fit=crop",
+      ["https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&h=600&fit=crop", "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&h=600&fit=crop"],
     verified: true,
     likedMe: true,
     timeAgo: "5h",
@@ -78,8 +78,10 @@ const YouLikedData = [
     name: "Olivia",
     age: 27,
     distance: "1 mile away",
-    image:
-      "https://images.unsplash.com/photo-1545912452-8aea7e25a3d3?w=400&h=600&fit=crop",
+    image: [
+      "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&h=600&fit=crop",
+    ],
     verified: true,
     likedMe: false,
     timeAgo: "1d",
@@ -89,8 +91,10 @@ const YouLikedData = [
     name: "Ava",
     age: 23,
     distance: "3 miles away",
-    image:
-      "https://images.unsplash.com/photo-1567532939604-b6b5b0e1607d?w=400&h=600&fit=crop",
+    image: [
+      "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&h=600&fit=crop",
+    ],
     verified: false,
     likedMe: false,
     timeAgo: "2d",
@@ -137,7 +141,7 @@ export default function ExploreTabComponents() {
   return (
     <SafeAreaProvider>
       <SafeAreaView style={{ flex: 1, }}>
-        <GeneralHeader title="Explore" />
+        <GeneralHeader title="Discover" />
         <View >
           <TabNavigation
             activeTab={activeTab}

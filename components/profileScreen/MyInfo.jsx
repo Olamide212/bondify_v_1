@@ -18,6 +18,7 @@ import {
   BookOpen,
   Wallet,
   MessageCircleHeart,
+  X
 } from "lucide-react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import NationalityModal from "../../components/modals/NationalityModal";
@@ -86,7 +87,7 @@ const MyInfo = ({ profile }) => {
       title: "Do you drink?",
       icon: Wine,
       type: "modal",
-      options: ["Yes", "No", "Socially"],
+      options: ["Yes", "No", "Occasionally"],
     },
     {
       key: "smoke",
@@ -204,7 +205,6 @@ const MyInfo = ({ profile }) => {
 
   return (
     <View className="bg-white mt-3 mx-4 p-5 rounded-2xl">
-    
       {items.map(({ key, title, icon: Icon, screen, type, options }, index) => {
         const isLast = index === items.length - 1;
         const value = profileData?.[key];
@@ -269,9 +269,16 @@ const MyInfo = ({ profile }) => {
       {/* 🔹 Multiple-choice modal */}
       <Modal visible={!!activeModal} animationType="slide" transparent>
         <SafeAreaView className="flex-1 bg-white p-6">
-          <Text className="text-xl font-SatoshiBold mb-6 text-center">
-            {activeModal?.title}
-          </Text>
+          <View className="flex-row justify-between">
+            <TouchableOpacity onPress={() => setActiveModal(null)}>
+              <X />
+            </TouchableOpacity>
+
+            <Text className="text-xl text-center font-SatoshiBold mb-6 ">
+              {activeModal?.title}
+            </Text>
+            <View />
+          </View>
 
           <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
             {activeModal?.options?.map((option, idx) => {
@@ -298,14 +305,6 @@ const MyInfo = ({ profile }) => {
             })}
           </ScrollView>
 
-          <TouchableOpacity
-            onPress={() => setActiveModal(null)}
-            className="mt-4 py-5 border-[2px] border-primary rounded-full bg-white"
-          >
-            <Text className="text-center text-primary text-lg font-SatoshiBold">
-              Cancel
-            </Text>
-          </TouchableOpacity>
         </SafeAreaView>
       </Modal>
 

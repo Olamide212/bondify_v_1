@@ -10,6 +10,7 @@ import { PersistGate } from "redux-persist/integration/react";
 import { store, persistor } from "../store/store";
 import { ToastProvider } from "../context/ToastContext";
 import { ProfileProvider } from "../context/ProfileContext";
+import { WalletProvider } from "../context/WalletContext";
 
 
 SplashScreen.preventAutoHideAsync();
@@ -47,17 +48,19 @@ const [fontsLoaded] = useFonts({
       <StatusBar barStyle="dark-content" />
       <Provider store={store}>
         <PersistGate loading={null} persistor={persistor}>
-          <ProfileProvider>
-            <ToastProvider>
-              <Stack screenOptions={{ headerShown: false }}>
-                {/* Only keep these if you’re customizing screen options */}
-                <Stack.Screen name="index" />
-                <Stack.Screen name="(root)" />
-                <Stack.Screen name="(auth)" />
-                <Stack.Screen name="root-tabs" />
-              </Stack>
-            </ToastProvider>
-          </ProfileProvider>
+          <WalletProvider>
+            <ProfileProvider>
+              <ToastProvider>
+                <Stack screenOptions={{ headerShown: false }}>
+                  {/* Only keep these if you’re customizing screen options */}
+                  <Stack.Screen name="index" />
+                  <Stack.Screen name="(root)" />
+                  <Stack.Screen name="(auth)" />
+                  <Stack.Screen name="root-tabs" />
+                </Stack>
+              </ToastProvider>
+            </ProfileProvider>
+          </WalletProvider>
         </PersistGate>
       </Provider>
     </GestureHandlerRootView>

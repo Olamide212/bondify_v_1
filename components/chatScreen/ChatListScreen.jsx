@@ -20,9 +20,8 @@ const ChatListScreen = ({ users, onSelectUser }) => {
   return (
     <SafeAreaView style={styles.listContainer}>
       <GeneralHeader
-        title="Messages"
-        icon=<Shield color="#fff" fill="#fff" />
-        className="text-white"
+        title="Your messages"
+        className="text-black"
       />
       {/* Horizontal Scroll of New Matches */}
       <Text className="text-white font-SatoshiBold pl-5 pb-2 text-lg pt-2">
@@ -40,10 +39,10 @@ const ChatListScreen = ({ users, onSelectUser }) => {
               if (item.id === "summary") {
                 return (
                   <View className="bg-secondary mr-5 w-28 justify-center items-center rounded-lg">
-                    <Text className="text-white font-SatoshiBold text-3xl ">
+                    <Text className="text-primary font-SatoshiBold text-3xl ">
                       {newMatches.length}
                     </Text>
-                    <Text className="text-center text-white font-SatoshiBold">
+                    <Text className="text-center text-primary font-SatoshiBold">
                       New{"\n"}Matches
                     </Text>
                   </View>
@@ -124,7 +123,7 @@ const ChatListScreen = ({ users, onSelectUser }) => {
 const styles = StyleSheet.create({
   listContainer: {
     flex: 1,
-    backgroundColor: colors.primary,
+    backgroundColor: "#ff",
 
   },
 

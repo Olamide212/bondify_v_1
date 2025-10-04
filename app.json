@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "bondify",
-    "slug": "bondify",
+    "name": "bondies",
+    "slug": "bondies",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/bondify-icon-color.png",

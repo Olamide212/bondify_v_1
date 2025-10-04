@@ -67,7 +67,7 @@ export default function DirectMessageBox({ profile, onSendMessage }) {
           onPress={handleSend}
         >
           <Text className="text-center text-white text-xl font-GeneralSansMedium">
-            Send a spark
+            Send a Bondo
           </Text>
         </TouchableOpacity>
       </View>

@@ -4,7 +4,7 @@ import React from 'react'
 const TextHeadingOne = ({name}) => {
   return (
     <View>
-      <Text className="text-[16px] font-GeneralSansSemiBold text-gray-700 mt-4 mx-4">
+      <Text className="text-[16px] font-SatoshiMedium text-black mt-4 mx-4">
                 {name}
               </Text>
     </View>

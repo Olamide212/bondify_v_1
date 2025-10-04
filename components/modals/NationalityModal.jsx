@@ -9,9 +9,9 @@ import {
 } from "react-native";
 import React, { useState, useMemo } from "react";
 import { Ionicons } from "@expo/vector-icons";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import GeneralHeader from "../../components/headers/GeneralHeader"
-import { ArrowLeft } from "lucide-react-native";
+import { ArrowLeft, X } from "lucide-react-native";
 
 
 const africanCountries = [
@@ -85,40 +85,42 @@ const NationalityModal = ({ visible, onClose, onSelect }) => {
       visible={visible}
       onRequestClose={onClose}
     >
-      <SafeAreaView style={styles.container}>
-        <View>
-          {/* Header */}
-          <GeneralHeader
-            title="Select Nationality"
-            leftIcon=<ArrowLeft onPress={onClose} />
-          />
+      <SafeAreaProvider>
+        <SafeAreaView style={styles.container}>
+          <View>
+            {/* Header */}
+            <GeneralHeader
+              title="Select Nationality"
+              leftIcon=<X onPress={onClose} />
+            />
 
-          {/* Search */}
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search nationality..."
-            value={search}
-            onChangeText={setSearch}
-          />
+            {/* Search */}
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Search nationality..."
+              value={search}
+              onChangeText={setSearch}
+            />
 
-          {/* List */}
-          <FlatList
-            data={filteredCountries}
-            keyExtractor={(item) => item.key}
-            renderItem={({ item }) => (
-              <TouchableOpacity
-                style={styles.item}
-                onPress={() => {
-                  onSelect(item.value);
-                  onClose();
-                }}
-              >
-                <Text style={styles.itemText}>{item.value}</Text>
-              </TouchableOpacity>
-            )}
-          />
-        </View>
-      </SafeAreaView>
+            {/* List */}
+            <FlatList
+              data={filteredCountries}
+              keyExtractor={(item) => item.key}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  style={styles.item}
+                  onPress={() => {
+                    onSelect(item.value);
+                    onClose();
+                  }}
+                >
+                  <Text style={styles.itemText}>{item.value}</Text>
+                </TouchableOpacity>
+              )}
+            />
+          </View>
+        </SafeAreaView>
+      </SafeAreaProvider>
     </Modal>
   );
 };

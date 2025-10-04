@@ -1,7 +1,9 @@
 import React from "react";
-import { View, Text, FlatList, StyleSheet } from "react-native";
+import { View, Text, FlatList, StyleSheet, Dimensions } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import UserCard from "./userCard";
+import UsersProfileCard from "../ui/UsersProfileCard"; // Update path as needed
+
+const { width } = Dimensions.get("window");
 
 const LikedYou = ({ data, onUserPress, selectedUsers }) => {
   return (
@@ -24,15 +26,17 @@ const LikedYou = ({ data, onUserPress, selectedUsers }) => {
         data={data}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
-          <UserCard
-            user={item}
-            onPress={onUserPress}
+          <UsersProfileCard
+            profile={item}
+            onPress={() => onUserPress(item)}
+            height={270}
             isSelectable={true}
             isSelected={selectedUsers.includes(item.id)}
           />
         )}
         numColumns={2}
         contentContainerStyle={styles.listContent}
+        columnWrapperStyle={styles.columnWrapper}
         showsVerticalScrollIndicator={false}
       />
     </View>
@@ -41,6 +45,7 @@ const LikedYou = ({ data, onUserPress, selectedUsers }) => {
 
 const styles = StyleSheet.create({
   tabContent: {
+    flex: 1,
     padding: 16,
   },
   banner: {
@@ -51,17 +56,20 @@ const styles = StyleSheet.create({
   bannerTitle: {
     color: "white",
     fontSize: 16,
-    fontFamily: "SatoshiBold",
+    fontWeight: "bold",
     marginBottom: 4,
   },
   bannerSubtitle: {
     color: "white",
     fontSize: 14,
-    fontFamily: "SatoshiMedium",
   },
   listContent: {
-    paddingHorizontal: 8,
+    alignItems: "center",
     paddingBottom: 100,
+  },
+  columnWrapper: {
+    justifyContent: "space-between",
+    marginBottom: 16,
   },
 });
 

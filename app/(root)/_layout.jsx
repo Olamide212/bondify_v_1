@@ -9,7 +9,7 @@ export default function _layout() {
       <Stack.Screen name="welcome" />
       <Stack.Screen name="(profile)" />
       <Stack.Screen name="(discover)" />
-      <Stack.Screen name="(user-profile)" />
+      <Stack.Screen name="user-profile"  />
       <Stack.Screen name="(settings)" />
 
       <Stack.Screen

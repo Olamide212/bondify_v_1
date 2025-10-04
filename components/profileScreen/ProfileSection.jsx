@@ -11,6 +11,8 @@ import {
   Pencil,
 } from "lucide-react-native";
 import { useRouter } from "expo-router";
+import VerifiedIcon from "../ui/VerifiedIcon";
+import { colors } from "../../constant/colors";
 
 const ProfileSection = ({ profile }) => {
   const completion = profile.completion || 80; // fallback to 80% for demo
@@ -39,7 +41,7 @@ const ProfileSection = ({ profile }) => {
           />
           {/* Progress Circle */}
           <Circle
-            stroke="#4B164C" // primary color
+            stroke={colors.primary} // primary color
             fill="none"
             cx={size / 2}
             cy={size / 2}
@@ -75,20 +77,11 @@ const ProfileSection = ({ profile }) => {
             {profile.name}, {profile.age} {profile.verified}
           </Text>
           {profile.verified && (
-            <View>
-              <BadgeCheck size={25} color="#fff" fill="#EFBF04" />
-            </View>
+          <VerifiedIcon />
           )}
         </View>
 
-        <Pressable
-          className="flex-row justify-center items-center gap-2  py-2 rounded-full mt-3 
-          bg-primary "
-          onPress={() => router.push("/profiles")}
-        >
-          <Pencil color="white" size={16} />
-          <Text className="text-white font-SatoshiMedium">Edit Profile</Text>
-        </Pressable>
+      
       </View>
     </View>
   );
@@ -96,7 +89,7 @@ const ProfileSection = ({ profile }) => {
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: "row",
+    flexDirection: "col",
     alignItems: "center",
     gap: 10,
     backgroundColor: "#fff",

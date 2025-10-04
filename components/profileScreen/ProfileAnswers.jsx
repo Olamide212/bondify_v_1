@@ -42,8 +42,6 @@ const ProfileAnswers = () => {
 
   return (
     <View className="px-6 py-4 bg-white mx-4 rounded-2xl mt-4">
-    
-
       {/* Show answers */}
       {answers.length > 0 ? (
         answers.map((item, index) => (
@@ -104,33 +102,34 @@ const ProfileAnswers = () => {
                 placeholder="Type your answer..."
                 value={answer}
                 onChangeText={setAnswer}
-                className="border border-gray-300 rounded-lg p-3 text-lg font-SatoshiMedium mb-4"
+                className="border-b border-black  px-3 py-5 text-lg font-SatoshiMedium mb-4"
                 multiline
               />
-              <TouchableOpacity
-                onPress={() => setSelectedQuestion(null)}
-                className="mt-3"
-              >
-                <Text className="text-primary font-SatoshiMedium text-center">
-                  Choose another question
-                </Text>
-              </TouchableOpacity>
+              <View className='flex-1 justify-end'>
+                <TouchableOpacity
+                  onPress={() => setSelectedQuestion(null)}
+                  className="mt-3"
+                >
+                  <Text className="text-primary font-SatoshiMedium text-center">
+                    Choose another question
+                  </Text>
+                </TouchableOpacity>
 
-              <Button
-                className="border border-primary bg-white mt-4"
-                variant="secondary"
-                title="Save Answer"
-                onPress={handleSave}
-              />
+                <Button
+                  className="border border-primary bg-white mt-4"
+                  variant="secondary"
+                  title="Save Answer"
+                  onPress={handleSave}
+                />
+                <Button
+                  className="mt-4 "
+                  title="Cancel"
+                  variant="primary"
+                  onPress={() => setShowModal(false)}
+                />
+              </View>
             </>
           )}
-
-          <Button
-            className="mt-4 "
-            title="Cancel"
-            variant="primary"
-            onPress={() => setShowModal(false)}
-          />
         </SafeAreaView>
       </Modal>
     </View>

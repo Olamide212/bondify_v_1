@@ -19,6 +19,8 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import { BlurView } from "expo-blur";
 import { useRouter } from "expo-router";
+import VerifiedIcon from "../ui/VerifiedIcon";
+import { colors } from "../../constant/colors";
 
 const AroundYouTab = ({ profile, actionMessage }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -76,7 +78,7 @@ const AroundYouTab = ({ profile, actionMessage }) => {
         activeOpacity={1}
         onPress={handleTap}
       >
-        <Animated.View style={[styles.imageContainer, { opacity: fadeAnim }]}>
+        <Animated.View style={[styles.imageContainer]}>
           <Image
             source={{ uri: profile?.images?.[currentImageIndex] }}
             style={styles.image}
@@ -97,31 +99,33 @@ const AroundYouTab = ({ profile, actionMessage }) => {
               {/* Name + Age + Verified + Chevron */}
               <View style={styles.nameRow}>
                 <View style={styles.nameLeft}>
-                  <Text style={styles.name}>
-                    {profile.name}, {profile.age}
-                  </Text>
-                  {profile.verified && (
-                    <View style={styles.verifiedBadge}>
-                      <Star size={16} color="white" fill="white" />
-                    </View>
-                  )}
+                  <View className='flex-row items-center gap-2'>
+                    <Text className='text-white font-GeneralSansSemiBold text-4xl'>{profile.name},</Text>
+                    <Text className='text-white text-4xl font-GeneralSans'>{profile.age}</Text>
+                  </View>
+
+                  <View className="flex-row gap-3">
+                    {profile.verified && <VerifiedIcon />}
+                  </View>
                 </View>
 
                 {/* Chevron on same line, pushed to right */}
                 <TouchableOpacity
                   style={styles.profileButton}
                   onPress={handleNavigateToProfile}
-                  className='bg-secondary'
+                  className="bg-secondary"
                 >
-                  <Text className='text-primary text-sm leading-[15px] font-SatoshiBold text-center'>view profile</Text>
+                  <Text className="text-primary text-sm leading-[12px] font-GeneralSansSemiBold text-center">
+                    View profile
+                  </Text>
                 </TouchableOpacity>
               </View>
 
               {/* Location under name */}
               {profile.location && (
-                <View style={styles.locationContainer}>
-                  <MapPin size={18} color="rgba(255,255,255,0.8)" />
-                  <Text style={styles.locationText}>
+                <View className="flex-row items-center gap-1 -mt-2">
+                  <MapPin size={18} color={colors.secondary} />
+                  <Text className="text-white font-GeneralSansMedium text-lg">
                     {profile.location}
                     {profile.distance ? `,  ${profile.distance}` : ""}
                   </Text>
@@ -214,7 +218,7 @@ const styles = StyleSheet.create({
   },
   profileInfo: {
     position: "absolute",
-    bottom: 200, 
+    bottom: 200,
     left: 20,
     right: 20,
     zIndex: 10,
@@ -224,12 +228,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-
   },
 
   nameLeft: {
     flexDirection: "row",
     alignItems: "center",
+    gap: 5,
   },
 
   name: {
@@ -248,6 +252,7 @@ const styles = StyleSheet.create({
   locationContainer: {
     flexDirection: "row",
     alignItems: "center",
+    marginTop: -10,
   },
 
   locationText: {

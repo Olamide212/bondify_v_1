@@ -121,7 +121,7 @@ const styles = StyleSheet.create({
     borderRadius: 100,
     backgroundColor: colors.primary,
     borderTopWidth: 0,
-    marginHorizontal: 30,
+    marginHorizontal: 10,
     elevation: 8,
     shadowColor: "#000",
     shadowOffset: {
