@@ -1,4 +1,3 @@
-// App.js
 import React, { useState } from "react";
 import { View, StyleSheet } from "react-native";
 import ChatListScreen from "../../../../components/chatScreen/ChatListScreen";
@@ -6,9 +5,6 @@ import ChatScreen from "../../../../components/chatScreen/ChatScreen";
 import { matchedUsers } from "../../../../data/mockData";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 
-
-import { colors } from "../../../../constant/colors";
-import { StatusBar } from "expo-status-bar";
 
 export default function Chat() {
   const [currentScreen, setCurrentScreen] = useState("list");
@@ -25,7 +21,7 @@ export default function Chat() {
   };
 
   return (
-    <SafeAreaProvider>
+
 
       <View style={styles.container}>
     
@@ -38,7 +34,7 @@ export default function Chat() {
           <ChatScreen matchedUser={selectedUser} onBack={handleBackToList} />
         )}
       </View>
-    </SafeAreaProvider>
+    
   );
 }
 

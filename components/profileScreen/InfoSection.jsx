@@ -7,10 +7,9 @@ import {
   Pencil,
   Settings,
   SlidersHorizontal,
-  Shield,
   HelpCircle,
   Users,
-  Coins,
+  CalendarHeart
 } from "lucide-react-native";
 import { useRouter } from "expo-router";
 import SubscriptionModal from "../modals/SubscriptionModal";
@@ -74,14 +73,14 @@ const InfoSection = () => {
       title: "Events and Communities",
       description:
         "Join upcoming events, meet people, and connect with communities.",
-      icon: Shield,
-      link: "events", // 🔑 updated to go to Events screen
+      icon: CalendarHeart,
+      link: "events", 
     },
     {
       title: "Support",
       description: "Get help, FAQs, and contact support if needed.",
       icon: HelpCircle,
-      link: "support",
+      link: "support-center",
     },
     {
       title: "Invite Friends",

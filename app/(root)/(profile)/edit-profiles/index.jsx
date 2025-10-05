@@ -3,7 +3,6 @@ import { ScrollView, View, Text } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { ArrowLeft } from "lucide-react-native";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
-
 import ProfilePhotoGrid from "../../../../components/profileScreen/ProfilePhotoGrid";
 import GeneralHeader from "../../../../components/headers/GeneralHeader";
 import BasicInfo from "../../../../components/profileScreen/BasicInfo";

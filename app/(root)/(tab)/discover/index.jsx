@@ -1,4 +1,3 @@
-// DiscoverScreen.js
 import React from "react";
 import {
   View,
@@ -7,11 +6,12 @@ import {
   StatusBar,
   StyleSheet,
   ScrollView,
-  // FlatList is no longer needed
 } from "react-native";
 import { useRouter } from "expo-router";
 import GeneralHeader from "../../../../components/headers/GeneralHeader";
-import DiscoverCard from "../../../../components/discoverScreen/DiscoverCard"; // Ensure path is correct
+import DiscoverCard from "../../../../components/discoverScreen/DiscoverCard";
+
+
 
 const DiscoverScreen = () => {
   const router = useRouter();
@@ -132,12 +132,12 @@ const DiscoverScreen = () => {
 
       <ScrollView
         style={styles.content}
-        contentContainerStyle={{ paddingBottom: 15 }}
+        contentContainerStyle={{ paddingBottom: 30 }}
         showsVerticalScrollIndicator={false}
       >
         {discoverCategories.map((section, index) => (
           <View key={index} style={styles.section}>
-            <Text style={styles.sectionTitle} className="font-SatoshiBold">
+            <Text style={styles.sectionTitle} className="font-GeneralSansSemiBold">
               {section.type}
             </Text>
             <Text style={styles.sectionDescription} className="font-Satoshi">
@@ -151,7 +151,6 @@ const DiscoverScreen = () => {
                   key={item.id}
                   category={item}
                   onPress={() => navigateToCategory(item)}
-                  // The card now manages its own full width via Dimensions
                 />
               ))}
             </View>
@@ -170,7 +169,6 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    // Horizontal padding is now on the ScrollView container
     paddingHorizontal: 16,
   },
   section: {
@@ -185,10 +183,8 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     lineHeight: 20,
   },
-  // The grid is now just a vertical list container
-  verticalCardList: {
-    // No flex direction needed; components stack vertically by default
-  },
+
+ 
 });
 
 export default DiscoverScreen;

@@ -20,14 +20,14 @@ const { withNativeWind } = require("nativewind/metro");
 
 const config = getDefaultConfig(__dirname);
 
-// config.resolver.assetExts.push("png");
+config.resolver.assetExts.push("png");
 
-// config.transformer = {
-//   babelTransformerPath: require.resolve("react-native-svg-transformer"),
-// };
-// config.resolver = {
-//   assetExts: config.resolver.assetExts.filter((ext) => ext !== "svg"),
-//   sourceExts: [...config.resolver.sourceExts, "svg"],
-// };
+config.transformer = {
+  babelTransformerPath: require.resolve("react-native-svg-transformer"),
+};
+config.resolver = {
+  assetExts: config.resolver.assetExts.filter((ext) => ext !== "svg"),
+  sourceExts: [...config.resolver.sourceExts, "svg"],
+};
 
 module.exports = withNativeWind(config, { input: "./global.css" });
