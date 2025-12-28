@@ -52,7 +52,7 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
     borderWidth: 1,
-    borderColor: "#929292",
+    borderColor: "#dcdcdc",
     borderRadius: 10,
     alignItems: "center",
     height: 50,
@@ -61,7 +61,7 @@ const styles = StyleSheet.create({
   },
   countryPickerContainer: {
     borderRightWidth: 1,
-    borderColor: "#929292",
+    borderColor: "#dcdcdc",
     paddingHorizontal: 10,
     backgroundColor: "#fff",
     height: "100%",

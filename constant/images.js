@@ -9,6 +9,7 @@ import backButton from "../assets/images/back-icon.png"
 import backButtonBlack from "../assets/images/back-icon-black.png"
 import bondifyColoredTwo from "../assets/images/Bondify-colored (1).png"
 import bondifyMainLogo from "../assets/images/Bondify-colored-main2.png"
+import bondiesMainicon from "../assets/images/Bondies-main-icon.png"
 
 
 export const images = {
@@ -23,4 +24,5 @@ export const images = {
   backButton,
   backButtonBlack,
   bondifyMainLogo,
+  bondiesMainicon
 };

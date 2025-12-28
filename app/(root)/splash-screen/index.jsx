@@ -1,32 +1,30 @@
 import React, { useEffect } from "react";
 import { View } from "react-native";
-import { useRouter } from "expo-router";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
   runOnJS,
 } from "react-native-reanimated";
+import { determineNextRoute } from "../../../utils/navigationHelper";
+import { useRouter } from "expo-router";
 
 const SplashScreen = () => {
-  const router = useRouter();
-
   const iconScale = useSharedValue(0.9);
   const textOpacity = useSharedValue(0);
   const textTranslate = useSharedValue(20);
+  const router = useRouter();
 
-  const navigateToOnboarding = () => {
-    router.replace("/onboarding");
+  const navigate = async () => {
+    const nextRoute = await determineNextRoute();
+    router.replace(nextRoute);
   };
 
   useEffect(() => {
-    // First: Animate logo scale
     iconScale.value = withTiming(0.6, { duration: 1000 }, () => {
-      // Then: Animate text
       textOpacity.value = withTiming(1, { duration: 800 });
       textTranslate.value = withTiming(0, { duration: 800 }, () => {
-        // After all animations, navigate
-        runOnJS(navigateToOnboarding)();
+        runOnJS(navigate)();
       });
     });
   }, []);
@@ -50,7 +48,7 @@ const SplashScreen = () => {
         />
         <Animated.Image
           source={require("../../../assets/images/bondies-logo-white (1).png")}
-          style={[{ width: 180, height: 80, marginTop: -20  }, textStyle]}
+          style={[{ width: 180, height: 80, marginTop: -20 }, textStyle]}
           resizeMode="contain"
         />
       </View>

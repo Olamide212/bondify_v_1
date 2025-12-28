@@ -304,7 +304,6 @@ const MyInfo = ({ profile }) => {
               );
             })}
           </ScrollView>
-
         </SafeAreaView>
       </Modal>
 
@@ -312,8 +311,11 @@ const MyInfo = ({ profile }) => {
       <NationalityModal
         visible={nationalityVisible}
         onClose={() => setNationalityVisible(false)}
-        onSelect={(value) => {
-          setProfileData((prev) => ({ ...prev, nationality: value }));
+        onSelect={(item) => {
+          setProfileData((prev) => ({
+            ...prev,
+            nationality: item.key, // store key (recommended)
+          }));
           setNationalityVisible(false);
         }}
       />

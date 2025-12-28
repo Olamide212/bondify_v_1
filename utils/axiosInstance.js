@@ -2,12 +2,12 @@ import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // Base URL for your API
-const BASE_URL = "https://bondify-backend.onrender.com/api"; // Replace with your actual API URL
+const BASE_URL = process.env.EXPO_PUBLIC_DEV_API_BASE_URL; 
 
 // Create axios instance
 const apiClient = axios.create({
   baseURL: BASE_URL,
-  timeout: 30000,
+  // timeout: 30000,
   headers: {
     "Content-Type": "application/json",
   },
@@ -42,18 +42,21 @@ export const tokenManager = {
 };
 
 // Request interceptor to add auth token
+// Request interceptor to add auth token
 apiClient.interceptors.request.use(
   async (config) => {
+    // 👇 allow public endpoints
+    if (config.skipAuth) return config;
+
     const token = await tokenManager.getToken();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
+
 
 // Response interceptor to handle common errors
 apiClient.interceptors.response.use(

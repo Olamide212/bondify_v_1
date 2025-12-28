@@ -16,41 +16,77 @@ import GlobalOtpInput from "../../../components/inputs/OtpInput";
 import Button from "../../../components/ui/Button";
 
 const Validation = () => {
-  const [otp, setOtp] = useState("");
+  const [code, setCode] = useState("");
   const [touched, setTouched] = useState(false);
   const [error, setError] = useState("");
+
   const dispatch = useDispatch();
   const router = useRouter();
   const { showToast } = useToast();
 
-  // pull auth state from redux
-  const { loading } = useSelector((state) => state.auth);
+  // Pull required auth state
+  const { loading, pendingEmail } = useSelector((state) => state.auth);
 
   const handleSubmit = async () => {
     setTouched(true);
 
-    if (!otp || otp.length < 4) {
+    if (!code || code.length < 4) {
       setError("Please enter the 4-digit code");
+      return;
+    }
+
+    if (!pendingEmail) {
+      showToast({
+        message: "Email not found. Please restart signup.",
+        variant: "error",
+      });
       return;
     }
 
     setError("");
 
     try {
-      await dispatch(verifyOtp({ otp })).unwrap();
-      showToast({ message: "OTP Verified Successfully", variant: "success" });
+      await dispatch(
+        verifyOtp({
+          email: pendingEmail,
+          code,
+        })
+      ).unwrap();
+
+      showToast({
+        message: "OTP verified successfully",
+        variant: "success",
+      });
+
       router.push("/agreement");
     } catch (err) {
-      showToast({ message: err || "Invalid OTP", variant: "error" });
+      showToast({
+        message: err || "Invalid verification code",
+        variant: "error",
+      });
     }
   };
 
   const handleResend = async () => {
+    if (!pendingEmail) {
+      showToast({
+        message: "Email not found. Please restart signup.",
+        variant: "error",
+      });
+      return;
+    }
+
     try {
-      await dispatch(resendOtp()).unwrap();
-      showToast({ message: "OTP resent successfully", variant: "info" });
+      await dispatch(resendOtp({ email: pendingEmail })).unwrap();
+      showToast({
+        message: "OTP resent successfully",
+        variant: "info",
+      });
     } catch (err) {
-      showToast({ message: err || "Failed to resend OTP", variant: "error" });
+      showToast({
+        message: err || "Failed to resend OTP",
+        variant: "error",
+      });
     }
   };
 
@@ -66,19 +102,20 @@ const Validation = () => {
             <Text className="text-3xl font-GeneralSansSemiBold text-black">
               Enter verification code
             </Text>
+
             <Text className="mb-7 text-black text-lg font-GeneralSans">
-              Please enter the verification code sent to your phone number
+              Please enter the verification code sent to{" "}
+              <Text className="font-GeneralSansSemiBold">{pendingEmail}</Text>
             </Text>
 
             <GlobalOtpInput
-              onTextChange={setOtp}
+              onTextChange={setCode}
               onFocus={() => setTouched(true)}
               touched={touched}
               errors={error}
               onResend={handleResend}
             />
 
-            {/* Continue Button */}
             <View className="w-full items-end mt-8">
               <Button
                 title="Continue"

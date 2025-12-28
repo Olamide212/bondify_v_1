@@ -31,7 +31,7 @@ const TextInput = ({
         <Text className="text-lg  font-SatoshiMedium mb-2">{label}</Text>
       )}
       <View
-        className={`flex-row items-center  px-4 border bg-white border-[#929292] ${className} `}
+        className={`flex-row items-center  px-4 border bg-white border-[#dcdcdc] ${className} `}
         style={{ height: 50, borderRadius: 10, marginBottom: 10 }}
       >
         <RNTextInput

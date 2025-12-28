@@ -11,7 +11,7 @@ const Onboarding = () => {
 
   return (
     <LinearGradient
-      colors={["#FD465C", "#4B164C"]}
+      colors={["#371f7d", "#371f7d"]}
       start={{ x: 0, y: 0 }}
       end={{ x: 0, y: 1 }}
       style={{ flex: 1 }}
@@ -45,7 +45,7 @@ const Onboarding = () => {
             {/* Buttons */}
             <View className="w-full">
               <Button
-                title="Continue with Phone Number"
+                title="Continue with Email Address"
                 onPress={() => router.push("/login")}
                 className="mb-3"
                 textClassName="font-santoshiMedium"

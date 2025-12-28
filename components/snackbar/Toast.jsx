@@ -8,6 +8,8 @@ import {
   Dimensions,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { Image } from "expo-image";
+import {images} from "../../constant/images"
 
 const { width, height } = Dimensions.get("window");
 
@@ -96,12 +98,8 @@ const handleDismiss = () => {
           },
         ]}
       >
-        <Ionicons
-          name={icon}
-          size={24}
-          color="white"
-          style={{ marginRight: 8 }}
-        />
+        <Image source={images.bondifyIcon} contentFit="contain" width={30} height={30} className='mr-3' />
+      
         <Text style={styles.snackbarText}>{message}</Text>
         <TouchableOpacity onPress={handleDismiss}>
           <Text style={styles.dismissText}>Dismiss</Text>
@@ -131,6 +129,7 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     paddingHorizontal: 20,
     flexDirection: "row",
+    gap: 7,
     alignItems: "center",
   },
   snackbarText: {

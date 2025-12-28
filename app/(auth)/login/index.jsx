@@ -7,18 +7,30 @@ import {
   Platform,
   TouchableWithoutFeedback,
   Keyboard,
-  TouchableOpacity,
-  Pressable,
 } from "react-native";
-import GlobalPhoneInput from "../../../components/inputs/PhoneInput";
-import NextButton from "../../../components/ui/NextButton";
 import { useRouter } from "expo-router";
 import TextInput from "../../../components/inputs/TextInput";
 import Button from "../../../components/ui/Button";
 
-const PhoneLogin = () => {
-  const [useEmail, setUseEmail] = useState(false);
+const EmailLogin = () => {
   const router = useRouter();
+
+  const [formData, setFormData] = useState({
+    email: "",
+  });
+
+  const handleChange = (field, value) => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  const handleLogin = () => {
+    // TODO: dispatch login action
+    console.log(formData);
+    router.push("/root-tabs");
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-white">
@@ -30,32 +42,27 @@ const PhoneLogin = () => {
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View className="flex-1 px-2">
             <View className="flex-1 mt-8">
-              <Text className="text-4xl font-GeneralSansSemiBold text-black ">
+              <Text className="text-4xl font-GeneralSansSemiBold text-black">
                 Welcome back!
               </Text>
               <Text className="mb-5 text-black text-lg font-Satoshi">
-                Login into your Bondify account
+                Login into your Bondies account
               </Text>
 
-              <GlobalPhoneInput
-                onChangePhone={(phone) => console.log(phone)}
-                onChangeCountry={(country) => console.log(country)}
+              {/* Email */}
+              <TextInput
+                placeholder="Enter your email address"
+                value={formData.email}
+                onChangeText={(text) => handleChange("email", text)}
+                keyboardType="email-address"
+                autoCapitalize="none"
               />
 
-              <TextInput placeholder="Enter your password" secureTextEntry />
-              <Pressable onPress={() => router.push("/forgot-password")}>
-                <Text className="text-right font-GeneralSansMedium text-lg text-primary">
-                  Forgot Password?
-                </Text>
-              </Pressable>
+              
             </View>
 
             <View className="w-full items-end pb-6">
-              <Button
-                title="Login"
-                variant="gradient"
-                onPress={() => router.push("/root-tabs")}
-              />
+              <Button title="Login" variant="gradient" onPress={handleLogin} />
             </View>
           </View>
         </TouchableWithoutFeedback>
@@ -64,4 +71,4 @@ const PhoneLogin = () => {
   );
 };
 
-export default PhoneLogin;
+export default EmailLogin;
