@@ -1,27 +1,48 @@
-// components/GlobalPhoneInput.jsx
-import React, { useState } from "react";
-import { View, TextInput, StyleSheet, Platform } from "react-native";
-import CountryPicker, {
-  DARK_THEME,
-  LIGHT_THEME,
-} from "react-native-country-picker-modal";
+import React, { useState, useEffect } from "react";
+import { View, TextInput, StyleSheet } from "react-native";
+import CountryPicker, { LIGHT_THEME } from "react-native-country-picker-modal";
 
-const GlobalPhoneInput = ({ onChangePhone, onChangeCountry }) => {
-  const [countryCode, setCountryCode] = useState("NG");
+const GlobalPhoneInput = ({
+  phoneNumber,
+  countryCode,
+  onChangePhoneNumber,
+  onChangeCountryCode,
+}) => {
+  const [cca2, setCca2] = useState("NG");
   const [callingCode, setCallingCode] = useState("234");
-  const [phoneNumber, setPhoneNumber] = useState("");
+
+  // ⚡ Make sure the parent always has a country code on mount
+  useEffect(() => {
+    if (!countryCode) {
+      onChangeCountryCode?.(`+${callingCode}`);
+    }
+  }, []);
 
   const onSelect = (country) => {
-    setCountryCode(country.cca2);
+    setCca2(country.cca2);
     setCallingCode(country.callingCode[0]);
-    onChangeCountry?.(country);
+
+    // send full calling code to parent (+234)
+    onChangeCountryCode?.(`+${country.callingCode[0]}`);
+  };
+
+  const handlePhoneChange = (text) => {
+    let digits = text.replace(/\D/g, "");
+
+    // Remove leading zero if user typed it
+    if (digits.startsWith("0")) digits = digits.slice(1);
+
+    // Hard limit 10 digits
+    digits = digits.slice(0, 10);
+
+    onChangePhoneNumber?.(digits);
   };
 
   return (
     <View style={styles.container}>
       <View style={styles.countryPickerContainer}>
         <CountryPicker
-          countryCode={countryCode}
+          countryCode={cca2}
           withFlag
           withCallingCodeButton
           withFilter
@@ -35,14 +56,12 @@ const GlobalPhoneInput = ({ onChangePhone, onChangeCountry }) => {
 
       <TextInput
         style={styles.input}
-        placeholder="Phone Number"
+        placeholder="8012345678"
         placeholderTextColor="#929292"
-        keyboardType="phone-pad"
+        keyboardType="number-pad"
         value={phoneNumber}
-        onChangeText={(text) => {
-          setPhoneNumber(text);
-          onChangePhone?.(text);
-        }}
+        onChangeText={handlePhoneChange}
+        maxLength={10}
       />
     </View>
   );
@@ -56,15 +75,12 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: "center",
     height: 50,
-    overflow: "hidden",
     marginBottom: 17,
   },
   countryPickerContainer: {
     borderRightWidth: 1,
     borderColor: "#dcdcdc",
     paddingHorizontal: 10,
-    backgroundColor: "#fff",
-    height: "100%",
     justifyContent: "center",
   },
   countryPickerButton: {
@@ -76,9 +92,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     fontSize: 16,
     color: "#000",
-    backgroundColor: "#fff",
-    fontFamily: "GeneralSansMedium",
     height: "100%",
+    fontFamily: "GeneralSansMedium",
   },
 });
 

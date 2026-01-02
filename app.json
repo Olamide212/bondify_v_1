@@ -4,6 +4,7 @@
     "slug": "bondies",
     "version": "1.0.0",
     "orientation": "portrait",
+    "owner": "bondify-team",
     "icon": "./assets/images/bondify-icon-color.png",
     "scheme": "bondify",
     "userInterfaceStyle": "automatic",
@@ -11,7 +12,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.olabid212.bondify",
-            "infoPlist": {
+      "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "This app needs access to your location to show nearby users."
       }
     },
@@ -22,6 +23,8 @@
       },
       "edgeToEdgeEnabled": true,
       "permissions": [
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
         "android.permission.ACCESS_COARSE_LOCATION",
         "android.permission.ACCESS_FINE_LOCATION"
       ],
@@ -54,6 +57,16 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "3dc78aca-e1f1-45b2-8fca-97d2c9d44859"
+      }
+    },
+    "runtimeVersion": "1.0.0",
+    "updates": {
+      "url": "https://u.expo.dev/3dc78aca-e1f1-45b2-8fca-97d2c9d44859"
     }
   }
 }

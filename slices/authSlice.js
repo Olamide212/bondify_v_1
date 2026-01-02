@@ -1,146 +1,145 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { authAPI } from "../services/authService";
-import { tokenManager } from "../utils/axiosInstance";
+import { tokenManager } from "../utils/tokenManager";
 
-/* =====================
-   Async thunks
-===================== */
+// ----------------------- Async Thunks -----------------------
 
+// Signup (store onboarding token + pending contact info)
 export const signup = createAsyncThunk(
   "auth/signup",
   async (userData, { rejectWithValue }) => {
     try {
       const response = await authAPI.signup(userData);
-      await tokenManager.setToken(response.data.onboardingToken);
+
+      await tokenManager.setToken({
+        onboardingToken: response.data.onboardingToken,
+      });
 
       return {
         ...response.data,
-        email: userData.email, // ✅ keep email for OTP
+        email: userData.email || null,
+        phoneNumber: userData.phoneNumber || null,
+        countryCode: userData.countryCode || null,
       };
     } catch (error) {
       const message =
-        error.response?.data?.message ||
-        error.response?.data?.error ||
-        error.message ||
-        "Signup failed";
+        error.response?.data?.message || error.message || "Signup failed";
       return rejectWithValue(message);
     }
   }
 );
 
-export const loginOtp = createAsyncThunk(
-  "auth/loginOtp",
-  async (email, { rejectWithValue }) => {
-    try {
-      const response = await authAPI.loginOtp({ email });
-      return { ...response.data, email };
-    } catch (error) {
-      return rejectWithValue(
-        error.response?.data?.message ||
-          error.response?.data?.error ||
-          error.message
-      );
-    }
-  }
-);
-
+// Verify OTP
 export const verifyOtp = createAsyncThunk(
   "auth/verifyOtp",
   async (otpData, { rejectWithValue }) => {
     try {
       const response = await authAPI.verifyOtp(otpData);
-      await tokenManager.setToken(response.data.token);
+
+      await tokenManager.setToken({
+        token: response.data.token,
+        onboardingToken: response.data.onboardingToken,
+      });
+
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.response?.data || error.message);
+      return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
 );
 
+// Resend OTP
 export const resendOtp = createAsyncThunk(
   "auth/resendOtp",
   async (otpData, { rejectWithValue }) => {
     try {
       const response = await authAPI.resendOtp(otpData);
+
+      await tokenManager.setToken({
+        onboardingToken: response.data.onboardingToken,
+      });
+
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.response?.data || error.message);
+      return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
 );
 
+// Login
 export const login = createAsyncThunk(
   "auth/login",
   async (credentials, { rejectWithValue }) => {
     try {
       const response = await authAPI.login(credentials);
-      await tokenManager.setToken(response.data.token);
+
+      await tokenManager.setToken({ token: response.data.token });
+
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.response?.data || error.message);
+      return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
 );
 
-/* =====================
-   Auth slice
-===================== */
+// ----------------------- Slice -----------------------
 
 const authSlice = createSlice({
   name: "auth",
   initialState: {
     user: null,
     token: null,
-    pendingEmail: null, // ✅ added
+    onboardingToken: null,
+
+    // 🔑 Pending OTP context
+    pendingEmail: null,
+    pendingPhoneNumber: null, // 10 digits only
+    pendingCountryCode: null, // +234, +233, +254 etc
+
     loading: false,
     error: null,
     isAuthenticated: false,
   },
+
   reducers: {
     logout: (state) => {
       state.user = null;
       state.token = null;
-      state.pendingEmail = null; // ✅ clear
+      state.onboardingToken = null;
+      state.pendingEmail = null;
+      state.pendingPhoneNumber = null;
+      state.pendingCountryCode = null;
       state.isAuthenticated = false;
       tokenManager.removeToken();
     },
+
     clearError: (state) => {
       state.error = null;
     },
   },
+
   extraReducers: (builder) => {
     builder
-
-      // Signup
+      // ---------------- Signup ----------------
       .addCase(signup.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(signup.fulfilled, (state, action) => {
         state.loading = false;
-        state.token = action.payload.onboardingToken;
-        state.pendingEmail = action.payload.email; // ✅ store email
+        state.onboardingToken = action.payload.onboardingToken;
+
+        // store pending contact info for OTP
+        state.pendingEmail = action.payload.email;
+        state.pendingPhoneNumber = action.payload.phoneNumber;
+        state.pendingCountryCode = action.payload.countryCode;
       })
       .addCase(signup.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
 
-      // Login OTP
-      .addCase(loginOtp.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(loginOtp.fulfilled, (state, action) => {
-        state.loading = false;
-        state.pendingEmail = action.payload.email; // ✅ store email
-      })
-      .addCase(loginOtp.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      })
-
-      // Verify OTP
+      // ---------------- Verify OTP ----------------
       .addCase(verifyOtp.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -148,29 +147,27 @@ const authSlice = createSlice({
       .addCase(verifyOtp.fulfilled, (state, action) => {
         state.loading = false;
         state.token = action.payload.token;
-        state.user = action.payload.user || null;
+        state.onboardingToken = action.payload.onboardingToken || null;
         state.isAuthenticated = true;
-        state.pendingEmail = null; // ✅ clear after success
+
+        // clear pending data
+        state.pendingEmail = null;
+        state.pendingPhoneNumber = null;
+        state.pendingCountryCode = null;
       })
       .addCase(verifyOtp.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
 
-      // Resend OTP
-      .addCase(resendOtp.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(resendOtp.fulfilled, (state) => {
+      // ---------------- Resend OTP ----------------
+      .addCase(resendOtp.fulfilled, (state, action) => {
         state.loading = false;
-      })
-      .addCase(resendOtp.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
+        state.onboardingToken =
+          action.payload.onboardingToken || state.onboardingToken;
       })
 
-      // Login (password-based fallback)
+      // ---------------- Login ----------------
       .addCase(login.pending, (state) => {
         state.loading = true;
         state.error = null;

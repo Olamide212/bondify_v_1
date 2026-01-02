@@ -98,7 +98,7 @@ const handleDismiss = () => {
           },
         ]}
       >
-        <Image source={images.bondifyIcon} contentFit="contain" width={30} height={30} className='mr-3' />
+        <Image source={images.bondifyIcon} contentFit="contain" width={25} height={25} className='mr-3' />
       
         <Text style={styles.snackbarText}>{message}</Text>
         <TouchableOpacity onPress={handleDismiss}>
@@ -129,7 +129,7 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     paddingHorizontal: 20,
     flexDirection: "row",
-    gap: 7,
+    gap: 10,
     alignItems: "center",
   },
   snackbarText: {

@@ -1,5 +1,6 @@
 import axios from "axios";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { tokenManager } from "./tokenManager";
+
 
 // Base URL for your API
 const BASE_URL = process.env.EXPO_PUBLIC_DEV_API_BASE_URL; 
@@ -13,39 +14,11 @@ const apiClient = axios.create({
   },
 });
 
-// Token management functions
-export const tokenManager = {
-  getToken: async () => {
-    try {
-      return await AsyncStorage.getItem("onboardingToken");
-    } catch (error) {
-      console.error("Error getting token:", error);
-      return null;
-    }
-  },
 
-  setToken: async (token) => {
-    try {
-      await AsyncStorage.setItem("onboardingToken", token);
-    } catch (error) {
-      console.error("Error setting token:", error);
-    }
-  },
-
-  removeToken: async () => {
-    try {
-      await AsyncStorage.removeItem("onboardingToken");
-    } catch (error) {
-      console.error("Error removing token:", error);
-    }
-  },
-};
-
-// Request interceptor to add auth token
 // Request interceptor to add auth token
 apiClient.interceptors.request.use(
   async (config) => {
-    // 👇 allow public endpoints
+    // allow public endpoints
     if (config.skipAuth) return config;
 
     const token = await tokenManager.getToken();
@@ -56,7 +29,6 @@ apiClient.interceptors.request.use(
   },
   (error) => Promise.reject(error)
 );
-
 
 // Response interceptor to handle common errors
 apiClient.interceptors.response.use(

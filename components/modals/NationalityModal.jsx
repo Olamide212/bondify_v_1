@@ -12,7 +12,7 @@ import React, { useState, useMemo } from "react";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import GeneralHeader from "../../components/headers/GeneralHeader";
 import { X } from "lucide-react-native";
-import useNationalities from "../../hooks/useNationalities";
+import {useNationalities }from "../../hooks/useNationalities";
 
 const NationalityModal = ({ visible, onClose, onSelect }) => {
   const [search, setSearch] = useState("");

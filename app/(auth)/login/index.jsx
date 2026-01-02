@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   SafeAreaView,
   Text,
@@ -9,11 +9,18 @@ import {
   Keyboard,
 } from "react-native";
 import { useRouter } from "expo-router";
+import { useDispatch, useSelector } from "react-redux";
 import TextInput from "../../../components/inputs/TextInput";
 import Button from "../../../components/ui/Button";
+import { login, clearError } from "../../../slices/authSlice";
+import { useToast } from "../../../context/ToastContext";
 
 const EmailLogin = () => {
   const router = useRouter();
+  const dispatch = useDispatch();
+  const { showToast } = useToast();
+
+  const { loading, error, token } = useSelector((state) => state.auth);
 
   const [formData, setFormData] = useState({
     email: "",
@@ -26,11 +33,30 @@ const EmailLogin = () => {
     }));
   };
 
-  const handleLogin = () => {
-    // TODO: dispatch login action
-    console.log(formData);
-    router.push("/root-tabs");
+  const handleLogin = async () => {
+    if (!formData.email) {
+      showToast({ message: "Email is required", variant: "error" });
+      return;
+    }
+
+    try {
+      const result = await dispatch(login({ email: formData.email })).unwrap();
+
+      showToast({ message: result.message || "OTP sent", variant: "success" });
+
+      // Navigate to OTP verification screen
+      router.push("/auth/validate-otp");
+    } catch (err) {
+      showToast({ message: err || "Login failed", variant: "error" });
+    }
   };
+
+  // Clear previous errors when component mounts
+  useEffect(() => {
+    return () => {
+      dispatch(clearError());
+    };
+  }, [dispatch]);
 
   return (
     <SafeAreaView className="flex-1 bg-white">
@@ -57,12 +83,15 @@ const EmailLogin = () => {
                 keyboardType="email-address"
                 autoCapitalize="none"
               />
-
-              
             </View>
 
             <View className="w-full items-end pb-6">
-              <Button title="Login" variant="gradient" onPress={handleLogin} />
+              <Button
+                title="Login"
+                variant="gradient"
+                onPress={handleLogin}
+                loading={loading}
+              />
             </View>
           </View>
         </TouchableWithoutFeedback>

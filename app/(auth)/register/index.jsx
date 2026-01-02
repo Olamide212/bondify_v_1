@@ -20,6 +20,7 @@ import { useRouter } from "expo-router";
 
 const Register = () => {
   const [formData, setFormData] = useState({
+    countryCode: "",
     phone: "",
     firstName: "",
     lastName: "",
@@ -36,17 +37,39 @@ const Register = () => {
   };
 
   const handleSignup = async () => {
-    const { firstName, lastName, phone, email } = formData;
+    const { firstName, lastName, phone, countryCode, email } = formData;
+
     if (!firstName || !lastName || !phone || !email) {
       showToast({ message: "All fields are required", variant: "error" });
       return;
     }
 
+    // ✅ Enforce 10-digit local number
+    if (!/^\d{10}$/.test(phone)) {
+      showToast({
+        message: "Phone number must be exactly 10 digits",
+        variant: "error",
+      });
+      return;
+    }
+
     try {
-      await dispatch(signup(formData)).unwrap();
+      await dispatch(
+        signup({
+          firstName,
+          lastName,
+          email,
+          phone: `${phone}`, 
+          countryCode: countryCode
+        })
+      ).unwrap();
+
       router.push("/validation");
     } catch (errMessage) {
-      showToast({ message: errMessage || "Signup failed", variant: "error" });
+      showToast({
+        message: errMessage || "Signup failed",
+        variant: "error",
+      });
     }
   };
 
@@ -58,7 +81,7 @@ const Register = () => {
         keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 0}
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <View className="flex-1 px-4">
+          <View className="flex-1 px-2">
             {/* Scrollable Inputs */}
             <ScrollView
               contentContainerStyle={{ paddingBottom: 20 }}
@@ -68,32 +91,42 @@ const Register = () => {
                 Create an account
               </Text>
               <Text className="text-black text-lg font-Satoshi mb-7">
-                Find your perfect match with just a few steps sign up now and
-                join the millions of people finding love on Bondies
+                Find your perfect match with just a few steps. Sign up now and
+                join millions of people finding love on Bondies.
               </Text>
 
+              {/* 📱 Phone Input */}
               <GlobalPhoneInput
-                value={formData.phone}
-                onChangePhone={(phone) => handleChange("phone", phone)}
+                phoneNumber={formData.phone}
+                countryCode={formData.countryCode}
+                onChangePhoneNumber={(digits) => handleChange("phone", digits)}
+                onChangeCountryCode={(code) =>
+                  handleChange("countryCode", code)
+                }
               />
+
               <TextInput
                 placeholder="First name"
                 value={formData.firstName}
                 onChangeText={(text) => handleChange("firstName", text)}
               />
+
               <TextInput
                 placeholder="Last name"
                 value={formData.lastName}
                 onChangeText={(text) => handleChange("lastName", text)}
               />
+
               <TextInput
                 placeholder="Enter your email address"
+                keyboardType="email-address"
+                autoCapitalize="none"
                 value={formData.email}
                 onChangeText={(text) => handleChange("email", text)}
               />
             </ScrollView>
 
-            {/* Footer with button + login */}
+            {/* Footer */}
             <View className="pb-6">
               <Button
                 title="Create Account"
@@ -101,6 +134,7 @@ const Register = () => {
                 loading={loading}
                 onPress={handleSignup}
               />
+
               <View className="flex-row justify-center items-center gap-1 mt-4">
                 <Text className="text-lg font-GeneralSansMedium">
                   Already have an account?

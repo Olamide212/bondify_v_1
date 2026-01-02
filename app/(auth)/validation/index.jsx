@@ -42,7 +42,6 @@ const Validation = () => {
       });
       return;
     }
-
     setError("");
 
     try {
