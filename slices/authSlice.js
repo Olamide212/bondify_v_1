@@ -82,6 +82,24 @@ export const login = createAsyncThunk(
   }
 );
 
+// ---------------- Restore Auth ----------------
+export const restoreAuth = createAsyncThunk(
+  "auth/restoreAuth",
+  async (_, { rejectWithValue }) => {
+    try {
+      const token = await tokenManager.getToken();
+      const onboardingToken = await tokenManager.getOnboardingToken();
+
+      return {
+        token,
+        onboardingToken,
+      };
+    } catch (error) {
+      return rejectWithValue("Failed to restore authentication");
+    }
+  }
+);
+
 // ----------------------- Slice -----------------------
 
 const authSlice = createSlice({
@@ -91,17 +109,22 @@ const authSlice = createSlice({
     token: null,
     onboardingToken: null,
 
-    // 🔑 Pending OTP context
     pendingEmail: null,
-    pendingPhoneNumber: null, // 10 digits only
-    pendingCountryCode: null, // +234, +233, +254 etc
+    pendingPhoneNumber: null,
+    pendingCountryCode: null,
 
-    loading: false,
+    loading: false, // API/UI loading
+    authLoading: true, // 🔥 APP BOOTSTRAP FLAG
     error: null,
+
     isAuthenticated: false,
+    authRestored: false,
   },
 
   reducers: {
+    setAuthLoading: (state, action) => {
+      state.authLoading = action.payload;
+    },
     logout: (state) => {
       state.user = null;
       state.token = null;
@@ -181,9 +204,28 @@ const authSlice = createSlice({
       .addCase(login.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+      })
+
+      // ---------------- Restore Auth ----------------
+      .addCase(restoreAuth.pending, (state) => {
+        state.authLoading = true;
+      })
+      .addCase(restoreAuth.fulfilled, (state, action) => {
+        state.token = action.payload.token;
+        state.onboardingToken = action.payload.onboardingToken;
+
+        state.isAuthenticated = Boolean(action.payload.token);
+
+        state.authRestored = true;
+        state.authLoading = false;
+      })
+      .addCase(restoreAuth.rejected, (state) => {
+        state.authRestored = true;
+        state.authLoading = false; 
       });
+
   },
 });
 
-export const { logout, clearError } = authSlice.actions;
+export const { logout, clearError, setAuthLoading } = authSlice.actions;
 export default authSlice.reducer;

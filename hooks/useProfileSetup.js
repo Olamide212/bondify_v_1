@@ -1,11 +1,8 @@
 import { useState, useEffect } from "react";
-import { useRouter } from "expo-router";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as SecureStore from "expo-secure-store";
 import { profileService } from "../services/profileService";
 
 export const useProfileSetup = ({ isOnboarding = true } = {}) => {
-  const router = useRouter();
-
   const steps = [
     "agreement",
     "username",
@@ -33,25 +30,53 @@ export const useProfileSetup = ({ isOnboarding = true } = {}) => {
   const [lookups, setLookups] = useState({});
   const [loading, setLoading] = useState(false);
 
-  // Resume last step
+  // -------------------------------
+  // Restore saved onboarding step
+  // -------------------------------
   const resumeStep = async () => {
-    const lastStep = await AsyncStorage.getItem("onboardingStep");
-    if (lastStep && steps.includes(lastStep)) {
-      setCurrentStep(lastStep);
-      setProgress((steps.indexOf(lastStep) + 1) / steps.length);
-      router.replace(`/onboarding/${lastStep}`);
-    } else if (isOnboarding) {
-      router.replace(`/onboarding/${steps[0]}`);
+    try {
+      const savedStep = await SecureStore.getItemAsync("onboardingStep");
+
+      if (savedStep && steps.includes(savedStep)) {
+        setCurrentStep(savedStep);
+      }
+    } catch (err) {
+      console.warn("Failed to restore onboarding step", err);
     }
   };
 
-  // Auto-save step
+  // -----------------------------------
+  // Persist step & update progress
+  // -----------------------------------
   useEffect(() => {
-    AsyncStorage.setItem("onboardingStep", currentStep);
-    setProgress((steps.indexOf(currentStep) + 1) / steps.length);
+    const persistStep = async () => {
+      try {
+        await SecureStore.setItemAsync("onboardingStep", currentStep);
+        setProgress((steps.indexOf(currentStep) + 1) / steps.length);
+      } catch (err) {
+        console.warn("Failed to persist onboarding step", err);
+      }
+    };
+
+    persistStep();
   }, [currentStep]);
 
-  // Fetch lookups for lookup-based fields
+  // -----------------------------------
+  // Helpers
+  // -----------------------------------
+  const getNextStep = () => {
+    const idx = steps.indexOf(currentStep);
+    return idx < steps.length - 1 ? steps[idx + 1] : null;
+  };
+
+  const getPrevStep = () => {
+    const idx = steps.indexOf(currentStep);
+    return idx > 0 ? steps[idx - 1] : null;
+  };
+
+  // -----------------------------------
+  // Fetch lookup values (religion, etc.)
+  // -----------------------------------
   const fetchLookups = async (type) => {
     try {
       const data = await profileService.getLookups(type);
@@ -63,56 +88,42 @@ export const useProfileSetup = ({ isOnboarding = true } = {}) => {
     }
   };
 
+  // -----------------------------------
   // Update profile for current step
+  // -----------------------------------
   const updateProfileStep = async (fields) => {
     setLoading(true);
+
     try {
       await profileService.updateProfile(fields);
 
-      // If last step, mark onboarding complete
+      // 🔑 FINAL STEP → backend decides onboarding completion
       if (isOnboarding && currentStep === steps[steps.length - 1]) {
         await profileService.completeOnboarding();
-        await AsyncStorage.setItem("onboardingComplete", "true");
+
+        await SecureStore.setItemAsync("onboardingComplete", "true");
+        await SecureStore.deleteItemAsync("onboardingStep");
       }
-
-      setLoading(false);
     } catch (err) {
-      console.error("Update profile error:", err);
-      setLoading(false);
+      console.error("Update profile step error:", err);
       throw err;
-    }
-  };
-
-  // Navigate to next step
-  const nextStep = () => {
-    const idx = steps.indexOf(currentStep);
-    if (idx < steps.length - 1) {
-      const next = steps[idx + 1];
-      setCurrentStep(next);
-      router.push(`/onboarding/${next}`);
-    }
-  };
-
-  // Navigate to previous step
-  const prevStep = () => {
-    const idx = steps.indexOf(currentStep);
-    if (idx > 0) {
-      const prev = steps[idx - 1];
-      setCurrentStep(prev);
-      router.push(`/onboarding/${prev}`);
+    } finally {
+      setLoading(false);
     }
   };
 
   return {
+    steps,
     currentStep,
     progress,
-    steps,
     lookups,
     loading,
+
+    setCurrentStep,
     resumeStep,
+    getNextStep,
+    getPrevStep,
     fetchLookups,
     updateProfileStep,
-    nextStep,
-    prevStep,
   };
 };

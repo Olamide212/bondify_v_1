@@ -1,25 +1,28 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as SecureStore from "expo-secure-store";
 
 export const tokenManager = {
   setToken: async ({ token, onboardingToken }) => {
     try {
+      // 🔐 Main auth token
       if (token !== undefined && token !== null) {
-        // stringify if it's an object
         const tokenValue =
           typeof token === "string" ? token : JSON.stringify(token);
-        await AsyncStorage.setItem("token", tokenValue);
+
+        await SecureStore.setItemAsync("token", tokenValue);
       } else {
-        await AsyncStorage.removeItem("token");
+        await SecureStore.deleteItemAsync("token");
       }
 
+      // 🔐 Onboarding token
       if (onboardingToken !== undefined && onboardingToken !== null) {
         const onboardingValue =
           typeof onboardingToken === "string"
             ? onboardingToken
             : JSON.stringify(onboardingToken);
-        await AsyncStorage.setItem("onboardingToken", onboardingValue);
+
+        await SecureStore.setItemAsync("onboardingToken", onboardingValue);
       } else {
-        await AsyncStorage.removeItem("onboardingToken");
+        await SecureStore.deleteItemAsync("onboardingToken");
       }
     } catch (error) {
       console.error("Error setting tokens:", error);
@@ -28,8 +31,8 @@ export const tokenManager = {
 
   getToken: async () => {
     try {
-      const value = await AsyncStorage.getItem("token");
-      return value ? JSON.parse(value) : null; // parse back to object if needed
+      const value = await SecureStore.getItemAsync("token");
+      return value ? JSON.parse(value) : null;
     } catch (error) {
       console.error("Error getting token:", error);
       return null;
@@ -38,7 +41,7 @@ export const tokenManager = {
 
   getOnboardingToken: async () => {
     try {
-      const value = await AsyncStorage.getItem("onboardingToken");
+      const value = await SecureStore.getItemAsync("onboardingToken");
       return value ? JSON.parse(value) : null;
     } catch (error) {
       console.error("Error getting onboarding token:", error);
@@ -48,8 +51,8 @@ export const tokenManager = {
 
   removeToken: async () => {
     try {
-      await AsyncStorage.removeItem("token");
-      await AsyncStorage.removeItem("onboardingToken");
+      await SecureStore.deleteItemAsync("token");
+      await SecureStore.deleteItemAsync("onboardingToken");
     } catch (error) {
       console.error("Error removing tokens:", error);
     }

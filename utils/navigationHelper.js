@@ -1,25 +1,47 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { store } from "../store/store";
-
-export const determineNextRoute = async () => {
-  const state = store.getState();
-  const { isAuthenticated, pendingEmail } = state.auth;
-
-  // Pending signup / OTP verification
-  if (pendingEmail) return "/validation";
-
-  // Logged-in users
-  if (isAuthenticated) {
-    const onboardingComplete = await AsyncStorage.getItem("onboardingComplete");
-
-    if (onboardingComplete === "true") return "/root-tabs";
-
-    const lastStep = await AsyncStorage.getItem("onboardingStep");
-    if (lastStep) return `/onboarding/${lastStep}`;
-
-    return "/agreement"; 
+/**
+ * Determine the next route for the app based on restored auth
+ * @param {string|null} token - main app token (user logged in)
+ * @param {string|null} onboardingToken - onboarding token (user in setup flow)
+ * @param {string|null} pendingEmail - optional, if user has pending OTP
+ * @returns {string} next route path
+ */
+export const determineNextRoute = async ({
+  token,
+  onboardingToken,
+  pendingEmail,
+}) => {
+  // -----------------------------------
+  // 1️⃣ Pending OTP always wins
+  // -----------------------------------
+  if (pendingEmail) {
+    return "/validation";
   }
 
-  // New user → Splash will stay and then handle animation
-  return "/onboarding"; // fallback if needed
+  // -----------------------------------
+  // 2️⃣ Authenticated users
+  // -----------------------------------
+  if (token) {
+    // Check if onboarding is complete
+    if (!onboardingToken) {
+      // User has completed onboarding → go to main app
+      return "/root-tabs";
+    } else {
+      // User still onboarding → load last step from SecureStore
+      const lastStep = await import("expo-secure-store").then((SecureStore) =>
+        SecureStore.getItemAsync("onboardingStep")
+      );
+
+      if (lastStep) {
+        return `/(onboarding)/${lastStep}`;
+      }
+
+      // Default onboarding entry
+      return "/(onboarding)/agreement";
+    }
+  }
+
+  // -----------------------------------
+  // 3️⃣ Not authenticated
+  // -----------------------------------
+  return "/onboarding";
 };

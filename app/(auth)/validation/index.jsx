@@ -26,45 +26,44 @@ const Validation = () => {
 
   // Pull required auth state
   const { loading, pendingEmail } = useSelector((state) => state.auth);
+const handleSubmit = async () => {
+  setTouched(true);
 
-  const handleSubmit = async () => {
-    setTouched(true);
+  if (!code || code.length < 4) {
+    setError("Please enter the 4-digit code");
+    return;
+  }
 
-    if (!code || code.length < 4) {
-      setError("Please enter the 4-digit code");
-      return;
-    }
+  if (!pendingEmail) {
+    showToast({
+      message: "Email not found. Please restart signup.",
+      variant: "error",
+    });
+    return;
+  }
 
-    if (!pendingEmail) {
-      showToast({
-        message: "Email not found. Please restart signup.",
-        variant: "error",
-      });
-      return;
-    }
-    setError("");
+  try {
+    await dispatch(
+      verifyOtp({
+        email: pendingEmail,
+        code,
+      })
+    ).unwrap();
 
-    try {
-      await dispatch(
-        verifyOtp({
-          email: pendingEmail,
-          code,
-        })
-      ).unwrap();
+    showToast({
+      message: "OTP verified successfully",
+      variant: "success",
+    });
 
-      showToast({
-        message: "OTP verified successfully",
-        variant: "success",
-      });
+    router.replace("/(onboarding)/agreement");
+  } catch (err) {
+    showToast({
+      message: err || "Invalid verification code",
+      variant: "error",
+    });
+  }
+};
 
-      router.push("/agreement");
-    } catch (err) {
-      showToast({
-        message: err || "Invalid verification code",
-        variant: "error",
-      });
-    }
-  };
 
   const handleResend = async () => {
     if (!pendingEmail) {
