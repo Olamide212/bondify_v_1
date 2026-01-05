@@ -11,6 +11,12 @@ export const signup = createAsyncThunk(
     try {
       const response = await authAPI.signup(userData);
 
+      console.log("📋 Signup response:", {
+        hasOnboardingToken: !!response.data.onboardingToken,
+        onboardingTokenLength: response.data.onboardingToken?.length,
+      });
+
+      // FIXED: Only pass onboardingToken here
       await tokenManager.setToken({
         onboardingToken: response.data.onboardingToken,
       });
@@ -29,20 +35,33 @@ export const signup = createAsyncThunk(
   }
 );
 
-// Verify OTP
+// Verify OTP - CRITICAL FIX
 export const verifyOtp = createAsyncThunk(
   "auth/verifyOtp",
   async (otpData, { rejectWithValue }) => {
     try {
       const response = await authAPI.verifyOtp(otpData);
-
-      await tokenManager.setToken({
-        token: response.data.token,
-        onboardingToken: response.data.onboardingToken,
+      
+      console.log("📋 Verify OTP response:", {
+        hasToken: !!response.data.token,
+        hasOnboardingToken: !!response.data.onboardingToken,
+        tokenLength: response.data.token?.length,
+        onboardingTokenLength: response.data.onboardingToken?.length,
+        fullResponse: response.data,
       });
+
+      // FIXED: Pass BOTH tokens properly
+      await tokenManager.setToken({
+        token: response.data.token, // Main auth token
+        onboardingToken: response.data.onboardingToken, // Onboarding flow token
+      });
+
+      // Debug after setting
+      await tokenManager.debugAllStoredValues();
 
       return response.data;
     } catch (error) {
+      console.error("❌ Verify OTP error:", error);
       return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
@@ -55,6 +74,11 @@ export const resendOtp = createAsyncThunk(
     try {
       const response = await authAPI.resendOtp(otpData);
 
+      console.log("📋 Resend OTP response:", {
+        hasOnboardingToken: !!response.data.onboardingToken,
+      });
+
+      // FIXED: Only pass onboardingToken
       await tokenManager.setToken({
         onboardingToken: response.data.onboardingToken,
       });
@@ -66,35 +90,34 @@ export const resendOtp = createAsyncThunk(
   }
 );
 
-// Login
-export const login = createAsyncThunk(
-  "auth/login",
-  async (credentials, { rejectWithValue }) => {
-    try {
-      const response = await authAPI.login(credentials);
-
-      await tokenManager.setToken({ token: response.data.token });
-
-      return response.data;
-    } catch (error) {
-      return rejectWithValue(error.response?.data?.message || error.message);
-    }
-  }
-);
-
-// ---------------- Restore Auth ----------------
+// Restore Auth with debugging
 export const restoreAuth = createAsyncThunk(
   "auth/restoreAuth",
   async (_, { rejectWithValue }) => {
     try {
+      console.log("🔄 restoreAuth: Starting token restoration...");
+      
+      // Debug all stored values first
+      await tokenManager.debugAllStoredValues();
+      
       const token = await tokenManager.getToken();
       const onboardingToken = await tokenManager.getOnboardingToken();
+      
+      console.log("🔄 restoreAuth results:", {
+        token: token ? `Found (${token.length} chars)` : "NULL",
+        onboardingToken: onboardingToken ? `Found (${onboardingToken.length} chars)` : "NULL",
+        isAuthenticated: !!token,
+        hasOnboardingSession: !!onboardingToken,
+      });
 
       return {
         token,
         onboardingToken,
+        isAuthenticated: Boolean(token),
+        hasOnboardingSession: Boolean(onboardingToken),
       };
     } catch (error) {
+      console.error("❌ restoreAuth error:", error);
       return rejectWithValue("Failed to restore authentication");
     }
   }
@@ -113,27 +136,36 @@ const authSlice = createSlice({
     pendingPhoneNumber: null,
     pendingCountryCode: null,
 
-    loading: false, // API/UI loading
-    authLoading: true, // 🔥 APP BOOTSTRAP FLAG
-    error: null,
+    loading: false,
+    authLoading: true,
 
     isAuthenticated: false,
+    hasOnboardingSession: false,
     authRestored: false,
+
+    error: null,
   },
 
   reducers: {
     setAuthLoading: (state, action) => {
       state.authLoading = action.payload;
     },
+    clearOnboardingToken: (state) => {
+      state.onboardingToken = null;
+    },
     logout: (state) => {
       state.user = null;
       state.token = null;
       state.onboardingToken = null;
+
       state.pendingEmail = null;
       state.pendingPhoneNumber = null;
       state.pendingCountryCode = null;
+
       state.isAuthenticated = false;
-      tokenManager.removeToken();
+      state.hasOnboardingSession = false;
+
+      tokenManager.removeTokens(); // updated
     },
 
     clearError: (state) => {
@@ -151,8 +183,8 @@ const authSlice = createSlice({
       .addCase(signup.fulfilled, (state, action) => {
         state.loading = false;
         state.onboardingToken = action.payload.onboardingToken;
+        state.hasOnboardingSession = true;
 
-        // store pending contact info for OTP
         state.pendingEmail = action.payload.email;
         state.pendingPhoneNumber = action.payload.phoneNumber;
         state.pendingCountryCode = action.payload.countryCode;
@@ -169,11 +201,13 @@ const authSlice = createSlice({
       })
       .addCase(verifyOtp.fulfilled, (state, action) => {
         state.loading = false;
-        state.token = action.payload.token;
-        state.onboardingToken = action.payload.onboardingToken || null;
-        state.isAuthenticated = true;
 
-        // clear pending data
+        state.token = action.payload.token || null;
+        state.onboardingToken = action.payload.onboardingToken || null;
+
+        state.isAuthenticated = Boolean(action.payload.token);
+        state.hasOnboardingSession = Boolean(action.payload.onboardingToken);
+
         state.pendingEmail = null;
         state.pendingPhoneNumber = null;
         state.pendingCountryCode = null;
@@ -185,9 +219,10 @@ const authSlice = createSlice({
 
       // ---------------- Resend OTP ----------------
       .addCase(resendOtp.fulfilled, (state, action) => {
-        state.loading = false;
-        state.onboardingToken =
-          action.payload.onboardingToken || state.onboardingToken;
+        if (action.payload.onboardingToken) {
+          state.onboardingToken = action.payload.onboardingToken;
+          state.hasOnboardingSession = true;
+        }
       })
 
       // ---------------- Login ----------------
@@ -196,36 +231,36 @@ const authSlice = createSlice({
         state.error = null;
       })
       .addCase(login.fulfilled, (state, action) => {
-        state.loading = false;
         state.token = action.payload.token;
         state.user = action.payload.user;
+
         state.isAuthenticated = true;
+        state.hasOnboardingSession = false;
       })
+
       .addCase(login.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
 
       // ---------------- Restore Auth ----------------
-      .addCase(restoreAuth.pending, (state) => {
-        state.authLoading = true;
-      })
       .addCase(restoreAuth.fulfilled, (state, action) => {
         state.token = action.payload.token;
         state.onboardingToken = action.payload.onboardingToken;
 
-        state.isAuthenticated = Boolean(action.payload.token);
+        state.isAuthenticated = action.payload.isAuthenticated;
+        state.hasOnboardingSession = action.payload.hasOnboardingSession;
 
         state.authRestored = true;
         state.authLoading = false;
       })
       .addCase(restoreAuth.rejected, (state) => {
         state.authRestored = true;
-        state.authLoading = false; 
+        state.authLoading = false;
       });
-
   },
 });
 
-export const { logout, clearError, setAuthLoading } = authSlice.actions;
+export const { logout, clearError, setAuthLoading, clearOnboardingToken } =
+  authSlice.actions;
 export default authSlice.reducer;

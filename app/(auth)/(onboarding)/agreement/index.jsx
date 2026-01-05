@@ -1,12 +1,15 @@
 import { View, Text } from "react-native";
 import React from "react";
+
 import Button from "../../../../components/ui/Button";
 import { useProfileSetup } from "../../../../hooks/useProfileSetup";
 import {guidelines} from "../../../../data/guidelinesData"
+import { useRouter } from "expo-router";
 
 
 const Agreement = () => {
   const { nextStep } = useProfileSetup({ isOnboarding: true });
+  const router = useRouter()
 
   return (
     <View className="bg-white flex-1 px-4 pt-8">
@@ -30,7 +33,7 @@ const Agreement = () => {
         ))}
       </View>
 
-      <Button variant="gradient" title="Agree & Continue" onPress={nextStep} />
+      <Button variant="gradient" title="Agree & Continue" onPress={() => router.push("/age")} />
     </View>
   );
 };

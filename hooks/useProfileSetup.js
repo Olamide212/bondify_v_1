@@ -3,8 +3,8 @@ import * as SecureStore from "expo-secure-store";
 import { profileService } from "../services/profileService";
 
 export const useProfileSetup = ({ isOnboarding = true } = {}) => {
+  // ❌ agreement REMOVED
   const steps = [
-    "agreement",
     "username",
     "age",
     "height",
@@ -39,6 +39,9 @@ export const useProfileSetup = ({ isOnboarding = true } = {}) => {
 
       if (savedStep && steps.includes(savedStep)) {
         setCurrentStep(savedStep);
+      } else {
+        // Fallback to first onboarding step
+        setCurrentStep(steps[0]);
       }
     } catch (err) {
       console.warn("Failed to restore onboarding step", err);
@@ -75,7 +78,7 @@ export const useProfileSetup = ({ isOnboarding = true } = {}) => {
   };
 
   // -----------------------------------
-  // Fetch lookup values (religion, etc.)
+  // Fetch lookup values
   // -----------------------------------
   const fetchLookups = async (type) => {
     try {
@@ -89,28 +92,48 @@ export const useProfileSetup = ({ isOnboarding = true } = {}) => {
   };
 
   // -----------------------------------
-  // Update profile for current step
+  // Move to the next step
   // -----------------------------------
-  const updateProfileStep = async (fields) => {
-    setLoading(true);
-
-    try {
-      await profileService.updateProfile(fields);
-
-      // 🔑 FINAL STEP → backend decides onboarding completion
-      if (isOnboarding && currentStep === steps[steps.length - 1]) {
-        await profileService.completeOnboarding();
-
-        await SecureStore.setItemAsync("onboardingComplete", "true");
-        await SecureStore.deleteItemAsync("onboardingStep");
-      }
-    } catch (err) {
-      console.error("Update profile step error:", err);
-      throw err;
-    } finally {
-      setLoading(false);
+  const nextStep = async () => {
+    const next = getNextStep();
+    if (next) {
+      setCurrentStep(next);
+    } else {
+      await updateProfileStep({});
     }
   };
+
+  // -----------------------------------
+  // Update profile for current step
+  // -----------------------------------
+const updateProfileStep = async (fields) => {
+  setLoading(true);
+
+  try {
+    if (Object.keys(fields).length > 0) {
+      await profileService.updateProfile(fields);
+    }
+
+    // 🔑 FINAL STEP → onboarding completion
+    if (isOnboarding && currentStep === steps[steps.length - 1]) {
+      await profileService.completeOnboarding();
+
+      // ✅ Mark onboarding complete
+      await SecureStore.setItemAsync("onboardingComplete", "true");
+      await SecureStore.deleteItemAsync("onboardingStep");
+
+      // ✅ REMOVE onboarding token (critical)
+      await tokenManager.setToken({
+        onboardingToken: null, // 👈 removes it safely
+      });
+    }
+  } catch (err) {
+    console.error("Update profile step error:", err);
+    throw err;
+  } finally {
+    setLoading(false);
+  }
+};
 
   return {
     steps,
@@ -123,6 +146,7 @@ export const useProfileSetup = ({ isOnboarding = true } = {}) => {
     resumeStep,
     getNextStep,
     getPrevStep,
+    nextStep,
     fetchLookups,
     updateProfileStep,
   };

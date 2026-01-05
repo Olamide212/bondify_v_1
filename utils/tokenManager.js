@@ -1,60 +1,126 @@
 import * as SecureStore from "expo-secure-store";
 
+const AUTH_TOKEN_KEY = "authToken"; // Changed from "token" for clarity
+const ONBOARDING_TOKEN_KEY = "onboardingToken";
+
 export const tokenManager = {
+  // -----------------------------------
+  // Save tokens with detailed logging
+  // -----------------------------------
   setToken: async ({ token, onboardingToken }) => {
     try {
-      // 🔐 Main auth token
-      if (token !== undefined && token !== null) {
-        const tokenValue =
-          typeof token === "string" ? token : JSON.stringify(token);
+      console.log("📝 tokenManager.setToken called with:", {
+        hasToken: !!token,
+        hasOnboardingToken: !!onboardingToken,
+        tokenLength: token?.length,
+        onboardingTokenLength: onboardingToken?.length,
+      });
 
-        await SecureStore.setItemAsync("token", tokenValue);
-      } else {
-        await SecureStore.deleteItemAsync("token");
+      if (token) {
+        await SecureStore.setItemAsync(AUTH_TOKEN_KEY, token);
+        console.log("✅ Auth token saved to SecureStore");
+        
+        // Verify it was saved
+        const savedToken = await SecureStore.getItemAsync(AUTH_TOKEN_KEY);
+        console.log("🔍 Verification - Saved auth token exists:", !!savedToken);
+        if (savedToken !== token) {
+          console.error("❌ Auth token mismatch after saving!");
+        }
       }
 
-      // 🔐 Onboarding token
-      if (onboardingToken !== undefined && onboardingToken !== null) {
-        const onboardingValue =
-          typeof onboardingToken === "string"
-            ? onboardingToken
-            : JSON.stringify(onboardingToken);
-
-        await SecureStore.setItemAsync("onboardingToken", onboardingValue);
-      } else {
-        await SecureStore.deleteItemAsync("onboardingToken");
+      if (onboardingToken) {
+        await SecureStore.setItemAsync(ONBOARDING_TOKEN_KEY, onboardingToken);
+        console.log("✅ Onboarding token saved to SecureStore");
+        
+        // Verify it was saved
+        const savedOnboardingToken = await SecureStore.getItemAsync(ONBOARDING_TOKEN_KEY);
+        console.log("🔍 Verification - Saved onboarding token exists:", !!savedOnboardingToken);
       }
     } catch (error) {
-      console.error("Error setting tokens:", error);
+      console.error("❌ Error setting tokens:", error);
     }
   },
 
+  // -----------------------------------
+  // Getters with logging
+  // -----------------------------------
   getToken: async () => {
     try {
-      const value = await SecureStore.getItemAsync("token");
-      return value ? JSON.parse(value) : null;
+      const token = await SecureStore.getItemAsync(AUTH_TOKEN_KEY);
+      console.log("🔑 tokenManager.getToken ->", token ? `Found (${token.length} chars)` : "NULL");
+      return token;
     } catch (error) {
-      console.error("Error getting token:", error);
+      console.error("Error getting auth token:", error);
       return null;
     }
   },
 
   getOnboardingToken: async () => {
     try {
-      const value = await SecureStore.getItemAsync("onboardingToken");
-      return value ? JSON.parse(value) : null;
+      const token = await SecureStore.getItemAsync(ONBOARDING_TOKEN_KEY);
+      console.log("🔑 tokenManager.getOnboardingToken ->", token ? `Found (${token.length} chars)` : "NULL");
+      return token;
     } catch (error) {
       console.error("Error getting onboarding token:", error);
       return null;
     }
   },
 
-  removeToken: async () => {
+  // -----------------------------------
+  // Debug function to check all stored values
+  // -----------------------------------
+  debugAllStoredValues: async () => {
     try {
-      await SecureStore.deleteItemAsync("token");
-      await SecureStore.deleteItemAsync("onboardingToken");
+      console.log("🔍 DEBUG - All SecureStore values:");
+      const allKeys = ["authToken", "token", "onboardingToken", "onboardingStep"];
+      
+      for (const key of allKeys) {
+        const value = await SecureStore.getItemAsync(key);
+        console.log(`  ${key}: ${value ? `EXISTS (${value.length} chars)` : "NULL"}`);
+      }
+    } catch (error) {
+      console.error("Error debugging SecureStore:", error);
+    }
+  },
+
+  // -----------------------------------
+  // Remove all tokens (logout)
+  // -----------------------------------
+  removeTokens: async () => {
+    try {
+      console.log("🗑️ Removing all tokens from SecureStore");
+      await SecureStore.deleteItemAsync(AUTH_TOKEN_KEY);
+      await SecureStore.deleteItemAsync(ONBOARDING_TOKEN_KEY);
+      console.log("✅ All tokens removed");
     } catch (error) {
       console.error("Error removing tokens:", error);
     }
+  },
+
+  // -----------------------------------
+  // 🔐 API helpers (MOST IMPORTANT)
+  // -----------------------------------
+
+  /**
+   * For authenticated routes
+   * → matches req.headers.authorization
+   */
+  getAuthHeader: async () => {
+    const token = await SecureStore.getItemAsync(AUTH_TOKEN_KEY);
+
+    if (!token) return {};
+
+    return {
+      Authorization: `Bearer ${token}`,
+    };
+  },
+
+  /**
+   * For onboarding routes
+   * → matches req.query.token
+   */
+  getOnboardingQuery: async () => {
+    const token = await SecureStore.getItemAsync(ONBOARDING_TOKEN_KEY);
+    return token ? { token } : {};
   },
 };

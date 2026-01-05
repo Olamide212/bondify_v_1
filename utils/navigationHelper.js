@@ -1,47 +1,48 @@
-/**
- * Determine the next route for the app based on restored auth
- * @param {string|null} token - main app token (user logged in)
- * @param {string|null} onboardingToken - onboarding token (user in setup flow)
- * @param {string|null} pendingEmail - optional, if user has pending OTP
- * @returns {string} next route path
- */
+// navigationHelper.js - Add debugging
 export const determineNextRoute = async ({
   token,
   onboardingToken,
   pendingEmail,
 }) => {
-  // -----------------------------------
-  // 1️⃣ Pending OTP always wins
-  // -----------------------------------
+  console.log("determineNextRoute called with:", {
+    token: token ? "yes" : "no",
+    onboardingToken: onboardingToken ? "yes" : "no",
+    pendingEmail: pendingEmail ? "yes" : "no",
+  });
+
+  // 1️⃣ Pending OTP
   if (pendingEmail) {
+    console.log("Returning /validation due to pendingEmail");
     return "/validation";
   }
 
-  // -----------------------------------
-  // 2️⃣ Authenticated users
-  // -----------------------------------
+  // 2️⃣ Fully authenticated
   if (token) {
-    // Check if onboarding is complete
-    if (!onboardingToken) {
-      // User has completed onboarding → go to main app
-      return "/root-tabs";
-    } else {
-      // User still onboarding → load last step from SecureStore
-      const lastStep = await import("expo-secure-store").then((SecureStore) =>
-        SecureStore.getItemAsync("onboardingStep")
-      );
+    console.log("Returning /root-tabs due to token");
+    return "/root-tabs";
+  }
+
+  // 3️⃣ Onboarding flow
+  if (onboardingToken) {
+    console.log("Checking onboarding step...");
+    try {
+      const lastStep = await SecureStore.getItemAsync("onboardingStep");
+      console.log("Last step from SecureStore:", lastStep);
 
       if (lastStep) {
-        return `/(onboarding)/${lastStep}`;
+        const route = `/(onboarding)/${lastStep}`;
+        console.log("Returning:", route);
+        return route;
       }
 
-      // Default onboarding entry
-      return "/(onboarding)/agreement";
+      console.log("Returning /(onboarding)/age as default");
+      return "/(onboarding)/age";
+    } catch (error) {
+      console.error("Error reading SecureStore:", error);
+      return "/(onboarding)/age";
     }
   }
 
-  // -----------------------------------
-  // 3️⃣ Not authenticated
-  // -----------------------------------
+  // 4️⃣ New/unauthenticated user
   return "/onboarding";
 };

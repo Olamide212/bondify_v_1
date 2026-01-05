@@ -20,12 +20,17 @@ const Validation = () => {
   const [touched, setTouched] = useState(false);
   const [error, setError] = useState("");
 
+
   const dispatch = useDispatch();
   const router = useRouter();
   const { showToast } = useToast();
 
   // Pull required auth state
-  const { loading, pendingEmail } = useSelector((state) => state.auth);
+  const { loading, pendingEmail, onboardingToken } = useSelector(
+    (state) => state.auth
+  );
+
+  
 const handleSubmit = async () => {
   setTouched(true);
 
@@ -43,20 +48,35 @@ const handleSubmit = async () => {
   }
 
   try {
-    await dispatch(
+    const response = await dispatch(
       verifyOtp({
         email: pendingEmail,
         code,
       })
     ).unwrap();
 
+    console.log("✅ OTP Verification COMPLETE");
+    console.log("Response tokens:", {
+      token: response?.token ? "EXISTS" : "MISSING",
+      onboardingToken: response?.onboardingToken ? "EXISTS" : "MISSING",
+    });
+
+    // Wait a moment for tokens to be stored
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
+    // Verify tokens were stored
+    const tokenManager = require("../../../utils/tokenManager");
+    await tokenManager.debugAllStoredValues();
+
     showToast({
       message: "OTP verified successfully",
       variant: "success",
     });
 
+    console.log("🚀 Navigating to agreement...");
     router.replace("/(onboarding)/agreement");
   } catch (err) {
+    console.error("❌ OTP Verification failed:", err);
     showToast({
       message: err || "Invalid verification code",
       variant: "error",
