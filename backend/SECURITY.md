@@ -66,10 +66,11 @@ const sanitizedLimit = Math.min(parseInt(limit, 10) || 20, 100); // Max 100
 
 ### 4. Dependency Vulnerabilities (RESOLVED) ✅
 **Issue**: Security vulnerabilities in dependencies  
-**Impact**: High severity vulnerabilities in cloudinary and nodemailer  
+**Impact**: High severity vulnerabilities in cloudinary, nodemailer, and multer  
 **Resolution**:
 - Updated cloudinary from 1.41.0 to 2.7.0
 - Updated nodemailer from 6.9.7 to 8.0.1
+- Updated multer from 1.4.5-lts.2 to 2.0.2 (fixed 4 DoS vulnerabilities)
 - All dependencies now up to date with security patches
 
 ## Remaining Alert (Acceptable)
@@ -146,6 +147,7 @@ found 0 vulnerabilities
 - jsonwebtoken: 9.0.2 ✅
 - helmet: 7.1.0 ✅
 - express-rate-limit: 7.1.5 ✅
+- multer: 2.0.2 ✅ (updated from 1.4.5-lts.2)
 - cloudinary: 2.7.0 ✅ (updated from 1.41.0)
 - nodemailer: 8.0.1 ✅ (updated from 6.9.7)
 
