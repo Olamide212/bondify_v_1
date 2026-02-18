@@ -137,24 +137,34 @@ export const restoreAuth = createAsyncThunk(
   "auth/restoreAuth",
   async (_, { rejectWithValue }) => {
     try {
-      console.log("🔄 restoreAuth: Starting token restoration...");
-      
       // Debug all stored values first
       await tokenManager.debugAllStoredValues();
       
       const token = await tokenManager.getToken();
       const onboardingToken = await tokenManager.getOnboardingToken();
-      
-      console.log("🔄 restoreAuth results:", {
-        token: token ? `Found (${token.length} chars)` : "NULL",
-        onboardingToken: onboardingToken ? `Found (${onboardingToken.length} chars)` : "NULL",
-        isAuthenticated: !!token,
-        hasOnboardingSession: !!onboardingToken,
-      });
+      let currentUser = null;
+
+      if (token) {
+        try {
+          const response = await authAPI.getMe();
+          const payload = response.data?.data ?? response.data;
+          currentUser = payload?.user ?? payload ?? null;
+        } catch (error) {
+          await tokenManager.removeTokens();
+          return {
+            token: null,
+            onboardingToken: null,
+            user: null,
+            isAuthenticated: false,
+            hasOnboardingSession: false,
+          };
+        }
+      }
 
       return {
         token,
         onboardingToken,
+        user: currentUser,
         isAuthenticated: Boolean(token),
         hasOnboardingSession: Boolean(onboardingToken),
       };
@@ -291,9 +301,14 @@ const authSlice = createSlice({
       })
 
       // ---------------- Restore Auth ----------------
+      .addCase(restoreAuth.pending, (state) => {
+        state.authLoading = true;
+        state.error = null;
+      })
       .addCase(restoreAuth.fulfilled, (state, action) => {
         state.token = action.payload.token;
         state.onboardingToken = action.payload.onboardingToken;
+        state.user = action.payload.user || null;
 
         state.isAuthenticated = action.payload.isAuthenticated;
         state.hasOnboardingSession = action.payload.hasOnboardingSession;

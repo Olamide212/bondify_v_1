@@ -35,8 +35,8 @@ const DiscoverProfilesScreen = () => {
       setTimeout(() => {
         const filtered = discoverProfiles.filter(
           (profile) =>
-            profile.lookingFor.toLowerCase() ===
-            String(preference).toLowerCase()
+            String(profile.lookingFor || "").toLowerCase() ===
+            String(preference || "").toLowerCase()
         );
         setFilteredProfiles(filtered);
         setIsLoading(false);

@@ -1,9 +1,10 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { restoreAuth } from "../slices/authSlice";
 
 export const useAuthRestore = () => {
   const dispatch = useDispatch();
+  const hasRequestedRestore = useRef(false);
 
   const {
     authRestored,
@@ -15,10 +16,11 @@ export const useAuthRestore = () => {
   } = useSelector((state) => state.auth);
 
   useEffect(() => {
-    if (!authRestored && !authLoading) {
+    if (!authRestored && !hasRequestedRestore.current) {
+      hasRequestedRestore.current = true;
       dispatch(restoreAuth());
     }
-  }, [authRestored, authLoading, dispatch]);
+  }, [authRestored, dispatch]);
 
   return {
     restored: authRestored,

@@ -34,8 +34,39 @@ const getLookups = async (type) => {
   }
 };
 
+const getDiscoveryProfiles = async (params = {}) => {
+  try {
+    const response = await apiClient.get("/discover", { params });
+    const payload = response.data?.data ?? response.data;
+    return payload?.profiles ?? [];
+  } catch (err) {
+    const message =
+      err.response?.data?.message ||
+      err.message ||
+      "Failed to fetch discovery profiles";
+    throw new Error(message);
+  }
+};
+
+const performSwipeAction = async ({ likedUserId, type }) => {
+  try {
+    const response = await apiClient.post("/discover/action", {
+      likedUserId,
+      type,
+    });
+    const payload = response.data?.data ?? response.data;
+    return payload ?? {};
+  } catch (err) {
+    const message =
+      err.response?.data?.message || err.message || "Failed to record swipe";
+    throw new Error(message);
+  }
+};
+
 export const profileService = {
   updateProfile,
   completeOnboarding,
   getLookups,
+  getDiscoveryProfiles,
+  performSwipeAction,
 };

@@ -1,15 +1,16 @@
 // components/ChatScreen.js
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   View,
   ScrollView,
   Text,
-  Image,
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
 import { initialMessages } from "../../data/mockData";
+import { useSelector } from "react-redux";
+import { messageService } from "../../services/messageService";
 import Header from "../headers/ChatHeader";
 import MessageBubble from "./MessageBubble";
 import InputToolbar from "./InputToolbar";
@@ -18,9 +19,40 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 
 const ChatScreen = ({ matchedUser, onBack }) => {
-  const [messages, setMessages] = useState(initialMessages);
+  const [messages, setMessages] = useState([]);
   const [isTyping, setIsTyping] = useState(false);
   const scrollViewRef = useRef(null);
+  const currentUserId = useSelector(
+    (state) => state.auth.user?.id || state.auth.user?._id
+  );
+
+  const normalizeMessages = useCallback(
+    (messagesData = []) =>
+      messagesData.map((message) => {
+        const senderId = message.sender?._id;
+        const isSender =
+          senderId && currentUserId
+            ? String(senderId) === String(currentUserId)
+            : false;
+        const status = message.read
+          ? "read"
+          : message.delivered
+            ? "delivered"
+            : "sent";
+        const type = message.type || (message.mediaUrl ? "image" : "text");
+
+        return {
+          id: message._id ?? message.id,
+          text: message.content ?? "",
+          imageUrl: message.mediaUrl ?? message.imageUrl,
+          timestamp: message.createdAt ? new Date(message.createdAt) : new Date(),
+          sender: isSender ? "me" : "them",
+          status,
+          type,
+        };
+      }),
+    [currentUserId]
+  );
 
   useEffect(() => {
     const typingTimer = setTimeout(() => {
@@ -30,13 +62,42 @@ const ChatScreen = ({ matchedUser, onBack }) => {
   }, [messages]);
 
   useEffect(() => {
+    let isMounted = true;
+
+    const loadMessages = async () => {
+      if (!matchedUser?.matchId) {
+        setMessages(initialMessages);
+        return;
+      }
+      try {
+        const responseMessages = await messageService.getMessages(
+          matchedUser.matchId
+        );
+        if (isMounted) {
+          setMessages(normalizeMessages(responseMessages));
+        }
+      } catch (_error) {
+        if (isMounted) {
+          setMessages(initialMessages);
+        }
+      }
+    };
+
+    loadMessages();
+    return () => {
+      isMounted = false;
+    };
+  }, [matchedUser?.matchId, normalizeMessages]);
+
+  useEffect(() => {
     scrollViewRef.current?.scrollToEnd({ animated: true });
   }, [messages]);
 
-  const sendMessage = (text, imageUrl, voiceNote) => {
+  const sendMessage = async (text, imageUrl, voiceNote) => {
     if (!text && !imageUrl && !voiceNote) return;
+    const tempId = `temp-${Date.now()}`;
     const newMessage = {
-      id: Date.now().toString(),
+      id: tempId,
       text,
       imageUrl,
       voiceNote,
@@ -48,22 +109,46 @@ const ChatScreen = ({ matchedUser, onBack }) => {
     };
     setMessages((prev) => [...prev, newMessage]);
 
-    // Simulate message delivery and read status
-    setTimeout(() => {
-      setMessages((prev) =>
-        prev.map((msg) =>
-          msg.id === newMessage.id ? { ...msg, status: "delivered" } : msg
-        )
-      );
-    }, 1000);
+    if (!matchedUser?.matchId) {
+      setTimeout(() => {
+        setMessages((prev) =>
+          prev.map((msg) =>
+            msg.id === tempId ? { ...msg, status: "delivered" } : msg
+          )
+        );
+      }, 1000);
 
-    setTimeout(() => {
-      setMessages((prev) =>
-        prev.map((msg) =>
-          msg.id === newMessage.id ? { ...msg, status: "read" } : msg
-        )
+      setTimeout(() => {
+        setMessages((prev) =>
+          prev.map((msg) =>
+            msg.id === tempId ? { ...msg, status: "read" } : msg
+          )
+        );
+      }, 3000);
+      return;
+    }
+
+    try {
+      const payload = {
+        content: text,
+        type: imageUrl ? "image" : "text",
+        mediaUrl: imageUrl,
+      };
+      const savedMessage = await messageService.sendMessage(
+        matchedUser.matchId,
+        payload
       );
-    }, 3000);
+      const normalizedMessage = normalizeMessages([savedMessage])[0];
+      setMessages((prev) =>
+        prev.map((msg) => (msg.id === tempId ? normalizedMessage : msg))
+      );
+    } catch (error) {
+      setMessages((prev) => prev.filter((msg) => msg.id !== tempId));
+      console.error("Failed to send message:", {
+        matchId: matchedUser?.matchId,
+        error,
+      });
+    }
   };
 
   if (!matchedUser) return null;
