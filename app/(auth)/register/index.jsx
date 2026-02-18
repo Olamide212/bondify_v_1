@@ -42,7 +42,10 @@ const Register = () => {
       formData;
 
     if (!firstName || !lastName || !phone || !email || !password) {
-      showToast({ message: "All fields are required", variant: "error" });
+      showToast({
+        message: "All fields including password are required",
+        variant: "error",
+      });
       return;
     }
 
