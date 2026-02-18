@@ -51,7 +51,7 @@ const handleSubmit = async () => {
     const response = await dispatch(
       verifyOtp({
         email: pendingEmail,
-        code,
+        otp: code,
       })
     ).unwrap();
 

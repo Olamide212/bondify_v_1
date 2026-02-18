@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import * as SecureStore from "expo-secure-store";
 import { profileService } from "../services/profileService";
+import { tokenManager } from "../utils/tokenManager";
 
 export const useProfileSetup = ({ isOnboarding = true } = {}) => {
   // ❌ agreement REMOVED

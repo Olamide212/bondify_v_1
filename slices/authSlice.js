@@ -9,22 +9,36 @@ export const signup = createAsyncThunk(
   "auth/signup",
   async (userData, { rejectWithValue }) => {
     try {
-      const response = await authAPI.signup(userData);
+      const name = [userData.firstName, userData.lastName]
+        .filter(Boolean)
+        .join(" ")
+        .trim();
+
+      const response = await authAPI.signup({
+        email: userData.email,
+        password: userData.password,
+        phoneNumber: userData.phoneNumber || userData.phone,
+        countryCode: userData.countryCode,
+        ...(name ? { name } : {}),
+      });
+
+      const data = response.data?.data || {};
 
       console.log("📋 Signup response:", {
-        hasOnboardingToken: !!response.data.onboardingToken,
-        onboardingTokenLength: response.data.onboardingToken?.length,
+        hasOnboardingToken: !!data.onboardingToken,
+        onboardingTokenLength: data.onboardingToken?.length,
       });
 
       // FIXED: Only pass onboardingToken here
       await tokenManager.setToken({
-        onboardingToken: response.data.onboardingToken,
+        onboardingToken: data.onboardingToken,
       });
 
       return {
-        ...response.data,
-        email: userData.email || null,
-        phoneNumber: userData.phoneNumber || null,
+        ...data,
+        message: response.data?.message,
+        email: userData.email || data.email || null,
+        phoneNumber: userData.phoneNumber || userData.phone || null,
         countryCode: userData.countryCode || null,
       };
     } catch (error) {
@@ -40,26 +54,30 @@ export const verifyOtp = createAsyncThunk(
   "auth/verifyOtp",
   async (otpData, { rejectWithValue }) => {
     try {
-      const response = await authAPI.verifyOtp(otpData);
+      const response = await authAPI.verifyOtp({
+        email: otpData.email,
+        otp: otpData.otp || otpData.code,
+      });
+      const data = response.data?.data || {};
       
       console.log("📋 Verify OTP response:", {
-        hasToken: !!response.data.token,
-        hasOnboardingToken: !!response.data.onboardingToken,
-        tokenLength: response.data.token?.length,
-        onboardingTokenLength: response.data.onboardingToken?.length,
+        hasToken: !!data.token,
+        hasOnboardingToken: !!data.onboardingToken,
+        tokenLength: data.token?.length,
+        onboardingTokenLength: data.onboardingToken?.length,
         fullResponse: response.data,
       });
 
       // FIXED: Pass BOTH tokens properly
       await tokenManager.setToken({
-        token: response.data.token, // Main auth token
-        onboardingToken: response.data.onboardingToken, // Onboarding flow token
+        token: data.token, // Main auth token
+        onboardingToken: data.onboardingToken, // Onboarding flow token
       });
 
       // Debug after setting
       await tokenManager.debugAllStoredValues();
 
-      return response.data;
+      return { ...data, message: response.data?.message };
     } catch (error) {
       console.error("❌ Verify OTP error:", error);
       return rejectWithValue(error.response?.data?.message || error.message);
@@ -72,20 +90,44 @@ export const resendOtp = createAsyncThunk(
   "auth/resendOtp",
   async (otpData, { rejectWithValue }) => {
     try {
-      const response = await authAPI.resendOtp(otpData);
+      const response = await authAPI.resendOtp({ email: otpData.email });
 
       console.log("📋 Resend OTP response:", {
-        hasOnboardingToken: !!response.data.onboardingToken,
-      });
-
-      // FIXED: Only pass onboardingToken
-      await tokenManager.setToken({
-        onboardingToken: response.data.onboardingToken,
+        message: response.data?.message,
       });
 
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
+    }
+  }
+);
+
+// Login
+export const login = createAsyncThunk(
+  "auth/login",
+  async (credentials, { rejectWithValue }) => {
+    try {
+      const response = await authAPI.login(credentials);
+      const data = response.data?.data || {};
+
+      await tokenManager.setToken({
+        token: data.token,
+        onboardingToken: data.onboardingToken,
+      });
+
+      return { ...data, message: response.data?.message };
+    } catch (error) {
+      const payload = error.response?.data;
+      if (payload?.requiresVerification) {
+        return rejectWithValue({
+          message: payload.message,
+          requiresVerification: true,
+          email: credentials?.email,
+        });
+      }
+
+      return rejectWithValue(payload?.message || error.message);
     }
   }
 );
@@ -231,16 +273,21 @@ const authSlice = createSlice({
         state.error = null;
       })
       .addCase(login.fulfilled, (state, action) => {
+        state.loading = false;
         state.token = action.payload.token;
         state.user = action.payload.user;
+        state.onboardingToken = action.payload.onboardingToken || null;
 
         state.isAuthenticated = true;
-        state.hasOnboardingSession = false;
+        state.hasOnboardingSession = Boolean(action.payload.onboardingToken);
       })
 
       .addCase(login.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload;
+        if (action.payload?.requiresVerification) {
+          state.pendingEmail = action.payload.email || null;
+        }
+        state.error = action.payload?.message || action.payload;
       })
 
       // ---------------- Restore Auth ----------------
