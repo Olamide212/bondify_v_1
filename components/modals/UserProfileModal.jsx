@@ -50,13 +50,10 @@ const UserProfileModal = ({ visible, onClose, profileId }) => {
 
   // In UserProfileModal.js, add this useEffect
   useEffect(() => {
-    console.log("Profile ID:", profileId);
-    console.log("Profiles:", profiles);
     if (profileId && profiles) {
       const profile = profiles.find(
         (item) => String(item.id) === String(profileId)
       );
-      console.log("Found profile:", profile);
       setCurrentProfile(profile);
     }
   }, [profileId, profiles]);

@@ -121,7 +121,7 @@ export const ProfileProvider = ({ children }) => {
         type,
       });
     } catch (error) {
-      console.error("Swipe action failed:", error);
+      console.error("Swipe action failed:", { profileId, type, error });
       return null;
     }
   };

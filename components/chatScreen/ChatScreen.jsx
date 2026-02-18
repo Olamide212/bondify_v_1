@@ -144,7 +144,10 @@ const ChatScreen = ({ matchedUser, onBack }) => {
       );
     } catch (error) {
       setMessages((prev) => prev.filter((msg) => msg.id !== tempId));
-      console.error("Failed to send message:", error);
+      console.error("Failed to send message:", {
+        matchId: matchedUser?.matchId,
+        error,
+      });
     }
   };
 

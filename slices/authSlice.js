@@ -137,8 +137,6 @@ export const restoreAuth = createAsyncThunk(
   "auth/restoreAuth",
   async (_, { rejectWithValue }) => {
     try {
-      console.log("🔄 restoreAuth: Starting token restoration...");
-      
       // Debug all stored values first
       await tokenManager.debugAllStoredValues();
       
@@ -162,13 +160,6 @@ export const restoreAuth = createAsyncThunk(
           };
         }
       }
-
-      console.log("🔄 restoreAuth results:", {
-        token: token ? `Found (${token.length} chars)` : "NULL",
-        onboardingToken: onboardingToken ? `Found (${onboardingToken.length} chars)` : "NULL",
-        isAuthenticated: !!token,
-        hasOnboardingSession: !!onboardingToken,
-      });
 
       return {
         token,
