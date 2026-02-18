@@ -25,6 +25,7 @@ const Register = () => {
     firstName: "",
     lastName: "",
     email: "",
+    password: "",
   });
 
   const dispatch = useDispatch();
@@ -37,9 +38,10 @@ const Register = () => {
   };
 
   const handleSignup = async () => {
-    const { firstName, lastName, phone, countryCode, email } = formData;
+    const { firstName, lastName, phone, countryCode, email, password } =
+      formData;
 
-    if (!firstName || !lastName || !phone || !email) {
+    if (!firstName || !lastName || !phone || !email || !password) {
       showToast({ message: "All fields are required", variant: "error" });
       return;
     }
@@ -59,8 +61,9 @@ const Register = () => {
           firstName,
           lastName,
           email,
-          phone: `${phone}`, 
-          countryCode: countryCode
+          phoneNumber: `${phone}`,
+          countryCode: countryCode,
+          password,
         })
       ).unwrap();
 
@@ -123,6 +126,13 @@ const Register = () => {
                 autoCapitalize="none"
                 value={formData.email}
                 onChangeText={(text) => handleChange("email", text)}
+              />
+
+              <TextInput
+                placeholder="Create a password"
+                value={formData.password}
+                onChangeText={(text) => handleChange("password", text)}
+                secureTextEntry
               />
             </ScrollView>
 

@@ -3,7 +3,11 @@ import { tokenManager } from "./tokenManager";
 
 
 // Base URL for your API
-const BASE_URL = process.env.EXPO_PUBLIC_DEV_API_BASE_URL; 
+const BASE_URL =
+  (__DEV__
+    ? process.env.EXPO_PUBLIC_DEV_API_BASE_URL
+    : process.env.EXPO_PUBLIC_PROD_API_BASE_URL) ||
+  process.env.EXPO_PUBLIC_DEV_API_BASE_URL;
 
 // Create axios instance
 const apiClient = axios.create({
@@ -38,7 +42,7 @@ apiClient.interceptors.response.use(
   (error) => {
     // Handle token expiration (401)
     if (error.response?.status === 401) {
-      tokenManager.removeToken();
+      tokenManager.removeTokens();
       // You might want to navigate to login screen here
       // navigationRef.navigate('Login');
     }

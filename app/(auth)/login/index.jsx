@@ -24,6 +24,7 @@ const EmailLogin = () => {
 
   const [formData, setFormData] = useState({
     email: "",
+    password: "",
   });
 
   const handleChange = (field, value) => {
@@ -34,19 +35,40 @@ const EmailLogin = () => {
   };
 
   const handleLogin = async () => {
-    if (!formData.email) {
-      showToast({ message: "Email is required", variant: "error" });
+    if (!formData.email || !formData.password) {
+      showToast({
+        message: "Email and password are required",
+        variant: "error",
+      });
       return;
     }
 
     try {
-      const result = await dispatch(login({ email: formData.email })).unwrap();
+      const result = await dispatch(
+        login({ email: formData.email, password: formData.password })
+      ).unwrap();
 
-      showToast({ message: result.message || "OTP sent", variant: "success" });
+      showToast({
+        message: result.message || "Login successful",
+        variant: "success",
+      });
 
-      // Navigate to OTP verification screen
-      router.push("/auth/validate-otp");
+      if (result.onboardingToken) {
+        router.replace("/(onboarding)/agreement");
+        return;
+      }
+
+      router.replace("/root-tabs");
     } catch (err) {
+      if (err?.requiresVerification) {
+        showToast({
+          message: err.message || "Please verify your account",
+          variant: "info",
+        });
+        router.push("/validation");
+        return;
+      }
+
       showToast({ message: err || "Login failed", variant: "error" });
     }
   };
@@ -82,6 +104,13 @@ const EmailLogin = () => {
                 onChangeText={(text) => handleChange("email", text)}
                 keyboardType="email-address"
                 autoCapitalize="none"
+              />
+
+              <TextInput
+                placeholder="Enter your password"
+                value={formData.password}
+                onChangeText={(text) => handleChange("password", text)}
+                secureTextEntry
               />
             </View>
 

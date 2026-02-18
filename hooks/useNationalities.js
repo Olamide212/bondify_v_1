@@ -12,15 +12,16 @@ export const useNationalities = () => {
     setError(null);
 
     try {
-      const res = await apiClient.get("/lookups", {
+      const res = await apiClient.get("/lookup", {
         params: { type: "nationality" },
         skipAuth: true, 
       });
 
-      const data = res.data.map((item) => ({
+      const lookups = res.data?.data?.lookups ?? [];
+      const data = lookups.map((item) => ({
         id: item._id, // for backend
-        key: item.key, // e.g. "ng"
-        label: item.labels.en, // UI text
+        key: item.value, // e.g. "ng"
+        label: item.label, // UI text
       }));
 
       setNationalities(data);
