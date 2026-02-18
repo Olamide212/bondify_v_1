@@ -43,7 +43,9 @@ const UserProfile = () => {
   useEffect(() => {
     // Find the profile based on ID
     if (homeProfiles && homeProfiles.length > 0) {
-      const profile = homeProfiles.find((item) => item.id === Number(id));
+      const profile = homeProfiles.find(
+        (item) => String(item.id) === String(id)
+      );
       setCurrentProfile(profile);
     }
   }, [id, homeProfiles]);

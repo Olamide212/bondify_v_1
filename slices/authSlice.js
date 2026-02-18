@@ -144,7 +144,25 @@ export const restoreAuth = createAsyncThunk(
       
       const token = await tokenManager.getToken();
       const onboardingToken = await tokenManager.getOnboardingToken();
-      
+      let user = null;
+
+      if (token) {
+        try {
+          const response = await authAPI.getMe();
+          const payload = response.data?.data ?? response.data;
+          user = payload?.user ?? payload ?? null;
+        } catch (error) {
+          await tokenManager.removeTokens();
+          return {
+            token: null,
+            onboardingToken: null,
+            user: null,
+            isAuthenticated: false,
+            hasOnboardingSession: false,
+          };
+        }
+      }
+
       console.log("🔄 restoreAuth results:", {
         token: token ? `Found (${token.length} chars)` : "NULL",
         onboardingToken: onboardingToken ? `Found (${onboardingToken.length} chars)` : "NULL",
@@ -155,6 +173,7 @@ export const restoreAuth = createAsyncThunk(
       return {
         token,
         onboardingToken,
+        user,
         isAuthenticated: Boolean(token),
         hasOnboardingSession: Boolean(onboardingToken),
       };
@@ -179,7 +198,7 @@ const authSlice = createSlice({
     pendingCountryCode: null,
 
     loading: false,
-    authLoading: true,
+    authLoading: false,
 
     isAuthenticated: false,
     hasOnboardingSession: false,
@@ -291,9 +310,14 @@ const authSlice = createSlice({
       })
 
       // ---------------- Restore Auth ----------------
+      .addCase(restoreAuth.pending, (state) => {
+        state.authLoading = true;
+        state.error = null;
+      })
       .addCase(restoreAuth.fulfilled, (state, action) => {
         state.token = action.payload.token;
         state.onboardingToken = action.payload.onboardingToken;
+        state.user = action.payload.user || null;
 
         state.isAuthenticated = action.payload.isAuthenticated;
         state.hasOnboardingSession = action.payload.hasOnboardingSession;
