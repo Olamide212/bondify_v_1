@@ -36,15 +36,23 @@ if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
 
-// Rate limiting
-const limiter = rateLimit({
+// Rate limiting for auth routes (stricter)
+const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per windowMs
+  max: 100,
   message: 'Too many requests from this IP, please try again later.',
 });
 
-// Apply rate limiting to auth routes
-app.use('/api/auth', limiter);
+// Rate limiting for API routes (more permissive)
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 500, // Allow 500 requests per 15 minutes for general API
+  message: 'Too many requests from this IP, please try again later.',
+});
+
+// Apply rate limiting
+app.use('/api/auth', authLimiter);
+app.use('/api', apiLimiter);
 
 // Health check endpoint
 app.get('/health', (req, res) => {

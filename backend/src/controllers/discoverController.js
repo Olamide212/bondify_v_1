@@ -24,6 +24,13 @@ const getDiscoveryProfiles = async (req, res, next) => {
       limit = 20,
     } = req.query;
 
+    // Validate and sanitize numeric inputs
+    const sanitizedMinAge = minAge ? parseInt(minAge, 10) : undefined;
+    const sanitizedMaxAge = maxAge ? parseInt(maxAge, 10) : undefined;
+    const sanitizedMaxDistance = maxDistance ? parseInt(maxDistance, 10) : undefined;
+    const sanitizedPage = parseInt(page, 10) || 1;
+    const sanitizedLimit = Math.min(parseInt(limit, 10) || 20, 100); // Max 100
+
     // Get users that current user has already interacted with
     const interactedUsers = await Like.find({ user: userId }).distinct('likedUser');
 
@@ -36,10 +43,10 @@ const getDiscoveryProfiles = async (req, res, next) => {
     };
 
     // Apply filters
-    if (minAge || maxAge) {
+    if (sanitizedMinAge || sanitizedMaxAge) {
       query.age = {};
-      if (minAge) query.age.$gte = parseInt(minAge);
-      if (maxAge) query.age.$lte = parseInt(maxAge);
+      if (sanitizedMinAge) query.age.$gte = sanitizedMinAge;
+      if (sanitizedMaxAge) query.age.$lte = sanitizedMaxAge;
     }
 
     if (gender) {
@@ -68,23 +75,23 @@ const getDiscoveryProfiles = async (req, res, next) => {
     }
 
     // Location-based filtering
-    if (maxDistance && currentUser.location?.coordinates) {
+    if (sanitizedMaxDistance && currentUser.location?.coordinates) {
       query.location = {
         $near: {
           $geometry: {
             type: 'Point',
             coordinates: currentUser.location.coordinates,
           },
-          $maxDistance: parseInt(maxDistance) * 1000, // Convert km to meters
+          $maxDistance: sanitizedMaxDistance * 1000, // Convert km to meters
         },
       };
     }
 
-    const skip = (parseInt(page) - 1) * parseInt(limit);
+    const skip = (sanitizedPage - 1) * sanitizedLimit;
 
     const profiles = await User.find(query)
       .select('-password -otp -otpExpiry')
-      .limit(parseInt(limit))
+      .limit(sanitizedLimit)
       .skip(skip)
       .sort({ lastActive: -1 });
 
@@ -95,10 +102,10 @@ const getDiscoveryProfiles = async (req, res, next) => {
       data: {
         profiles,
         pagination: {
-          page: parseInt(page),
-          limit: parseInt(limit),
+          page: sanitizedPage,
+          limit: sanitizedLimit,
           total,
-          pages: Math.ceil(total / parseInt(limit)),
+          pages: Math.ceil(total / sanitizedLimit),
         },
       },
     });
