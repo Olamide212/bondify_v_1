@@ -808,5 +808,5 @@ curl -X GET "http://localhost:5000/api/discover?minAge=25&maxAge=35" \
 
 ---
 
-**Last Updated:** January 2024  
+**Last Updated:** February 2026  
 **API Version:** 1.0.0

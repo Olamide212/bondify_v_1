@@ -81,8 +81,8 @@ app.listen(PORT, () => {
   console.log(`
   ╔═══════════════════════════════════════╗
   ║   Bondify API Server                  ║
-  ║   Port: ${PORT}                        ║
-  ║   Environment: ${process.env.NODE_ENV || 'development'}            ║
+  ║   Port: ${String(PORT).padEnd(28)}     ║
+  ║   Environment: ${String(process.env.NODE_ENV || 'development').padEnd(15)}    ║
   ║   Status: Running ✓                   ║
   ╚═══════════════════════════════════════╝
   `);
