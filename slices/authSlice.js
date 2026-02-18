@@ -144,13 +144,13 @@ export const restoreAuth = createAsyncThunk(
       
       const token = await tokenManager.getToken();
       const onboardingToken = await tokenManager.getOnboardingToken();
-      let user = null;
+      let currentUser = null;
 
       if (token) {
         try {
           const response = await authAPI.getMe();
           const payload = response.data?.data ?? response.data;
-          user = payload?.user ?? payload ?? null;
+          currentUser = payload?.user ?? payload ?? null;
         } catch (error) {
           await tokenManager.removeTokens();
           return {
@@ -173,7 +173,7 @@ export const restoreAuth = createAsyncThunk(
       return {
         token,
         onboardingToken,
-        user,
+        user: currentUser,
         isAuthenticated: Boolean(token),
         hasOnboardingSession: Boolean(onboardingToken),
       };
@@ -198,7 +198,7 @@ const authSlice = createSlice({
     pendingCountryCode: null,
 
     loading: false,
-    authLoading: false,
+    authLoading: true,
 
     isAuthenticated: false,
     hasOnboardingSession: false,

@@ -8,9 +8,11 @@ const getMessages = async (matchId, options = {}) => {
     const payload = response.data?.data ?? response.data;
     return payload?.messages ?? [];
   } catch (error) {
-    throw (
-      error.response?.data?.message || error.message || "Failed to load messages"
-    );
+    const message =
+      error.response?.data?.message ||
+      error.message ||
+      "Failed to load messages";
+    throw new Error(message);
   }
 };
 
@@ -20,9 +22,11 @@ const sendMessage = async (matchId, payload) => {
     const data = response.data?.data ?? response.data;
     return data?.message ?? data;
   } catch (error) {
-    throw (
-      error.response?.data?.message || error.message || "Failed to send message"
-    );
+    const message =
+      error.response?.data?.message ||
+      error.message ||
+      "Failed to send message";
+    throw new Error(message);
   }
 };
 
@@ -31,11 +35,11 @@ const deleteMessage = async (messageId) => {
     const response = await apiClient.delete(`/messages/${messageId}`);
     return response.data;
   } catch (error) {
-    throw (
+    const message =
       error.response?.data?.message ||
       error.message ||
-      "Failed to delete message"
-    );
+      "Failed to delete message";
+    throw new Error(message);
   }
 };
 

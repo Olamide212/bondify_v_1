@@ -40,11 +40,11 @@ const getDiscoveryProfiles = async (params = {}) => {
     const payload = response.data?.data ?? response.data;
     return payload?.profiles ?? [];
   } catch (err) {
-    throw (
+    const message =
       err.response?.data?.message ||
       err.message ||
-      "Failed to fetch discovery profiles"
-    );
+      "Failed to fetch discovery profiles";
+    throw new Error(message);
   }
 };
 
@@ -57,9 +57,9 @@ const performSwipeAction = async ({ likedUserId, type }) => {
     const payload = response.data?.data ?? response.data;
     return payload ?? {};
   } catch (err) {
-    throw (
-      err.response?.data?.message || err.message || "Failed to record swipe"
-    );
+    const message =
+      err.response?.data?.message || err.message || "Failed to record swipe";
+    throw new Error(message);
   }
 };
 

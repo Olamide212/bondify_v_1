@@ -114,8 +114,12 @@ export const ProfileProvider = ({ children }) => {
   };
 
   const recordSwipeAction = async (profileId, type) => {
+    if (!profileId) return null;
     try {
-      return await profileService.performSwipeAction({ likedUserId: profileId, type });
+      return await profileService.performSwipeAction({
+        likedUserId: profileId,
+        type,
+      });
     } catch (error) {
       console.error("Swipe action failed:", error);
       return null;
@@ -123,6 +127,7 @@ export const ProfileProvider = ({ children }) => {
   };
 
   const updateStatsForSwipe = (type, actionResponse) => {
+    if (!actionResponse) return;
     if (type === "like" || type === "superlike") {
       setLikes((prev) => prev + 1);
       if (actionResponse?.isMatch) {
@@ -134,9 +139,7 @@ export const ProfileProvider = ({ children }) => {
   const handleHomeSwipe = async (direction, profile) => {
     const profileId = profile?.id;
     const type = direction === "right" ? "like" : "pass";
-    const actionResponse = profileId
-      ? await recordSwipeAction(profileId, type)
-      : null;
+    const actionResponse = await recordSwipeAction(profileId, type);
 
     updateStatsForSwipe(type, actionResponse);
     addHomeSwipedProfile(profileId);
@@ -145,9 +148,7 @@ export const ProfileProvider = ({ children }) => {
 
   const handleHomeSuperLike = async (profile) => {
     const profileId = profile?.id;
-    const actionResponse = profileId
-      ? await recordSwipeAction(profileId, "superlike")
-      : null;
+    const actionResponse = await recordSwipeAction(profileId, "superlike");
 
     updateStatsForSwipe("superlike", actionResponse);
     addHomeSwipedProfile(profileId);
@@ -163,9 +164,7 @@ export const ProfileProvider = ({ children }) => {
   const handleDiscoverSwipe = async (direction, profile) => {
     const profileId = profile?.id;
     const type = direction === "right" ? "like" : "pass";
-    const actionResponse = profileId
-      ? await recordSwipeAction(profileId, type)
-      : null;
+    const actionResponse = await recordSwipeAction(profileId, type);
 
     updateStatsForSwipe(type, actionResponse);
     addDiscoverSwipedProfile(profileId);
@@ -174,9 +173,7 @@ export const ProfileProvider = ({ children }) => {
 
   const handleDiscoverSuperLike = async (profile) => {
     const profileId = profile?.id;
-    const actionResponse = profileId
-      ? await recordSwipeAction(profileId, "superlike")
-      : null;
+    const actionResponse = await recordSwipeAction(profileId, "superlike");
 
     updateStatsForSwipe("superlike", actionResponse);
     addDiscoverSwipedProfile(profileId);

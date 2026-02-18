@@ -29,7 +29,11 @@ const ChatScreen = ({ matchedUser, onBack }) => {
   const normalizeMessages = useCallback(
     (messagesData = []) =>
       messagesData.map((message) => {
-        const isSender = String(message.sender?._id) === String(currentUserId);
+        const senderId = message.sender?._id;
+        const isSender =
+          senderId && currentUserId
+            ? String(senderId) === String(currentUserId)
+            : false;
         const status = message.read
           ? "read"
           : message.delivered
