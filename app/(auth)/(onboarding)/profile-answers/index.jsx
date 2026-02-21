@@ -55,8 +55,8 @@ const ProfileAnswers = () => {
                 <AccordionItem question="What's a fun fact about you?">
                   <TextInput placeholder="Type your answer..." value={answers["What's a fun fact about you?"] || ""} onChangeText={(text) => updateAnswer("What's a fun fact about you?", text)} />
                 </AccordionItem>
-                <AccordionItem question="My biggest obssesion in life is...">
-                  <TextInput placeholder="Type your answer..." value={answers["My biggest obssesion in life is..."] || ""} onChangeText={(text) => updateAnswer("My biggest obssesion in life is...", text)} />
+                <AccordionItem question="My biggest obsession in life is...">
+                  <TextInput placeholder="Type your answer..." value={answers["My biggest obsession in life is..."] || ""} onChangeText={(text) => updateAnswer("My biggest obsession in life is...", text)} />
                 </AccordionItem>
                 <AccordionItem question="One thing i am looking for in a partner..">
                   <TextInput placeholder="Type your answer..." value={answers["One thing i am looking for in a partner.."] || ""} onChangeText={(text) => updateAnswer("One thing i am looking for in a partner..", text)} />

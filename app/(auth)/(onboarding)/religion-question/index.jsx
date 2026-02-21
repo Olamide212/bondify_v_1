@@ -43,7 +43,7 @@ const ReligionQuestions = () => {
                   onChange={setReligionImportance}
                   options={[
                     { label: "Is very important", value: "very-important" },
-                    { label: "Is quiteimportant", value: "quite-important" },
+                    { label: "Is quite important", value: "quite-important" },
                     {
                       label: "It doesn't matter to me at all",
                       value: "not-matter",
