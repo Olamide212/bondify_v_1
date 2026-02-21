@@ -60,7 +60,7 @@ export default function DirectMessageBox({ profile, onSendMessage }) {
           className="w-10 h-10 flex-row items-center justify-center rounded-full bg-secondary "
           onPress={() => setShowSuggestions(true)}
         >
-          <Sparkles size={22} color="#371f7d" />
+          <Sparkles size={22} color="#5A56D0" />
         </TouchableOpacity>
         <TouchableOpacity
           className="w-[80%]  flex-row justify-center text-center"

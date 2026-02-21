@@ -14,12 +14,14 @@ import { useRouter } from "expo-router";
 import RadioSelect from "../../../../components/inputs/RadioSelect";
 import Info from "../../../../components/ui/Info";
 import Button from "../../../../components/ui/Button"
+import { useProfileSetup } from "../../../../hooks/useProfileSetup";
 
 
 const Drink = () => {
-  const [gender, setGender] = useState("");
+  const [drinking, setDrinking] = useState("");
 
   const router = useRouter();
+  const { updateProfileStep } = useProfileSetup({ isOnboarding: true });
 
   return (
     <SafeAreaView className="flex-1 bg-white">
@@ -37,8 +39,8 @@ const Drink = () => {
 
               <View>
                 <RadioSelect
-                  value={gender}
-                  onChange={setGender}
+                  value={drinking}
+                  onChange={setDrinking}
                   options={[
                     { label: "No, i don't drink", value: "no" },
                     { label: "Socially", value: "socially" },
@@ -56,7 +58,10 @@ const Drink = () => {
               <Button
                 title="Continue"
                 variant="gradient"
-                onPress={() => router.push("/about")}
+                onPress={async () => {
+                  await updateProfileStep({ drinking });
+                  router.push("/about");
+                }}
               />
             </View>
           </View>

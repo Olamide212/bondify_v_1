@@ -14,12 +14,14 @@ import { useRouter } from "expo-router";
 import RadioSelect from "../../../../components/inputs/RadioSelect";
 import Info from "../../../../components/ui/Info";
 import Button from "../../../../components/ui/Button"
+import { useProfileSetup } from "../../../../hooks/useProfileSetup";
 
 
 const Preference = () => {
-  const [gender, setGender] = useState("");
+  const [preference, setPreference] = useState("");
 
   const router = useRouter();
+  const { updateProfileStep } = useProfileSetup({ isOnboarding: true });
 
   return (
     <SafeAreaView className="flex-1 bg-white">
@@ -40,8 +42,8 @@ const Preference = () => {
 
               <View>
                 <RadioSelect
-                  value={gender}
-                  onChange={setGender}
+                  value={preference}
+                  onChange={setPreference}
                   options={[
                     {
                       label: "A committed relationship",
@@ -70,7 +72,10 @@ const Preference = () => {
               <Button
                 title="Continue"
                 variant="gradient"
-                onPress={() => router.push("/religion")}
+                onPress={async () => {
+                  await updateProfileStep({ lookingFor: preference });
+                  router.push("/religion");
+                }}
               />
             </View>
           </View>

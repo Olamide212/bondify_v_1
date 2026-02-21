@@ -16,12 +16,14 @@ import RadioSelect from "../../../../components/inputs/RadioSelect";
 import Info from "../../../../components/ui/Info";
 import CheckboxSelect from "../../../../components/inputs/CheckboxSelect";
 import Button from "../../../../components/ui/Button";
+import { useProfileSetup } from "../../../../hooks/useProfileSetup";
 
 
 const Meet = () => {
   const [selectedOptions, setSelectedOptions] = useState([]);
 
   const router = useRouter();
+  const { updateProfileStep } = useProfileSetup({ isOnboarding: true });
 
   return (
     <SafeAreaView className="flex-1 bg-white">
@@ -56,7 +58,10 @@ const Meet = () => {
               <Button
                 title="Continue"
                 variant="gradient"
-                onPress={() => router.push("/marital-status")}
+                onPress={async () => {
+                  await updateProfileStep({ discoveryPreferences: { genderPreference: selectedOptions } });
+                  router.push("/marital-status");
+                }}
               />
             </View>
           </View>

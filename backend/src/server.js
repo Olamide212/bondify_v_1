@@ -15,6 +15,7 @@ const discoverRoutes = require('./routes/discoverRoutes');
 const matchRoutes = require('./routes/matchRoutes');
 const messageRoutes = require('./routes/messageRoutes');
 const lookupRoutes = require('./routes/lookupRoutes');
+const uploadRoutes = require('./routes/uploadRoutes');
 
 // Initialize express app
 const app = express();
@@ -70,6 +71,7 @@ app.use('/api/discover', discoverRoutes);
 app.use('/api/matches', matchRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/lookup', lookupRoutes);
+app.use('/api/upload', uploadRoutes);
 
 // 404 handler
 app.use('*', (req, res) => {

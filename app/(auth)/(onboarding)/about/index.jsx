@@ -14,11 +14,13 @@ import { useRouter } from "expo-router";
 import Info from "../../../../components/ui/Info";
 import { Video, Mic } from "lucide-react-native";
 import Button from "../../../../components/ui/Button"
+import { useProfileSetup } from "../../../../hooks/useProfileSetup";
 
 
 const About = () => {
   const [aboutText, setAboutText] = useState("");
   const router = useRouter();
+  const { updateProfileStep } = useProfileSetup({ isOnboarding: true });
 
 
   // const preDefineText = {
@@ -98,8 +100,8 @@ const About = () => {
               <Button
                 title="Continue"
                 variant="gradient"
-                onPress={() => {
-                  // Optional: validate before routing
+                onPress={async () => {
+                  await updateProfileStep({ bio: aboutText });
                   router.push("/interests");
                 }}
               />

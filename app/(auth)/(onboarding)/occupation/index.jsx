@@ -13,6 +13,7 @@ import {
 import NextButton from "../../../../components/ui/NextButton";
 import { useRouter } from "expo-router";
 import Button from "../../../../components/ui/Button";
+import { useProfileSetup } from "../../../../hooks/useProfileSetup";
 
 // Example occupation list
 const occupationOptions = [
@@ -51,6 +52,7 @@ const occupationOptions = [
 const Occupation = () => {
   const router = useRouter();
   const [selectedOccupation, setSelectedOccupation] = useState(null);
+  const { updateProfileStep } = useProfileSetup({ isOnboarding: true });
 
   const handleSelect = (item) => {
     setSelectedOccupation(item);
@@ -106,7 +108,10 @@ const Occupation = () => {
               <Button
                 title="Continue"
                 variant="gradient"
-                onPress={() => router.push("/smoke")}
+                onPress={async () => {
+                  await updateProfileStep({ occupation: selectedOccupation });
+                  router.push("/smoke");
+                }}
                 disabled={!selectedOccupation}
               />
             </View>

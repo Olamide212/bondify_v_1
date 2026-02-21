@@ -14,6 +14,7 @@ import NextButton from "../../../../components/ui/NextButton";
 import { useRouter } from "expo-router";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import Button from "../../../../components/ui/Button";
+import { useProfileSetup } from "../../../../hooks/useProfileSetup";
 
 const INTEREST_CATEGORIES = [
   {
@@ -61,6 +62,7 @@ const INTEREST_CATEGORIES = [
 const Interests = () => {
   const [selectedInterests, setSelectedInterests] = useState([]);
   const router = useRouter();
+  const { updateProfileStep } = useProfileSetup({ isOnboarding: true });
 
   const toggleInterest = (interest) => {
     setSelectedInterests((prev) =>
@@ -128,7 +130,10 @@ const Interests = () => {
                 <Button
                   title="Continue"
                   variant="gradient"
-                  onPress={() => router.push("/upload-photo")}
+                  onPress={async () => {
+                    await updateProfileStep({ interests: selectedInterests });
+                    router.push("/upload-photo");
+                  }}
                   disabled={selectedInterests.length === 0}
                 />
               </View>

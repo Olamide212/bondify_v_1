@@ -22,6 +22,32 @@ const completeOnboarding = async () => {
   }
 };
 
+const uploadPhotos = async (photoUris) => {
+  try {
+    const formData = new FormData();
+    photoUris.forEach((uri, index) => {
+      const filename = uri.split("/").pop();
+      const match = /\.(\w+)$/.exec(filename);
+      const type = match ? `image/${match[1]}` : "image/jpeg";
+      formData.append("photos", {
+        uri,
+        name: filename || `photo_${index}.jpg`,
+        type,
+      });
+    });
+
+    const response = await apiClient.post("/upload/photos", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    const payload = response.data?.data ?? response.data;
+    return payload?.images ?? [];
+  } catch (err) {
+    throw (
+      err.response?.data?.message || err.message || "Photo upload failed"
+    );
+  }
+};
+
 const getLookups = async (type) => {
   try {
     const response = await apiClient.get(`/lookup?type=${type}`);
@@ -66,6 +92,7 @@ const performSwipeAction = async ({ likedUserId, type }) => {
 export const profileService = {
   updateProfile,
   completeOnboarding,
+  uploadPhotos,
   getLookups,
   getDiscoveryProfiles,
   performSwipeAction,

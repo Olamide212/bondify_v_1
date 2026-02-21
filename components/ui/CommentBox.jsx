@@ -89,7 +89,7 @@ export default function ImageSection({
             style={styles.sparkBtn}
             onPress={() => setShowComposer(true)}
           >
-            <Sparkles size={26} color="#371f7d" />
+            <Sparkles size={26} color="#5A56D0" />
           </TouchableOpacity>
         ) : (
           // Animated Composer
@@ -129,7 +129,7 @@ export default function ImageSection({
             {/* Send button */}
             {text.length > 0 && (
               <TouchableOpacity style={styles.sendBtn} onPress={handleSend}>
-                <PaperPlane size={20} color="#371f7d" />
+                <PaperPlane size={20} color="#5A56D0" />
               </TouchableOpacity>
             )}
           </Animated.View>
@@ -170,7 +170,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
   },
   sparkBtn: {
-    backgroundColor: "#d7ff81",
+    backgroundColor: "#FAE83C",
     padding: 12,
     borderRadius: 30,
     shadowColor: "#000",

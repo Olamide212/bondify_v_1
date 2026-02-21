@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   SafeAreaView,
   Text,
@@ -14,8 +14,12 @@ import TextInput from "../../../../components/inputs/TextInput";
 import Feather from "@expo/vector-icons/Feather";
 import { colors } from "../../../../constant/colors";
 import Info from "../../../../components/ui/Info";
+import { useProfileSetup } from "../../../../hooks/useProfileSetup";
 
 const Username = () => {
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const { updateProfileStep } = useProfileSetup({ isOnboarding: true });
 
   const router = useRouter();
 
@@ -40,8 +44,10 @@ const Username = () => {
                   placeholder="First name"
                   className="mt-4"
                   keyboardType="default"
+                  value={firstName}
+                  onChangeText={setFirstName}
                 />
-                <TextInput placeholder="Last name" className="" />
+                <TextInput placeholder="Last name" className="" value={lastName} onChangeText={setLastName} />
               </View>
               <Info title="This would be used to match people" />
             </View>
@@ -49,7 +55,10 @@ const Username = () => {
             <View className="w-full items-end pb-6">
               <NextButton
                 variant="gradient"
-                onPress={() => router.push("/age")}
+                onPress={async () => {
+                  await updateProfileStep({ firstName, lastName });
+                  router.push("/age");
+                }}
               />
             </View>
           </View>
