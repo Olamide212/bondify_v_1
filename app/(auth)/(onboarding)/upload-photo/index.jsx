@@ -7,21 +7,26 @@ import {
   Keyboard,
   TouchableOpacity,
   Image,
+  Alert,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import NextButton from "../../../../components/ui/NextButton";
 import Button from "../../../../components/ui/Button"
+import { useProfileSetup } from "../../../../hooks/useProfileSetup";
+import { profileService } from "../../../../services/profileService";
 
 const UploadPhoto = () => {
   const router = useRouter();
   const [photos, setPhotos] = useState(Array(6).fill(null));
+  const [uploading, setUploading] = useState(false);
+  const { updateProfileStep } = useProfileSetup({ isOnboarding: true });
 
   const pickImage = async (index) => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
-      alert("Permission to access media library is required!");
+      Alert.alert("Permission Required", "Permission to access media library is required!");
       return;
     }
 
@@ -41,6 +46,25 @@ const UploadPhoto = () => {
     const updatedPhotos = [...photos];
     updatedPhotos[index] = null;
     setPhotos(updatedPhotos);
+  };
+
+  const handleContinue = async () => {
+    const selectedPhotos = photos.filter((p) => p !== null);
+    if (selectedPhotos.length === 0) {
+      Alert.alert("Photos Required", "Please add at least one photo to continue.");
+      return;
+    }
+
+    setUploading(true);
+    try {
+      await profileService.uploadPhotos(selectedPhotos);
+      router.push("/profile-answers");
+    } catch (err) {
+      console.error("Photo upload error:", err);
+      Alert.alert("Upload Failed", "Failed to upload photos. Please try again.");
+    } finally {
+      setUploading(false);
+    }
   };
 
   return (
@@ -74,7 +98,7 @@ const UploadPhoto = () => {
                         resizeMode="cover"
                       />
                     ) : (
-                      <Ionicons name="add" size={32} color="#FF0066" />
+                      <Ionicons name="add" size={32} color="#5A56D0" />
                     )}
                   </TouchableOpacity>
 
@@ -121,9 +145,11 @@ const UploadPhoto = () => {
           {/* Next button */}
           <View className="items-end">
             <Button
-              title="Continue"
+              title={uploading ? "Uploading..." : "Continue"}
               variant="gradient"
-              onPress={() => router.push("/location-access")}
+              onPress={handleContinue}
+              loading={uploading}
+              disabled={uploading}
             />
           </View>
         </View>
