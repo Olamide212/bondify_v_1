@@ -5,10 +5,12 @@ import { Picker } from "@react-native-picker/picker";
 import NextButton from "../../../../components/ui/NextButton";
 import { useRouter } from "expo-router";
 import Button from "../../../../components/ui/Button";
+import { useProfileSetup } from "../../../../hooks/useProfileSetup";
 
 const Height = () => {
   const [selectedHeight, setSelectedHeight] = useState(170); // default to 170 cm
   const router = useRouter();
+  const { updateProfileStep } = useProfileSetup({ isOnboarding: true });
 
   const heights = Array.from({ length: 151 }, (_, i) => i + 100); // 100 - 250 cm
 
@@ -33,7 +35,10 @@ const Height = () => {
         </View>
       </View>
       <View className="w-full items-end pb-6">
-        <Button title="Continue" variant="gradient" onPress={() => router.push("/gender")} />
+        <Button title="Continue" variant="gradient" onPress={async () => {
+          await updateProfileStep({ height: selectedHeight });
+          router.push("/gender");
+        }} />
       </View>
     </View>
   );

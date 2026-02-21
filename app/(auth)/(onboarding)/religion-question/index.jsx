@@ -14,12 +14,14 @@ import { useRouter } from "expo-router";
 import RadioSelect from "../../../../components/inputs/RadioSelect";
 import Info from "../../../../components/ui/Info";
 import Button from "../../../../components/ui/Button";
+import { useProfileSetup } from "../../../../hooks/useProfileSetup";
 
 
 const ReligionQuestions = () => {
-  const [gender, setGender] = useState("");
+  const [religionImportance, setReligionImportance] = useState("");
 
   const router = useRouter();
+  const { updateProfileStep } = useProfileSetup({ isOnboarding: true });
 
   return (
     <SafeAreaView className="flex-1 bg-white">
@@ -37,8 +39,8 @@ const ReligionQuestions = () => {
 
               <View>
                 <RadioSelect
-                  value={gender}
-                  onChange={setGender}
+                  value={religionImportance}
+                  onChange={setReligionImportance}
                   options={[
                     { label: "Is very important", value: "very-important" },
                     { label: "Is quiteimportant", value: "quite-important" },
@@ -57,7 +59,10 @@ const ReligionQuestions = () => {
               <Button
                 title="Continue"
                 variant="gradient"
-                onPress={() => router.push("/education")}
+                onPress={async () => {
+                  await updateProfileStep({ religionImportance });
+                  router.push("/education");
+                }}
               />
             </View>
           </View>

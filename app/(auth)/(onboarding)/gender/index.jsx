@@ -15,12 +15,14 @@ import TextInput from "../../../../components/inputs/TextInput";
 import RadioSelect from "../../../../components/inputs/RadioSelect";
 import Info from "../../../../components/ui/Info";
 import Button from "../../../../components/ui/Button";
+import { useProfileSetup } from "../../../../hooks/useProfileSetup";
 
 
 const Gender = () => {
   const [gender, setGender] = useState("");
 
   const router = useRouter();
+  const { updateProfileStep } = useProfileSetup({ isOnboarding: true });
 
   return (
     <SafeAreaView className="flex-1 bg-white">
@@ -57,7 +59,10 @@ const Gender = () => {
               <Button
                 title="Continue"
                 variant="gradient"
-                onPress={() => router.push("/meet")}
+                onPress={async () => {
+                  await updateProfileStep({ gender });
+                  router.push("/meet");
+                }}
               />
             </View>
           </View>

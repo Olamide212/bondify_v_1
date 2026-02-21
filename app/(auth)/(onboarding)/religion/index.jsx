@@ -15,12 +15,14 @@ import RadioSelect from "../../../../components/inputs/RadioSelect";
 import Info from "../../../../components/ui/Info";
 import { ScrollView } from "react-native-gesture-handler";
 import Button from "../../../../components/ui/Button"
+import { useProfileSetup } from "../../../../hooks/useProfileSetup";
 
 
 const Religion = () => {
-  const [gender, setGender] = useState("");
+  const [religion, setReligion] = useState("");
 
   const router = useRouter();
+  const { updateProfileStep } = useProfileSetup({ isOnboarding: true });
 
   return (
     <SafeAreaView className="flex-1 bg-white">
@@ -39,8 +41,8 @@ const Religion = () => {
 
                 <View>
                   <RadioSelect
-                    value={gender}
-                    onChange={setGender}
+                    value={religion}
+                    onChange={setReligion}
                     options={[
                       { label: "Christian", value: "christian" },
                       { label: "Catholic", value: "catholic" },
@@ -68,7 +70,10 @@ const Religion = () => {
               <Button
                 title="Continue"
                 variant="gradient"
-                onPress={() => router.push("/religion-question")}
+                onPress={async () => {
+                  await updateProfileStep({ religion });
+                  router.push("/religion-question");
+                }}
               />
             </View>
           </View>
