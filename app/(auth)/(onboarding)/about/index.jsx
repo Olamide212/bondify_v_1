@@ -20,6 +20,12 @@ const About = () => {
   const [aboutText, setAboutText] = useState("");
   const router = useRouter();
 
+
+  // const preDefineText = {
+  //   "", "", ""
+  // }
+
+
   return (
     <SafeAreaView className="flex-1 bg-white">
       <KeyboardAvoidingView
@@ -51,6 +57,8 @@ const About = () => {
                   fontSize: 16,
                 }}
               />
+
+
 
             {/*  <View className="mt-4 p-4 rounded-2xl ">
                 <Text className="text-center text-xl font-SatoshiMedium">

@@ -4,7 +4,6 @@ import { profileService } from "../services/profileService";
 import { tokenManager } from "../utils/tokenManager";
 
 export const useProfileSetup = ({ isOnboarding = true } = {}) => {
-  // ❌ agreement REMOVED
   const steps = [
     "username",
     "age",
@@ -119,11 +118,11 @@ const updateProfileStep = async (fields) => {
     if (isOnboarding && currentStep === steps[steps.length - 1]) {
       await profileService.completeOnboarding();
 
-      // ✅ Mark onboarding complete
+      // Mark onboarding complete
       await SecureStore.setItemAsync("onboardingComplete", "true");
       await SecureStore.deleteItemAsync("onboardingStep");
 
-      // ✅ REMOVE onboarding token (critical)
+      // REMOVE onboarding token (critical)
       await tokenManager.setToken({
         onboardingToken: null, // 👈 removes it safely
       });
