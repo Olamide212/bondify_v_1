@@ -6,14 +6,18 @@ import { useRouter } from "expo-router";
 import { images } from "../../constant/images"
 import { ArrowLeft } from "lucide-react-native";
 
-const HeaderWithLogo = ({ title }) => {
+const HeaderWithLogo = ({ title, showBackButton = true }) => {
 const router = useRouter()    
 
   return (
     <View className="flex-row items-center justify-between pt-3">
-      <Pressable onPress={() => router.back()}>
-        <ArrowLeft />
-      </Pressable>
+      {showBackButton ? (
+        <Pressable onPress={() => router.back()}>
+          <ArrowLeft />
+        </Pressable>
+      ) : (
+        <View style={{ width: 24 }} />
+      )}
 
       <Image
         source={images.bondiesMainicon}
