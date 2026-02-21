@@ -5,6 +5,7 @@ import Button from "../../../../components/ui/Button";
 import Info from "../../../../components/ui/Info";
 import { months } from "../../../../data/months";
 import { useProfileSetup } from "../../../../hooks/useProfileSetup";
+import { useRouter } from "expo-router";
 
 
 
@@ -19,9 +20,10 @@ const calculateAge = (dob) => {
 };
 
 const Age = () => {
-  const { updateProfileStep, nextStep, profileData = {} } = useProfileSetup({
+  const { updateProfileStep, profileData = {} } = useProfileSetup({
     isOnboarding: true,
   });
+  const router = useRouter();
 
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 100 }, (_, i) => currentYear - i);
@@ -105,7 +107,7 @@ const Age = () => {
       </View>
 
       <View className="w-full items-end pb-6">
-        <Button title="Continue" variant="gradient" onPress={nextStep} />
+        <Button title="Continue" variant="gradient" onPress={() => router.push("/height")} />
       </View>
     </View>
   );
