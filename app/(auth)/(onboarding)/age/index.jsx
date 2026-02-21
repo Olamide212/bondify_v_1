@@ -1,72 +1,70 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, Platform } from "react-native";
 import { Picker } from "@react-native-picker/picker";
-import NextButton from "../../../../components/ui/NextButton";
-import { useRouter } from "expo-router";
-import Info from "../../../../components/ui/Info";
 import Button from "../../../../components/ui/Button";
+import Info from "../../../../components/ui/Info";
+import { useProfileSetup } from "../../../../hooks/useProfileSetup";
+import { months } from "../../../../data/months";
 
-const months = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
-];
 
-const getDaysInMonth = (year, month) => {
-  return new Date(year, month + 1, 0).getDate();
-};
 
+
+const getDaysInMonth = (year, month) => new Date(year, month + 1, 0).getDate();
 const calculateAge = (dob) => {
   const today = new Date();
   let age = today.getFullYear() - dob.getFullYear();
   const m = today.getMonth() - dob.getMonth();
-
-  if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
-    age--;
-  }
+  if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) age--;
   return age;
 };
 
 const Age = () => {
-  const router = useRouter();
+  const { updateProfileStep, nextStep, profileData } = useProfileSetup({
+    isOnboarding: true,
+  });
+
   const currentYear = new Date().getFullYear();
-  const years = Array.from({ length: 100 }, (_, i) => currentYear - i); 
+  const years = Array.from({ length: 100 }, (_, i) => currentYear - i);
 
-  const [selectedDay, setSelectedDay] = useState(4);
-  const [selectedMonth, setSelectedMonth] = useState(4); 
-  const [selectedYear, setSelectedYear] = useState(currentYear - 25);
+  // Initialize state from profileData if exists
+  const [selectedDay, setSelectedDay] = useState(profileData.birthDay || 1);
+  const [selectedMonth, setSelectedMonth] = useState(
+    profileData.birthMonth || 0
+  );
+  const [selectedYear, setSelectedYear] = useState(
+    profileData.birthYear || currentYear - 25
+  );
   const [age, setAge] = useState(null);
-
-  useEffect(() => {
-    const dob = new Date(selectedYear, selectedMonth, selectedDay);
-    const calculatedAge = calculateAge(dob);
-    setAge(calculatedAge);
-  }, [selectedDay, selectedMonth, selectedYear]);
 
   const days = Array.from(
     { length: getDaysInMonth(selectedYear, selectedMonth) },
     (_, i) => i + 1
   );
 
+  // Update age display
+  useEffect(() => {
+    const dob = new Date(selectedYear, selectedMonth, selectedDay);
+    setAge(calculateAge(dob));
+  }, [selectedDay, selectedMonth, selectedYear]);
+
+  // Auto-save to backend whenever selection changes
+  useEffect(() => {
+    updateProfileStep({
+      birthdate: `${selectedYear}-${selectedMonth + 1}-${selectedDay}`,
+    });
+  }, [selectedDay, selectedMonth, selectedYear]);
+
   return (
     <View className="bg-white flex-1">
       <View style={styles.container}>
-        <Text className='text-3xl font-SatoshiBold'>Whats your date of birth?</Text>
-        <Text className='text-lg font-Satoshi'>
+        <Text className="text-3xl font-SatoshiBold">
+          What's your date of birth?
+        </Text>
+        <Text className="text-lg font-Satoshi">
           We’ll use this to calculate your age
         </Text>
 
         <View style={styles.pickerRow}>
-          {/* Day Picker */}
           <Picker
             selectedValue={selectedDay}
             style={styles.picker}
@@ -77,7 +75,6 @@ const Age = () => {
             ))}
           </Picker>
 
-          {/* Month Picker */}
           <Picker
             selectedValue={selectedMonth}
             style={styles.picker}
@@ -88,7 +85,6 @@ const Age = () => {
             ))}
           </Picker>
 
-          {/* Year Picker */}
           <Picker
             selectedValue={selectedYear}
             style={styles.picker}
@@ -100,15 +96,16 @@ const Age = () => {
           </Picker>
         </View>
 
-        {age !== null && <Text style={styles.ageText}>Age: {age} years old</Text>}
-
-        <View className='mt-3'>
+        {age !== null && (
+          <Text style={styles.ageText}>Age: {age} years old</Text>
+        )}
+        <View className="mt-3">
           <Info title="This can't be changed later" />
         </View>
       </View>
 
       <View className="w-full items-end pb-6">
-        <Button title="Continue" variant="gradient" onPress={() => router.push("/height")} />
+        <Button title="Continue" variant="gradient" onPress={nextStep} />
       </View>
     </View>
   );
@@ -121,17 +118,6 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: 30,
     alignItems: "center",
-  },
-  title: {
-    fontSize: 25,
-    fontFamily: "SatoshiBold",
-    color: "#000",
-  },
-  subtitle: {
-    fontSize: 14,
-    color: "#000",
-    fontFamily: "Satoshi",
-    marginBottom: 30,
   },
   pickerRow: {
     flexDirection: "row",

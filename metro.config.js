@@ -24,6 +24,8 @@ config.resolver.assetExts.push("png");
 
 config.transformer = {
   babelTransformerPath: require.resolve("react-native-svg-transformer"),
+     experimentalImportSupport: false,
+       inlineRequires: true,
 };
 config.resolver = {
   assetExts: config.resolver.assetExts.filter((ext) => ext !== "svg"),

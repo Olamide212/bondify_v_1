@@ -62,14 +62,14 @@ const ProfileScreen = () => {
         if (isSingleProfile) {
           // If we're viewing a single profile, find just that one
           filtered = homeProfiles.filter(
-            (profile) => profile.id === parseInt(id)
+            (profile) => String(profile.id) === String(id)
           );
         } else {
           // Otherwise, filter by preference as before
           filtered = homeProfiles.filter(
             (profile) =>
-              profile.lookingFor.toLowerCase() ===
-              categoryPreference.toLowerCase()
+              String(profile.lookingFor || "").toLowerCase() ===
+              String(categoryPreference || "").toLowerCase()
           );
         }
 
