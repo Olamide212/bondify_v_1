@@ -1,6 +1,6 @@
 import * as SecureStore from "expo-secure-store";
 
-const AUTH_TOKEN_KEY = "authToken"; // Changed from "token" for clarity
+const AUTH_TOKEN_KEY = "token"; 
 const ONBOARDING_TOKEN_KEY = "onboardingToken";
 
 export const tokenManager = {
