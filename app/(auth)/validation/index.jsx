@@ -14,6 +14,7 @@ import { verifyOtp, resendOtp } from "../../../slices/authSlice";
 import { useToast } from "../../../context/ToastContext";
 import GlobalOtpInput from "../../../components/inputs/OtpInput";
 import Button from "../../../components/ui/Button";
+import { tokenManager } from "../../../utils/tokenManager";
 
 const Validation = () => {
   const [code, setCode] = useState("");
@@ -34,8 +35,8 @@ const Validation = () => {
 const handleSubmit = async () => {
   setTouched(true);
 
-  if (!code || code.length < 4) {
-    setError("Please enter the 4-digit code");
+  if (!code || code.length < 6) {
+    setError("Please enter the 6-digit code");
     return;
   }
 
@@ -65,7 +66,6 @@ const handleSubmit = async () => {
     await new Promise((resolve) => setTimeout(resolve, 100));
 
     // Verify tokens were stored
-    const tokenManager = require("../../../utils/tokenManager");
     await tokenManager.debugAllStoredValues();
 
     showToast({

@@ -9,17 +9,13 @@ export const signup = createAsyncThunk(
   "auth/signup",
   async (userData, { rejectWithValue }) => {
     try {
-      const name = [userData.firstName, userData.lastName]
-        .filter(Boolean)
-        .join(" ")
-        .trim();
-
       const response = await authAPI.signup({
+        firstName: userData.firstName,
+        lastName: userData.lastName,
         email: userData.email,
         password: userData.password,
         phoneNumber: userData.phoneNumber || userData.phone,
         countryCode: userData.countryCode,
-        ...(name ? { name } : {}),
       });
 
       const data = response.data?.data || {};

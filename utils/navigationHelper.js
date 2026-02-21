@@ -1,3 +1,5 @@
+import * as SecureStore from "expo-secure-store";
+
 // navigationHelper.js - Add debugging
 export const determineNextRoute = async ({
   token,

@@ -26,6 +26,9 @@ export const tokenManager = {
         if (savedToken !== token) {
           console.error("❌ Auth token mismatch after saving!");
         }
+      } else if (token === null) {
+        await SecureStore.deleteItemAsync(AUTH_TOKEN_KEY);
+        console.log("🗑️ Auth token removed from SecureStore");
       }
 
       if (onboardingToken) {
@@ -35,6 +38,9 @@ export const tokenManager = {
         // Verify it was saved
         const savedOnboardingToken = await SecureStore.getItemAsync(ONBOARDING_TOKEN_KEY);
         console.log("🔍 Verification - Saved onboarding token exists:", !!savedOnboardingToken);
+      } else if (onboardingToken === null) {
+        await SecureStore.deleteItemAsync(ONBOARDING_TOKEN_KEY);
+        console.log("🗑️ Onboarding token removed from SecureStore");
       }
     } catch (error) {
       console.error("❌ Error setting tokens:", error);
