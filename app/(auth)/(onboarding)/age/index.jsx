@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, Platform } from "react-native";
 import { Picker } from "@react-native-picker/picker";
+import { useEffect, useState } from "react";
+import { Platform, StyleSheet, Text, View } from "react-native";
 import Button from "../../../../components/ui/Button";
 import Info from "../../../../components/ui/Info";
-import { useProfileSetup } from "../../../../hooks/useProfileSetup";
 import { months } from "../../../../data/months";
+import { useProfileSetup } from "../../../../hooks/useProfileSetup";
 
 
 
@@ -19,7 +19,7 @@ const calculateAge = (dob) => {
 };
 
 const Age = () => {
-  const { updateProfileStep, nextStep, profileData } = useProfileSetup({
+  const { updateProfileStep, nextStep, profileData = {} } = useProfileSetup({
     isOnboarding: true,
   });
 
@@ -58,7 +58,7 @@ const Age = () => {
     <View className="bg-white flex-1">
       <View style={styles.container}>
         <Text className="text-3xl font-SatoshiBold">
-          What's your date of birth?
+          What&apos;s your date of birth?
         </Text>
         <Text className="text-lg font-Satoshi">
           We’ll use this to calculate your age

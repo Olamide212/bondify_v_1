@@ -84,13 +84,15 @@ app.use(errorHandler);
 
 // Start server
 const PORT = process.env.PORT || 5000;
+const HOST = '0.0.0.0'; // Accept connections from any IP
 
-app.listen(PORT, () => {
+app.listen(PORT, HOST, () => {
   console.log(`
   ╔═══════════════════════════════════════╗
   ║   Bondies API Server                  ║
-  ║   Port: ${String(PORT).padEnd(28)}     ║
-  ║   Environment: ${String(process.env.NODE_ENV || 'development').padEnd(15)}    ║
+  ║   Host: ${HOST.padEnd(30)}║
+  ║   Port: ${String(PORT).padEnd(28)}║
+  ║   Environment: ${String(process.env.NODE_ENV || 'development').padEnd(15)}║
   ║   Status: Running ✓                   ║
   ╚═══════════════════════════════════════╝
   `);
