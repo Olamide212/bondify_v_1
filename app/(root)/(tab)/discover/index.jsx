@@ -29,7 +29,7 @@ const DiscoverScreen = () => {
           members: "12.4k members", // Adding ' members' for clarity
           icon: "Cross",
           preference: "Christian searching for Love",
-          color: "#371f7d",
+          color: "#5A56D0",
           lightColor: "#EDE7F6",
         },
         {

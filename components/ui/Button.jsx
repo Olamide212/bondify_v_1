@@ -35,7 +35,7 @@ const Button = ({
         style={[styles.buttonWrapper, disabled && { opacity: 0.5 }]}
       >
         <LinearGradient
-          colors={["#371f7d", "#371f7d"]}
+          colors={["#5A56D0", "#5A56D0"]}
           start={{ x: 1, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={styles.gradientButton}

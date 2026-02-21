@@ -11,7 +11,7 @@ const Onboarding = () => {
 
   return (
     <LinearGradient
-      colors={["#371f7d", "#371f7d"]}
+      colors={["#5A56D0", "#5A56D0"]}
       start={{ x: 0, y: 0 }}
       end={{ x: 0, y: 1 }}
       style={{ flex: 1 }}
