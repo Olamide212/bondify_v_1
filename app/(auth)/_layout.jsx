@@ -9,10 +9,11 @@ export default function AuthLayout() {
 
   // Check if user is on an onboarding screen
   const isOnboarding = segments.includes("(onboarding)");
+  const isLogin = segments.includes("login");
 
   return (
     <SafeAreaView className={"flex-1 bg-white px-4"}>
-      {!isOnboarding && <HeaderWithLogo />}
+      {!isOnboarding && <HeaderWithLogo showBackButton={!isLogin} />}
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="login" />
         <Stack.Screen name="register" />

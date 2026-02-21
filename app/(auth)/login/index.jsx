@@ -7,6 +7,7 @@ import {
   Platform,
   TouchableWithoutFeedback,
   Keyboard,
+  Pressable,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useDispatch, useSelector } from "react-redux";
@@ -121,6 +122,17 @@ const EmailLogin = () => {
                 onPress={handleLogin}
                 loading={loading}
               />
+
+              <View className="flex-row justify-center items-center gap-1 mt-4 w-full">
+                <Text className="text-lg font-GeneralSansMedium">
+                  Don't have an account?
+                </Text>
+                <Pressable onPress={() => router.push("/register")}>
+                  <Text className="text-lg font-GeneralSansMedium text-primary">
+                    Sign up
+                  </Text>
+                </Pressable>
+              </View>
             </View>
           </View>
         </TouchableWithoutFeedback>
