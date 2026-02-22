@@ -1,22 +1,11 @@
 import { Text, View } from "react-native";
+import { getProfileAge } from "../../utils/ageHelper";
 
 const BasicInfo = ({ profile }) => {
   const fullName =
     profile?.name || [profile?.firstName, profile?.lastName].filter(Boolean).join(" ") || "Your name";
 
-  const computedAge = profile?.age || (() => {
-    const dob = profile?.dateOfBirth || profile?.birthdate;
-    if (!dob) return null;
-    const date = new Date(dob);
-    if (Number.isNaN(date.getTime())) return null;
-    const today = new Date();
-    let years = today.getFullYear() - date.getFullYear();
-    const monthDiff = today.getMonth() - date.getMonth();
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < date.getDate())) {
-      years -= 1;
-    }
-    return years;
-  })();
+  const computedAge = getProfileAge(profile);
 
   return (
     <View className="px-6 py-4 bg-white mx-4 rounded-2xl mt-4">

@@ -3,23 +3,12 @@ import { Image, StyleSheet, Text, View } from "react-native";
 import Svg, { Circle } from "react-native-svg";
 import { colors } from "../../constant/colors";
 import VerifiedIcon from "../ui/VerifiedIcon";
+import { getProfileAge } from "../../utils/ageHelper";
 
 const ProfileSection = ({ profile }) => {
   const completion = profile?.completionPercentage || 0;
   const profileImage = profile?.images?.[0]?.url || profile?.images?.[0] || profile?.profilePhoto || "";
-
-  // Compute age from birthdate/dateOfBirth if age field is not directly available
-  const displayAge = profile?.age || (() => {
-    const dob = profile?.dateOfBirth || profile?.birthdate;
-    if (!dob) return null;
-    const date = new Date(dob);
-    if (Number.isNaN(date.getTime())) return null;
-    const today = new Date();
-    let years = today.getFullYear() - date.getFullYear();
-    const m = today.getMonth() - date.getMonth();
-    if (m < 0 || (m === 0 && today.getDate() < date.getDate())) years--;
-    return years;
-  })();
+  const displayAge = getProfileAge(profile);
   
   const router = useRouter()
 
