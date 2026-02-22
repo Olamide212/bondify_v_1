@@ -37,7 +37,7 @@ const loginValidation = [
 
 const verifyOtpValidation = [
   body('email').isEmail().normalizeEmail().withMessage('Valid email is required'),
-  body('otp').isLength({ min: 6, max: 6 }).withMessage('OTP must be 6 digits'),
+  body('otp').isLength({ min: 4, max: 4 }).withMessage('OTP must be 4 digits'),
   validate,
 ];
 

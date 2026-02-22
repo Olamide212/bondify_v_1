@@ -46,9 +46,9 @@ const EmailLogin = () => {
       return;
     }
 
-    if (!/^\d{10}$/.test(formData.phoneNumber)) {
+    if (!/^\d{8,15}$/.test(formData.phoneNumber)) {
       showToast({
-        message: "Phone number must be exactly 10 digits",
+        message: "Please enter a valid phone number",
         variant: "error",
       });
       return;
