@@ -1,29 +1,45 @@
-import React, { useState } from "react";
-import { ScrollView, View, Text } from "react-native";
-import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-import { ArrowLeft } from "lucide-react-native";
+import * as ImagePicker from "expo-image-picker";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
-import ProfilePhotoGrid from "../../../../components/profileScreen/ProfilePhotoGrid";
+import { ArrowLeft } from "lucide-react-native";
+import React, { useState } from "react";
+import { ActivityIndicator, ScrollView, View } from "react-native";
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import GeneralHeader from "../../../../components/headers/GeneralHeader";
-import BasicInfo from "../../../../components/profileScreen/BasicInfo";
-import { profiles } from "../../../../data/profileData";
-import Verification from "../../../../components/profileScreen/Verification";
-import Location from "../../../../components/profileScreen/Location";
-import Education from "../../../../components/profileScreen/WorkAndEducation";
-import Occupation from "../../../../components/profileScreen/Occupation";
-import School from "../../../../components/profileScreen/School";
 import AboutMe from "../../../../components/profileScreen/About";
-import ProfileAnswers from "../../../../components/profileScreen/ProfileAnswers";
+import BasicInfo from "../../../../components/profileScreen/BasicInfo";
+import Location from "../../../../components/profileScreen/Location";
 import MyInfo from "../../../../components/profileScreen/MyInfo";
+import Occupation from "../../../../components/profileScreen/Occupation";
+import ProfileAnswers from "../../../../components/profileScreen/ProfileAnswers";
+import ProfilePhotoGrid from "../../../../components/profileScreen/ProfilePhotoGrid";
+import School from "../../../../components/profileScreen/School";
+import Verification from "../../../../components/profileScreen/Verification";
+import Education from "../../../../components/profileScreen/WorkAndEducation";
 import TextHeadingOne from "../../../../components/ui/TextHeadingOne";
+import { profileService } from "../../../../services/profileService";
 
 export default function ProfileDetails() {
   const [profile, setProfile] = useState({});
+  const [loading, setLoading] = useState(false);
   const params = useLocalSearchParams();
   const router = useRouter();
 
+  const loadProfile = React.useCallback(async () => {
+    try {
+      setLoading(true);
+      const userProfile = await profileService.getMyProfile();
+      setProfile(userProfile || {});
+    } catch (error) {
+      console.error("Failed to load edit profile data:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   useFocusEffect(
     React.useCallback(() => {
+      loadProfile();
+
       if (params.updatedField && params.updatedValue) {
         setProfile((prev) => ({
           ...prev,
@@ -36,25 +52,46 @@ export default function ProfileDetails() {
           updatedValue: undefined,
         });
       }
-    }, [params, router])
+    }, [loadProfile, params, router])
   );
 
-  const handleUpdateField = (field, value) => {
-    setProfile((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
+  const handleUpdateField = async (field, value) => {
+    try {
+      const updatedProfile = await profileService.updateProfile({ [field]: value });
+      setProfile(updatedProfile || {});
+    } catch (error) {
+      console.error(`Failed to update ${field}:`, error);
+    }
   };
 
-  const user = {
-    progress: 0.98,
-    photos: [
-      "https://randomuser.me/api/portraits/women/44.jpg",
-      "https://picsum.photos/id/1011/300/300",
-      "https://picsum.photos/id/1012/300/300",
-      "https://picsum.photos/id/1013/300/300",
-      "https://picsum.photos/id/1014/300/300",
-    ],
+  const handleAddPhoto = async () => {
+    try {
+      const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (permission.status !== "granted") return;
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        quality: 0.7,
+      });
+
+      if (result.canceled) return;
+
+      await profileService.uploadPhotos([result.assets[0].uri]);
+      await loadProfile();
+    } catch (error) {
+      console.error("Failed to add photo:", error);
+    }
+  };
+
+  const handleRemovePhoto = async (imageItem) => {
+    try {
+      const publicId = imageItem?.publicId;
+      if (!publicId) return;
+      await profileService.deletePhoto(publicId);
+      await loadProfile();
+    } catch (error) {
+      console.error("Failed to remove photo:", error);
+    }
   };
 
   return (
@@ -72,46 +109,54 @@ export default function ProfileDetails() {
             backgroundColor: "#f1f1f1",
           }}
         >
-          <ProfilePhotoGrid photos={user.photos} />
+          {loading && (
+            <ActivityIndicator size="large" color="#5A56D0" style={{ marginTop: 20 }} />
+          )}
+
+          <ProfilePhotoGrid
+            photos={profile?.images || []}
+            onAddPhoto={handleAddPhoto}
+            onRemovePhoto={handleRemovePhoto}
+          />
 
           <View>
             <TextHeadingOne name="Verification" />
-            <Verification profile={profiles[0]} />
+            <Verification profile={profile} />
           </View>
 
           <View>
             <TextHeadingOne name="Basic Info" />
-            <BasicInfo profile={profiles[0]} />
+            <BasicInfo profile={profile} />
           </View>
 
           <View>
             <TextHeadingOne name="About Me" />
-            <AboutMe profile={profiles[0]} />
+            <AboutMe profile={profile} />
           </View>
 
           <View>
             <TextHeadingOne name="Location" />
-            <Location profile={profiles[0]} />
+            <Location profile={profile} />
           </View>
 
           <View>
             <TextHeadingOne name="Education" />
-            <Education profile={profiles[0]} />
+            <Education profile={profile} onUpdateField={handleUpdateField} />
           </View>
 
           <View>
             <TextHeadingOne name="School" />
-            <School onUpdateSchool={profile} />
+            <School profile={profile} onUpdateField={handleUpdateField} />
           </View>
 
           <View>
             <TextHeadingOne name="Occupation" />
-            <Occupation profile={profiles[0]} />
+            <Occupation profile={profile} onUpdateField={handleUpdateField} />
           </View>
 
           <View>
             <TextHeadingOne name="More About Me" />
-            <ProfileAnswers profile={profiles[0]} />
+            <ProfileAnswers profile={profile} onUpdateField={handleUpdateField} />
           </View>
 
           <View className="">

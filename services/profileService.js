@@ -1,5 +1,15 @@
 import apiClient from "../utils/axiosInstance"; // your axios instance
 
+const getMyProfile = async () => {
+  try {
+    const response = await apiClient.get("/profile");
+    const payload = response.data?.data ?? response.data;
+    return payload?.user ?? payload;
+  } catch (err) {
+    throw err.response?.data?.message || err.message || "Failed to fetch profile";
+  }
+};
+
 const updateProfile = async (fields) => {
   try {
     const response = await apiClient.patch("/profile", fields);
@@ -48,6 +58,17 @@ const uploadPhotos = async (photoUris) => {
   }
 };
 
+const deletePhoto = async (publicId) => {
+  try {
+    const encodedPublicId = encodeURIComponent(publicId);
+    const response = await apiClient.delete(`/upload/photos/${encodedPublicId}`);
+    const payload = response.data?.data ?? response.data;
+    return payload?.images ?? [];
+  } catch (err) {
+    throw err.response?.data?.message || err.message || "Photo delete failed";
+  }
+};
+
 const getLookups = async (type) => {
   try {
     const response = await apiClient.get(`/lookup?type=${type}`);
@@ -90,9 +111,11 @@ const performSwipeAction = async ({ likedUserId, type }) => {
 };
 
 export const profileService = {
+  getMyProfile,
   updateProfile,
   completeOnboarding,
   uploadPhotos,
+  deletePhoto,
   getLookups,
   getDiscoveryProfiles,
   performSwipeAction,

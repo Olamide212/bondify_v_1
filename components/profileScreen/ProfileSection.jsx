@@ -1,21 +1,12 @@
-import React from "react";
-import { View, Text, Image, StyleSheet, Pressable } from "react-native";
-import Svg, { Circle } from "react-native-svg";
-import {
-  Heart,
-  MapPin,
-  User,
-  Star,
-  Briefcase,
-    BadgeCheck,
-  Pencil,
-} from "lucide-react-native";
 import { useRouter } from "expo-router";
-import VerifiedIcon from "../ui/VerifiedIcon";
+import { Image, StyleSheet, Text, View } from "react-native";
+import Svg, { Circle } from "react-native-svg";
 import { colors } from "../../constant/colors";
+import VerifiedIcon from "../ui/VerifiedIcon";
 
 const ProfileSection = ({ profile }) => {
-  const completion = profile.completion || 80; // fallback to 80% for demo
+  const completion = profile?.completionPercentage || 0;
+  const profileImage = profile?.images?.[0]?.url || profile?.images?.[0] || "";
   
   const router = useRouter()
 
@@ -55,14 +46,14 @@ const ProfileSection = ({ profile }) => {
 
         {/* Profile Image in center */}
         <View style={styles.imageWrapper} className="relative">
-          <Image
-            source={{ uri: profile?.images?.[1] }}
-            style={styles.image}
-            resizeMode="cover"
-          />
+          {profileImage ? (
+            <Image source={{ uri: profileImage }} style={styles.image} resizeMode="cover" />
+          ) : (
+            <View className="w-[90px] h-[90px] rounded-full bg-gray-200" />
+          )}
         </View>
-        {profile.completion && (
-          <View className="w-16 absolute bg-primary px-2 py-1 rounded-full top-0 z-50  right-6 flex-row justify-center items-center ">
+        {completion > 0 && (
+          <View className="w-16 h-16 absolute bg-primary px-2 py-1 rounded-full top-0 z-50  right-6 flex-row justify-center items-center ">
             <Text className="text-white font-SatoshiMedium font-sm">
               {completion}%
             </Text>
@@ -74,9 +65,10 @@ const ProfileSection = ({ profile }) => {
       <View style={styles.infoWrapper}>
         <View className="flex-row items-center">
           <Text style={styles.name}>
-            {profile.name}, {profile.age} {profile.verified}
+            {profile?.firstName || "Your Profile"}
+            {profile?.age ? `, ${profile.age}` : ""}
           </Text>
-          {profile.verified && (
+          {profile?.verified && (
           <VerifiedIcon />
           )}
         </View>

@@ -409,7 +409,7 @@ Expected response:
 
 - [ ] Socket.io for real-time messaging
 - [ ] Email/SMS OTP delivery integration
-- [ ] Image upload with Cloudinary
+- [x] Image upload with AWS S3
 - [ ] Push notifications
 - [ ] Advanced matching algorithm
 - [ ] Community features

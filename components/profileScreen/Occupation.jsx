@@ -1,9 +1,11 @@
-import React, { useState } from "react";
-import { View, Text, TouchableOpacity } from "react-native";
+import { useState } from "react";
+import { Text, TouchableOpacity, View } from "react-native";
 import OccupationModal from "../modals/ProfileOccupationModal"; // adjust path
 
-const Occupation = () => {
-  const [selectedOccupation, setSelectedOccupation] = useState(null);
+const Occupation = ({ profile, onUpdateField }) => {
+  const [selectedOccupation, setSelectedOccupation] = useState(
+    profile?.occupation || null
+  );
   const [showModal, setShowModal] = useState(false);
 
   return (
@@ -34,8 +36,9 @@ const Occupation = () => {
       <OccupationModal
         visible={showModal}
         onClose={() => setShowModal(false)}
-        onSelect={(occupation) => {
+        onSelect={async (occupation) => {
           setSelectedOccupation(occupation);
+          await onUpdateField?.("occupation", occupation);
           setShowModal(false);
         }}
         initialSelected={selectedOccupation}

@@ -11,8 +11,6 @@ import {
 import NextButton from "../../../../components/ui/NextButton";
 import { useRouter } from "expo-router";
 import TextInput from "../../../../components/inputs/TextInput";
-import Feather from "@expo/vector-icons/Feather";
-import { colors } from "../../../../constant/colors";
 import Info from "../../../../components/ui/Info";
 import { useProfileSetup } from "../../../../hooks/useProfileSetup";
 
@@ -37,7 +35,7 @@ const Username = () => {
                 What is your name?
               </Text>
               <Text className="text-app font-Satoshi">
-                Let's Get to Know Each Other
+                Let&apos;s Get to Know Each Other
               </Text>
               <View>
                 <TextInput

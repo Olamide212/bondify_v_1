@@ -1,20 +1,27 @@
-import React, { useState } from "react";
-import {
-  SafeAreaView,
-  Text,
-  View,
-  KeyboardAvoidingView,
-  Platform,
-  TouchableWithoutFeedback,
-  Keyboard,
-} from "react-native";
-import NextButton from "../../../../components/ui/NextButton";
 import { useRouter } from "expo-router";
+import { useState } from "react";
+import {
+    Keyboard,
+    KeyboardAvoidingView,
+    Platform,
+    SafeAreaView,
+    Text,
+    TouchableWithoutFeedback,
+    View,
+} from "react-native";
 
 import RadioSelect from "../../../../components/inputs/RadioSelect";
+import Button from "../../../../components/ui/Button";
 import Info from "../../../../components/ui/Info";
-import Button from "../../../../components/ui/Button"
 import { useProfileSetup } from "../../../../hooks/useProfileSetup";
+
+const drinkingValueMap = {
+  no: "never",
+  occasionally: "rarely",
+  occassionally: "rarely",
+  often: "regularly",
+  "a-lot": "regularly",
+};
 
 
 const Drink = () => {
@@ -42,11 +49,11 @@ const Drink = () => {
                   value={drinking}
                   onChange={setDrinking}
                   options={[
-                    { label: "No, i don't drink", value: "no" },
+                    { label: "No, i don't drink", value: "never" },
                     { label: "Socially", value: "socially" },
-                    { label: "Occassionally", value: "occassionally" },
-                    { label: "Often", value: "often" },
-                    { label: "A lot", value: "a-lot" },
+                    { label: "Occasionally", value: "rarely" },
+                    { label: "Regularly", value: "regularly" },
+                    { label: "Prefer not to say", value: "prefer-not-to-say" },
                   ]}
                   className="mt-2"
                 />
@@ -59,7 +66,10 @@ const Drink = () => {
                 title="Continue"
                 variant="gradient"
                 onPress={async () => {
-                  await updateProfileStep({ drinking });
+                  const normalizedDrinking =
+                    drinkingValueMap[drinking?.toLowerCase?.()] || drinking;
+
+                  await updateProfileStep({ drinking: normalizedDrinking });
                   router.push("/about");
                 }}
               />

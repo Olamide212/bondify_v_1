@@ -6,5 +6,6 @@ const upload = require('../middleware/upload');
 
 router.post('/photos', protect, upload.array('photos', 6), uploadPhotos);
 router.delete('/photos/:publicId', protect, deletePhoto);
+router.delete('/photos/*', protect, deletePhoto);
 
 module.exports = router;

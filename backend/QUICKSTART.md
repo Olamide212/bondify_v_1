@@ -128,7 +128,7 @@ EXPO_PUBLIC_DEV_API_BASE_URL=http://YOUR_LOCAL_IP:5000/api
 
 1. ✅ Test all endpoints with Postman or Thunder Client
 2. ✅ Connect your React Native app
-3. ✅ Configure optional services (email, SMS, Cloudinary)
+3. ✅ Configure optional services (email, SMS, AWS S3)
 4. ✅ Review security settings before production deployment
 
 ## 🔒 Production Deployment
@@ -144,6 +144,6 @@ Before deploying:
 Recommended platforms:
 - **Backend**: Render, Railway, Heroku, DigitalOcean
 - **Database**: MongoDB Atlas
-- **File Storage**: Cloudinary, AWS S3
+- **File Storage**: AWS S3
 
 Happy coding! 🎉

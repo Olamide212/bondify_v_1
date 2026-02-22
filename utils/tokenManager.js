@@ -97,6 +97,8 @@ export const tokenManager = {
       console.log("🗑️ Removing all tokens from SecureStore");
       await SecureStore.deleteItemAsync(AUTH_TOKEN_KEY);
       await SecureStore.deleteItemAsync(ONBOARDING_TOKEN_KEY);
+      await SecureStore.deleteItemAsync("onboardingStep");
+      await SecureStore.deleteItemAsync("onboardingComplete");
       console.log("✅ All tokens removed");
     } catch (error) {
       console.error("Error removing tokens:", error);

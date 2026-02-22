@@ -59,17 +59,7 @@ const userSchema = new mongoose.Schema(
     },
 
     // Basic Information
-    name: {
-      type: String,
-      trim: true,
-    },
-    username: {
-      type: String,
-      unique: true,
-      sparse: true,
-      lowercase: true,
-      trim: true,
-    },
+ 
     age: {
       type: Number,
       min: 18,
@@ -322,7 +312,7 @@ userSchema.methods.calculateCompletion = function () {
   const fields = [
     'name', 'age', 'gender', 'bio', 'location.city',
     'occupation', 'education', 'height', 'religion',
-    'ethnicity', 'drinking', 'smoking', 'lookingFor'
+    'ethnicity', 'drinking', 'smoking', 'lookingFor', 'images'
   ];
   
   let completed = 0;

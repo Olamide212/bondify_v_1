@@ -1,6 +1,6 @@
-import React, { useEffect } from "react";
-import { View } from "react-native";
 import { Stack, useSegments } from "expo-router";
+import { useEffect } from "react";
+import { View } from "react-native";
 import AccountSetupHeader from "../../../components/headers/SetupAccountHeader";
 import { ProgressBar } from "../../../components/ui/ProgressBar";
 import { useProfileSetup } from "../../../hooks/useProfileSetup";
@@ -9,13 +9,20 @@ export default function OnboardingLayout() {
   const segments = useSegments();
   const currentStepSegment = segments[segments.length - 1];
 
-  const { steps, progress, resumeStep } = useProfileSetup({
+  const { steps, progress, resumeStep, setCurrentStep } = useProfileSetup({
     isOnboarding: true,
+    trackStep: true,
   });
 
   useEffect(() => {
     resumeStep();
-  }, []);
+  }, [resumeStep]);
+
+  useEffect(() => {
+    if (steps.includes(currentStepSegment)) {
+      setCurrentStep(currentStepSegment);
+    }
+  }, [currentStepSegment, setCurrentStep, steps]);
 
   const isAgreement = currentStepSegment === "agreement";
 

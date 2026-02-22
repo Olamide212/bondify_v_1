@@ -1,29 +1,34 @@
-import { useState, useEffect } from "react";
 import * as SecureStore from "expo-secure-store";
+import { useCallback, useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 import { profileService } from "../services/profileService";
+import { clearOnboardingToken } from "../slices/authSlice";
 import { tokenManager } from "../utils/tokenManager";
 
-export const useProfileSetup = ({ isOnboarding = true } = {}) => {
-  const steps = [
-    "username",
-    "age",
-    "height",
-    "gender",
-    "meet",
-    "marital-status",
-    "kids",
-    "preference",
-    "religion",
-    "religion-question",
-    "education",
-    "occupation",
-    "smoke",
-    "drink",
-    "about",
-    "interests",
-    "upload-photo",
-    "profile-answers",
-  ];
+const ONBOARDING_STEPS = [
+  "age",
+  "height",
+  "gender",
+  "meet",
+  "marital-status",
+  "kids",
+  "preference",
+  "religion",
+  "religion-question",
+  "education",
+  "occupation",
+  "smoke",
+  "drink",
+  "about",
+  "interests",
+  "upload-photo",
+  "profile-answers",
+  "location-access"
+];
+
+export const useProfileSetup = ({ isOnboarding = true, trackStep = false } = {}) => {
+  const dispatch = useDispatch();
+  const steps = ONBOARDING_STEPS;
 
   const [currentStep, setCurrentStep] = useState(steps[0]);
   const [progress, setProgress] = useState(1 / steps.length);
@@ -33,7 +38,7 @@ export const useProfileSetup = ({ isOnboarding = true } = {}) => {
   // -------------------------------
   // Restore saved onboarding step
   // -------------------------------
-  const resumeStep = async () => {
+  const resumeStep = useCallback(async () => {
     try {
       const savedStep = await SecureStore.getItemAsync("onboardingStep");
 
@@ -46,12 +51,14 @@ export const useProfileSetup = ({ isOnboarding = true } = {}) => {
     } catch (err) {
       console.warn("Failed to restore onboarding step", err);
     }
-  };
+  }, [steps]);
 
   // -----------------------------------
   // Persist step & update progress
   // -----------------------------------
   useEffect(() => {
+    if (!trackStep) return;
+
     const persistStep = async () => {
       try {
         await SecureStore.setItemAsync("onboardingStep", currentStep);
@@ -62,7 +69,7 @@ export const useProfileSetup = ({ isOnboarding = true } = {}) => {
     };
 
     persistStep();
-  }, [currentStep]);
+  }, [currentStep, trackStep, steps]);
 
   // -----------------------------------
   // Helpers
@@ -103,37 +110,35 @@ export const useProfileSetup = ({ isOnboarding = true } = {}) => {
     }
   };
 
+  const finalizeOnboarding = useCallback(async () => {
+    await profileService.completeOnboarding();
+    await SecureStore.setItemAsync("onboardingComplete", "true");
+    await SecureStore.deleteItemAsync("onboardingStep");
+    await tokenManager.setToken({ onboardingToken: null });
+    dispatch(clearOnboardingToken());
+  }, [dispatch]);
+
   // -----------------------------------
   // Update profile for current step
   // -----------------------------------
-const updateProfileStep = async (fields) => {
-  setLoading(true);
+  const updateProfileStep = async (fields) => {
+    setLoading(true);
 
-  try {
-    if (Object.keys(fields).length > 0) {
-      await profileService.updateProfile(fields);
+    try {
+      if (Object.keys(fields).length > 0) {
+        await profileService.updateProfile(fields);
+      }
+
+      if (isOnboarding && currentStep === steps[steps.length - 1]) {
+        await finalizeOnboarding();
+      }
+    } catch (err) {
+      console.error("Update profile step error:", err);
+      throw err;
+    } finally {
+      setLoading(false);
     }
-
-    // 🔑 FINAL STEP → onboarding completion
-    if (isOnboarding && currentStep === steps[steps.length - 1]) {
-      await profileService.completeOnboarding();
-
-      // Mark onboarding complete
-      await SecureStore.setItemAsync("onboardingComplete", "true");
-      await SecureStore.deleteItemAsync("onboardingStep");
-
-      // REMOVE onboarding token (critical)
-      await tokenManager.setToken({
-        onboardingToken: null, // 👈 removes it safely
-      });
-    }
-  } catch (err) {
-    console.error("Update profile step error:", err);
-    throw err;
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   return {
     steps,
@@ -149,5 +154,6 @@ const updateProfileStep = async (fields) => {
     nextStep,
     fetchLookups,
     updateProfileStep,
+    finalizeOnboarding,
   };
 };

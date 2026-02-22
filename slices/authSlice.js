@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { authAPI } from "../services/authService";
 import { tokenManager } from "../utils/tokenManager";
 
@@ -200,6 +200,7 @@ const authSlice = createSlice({
     },
     clearOnboardingToken: (state) => {
       state.onboardingToken = null;
+      state.hasOnboardingSession = false;
     },
     logout: (state) => {
       state.user = null;

@@ -1,14 +1,16 @@
-import React, { useState } from "react";
-import { View, Text, Image, Alert } from "react-native";
-import Button from "../../../../components/ui/Button";
-import { useRouter } from "expo-router";
 import * as Location from "expo-location";
+import { useRouter } from "expo-router";
+import { useState } from "react";
+import { Alert, Image, Text, View } from "react-native";
+import Button from "../../../../components/ui/Button";
 import { useProfileSetup } from "../../../../hooks/useProfileSetup";
 
 const LocationAccess = () => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const { updateProfileStep } = useProfileSetup({ isOnboarding: true });
+  const { updateProfileStep, finalizeOnboarding } = useProfileSetup({
+    isOnboarding: true,
+  });
 
   const handleLocationAccess = async () => {
     setLoading(true);
@@ -21,7 +23,10 @@ const LocationAccess = () => {
           [
             {
               text: "Continue Anyway",
-              onPress: () => router.replace("root-tabs"),
+              onPress: async () => {
+                await finalizeOnboarding();
+                router.replace("root-tabs");
+              },
             },
           ]
         );
@@ -51,6 +56,8 @@ const LocationAccess = () => {
         },
       });
 
+      await finalizeOnboarding();
+
       router.replace("root-tabs");
     } catch (err) {
       console.error("Location access error:", err);
@@ -60,7 +67,10 @@ const LocationAccess = () => {
         [
           {
             text: "Continue Anyway",
-            onPress: () => router.replace("root-tabs"),
+            onPress: async () => {
+              await finalizeOnboarding();
+              router.replace("root-tabs");
+            },
           },
         ]
       );

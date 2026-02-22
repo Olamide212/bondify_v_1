@@ -1,14 +1,16 @@
-import React, { useState } from "react";
-import { View, Text, TouchableOpacity } from "react-native";
-import { GraduationCap } from "lucide-react-native";
+import { useState } from "react";
+import { Text, TouchableOpacity, View } from "react-native";
 import ProfileEducationModal from "../modals/ProfileEducationModal";
 
-const Education = () => {
+const Education = ({ profile, onUpdateField }) => {
   const [modalVisible, setModalVisible] = useState(false);
-  const [selectedEducation, setSelectedEducation] = useState(null);
+  const [selectedEducation, setSelectedEducation] = useState(
+    profile?.education || null
+  );
 
-  const handleSelectEducation = (value) => {
+  const handleSelectEducation = async (value) => {
     setSelectedEducation(value);
+    await onUpdateField?.("education", value);
   };
 
   const getEducationLabel = (value) => {

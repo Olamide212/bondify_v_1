@@ -10,7 +10,6 @@ import {
   TouchableOpacity,
   ScrollView,
 } from "react-native";
-import NextButton from "../../../../components/ui/NextButton";
 import { useRouter } from "expo-router";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import Button from "../../../../components/ui/Button";
@@ -106,13 +105,13 @@ const Interests = () => {
                               onPress={() => toggleInterest(interest)}
                               className={`px-4 py-2 rounded-full border ${
                                 selected
-                                  ? "bg-[#FF0066] border-[#FF0066]"
+                                  ? "bg-secondary border-secondary"
                                   : "bg-white border-[#D1D1D1]"
                               }`}
                             >
                               <Text
                                 className={`font-SatoshiMedium ${
-                                  selected ? "text-white" : "text-app"
+                                  selected ? "text-black" : "text-app"
                                 }`}
                               >
                                 {interest}

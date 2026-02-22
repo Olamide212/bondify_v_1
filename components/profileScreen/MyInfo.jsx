@@ -1,39 +1,39 @@
 import { useRouter } from "expo-router";
-import { useState } from "react";
-import { View, Text, TouchableOpacity, Modal, ScrollView, Image } from "react-native";
 import {
-  ChevronRight,
-  Flag,
-  Globe,
-  Ruler,
-  Baby,
-  Wine,
-  Cigarette,
-  PawPrint,
-  Dumbbell,
-  Sparkles,
-  Heart,
-  HeartHandshake,
-  Users,
-  BookOpen,
-  Wallet,
-  MessageCircleHeart,
-  X
+    Baby,
+    BookOpen,
+    ChevronRight,
+    Cigarette,
+    Dumbbell,
+    Flag,
+    Globe,
+    Heart,
+    HeartHandshake,
+    MessageCircleHeart,
+    PawPrint,
+    Ruler,
+    Sparkles,
+    Users,
+    Wallet,
+    Wine,
+    X
 } from "lucide-react-native";
+import { useEffect, useState } from "react";
+import { Image, Modal, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import NationalityModal from "../../components/modals/NationalityModal";
-import ProfileDisplayZodiacModal from "../modals/ProfileZodiacDisplayModal";
+import { colors } from "../../constant/colors";
+import { Icons } from "../../constant/icons";
 import ProfileEthnicityModal from "../modals/ProfileEthnicityModal";
 import ProfileReligionModal from "../modals/ProfileReligionModal";
-import { Icons } from "../../constant/icons";
-import { colors } from "../../constant/colors";
+import ProfileDisplayZodiacModal from "../modals/ProfileZodiacDisplayModal";
 
 
 
 
 
 
-const MyInfo = ({ profile }) => {
+const MyInfo = ({ profile, onUpdateField }) => {
   const router = useRouter();
 
   // local state copy
@@ -43,6 +43,22 @@ const MyInfo = ({ profile }) => {
   const [zodiacVisible, setZodiacVisible] = useState(false)
   const [ethnicityVisible, setEthnicityVisible] = useState(false)
   const [religionVisible, setReligionVisible] = useState(false)
+
+  useEffect(() => {
+    setProfileData(profile || {});
+  }, [profile]);
+
+  const fieldMap = {
+    zodiac: "zodiacSign",
+    kids: "children",
+    drink: "drinking",
+    smoke: "smoking",
+    workout: "exercise",
+    relationshipStatus: "relationshipType",
+    interestedIn: "lookingFor",
+    loveStyle: "loveLanguage",
+    sameBeliefs: "religionImportance",
+  };
 
   const items = [
     {
@@ -76,10 +92,11 @@ const MyInfo = ({ profile }) => {
       icon: Baby,
       type: "modal",
       options: [
-        "I want children",
-        "I don't want children",
-        "I have children and want more",
-        "I have children and don't want more",
+        "want-kids",
+        "dont-want-kids",
+        "open-to-kids",
+        "have-kids",
+        "prefer-not-to-say",
       ],
     },
     {
@@ -87,28 +104,34 @@ const MyInfo = ({ profile }) => {
       title: "Do you drink?",
       icon: Wine,
       type: "modal",
-      options: ["Yes", "No", "Occasionally"],
+      options: ["never", "rarely", "socially", "regularly", "prefer-not-to-say"],
     },
     {
       key: "smoke",
       title: "Do you smoke?",
       icon: Cigarette,
       type: "modal",
-      options: ["Yes", "No", "Occasionally"],
+      options: ["never", "rarely", "socially", "regularly", "prefer-not-to-say"],
     },
     {
       key: "pets",
       title: "Do you like pets?",
       icon: PawPrint,
       type: "modal",
-      options: ["Yes", "No", "Love them!"],
+      options: [
+        "have-pets",
+        "want-pets",
+        "dont-want-pets",
+        "allergic",
+        "prefer-not-to-say",
+      ],
     },
     {
       key: "workout",
       title: "Do you workout?",
       icon: Dumbbell,
       type: "modal",
-      options: ["Yes, i often work out", "No, I don't work out", "Sometimes"],
+      options: ["never", "rarely", "sometimes", "often", "daily"],
     },
     {
       key: "interests",
@@ -133,7 +156,6 @@ const MyInfo = ({ profile }) => {
         "divorced",
         "widowed",
         "separated",
-        "complicated",
       ],
     },
     {
@@ -142,12 +164,11 @@ const MyInfo = ({ profile }) => {
       icon: Users,
       type: "modal",
       options: [
-        "a-committed-relationship",
-        "something-casual",
-        "marriage",
-        "finding-a-date",
-        "meet-business-oriented-people",
-        "i-am-not-sure",
+        "long-term",
+        "short-term",
+        "friendship",
+        "casual",
+        "not-sure",
       ],
     },
     {
@@ -156,11 +177,11 @@ const MyInfo = ({ profile }) => {
       icon: Wallet,
       type: "modal",
       options: [
-        "Frugal",
-        "Moderate spender",
-        "Generous",
-        "Luxury lifestyle",
-        "Prefer not to say",
+        "spender",
+        "saver",
+        "investor",
+        "balanced",
+        "prefer-not-to-say",
       ],
     },
     {
@@ -169,11 +190,11 @@ const MyInfo = ({ profile }) => {
       icon: Heart,
       type: "modal",
       options: [
-        "Words of Affirmation",
-        "Acts of Service",
-        "Receiving Gifts",
-        "Quality Time",
-        "Physical Touch",
+        "words-of-affirmation",
+        "acts-of-service",
+        "receiving-gifts",
+        "quality-time",
+        "physical-touch",
       ],
     },
     {
@@ -182,11 +203,11 @@ const MyInfo = ({ profile }) => {
       icon: MessageCircleHeart,
       type: "modal",
       options: [
-        "Direct and straightforward",
-        "Thoughtful and reflective",
-        "Deep and meaningful",
-        "Humorous and lighthearted",
-        "Prefer not to say",
+        "direct",
+        "thoughtful",
+        "emotional",
+        "logical",
+        "balanced",
       ],
     },
     {
@@ -199,7 +220,9 @@ const MyInfo = ({ profile }) => {
   ];
 
   const handleSaveModal = (key, value) => {
-    setProfileData((prev) => ({ ...prev, [key]: value }));
+    const targetField = fieldMap[key] || key;
+    setProfileData((prev) => ({ ...prev, [targetField]: value }));
+    onUpdateField?.(targetField, value);
     setActiveModal(null);
   };
 
@@ -207,7 +230,8 @@ const MyInfo = ({ profile }) => {
     <View className="bg-white mt-3 mx-4 p-5 rounded-2xl">
       {items.map(({ key, title, icon: Icon, screen, type, options }, index) => {
         const isLast = index === items.length - 1;
-        const value = profileData?.[key];
+        const targetField = fieldMap[key] || key;
+        const value = profileData?.[targetField];
 
         return (
           <TouchableOpacity

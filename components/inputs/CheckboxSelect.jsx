@@ -2,6 +2,7 @@
 import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { colors } from "../../constant/colors";
 
 const CheckboxSelect = ({
   label,
@@ -43,7 +44,7 @@ const CheckboxSelect = ({
                 value.includes(option.value) ? "checkbox" : "square-outline"
               }
               size={20}
-              color={value.includes(option.value) ? "#FF0066" : "#A4A4A4"}
+              color={value.includes(option.value) ? colors.primary : "#A4A4A4"}
             />
           </TouchableOpacity>
         ))}

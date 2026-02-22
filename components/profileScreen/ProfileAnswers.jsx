@@ -1,8 +1,8 @@
-import { View, Text, TouchableOpacity, Modal, FlatList, TextInput } from "react-native";
-import React, { useState } from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { Plus } from "lucide-react-native";
-import Button from "../../components/ui/Button"
+import { useState } from "react";
+import { FlatList, Modal, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import Button from "../ui/Button";
 
 const QUESTIONS = [
   "What’s your love language?",
@@ -19,20 +19,22 @@ const QUESTIONS = [
   "What do you value most in a relationship?",
 ];
 
-const ProfileAnswers = () => {
-  const [answers, setAnswers] = useState([]); // store {question, answer}
+const ProfileAnswers = ({ profile, onUpdateField }) => {
+  const [answers, setAnswers] = useState(profile?.questions || []); // store {question, answer}
   const [showModal, setShowModal] = useState(false);
   const [selectedQuestion, setSelectedQuestion] = useState(null);
   const [answer, setAnswer] = useState("");
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!selectedQuestion || !answer.trim()) return;
 
-    // Add to answers list
-    setAnswers((prev) => [
-      ...prev,
+    const updatedAnswers = [
+      ...answers,
       { question: selectedQuestion, answer },
-    ]);
+    ];
+
+    setAnswers(updatedAnswers);
+    await onUpdateField?.("questions", updatedAnswers);
 
     // Reset modal state
     setShowModal(false);

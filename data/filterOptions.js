@@ -9,16 +9,16 @@ export const FILTER_OPTIONS = {
   drinking: [
     { label: "Never", value: "never" },
     { label: "Socially", value: "socially" },
-    { label: "Occasionally", value: "occasionally" },
+    { label: "Occasionally", value: "rarely" },
     { label: "Regularly", value: "regularly" },
-    { label: "Prefer not to say", value: "prefer-not" },
+    { label: "Prefer not to say", value: "prefer-not-to-say" },
   ],
   smoking: [
     { label: "Never", value: "never" },
-    { label: "Occasionally", value: "occasionally" },
+    { label: "Occasionally", value: "rarely" },
     { label: "Regularly", value: "regularly" },
-    { label: "Trying to quit", value: "quitting" },
-    { label: "Prefer not to say", value: "prefer-not" },
+    { label: "Socially", value: "socially" },
+    { label: "Prefer not to say", value: "prefer-not-to-say" },
   ],
   religion: [
     { label: "Christianity", value: "christianity" },
@@ -70,11 +70,11 @@ export const FILTER_OPTIONS = {
     { label: "Prefer not to say", value: "prefer-not" },
   ],
   loveLanguage: [
-    { label: "Words of Affirmation", value: "words" },
-    { label: "Acts of Service", value: "acts" },
-    { label: "Receiving Gifts", value: "gifts" },
-    { label: "Quality Time", value: "time" },
-    { label: "Physical Touch", value: "touch" },
+    { label: "Words of Affirmation", value: "words-of-affirmation" },
+    { label: "Acts of Service", value: "acts-of-service" },
+    { label: "Receiving Gifts", value: "receiving-gifts" },
+    { label: "Quality Time", value: "quality-time" },
+    { label: "Physical Touch", value: "physical-touch" },
   ],
   workout: [
     { label: "Never", value: "never" },
@@ -86,8 +86,8 @@ export const FILTER_OPTIONS = {
   communicationStyle: [
     { label: "Direct and straightforward", value: "direct" },
     { label: "Thoughtful and reflective", value: "thoughtful" },
-    { label: "Humorous and lighthearted", value: "humorous" },
-    { label: "Deep and meaningful", value: "deep" },
-    { label: "Prefer not to say", value: "prefer-not" },
+    { label: "Deep and meaningful", value: "emotional" },
+    { label: "Logical and practical", value: "logical" },
+    { label: "Balanced", value: "balanced" },
   ],
 };

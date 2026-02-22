@@ -1,20 +1,33 @@
-import React, { useState } from "react";
+import { useRouter } from "expo-router";
+import { useState } from "react";
 import {
-  SafeAreaView,
-  Text,
-  View,
+  Keyboard,
   KeyboardAvoidingView,
   Platform,
+  SafeAreaView,
+  Text,
   TouchableWithoutFeedback,
-  Keyboard,
+  View,
 } from "react-native";
-import NextButton from "../../../../components/ui/NextButton";
-import { useRouter } from "expo-router";
 
 import RadioSelect from "../../../../components/inputs/RadioSelect";
+import Button from "../../../../components/ui/Button";
 import Info from "../../../../components/ui/Info";
-import Button from "../../../../components/ui/Button"
 import { useProfileSetup } from "../../../../hooks/useProfileSetup";
+
+const childrenValueMap = {
+  "i want": "want-kids",
+  i_want: "want-kids",
+  "i want children": "want-kids",
+  "i dont": "dont-want-kids",
+  i_dont: "dont-want-kids",
+  "i don't want children": "dont-want-kids",
+  "i have": "open-to-kids",
+  i_have: "open-to-kids",
+  "i have children and want more": "open-to-kids",
+  dont_want: "have-kids",
+  "i have children and don't want more": "have-kids",
+};
 
 
 const Kids = () => {
@@ -45,12 +58,12 @@ const Kids = () => {
                   value={children}
                   onChange={setChildren}
                   options={[
-                    { label: "I want children", value: "i want" },
-                    { label: "I don't want children", value: "i don't" },
-                    { label: "I have children and want more", value: "i have" },
+                    { label: "I want children", value: "want-kids" },
+                    { label: "I don't want children", value: "dont-want-kids" },
+                    { label: "I have children and want more", value: "open-to-kids" },
                     {
                       label: "I have children and don't want more",
-                      value: "don't want",
+                      value: "have-kids",
                     },
                   ]}
                   className="mt-2"
@@ -64,7 +77,10 @@ const Kids = () => {
                 title="Continue"
                 variant="gradient"
                 onPress={async () => {
-                  await updateProfileStep({ children });
+                  const normalizedChildren =
+                    childrenValueMap[children?.toLowerCase?.()] || children;
+
+                  await updateProfileStep({ children: normalizedChildren });
                   router.push("/preference");
                 }}
               />

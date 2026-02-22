@@ -1,25 +1,23 @@
-import React, { useState } from "react";
+import { ArrowLeft } from "lucide-react-native";
+import { useState } from "react";
 import {
-  View,
-  Text,
-  TouchableOpacity,
-  Modal,
-  TextInput,
-  Pressable,
+    Modal,
+    Pressable,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
-import { ArrowLeft, GraduationCap } from "lucide-react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Button from "../ui/Button";
 
-const School = () => {
+const School = ({ profile, onUpdateField }) => {
   const [modalVisible, setModalVisible] = useState(false);
-  const [schoolName, setSchoolName] = useState("");
+  const [schoolName, setSchoolName] = useState(profile?.school || "");
 
-  const handleSave = () => {
-    // Handle save logic here
-    console.log("Saving school:", schoolName);
+  const handleSave = async () => {
+    await onUpdateField?.("school", schoolName);
     setModalVisible(false);
-    setSchoolName("");
   };
 
   return (

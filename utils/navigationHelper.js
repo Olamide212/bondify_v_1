@@ -18,13 +18,7 @@ export const determineNextRoute = async ({
     return "/validation";
   }
 
-  // 2️⃣ Fully authenticated
-  if (token) {
-    console.log("Returning /root-tabs due to token");
-    return "/root-tabs";
-  }
-
-  // 3️⃣ Onboarding flow
+  // 2️⃣ Onboarding flow (must take priority over token when onboarding isn't complete)
   if (onboardingToken) {
     console.log("Checking onboarding step...");
     try {
@@ -43,6 +37,12 @@ export const determineNextRoute = async ({
       console.error("Error reading SecureStore:", error);
       return "/(onboarding)/age";
     }
+  }
+
+  // 3️⃣ Fully authenticated
+  if (token) {
+    console.log("Returning /root-tabs due to token");
+    return "/root-tabs";
   }
 
   // 4️⃣ New/unauthenticated user

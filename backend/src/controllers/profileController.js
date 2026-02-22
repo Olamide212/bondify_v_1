@@ -1,5 +1,72 @@
 const User = require('../models/User');
 
+const enumNormalizers = {
+  lookingFor: {
+    'committed-relationship': 'long-term',
+    'a-committed-relationship': 'long-term',
+    marriage: 'long-term',
+    'finding-a-date': 'short-term',
+    'something-casual': 'casual',
+    'meet-business-oriented-people': 'friendship',
+    'i-am-not-sure': 'not-sure',
+  },
+  children: {
+    'i want': 'want-kids',
+    i_want: 'want-kids',
+    'i want children': 'want-kids',
+    i_dont: 'dont-want-kids',
+    'i dont': 'dont-want-kids',
+    "i don't want children": 'dont-want-kids',
+    i_have: 'open-to-kids',
+    'i have children and want more': 'open-to-kids',
+    dont_want: 'have-kids',
+    "i have children and don't want more": 'have-kids',
+  },
+  drinking: {
+    no: 'never',
+    occasionally: 'rarely',
+    occassionally: 'rarely',
+    often: 'regularly',
+    'a-lot': 'regularly',
+    'prefer-not': 'prefer-not-to-say',
+  },
+  smoking: {
+    no: 'never',
+    occasionally: 'rarely',
+    occassionally: 'rarely',
+    often: 'regularly',
+    'a-lot': 'regularly',
+    quitting: 'regularly',
+    'prefer-not': 'prefer-not-to-say',
+  },
+  financialStyle: {
+    frugal: 'saver',
+    moderate: 'balanced',
+    generous: 'spender',
+    luxury: 'spender',
+    'prefer-not': 'prefer-not-to-say',
+  },
+  loveLanguage: {
+    words: 'words-of-affirmation',
+    acts: 'acts-of-service',
+    gifts: 'receiving-gifts',
+    time: 'quality-time',
+    touch: 'physical-touch',
+  },
+  communicationStyle: {
+    humorous: 'balanced',
+    deep: 'emotional',
+    'prefer-not': 'balanced',
+  },
+};
+
+const normalizeEnumField = (key, value) => {
+  if (typeof value !== 'string') return value;
+
+  const normalized = value.toLowerCase();
+  return enumNormalizers[key]?.[normalized] || value;
+};
+
 // @desc    Update user profile
 // @route   PATCH /api/profile
 // @access  Private
@@ -14,6 +81,10 @@ const updateProfile = async (req, res, next) => {
     delete updates.isVerified;
     delete updates.otp;
     delete updates.otpExpiry;
+
+    Object.keys(updates).forEach((key) => {
+      updates[key] = normalizeEnumField(key, updates[key]);
+    });
 
     const user = await User.findById(userId);
 

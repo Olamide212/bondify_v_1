@@ -1,12 +1,16 @@
-import React, { useState, useMemo } from "react";
-import { View, Image, TouchableOpacity, Text } from "react-native";
-import { X, Plus } from "lucide-react-native";
+import { Plus, X } from "lucide-react-native";
+import React, { useMemo, useState } from "react";
+import { Image, Text, TouchableOpacity, View } from "react-native";
 import DraggableFlatList from "react-native-draggable-flatlist";
 
 const MAX_PHOTOS = 6;
 
-const ProfilePhotoGrid = ({ photos: initialPhotos }) => {
+const ProfilePhotoGrid = ({ photos: initialPhotos = [], onAddPhoto, onRemovePhoto }) => {
   const [photos, setPhotos] = useState(initialPhotos);
+
+  React.useEffect(() => {
+    setPhotos(initialPhotos || []);
+  }, [initialPhotos]);
 
   // Fill remaining slots with nulls (for plus icons)
   const photoSlots = useMemo(() => {
@@ -23,12 +27,14 @@ const ProfilePhotoGrid = ({ photos: initialPhotos }) => {
       return (
         <TouchableOpacity
           className="relative w-[30%] aspect-square rounded-xl overflow-hidden m-1 bg-gray-100 justify-center items-center"
-          onPress={() => console.log("Add new photo")}
+          onPress={onAddPhoto}
         >
           <Plus size={28} color="#999" />
         </TouchableOpacity>
       );
     }
+
+    const imageUri = item?.url || item;
 
     // Normal photo slot
     return (
@@ -37,11 +43,9 @@ const ProfilePhotoGrid = ({ photos: initialPhotos }) => {
         disabled={isActive}
         className="relative w-[30%] aspect-square rounded-xl overflow-hidden m-1"
       >
-        <Image source={{ uri: item }} className="w-full h-full" />
+        <Image source={{ uri: imageUri }} className="w-full h-full" />
         <TouchableOpacity
-          onPress={() =>
-            setPhotos((prev) => prev.filter((_, idx) => idx !== index))
-          }
+          onPress={() => onRemovePhoto?.(item, index)}
           className="absolute top-1 right-1 bg-black/50 p-1 rounded-full"
         >
           <X size={16} color="#fff" />
@@ -58,9 +62,7 @@ const ProfilePhotoGrid = ({ photos: initialPhotos }) => {
 
       <DraggableFlatList
         data={photoSlots}
-        onDragEnd={
-          ({ data }) => setPhotos(data.filter((item) => item !== null)) // remove nulls when saving
-        }
+        onDragEnd={({ data }) => setPhotos(data.filter((item) => item !== null))}
         keyExtractor={(_, index) => `photo-${index}`}
         renderItem={renderItem}
         numColumns={3} // ensures grid layout

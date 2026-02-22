@@ -14,6 +14,7 @@ import TextInput from "../../../../components/inputs/TextInput";
 import Info from "../../../../components/ui/Info";
 import AccordionItem from "../../../../components/ui/AccordionItem";
 import { useProfileSetup } from "../../../../hooks/useProfileSetup";
+import Button from "../../../../components/ui/Button";
 
 const ProfileAnswers = () => {
   const [answers, setAnswers] = useState({});
@@ -66,12 +67,15 @@ const ProfileAnswers = () => {
             </View>
 
             <View className="w-full items-end pb-6">
-              <NextButton variant="gradient" onPress={async () => {
-                const questions = Object.entries(answers)
-                  .filter(([, answer]) => answer.trim() !== "")
-                  .map(([question, answer]) => ({ question, answer }));
-                await updateProfileStep({ questions });
-                router.push("/location-access");
+              <Button
+                title="Continue"
+                variant="gradient"
+                onPress={async () => {
+                  const questions = Object.entries(answers)
+                    .filter(([, answer]) => answer.trim() !== "")
+                    .map(([question, answer]) => ({ question, answer }));
+                  await updateProfileStep({ questions });
+                  router.push("/location-access");
               }} />
             </View>
           </View>

@@ -69,7 +69,7 @@ const Occupation = () => {
           <View className="flex-1 px-2">
             <View className="flex-1 mt-8">
               <Text className="text-3xl font-SatoshiBold  mb-4">
-                What's your occupation?
+                What&apos;s your occupation?
               </Text>
 
               <ScrollView
@@ -86,15 +86,15 @@ const Occupation = () => {
                     onPress={() => handleSelect(item)}
                     className={`px-4 py-2 rounded-full  border ${
                       selectedOccupation === item
-                        ? "bg-primary border-primary"
+                        ? "bg-secondary border-secondary"
                         : "bg-white border-[#D1D1D1]"
                     }`}
                   >
                     <Text
                       className={`${
                         selectedOccupation === item
-                          ? "text-white"
-                          : "text-gray-800"
+                          ? "text-black"
+                          : "text-black"
                       } font-SatoshiMedium`}
                     >
                       {item}

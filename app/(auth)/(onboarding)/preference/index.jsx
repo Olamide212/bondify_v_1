@@ -1,20 +1,28 @@
-import React, { useState } from "react";
+import { useRouter } from "expo-router";
+import { useState } from "react";
 import {
-  SafeAreaView,
-  Text,
-  View,
+  Keyboard,
   KeyboardAvoidingView,
   Platform,
+  SafeAreaView,
+  Text,
   TouchableWithoutFeedback,
-  Keyboard,
+  View,
 } from "react-native";
-import NextButton from "../../../../components/ui/NextButton";
-import { useRouter } from "expo-router";
 
 import RadioSelect from "../../../../components/inputs/RadioSelect";
+import Button from "../../../../components/ui/Button";
 import Info from "../../../../components/ui/Info";
-import Button from "../../../../components/ui/Button"
 import { useProfileSetup } from "../../../../hooks/useProfileSetup";
+
+const lookingForValueMap = {
+  "committed-relationship": "long-term",
+  "a-committed-relationship": "long-term",
+  marriage: "long-term",
+  "finding-a-date": "short-term",
+  "something-casual": "casual",
+  "meet-business-oriented-people": "friendship",
+};
 
 
 const Preference = () => {
@@ -34,7 +42,7 @@ const Preference = () => {
           <View className="flex-1 px-2">
             <View className="flex-1 mt-8">
               <Text className="text-3xl font-SatoshiBold  mb-2">
-                What are you hoping to find on Bondify?
+                What are you hoping to find on Bondies?
               </Text>
               <Text className="text-lg font-Satoshi">
                 Provide us with further insights into your preferences
@@ -47,19 +55,19 @@ const Preference = () => {
                   options={[
                     {
                       label: "A committed relationship",
-                      value: "A committed relationship",
+                      value: "committed-relationship",
                     },
-                    { label: "Something Casual", value: "Something Casual" },
-                    { label: "Marriage", value: "Marriage" },
-                    { label: "Finding a Date", value: "Finding a Date" },
+                    { label: "Something Casual", value: "something-casual" },
+                    { label: "Marriage", value: "marriage" },
+                    { label: "Finding a Date", value: "finding-a-date" },
           
                     {
                       label: "Meet business oriented people",
-                      value: "Meet business oriented people",
+                      value: "meet-business-oriented-people",
                     },
                     {
                       label: "I am not sure",
-                      value: "not sure",
+                      value: "not-sure",
                     },
                   ]}
                   className="mt-2"
@@ -73,7 +81,10 @@ const Preference = () => {
                 title="Continue"
                 variant="gradient"
                 onPress={async () => {
-                  await updateProfileStep({ lookingFor: preference });
+                  const normalizedPreference =
+                    lookingForValueMap[preference?.toLowerCase?.()] || preference;
+
+                  await updateProfileStep({ lookingFor: normalizedPreference });
                   router.push("/religion");
                 }}
               />

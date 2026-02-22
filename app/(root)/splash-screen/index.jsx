@@ -1,11 +1,11 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useRouter } from "expo-router";
+import { useEffect, useRef, useState } from "react";
 import { View } from "react-native";
 import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
+    useAnimatedStyle,
+    useSharedValue,
+    withTiming,
 } from "react-native-reanimated";
-import { useRouter } from "expo-router";
 import { useSelector } from "react-redux";
 import { useAuthRestore } from "../../../hooks/useAuthRestore";
 import { determineNextRoute } from "../../../utils/navigationHelper";
@@ -65,10 +65,10 @@ const SplashScreen = () => {
         }
       } catch (error) {
         console.error("Navigation Error:", error);
-        // Fallback to onboarding on error
+        // Fallback to welcome on error
         if (!hasNavigated.current) {
           hasNavigated.current = true;
-          router.replace("/onboarding");
+          router.replace("/welcome");
         }
       } finally {
         setIsRouting(false);
@@ -81,15 +81,15 @@ const SplashScreen = () => {
   // Safety timeout fallback
   useEffect(() => {
     const timeoutId = setTimeout(() => {
-      if (!hasNavigated.current) {
+      if (!hasNavigated.current && restored) {
         console.warn("Splash screen timeout - forcing navigation");
         hasNavigated.current = true;
-        router.replace("/onboarding");
+        router.replace("/welcome");
       }
-    }, 1000); // 5 second max timeout
+    }, 5000);
 
     return () => clearTimeout(timeoutId);
-  }, []);
+  }, [restored, router]);
 
   const iconStyle = useAnimatedStyle(() => ({
     transform: [{ scale: iconScale.value }],
