@@ -59,7 +59,7 @@ const GlobalOtpInput = ({
     <View className="mb-3">
       <Animated.View style={{ transform: [{ scale: animation }] }}>
         <OtpInput
-          numberOfDigits={6}
+          numberOfDigits={4}
           focusColor={colors.primary}
           focusStickBlinkingDuration={500}
           onTextChange={handleChange}

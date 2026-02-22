@@ -35,8 +35,8 @@ const Validation = () => {
 const handleSubmit = async () => {
   setTouched(true);
 
-  if (!code || code.length < 6) {
-    setError("Please enter the 6-digit code");
+  if (!code || code.length < 4) {
+    setError("Please enter the 4-digit code");
     return;
   }
 

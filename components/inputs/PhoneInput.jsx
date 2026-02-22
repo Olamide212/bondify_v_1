@@ -32,8 +32,8 @@ const GlobalPhoneInput = ({
     // Remove leading zero if user typed it
     if (digits.startsWith("0")) digits = digits.slice(1);
 
-    // Hard limit 10 digits
-    digits = digits.slice(0, 10);
+    // Hard limit 15 digits
+    digits = digits.slice(0, 15);
 
     onChangePhoneNumber?.(digits);
   };
@@ -61,7 +61,7 @@ const GlobalPhoneInput = ({
         keyboardType="number-pad"
         value={phoneNumber}
         onChangeText={handlePhoneChange}
-        maxLength={10}
+        maxLength={15}
       />
     </View>
   );
