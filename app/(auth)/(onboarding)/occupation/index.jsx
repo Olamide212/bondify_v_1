@@ -10,52 +10,19 @@ import {
   ScrollView,
   TouchableOpacity,
 } from "react-native";
-import NextButton from "../../../../components/ui/NextButton";
 import { useRouter } from "expo-router";
 import Button from "../../../../components/ui/Button";
 import { useProfileSetup } from "../../../../hooks/useProfileSetup";
-
-// Example occupation list
-const occupationOptions = [
-  "Software Developer",
-  "Graphic Designer",
-  "Teacher",
-  "Doctor",
-  "Engineer",
-  "Lawyer",
-  "Nurse",
-  "Writer",
-  "Entrepreneur",
-  "Photographer",
-  "Musician",
-  "Student",
-  "Fashion designer",
-  "Model",
-  "Makeup Artist",
-  "Hair Stylist",
-  "Content creator",
-  "Streamer",
-  "Engineers",
-  "Architech",
-  "Scientist",
-  "Artist",
-  "Chef",
-  "Dancer",
-  "Actor",
-  "Music producer",
-  "DJ",
-  "Event planner",
-  "Interior designer",
-  "Others",
-];
+import { useLookupOptions } from "../../../../hooks/useLookupOptions";
 
 const Occupation = () => {
   const router = useRouter();
   const [selectedOccupation, setSelectedOccupation] = useState(null);
   const { updateProfileStep } = useProfileSetup({ isOnboarding: true });
+  const { options: occupationOptions } = useLookupOptions("occupations");
 
-  const handleSelect = (item) => {
-    setSelectedOccupation(item);
+  const handleSelect = (itemValue) => {
+    setSelectedOccupation(itemValue);
   };
 
   return (
@@ -82,22 +49,22 @@ const Occupation = () => {
               >
                 {occupationOptions.map((item) => (
                   <TouchableOpacity
-                    key={item}
-                    onPress={() => handleSelect(item)}
+                    key={item.value}
+                    onPress={() => handleSelect(item.value)}
                     className={`px-4 py-2 rounded-full  border ${
-                      selectedOccupation === item
+                      selectedOccupation === item.value
                         ? "bg-secondary border-secondary"
                         : "bg-white border-[#D1D1D1]"
                     }`}
                   >
                     <Text
                       className={`${
-                        selectedOccupation === item
+                        selectedOccupation === item.value
                           ? "text-black"
                           : "text-black"
-                      } font-SatoshiMedium`}
+                      } font-SatoshiMedium text-lg`}
                     >
-                      {item}
+                      {item.label}
                     </Text>
                   </TouchableOpacity>
                 ))}

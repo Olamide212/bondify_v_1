@@ -13,6 +13,7 @@ import {
 import RadioSelect from "../../../../components/inputs/RadioSelect";
 import Button from "../../../../components/ui/Button";
 import Info from "../../../../components/ui/Info";
+import { useLookupOptions } from "../../../../hooks/useLookupOptions";
 import { useProfileSetup } from "../../../../hooks/useProfileSetup";
 
 const smokingValueMap = {
@@ -26,6 +27,7 @@ const smokingValueMap = {
 
 const Smoke = () => {
   const [smoking, setSmoking] = useState("");
+  const { options: smokingOptions } = useLookupOptions("smoking-habits");
 
   const router = useRouter();
   const { updateProfileStep } = useProfileSetup({ isOnboarding: true });
@@ -48,13 +50,7 @@ const Smoke = () => {
                 <RadioSelect
                   value={smoking}
                   onChange={setSmoking}
-                  options={[
-                    { label: "No, i don't smoke", value: "never" },
-                    { label: "Socially", value: "socially" },
-                    { label: "Occasionally", value: "rarely" },
-                    { label: "Regularly", value: "regularly" },
-                    { label: "Prefer not to say", value: "prefer-not-to-say" },
-                  ]}
+                  options={smokingOptions}
                   className="mt-2"
                 />
               </View>

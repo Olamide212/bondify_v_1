@@ -7,7 +7,7 @@ import { getProfileAge } from "../../utils/ageHelper";
 
 const ProfileSection = ({ profile }) => {
   const completion = profile?.completionPercentage || 0;
-  const profileImage = profile?.images?.[0]?.url || profile?.images?.[0] || profile?.profilePhoto || "";
+  const profileImage = profile?.images?.[1]?.url || profile?.images?.[0] || profile?.profilePhoto || "";
   const displayAge = getProfileAge(profile);
   
   const router = useRouter()
@@ -55,8 +55,8 @@ const ProfileSection = ({ profile }) => {
           )}
         </View>
         {completion > 0 && (
-          <View className="w-16 h-16 absolute bg-primary px-2 py-1 rounded-full top-0 z-50  right-6 flex-row justify-center items-center ">
-            <Text className="text-white font-SatoshiMedium font-sm">
+          <View className="w-12 h-12 absolute bg-secondary px-2 py-1 rounded-full  z-50   flex-row justify-center items-center ">
+            <Text className="text-black font-SatoshiBold text-sm">
               {completion}%
             </Text>
           </View>
@@ -66,7 +66,7 @@ const ProfileSection = ({ profile }) => {
       {/* Profile Info */}
       <View style={styles.infoWrapper}>
         <View className="flex-row items-center">
-          <Text style={styles.name}>
+          <Text style={styles.name} className='capitalize' numberOfLines={1}>
             {profile?.firstName || "Your Profile"}
             {displayAge ? `, ${displayAge}` : ""}
           </Text>
@@ -83,10 +83,12 @@ const ProfileSection = ({ profile }) => {
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: "col",
+    flexDirection: "column",
     alignItems: "center",
     gap: 10,
-    backgroundColor: "#fff",
+    backgroundColor: "#f1f1f1",
+    borderWidth: 1,
+    borderColor: "#e5e5e5",
     marginHorizontal: 15,
     marginTop: 20,
     padding: 20,

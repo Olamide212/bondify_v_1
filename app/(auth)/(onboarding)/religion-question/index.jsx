@@ -1,24 +1,29 @@
-import React, { useState } from "react";
-import {
-  SafeAreaView,
-  Text,
-  View,
-  KeyboardAvoidingView,
-  Platform,
-  TouchableWithoutFeedback,
-  Keyboard,
-} from "react-native";
-import NextButton from "../../../../components/ui/NextButton";
 import { useRouter } from "expo-router";
+import { useState } from "react";
+import {
+    Keyboard,
+    KeyboardAvoidingView,
+    Platform,
+    SafeAreaView,
+    Text,
+    TouchableWithoutFeedback,
+    View,
+} from "react-native";
 
 import RadioSelect from "../../../../components/inputs/RadioSelect";
-import Info from "../../../../components/ui/Info";
 import Button from "../../../../components/ui/Button";
+import Info from "../../../../components/ui/Info";
+import { useLookupOptions } from "../../../../hooks/useLookupOptions";
 import { useProfileSetup } from "../../../../hooks/useProfileSetup";
+
+const religionImportanceMap = {
+  "not-matter": "not-important",
+};
 
 
 const ReligionQuestions = () => {
   const [religionImportance, setReligionImportance] = useState("");
+  const { options: sameBeliefsOptions } = useLookupOptions("same-beliefs");
 
   const router = useRouter();
   const { updateProfileStep } = useProfileSetup({ isOnboarding: true });
@@ -41,14 +46,7 @@ const ReligionQuestions = () => {
                 <RadioSelect
                   value={religionImportance}
                   onChange={setReligionImportance}
-                  options={[
-                    { label: "Is very important", value: "very-important" },
-                    { label: "Is quite important", value: "quite-important" },
-                    {
-                      label: "It doesn't matter to me at all",
-                      value: "not-matter",
-                    },
-                  ]}
+                  options={sameBeliefsOptions}
                   className="mt-2"
                 />
               </View>
@@ -60,7 +58,11 @@ const ReligionQuestions = () => {
                 title="Continue"
                 variant="gradient"
                 onPress={async () => {
-                  await updateProfileStep({ religionImportance });
+                  const normalizedImportance =
+                    religionImportanceMap[religionImportance?.toLowerCase?.()] ||
+                    religionImportance;
+
+                  await updateProfileStep({ religionImportance: normalizedImportance });
                   router.push("/education");
                 }}
               />

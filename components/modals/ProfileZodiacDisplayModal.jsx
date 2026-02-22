@@ -1,9 +1,9 @@
+import { useEffect, useState } from "react";
 import { View } from "react-native";
-import React, { useState, useEffect } from "react";
-import BaseModal from "./BaseModal";
-import ModalHeader from "../headers/ModalHeader";
-import { FILTER_OPTIONS } from "../../data/filterOptions";
 import OptionBox from "../../components/ui/optionBox";
+import { useLookupOptions } from "../../hooks/useLookupOptions";
+import ModalHeader from "../headers/ModalHeader";
+import BaseModal from "./BaseModal";
 
 const ProfileDisplayZodiacModal = ({
   visible,
@@ -12,6 +12,7 @@ const ProfileDisplayZodiacModal = ({
   initialSelected = null,
 }) => {
   const [selectedOption, setSelectedOption] = useState(initialSelected);
+  const { options } = useLookupOptions("zodiac");
 
   // keep state in sync if profileData changes
   useEffect(() => {
@@ -23,7 +24,7 @@ const ProfileDisplayZodiacModal = ({
       <ModalHeader centerText="Zodiac Sign" onClose={onClose} />
 
       <View className="flex-row flex-wrap p-4">
-        {FILTER_OPTIONS.zodiacSign.map((option) => {
+        {options.map((option) => {
           const isSelected = selectedOption === option.value;
           return (
             <OptionBox

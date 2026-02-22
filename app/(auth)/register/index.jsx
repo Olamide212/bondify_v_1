@@ -101,15 +101,7 @@ const Register = () => {
                 join millions of people finding love on Bondies.
               </Text>
 
-              {/* 📱 Phone Input */}
-              <GlobalPhoneInput
-                phoneNumber={formData.phone}
-                countryCode={formData.countryCode}
-                onChangePhoneNumber={(digits) => handleChange("phone", digits)}
-                onChangeCountryCode={(code) =>
-                  handleChange("countryCode", code)
-                }
-              />
+         
 
               <TextInput
                 placeholder="First name"
@@ -121,6 +113,15 @@ const Register = () => {
                 placeholder="Last name"
                 value={formData.lastName}
                 onChangeText={(text) => handleChange("lastName", text)}
+              />
+                   {/* 📱 Phone Input */}
+              <GlobalPhoneInput
+                phoneNumber={formData.phone}
+                countryCode={formData.countryCode}
+                onChangePhoneNumber={(digits) => handleChange("phone", digits)}
+                onChangeCountryCode={(code) =>
+                  handleChange("countryCode", code)
+                }
               />
 
               <TextInput

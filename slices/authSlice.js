@@ -2,6 +2,23 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { authAPI } from "../services/authService";
 import { tokenManager } from "../utils/tokenManager";
 
+const isInvalidAuthError = (error) => {
+  const status = error?.response?.status;
+  const message = String(error?.response?.data?.message || error?.message || "").toLowerCase();
+
+  if (status !== 401) return false;
+
+  return [
+    "not authorized",
+    "token invalid",
+    "no token",
+    "user not found",
+    "account is deactivated",
+    "jwt",
+    "token",
+  ].some((fragment) => message.includes(fragment));
+};
+
 // ----------------------- Async Thunks -----------------------
 
 // Signup (store onboarding token + pending contact info)
@@ -119,7 +136,7 @@ export const login = createAsyncThunk(
         return rejectWithValue({
           message: payload.message,
           requiresVerification: true,
-          email: credentials?.email,
+          email: payload?.email || credentials?.email,
         });
       }
 
@@ -146,13 +163,23 @@ export const restoreAuth = createAsyncThunk(
           const payload = response.data?.data ?? response.data;
           currentUser = payload?.user ?? payload ?? null;
         } catch (error) {
-          await tokenManager.removeTokens();
+          if (isInvalidAuthError(error)) {
+            await tokenManager.removeTokens();
+            return {
+              token: null,
+              onboardingToken: null,
+              user: null,
+              isAuthenticated: false,
+              hasOnboardingSession: false,
+            };
+          }
+
           return {
-            token: null,
-            onboardingToken: null,
+            token,
+            onboardingToken,
             user: null,
-            isAuthenticated: false,
-            hasOnboardingSession: false,
+            isAuthenticated: Boolean(token),
+            hasOnboardingSession: Boolean(onboardingToken),
           };
         }
       }

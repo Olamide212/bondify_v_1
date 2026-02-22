@@ -1,24 +1,30 @@
-import React, { useState } from "react";
-import {
-  SafeAreaView,
-  Text,
-  View,
-  KeyboardAvoidingView,
-  Platform,
-  TouchableWithoutFeedback,
-  Keyboard,
-} from "react-native";
-import NextButton from "../../../../components/ui/NextButton";
 import { useRouter } from "expo-router";
+import { useState } from "react";
+import {
+    Keyboard,
+    KeyboardAvoidingView,
+    Platform,
+    SafeAreaView,
+    Text,
+    TouchableWithoutFeedback,
+    View,
+} from "react-native";
 
 import RadioSelect from "../../../../components/inputs/RadioSelect";
-import Info from "../../../../components/ui/Info";
 import Button from "../../../../components/ui/Button";
+import Info from "../../../../components/ui/Info";
+import { useLookupOptions } from "../../../../hooks/useLookupOptions";
 import { useProfileSetup } from "../../../../hooks/useProfileSetup";
+
+const relationshipTypeMap = {
+  seperated: "separated",
+  anunulled: "annulled",
+};
 
 
 const MaritalStatus = () => {
   const [maritalStatus, setMaritalStatus] = useState("");
+  const { options: relationshipStatusOptions } = useLookupOptions("relationship-status");
 
   const router = useRouter();
   const { updateProfileStep } = useProfileSetup({ isOnboarding: true });
@@ -45,13 +51,7 @@ const MaritalStatus = () => {
                 <RadioSelect
                   value={maritalStatus}
                   onChange={setMaritalStatus}
-                  options={[
-                    { label: "Never Married", value: "never-married" },
-                    { label: "Divorced", value: "divorced" },
-                    { label: "Seperated", value: "seperated" },
-                    { label: "Annulled", value: "anunulled" },
-                    { label: "Widowed", value: "widowed" },
-                  ]}
+                  options={relationshipStatusOptions}
                   className="mt-2"
                 />
               </View>
@@ -63,7 +63,10 @@ const MaritalStatus = () => {
                 title="Continue"
                 variant="gradient"
                 onPress={async () => {
-                  await updateProfileStep({ relationshipType: maritalStatus });
+                  const normalizedRelationshipType =
+                    relationshipTypeMap[maritalStatus?.toLowerCase?.()] || maritalStatus;
+
+                  await updateProfileStep({ relationshipType: normalizedRelationshipType });
                   router.push("/kids");
                 }}
               />

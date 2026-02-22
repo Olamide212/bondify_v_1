@@ -1,8 +1,9 @@
-import { Plus } from "lucide-react-native";
-import { useState } from "react";
+import { MessageCircle, Plus } from "lucide-react-native";
+import { useEffect, useState } from "react";
 import { FlatList, Modal, Text, TextInput, TouchableOpacity, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import Button from "../ui/Button";
+import TextHeadingOne from "../ui/TextHeadingOne";
 
 const QUESTIONS = [
   "What’s your love language?",
@@ -25,13 +26,26 @@ const ProfileAnswers = ({ profile, onUpdateField }) => {
   const [selectedQuestion, setSelectedQuestion] = useState(null);
   const [answer, setAnswer] = useState("");
 
+  useEffect(() => {
+    setAnswers(Array.isArray(profile?.questions) ? profile.questions : []);
+  }, [profile?.questions]);
+
   const handleSave = async () => {
     if (!selectedQuestion || !answer.trim()) return;
 
-    const updatedAnswers = [
-      ...answers,
-      { question: selectedQuestion, answer },
-    ];
+    const normalizedAnswer = answer.trim();
+    const existingIndex = answers.findIndex(
+      (item) => item?.question === selectedQuestion
+    );
+
+    const updatedAnswers =
+      existingIndex >= 0
+        ? answers.map((item, index) =>
+            index === existingIndex
+              ? { question: selectedQuestion, answer: normalizedAnswer }
+              : item
+          )
+        : [...answers, { question: selectedQuestion, answer: normalizedAnswer }];
 
     setAnswers(updatedAnswers);
     await onUpdateField?.("questions", updatedAnswers);
@@ -43,16 +57,17 @@ const ProfileAnswers = ({ profile, onUpdateField }) => {
   };
 
   return (
-    <View className="px-6 py-4 bg-white mx-4 rounded-2xl mt-4">
+    <View className="px-6 py-4 bg-gray-50 border border-gray-100 mx-4 rounded-2xl ">
+      <TextHeadingOne name="More About Me" icon={MessageCircle} />
       {/* Show answers */}
       {answers.length > 0 ? (
         answers.map((item, index) => (
           <View key={index} className="mb-4">
-            <Text className="text-black text-2xl font-SatoshiMedium mb-1">
+            <Text className="text-black text-xl font-Satoshi mb-1">
               {item.question}
             </Text>
-            <Text className="font-Satoshi text-lg text-gray-700">
-              {item.answer}
+            <Text className="font-SatoshiMedium text-2xl text-gray-700 ">
+              {item.answer.trim() || "No answer provided."}
             </Text>
           </View>
         ))
@@ -76,6 +91,7 @@ const ProfileAnswers = ({ profile, onUpdateField }) => {
 
       {/* Modal */}
       <Modal visible={showModal} animationType="slide">
+        <SafeAreaProvider>
         <SafeAreaView className="flex-1 bg-white p-6">
           {!selectedQuestion ? (
             <>
@@ -133,6 +149,7 @@ const ProfileAnswers = ({ profile, onUpdateField }) => {
             </>
           )}
         </SafeAreaView>
+        </SafeAreaProvider>
       </Modal>
     </View>
   );

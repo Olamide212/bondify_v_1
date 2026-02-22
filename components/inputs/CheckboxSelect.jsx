@@ -36,7 +36,7 @@ const CheckboxSelect = ({
             onPress={() => toggleSelection(option.value)}
             style={{ height: 50, borderRadius: 10 }}
           >
-            <Text className="text-app text-lg font-SatoshiMedium">
+            <Text className="text-app text-xl font-SatoshiMedium">
               {option.label}
             </Text>
             <Ionicons

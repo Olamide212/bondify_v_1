@@ -1,4 +1,7 @@
 const User = require('../models/User');
+const { GetObjectCommand } = require('@aws-sdk/client-s3');
+const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
+const s3 = require('../config/s3');
 
 const enumNormalizers = {
   lookingFor: {
@@ -58,6 +61,11 @@ const enumNormalizers = {
     deep: 'emotional',
     'prefer-not': 'balanced',
   },
+  religionImportance: {
+    'is-very-important': 'very-important',
+    'is-quite-important': 'quite-important',
+    'not-matter': 'not-important',
+  },
 };
 
 const normalizeEnumField = (key, value) => {
@@ -67,13 +75,104 @@ const normalizeEnumField = (key, value) => {
   return enumNormalizers[key]?.[normalized] || value;
 };
 
+const calculateAgeFromDate = (dobInput) => {
+  const dob = new Date(dobInput);
+  if (Number.isNaN(dob.getTime())) return null;
+
+  const today = new Date();
+  let age = today.getFullYear() - dob.getFullYear();
+  const monthDiff = today.getMonth() - dob.getMonth();
+
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+    age -= 1;
+  }
+
+  return age;
+};
+
+const normalizeBirthFields = (updates) => {
+  const normalizedUpdates = { ...updates };
+
+  let dateOfBirthValue =
+    normalizedUpdates.dateOfBirth ||
+    normalizedUpdates.birthdate ||
+    null;
+
+  if (
+    !dateOfBirthValue &&
+    normalizedUpdates.birthYear &&
+    normalizedUpdates.birthMonth !== undefined &&
+    normalizedUpdates.birthDay
+  ) {
+    const month = String(Number(normalizedUpdates.birthMonth) + 1).padStart(2, '0');
+    const day = String(normalizedUpdates.birthDay).padStart(2, '0');
+    dateOfBirthValue = `${normalizedUpdates.birthYear}-${month}-${day}`;
+  }
+
+  if (dateOfBirthValue) {
+    const parsedDate = new Date(dateOfBirthValue);
+    if (!Number.isNaN(parsedDate.getTime())) {
+      normalizedUpdates.dateOfBirth = parsedDate;
+
+      const computedAge = calculateAgeFromDate(parsedDate);
+      if (typeof computedAge === 'number' && !Number.isNaN(computedAge)) {
+        normalizedUpdates.age = computedAge;
+      }
+    }
+  }
+
+  delete normalizedUpdates.birthdate;
+  delete normalizedUpdates.birthYear;
+  delete normalizedUpdates.birthMonth;
+  delete normalizedUpdates.birthDay;
+
+  return normalizedUpdates;
+};
+
+const mapImagesWithAccessUrls = async (images = []) => {
+  const bucket = process.env.AWS_S3_BUCKET;
+  const baseUrl = process.env.AWS_S3_PUBLIC_BASE_URL;
+
+  if (!bucket) return images;
+
+  const mapped = await Promise.all(
+    images.map(async (image) => {
+      if (!image?.publicId) return image;
+
+      if (baseUrl) {
+        return {
+          ...image,
+          url: `${baseUrl.replace(/\/$/, '')}/${image.publicId}`,
+        };
+      }
+
+      try {
+        const signedUrl = await getSignedUrl(
+          s3,
+          new GetObjectCommand({ Bucket: bucket, Key: image.publicId }),
+          { expiresIn: 60 * 60 }
+        );
+
+        return {
+          ...image,
+          url: signedUrl,
+        };
+      } catch (_) {
+        return image;
+      }
+    })
+  );
+
+  return mapped;
+};
+
 // @desc    Update user profile
 // @route   PATCH /api/profile
 // @access  Private
 const updateProfile = async (req, res, next) => {
   try {
     const userId = req.user._id;
-    const updates = req.body;
+    let updates = req.body;
 
     // Prevent updating sensitive fields
     delete updates.password;
@@ -81,6 +180,8 @@ const updateProfile = async (req, res, next) => {
     delete updates.isVerified;
     delete updates.otp;
     delete updates.otpExpiry;
+
+    updates = normalizeBirthFields(updates);
 
     Object.keys(updates).forEach((key) => {
       updates[key] = normalizeEnumField(key, updates[key]);
@@ -180,6 +281,7 @@ const getProfile = async (req, res, next) => {
     delete profile.password;
     delete profile.otp;
     delete profile.otpExpiry;
+    profile.images = await mapImagesWithAccessUrls(profile.images);
 
     res.json({
       success: true,
@@ -206,7 +308,12 @@ const getMyProfile = async (req, res, next) => {
 
     res.json({
       success: true,
-      data: { user },
+      data: {
+        user: {
+          ...user.toObject(),
+          images: await mapImagesWithAccessUrls(user.images),
+        },
+      },
     });
   } catch (error) {
     next(error);

@@ -14,6 +14,7 @@ import {
 import { useRouter } from "expo-router";
 import Button from "../../../../components/ui/Button";
 import { useProfileSetup } from "../../../../hooks/useProfileSetup";
+import { fonts } from "../../../../constant/fonts";
 
 const PREDEFINED_BIOS = [
   "Looking for something real and meaningful 💛",
@@ -68,6 +69,7 @@ const About = () => {
                   borderRadius: 12,
                   textAlignVertical: "top",
                   fontSize: 16,
+                  fontFamily: fonts.SantoshiMedium
                 }}
               />
 
@@ -84,13 +86,13 @@ const About = () => {
                       onPress={() => handleSelectPredefined(bio)}
                       className={`px-4 py-3 rounded-full border ${
                         isSelected
-                          ? "bg-primary border-primary"
+                          ? "bg-secondary border-secondary"
                           : "bg-gray-100 border-gray-200"
                       }`}
                     >
                       <Text
-                        className={`text-sm font-SatoshiMedium ${
-                          isSelected ? "text-white" : "text-gray-700"
+                        className={`text-base font-SatoshiMedium ${
+                          isSelected ? "text-black" : "text-gray-700"
                         }`}
                       >
                         {bio}

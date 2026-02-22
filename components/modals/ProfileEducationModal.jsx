@@ -1,21 +1,11 @@
 // components/modals/ProfileEducationModal.js
 
+import { useEffect, useState } from "react";
 import { View } from "react-native";
-import React, { useState, useEffect } from "react";
-import BaseModal from "./BaseModal";
-import ModalHeader from "../headers/ModalHeader";
 import OptionBox from "../../components/ui/optionBox";
-
-// Example education options
-const EDUCATION_OPTIONS = [
-  { label: "High School", value: "high_school" },
-  { label: "Associate Degree", value: "associate" },
-  { label: "Bachelor's Degree", value: "bachelor" },
-  { label: "Master's Degree", value: "master" },
-  { label: "Doctorate / PhD", value: "phd" },
-  { label: "Trade / Technical", value: "trade" },
-  { label: "Other", value: "other" },
-];
+import { useLookupOptions } from "../../hooks/useLookupOptions";
+import ModalHeader from "../headers/ModalHeader";
+import BaseModal from "./BaseModal";
 
 const ProfileEducationModal = ({
   onClose,
@@ -24,6 +14,7 @@ const ProfileEducationModal = ({
   onSelect,
 }) => {
   const [selectedOption, setSelectedOption] = useState(initialSelected);
+  const { options: educationOptions } = useLookupOptions("education");
 
   useEffect(() => {
     setSelectedOption(initialSelected);
@@ -34,7 +25,7 @@ const ProfileEducationModal = ({
       <ModalHeader centerText="Education" onClose={onClose} />
 
       <View className="flex-row flex-wrap p-4">
-        {EDUCATION_OPTIONS.map((option) => {
+        {educationOptions.map((option) => {
           const isSelected = selectedOption === option.value;
           return (
             <OptionBox

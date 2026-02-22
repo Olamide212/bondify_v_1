@@ -30,7 +30,7 @@ const RadioSelect = ({
           >
             <View className="flex-row justify-between items-center">
               <Text
-                className={`text-app text-lg font-SatoshiMedium flex-1 pr-4 
+                className={`text-app text-xl font-SatoshiMedium flex-1 pr-4 
                   ${value === option.value ? "text-primary" : ""} `}
                 style={{ flexWrap: "wrap" }}
               >

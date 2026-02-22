@@ -16,6 +16,7 @@ import SubscriptionModal from "../modals/SubscriptionModal";
 import FilterModal from "../modals/FilterModal";
 import WalletModal from "../modals/WalletModal"; 
 import BondiesHobModal from "../modals/BondiesHopModal"
+import TextHeadingOne from "../ui/TextHeadingOne";
 
 
 
@@ -93,6 +94,7 @@ const InfoSection = () => {
   return (
     <>
       <View className="bg-white p-5 rounded-xl">
+     
         {items.map(({ title, description, icon: Icon, link, modal }, index) => {
           const isLast = index === items.length - 1;
 
@@ -119,10 +121,10 @@ const InfoSection = () => {
               <View className="flex-row items-center gap-3 flex-1">
                 <Icon size={20} />
                 <View className="flex-1">
-                  <Text className="text-xl text-black font-GeneralSansMedium">
+                  <Text className="text-[18px] text-black font-SatoshiBold">
                     {title}
                   </Text>
-                  <Text className="text-base text-gray-700 font-Satoshi">
+                  <Text className="text-base text-gray-700 font-SatoshiMedium">
                     {description}
                   </Text>
                 </View>

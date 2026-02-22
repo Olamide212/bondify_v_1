@@ -1,25 +1,25 @@
-import React, { useState } from "react";
-import {
-  SafeAreaView,
-  Text,
-  View,
-  KeyboardAvoidingView,
-  Platform,
-  TouchableWithoutFeedback,
-  Keyboard,
-} from "react-native";
-import NextButton from "../../../../components/ui/NextButton";
 import { useRouter } from "expo-router";
-import TextInput from "../../../../components/inputs/TextInput";
+import { useState } from "react";
+import {
+    Keyboard,
+    KeyboardAvoidingView,
+    Platform,
+    SafeAreaView,
+    Text,
+    TouchableWithoutFeedback,
+    View,
+} from "react-native";
 
 import RadioSelect from "../../../../components/inputs/RadioSelect";
-import Info from "../../../../components/ui/Info";
 import Button from "../../../../components/ui/Button";
+import Info from "../../../../components/ui/Info";
+import { useLookupOptions } from "../../../../hooks/useLookupOptions";
 import { useProfileSetup } from "../../../../hooks/useProfileSetup";
 
 
 const Gender = () => {
   const [gender, setGender] = useState("");
+  const { options: genderOptions } = useLookupOptions("genders");
 
   const router = useRouter();
   const { updateProfileStep } = useProfileSetup({ isOnboarding: true });
@@ -45,10 +45,7 @@ const Gender = () => {
                 <RadioSelect
                   value={gender}
                   onChange={setGender}
-                  options={[
-                    { label: "Male", value: "male" },
-                    { label: "Female", value: "female" },
-                  ]}
+                  options={genderOptions}
                   className="mt-2"
                 />
               </View>

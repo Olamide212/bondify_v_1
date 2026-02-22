@@ -1,24 +1,25 @@
-import React, { useState } from "react";
-import {
-  SafeAreaView,
-  Text,
-  View,
-  KeyboardAvoidingView,
-  Platform,
-  TouchableWithoutFeedback,
-  Keyboard,
-} from "react-native";
-import NextButton from "../../../../components/ui/NextButton";
 import { useRouter } from "expo-router";
+import { useState } from "react";
+import {
+    Keyboard,
+    KeyboardAvoidingView,
+    Platform,
+    SafeAreaView,
+    Text,
+    TouchableWithoutFeedback,
+    View,
+} from "react-native";
 
 import RadioSelect from "../../../../components/inputs/RadioSelect";
-import Info from "../../../../components/ui/Info";
 import Button from "../../../../components/ui/Button";
+import Info from "../../../../components/ui/Info";
+import { useLookupOptions } from "../../../../hooks/useLookupOptions";
 import { useProfileSetup } from "../../../../hooks/useProfileSetup";
 
 
 const Education = () => {
   const [education, setEducation] = useState("");
+  const { options: educationOptions } = useLookupOptions("education");
 
   const router = useRouter();
   const { updateProfileStep } = useProfileSetup({ isOnboarding: true });
@@ -41,15 +42,7 @@ const Education = () => {
                 <RadioSelect
                   value={education}
                   onChange={setEducation}
-                  options={[
-                    { label: "Bachelor Degree", value: "bachelor" },
-                    { label: "Diploma", value: "diploma" },
-                    { label: "Masters", value: "master" },
-                    { label: "PhD", value: "phd" },
-                    { label: "Secondary", value: "secondary" },
-                    { label: "Primary", value: "primary" },
-                    { label: "None", value: "none" },
-                  ]}
+                  options={educationOptions}
                   className="mt-2"
                 />
               </View>

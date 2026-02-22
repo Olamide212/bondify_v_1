@@ -1,9 +1,9 @@
+import { useEffect, useState } from "react";
 import { View } from "react-native";
-import React, { useState, useEffect } from "react";
-import BaseModal from "./BaseModal";
-import ModalHeader from "../headers/ModalHeader";
-import { ETHNICITY_OPTIONS } from "../../data/ethnicityData";
 import OptionBox from "../../components/ui/optionBox";
+import { useLookupOptions } from "../../hooks/useLookupOptions";
+import ModalHeader from "../headers/ModalHeader";
+import BaseModal from "./BaseModal";
 
 const EthnicityModal = ({
   onClose,
@@ -12,6 +12,7 @@ const EthnicityModal = ({
   onSelect,
 }) => {
   const [selectedOption, setSelectedOption] = useState(initialSelected);
+  const { options } = useLookupOptions("ethnicities");
 
   // keep state in sync if profileData changes
   useEffect(() => {
@@ -23,7 +24,7 @@ const EthnicityModal = ({
       <ModalHeader centerText="Ethnicity" onClose={onClose} />
 
       <View className="flex-row flex-wrap p-4">
-        {ETHNICITY_OPTIONS.map((option) => {
+        {options.map((option) => {
           const isSelected = selectedOption === option.value;
           return (
             <OptionBox

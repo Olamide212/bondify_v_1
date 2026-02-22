@@ -13,6 +13,7 @@ import {
 import RadioSelect from "../../../../components/inputs/RadioSelect";
 import Button from "../../../../components/ui/Button";
 import Info from "../../../../components/ui/Info";
+import { useLookupOptions } from "../../../../hooks/useLookupOptions";
 import { useProfileSetup } from "../../../../hooks/useProfileSetup";
 
 const drinkingValueMap = {
@@ -26,6 +27,7 @@ const drinkingValueMap = {
 
 const Drink = () => {
   const [drinking, setDrinking] = useState("");
+  const { options: drinkingOptions } = useLookupOptions("drinking-habits");
 
   const router = useRouter();
   const { updateProfileStep } = useProfileSetup({ isOnboarding: true });
@@ -48,13 +50,7 @@ const Drink = () => {
                 <RadioSelect
                   value={drinking}
                   onChange={setDrinking}
-                  options={[
-                    { label: "No, i don't drink", value: "never" },
-                    { label: "Socially", value: "socially" },
-                    { label: "Occasionally", value: "rarely" },
-                    { label: "Regularly", value: "regularly" },
-                    { label: "Prefer not to say", value: "prefer-not-to-say" },
-                  ]}
+                  options={drinkingOptions}
                   className="mt-2"
                 />
               </View>

@@ -13,6 +13,7 @@ import {
 import RadioSelect from "../../../../components/inputs/RadioSelect";
 import Button from "../../../../components/ui/Button";
 import Info from "../../../../components/ui/Info";
+import { useLookupOptions } from "../../../../hooks/useLookupOptions";
 import { useProfileSetup } from "../../../../hooks/useProfileSetup";
 
 const lookingForValueMap = {
@@ -27,6 +28,7 @@ const lookingForValueMap = {
 
 const Preference = () => {
   const [preference, setPreference] = useState("");
+  const { options: lookingForOptions } = useLookupOptions("looking-for");
 
   const router = useRouter();
   const { updateProfileStep } = useProfileSetup({ isOnboarding: true });
@@ -52,24 +54,7 @@ const Preference = () => {
                 <RadioSelect
                   value={preference}
                   onChange={setPreference}
-                  options={[
-                    {
-                      label: "A committed relationship",
-                      value: "committed-relationship",
-                    },
-                    { label: "Something Casual", value: "something-casual" },
-                    { label: "Marriage", value: "marriage" },
-                    { label: "Finding a Date", value: "finding-a-date" },
-          
-                    {
-                      label: "Meet business oriented people",
-                      value: "meet-business-oriented-people",
-                    },
-                    {
-                      label: "I am not sure",
-                      value: "not-sure",
-                    },
-                  ]}
+                  options={lookingForOptions}
                   className="mt-2"
                 />
               </View>

@@ -5,6 +5,7 @@ import { Image } from "expo-image";
 import Button from "../../../components/ui/Button";
 import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
+import { StatusBar } from "expo-status-bar";
 
 const Onboarding = () => {
   const router = useRouter();
@@ -16,6 +17,7 @@ const Onboarding = () => {
       end={{ x: 0, y: 1 }}
       style={{ flex: 1 }}
     >
+      <StatusBar style="light" />
       <SafeAreaView className="flex-1">
         <View className="flex-1 justify-between pb-4">
           {/* Logo at top */}
@@ -45,7 +47,7 @@ const Onboarding = () => {
             {/* Buttons */}
             <View className="w-full">
               <Button
-                title="Continue with Email Address"
+                title="Continue Phone Number"
                 onPress={() => router.push("/login")}
                 className="mb-3"
                 textClassName="font-santoshiMedium"
@@ -59,7 +61,7 @@ const Onboarding = () => {
                 variant="black"
               />
               <Text className="text-white font-GeneralSansMedium text-lg text-center mb-4 px-4">
-                By joining our platform, you agree to our Terms and Condtion
+                By joining our platform, you agree to our Terms and Conditions
               </Text>
             </View>
           </View>

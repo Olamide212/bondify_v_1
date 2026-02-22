@@ -1,6 +1,7 @@
 // components/OptionBox.jsx
 import { View, Text, TouchableOpacity } from "react-native";
 import { colors } from "../../constant/colors";
+import { fonts } from "../../constant/fonts";
 
 export default function OptionBox({
   label,
@@ -16,17 +17,16 @@ export default function OptionBox({
       disabled={readOnly}
       onPress={onPress}
       style={{
-        padding: 10,
-        borderWidth: 1,
-        borderRadius: 8,
+        padding: 12,
+        borderRadius:  8,
         margin: 5,
-        backgroundColor: isActive ? colors.primary : "#fff",
+        backgroundColor: isActive ? colors.primary : "#f1f1f1",
       }}
     >
       <Text
         style={{
           color: isActive ? "#fff" : "#333",
-          fontFamily: "GeneralSansSemiBold",
+          fontFamily: fonts.SantoshiMedium,
         }}
       >
         {label || value}

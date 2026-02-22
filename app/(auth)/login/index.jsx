@@ -1,30 +1,32 @@
-import React, { useState, useEffect } from "react";
+import { useRouter } from "expo-router";
+import { useEffect, useState } from "react";
 import {
-  SafeAreaView,
-  Text,
-  View,
+  Keyboard,
   KeyboardAvoidingView,
   Platform,
-  TouchableWithoutFeedback,
-  Keyboard,
   Pressable,
+  SafeAreaView,
+  Text,
+  TouchableWithoutFeedback,
+  View,
 } from "react-native";
-import { useRouter } from "expo-router";
 import { useDispatch, useSelector } from "react-redux";
+import GlobalPhoneInput from "../../../components/inputs/PhoneInput";
 import TextInput from "../../../components/inputs/TextInput";
 import Button from "../../../components/ui/Button";
-import { login, clearError } from "../../../slices/authSlice";
 import { useToast } from "../../../context/ToastContext";
+import { clearError, login } from "../../../slices/authSlice";
 
 const EmailLogin = () => {
   const router = useRouter();
   const dispatch = useDispatch();
   const { showToast } = useToast();
 
-  const { loading, error, token } = useSelector((state) => state.auth);
+  const { loading } = useSelector((state) => state.auth);
 
   const [formData, setFormData] = useState({
-    email: "",
+    countryCode: "",
+    phoneNumber: "",
     password: "",
   });
 
@@ -36,17 +38,34 @@ const EmailLogin = () => {
   };
 
   const handleLogin = async () => {
-    if (!formData.email || !formData.password) {
+    if (!formData.phoneNumber || !formData.password) {
       showToast({
-        message: "Email and password are required",
+        message: "Phone number and password are required",
+        variant: "error",
+      });
+      return;
+    }
+
+    if (!/^\d{10}$/.test(formData.phoneNumber)) {
+      showToast({
+        message: "Phone number must be exactly 10 digits",
         variant: "error",
       });
       return;
     }
 
     try {
+      const payload = {
+        phoneNumber: formData.phoneNumber,
+        password: formData.password,
+      };
+
+      if (formData.countryCode) {
+        payload.countryCode = formData.countryCode;
+      }
+
       const result = await dispatch(
-        login({ email: formData.email, password: formData.password })
+        login(payload)
       ).unwrap();
 
       showToast({
@@ -98,13 +117,11 @@ const EmailLogin = () => {
                 Login into your Bondies account
               </Text>
 
-              {/* Email */}
-              <TextInput
-                placeholder="Enter your email address"
-                value={formData.email}
-                onChangeText={(text) => handleChange("email", text)}
-                keyboardType="email-address"
-                autoCapitalize="none"
+              <GlobalPhoneInput
+                phoneNumber={formData.phoneNumber}
+                countryCode={formData.countryCode}
+                onChangePhoneNumber={(digits) => handleChange("phoneNumber", digits)}
+                onChangeCountryCode={(code) => handleChange("countryCode", code)}
               />
 
               <TextInput
@@ -125,7 +142,7 @@ const EmailLogin = () => {
 
               <View className="flex-row justify-center items-center gap-1 mt-4 w-full">
                 <Text className="text-lg font-GeneralSansMedium">
-                  Don't have an account?
+                  Don&apos;t have an account?
                 </Text>
                 <Pressable onPress={() => router.push("/register")}>
                   <Text className="text-lg font-GeneralSansMedium text-primary">

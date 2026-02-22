@@ -34,7 +34,7 @@ if (__DEV__) {
 // Create axios instance
 const apiClient = axios.create({
   baseURL: BASE_URL,
-  timeout: 30000,
+  // timeout: 30000,
   headers: {
     "Content-Type": "application/json",
   },
@@ -71,12 +71,9 @@ apiClient.interceptors.response.use(
       });
     }
 
-    // Handle token expiration (401)
-    if (error.response?.status === 401) {
-      tokenManager.removeTokens();
-      // You might want to navigate to login screen here
-      // navigationRef.navigate('Login');
-    }
+    // Do not globally clear tokens here.
+    // Some 401s can be transient/server-side; token cleanup is handled in auth restore
+    // with stricter invalid-token checks.
 
     // Handle other common errors
     if (error.response?.status === 403) {

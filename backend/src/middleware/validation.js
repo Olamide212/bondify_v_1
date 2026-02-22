@@ -21,7 +21,16 @@ const signupValidation = [
 ];
 
 const loginValidation = [
-  body('email').isEmail().normalizeEmail().withMessage('Valid email is required'),
+  body('phoneNumber')
+    .notEmpty()
+    .withMessage('Phone number is required')
+    .bail()
+    .isLength({ min: 8, max: 15 })
+    .withMessage('Phone number is invalid'),
+  body('countryCode')
+    .optional({ values: 'falsy' })
+    .matches(/^\+?\d{1,4}$/)
+    .withMessage('Country code is invalid'),
   body('password').notEmpty().withMessage('Password is required'),
   validate,
 ];
@@ -35,6 +44,8 @@ const verifyOtpValidation = [
 const updateProfileValidation = [
   body('email').optional().isEmail().normalizeEmail(),
   body('age').optional().isInt({ min: 18, max: 100 }),
+  body('dateOfBirth').optional().isISO8601(),
+  body('birthdate').optional().isISO8601(),
   body('gender').optional().isIn(['male', 'female', 'non-binary', 'other']),
   body('bio').optional().isLength({ max: 500 }),
   validate,

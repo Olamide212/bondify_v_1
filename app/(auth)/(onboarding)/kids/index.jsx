@@ -13,6 +13,7 @@ import {
 import RadioSelect from "../../../../components/inputs/RadioSelect";
 import Button from "../../../../components/ui/Button";
 import Info from "../../../../components/ui/Info";
+import { useLookupOptions } from "../../../../hooks/useLookupOptions";
 import { useProfileSetup } from "../../../../hooks/useProfileSetup";
 
 const childrenValueMap = {
@@ -32,6 +33,7 @@ const childrenValueMap = {
 
 const Kids = () => {
   const [children, setChildren] = useState("");
+  const { options: familyPlanOptions } = useLookupOptions("family-plans");
 
   const router = useRouter();
   const { updateProfileStep } = useProfileSetup({ isOnboarding: true });
@@ -57,15 +59,7 @@ const Kids = () => {
                 <RadioSelect
                   value={children}
                   onChange={setChildren}
-                  options={[
-                    { label: "I want children", value: "want-kids" },
-                    { label: "I don't want children", value: "dont-want-kids" },
-                    { label: "I have children and want more", value: "open-to-kids" },
-                    {
-                      label: "I have children and don't want more",
-                      value: "have-kids",
-                    },
-                  ]}
+                  options={familyPlanOptions}
                   className="mt-2"
                 />
               </View>

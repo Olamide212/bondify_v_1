@@ -1,46 +1,49 @@
-import { useState } from "react";
+import { GraduationCap } from "lucide-react-native";
+import { useEffect, useMemo, useState } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
+import { useLookupOptions } from "../../hooks/useLookupOptions";
 import ProfileEducationModal from "../modals/ProfileEducationModal";
+import TextHeadingOne from "../ui/TextHeadingOne";
 
 const Education = ({ profile, onUpdateField }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedEducation, setSelectedEducation] = useState(
     profile?.education || null
   );
+  const { options: educationOptions } = useLookupOptions("education");
+
+  useEffect(() => {
+    setSelectedEducation(profile?.education || null);
+  }, [profile?.education]);
 
   const handleSelectEducation = async (value) => {
     setSelectedEducation(value);
     await onUpdateField?.("education", value);
   };
 
-  const getEducationLabel = (value) => {
-    const educationOptions = [
-      { label: "High School", value: "high_school" },
-      { label: "Associate Degree", value: "associate" },
-      { label: "Bachelor's Degree", value: "bachelor" },
-      { label: "Master's Degree", value: "master" },
-      { label: "Doctorate / PhD", value: "phd" },
-      { label: "Trade / Technical", value: "trade" },
-      { label: "Other", value: "other" },
-    ];
+  const educationLabel = useMemo(() => {
+    if (!selectedEducation) return "Add My Education";
 
-    const option = educationOptions.find((opt) => opt.value === value);
-    return option ? option.label : "Add My Education";
-  };
+    const option = educationOptions.find((opt) => opt.value === selectedEducation);
+    if (option?.label) return option.label;
+
+    return selectedEducation
+      .split("-")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+  }, [educationOptions, selectedEducation]);
 
   return (
     <>
       <TouchableOpacity
-        className="px-6 py-4 bg-white mx-4 rounded-2xl mt-4"
+        className="px-6 py-4 bg-gray-50 border border-gray-100 mx-4 rounded-2xl"
         onPress={() => setModalVisible(true)}
       >
-        <Text className="mb-2 font-GeneralSansMedium text-lg text-black">
-          Education Level
-        </Text>
+       <TextHeadingOne name="Education Level" icon={GraduationCap} />
         <View className="mb-1">
           {selectedEducation ? (
             <Text className="text-black text-2xl font-SatoshiMedium">
-              {getEducationLabel(selectedEducation)}
+              {educationLabel}
             </Text>
           ) : (
             <Text className="text-gray-400  font-SatoshiMediumItalic">

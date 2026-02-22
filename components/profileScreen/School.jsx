@@ -1,19 +1,25 @@
-import { ArrowLeft } from "lucide-react-native";
-import { useState } from "react";
+import { ArrowLeft, School as SchoolIcon } from "lucide-react-native";
+import { useEffect, useState } from "react";
 import {
-    Modal,
-    Pressable,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Modal,
+  Pressable,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import Button from "../ui/Button";
+import TextHeadingOne from "../ui/TextHeadingOne";
+import BaseModal from "../modals/BaseModal";
 
 const School = ({ profile, onUpdateField }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [schoolName, setSchoolName] = useState(profile?.school || "");
+
+  useEffect(() => {
+    setSchoolName(profile?.school || "");
+  }, [profile?.school]);
 
   const handleSave = async () => {
     await onUpdateField?.("school", schoolName);
@@ -23,20 +29,18 @@ const School = ({ profile, onUpdateField }) => {
   return (
     <>
       <TouchableOpacity
-        className="px-6 py-4 bg-white mx-4 rounded-2xl mt-4"
+        className="px-6 py-4 bg-gray-50 border border-gray-100 mx-4 rounded-2xl"
         onPress={() => setModalVisible(true)}
       >
         <View className="mb-1">
-          <Text className="text-xl text-gray-900 font-GeneralSansMedium">
-          School
-          </Text>
+          <TextHeadingOne name="School" icon={SchoolIcon} />
           {!schoolName ? (
             <Text className="text-gray-400  font-SatoshiMediumItalic">
               No school added yet
             </Text>
           ) : (
             <Text className="text-black text-2xl font-SatoshiMedium">
-              {schoolName}
+              {schoolName.trim() || "No school added yet"}
             </Text>
           )}
 
@@ -46,36 +50,36 @@ const School = ({ profile, onUpdateField }) => {
         </View>
       </TouchableOpacity>
 
-      <Modal
-        animationType="slide"
-        transparent={false}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <SafeAreaView className="flex-1 bg-white p-6">
-          {/* Header */}
-          <View className="flex-row  items-center mb-6">
-            <Pressable onPress={() => setModalVisible(false)} className="mr-4">
-              <ArrowLeft size={24} color="#000" />
-            </Pressable>
-            <Text className="text-2xl font-SatoshiMedium text-center">
-              Add your school
-            </Text>
-          </View>
+      <BaseModal visible={modalVisible} onClose={() => setModalVisible(false)} fullScreen={true}>
 
-          {/* Input Field */}
-          <TextInput
-            className="border border-gray-300 rounded-lg p-4 mb-6 font-SatoshiMedium"
-            placeholder="Enter school name"
-            value={schoolName}
-            onChangeText={setSchoolName}
-            autoFocus={true}
-          />
+        <SafeAreaProvider>
+          <SafeAreaView className="flex-1 bg-white p-6">
+            {/* Header */}
+            <View className="flex-row  items-center mb-6">
+              <Pressable onPress={() => setModalVisible(false)} className="mr-4">
+                <ArrowLeft size={24} color="#000" />
+              </Pressable>
+              <Text className="text-2xl font-SatoshiMedium text-center">
+                Add your school
+              </Text>
+            </View>
 
-          {/* Save Button */}
-          <Button title="Save" onPress={handleSave} disabled={!schoolName} />
-        </SafeAreaView>
-      </Modal>
+            {/* Input Field */}
+            <TextInput
+              className="border border-gray-300   rounded-lg p-4 mb-6 font-SatoshiMedium"
+              placeholder="Enter school name"
+              value={schoolName}
+              onChangeText={setSchoolName}
+              autoFocus={true}
+
+            />
+
+            {/* Save Button */}
+            <Button title="Save" onPress={handleSave} disabled={!schoolName} />
+          </SafeAreaView>
+        </SafeAreaProvider>
+
+      </BaseModal>
     </>
   );
 };

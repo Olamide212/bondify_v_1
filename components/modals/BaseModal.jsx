@@ -8,6 +8,7 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 
 const { height } = Dimensions.get("window");
 
@@ -60,6 +61,7 @@ const BaseModal = ({ visible, onClose, children, fullScreen = false }) => {
   if (!showModal) return null;
 
   return (
+
     <Modal
       visible={showModal}
       transparent={!fullScreen}
@@ -67,6 +69,8 @@ const BaseModal = ({ visible, onClose, children, fullScreen = false }) => {
       presentationStyle={fullScreen ? "fullScreen" : "overFullScreen"}
       onRequestClose={onClose}
     >
+      <SafeAreaProvider>
+      <SafeAreaView style={{ flex: 1 }}>
       {!fullScreen && (
         <TouchableWithoutFeedback onPress={onClose}>
           <Animated.View style={[styles.overlay, { opacity: fadeAnim }]} />
@@ -88,7 +92,10 @@ const BaseModal = ({ visible, onClose, children, fullScreen = false }) => {
           {children}
         </Animated.View>
       )}
+      </SafeAreaView>
+      </SafeAreaProvider>
     </Modal>
+    
   );
 };
 

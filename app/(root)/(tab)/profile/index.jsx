@@ -1,14 +1,12 @@
 import { useFocusEffect, useRouter } from "expo-router";
-import * as ImagePicker from "expo-image-picker";
 import { Bell } from "lucide-react-native";
-import { useCallback, useState } from "react";
-import { ActivityIndicator } from "react-native";
+import { useCallback, useRef, useState } from "react";
+import { ActivityIndicator, RefreshControl } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import GeneralHeader from "../../../../components/headers/GeneralHeader";
 import Perks from "../../../../components/profileScreen/BoostAndChat";
 import InfoSection from "../../../../components/profileScreen/InfoSection";
-import ProfilePhotoGrid from "../../../../components/profileScreen/ProfilePhotoGrid";
 import ProfileSection from "../../../../components/profileScreen/ProfileSection";
 import SubscriptionBannerSlider from "../../../../components/profileScreen/SubscriptionBannerSlider";
 import { profileService } from "../../../../services/profileService";
@@ -18,54 +16,40 @@ const ProfileScreen = () => {
   const router = useRouter();
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const lastFetchRef = useRef(0);
 
-  const loadProfile = useCallback(async () => {
+  const loadProfile = useCallback(async ({ force = false, showLoading = true } = {}) => {
+    const now = Date.now();
+    if (!force && now - lastFetchRef.current < 2000) return;
+
     try {
-      setLoading(true);
-      const userProfile = await profileService.getMyProfile();
+      lastFetchRef.current = now;
+      if (showLoading) setLoading(true);
+      const userProfile = await profileService.getMyProfile({ force });
       setProfile(userProfile || null);
     } catch (error) {
       console.error("Failed to load profile:", error);
     } finally {
-      setLoading(false);
+      if (showLoading) setLoading(false);
     }
   }, []);
 
+  const onRefresh = useCallback(async () => {
+    try {
+      setRefreshing(true);
+      await loadProfile({ force: true, showLoading: false });
+    } finally {
+      setRefreshing(false);
+    }
+  }, [loadProfile]);
+
   useFocusEffect(
     useCallback(() => {
-      loadProfile();
+      loadProfile({ force: false });
     }, [loadProfile])
   );
 
-  const handleAddPhoto = async () => {
-    try {
-      const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (permission.status !== "granted") return;
-
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        quality: 0.7,
-      });
-
-      if (result.canceled) return;
-
-      await profileService.uploadPhotos([result.assets[0].uri]);
-      await loadProfile();
-    } catch (error) {
-      console.error("Failed to add photo:", error);
-    }
-  };
-
-  const handleRemovePhoto = async (imageItem) => {
-    try {
-      const publicId = imageItem?.publicId;
-      if (!publicId) return;
-      await profileService.deletePhoto(publicId);
-      await loadProfile();
-    } catch (error) {
-      console.error("Failed to remove photo:", error);
-    }
-  };
 
 
   return (
@@ -78,6 +62,9 @@ const ProfileScreen = () => {
           onPress={() => router.push("/settings")}
         />
         <ScrollView
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
           contentContainerStyle={{
             paddingBottom: 80,
             backgroundColor: "#fff",
@@ -88,11 +75,7 @@ const ProfileScreen = () => {
           ) : (
             <>
               <ProfileSection profile={profile || {}} />
-              <ProfilePhotoGrid
-                photos={profile?.images || []}
-                onAddPhoto={handleAddPhoto}
-                onRemovePhoto={handleRemovePhoto}
-              />
+          
             </>
           )}
 

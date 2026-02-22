@@ -1,11 +1,11 @@
 import { Picker } from "@react-native-picker/picker";
+import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { Platform, StyleSheet, Text, View } from "react-native";
 import Button from "../../../../components/ui/Button";
 import Info from "../../../../components/ui/Info";
 import { months } from "../../../../data/months";
 import { useProfileSetup } from "../../../../hooks/useProfileSetup";
-import { useRouter } from "expo-router";
 
 
 
@@ -53,8 +53,11 @@ const Age = () => {
   useEffect(() => {
     const month = String(selectedMonth + 1).padStart(2, "0");
     const day = String(selectedDay).padStart(2, "0");
+    const dateOfBirth = `${selectedYear}-${month}-${day}`;
+
     updateProfileStep({
-      birthdate: `${selectedYear}-${month}-${day}`,
+      dateOfBirth,
+      age: calculateAge(new Date(selectedYear, selectedMonth, selectedDay)),
     });
   }, [selectedDay, selectedMonth, selectedYear]);
 

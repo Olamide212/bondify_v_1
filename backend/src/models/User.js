@@ -119,6 +119,10 @@ const userSchema = new mongoose.Schema(
     religion: {
       type: String,
     },
+    religionImportance: {
+      type: String,
+      enum: ['very-important', 'quite-important', 'not-important'],
+    },
     zodiacSign: {
       type: String,
     },

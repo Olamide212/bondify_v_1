@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { Briefcase } from "lucide-react-native";
+import { useEffect, useState } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 import OccupationModal from "../modals/ProfileOccupationModal"; // adjust path
+import TextHeadingOne from "../ui/TextHeadingOne";
 
 const Occupation = ({ profile, onUpdateField }) => {
   const [selectedOccupation, setSelectedOccupation] = useState(
@@ -8,12 +10,17 @@ const Occupation = ({ profile, onUpdateField }) => {
   );
   const [showModal, setShowModal] = useState(false);
 
+  useEffect(() => {
+    setSelectedOccupation(profile?.occupation || null);
+  }, [profile?.occupation]);
+
   return (
     <>
       <TouchableOpacity
-        className="px-6 py-4 bg-white mx-4 rounded-2xl mt-4"
+        className="px-6 py-4 bg-gray-50 border border-gray-100 mx-4 rounded-2xl "
         onPress={() => setShowModal(true)}
       >
+        <TextHeadingOne name="Occupation" icon={Briefcase} />
         
         <View className="mb-1">
           {selectedOccupation ? (

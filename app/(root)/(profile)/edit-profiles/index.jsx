@@ -2,7 +2,7 @@ import * as ImagePicker from "expo-image-picker";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { ArrowLeft } from "lucide-react-native";
 import React, { useState } from "react";
-import { ActivityIndicator, ScrollView, View } from "react-native";
+import { ActivityIndicator, RefreshControl, ScrollView, View } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import GeneralHeader from "../../../../components/headers/GeneralHeader";
 import AboutMe from "../../../../components/profileScreen/About";
@@ -15,45 +15,55 @@ import ProfilePhotoGrid from "../../../../components/profileScreen/ProfilePhotoG
 import School from "../../../../components/profileScreen/School";
 import Verification from "../../../../components/profileScreen/Verification";
 import Education from "../../../../components/profileScreen/WorkAndEducation";
-import TextHeadingOne from "../../../../components/ui/TextHeadingOne";
 import { profileService } from "../../../../services/profileService";
 
 export default function ProfileDetails() {
   const [profile, setProfile] = useState({});
   const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const params = useLocalSearchParams();
   const router = useRouter();
 
-  const loadProfile = React.useCallback(async () => {
+  const loadProfile = React.useCallback(async ({ showLoading = true } = {}) => {
     try {
-      setLoading(true);
-      const userProfile = await profileService.getMyProfile();
+      if (showLoading) setLoading(true);
+      const userProfile = await profileService.getMyProfile({ force: true });
       setProfile(userProfile || {});
     } catch (error) {
       console.error("Failed to load edit profile data:", error);
     } finally {
-      setLoading(false);
+      if (showLoading) setLoading(false);
     }
   }, []);
+
+  const onRefresh = React.useCallback(async () => {
+    try {
+      setRefreshing(true);
+      await loadProfile({ showLoading: false });
+    } finally {
+      setRefreshing(false);
+    }
+  }, [loadProfile]);
 
   useFocusEffect(
     React.useCallback(() => {
       loadProfile();
-
-      if (params.updatedField && params.updatedValue) {
-        setProfile((prev) => ({
-          ...prev,
-          [params.updatedField]: params.updatedValue,
-        }));
-
-        // Clear the params after updating
-        router.setParams({
-          updatedField: undefined,
-          updatedValue: undefined,
-        });
-      }
-    }, [loadProfile, params, router])
+    }, [loadProfile])
   );
+
+  React.useEffect(() => {
+    if (!params.updatedField || !params.updatedValue) return;
+
+    setProfile((prev) => ({
+      ...prev,
+      [params.updatedField]: params.updatedValue,
+    }));
+
+    router.setParams({
+      updatedField: undefined,
+      updatedValue: undefined,
+    });
+  }, [params.updatedField, params.updatedValue, router]);
 
   const handleUpdateField = async (field, value) => {
     try {
@@ -103,65 +113,64 @@ export default function ProfileDetails() {
           className="bg-white"
         />
         <ScrollView
-          className="flex-1"
+          className="flex-1 flex-col gap-6"
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
           contentContainerStyle={{
             paddingBottom: 40,
-            backgroundColor: "#f1f1f1",
+            backgroundColor: "#fff",
           }}
         >
           {loading && (
             <ActivityIndicator size="large" color="#5A56D0" style={{ marginTop: 20 }} />
           )}
+          <View className="flex-1 gap-3">
 
           <ProfilePhotoGrid
             photos={profile?.images || []}
             onAddPhoto={handleAddPhoto}
             onRemovePhoto={handleRemovePhoto}
+            title="My Photos"
           />
 
           <View>
-            <TextHeadingOne name="Verification" />
-            <Verification profile={profile} />
+            <Verification profile={profile}  />
           </View>
 
           <View>
-            <TextHeadingOne name="Basic Info" />
             <BasicInfo profile={profile} />
           </View>
 
           <View>
-            <TextHeadingOne name="About Me" />
-            <AboutMe profile={profile} />
+        
+            <AboutMe profile={profile} onUpdateField={handleUpdateField} />
           </View>
 
           <View>
-            <TextHeadingOne name="Location" />
             <Location profile={profile} />
           </View>
 
           <View>
-            <TextHeadingOne name="Education" />
             <Education profile={profile} onUpdateField={handleUpdateField} />
           </View>
 
           <View>
-            <TextHeadingOne name="School" />
             <School profile={profile} onUpdateField={handleUpdateField} />
           </View>
 
           <View>
-            <TextHeadingOne name="Occupation" />
             <Occupation profile={profile} onUpdateField={handleUpdateField} />
           </View>
 
           <View>
-            <TextHeadingOne name="More About Me" />
+
             <ProfileAnswers profile={profile} onUpdateField={handleUpdateField} />
           </View>
 
           <View className="">
-            <TextHeadingOne name="My Info" />
             <MyInfo profile={profile} onUpdateField={handleUpdateField} />
+          </View>
           </View>
         </ScrollView>
       </SafeAreaView>

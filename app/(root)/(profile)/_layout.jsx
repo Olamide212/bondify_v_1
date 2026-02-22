@@ -1,6 +1,4 @@
-import { View, Text } from 'react-native'
-import React from 'react'
-import { Stack } from 'expo-router'
+import { Stack } from 'expo-router';
 
 
 export default function ProfileLayout() {
@@ -15,6 +13,7 @@ export default function ProfileLayout() {
       <Stack.Screen
         name="edit-profiles/index"
       />
+      <Stack.Screen name="InterestsScreen" />
       <Stack.Screen
         name="badges"
       />

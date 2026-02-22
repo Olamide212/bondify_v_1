@@ -1,18 +1,17 @@
+import { X } from "lucide-react-native";
+import { useMemo, useState } from "react";
 import {
-  View,
-  Text,
-  FlatList,
-  TouchableOpacity,
-  TextInput,
-  StyleSheet,
-  Modal,
-  ActivityIndicator,
+    ActivityIndicator,
+    FlatList,
+    Modal,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity
 } from "react-native";
-import React, { useState, useMemo } from "react";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import GeneralHeader from "../../components/headers/GeneralHeader";
-import { X } from "lucide-react-native";
-import {useNationalities }from "../../hooks/useNationalities";
+import { useNationalities } from "../../hooks/useNationalities";
 
 const NationalityModal = ({ visible, onClose, onSelect }) => {
   const [search, setSearch] = useState("");
@@ -53,7 +52,7 @@ const filteredNationalities = useMemo(() => {
               <TouchableOpacity
                 style={styles.item}
                 onPress={() => {
-                  onSelect(item.id); 
+                  onSelect(item); 
                   onClose();
                 }}
               >

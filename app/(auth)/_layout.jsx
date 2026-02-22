@@ -5,6 +5,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useSelector } from "react-redux";
 import HeaderWithLogo from "../../components/headers/HeaderWithLogo";
 import { useAuthRestore } from "../../hooks/useAuthRestore";
+import { StatusBar } from "expo-status-bar";
 
 export default function AuthLayout() {
   const router = useRouter();
@@ -49,6 +50,7 @@ export default function AuthLayout() {
   return (
     <SafeAreaView className={"flex-1 bg-white px-4"}>
       {!isOnboarding && <HeaderWithLogo showBackButton={!isLogin} />}
+      <StatusBar style="dark" />
       <Stack screenOptions={{ headerShown: false, gestureEnabled: false }}>
         <Stack.Screen name="login" />
         <Stack.Screen name="register" />

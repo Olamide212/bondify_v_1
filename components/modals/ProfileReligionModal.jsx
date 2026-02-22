@@ -1,9 +1,9 @@
+import { useEffect, useState } from "react";
 import { View } from "react-native";
-import React, { useState, useEffect } from "react";
-import BaseModal from "./BaseModal";
-import ModalHeader from "../headers/ModalHeader";
 import OptionBox from "../../components/ui/optionBox";
-import { FILTER_OPTIONS } from "../../data/filterOptions"; 
+import { useLookupOptions } from "../../hooks/useLookupOptions";
+import ModalHeader from "../headers/ModalHeader";
+import BaseModal from "./BaseModal";
 
 const ProfileReligionModal = ({
   visible,
@@ -12,6 +12,7 @@ const ProfileReligionModal = ({
   onSelect,
 }) => {
   const [selectedOption, setSelectedOption] = useState(initialSelected);
+  const { options } = useLookupOptions("religions");
 
   // keep state synced if profileData changes
   useEffect(() => {
@@ -23,7 +24,7 @@ const ProfileReligionModal = ({
       <ModalHeader centerText="Religion" onClose={onClose} />
 
       <View className="flex-row flex-wrap p-4">
-        {FILTER_OPTIONS.religion.map((option) => {
+        {options.map((option) => {
           const isSelected = selectedOption === option.value;
           return (
             <OptionBox

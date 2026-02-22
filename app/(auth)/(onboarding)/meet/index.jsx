@@ -1,26 +1,25 @@
-import React, { useState } from "react";
-import {
-  SafeAreaView,
-  Text,
-  View,
-  KeyboardAvoidingView,
-  Platform,
-  TouchableWithoutFeedback,
-  Keyboard,
-} from "react-native";
-import NextButton from "../../../../components/ui/NextButton";
 import { useRouter } from "expo-router";
-import TextInput from "../../../../components/inputs/TextInput";
+import { useState } from "react";
+import {
+    Keyboard,
+    KeyboardAvoidingView,
+    Platform,
+    SafeAreaView,
+    Text,
+    TouchableWithoutFeedback,
+    View,
+} from "react-native";
 
-import RadioSelect from "../../../../components/inputs/RadioSelect";
-import Info from "../../../../components/ui/Info";
 import CheckboxSelect from "../../../../components/inputs/CheckboxSelect";
 import Button from "../../../../components/ui/Button";
+import Info from "../../../../components/ui/Info";
+import { useLookupOptions } from "../../../../hooks/useLookupOptions";
 import { useProfileSetup } from "../../../../hooks/useProfileSetup";
 
 
 const Meet = () => {
   const [selectedOptions, setSelectedOptions] = useState([]);
+  const { options: meetOptions } = useLookupOptions("gender-preferences");
 
   const router = useRouter();
   const { updateProfileStep } = useProfileSetup({ isOnboarding: true });
@@ -41,11 +40,7 @@ const Meet = () => {
 
               <View>
                 <CheckboxSelect
-  
-                  options={[
-                    { label: "Woman", value: "woman" },
-                    { label: "Man", value: "man" },
-                  ]}
+                  options={meetOptions}
                   value={selectedOptions}
                   onChange={setSelectedOptions}
                   className="mt-2"

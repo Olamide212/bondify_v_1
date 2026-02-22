@@ -1,32 +1,33 @@
 import { useRouter } from "expo-router";
 import {
-    Baby,
-    BookOpen,
-    ChevronRight,
-    Cigarette,
-    Dumbbell,
-    Flag,
-    Globe,
-    Heart,
-    HeartHandshake,
-    MessageCircleHeart,
-    PawPrint,
-    Ruler,
-    Sparkles,
-    Users,
-    Wallet,
-    Wine,
-    X
+  Baby,
+  BookOpen,
+  ChevronRight,
+  Cigarette,
+  Dumbbell,
+  Flag,
+  Globe,
+  Heart,
+  HeartHandshake,
+  MessageCircleHeart,
+  PawPrint,
+  Ruler,
+  Sparkles,
+  Users,
+  Wallet,
+  Wine,
+  X
 } from "lucide-react-native";
 import { useEffect, useState } from "react";
-import { Image, Modal, ScrollView, Text, TouchableOpacity, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import NationalityModal from "../../components/modals/NationalityModal";
-import { colors } from "../../constant/colors";
-import { Icons } from "../../constant/icons";
+import { useLookupOptions } from "../../hooks/useLookupOptions";
+import BaseModal from "../modals/BaseModal";
 import ProfileEthnicityModal from "../modals/ProfileEthnicityModal";
 import ProfileReligionModal from "../modals/ProfileReligionModal";
 import ProfileDisplayZodiacModal from "../modals/ProfileZodiacDisplayModal";
+import TextHeadingOne from "../ui/TextHeadingOne";
 
 
 
@@ -43,6 +44,7 @@ const MyInfo = ({ profile, onUpdateField }) => {
   const [zodiacVisible, setZodiacVisible] = useState(false)
   const [ethnicityVisible, setEthnicityVisible] = useState(false)
   const [religionVisible, setReligionVisible] = useState(false)
+  const { options: sameBeliefsOptions } = useLookupOptions("same-beliefs");
 
   useEffect(() => {
     setProfileData(profile || {});
@@ -70,7 +72,7 @@ const MyInfo = ({ profile, onUpdateField }) => {
     {
       key: "zodiac",
       title: "Zodiac Sign",
-      icon: Flag,
+      icon: Sparkles,
       type: "modal",
     },
     {
@@ -215,7 +217,7 @@ const MyInfo = ({ profile, onUpdateField }) => {
       title: "Dating someone with the same beliefs...",
       icon: HeartHandshake,
       type: "modal",
-      options: ["is-very-important", "is-quite-important", "not-important"],
+      options: sameBeliefsOptions.map((option) => option.value),
     },
   ];
 
@@ -227,11 +229,12 @@ const MyInfo = ({ profile, onUpdateField }) => {
   };
 
   return (
-    <View className="bg-white mt-3 mx-4 p-5 rounded-2xl">
+    <View className="bg-gray-50 border border-gray-100  mx-4 p-5 rounded-2xl">
       {items.map(({ key, title, icon: Icon, screen, type, options }, index) => {
         const isLast = index === items.length - 1;
         const targetField = fieldMap[key] || key;
         const value = profileData?.[targetField];
+        const displayValue = Array.isArray(value) ? value.join(", ") : value;
 
         return (
           <TouchableOpacity
@@ -260,14 +263,9 @@ const MyInfo = ({ profile, onUpdateField }) => {
             }}
           >
             <View className="flex-row items-center gap-3 flex-1">
-              {key === "zodiac" ? (
-                <Image
-                  source={Icons.zodiacSign}
-                  style={{ width: 22, height: 22 }}
-                />
-              ) : (
-                <Icon size={22} color={colors.primary} />
-              )}
+              <View className="w-10 h-10 rounded-full bg-primary items-center justify-center">
+                <Icon size={20} color="#fff" />
+              </View>
 
               <View className="flex-1">
                 <Text className="text-xl text-gray-900 font-GeneralSansMedium">
@@ -280,7 +278,7 @@ const MyInfo = ({ profile, onUpdateField }) => {
                 )}
                 {value && (
                   <Text className="text-lg text-gray-700 font-SatoshiMedium capitalize">
-                    {value}
+                    {displayValue}
                   </Text>
                 )}
               </View>
@@ -291,7 +289,9 @@ const MyInfo = ({ profile, onUpdateField }) => {
       })}
 
       {/* 🔹 Multiple-choice modal */}
-      <Modal visible={!!activeModal} animationType="slide" transparent>
+      <BaseModal visible={!!activeModal} onClose={() => setActiveModal(null)} fullScreen>
+    
+        <SafeAreaProvider>
         <SafeAreaView className="flex-1 bg-white p-6">
           <View className="flex-row justify-between">
             <TouchableOpacity onPress={() => setActiveModal(null)}>
@@ -306,7 +306,8 @@ const MyInfo = ({ profile, onUpdateField }) => {
 
           <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
             {activeModal?.options?.map((option, idx) => {
-              const selected = profileData?.[activeModal.key] === option;
+              const modalField = fieldMap[activeModal?.key] || activeModal?.key;
+              const selected = profileData?.[modalField] === option;
               return (
                 <TouchableOpacity
                   key={idx}
@@ -329,7 +330,9 @@ const MyInfo = ({ profile, onUpdateField }) => {
             })}
           </ScrollView>
         </SafeAreaView>
-      </Modal>
+        </SafeAreaProvider>
+  
+      </BaseModal>
 
       {/* 🔹 Nationality Modal */}
       <NationalityModal
@@ -338,8 +341,9 @@ const MyInfo = ({ profile, onUpdateField }) => {
         onSelect={(item) => {
           setProfileData((prev) => ({
             ...prev,
-            nationality: item.key, // store key (recommended)
+            nationality: item.key,
           }));
+          onUpdateField?.("nationality", item.key);
           setNationalityVisible(false);
         }}
       />
@@ -347,9 +351,10 @@ const MyInfo = ({ profile, onUpdateField }) => {
       <ProfileDisplayZodiacModal
         visible={zodiacVisible}
         onClose={() => setZodiacVisible(false)}
-        initialSelected={profileData.zodiac}
+        initialSelected={profileData.zodiacSign}
         onSelect={(value) => {
-          setProfileData((prev) => ({ ...prev, zodiac: value }));
+          setProfileData((prev) => ({ ...prev, zodiacSign: value }));
+          onUpdateField?.("zodiacSign", value);
           setZodiacVisible(false);
         }}
       />
@@ -360,6 +365,7 @@ const MyInfo = ({ profile, onUpdateField }) => {
         initialSelected={profileData.ethnicity}
         onSelect={(value) => {
           setProfileData((prev) => ({ ...prev, ethnicity: value }));
+          onUpdateField?.("ethnicity", value);
           setEthnicityVisible(false);
         }}
       />
@@ -373,6 +379,7 @@ const MyInfo = ({ profile, onUpdateField }) => {
             ...prev,
             religion: value,
           }));
+          onUpdateField?.("religion", value);
           setReligionVisible(false);
         }}
       />

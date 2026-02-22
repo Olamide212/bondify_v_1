@@ -1,32 +1,25 @@
 import { Plus, X } from "lucide-react-native";
-import React, { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { Image, Text, TouchableOpacity, View } from "react-native";
-import DraggableFlatList from "react-native-draggable-flatlist";
 
 const MAX_PHOTOS = 6;
 
 const ProfilePhotoGrid = ({ photos: initialPhotos = [], onAddPhoto, onRemovePhoto }) => {
-  const [photos, setPhotos] = useState(initialPhotos);
-
-  React.useEffect(() => {
-    setPhotos(initialPhotos || []);
-  }, [initialPhotos]);
-
   // Fill remaining slots with nulls (for plus icons)
   const photoSlots = useMemo(() => {
-    const filled = [...photos];
+    const filled = [...initialPhotos];
     while (filled.length < MAX_PHOTOS) {
       filled.push(null);
     }
     return filled;
-  }, [photos]);
+  }, [initialPhotos]);
 
-  const renderItem = ({ item, drag, isActive, index }) => {
+  const renderItem = (item, index) => {
     if (!item) {
       // Empty slot -> show plus icon
       return (
         <TouchableOpacity
-          className="relative w-[30%] aspect-square rounded-xl overflow-hidden m-1 bg-gray-100 justify-center items-center"
+          className="w-full aspect-square rounded-xl overflow-hidden bg-gray-100 justify-center items-center"
           onPress={onAddPhoto}
         >
           <Plus size={28} color="#999" />
@@ -39,9 +32,7 @@ const ProfilePhotoGrid = ({ photos: initialPhotos = [], onAddPhoto, onRemovePhot
     // Normal photo slot
     return (
       <TouchableOpacity
-        onLongPress={drag} // enables dragging
-        disabled={isActive}
-        className="relative w-[30%] aspect-square rounded-xl overflow-hidden m-1"
+        className="w-full aspect-square rounded-xl overflow-hidden"
       >
         <Image source={{ uri: imageUri }} className="w-full h-full" />
         <TouchableOpacity
@@ -55,22 +46,17 @@ const ProfilePhotoGrid = ({ photos: initialPhotos = [], onAddPhoto, onRemovePhot
   };
 
   return (
-    <View className="px-4 pb-9 bg-white rounded-b-2xl mb-4">
-      <View className="flex-row justify-between mb-2">
-        <Text className="text-xl font-SatoshiMedium">My photos</Text>
+    <View className="p-6  bg-gray-50 border border-gray-100 rounded-2xl mx-4 mt-4">
+   
+      <View className="flex-row flex-wrap justify-between gap-y-3">
+        {photoSlots.map((item, index) => (
+          <View key={`photo-${index}`} className="w-[32.5%]">
+            {renderItem(item, index)}
+          </View>
+        ))}
       </View>
 
-      <DraggableFlatList
-        data={photoSlots}
-        onDragEnd={({ data }) => setPhotos(data.filter((item) => item !== null))}
-        keyExtractor={(_, index) => `photo-${index}`}
-        renderItem={renderItem}
-        numColumns={3} // ensures grid layout
-      />
-
-      <Text className="mt-3 text-xl font-SatoshiMedium text-gray-500 text-center">
-        Hold and drag your photos to reorder
-      </Text>
+    
     </View>
   );
 };

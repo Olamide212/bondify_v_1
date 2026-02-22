@@ -11,7 +11,7 @@ const Interests = ({ interests }) => {
             key={idx}
             className="bg-gray-200 rounded-full px-3 py-1 mr-2 mb-2"
           >
-            <Text>{item}</Text>
+            <Text className="text-gray-800">{item}</Text>
           </View>
         ))}
       </View>

@@ -1,25 +1,26 @@
-import React, { useState } from "react";
-import {
-  SafeAreaView,
-  Text,
-  View,
-  KeyboardAvoidingView,
-  Platform,
-  TouchableWithoutFeedback,
-  Keyboard,
-} from "react-native";
-import NextButton from "../../../../components/ui/NextButton";
 import { useRouter } from "expo-router";
+import { useState } from "react";
+import {
+    Keyboard,
+    KeyboardAvoidingView,
+    Platform,
+    SafeAreaView,
+    Text,
+    TouchableWithoutFeedback,
+    View,
+} from "react-native";
 
-import RadioSelect from "../../../../components/inputs/RadioSelect";
-import Info from "../../../../components/ui/Info";
 import { ScrollView } from "react-native-gesture-handler";
-import Button from "../../../../components/ui/Button"
+import RadioSelect from "../../../../components/inputs/RadioSelect";
+import Button from "../../../../components/ui/Button";
+import Info from "../../../../components/ui/Info";
+import { useLookupOptions } from "../../../../hooks/useLookupOptions";
 import { useProfileSetup } from "../../../../hooks/useProfileSetup";
 
 
 const Religion = () => {
   const [religion, setReligion] = useState("");
+  const { options: religionOptions } = useLookupOptions("religions");
 
   const router = useRouter();
   const { updateProfileStep } = useProfileSetup({ isOnboarding: true });
@@ -43,23 +44,7 @@ const Religion = () => {
                   <RadioSelect
                     value={religion}
                     onChange={setReligion}
-                    options={[
-                      { label: "Christian", value: "christian" },
-                      { label: "Catholic", value: "catholic" },
-                      { label: "Islam", value: "muslim" },
-                      { label: "Hinduism", value: "hindu" },
-                      { label: "Buddhism", value: "Buddhism" },
-                      { label: "Judaism", value: "Judaism" },
-                      { label: "Sikhism", value: "Sikhism" },
-                      {
-                        label: "Spiritual but not religious",
-                        value: "spiritual",
-                      },
-                      { label: "Atheist", value: "Atheist" },
-                      { label: "Agnostic", value: "Agnostic" },
-                      { label: "Prefer not to say", value: "prefer not say" },
-                      { label: "Others", value: "others" },
-                    ]}
+                    options={religionOptions}
                     className="mt-2"
                   />
                 </View>

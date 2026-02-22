@@ -176,10 +176,26 @@ const resendOtp = async (req, res, next) => {
 // @access  Public
 const login = async (req, res, next) => {
   try {
-    const { email, password } = req.body;
+    const { phoneNumber, countryCode, password } = req.body;
+
+    const sanitizedPhoneNumber = String(phoneNumber || '').replace(/\D/g, '');
+    const sanitizedCountryCode = countryCode
+      ? `+${String(countryCode).replace(/\D/g, '')}`
+      : undefined;
 
     // Check user exists
-    const user = await User.findOne({ email }).select('+password');
+    let user = null;
+
+    if (sanitizedCountryCode) {
+      user = await User.findOne({
+        phoneNumber: sanitizedPhoneNumber,
+        countryCode: sanitizedCountryCode,
+      }).select('+password');
+    }
+
+    if (!user) {
+      user = await User.findOne({ phoneNumber: sanitizedPhoneNumber }).select('+password');
+    }
 
     if (!user) {
       return res.status(401).json({
@@ -207,12 +223,13 @@ const login = async (req, res, next) => {
       user.otpExpiry = otpExpiry;
       await user.save();
 
-      console.log(`OTP for ${email}: ${otp}`);
+      console.log(`OTP for ${user.email}: ${otp}`);
 
       return res.status(403).json({
         success: false,
         message: 'Please verify your account. OTP sent to your email.',
         requiresVerification: true,
+        email: user.email,
       });
     }
 

@@ -1,60 +1,29 @@
-import React, { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
-  SafeAreaView,
-  Text,
-  View,
-  KeyboardAvoidingView,
-  Platform,
-  TouchableWithoutFeedback,
-  Keyboard,
-  ScrollView,
-  TouchableOpacity,
+    Keyboard,
+    KeyboardAvoidingView,
+    Platform,
+    SafeAreaView,
+    ScrollView,
+    Text,
+    TouchableOpacity,
+    TouchableWithoutFeedback,
+    View,
 } from "react-native";
+import { useLookupOptions } from "../../hooks/useLookupOptions";
 import BaseModal from "./BaseModal";
-
-const occupationOptions = [
-  "Software Developer",
-  "Graphic Designer",
-  "Teacher",
-  "Doctor",
-  "Engineer",
-  "Lawyer",
-  "Nurse",
-  "Writer",
-  "Entrepreneur",
-  "Photographer",
-  "Musician",
-  "Student",
-  "Fashion designer",
-  "Model",
-  "Makeup Artist",
-  "Hair Stylist",
-  "Content creator",
-  "Streamer",
-  "Engineers",
-  "Architech",
-  "Scientist",
-  "Artist",
-  "Chef",
-  "Dancer",
-  "Actor",
-  "Music producer",
-  "DJ",
-  "Event planner",
-  "Interior designer",
-  "Others",
-];
 
 const OccupationModal = ({ visible, onClose, onSelect, initialSelected }) => {
   const [selectedOccupation, setSelectedOccupation] = useState(initialSelected);
+  const { options: occupationOptions } = useLookupOptions("occupations");
 
   useEffect(() => {
     setSelectedOccupation(initialSelected);
   }, [initialSelected]);
 
   const handleSelect = (item) => {
-    setSelectedOccupation(item);
-    onSelect(item); // send to parent
+    setSelectedOccupation(item.value);
+    onSelect(item.value); // send to parent
     onClose(); // close after selection
   };
 
@@ -91,22 +60,22 @@ const OccupationModal = ({ visible, onClose, onSelect, initialSelected }) => {
               >
                 {occupationOptions.map((item) => (
                   <TouchableOpacity
-                    key={item}
+                    key={item.value}
                     onPress={() => handleSelect(item)}
                     className={`px-4 py-2 rounded-full border ${
-                      selectedOccupation === item
+                      selectedOccupation === item.value
                         ? "bg-primary border-primary"
                         : "bg-white border-[#D1D1D1]"
                     }`}
                   >
                     <Text
                       className={`${
-                        selectedOccupation === item
+                        selectedOccupation === item.value
                           ? "text-white"
                           : "text-gray-800"
                       } font-SatoshiMedium`}
                     >
-                      {item}
+                      {item.label}
                     </Text>
                   </TouchableOpacity>
                 ))}
