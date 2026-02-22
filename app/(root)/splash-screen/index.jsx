@@ -65,10 +65,10 @@ const SplashScreen = () => {
         }
       } catch (error) {
         console.error("Navigation Error:", error);
-        // Fallback to welcome on error
+        // Fallback to onboarding on error
         if (!hasNavigated.current) {
           hasNavigated.current = true;
-          router.replace("/welcome");
+          router.replace("/onboarding");
         }
       } finally {
         setIsRouting(false);
@@ -84,7 +84,7 @@ const SplashScreen = () => {
       if (!hasNavigated.current && restored) {
         console.warn("Splash screen timeout - forcing navigation");
         hasNavigated.current = true;
-        router.replace("/welcome");
+        router.replace("/onboarding");
       }
     }, 5000);
 

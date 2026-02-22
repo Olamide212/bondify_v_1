@@ -6,27 +6,38 @@ import {
   KeyboardAvoidingView,
   Platform,
   TouchableWithoutFeedback,
+  TouchableOpacity,
   Keyboard,
   TextInput,
+  ScrollView,
 } from "react-native";
-import NextButton from "../../../../components/ui/NextButton";
 import { useRouter } from "expo-router";
-import Info from "../../../../components/ui/Info";
-import { Video, Mic } from "lucide-react-native";
-import Button from "../../../../components/ui/Button"
+import Button from "../../../../components/ui/Button";
 import { useProfileSetup } from "../../../../hooks/useProfileSetup";
 
+const PREDEFINED_BIOS = [
+  "Looking for something real and meaningful 💛",
+  "Adventure lover seeking a partner in crime 🌍",
+  "Coffee addict & dog lover. Let's chat! ☕🐶",
+  "Hopeless romantic with a great sense of humor 😄",
+  "Living life one adventure at a time ✈️",
+  "Foodie who loves trying new restaurants 🍕",
+  "Gym enthusiast & Netflix binger 💪📺",
+  "Music lover looking for my duet partner 🎵",
+  "Simple soul with big dreams ✨",
+  "Work hard, love harder ❤️",
+  "Just here to meet genuine people 🤝",
+  "Swipe right if you love spontaneous road trips 🚗",
+];
 
 const About = () => {
   const [aboutText, setAboutText] = useState("");
   const router = useRouter();
   const { updateProfileStep } = useProfileSetup({ isOnboarding: true });
 
-
-  // const preDefineText = {
-  //   "", "", ""
-  // }
-
+  const handleSelectPredefined = (text) => {
+    setAboutText(text);
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-white">
@@ -37,7 +48,7 @@ const About = () => {
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View className="flex-1 px-3">
-            <View className="flex-1 mt-8">
+            <ScrollView className="flex-1 mt-8" showsVerticalScrollIndicator={false}>
               <Text className="text-3xl font-SatoshiBold  mb-4">
                 Tell us a little about yourself
               </Text>
@@ -60,41 +71,35 @@ const About = () => {
                 }}
               />
 
+              <Text className="text-lg font-SatoshiMedium mt-6 mb-3 text-gray-600">
+                Or pick one of these:
+              </Text>
 
-
-            {/*  <View className="mt-4 p-4 rounded-2xl ">
-                <Text className="text-center text-xl font-SatoshiMedium">
-                  Or you can answer with
-                </Text>
-
-                <View className="flex-row  justify-between items-center rounded-lg my-8">
-                  <View className="bg-pink-50 p-8 rounded-lg flex-row items-center gap-3 relative">
-                    <Video color="#FF0066" />
-                    <Text className="text-2xl font-SatoshiMedium">Video</Text>
-
-                    <View className="absolute bottom-[75px] ">
-                      <Text className="bg-primary py-1 px-3 text-xs text-white rounded-s-full rounded-se-full font-SatoshiBold">
-                        Recommended
+              <View className="flex-row flex-wrap gap-2 mb-4">
+                {PREDEFINED_BIOS.map((bio, index) => {
+                  const isSelected = aboutText === bio;
+                  return (
+                    <TouchableOpacity
+                      key={index}
+                      onPress={() => handleSelectPredefined(bio)}
+                      className={`px-4 py-3 rounded-full border ${
+                        isSelected
+                          ? "bg-primary border-primary"
+                          : "bg-gray-100 border-gray-200"
+                      }`}
+                    >
+                      <Text
+                        className={`text-sm font-SatoshiMedium ${
+                          isSelected ? "text-white" : "text-gray-700"
+                        }`}
+                      >
+                        {bio}
                       </Text>
-                    </View>
-                  </View>
-                  <View className="bg-pink-50 p-8 rounded-lg flex-row items-center gap-3">
-                    <Mic color="#FF0066" />
-                    <Text className="text-2xl font-SatoshiMedium">Audio</Text>
-                  </View>
-                </View>
-                <View className=" p-4 bg-pink-50 border-[0.2px] border-primary rounded-lg flex-row items-center gap-3">
-                  <View className="w-10 h-10 bg-primary justify-center items-center rounded-full">
-                    <Video size={20} color="white" />
-                  </View>
-
-                  <Text className="text-lg font-SatoshiMedium flex-1">
-                    Answering with a video will boost your profile visibility
-                    and help you find a relationship faster
-                  </Text>
-                </View>
-              </View>*/}
-            </View>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            </ScrollView>
 
             <View className="w-full items-end pb-6">
               <Button

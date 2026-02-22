@@ -14,6 +14,10 @@ export default function _layout() {
   useEffect(() => {
     if (!restored) return;
 
+    // Only apply guard when the user is actually inside the (root) group
+    const isInsideRootGroup = segments[0] === "(root)";
+    if (!isInsideRootGroup) return;
+
     const publicRoutes = new Set(["splash-screen", "welcome", "onboarding"]);
     const isProtectedRoute = !publicRoutes.has(currentRoute);
 
@@ -35,7 +39,7 @@ export default function _layout() {
     }
 
     if (!isAuthenticated) {
-      router.replace("/welcome");
+      router.replace("/onboarding");
     }
   }, [
     restored,
@@ -43,6 +47,7 @@ export default function _layout() {
     hasOnboardingSession,
     pendingEmail,
     currentRoute,
+    segments,
     router,
   ]);
 
