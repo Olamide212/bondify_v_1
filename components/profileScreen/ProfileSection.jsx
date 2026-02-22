@@ -3,10 +3,12 @@ import { Image, StyleSheet, Text, View } from "react-native";
 import Svg, { Circle } from "react-native-svg";
 import { colors } from "../../constant/colors";
 import VerifiedIcon from "../ui/VerifiedIcon";
+import { getProfileAge } from "../../utils/ageHelper";
 
 const ProfileSection = ({ profile }) => {
   const completion = profile?.completionPercentage || 0;
-  const profileImage = profile?.images?.[0]?.url || profile?.images?.[0] || "";
+  const profileImage = profile?.images?.[0]?.url || profile?.images?.[0] || profile?.profilePhoto || "";
+  const displayAge = getProfileAge(profile);
   
   const router = useRouter()
 
@@ -66,7 +68,7 @@ const ProfileSection = ({ profile }) => {
         <View className="flex-row items-center">
           <Text style={styles.name}>
             {profile?.firstName || "Your Profile"}
-            {profile?.age ? `, ${profile.age}` : ""}
+            {displayAge ? `, ${displayAge}` : ""}
           </Text>
           {profile?.verified && (
           <VerifiedIcon />

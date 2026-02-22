@@ -51,8 +51,10 @@ const Age = () => {
 
   // Auto-save to backend whenever selection changes
   useEffect(() => {
+    const month = String(selectedMonth + 1).padStart(2, "0");
+    const day = String(selectedDay).padStart(2, "0");
     updateProfileStep({
-      birthdate: `${selectedYear}-${selectedMonth + 1}-${selectedDay}`,
+      birthdate: `${selectedYear}-${month}-${day}`,
     });
   }, [selectedDay, selectedMonth, selectedYear]);
 
