@@ -12,13 +12,25 @@ export const determineNextRoute = async ({
     pendingEmail: pendingEmail ? "yes" : "no",
   });
 
-  // 1️⃣ Pending OTP
+  // 1️⃣ No active auth/onboarding session
+  if (!token && !onboardingToken) {
+    try {
+      await SecureStore.deleteItemAsync("onboardingStep");
+    } catch (error) {
+      console.warn("Failed to clear stale onboarding step:", error);
+    }
+
+    console.log("Returning /onboarding due to missing token and onboardingToken");
+    return "/onboarding";
+  }
+
+  // 2️⃣ Pending OTP
   if (pendingEmail) {
     console.log("Returning /validation due to pendingEmail");
     return "/validation";
   }
 
-  // 2️⃣ Onboarding flow (must take priority over token when onboarding isn't complete)
+  // 3️⃣ Onboarding flow (must take priority over token when onboarding isn't complete)
   if (onboardingToken) {
     console.log("Checking onboarding step...");
     try {
@@ -39,12 +51,12 @@ export const determineNextRoute = async ({
     }
   }
 
-  // 3️⃣ Fully authenticated
+  // 4️⃣ Fully authenticated
   if (token) {
     console.log("Returning /root-tabs due to token");
     return "/root-tabs";
   }
 
-  // 4️⃣ New/unauthenticated user
+  // 5️⃣ New/unauthenticated user
   return "/onboarding";
 };

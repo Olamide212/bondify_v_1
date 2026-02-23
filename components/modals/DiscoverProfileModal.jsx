@@ -1,19 +1,19 @@
-import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  FlatList,
-  StyleSheet,
-  Dimensions,
-  TouchableOpacity,
-} from "react-native";
 import { useRouter } from "expo-router";
 import { ArrowLeft } from "lucide-react-native";
-import { profiles } from "../../data/profileData";
-import BaseModal from "./BaseModal";
-import UsersProfileCard from "../../components/ui/UsersProfileCard";
-import FindingProfilesAnimation from "../ui/LogoLoader";
+import { useEffect, useState } from "react";
+import {
+    Dimensions,
+    FlatList,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import UsersProfileCard from "../../components/ui/UsersProfileCard";
+import { useProfile } from "../../context/ProfileContext";
+import FindingProfilesAnimation from "../ui/LogoLoader";
+import BaseModal from "./BaseModal";
 
 const { width } = Dimensions.get("window");
 
@@ -21,24 +21,24 @@ const DiscoverProfileModal = ({ visible, onClose, preference, title }) => {
   const router = useRouter();
   const [filteredProfiles, setFilteredProfiles] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { discoverProfiles, profilesLoading } = useProfile();
 
   // Filter profiles based on the preference
   useEffect(() => {
-    if (preference) {
-      setIsLoading(true);
+    setIsLoading(profilesLoading);
 
-      // Simulate loading delay
-      setTimeout(() => {
-        const filtered = profiles.filter(
-          (profile) =>
-            profile.lookingFor.toLowerCase() ===
-            String(preference).toLowerCase()
-        );
-        setFilteredProfiles(filtered);
-        setIsLoading(false);
-      }, 2000);
+    if (!preference || !Array.isArray(discoverProfiles)) {
+      setFilteredProfiles([]);
+      return;
     }
-  }, [preference]);
+
+    const filtered = discoverProfiles.filter(
+      (profile) =>
+        String(profile?.lookingFor || "").toLowerCase() ===
+        String(preference).toLowerCase()
+    );
+    setFilteredProfiles(filtered);
+  }, [preference, discoverProfiles, profilesLoading]);
 
 
   

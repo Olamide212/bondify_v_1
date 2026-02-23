@@ -1,14 +1,39 @@
+const { Buffer } = require('buffer');
 const Message = require('../models/Message');
 const Match = require('../models/Match');
+const { getIO } = require('../socket');
+
+const encodeCursor = (message) => {
+  if (!message?._id || !message?.createdAt) return null;
+  return Buffer.from(
+    JSON.stringify({
+      id: String(message._id),
+      createdAt: message.createdAt.toISOString(),
+    })
+  ).toString('base64');
+};
+
+const decodeCursor = (cursor) => {
+  if (!cursor) return null;
+
+  try {
+    const parsed = JSON.parse(Buffer.from(cursor, 'base64').toString('utf8'));
+    if (!parsed?.id || !parsed?.createdAt) return null;
+    return parsed;
+  } catch (_) {
+    return null;
+  }
+};
 
 // @desc    Get messages for a match
 // @route   GET /api/messages/:matchId
 // @access  Private
 const getMessages = async (req, res, next) => {
   try {
+    const io = getIO();
     const userId = req.user._id;
     const { matchId } = req.params;
-    const { page = 1, limit = 50 } = req.query;
+    const { page = 1, limit = 50, cursor } = req.query;
 
     // Verify match exists and user is part of it
     const match = await Match.findById(matchId);
@@ -30,16 +55,29 @@ const getMessages = async (req, res, next) => {
       });
     }
 
-    const skip = (parseInt(page) - 1) * parseInt(limit);
+    const parsedLimit = Math.min(Math.max(parseInt(limit, 10) || 50, 1), 100);
+    const parsedCursor = decodeCursor(cursor);
 
-    const messages = await Message.find({ match: matchId })
-      .populate('sender', 'name images')
-      .populate('receiver', 'name images')
+    const query = { match: matchId };
+
+    if (parsedCursor) {
+      const cursorDate = new Date(parsedCursor.createdAt);
+      query.$or = [
+        { createdAt: { $lt: cursorDate } },
+        { createdAt: cursorDate, _id: { $lt: parsedCursor.id } },
+      ];
+    }
+
+    const messages = await Message.find(query)
+      .populate('sender', 'firstName lastName name images')
+      .populate('receiver', 'firstName lastName name images')
       .sort({ createdAt: -1 })
-      .limit(parseInt(limit))
-      .skip(skip);
+      .limit(parsedLimit + 1);
 
-    const total = await Message.countDocuments({ match: matchId });
+    const hasMore = messages.length > parsedLimit;
+    const paginatedMessages = hasMore ? messages.slice(0, parsedLimit) : messages;
+
+    const total = cursor ? undefined : await Message.countDocuments({ match: matchId });
 
     // Mark messages as read
     await Message.updateMany(
@@ -54,15 +92,37 @@ const getMessages = async (req, res, next) => {
       }
     );
 
+    if (match.user1.toString() === userId.toString()) {
+      match.unreadCount.user1 = 0;
+    } else {
+      match.unreadCount.user2 = 0;
+    }
+    await match.save();
+
+    io.to(`user:${String(match.user1)}`).emit('messages:read', {
+      matchId,
+      byUserId: String(userId),
+      readAt: new Date().toISOString(),
+    });
+    io.to(`user:${String(match.user2)}`).emit('messages:read', {
+      matchId,
+      byUserId: String(userId),
+      readAt: new Date().toISOString(),
+    });
+
     res.json({
       success: true,
       data: {
-        messages: messages.reverse(), // Return in chronological order
+        messages: paginatedMessages.reverse(), // Return in chronological order
         pagination: {
-          page: parseInt(page),
-          limit: parseInt(limit),
+          page: parseInt(page, 10),
+          limit: parsedLimit,
           total,
-          pages: Math.ceil(total / parseInt(limit)),
+          pages: total !== undefined ? Math.ceil(total / parsedLimit) : undefined,
+          hasMore,
+          nextCursor: hasMore
+            ? encodeCursor(paginatedMessages[paginatedMessages.length - 1])
+            : null,
         },
       },
     });
@@ -76,6 +136,7 @@ const getMessages = async (req, res, next) => {
 // @access  Private
 const sendMessage = async (req, res, next) => {
   try {
+    const io = getIO();
     const userId = req.user._id;
     const { matchId } = req.params;
     const { content, type = 'text', mediaUrl } = req.body;
@@ -126,16 +187,44 @@ const sendMessage = async (req, res, next) => {
 
     // Update match last message time
     match.lastMessageAt = new Date();
+
+    if (match.user1.toString() === receiverId.toString()) {
+      match.unreadCount.user1 = (match.unreadCount.user1 || 0) + 1;
+    } else {
+      match.unreadCount.user2 = (match.unreadCount.user2 || 0) + 1;
+    }
+
     await match.save();
 
     // Populate message
-    await message.populate('sender', 'name images');
-    await message.populate('receiver', 'name images');
+    await message.populate('sender', 'firstName lastName name images');
+    await message.populate('receiver', 'firstName lastName name images');
+
+    const messagePayload = message.toObject();
+
+    io.to(`match:${matchId}`).emit('message:new', {
+      matchId,
+      message: messagePayload,
+    });
+    io.to(`user:${String(userId)}`).emit('message:new', {
+      matchId,
+      message: messagePayload,
+    });
+    io.to(`user:${String(receiverId)}`).emit('message:new', {
+      matchId,
+      message: messagePayload,
+    });
+
+    io.to(`user:${String(receiverId)}`).emit('message:delivered', {
+      matchId,
+      messageId: String(message._id),
+      deliveredAt: new Date().toISOString(),
+    });
 
     res.status(201).json({
       success: true,
       message: 'Message sent successfully',
-      data: { message },
+      data: { message: messagePayload },
     });
   } catch (error) {
     next(error);

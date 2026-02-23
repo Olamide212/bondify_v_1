@@ -121,7 +121,7 @@ const handleSubmit = async () => {
               Enter verification code
             </Text>
 
-            <Text className="mb-7 text-black text-lg font-GeneralSans">
+            <Text className="mb-7 text-black text-xl font-Satoshi">
               Please enter the verification code sent to{" "}
               <Text className="font-GeneralSansSemiBold">{pendingEmail}</Text>
             </Text>

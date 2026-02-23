@@ -1,33 +1,31 @@
-import React, { useState, useEffect, useRef } from "react";
-import {
-  View,
-  Text,
-  SafeAreaView,
-  StatusBar,
-  TouchableOpacity,
-  Pressable,
-  StyleSheet,
-  ActivityIndicator,
-} from "react-native";
-import { useLocalSearchParams, useRouter } from "expo-router";
-import { Filter, ChevronLeft } from "lucide-react-native";
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  interpolate,
-  runOnJS,
-  useAnimatedScrollHandler,
-} from "react-native-reanimated";
 import { Image } from "expo-image";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { ChevronLeft, Filter } from "lucide-react-native";
+import { useEffect, useRef, useState } from "react";
+import {
+    Pressable,
+    SafeAreaView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View
+} from "react-native";
+import Animated, {
+    interpolate,
+    runOnJS,
+    useAnimatedScrollHandler,
+    useAnimatedStyle,
+    useSharedValue,
+    withTiming,
+} from "react-native-reanimated";
 
-import { profiles } from "../../../../data/profileData";
-import ProfileCard from "../../../../components/homeScreen/ProfileCard";
 import ActionButtons from "../../../../components/homeScreen/ActionButtons";
-import { useProfile } from "../../../../context/ProfileContext";
-import { Icons } from "../../../../constant/icons";
+import ProfileCard from "../../../../components/homeScreen/ProfileCard";
 import LogoLoader from "../../../../components/ui/LogoLoader";
 import { colors } from "../../../../constant/colors";
+import { Icons } from "../../../../constant/icons";
+import { useProfile } from "../../../../context/ProfileContext";
 
 
 const ProfileScreen = () => {
@@ -39,7 +37,6 @@ const ProfileScreen = () => {
   const [currentProfileIndex, setCurrentProfileIndex] = useState(0);
   const [flashMessage, setFlashMessage] = useState(null);
   const [showNoMoreProfiles, setShowNoMoreProfiles] = useState(false);
-  const [loadingMore, setLoadingMore] = useState(false);
 
   const { handleHomeSwipe, handleHomeSuperLike, homeProfiles } = useProfile();
 
@@ -56,31 +53,29 @@ const ProfileScreen = () => {
     const filterProfiles = () => {
       setLoading(true);
 
-      setTimeout(() => {
-        let filtered;
+      let filtered;
 
-        if (isSingleProfile) {
-          // If we're viewing a single profile, find just that one
-          filtered = homeProfiles.filter(
-            (profile) => String(profile.id) === String(id)
-          );
-        } else {
-          // Otherwise, filter by preference as before
-          filtered = homeProfiles.filter(
-            (profile) =>
-              String(profile.lookingFor || "").toLowerCase() ===
-              String(categoryPreference || "").toLowerCase()
-          );
-        }
+      if (isSingleProfile) {
+        // If we're viewing a single profile, find just that one
+        filtered = homeProfiles.filter(
+          (profile) => String(profile.id) === String(id)
+        );
+      } else {
+        // Otherwise, filter by preference as before
+        filtered = homeProfiles.filter(
+          (profile) =>
+            String(profile.lookingFor || "").toLowerCase() ===
+            String(categoryPreference || "").toLowerCase()
+        );
+      }
 
-        setFilteredProfiles(filtered);
-        setLoading(false);
+      setFilteredProfiles(filtered);
+      setLoading(false);
 
-        // If we're viewing a single profile, set the index to 0
-        if (isSingleProfile) {
-          setCurrentProfileIndex(0);
-        }
-      }, 500);
+      // If we're viewing a single profile, set the index to 0
+      if (isSingleProfile) {
+        setCurrentProfileIndex(0);
+      }
     };
 
     filterProfiles();
@@ -168,16 +163,8 @@ const ProfileScreen = () => {
   };
 
   const loadMoreProfiles = () => {
-    setLoadingMore(true);
-
-    // Simulate loading more profiles after a delay
-    setTimeout(() => {
-      // In a real app, you would fetch more profiles from an API
-      // For this example, we'll just reset to the first profile
-      setCurrentProfileIndex(0);
-      setShowNoMoreProfiles(false);
-      setLoadingMore(false);
-    }, 1500);
+    setCurrentProfileIndex(0);
+    setShowNoMoreProfiles(false);
   };
 
   const handleBack = () => {
@@ -349,13 +336,8 @@ const ProfileScreen = () => {
             <TouchableOpacity
               style={[styles.noMoreButton, styles.loadMoreButton]}
               onPress={loadMoreProfiles}
-              disabled={loadingMore}
             >
-              {loadingMore ? (
-                <ActivityIndicator color="#fff" />
-              ) : (
-                <Text style={styles.noMoreButtonText}>Load More</Text>
-              )}
+              <Text style={styles.noMoreButtonText}>Load More</Text>
             </TouchableOpacity>
 
             <TouchableOpacity

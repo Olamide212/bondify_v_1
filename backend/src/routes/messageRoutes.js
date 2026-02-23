@@ -6,9 +6,10 @@ const {
   deleteMessage,
 } = require('../controllers/messageController');
 const { protect } = require('../middleware/auth');
+const { messageSendLimiter } = require('../middleware/rateLimiters');
 
 router.get('/:matchId', protect, getMessages);
-router.post('/:matchId', protect, sendMessage);
+router.post('/:matchId', protect, messageSendLimiter, sendMessage);
 router.delete('/:messageId', protect, deleteMessage);
 
 module.exports = router;

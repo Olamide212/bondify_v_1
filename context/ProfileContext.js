@@ -1,5 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
-import { profiles } from "../data/profileData";
+import { createContext, useContext, useEffect, useState } from "react";
 import { profileService } from "../services/profileService";
 
 const ProfileContext = createContext();
@@ -13,10 +12,30 @@ export const useProfile = () => {
 };
 
 export const ProfileProvider = ({ children }) => {
+  const DEFAULT_HOME_FILTERS = {
+    gender: "Everyone",
+    ageRange: [18, 90],
+    maxDistance: 1000,
+    locationQuery: "",
+    interests: [],
+    lookingFor: "",
+    zodiac: "",
+    ethnicity: "",
+    education: "",
+    drinking: "",
+    smoking: "",
+    religion: "",
+    communicationStyle: "",
+    loveLanguage: "",
+    exercise: "",
+  };
+
   // Global stats
-  const [matches, setMatches] = useState(12);
-  const [likes, setLikes] = useState(48);
+  const [matches, setMatches] = useState(0);
+  const [likes, setLikes] = useState(0);
   const [profilesData, setProfilesData] = useState([]);
+  const [profilesLoading, setProfilesLoading] = useState(true);
+  const [homeFilters, setHomeFilters] = useState(DEFAULT_HOME_FILTERS);
 
   // Separate states for home and discover screens
   const [homeSwipedProfiles, setHomeSwipedProfiles] = useState([]);
@@ -41,9 +60,15 @@ export const ProfileProvider = ({ children }) => {
 
   const normalizeProfile = (profile) => {
     const normalizedImages = normalizeImages(profile?.images);
+    const normalizedName =
+      profile?.name ||
+      [profile?.firstName, profile?.lastName].filter(Boolean).join(" ") ||
+      profile?.username ||
+      "Unknown";
+
     return {
       id: profile?._id ?? profile?.id,
-      name: profile?.name ?? profile?.username ?? "Unknown",
+      name: normalizedName,
       age: profile?.age ?? null,
       gender: profile?.gender,
       zodiac: profile?.zodiacSign ?? profile?.zodiac,
@@ -86,18 +111,43 @@ export const ProfileProvider = ({ children }) => {
     let isMounted = true;
 
     const loadProfiles = async () => {
+      if (isMounted) setProfilesLoading(true);
+
       try {
-        const discoveryProfiles = await profileService.getDiscoveryProfiles();
-        const normalizedProfiles = discoveryProfiles.map(normalizeProfile);
-        if (isMounted) {
-          setProfilesData(
-            normalizedProfiles.length > 0 ? normalizedProfiles : profiles
+        let page = 1;
+        let totalPages = 1;
+        const allProfiles = [];
+
+        while (page <= totalPages) {
+          const response = await profileService.getDiscoveryProfiles(
+            { page, limit: 100 },
+            { includePagination: true }
           );
+
+          const pageProfiles = Array.isArray(response?.profiles)
+            ? response.profiles
+            : [];
+
+          allProfiles.push(...pageProfiles);
+          totalPages = response?.pagination?.pages || page;
+
+          if (!response?.pagination) {
+            break;
+          }
+
+          page += 1;
+        }
+
+        const normalizedProfiles = allProfiles.map(normalizeProfile);
+        if (isMounted) {
+          setProfilesData(normalizedProfiles);
         }
       } catch (error) {
         if (isMounted) {
-          setProfilesData(profiles);
+          setProfilesData([]);
         }
+      } finally {
+        if (isMounted) setProfilesLoading(false);
       }
     };
 
@@ -181,9 +231,87 @@ export const ProfileProvider = ({ children }) => {
   };
 
   // Filter profiles for each screen
-  const homeProfiles = profilesData.filter(
-    (profile) => !homeSwipedProfiles.includes(profile.id)
-  );
+  const parseDistance = (distance) => {
+    if (typeof distance === "number") return distance;
+    const parsed = Number.parseFloat(String(distance || "").replace(/[^\d.]/g, ""));
+    return Number.isFinite(parsed) ? parsed : null;
+  };
+
+  const normalizedLocationQuery = String(homeFilters.locationQuery || "")
+    .trim()
+    .toLowerCase();
+
+  const homeProfiles = profilesData
+    .filter((profile) => !homeSwipedProfiles.includes(profile.id))
+    .filter((profile) => {
+      const [minAge, maxAge] = homeFilters.ageRange || [18, 90];
+      const profileAge = Number(profile?.age);
+      if (Number.isFinite(profileAge) && (profileAge < minAge || profileAge > maxAge)) {
+        return false;
+      }
+
+      if (homeFilters.gender && homeFilters.gender !== "Everyone") {
+        const expectedGender = String(homeFilters.gender).toLowerCase();
+        if (String(profile?.gender || "").toLowerCase() !== expectedGender) {
+          return false;
+        }
+      }
+
+      if (homeFilters.maxDistance) {
+        const profileDistance = parseDistance(profile?.distance);
+        if (
+          profileDistance !== null &&
+          profileDistance > Number(homeFilters.maxDistance)
+        ) {
+          return false;
+        }
+      }
+
+      if (normalizedLocationQuery) {
+        const profileLocation = String(profile?.location || "").toLowerCase();
+        if (!profileLocation.includes(normalizedLocationQuery)) {
+          return false;
+        }
+      }
+
+      if (Array.isArray(homeFilters.interests) && homeFilters.interests.length > 0) {
+        const profileInterests = Array.isArray(profile?.interests)
+          ? profile.interests.map((interest) => String(interest).toLowerCase())
+          : [];
+        const hasInterestMatch = homeFilters.interests.some((interest) =>
+          profileInterests.includes(String(interest).toLowerCase())
+        );
+
+        if (!hasInterestMatch) {
+          return false;
+        }
+      }
+
+      const scalarRules = [
+        ["lookingFor", "lookingFor"],
+        ["zodiac", "zodiac"],
+        ["ethnicity", "ethnicity"],
+        ["education", "education"],
+        ["drinking", "drinking"],
+        ["smoking", "smoking"],
+        ["religion", "religion"],
+        ["communicationStyle", "communicationStyle"],
+        ["loveLanguage", "loveStyle"],
+        ["exercise", "exercise"],
+      ];
+
+      for (const [filterKey, profileKey] of scalarRules) {
+        const filterValue = String(homeFilters?.[filterKey] || "").trim().toLowerCase();
+        if (!filterValue) continue;
+
+        const profileValue = String(profile?.[profileKey] || "").trim().toLowerCase();
+        if (profileValue !== filterValue) {
+          return false;
+        }
+      }
+
+      return true;
+    });
 
   const discoverProfiles = profilesData.filter(
     (profile) => !discoverSwipedProfiles.includes(profile.id)
@@ -212,6 +340,9 @@ export const ProfileProvider = ({ children }) => {
     // Utility functions
     setHomeCurrentIndex,
     setDiscoverCurrentIndex,
+    profilesLoading,
+    homeFilters,
+    setHomeFilters,
   };
 
   return (

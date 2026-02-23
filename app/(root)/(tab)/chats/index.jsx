@@ -1,20 +1,20 @@
 // App.js
-import React, { useState, useEffect } from "react";
-import { View, StyleSheet } from "react-native";
+import { useEffect, useState } from "react";
+import { StyleSheet, View } from "react-native";
+import { useSelector } from "react-redux";
 import ChatListScreen from "../../../../components/chatScreen/ChatListScreen";
 import ChatScreen from "../../../../components/chatScreen/ChatScreen";
-import { matchedUsers } from "../../../../data/mockData";
-import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+import { matchService } from "../../../../services/matchService";
+import { socketService } from "../../../../services/socketService";
 
-
-import { colors } from "../../../../constant/colors";
-import { StatusBar } from "expo-status-bar";
-import matchService from "../../../../services/matchService";
 
 export default function Chat() {
   const [currentScreen, setCurrentScreen] = useState("list");
   const [selectedUser, setSelectedUser] = useState(null);
-  const [matchUsers, setMatchUsers] = useState(matchedUsers);
+  const [matchUsers, setMatchUsers] = useState([]);
+  const currentUserId = useSelector(
+    (state) => state.auth.user?.id || state.auth.user?._id
+  );
 
   useEffect(() => {
     let isMounted = true;
@@ -30,20 +30,22 @@ export default function Chat() {
           : [];
         const profileImage = images[0] || match.user?.profileImage;
         const hasChatted = Boolean(match.lastMessageAt);
+        const latestMessage = match.lastMessage?.content;
 
         return {
           id: match.user?._id ?? match.user?.id,
           matchId: match.matchId ?? match.id,
-          name: match.user?.name ?? "Unknown",
+          name:
+            match.user?.name ||
+            [match.user?.firstName, match.user?.lastName].filter(Boolean).join(" ") ||
+            "Unknown",
           profileImage,
           isOnline: match.user?.online ?? false,
           matchedDate: match.matchedAt
             ? new Date(match.matchedAt)
             : new Date(),
-          lastMessage: hasChatted
-            ? "Tap to continue chatting"
-            : "Start the conversation",
-          unread: 0,
+          lastMessage: latestMessage || (hasChatted ? "Tap to continue chatting" : "No messages yet"),
+          unread: Number(match.unread || 0),
           hasChatted,
         };
       });
@@ -56,7 +58,7 @@ export default function Chat() {
         }
       } catch (_error) {
         if (isMounted) {
-          setMatchUsers(matchedUsers);
+          setMatchUsers([]);
         }
       }
     };
@@ -66,6 +68,80 @@ export default function Chat() {
       isMounted = false;
     };
   }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const handleMessageNew = ({ matchId, message }) => {
+      if (!matchId || !message) return;
+
+      const senderId = message.sender?._id || message.sender?.id || message.sender;
+      const isSentByCurrentUser =
+        senderId && currentUserId
+          ? String(senderId) === String(currentUserId)
+          : false;
+      const isCurrentChatOpen =
+        currentScreen === "chat" &&
+        selectedUser?.matchId &&
+        String(selectedUser.matchId) === String(matchId);
+
+      const previewText =
+        message.content ||
+        (message.type === "image"
+          ? "Sent a photo"
+          : message.type === "voice"
+            ? "Sent a voice note"
+            : "New message");
+
+      setMatchUsers((prevUsers) =>
+        prevUsers.map((user) => {
+          if (String(user.matchId) !== String(matchId)) {
+            return user;
+          }
+
+          return {
+            ...user,
+            hasChatted: true,
+            lastMessage: previewText,
+            unread:
+              !isSentByCurrentUser && !isCurrentChatOpen
+                ? Number(user.unread || 0) + 1
+                : user.unread,
+          };
+        })
+      );
+    };
+
+    const handleMessagesRead = ({ matchId, byUserId }) => {
+      if (!matchId || !byUserId || String(byUserId) !== String(currentUserId)) {
+        return;
+      }
+
+      setMatchUsers((prevUsers) =>
+        prevUsers.map((user) =>
+          String(user.matchId) === String(matchId)
+            ? { ...user, unread: 0 }
+            : user
+        )
+      );
+    };
+
+    const connectSocket = async () => {
+      const socket = await socketService.connect();
+      if (!socket || !isMounted) return;
+
+      socketService.on("message:new", handleMessageNew);
+      socketService.on("messages:read", handleMessagesRead);
+    };
+
+    connectSocket();
+
+    return () => {
+      isMounted = false;
+      socketService.off("message:new", handleMessageNew);
+      socketService.off("messages:read", handleMessagesRead);
+    };
+  }, [currentScreen, currentUserId, selectedUser?.matchId]);
 
   const handleSelectUser = (user) => {
     setSelectedUser(user);

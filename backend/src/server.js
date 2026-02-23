@@ -1,12 +1,14 @@
 require('dotenv').config();
 const express = require('express');
+const http = require('http');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
-const rateLimit = require('express-rate-limit');
 
 const connectDB = require('./config/database');
 const errorHandler = require('./middleware/errorHandler');
+const { initSocket } = require('./socket');
+const { authLimiter, apiLimiter } = require('./middleware/rateLimiters');
 
 // Import routes
 const authRoutes = require('./routes/authRoutes');
@@ -19,6 +21,7 @@ const uploadRoutes = require('./routes/uploadRoutes');
 
 // Initialize express app
 const app = express();
+const httpServer = http.createServer(app);
 
 // Connect to database
 connectDB();
@@ -36,20 +39,6 @@ app.use(express.urlencoded({ extended: true }));
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
-
-// Rate limiting for auth routes (stricter)
-const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100,
-  message: 'Too many requests from this IP, please try again later.',
-});
-
-// Rate limiting for API routes (more permissive)
-const apiLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 500, // Allow 500 requests per 15 minutes for general API
-  message: 'Too many requests from this IP, please try again later.',
-});
 
 // Apply rate limiting
 app.use('/api/auth', authLimiter);
@@ -88,7 +77,9 @@ app.use(errorHandler);
 const PORT = process.env.PORT || 5000;
 const HOST = '0.0.0.0'; // Accept connections from any IP
 
-app.listen(PORT, HOST, () => {
+initSocket(httpServer);
+
+httpServer.listen(PORT, HOST, () => {
   console.log(`
   ╔═══════════════════════════════════════╗
   ║   Bondies API Server                  ║

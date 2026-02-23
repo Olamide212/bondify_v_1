@@ -35,7 +35,7 @@ const TextInput = ({
         style={{ height: 50, borderRadius: 10, marginBottom: 10 }}
       >
         <RNTextInput
-          className="flex-1 text-app   bg-white font-GeneralSansMedium "
+          className="flex-1 text-app   bg-white font-GeneralSansMedium text-lg"
           placeholder={placeholder}
           placeholderTextColor="#929292"
           autoCapitalize="none"
@@ -46,6 +46,8 @@ const TextInput = ({
           maxLength={phone ? 11 : maxLength}
           {...rest}
           style={{fontSize: 16}}
+          numberOfLines={1}
+          textBreakStrategy="simple"
         />
 
         {/* Show toggle icon for password */}

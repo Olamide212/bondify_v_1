@@ -3,6 +3,35 @@ const { GetObjectCommand } = require('@aws-sdk/client-s3');
 const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
 const s3 = require('../config/s3');
 
+const PROFILE_CACHE_TTL_MS = Number(process.env.PROFILE_CACHE_TTL_MS || 30000);
+const profileCache = new Map();
+
+const getCachedProfile = (key) => {
+  const cachedEntry = profileCache.get(key);
+  if (!cachedEntry) return null;
+
+  const isExpired = Date.now() - cachedEntry.cachedAt > PROFILE_CACHE_TTL_MS;
+  if (isExpired) {
+    profileCache.delete(key);
+    return null;
+  }
+
+  return cachedEntry.data;
+};
+
+const setCachedProfile = (key, data) => {
+  profileCache.set(key, {
+    data,
+    cachedAt: Date.now(),
+  });
+};
+
+const clearProfileCache = (userId) => {
+  if (!userId) return;
+  profileCache.delete(`my:${String(userId)}`);
+  profileCache.delete(`id:${String(userId)}`);
+};
+
 const enumNormalizers = {
   lookingFor: {
     'committed-relationship': 'long-term',
@@ -213,6 +242,8 @@ const updateProfile = async (req, res, next) => {
 
     await user.save();
 
+    clearProfileCache(user._id);
+
     res.json({
       success: true,
       message: 'Profile updated successfully',
@@ -250,6 +281,8 @@ const completeOnboarding = async (req, res, next) => {
     user.calculateCompletion();
     await user.save();
 
+    clearProfileCache(user._id);
+
     res.json({
       success: true,
       message: 'Onboarding completed successfully',
@@ -266,6 +299,15 @@ const completeOnboarding = async (req, res, next) => {
 const getProfile = async (req, res, next) => {
   try {
     const { id } = req.params;
+    const cacheKey = `id:${String(id)}`;
+
+    const cachedProfile = getCachedProfile(cacheKey);
+    if (cachedProfile) {
+      return res.json({
+        success: true,
+        data: { profile: cachedProfile },
+      });
+    }
 
     const user = await User.findById(id);
 
@@ -283,6 +325,8 @@ const getProfile = async (req, res, next) => {
     delete profile.otpExpiry;
     profile.images = await mapImagesWithAccessUrls(profile.images);
 
+    setCachedProfile(cacheKey, profile);
+
     res.json({
       success: true,
       data: { profile },
@@ -297,6 +341,18 @@ const getProfile = async (req, res, next) => {
 // @access  Private
 const getMyProfile = async (req, res, next) => {
   try {
+    const cacheKey = `my:${String(req.user._id)}`;
+
+    const cachedProfile = getCachedProfile(cacheKey);
+    if (cachedProfile) {
+      return res.json({
+        success: true,
+        data: {
+          user: cachedProfile,
+        },
+      });
+    }
+
     const user = await User.findById(req.user._id);
 
     if (!user) {
@@ -306,13 +362,17 @@ const getMyProfile = async (req, res, next) => {
       });
     }
 
+    const responseUser = {
+      ...user.toObject(),
+      images: await mapImagesWithAccessUrls(user.images),
+    };
+
+    setCachedProfile(cacheKey, responseUser);
+
     res.json({
       success: true,
       data: {
-        user: {
-          ...user.toObject(),
-          images: await mapImagesWithAccessUrls(user.images),
-        },
+        user: responseUser,
       },
     });
   } catch (error) {

@@ -112,7 +112,7 @@ const Age = () => {
       </View>
 
       <View className="w-full items-end pb-6">
-        <Button title="Continue" variant="gradient" onPress={() => router.push("/height")} />
+        <Button title="Continue" variant="primary" onPress={() => router.push("/height")} />
       </View>
     </View>
   );

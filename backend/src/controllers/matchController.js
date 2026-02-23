@@ -1,5 +1,6 @@
 const Match = require('../models/Match');
 const User = require('../models/User');
+const Message = require('../models/Message');
 
 // @desc    Get all matches for current user
 // @route   GET /api/matches
@@ -15,25 +16,44 @@ const getMatches = async (req, res, next) => {
       $or: [{ user1: userId }, { user2: userId }],
       status: 'matched',
     })
-      .populate('user1', 'name age images bio location lastActive')
-      .populate('user2', 'name age images bio location lastActive')
+      .populate('user1', 'firstName lastName name age images bio location lastActive online')
+      .populate('user2', 'firstName lastName name age images bio location lastActive online')
       .sort({ matchedAt: -1 })
       .limit(parseInt(limit))
       .skip(skip);
 
     // Format matches to show the other user
-    const formattedMatches = matches.map((match) => {
+    const formattedMatches = await Promise.all(matches.map(async (match) => {
       const otherUser = match.user1._id.toString() === userId.toString()
         ? match.user2
         : match.user1;
+
+      const latestMessage = await Message.findOne({ match: match._id })
+        .sort({ createdAt: -1 })
+        .select('content type mediaUrl createdAt sender');
+
+      const unread = match.user1._id.toString() === userId.toString()
+        ? match.unreadCount?.user1 || 0
+        : match.unreadCount?.user2 || 0;
 
       return {
         matchId: match._id,
         matchedAt: match.matchedAt,
         lastMessageAt: match.lastMessageAt,
+        lastMessage: latestMessage
+          ? {
+              id: latestMessage._id,
+              content: latestMessage.content,
+              type: latestMessage.type,
+              mediaUrl: latestMessage.mediaUrl,
+              createdAt: latestMessage.createdAt,
+              sender: latestMessage.sender,
+            }
+          : null,
+        unread,
         user: otherUser,
       };
-    });
+    }));
 
     const total = await Match.countDocuments({
       $or: [{ user1: userId }, { user2: userId }],

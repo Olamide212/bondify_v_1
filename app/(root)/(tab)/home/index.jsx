@@ -1,30 +1,28 @@
 // Home.js (updated)
-import React, { useState, useEffect } from "react";
+import { Image } from "expo-image";
+import { Bot } from "lucide-react-native";
+import { useEffect, useState } from "react";
 import {
-  View,
+  Pressable,
   StyleSheet,
   Text,
-  Pressable,
-  useWindowDimensions,
+  View,
 } from "react-native";
 import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
   interpolate,
   runOnJS,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
 } from "react-native-reanimated";
-import { Image } from "expo-image";
 import ActionButtons from "../../../../components/homeScreen/ActionButtons";
-import FilterModal from "../../../../components/modals/FilterModal";
-import { Icons } from "../../../../constant/icons";
 import AroundYou from "../../../../components/homeScreen/AroundYouTab";
-import { useProfile } from "../../../../context/ProfileContext";
-import LogoLoader from "../../../../components/ui/LogoLoader";
-import UserProfileModal from "../../../../components/modals/UserProfileModal";
 import AIAssistantModal from "../../../../components/modals/AIAssistantModal"; // New import
+import FilterModal from "../../../../components/modals/FilterModal";
+import UserProfileModal from "../../../../components/modals/UserProfileModal";
+import LogoLoader from "../../../../components/ui/LogoLoader";
 import { colors } from "../../../../constant/colors";
-import { Bot } from "lucide-react-native";
+import { useProfile } from "../../../../context/ProfileContext";
 
 const Home = () => {
   const {
@@ -32,8 +30,9 @@ const Home = () => {
     homeProfiles,
     handleHomeSwipe,
     handleHomeSuperLike,
-    matches,
-    likes,
+    profilesLoading,
+    homeFilters,
+    setHomeFilters,
   } = useProfile();
 
   const [flashMessage, setFlashMessage] = useState(null);
@@ -41,8 +40,6 @@ const Home = () => {
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showAIModal, setShowAIModal] = useState(false); // AI Modal state
   const [selectedProfileId, setSelectedProfileId] = useState(null);
-  const { height: windowHeight } = useWindowDimensions();
-
   const animation = useSharedValue(1);
   const flashAnim = useSharedValue(0);
 
@@ -54,7 +51,7 @@ const Home = () => {
   useEffect(() => {
     animation.value = 0;
     animation.value = withTiming(1, { duration: 600 });
-  }, [homeCurrentProfileIndex]);
+  }, [homeCurrentProfileIndex, animation]);
 
   const showFlashMessage = (direction) => {
     const message = direction === "right" ? "Liked ❤️" : "Passed 👎";
@@ -108,9 +105,20 @@ const Home = () => {
     };
   });
 
-  // Show loading state if no profile is available
-  if (!homeProfiles || homeProfiles.length === 0) {
+  if (profilesLoading) {
     return <LogoLoader color={colors.primary} />;
+  }
+
+  // Show explicit empty state for real DB data (instead of mock fallback)
+  if (!homeProfiles || homeProfiles.length === 0) {
+    return (
+      <View style={styles.emptyContainer}>
+        <Text style={styles.emptyTitle}>No users around you yet</Text>
+        <Text style={styles.emptySubtitle}>
+          Check back shortly to discover newly registered users.
+        </Text>
+      </View>
+    );
   }
 
   if (!currentProfile) {
@@ -185,6 +193,8 @@ const Home = () => {
       <FilterModal
         visible={showFilterModal}
         onClose={() => setShowFilterModal(false)}
+        initialFilters={homeFilters}
+        onApply={setHomeFilters}
       />
 
       <UserProfileModal
@@ -207,6 +217,26 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#000",
+  },
+  emptyContainer: {
+    flex: 1,
+    backgroundColor: "#fff",
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 24,
+  },
+  emptyTitle: {
+    fontSize: 24,
+    color: "#111",
+    fontFamily: "SatoshiBold",
+    marginBottom: 8,
+    textAlign: "center",
+  },
+  emptySubtitle: {
+    fontSize: 16,
+    color: "#666",
+    fontFamily: "Satoshi",
+    textAlign: "center",
   },
   headerWrapper: {
     position: "absolute",

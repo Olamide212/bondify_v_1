@@ -341,6 +341,12 @@ const authSlice = createSlice({
         state.authLoading = false;
       })
       .addCase(restoreAuth.rejected, (state) => {
+        state.user = null;
+        state.token = null;
+        state.onboardingToken = null;
+        state.isAuthenticated = false;
+        state.hasOnboardingSession = false;
+
         state.authRestored = true;
         state.authLoading = false;
       });

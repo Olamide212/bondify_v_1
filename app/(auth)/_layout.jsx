@@ -1,16 +1,16 @@
 import { Stack, useRouter, useSegments } from "expo-router";
 import * as SecureStore from "expo-secure-store";
+import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useSelector } from "react-redux";
 import HeaderWithLogo from "../../components/headers/HeaderWithLogo";
 import { useAuthRestore } from "../../hooks/useAuthRestore";
-import { StatusBar } from "expo-status-bar";
 
 export default function AuthLayout() {
   const router = useRouter();
   const segments = useSegments(); // returns an array like ['auth', '(onboarding)', 'birthday']
-  const { restored, isAuthenticated, hasOnboardingSession } = useAuthRestore();
+  const { restored, isAuthenticated, onboardingToken } = useAuthRestore();
   const { pendingEmail } = useSelector((state) => state.auth);
 
   // Check if user is on an onboarding screen
@@ -25,7 +25,7 @@ export default function AuthLayout() {
       return;
     }
 
-    if (hasOnboardingSession && !isOnboarding) {
+    if (onboardingToken && !isOnboarding) {
       const redirectToOnboarding = async () => {
         const lastStep = await SecureStore.getItemAsync("onboardingStep");
         router.replace(lastStep ? `/(onboarding)/${lastStep}` : "/(onboarding)/age");
@@ -35,13 +35,13 @@ export default function AuthLayout() {
       return;
     }
 
-    if (isAuthenticated && !hasOnboardingSession && !isOnboarding) {
+    if (isAuthenticated && !onboardingToken && !isOnboarding) {
       router.replace("/root-tabs");
     }
   }, [
     restored,
     pendingEmail,
-    hasOnboardingSession,
+    onboardingToken,
     isOnboarding,
     isAuthenticated,
     router,

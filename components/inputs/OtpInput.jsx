@@ -99,8 +99,8 @@ const GlobalOtpInput = ({
           </Text>
         ) : (
           <TouchableOpacity onPress={handleResend}>
-            <Text className="text-primary font-medium text-sm">
-              Couldn't get OTP? <Text className="underline">Resend</Text>
+            <Text className="text-primary font-SatoshiMedium text-lg">
+              Couldn&apos;t get OTP? <Text className="underline">Resend</Text>
             </Text>
           </TouchableOpacity>
         )}

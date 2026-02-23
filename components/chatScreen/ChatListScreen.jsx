@@ -1,21 +1,21 @@
-import React from "react";
 import {
-  View,
-  Text,
-  FlatList,
-  TouchableOpacity,
-  Image,
-  StyleSheet,
+    FlatList,
+    Image,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
-import { MoreVertical } from "lucide-react-native";
-import { formatRelativeDate } from "../../utils/helper";
-import { colors } from "../../constant/colors";
-import GeneralHeader from "../headers/GeneralHeader";
-import { EllipsisVertical, Shield } from "lucide-react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { colors } from "../../constant/colors";
+import { formatRelativeDate } from "../../utils/helper";
+import GeneralHeader from "../headers/GeneralHeader";
 
 const ChatListScreen = ({ users, onSelectUser }) => {
-  const newMatches = users.filter((user) => !user.hasChatted); 
+  const newMatches = users.filter((user) => !user.hasChatted);
+  const placeholderSlots = Array.from({ length: 5 }, (_, index) => ({
+    id: `placeholder-${index}`,
+  }));
 
   return (
     <SafeAreaView style={styles.listContainer}>
@@ -24,38 +24,27 @@ const ChatListScreen = ({ users, onSelectUser }) => {
         className="text-black"
       />
       {/* Horizontal Scroll of New Matches */}
-      <Text className="text-white font-SatoshiBold pl-5 pb-2 text-lg pt-2">
+      <Text className="text-black font-SatoshiBold pl-5 pb-2 text-lg pt-2">
         New Matches
       </Text>
-      {newMatches.length > 0 && (
-        <View style={styles.newMatchesWrapper} className="">
-          <FlatList
-            data={[{ id: "summary" }, ...newMatches]}
-            horizontal
-            keyExtractor={(item) => item.id}
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ paddingLeft: 16 }}
-            renderItem={({ item, index }) => {
-              if (item.id === "summary") {
-                return (
-                  <View className="bg-secondary mr-5 w-28 justify-center items-center rounded-lg">
-                    <Text className="text-primary font-SatoshiBold text-3xl ">
-                      {newMatches.length}
-                    </Text>
-                    <Text className="text-center text-primary font-SatoshiBold">
-                      New{"\n"}Matches
-                    </Text>
-                  </View>
-                );
-              }
+      <View style={styles.newMatchesWrapper}>
+        <FlatList
+          data={placeholderSlots}
+          horizontal
+          keyExtractor={(item) => item.id}
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ paddingLeft: 16, paddingRight: 8 }}
+          renderItem={({ index }) => {
+            const match = newMatches[index];
 
+            if (match) {
               return (
                 <TouchableOpacity
                   style={styles.newMatchItem}
-                  onPress={() => onSelectUser(item)}
+                  onPress={() => onSelectUser(match)}
                 >
                   <Image
-                    source={{ uri: item.profileImage }}
+                    source={{ uri: match.profileImage }}
                     style={styles.newMatchImage}
                   />
                   <Text
@@ -63,57 +52,73 @@ const ChatListScreen = ({ users, onSelectUser }) => {
                     numberOfLines={1}
                     className="font-SatoshiBold"
                   >
-                    {item.name}
+                    {match.name}
                   </Text>
                 </TouchableOpacity>
               );
-            }}
-          />
-        </View>
-      )}
+            }
+
+            return (
+              <View style={styles.newMatchItem}>
+                <View style={styles.placeholderCircle} />
+                <Text style={styles.placeholderLabel}>Waiting</Text>
+              </View>
+            );
+          }}
+        />
+      </View>
 
       <View className="bg-white flex-1 rounded-t-3xl pt-3">
         <Text className="pl-5 pt-4 font-SatoshiBold text-lg">Active chats</Text>
-        <FlatList
-          data={users}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <TouchableOpacity
-              style={styles.matchItem}
-              onPress={() => onSelectUser(item)}
-            >
-              <View style={styles.profileContainer}>
-                <Image
-                  source={{ uri: item.profileImage }}
-                  style={styles.profileImage}
-                />
-                {item.isOnline && <View style={styles.onlineIndicator} />}
-              </View>
+        {users.length === 0 ? (
+          <View style={styles.emptyStateContainer}>
+            <Text style={styles.emptyStateTitle}>No conversations yet</Text>
+            <Text style={styles.emptyStateSubtitle}>
+              Your matches and chats will appear here.
+            </Text>
+          </View>
+        ) : (
+          <FlatList
+            data={users}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                style={styles.matchItem}
+                onPress={() => onSelectUser(item)}
+              >
+                <View style={styles.profileContainer}>
+                  <Image
+                    source={{ uri: item.profileImage }}
+                    style={styles.profileImage}
+                  />
+                  {item.isOnline && <View style={styles.onlineIndicator} />}
+                </View>
 
-              <View style={styles.matchInfo}>
-                <Text style={styles.matchName}>{item.name}</Text>
-                <Text
-                  style={styles.matchMessage}
-                  numberOfLines={1}
-                  className="font-Satoshi"
-                >
-                  {item.lastMessage}
-                </Text>
-              </View>
+                <View style={styles.matchInfo}>
+                  <Text style={styles.matchName}>{item.name}</Text>
+                  <Text
+                    style={styles.matchMessage}
+                    numberOfLines={1}
+                    className="font-Satoshi"
+                  >
+                    {item.lastMessage || "No messages yet"}
+                  </Text>
+                </View>
 
-              <View style={styles.matchMeta}>
-                <Text style={styles.matchTime}>
-                  {formatRelativeDate(item.matchedDate)}
-                </Text>
-                {item.unread > 0 && (
-                  <View style={styles.unreadBadge}>
-                    <Text style={styles.unreadText}>{item.unread}</Text>
-                  </View>
-                )}
-              </View>
-            </TouchableOpacity>
-          )}
-        />
+                <View style={styles.matchMeta}>
+                  <Text style={styles.matchTime}>
+                    {formatRelativeDate(item.matchedDate)}
+                  </Text>
+                  {item.unread > 0 && (
+                    <View style={styles.unreadBadge}>
+                      <Text style={styles.unreadText}>{item.unread}</Text>
+                    </View>
+                  )}
+                </View>
+              </TouchableOpacity>
+            )}
+          />
+        )}
       </View>
       {/* Chat List */}
     </SafeAreaView>
@@ -123,7 +128,7 @@ const ChatListScreen = ({ users, onSelectUser }) => {
 const styles = StyleSheet.create({
   listContainer: {
     flex: 1,
-    backgroundColor: "#ff",
+    backgroundColor: "#fff",
 
   },
 
@@ -140,17 +145,32 @@ const styles = StyleSheet.create({
   newMatchItem: {
     marginRight: 25,
     alignItems: "center",
-    width: 64,
+    width: 72,
   },
   newMatchImage: {
-    width: 80,
-    height: 80,
-    borderRadius: 10,
+    width: 72,
+    height: 72,
+    borderRadius: 36,
     backgroundColor: "#E5E7EB",
+  },
+  placeholderCircle: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    borderWidth: 2,
+    borderStyle: "dashed",
+    borderColor: "#000",
+    backgroundColor: "transparent",
+  },
+  placeholderLabel: {
+    fontSize: 11,
+    color: "#000",
+    marginTop: 6,
+    textAlign: "center",
   },
   newMatchName: {
     fontSize: 12,
-    color: "#fff",
+    color: "#000",
     marginTop: 4,
     textAlign: "center",
 
@@ -238,6 +258,23 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: "#6B7280",
     marginTop: 4,
+  },
+  emptyStateContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 24,
+  },
+  emptyStateTitle: {
+    fontSize: 20,
+    color: "#111",
+    fontWeight: "700",
+    marginBottom: 6,
+  },
+  emptyStateSubtitle: {
+    fontSize: 14,
+    color: "#6B7280",
+    textAlign: "center",
   },
 });
 

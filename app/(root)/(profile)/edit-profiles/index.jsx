@@ -24,10 +24,10 @@ export default function ProfileDetails() {
   const params = useLocalSearchParams();
   const router = useRouter();
 
-  const loadProfile = React.useCallback(async ({ showLoading = true } = {}) => {
+  const loadProfile = React.useCallback(async ({ force = false, showLoading = true } = {}) => {
     try {
       if (showLoading) setLoading(true);
-      const userProfile = await profileService.getMyProfile({ force: true });
+      const userProfile = await profileService.getMyProfile({ force });
       setProfile(userProfile || {});
     } catch (error) {
       console.error("Failed to load edit profile data:", error);
@@ -39,7 +39,7 @@ export default function ProfileDetails() {
   const onRefresh = React.useCallback(async () => {
     try {
       setRefreshing(true);
-      await loadProfile({ showLoading: false });
+      await loadProfile({ force: true, showLoading: false });
     } finally {
       setRefreshing(false);
     }
@@ -47,8 +47,8 @@ export default function ProfileDetails() {
 
   useFocusEffect(
     React.useCallback(() => {
-      loadProfile();
-    }, [loadProfile])
+      loadProfile({ force: false, showLoading: !profile?._id && !profile?.id });
+    }, [loadProfile, profile?._id, profile?.id])
   );
 
   React.useEffect(() => {
@@ -148,7 +148,7 @@ export default function ProfileDetails() {
           </View>
 
           <View>
-            <Location profile={profile} />
+            <Location profile={profile} onUpdateField={handleUpdateField} />
           </View>
 
           <View>

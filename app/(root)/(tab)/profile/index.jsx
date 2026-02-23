@@ -46,8 +46,8 @@ const ProfileScreen = () => {
 
   useFocusEffect(
     useCallback(() => {
-      loadProfile({ force: false });
-    }, [loadProfile])
+      loadProfile({ force: false, showLoading: !profile });
+    }, [loadProfile, profile])
   );
 
 

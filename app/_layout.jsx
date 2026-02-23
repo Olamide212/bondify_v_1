@@ -44,14 +44,14 @@ const [fontsLoaded] = useFonts({
   if (!fontsLoaded) return null;
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }} onLayout={onLayoutRootView}>
+    <GestureHandlerRootView style={{ flex: 1 }} onLayout={onLayoutRootView} className='bg-white'>
       <StatusBar barStyle="dark-content" />
       <Provider store={store}>
         <PersistGate loading={null} persistor={persistor}>
           <WalletProvider>
             <ProfileProvider>
               <ToastProvider>
-                <Stack screenOptions={{ headerShown: false }}>
+                <Stack screenOptions={{ headerShown: false }} className='bg-white'>
                   {/* Only keep these if you’re customizing screen options */}
                   <Stack.Screen name="index" />
                   <Stack.Screen name="(root)" />

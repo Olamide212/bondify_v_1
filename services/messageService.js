@@ -92,8 +92,9 @@ const updateAllMatchCaches = async (matchId, updater) => {
   }
 };
 
-const getMessages = async (matchId, options = {}) => {
+const getMessages = async (matchId, options = {}, config = {}) => {
   const cacheKey = buildMessagesCacheKey(matchId, options);
+  const { includePagination = false } = config;
 
   try {
     const response = await apiClient.get(`/messages/${matchId}`, {
@@ -102,11 +103,23 @@ const getMessages = async (matchId, options = {}) => {
     const payload = response.data?.data ?? response.data;
     const messages = payload?.messages ?? [];
     await writeCachedMessages(cacheKey, messages);
+    if (includePagination) {
+      return {
+        messages,
+        pagination: payload?.pagination || null,
+      };
+    }
     return messages;
   } catch (error) {
     if (isNetworkLikeError(error)) {
       const cachedMessages = await readCachedMessages(cacheKey);
       if (Array.isArray(cachedMessages)) {
+        if (includePagination) {
+          return {
+            messages: cachedMessages,
+            pagination: null,
+          };
+        }
         return cachedMessages;
       }
     }

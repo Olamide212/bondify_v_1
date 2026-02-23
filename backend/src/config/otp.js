@@ -1,5 +1,5 @@
 const generateOTP = () => {
-  const length = parseInt(process.env.OTP_LENGTH) || 4;
+  const length = 4;
   const digits = '0123456789';
   let otp = '';
   

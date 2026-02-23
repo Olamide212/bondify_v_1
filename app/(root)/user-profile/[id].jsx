@@ -1,29 +1,28 @@
-import React, { useRef, useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  ScrollView,
-  StyleSheet,
-  Pressable,
-  Dimensions,
-} from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  interpolate,
-  runOnJS,
-  useAnimatedScrollHandler,
-} from "react-native-reanimated";
-import { Image } from "expo-image";
-import ProfileCard from "../../../components/homeScreen/ProfileCard";
-import ActionButtons from "../../../components/homeScreen/ActionButtons";
-import { useProfile } from "../../../context/ProfileContext";
-import { Icons } from "../../../constant/icons";
-import BackArrow from "../../../components/ui/BackArrow";
 import { ChevronLeft } from "lucide-react-native";
+import { useEffect, useRef, useState } from "react";
+import {
+    ActivityIndicator,
+    Dimensions,
+    Pressable,
+    StyleSheet,
+    Text,
+    View
+} from "react-native";
+import Animated, {
+    interpolate,
+    runOnJS,
+    useAnimatedScrollHandler,
+    useAnimatedStyle,
+    useSharedValue,
+    withTiming,
+} from "react-native-reanimated";
+import ActionButtons from "../../../components/homeScreen/ActionButtons";
+import ProfileCard from "../../../components/homeScreen/ProfileCard";
+import BackArrow from "../../../components/ui/BackArrow";
 import VerifiedIcon from "../../../components/ui/VerifiedIcon";
+import { useProfile } from "../../../context/ProfileContext";
+import { profileService } from "../../../services/profileService";
 
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 
@@ -34,20 +33,113 @@ const UserProfile = () => {
 
   const [flashMessage, setFlashMessage] = useState(null);
   const [currentProfile, setCurrentProfile] = useState(null);
+  const [loadingProfile, setLoadingProfile] = useState(true);
 
   const animation = useSharedValue(1);
   const flashAnim = useSharedValue(0);
   const scrollY = useSharedValue(0);
   const scrollRef = useRef(null);
 
+  const normalizeImages = (images) => {
+    if (!Array.isArray(images)) return [];
+    return images
+      .map((image) => (typeof image === "string" ? image : image?.url))
+      .filter(Boolean);
+  };
+
+  const formatLocation = (location) => {
+    if (!location || typeof location !== "object") return location || "";
+    const parts = [location.city, location.state, location.country].filter(Boolean);
+    return parts.join(", ");
+  };
+
+  const normalizeProfile = (profile) => {
+    const normalizedImages = normalizeImages(profile?.images);
+    return {
+      id: profile?._id ?? profile?.id,
+      name:
+        profile?.name ||
+        [profile?.firstName, profile?.lastName].filter(Boolean).join(" ") ||
+        profile?.username ||
+        "Unknown",
+      age: profile?.age ?? null,
+      gender: profile?.gender,
+      zodiac: profile?.zodiacSign ?? profile?.zodiac,
+      location: formatLocation(profile?.location) || profile?.location,
+      distance: profile?.distance,
+      bondScore: profile?.bondScore,
+      verified: profile?.verified ?? profile?.isVerified ?? false,
+      occupation: profile?.occupation,
+      completion: profile?.completionPercentage ?? profile?.completion,
+      religion: profile?.religion,
+      education: profile?.education,
+      school: profile?.school,
+      height: profile?.height,
+      loveStyle: profile?.loveLanguage ?? profile?.loveStyle,
+      communicationStyle: profile?.communicationStyle,
+      financialStyle: profile?.financialStyle,
+      lookingFor: profile?.lookingFor,
+      relationshipType: profile?.relationshipType,
+      drinking: profile?.drinking,
+      smoking: profile?.smoking,
+      exercise: profile?.exercise,
+      pets: profile?.pets,
+      children: profile?.children,
+      lastActive: profile?.lastActive,
+      joined: profile?.joined,
+      language: profile?.languages ?? profile?.language ?? [],
+      nationality: profile?.nationality,
+      ethnicity: profile?.ethnicity,
+      mutualFriends: profile?.mutualFriends ?? 0,
+      mutualInterests: profile?.mutualInterests ?? [],
+      interests: profile?.interests ?? [],
+      personalities: profile?.personalities ?? [],
+      bio: profile?.bio ?? "",
+      questions: profile?.questions ?? [],
+      images: normalizedImages.length > 0 ? normalizedImages : [],
+    };
+  };
+
   useEffect(() => {
-    // Find the profile based on ID
-    if (homeProfiles && homeProfiles.length > 0) {
-      const profile = homeProfiles.find(
-        (item) => String(item.id) === String(id)
-      );
-      setCurrentProfile(profile);
+    let isMounted = true;
+
+    const loadProfile = async () => {
+      try {
+        setLoadingProfile(true);
+
+        const profileFromContext = homeProfiles?.find(
+          (item) => String(item.id) === String(id)
+        );
+
+        if (profileFromContext) {
+          if (isMounted) setCurrentProfile(profileFromContext);
+          return;
+        }
+
+        const profileFromApi = await profileService.getProfileById(id);
+        if (isMounted) {
+          setCurrentProfile(normalizeProfile(profileFromApi));
+        }
+      } catch (_error) {
+        if (isMounted) {
+          setCurrentProfile(null);
+        }
+      } finally {
+        if (isMounted) {
+          setLoadingProfile(false);
+        }
+      }
+    };
+
+    if (id) {
+      loadProfile();
+    } else {
+      setLoadingProfile(false);
     }
+
+    return () => {
+      isMounted = false;
+    };
   }, [id, homeProfiles]);
 
   useEffect(() => {
@@ -135,6 +227,14 @@ const UserProfile = () => {
       transform: [{ translateY }],
     };
   });
+
+  if (loadingProfile) {
+    return (
+      <View className="flex-1 items-center justify-center bg-white">
+        <ActivityIndicator size="large" color="#5A56D0" />
+      </View>
+    );
+  }
 
   if (!currentProfile) {
     return (

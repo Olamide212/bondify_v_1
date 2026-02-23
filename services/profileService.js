@@ -4,8 +4,9 @@ import apiClient from "../utils/axiosInstance"; // your axios instance
 let cachedProfile = null;
 let cachedAt = 0;
 let inFlightProfilePromise = null;
-const PROFILE_CACHE_MS = 3000;
+const PROFILE_CACHE_MS = 60000;
 const PERSISTED_PROFILE_KEY = "@bondify/cache/profile";
+const PERSISTED_PROFILE_BY_ID_PREFIX = "@bondify/cache/profileById/";
 const PERSISTED_LOOKUPS_PREFIX = "@bondify/cache/lookups/";
 const PERSISTED_DISCOVERY_PREFIX = "@bondify/cache/discovery/";
 
@@ -69,6 +70,15 @@ const getMyProfile = async ({ force = false } = {}) => {
     return cachedProfile;
   }
 
+  if (!force && !cachedProfile) {
+    const persistedProfile = await readPersistedCache(PERSISTED_PROFILE_KEY);
+    if (persistedProfile) {
+      cachedProfile = persistedProfile;
+      cachedAt = Date.now();
+      return persistedProfile;
+    }
+  }
+
   if (!force && inFlightProfilePromise) {
     return inFlightProfilePromise;
   }
@@ -117,6 +127,27 @@ const getMyProfile = async ({ force = false } = {}) => {
     if (inFlightProfilePromise === requestPromise) {
       inFlightProfilePromise = null;
     }
+  }
+};
+
+const getProfileById = async (id) => {
+  const cacheKey = `${PERSISTED_PROFILE_BY_ID_PREFIX}${id}`;
+
+  try {
+    const response = await apiClient.get(`/profile/${id}`);
+    const payload = response.data?.data ?? response.data;
+    const profile = payload?.profile ?? payload?.user ?? payload;
+    await writePersistedCache(cacheKey, profile);
+    return profile;
+  } catch (err) {
+    const persistedProfile = await readPersistedCache(cacheKey);
+    if (persistedProfile) {
+      return persistedProfile;
+    }
+
+    throw (
+      err.response?.data?.message || err.message || "Failed to fetch profile"
+    );
   }
 };
 
@@ -207,17 +238,30 @@ const getLookups = async (type) => {
   }
 };
 
-const getDiscoveryProfiles = async (params = {}) => {
+const getDiscoveryProfiles = async (params = {}, config = {}) => {
+  const { includePagination = false } = config;
   const cacheKey = `${PERSISTED_DISCOVERY_PREFIX}${stableStringify(params || {})}`;
   try {
     const response = await apiClient.get("/discover", { params });
     const payload = response.data?.data ?? response.data;
     const profiles = payload?.profiles ?? [];
     await writePersistedCache(cacheKey, profiles);
+    if (includePagination) {
+      return {
+        profiles,
+        pagination: payload?.pagination ?? null,
+      };
+    }
     return profiles;
   } catch (err) {
     const persistedProfiles = await readPersistedCache(cacheKey);
     if (Array.isArray(persistedProfiles) && persistedProfiles.length > 0) {
+      if (includePagination) {
+        return {
+          profiles: persistedProfiles,
+          pagination: null,
+        };
+      }
       return persistedProfiles;
     }
 
@@ -246,6 +290,7 @@ const performSwipeAction = async ({ likedUserId, type }) => {
 
 export const profileService = {
   getMyProfile,
+  getProfileById,
   updateProfile,
   completeOnboarding,
   uploadPhotos,

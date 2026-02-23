@@ -1,37 +1,57 @@
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  ScrollView,
-  Pressable,
-} from "react-native";
-import React, { useState } from "react";
-import { Ionicons } from "@expo/vector-icons";
-import Slider from "@react-native-community/slider";
-import BaseModal from "./BaseModal";
-import { colors } from "../../constant/colors";
 import MultiSlider from "@ptomasroos/react-native-multi-slider";
-import InterestsModal from "./InterestsModal";
+import Slider from "@react-native-community/slider";
+import { useEffect, useMemo, useState } from "react";
+import {
+    ScrollView,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    useWindowDimensions,
+    View,
+} from "react-native";
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+import { colors } from "../../constant/colors";
 import ModalHeader from "../headers/ModalHeader";
-import LookingForModal from "./LookingForModal";
+import BaseModal from "./BaseModal";
+import CommunicationModal from "./CommunicationModal";
+import DrinkingModal from "./DrinkingModal";
+import EducationModal from "./EducationModal";
 import EthnicityModal from "./EthnicityModal";
 import FamilyPlanModal from "./FamilyPlanModal";
-import EducationModal from "./EducationModal";
-import DrinkingModal from "./DrinkingModal";
-import SmokingModal from "./SmokingModal";
-import ReligionModal from "./ReligionModal";
-import CommunicationModal from "./CommunicationModal";
-import LoveStyleModal from "./LoveStyle";
-import ZodiacModal from "./ZodiacModal";
-import WorkOutModal from "./WorkOutModal";
 import FinanceModal from "./FinanceModal";
+import InterestsModal from "./InterestsModal";
 import LanguageModal from "./LanguageModal";
-import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+import LookingForModal from "./LookingForModal";
+import LoveStyleModal from "./LoveStyle";
+import ReligionModal from "./ReligionModal";
+import SmokingModal from "./SmokingModal";
+import WorkOutModal from "./WorkOutModal";
+import ZodiacModal from "./ZodiacModal";
 
-const FilterModal = ({ visible, onClose }) => {
+const DEFAULT_FILTERS = {
+  gender: "Everyone",
+  ageRange: [18, 90],
+  maxDistance: 1000,
+  locationQuery: "",
+  interests: [],
+  lookingFor: "",
+  zodiac: "",
+  ethnicity: "",
+  education: "",
+  drinking: "",
+  smoking: "",
+  religion: "",
+  communicationStyle: "",
+  loveLanguage: "",
+  exercise: "",
+};
+
+const FilterModal = ({ visible, onClose, initialFilters, onApply }) => {
+  const { width } = useWindowDimensions();
   const [selectedGender, setSelectedGender] = useState("Everyone");
   const [ageRange, setAgeRange] = useState([18, 90]);
   const [distance, setDistance] = useState(1000);
+  const [locationQuery, setLocationQuery] = useState("");
 
   // Track which modal is open
   const [visibleModal, setVisibleModal] = useState(null);
@@ -40,7 +60,6 @@ const FilterModal = ({ visible, onClose }) => {
   const [selectedInterests, setSelectedInterests] = useState([]);
   const [selectedOption, setSelectedOption] = useState("");
   const [selectedEthnicityOption, setSelectedEthnicityOption] = useState("");
-  const [selectedFamilyPlanOption, setSelectedFamilyPlanOption] = useState("");
   const [selectedEducationOption, setSelectedEducationOption] = useState("");
   const [selectedDrinkingOption, setSelectedDrinkingOption] = useState("");
   const [selectedSmokingOption, setSelectedSmokingOption] = useState("");
@@ -52,6 +71,74 @@ const FilterModal = ({ visible, onClose }) => {
   const [selectedWorkOutOption, setSelectedWorkOutOption] = useState("");
   const [selectedFinanceOption, setSelectedFinanceOption] = useState("");
   const [selectedLanguageOption, setSelectedLanguageOption] = useState("");
+
+  const hydratedFilters = useMemo(
+    () => ({ ...DEFAULT_FILTERS, ...(initialFilters || {}) }),
+    [initialFilters]
+  );
+
+  useEffect(() => {
+    if (!visible) return;
+
+    setSelectedGender(hydratedFilters.gender || "Everyone");
+    setAgeRange(Array.isArray(hydratedFilters.ageRange) ? hydratedFilters.ageRange : [18, 90]);
+    setDistance(Number(hydratedFilters.maxDistance || 1000));
+    setLocationQuery(hydratedFilters.locationQuery || "");
+
+    setSelectedInterests(Array.isArray(hydratedFilters.interests) ? hydratedFilters.interests : []);
+    setSelectedOption(hydratedFilters.lookingFor || "");
+    setSelectedZodiacOption(hydratedFilters.zodiac || "");
+    setSelectedEthnicityOption(hydratedFilters.ethnicity || "");
+    setSelectedEducationOption(hydratedFilters.education || "");
+    setSelectedDrinkingOption(hydratedFilters.drinking || "");
+    setSelectedSmokingOption(hydratedFilters.smoking || "");
+    setSelectedReligionOption(hydratedFilters.religion || "");
+    setSelectedCommunicationOption(hydratedFilters.communicationStyle || "");
+    setSelectedLoveOption(hydratedFilters.loveLanguage || "");
+    setSelectedWorkOutOption(hydratedFilters.exercise || "");
+  }, [hydratedFilters, visible]);
+
+  const handleReset = () => {
+    setSelectedGender(DEFAULT_FILTERS.gender);
+    setAgeRange(DEFAULT_FILTERS.ageRange);
+    setDistance(DEFAULT_FILTERS.maxDistance);
+    setLocationQuery(DEFAULT_FILTERS.locationQuery);
+    setSelectedInterests(DEFAULT_FILTERS.interests);
+    setSelectedOption(DEFAULT_FILTERS.lookingFor);
+    setSelectedZodiacOption(DEFAULT_FILTERS.zodiac);
+    setSelectedEthnicityOption(DEFAULT_FILTERS.ethnicity);
+    setSelectedEducationOption(DEFAULT_FILTERS.education);
+    setSelectedDrinkingOption(DEFAULT_FILTERS.drinking);
+    setSelectedSmokingOption(DEFAULT_FILTERS.smoking);
+    setSelectedReligionOption(DEFAULT_FILTERS.religion);
+    setSelectedCommunicationOption(DEFAULT_FILTERS.communicationStyle);
+    setSelectedLoveOption(DEFAULT_FILTERS.loveLanguage);
+    setSelectedWorkOutOption(DEFAULT_FILTERS.exercise);
+  };
+
+  const handleApply = () => {
+    onApply?.({
+      gender: selectedGender,
+      ageRange,
+      maxDistance: Number(distance || 1000),
+      locationQuery: locationQuery.trim(),
+      interests: selectedInterests,
+      lookingFor: selectedOption,
+      zodiac: selectedZodiacOption,
+      ethnicity: selectedEthnicityOption,
+      education: selectedEducationOption,
+      drinking: selectedDrinkingOption,
+      smoking: selectedSmokingOption,
+      religion: selectedReligionOption,
+      communicationStyle: selectedCommunicationOption,
+      loveLanguage: selectedLoveOption,
+      exercise: selectedWorkOutOption,
+      finance: selectedFinanceOption,
+      language: selectedLanguageOption,
+    });
+
+    onClose?.();
+  };
 
   const genderOptions = ["Male", "Female", "Nonbinary", "Everyone"];
 
@@ -122,24 +209,53 @@ const FilterModal = ({ visible, onClose }) => {
     <BaseModal visible={visible} onClose={onClose}>
       <SafeAreaProvider>
         <SafeAreaView className="flex-1 bg-white rounded-t-3xl overflow-hidden ">
-          <ModalHeader
-            onClose={onClose}
-            centerText="Filter"
-            rightText="Apply"
-            onRightPress={onClose}
-          />
+          <ModalHeader onClose={onClose} centerText="Filter" rightText="Apply" onRightPress={handleApply} />
 
           <ScrollView
-            contentContainerStyle={{ padding: 16 }}
+            style={{ flex: 1 }}
+            contentContainerStyle={{ padding: 16, paddingBottom: 120 }}
             showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+            nestedScrollEnabled
           >
+            {/* Location */}
+            <Text className="text-lg font-SatoshiBold mb-1">Location</Text>
+            <TextInput
+              value={locationQuery}
+              onChangeText={setLocationQuery}
+              placeholder="Filter by city, state, or country"
+              className="border border-gray-200 rounded-xl px-4 py-3 mb-4 text-base"
+              placeholderTextColor="#9CA3AF"
+            />
+
+            {/* Gender */}
+            <Text className="text-lg font-SatoshiBold mb-2">Show me</Text>
+            <View className="flex-row flex-wrap gap-2 mb-4">
+              {genderOptions.map((option) => {
+                const isSelected = selectedGender === option;
+                return (
+                  <TouchableOpacity
+                    key={option}
+                    onPress={() => setSelectedGender(option)}
+                    className={`px-4 py-2 rounded-full border ${
+                      isSelected
+                        ? "bg-secondary border-secondary"
+                        : "bg-white border-gray-200"
+                    }`}
+                  >
+                    <Text className="font-SatoshiMedium">{option}</Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+
             {/* Age */}
             <Text className="text-lg font-SatoshiBold mb-1">Age</Text>
             <Text className="mb-2 text-gray-500 font-Satoshi">
               {ageRange[0]} – {ageRange[1]}
             </Text>
             <MultiSlider
-              sliderLength={350}
+              sliderLength={Math.max(240, width - 36)}
               values={ageRange}
               onValuesChange={(values) => setAgeRange(values)}
               min={18}
@@ -180,7 +296,7 @@ const FilterModal = ({ visible, onClose }) => {
             {/* Advanced Filters */}
             <View className="flex-row justify-between items-center mt-8 mb-4">
               <Text className="text-lg font-bold">Advanced filters</Text>
-              <TouchableOpacity>
+              <TouchableOpacity onPress={handleReset}>
                 <Text className="text-primary font-semibold">Reset</Text>
               </TouchableOpacity>
             </View>
@@ -238,8 +354,8 @@ const FilterModal = ({ visible, onClose }) => {
           {/*Family modal*/}
           <FamilyPlanModal
             visible={visibleModal === "kids"}
-            initialSelected={selectedFamilyPlanOption}
-            onApply={(kids) => setSelectedFamilyPlanOption(kids)}
+            initialSelected={""}
+            onApply={() => null}
             onClose={() => setVisibleModal(null)}
           />
 

@@ -7,7 +7,7 @@ import { useAuthRestore } from "../../hooks/useAuthRestore";
 export default function _layout() {
   const router = useRouter();
   const segments = useSegments();
-  const { restored, isAuthenticated, hasOnboardingSession } = useAuthRestore();
+  const { restored, isAuthenticated, onboardingToken } = useAuthRestore();
   const { pendingEmail } = useSelector((state) => state.auth);
   const currentRoute = segments[segments.length - 1];
 
@@ -28,7 +28,7 @@ export default function _layout() {
       return;
     }
 
-    if (hasOnboardingSession) {
+    if (onboardingToken) {
       const redirectToOnboarding = async () => {
         const lastStep = await SecureStore.getItemAsync("onboardingStep");
         router.replace(lastStep ? `/(onboarding)/${lastStep}` : "/(onboarding)/age");
@@ -44,7 +44,7 @@ export default function _layout() {
   }, [
     restored,
     isAuthenticated,
-    hasOnboardingSession,
+    onboardingToken,
     pendingEmail,
     currentRoute,
     segments,

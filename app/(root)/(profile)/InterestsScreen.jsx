@@ -21,22 +21,22 @@ const InterestsScreen = () => {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  const loadProfile = useCallback(async () => {
+  const loadProfile = useCallback(async ({ force = false, showLoading = true } = {}) => {
     try {
-      setLoading(true);
-      const userProfile = await profileService.getMyProfile({ force: true });
+      if (showLoading) setLoading(true);
+      const userProfile = await profileService.getMyProfile({ force });
       setSelectedInterests(Array.isArray(userProfile?.interests) ? userProfile.interests : []);
     } catch (error) {
       console.error("Failed to load interests:", error);
     } finally {
-      setLoading(false);
+      if (showLoading) setLoading(false);
     }
   }, []);
 
   useFocusEffect(
     useCallback(() => {
-      loadProfile();
-    }, [loadProfile])
+      loadProfile({ force: false, showLoading: selectedInterests.length === 0 });
+    }, [loadProfile, selectedInterests.length])
   );
 
   const allOptions = useMemo(() => {

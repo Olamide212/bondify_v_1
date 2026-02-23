@@ -1,18 +1,26 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import { useEffect, useRef, useState } from "react";
-import { View } from "react-native";
+import { Alert, TouchableOpacity, View } from "react-native";
 import Animated, {
     useAnimatedStyle,
     useSharedValue,
     withTiming,
 } from "react-native-reanimated";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useAuthRestore } from "../../../hooks/useAuthRestore";
+import { logout } from "../../../slices/authSlice";
+import { persistor } from "../../../store/store";
 import { determineNextRoute } from "../../../utils/navigationHelper";
+import { tokenManager } from "../../../utils/tokenManager";
 
 const SplashScreen = () => {
+  const dispatch = useDispatch();
   const router = useRouter();
   const hasNavigated = useRef(false);
+  const resetInProgressRef = useRef(false);
+  const tapCountRef = useRef(0);
+  const tapResetTimerRef = useRef(null);
   const [isRouting, setIsRouting] = useState(false);
 
   // Restore auth state
@@ -100,9 +108,68 @@ const SplashScreen = () => {
     transform: [{ translateX: textTranslate.value }],
   }));
 
+  const performEmergencyReset = async () => {
+    if (resetInProgressRef.current) return;
+    resetInProgressRef.current = true;
+
+    try {
+      await tokenManager.removeTokens();
+
+      const allKeys = await AsyncStorage.getAllKeys();
+      const resetKeys = allKeys.filter(
+        (key) => key === "persist:root" || key.startsWith("@bondify/cache/")
+      );
+
+      if (resetKeys.length > 0) {
+        await AsyncStorage.multiRemove(resetKeys);
+      }
+
+      await persistor.purge();
+      dispatch(logout());
+
+      hasNavigated.current = true;
+      router.replace("/onboarding");
+    } catch (error) {
+      console.error("Emergency reset failed:", error);
+      hasNavigated.current = true;
+      router.replace("/onboarding");
+    } finally {
+      resetInProgressRef.current = false;
+    }
+  };
+
+  const handleDebugTap = () => {
+    tapCountRef.current += 1;
+
+    if (tapResetTimerRef.current) {
+      clearTimeout(tapResetTimerRef.current);
+    }
+
+    tapResetTimerRef.current = setTimeout(() => {
+      tapCountRef.current = 0;
+    }, 1200);
+
+    if (tapCountRef.current >= 7) {
+      tapCountRef.current = 0;
+
+      Alert.alert(
+        "Emergency Reset",
+        "This will clear local session/cache and return to onboarding.",
+        [
+          { text: "Cancel", style: "cancel" },
+          {
+            text: "Reset",
+            style: "destructive",
+            onPress: performEmergencyReset,
+          },
+        ]
+      );
+    }
+  };
+
   return (
     <View className="flex-1 bg-primary items-center justify-center">
-      <View className="items-center">
+      <TouchableOpacity className="items-center" activeOpacity={1} onPress={handleDebugTap}>
         <Animated.Image
           source={require("../../../assets/images/bondify-icon-white.png")}
           style={[{ width: 100, height: 100 }, iconStyle]}
@@ -113,7 +180,7 @@ const SplashScreen = () => {
           style={[{ width: 180, height: 80, marginTop: -20 }, textStyle]}
           resizeMode="contain"
         />
-      </View>
+      </TouchableOpacity>
     </View>
   );
 };
