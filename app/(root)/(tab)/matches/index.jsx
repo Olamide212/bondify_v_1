@@ -50,7 +50,6 @@ const normalizeProfile = (profile) => {
 export default function ExploreTabComponents() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("likedYou");
-  const [selectedUsers, setSelectedUsers] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const [likedYouData, setLikedYouData] = useState([]);
@@ -108,7 +107,6 @@ export default function ExploreTabComponents() {
           <LikedYou
             data={likedYouData}
             onUserPress={handleUserPress}
-            selectedUsers={selectedUsers}
           />
         );
       case "youLiked":
@@ -120,7 +118,6 @@ export default function ExploreTabComponents() {
           <LikedYou
             data={likedYouData}
             onUserPress={handleUserPress}
-            selectedUsers={selectedUsers}
           />
         );
     }
