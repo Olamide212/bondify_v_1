@@ -16,6 +16,13 @@ export default function AuthLayout() {
   // Check if user is on an onboarding screen
   const isOnboarding = segments.includes("(onboarding)");
   const isLogin = segments.includes("login");
+  const isRegister = segments.includes("register");
+  const isForgotPassword = segments.includes("forgot-password");
+  const isResetPassword = segments.includes("reset-password");
+
+  // Pre-auth screens that users explicitly navigate to — these should
+  // never be interrupted by the onboarding-token redirect.
+  const isPreAuthScreen = isLogin || isRegister || isForgotPassword || isResetPassword;
 
   useEffect(() => {
     if (!restored) return;
@@ -25,7 +32,7 @@ export default function AuthLayout() {
       return;
     }
 
-    if (onboardingToken && !isOnboarding) {
+    if (onboardingToken && !isOnboarding && !isPreAuthScreen) {
       const redirectToOnboarding = async () => {
         const lastStep = await SecureStore.getItemAsync("onboardingStep");
         router.replace(lastStep ? `/(onboarding)/${lastStep}` : "/(onboarding)/age");
@@ -43,6 +50,7 @@ export default function AuthLayout() {
     pendingEmail,
     onboardingToken,
     isOnboarding,
+    isPreAuthScreen,
     isAuthenticated,
     router,
   ]);
