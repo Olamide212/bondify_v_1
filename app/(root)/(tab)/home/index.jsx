@@ -19,6 +19,7 @@ import ActionButtons from "../../../../components/homeScreen/ActionButtons";
 import AroundYou from "../../../../components/homeScreen/AroundYouTab";
 import AIAssistantModal from "../../../../components/modals/AIAssistantModal"; // New import
 import FilterModal from "../../../../components/modals/FilterModal";
+import MatchCelebrationModal from "../../../../components/modals/MatchCelebrationModal";
 import UserProfileModal from "../../../../components/modals/UserProfileModal";
 import LogoLoader from "../../../../components/ui/LogoLoader";
 import { colors } from "../../../../constant/colors";
@@ -33,6 +34,8 @@ const Home = () => {
     profilesLoading,
     homeFilters,
     setHomeFilters,
+    matchCelebration,
+    setMatchCelebration,
   } = useProfile();
 
   const [flashMessage, setFlashMessage] = useState(null);
@@ -208,6 +211,20 @@ const Home = () => {
         visible={showAIModal}
         onClose={() => setShowAIModal(false)}
         fullScreen
+      />
+
+      {/* Match Celebration Modal */}
+      <MatchCelebrationModal
+        visible={!!matchCelebration}
+        onClose={() => setMatchCelebration(null)}
+        matchedUser={matchCelebration}
+        currentUser={null}
+        onSendMessage={(user) => {
+          setMatchCelebration(null);
+        }}
+        onContinueSwiping={() => {
+          setMatchCelebration(null);
+        }}
       />
     </View>
   );

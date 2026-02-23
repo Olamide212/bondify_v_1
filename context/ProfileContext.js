@@ -19,6 +19,7 @@ export const ProfileProvider = ({ children }) => {
     interests: [],
     verifiedOnly: false,
     activeToday: false,
+    location: "",
   };
 
   // Global stats
@@ -33,6 +34,8 @@ export const ProfileProvider = ({ children }) => {
   const [discoverSwipedProfiles, setDiscoverSwipedProfiles] = useState([]);
   const [homeCurrentIndex, setHomeCurrentIndex] = useState(0);
   const [discoverCurrentIndex, setDiscoverCurrentIndex] = useState(0);
+
+  const [matchCelebration, setMatchCelebration] = useState(null);
 
   const normalizeImages = (images) => {
     if (!Array.isArray(images)) return [];
@@ -167,12 +170,14 @@ export const ProfileProvider = ({ children }) => {
     }
   };
 
-  const updateStatsForSwipe = (type, actionResponse) => {
+  const updateStatsForSwipe = (type, actionResponse, swipedProfile) => {
     if (!actionResponse) return;
     if (type === "like" || type === "superlike") {
       setLikes((prev) => prev + 1);
       if (actionResponse?.isMatch) {
         setMatches((prev) => prev + 1);
+        // Trigger match celebration modal
+        setMatchCelebration(swipedProfile);
       }
     }
   };
@@ -182,7 +187,7 @@ export const ProfileProvider = ({ children }) => {
     const type = direction === "right" ? "like" : "pass";
     const actionResponse = await recordSwipeAction(profileId, type);
 
-    updateStatsForSwipe(type, actionResponse);
+    updateStatsForSwipe(type, actionResponse, profile);
     addHomeSwipedProfile(profileId);
     setHomeCurrentIndex((prev) => (prev + 1) % profilesData.length);
   };
@@ -191,7 +196,7 @@ export const ProfileProvider = ({ children }) => {
     const profileId = profile?.id;
     const actionResponse = await recordSwipeAction(profileId, "superlike");
 
-    updateStatsForSwipe("superlike", actionResponse);
+    updateStatsForSwipe("superlike", actionResponse, profile);
     addHomeSwipedProfile(profileId);
     setHomeCurrentIndex((prev) => (prev + 1) % profilesData.length);
   };
@@ -207,7 +212,7 @@ export const ProfileProvider = ({ children }) => {
     const type = direction === "right" ? "like" : "pass";
     const actionResponse = await recordSwipeAction(profileId, type);
 
-    updateStatsForSwipe(type, actionResponse);
+    updateStatsForSwipe(type, actionResponse, profile);
     addDiscoverSwipedProfile(profileId);
     setDiscoverCurrentIndex((prev) => (prev + 1) % profilesData.length);
   };
@@ -216,7 +221,7 @@ export const ProfileProvider = ({ children }) => {
     const profileId = profile?.id;
     const actionResponse = await recordSwipeAction(profileId, "superlike");
 
-    updateStatsForSwipe("superlike", actionResponse);
+    updateStatsForSwipe("superlike", actionResponse, profile);
     addDiscoverSwipedProfile(profileId);
     setDiscoverCurrentIndex((prev) => (prev + 1) % profilesData.length);
   };
@@ -302,6 +307,15 @@ export const ProfileProvider = ({ children }) => {
         }
       }
 
+      // Location-based filtering
+      if (homeFilters.location && homeFilters.location.trim()) {
+        const filterLocation = homeFilters.location.trim().toLowerCase();
+        const profileLocation = String(profile?.location || "").toLowerCase();
+        if (!profileLocation.includes(filterLocation)) {
+          return false;
+        }
+      }
+
       return true;
     });
 
@@ -335,6 +349,10 @@ export const ProfileProvider = ({ children }) => {
     profilesLoading,
     homeFilters,
     setHomeFilters,
+
+    // Match celebration
+    matchCelebration,
+    setMatchCelebration,
   };
 
   return (

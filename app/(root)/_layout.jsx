@@ -28,7 +28,7 @@ export default function _layout() {
       return;
     }
 
-    if (onboardingToken) {
+    if (onboardingToken && !isAuthenticated) {
       const redirectToOnboarding = async () => {
         const lastStep = await SecureStore.getItemAsync("onboardingStep");
         router.replace(lastStep ? `/(onboarding)/${lastStep}` : "/(onboarding)/age");
