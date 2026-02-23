@@ -1,163 +1,160 @@
-import React from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
-  SafeAreaView,
-  StatusBar,
-  StyleSheet,
+  TextInput,
   ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  StyleSheet,
 } from "react-native";
-import { useRouter } from "expo-router";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { Bot, Send } from "lucide-react-native";
+import { colors } from "../../../../constant/colors";
 import GeneralHeader from "../../../../components/headers/GeneralHeader";
-import DiscoverCard from "../../../../components/discoverScreen/DiscoverCard";
 
+// Recommendation: Integrate OpenAI GPT-4 API for best AI chat experience.
+// Alternative: Google Gemini API — great for multi-modal and cost-effective usage.
 
+const AIChatScreen = () => {
+  const [messages, setMessages] = useState([]);
+  const [userInput, setUserInput] = useState("");
+  const scrollViewRef = useRef(null);
 
-const DiscoverScreen = () => {
-  const router = useRouter();
+  useEffect(() => {
+    if (messages.length === 0) {
+      setMessages([
+        {
+          id: 1,
+          text: "Hi there! I'm BonBot, your personal dating assistant. I can help you find better matches, suggest ice breakers, and give dating advice. How can I help you today?",
+          isUser: false,
+          timestamp: new Date(),
+        },
+      ]);
+    }
+  }, []);
 
-  // Define discover categories (Using the expanded data)
-  const discoverCategories = [
-    {
-      type: "Religion dating preferences",
-      description:
-        "Connect with people who share your faith and spiritual values",
-      data: [
-        {
-          id: "1",
-          name: "Christian searching for Love",
-          members: "12.4k members", // Adding ' members' for clarity
-          icon: "Cross",
-          preference: "Christian searching for Love",
-          color: "#5A56D0",
-          lightColor: "#EDE7F6",
-        },
-        {
-          id: "2",
-          name: "Muslim searching for Love",
-          members: "8.7k members",
-          icon: "Star",
-          preference: "muslim searching for love",
-          color: "#00695C",
-          lightColor: "#E0F2F1",
-        },
-        {
-          id: "3",
-          name: "Traditionalist searching for Love",
-          members: "6.2k members",
-          icon: "Home",
-          preference: "Traditionalist searching for love",
-          color: "#B71C1C",
-          lightColor: "#FFEBEE",
-        },
-        {
-          id: "3a",
-          name: "Agnostic dating",
-          members: "4.1k members",
-          icon: "Moon",
-          preference: "Agnostic dating",
-          color: "#757575",
-          lightColor: "#F5F5F5",
-        },
-        {
-          id: "3b",
-          name: "Spiritual but not religious",
-          members: "5.5k members",
-          icon: "Star",
-          preference: "Spiritual dating",
-          color: "#4CAF50",
-          lightColor: "#E8F5E9",
-        },
-      ],
-    },
-    {
-      type: "Relationship Type",
-      description:
-        "Find connections based on your relationship goals and intentions",
-      data: [
-        {
-          id: "4",
-          name: "Something casual",
-          members: "15.2k members",
-          icon: "Clock",
-          preference: "Short-term fun",
-          color: "#FF5722",
-          lightColor: "#FFF3E0",
-        },
-        {
-          id: "5",
-          name: "Long-term relationship",
-          members: "20.1k members",
-          icon: "Heart",
-          preference: "Long-term relationship",
-          color: "#388E3C",
-          lightColor: "#E8F5E9",
-        },
-        {
-          id: "6",
-          name: "Marriage focused",
-          members: "9.8k members",
-          icon: "Home",
-          preference: "Marriage focused",
-          color: "#455A64",
-          lightColor: "#ECEFF1",
-        },
-        {
-          id: "7",
-          name: "Just friends first",
-          members: "11.1k members",
-          icon: "Users",
-          preference: "Just friends first",
-          color: "#1976D2",
-          lightColor: "#E3F2FD",
-        },
-      ],
-    },
-  ];
+  useEffect(() => {
+    if (scrollViewRef.current) {
+      scrollViewRef.current.scrollToEnd({ animated: true });
+    }
+  }, [messages]);
 
-  const navigateToCategory = (category) => {
-    router.push({
-      pathname: "/discover-profile",
-      params: {
-        preference: category.preference,
-        title: category.name,
-      },
-    });
+  const handleSendMessage = () => {
+    if (userInput.trim() === "") return;
+
+    const newUserMessage = {
+      id: Date.now(),
+      text: userInput,
+      isUser: true,
+      timestamp: new Date(),
+    };
+
+    setMessages((prev) => [...prev, newUserMessage]);
+    setUserInput("");
+
+    // TODO: Replace with actual LLM API call (OpenAI GPT-4o or Google Gemini)
+    setTimeout(() => {
+      const aiResponses = [
+        "Based on your preferences, I'd recommend focusing on profiles that share your interest in hiking and outdoor activities.",
+        "I've noticed you tend to like profiles with similar educational backgrounds. Should I prioritize showing you more profiles from that criteria?",
+        "Your match preferences are being updated. I'll show you more profiles that align with what you're looking for.",
+        "That's helpful information! I'm learning more about what you like in a partner.",
+        "I can help you refine your search criteria. Would you like me to adjust any specific filters?",
+        "Here's a great ice breaker you could try: 'If you could travel anywhere tomorrow, where would you go and why?'",
+        "Try asking about their favorite weekend activity — it's a natural conversation starter!",
+      ];
+
+      const randomResponse =
+        aiResponses[Math.floor(Math.random() * aiResponses.length)];
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now() + 1,
+          text: randomResponse,
+          isUser: false,
+          timestamp: new Date(),
+        },
+      ]);
+    }, 1000);
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" />
-      <GeneralHeader title="Discover" />
+      <GeneralHeader title="AI Chat" />
+
+      <View style={styles.botBanner}>
+        <Bot size={20} color={colors.primary} />
+        <Text style={styles.botBannerText}>
+          Powered by BonBot — your dating AI assistant
+        </Text>
+      </View>
 
       <ScrollView
-        style={styles.content}
-        contentContainerStyle={{ paddingBottom: 30 }}
-        showsVerticalScrollIndicator={false}
+        ref={scrollViewRef}
+        style={styles.messagesContainer}
+        contentContainerStyle={styles.messagesContent}
       >
-        {discoverCategories.map((section, index) => (
-          <View key={index} style={styles.section}>
-            <Text style={styles.sectionTitle} className="font-GeneralSansSemiBold">
-              {section.type}
+        {messages.map((message) => (
+          <View
+            key={message.id}
+            style={[
+              styles.messageBubble,
+              message.isUser ? styles.userMessage : styles.aiMessage,
+            ]}
+          >
+            {!message.isUser && (
+              <View style={styles.botIcon}>
+                <Bot size={16} color={colors.primary} />
+              </View>
+            )}
+            <Text
+              style={
+                message.isUser ? styles.userMessageText : styles.aiMessageText
+              }
+            >
+              {message.text}
             </Text>
-            <Text style={styles.sectionDescription} className="font-Satoshi">
-              {section.description}
+            <Text style={[styles.timestamp, message.isUser && { color: "rgba(255,255,255,0.7)" }]}>
+              {message.timestamp.toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
             </Text>
-
-            {/* --- Vertical Card Stack (Full Width) --- */}
-            <View style={styles.verticalCardList}>
-              {section.data.map((item) => (
-                <DiscoverCard
-                  key={item.id}
-                  category={item}
-                  onPress={() => navigateToCategory(item)}
-                />
-              ))}
-            </View>
-            {/* ------------------------------------------ */}
           </View>
         ))}
       </ScrollView>
+
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={90}
+      >
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.textInput}
+            value={userInput}
+            onChangeText={setUserInput}
+            placeholder="Ask BonBot anything..."
+            placeholderTextColor="#999"
+            multiline
+          />
+          <Pressable
+            onPress={handleSendMessage}
+            style={[
+              styles.sendButton,
+              userInput.trim() !== "" && styles.sendButtonActive,
+            ]}
+            disabled={userInput.trim() === ""}
+          >
+            <Send
+              size={20}
+              color={userInput.trim() === "" ? "#ccc" : "#fff"}
+            />
+          </Pressable>
+        </View>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };
@@ -167,24 +164,97 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#fff",
   },
-  content: {
+  botBanner: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    paddingVertical: 8,
+    backgroundColor: "#FFF8F5",
+    borderBottomWidth: 1,
+    borderBottomColor: "#f0f0f0",
+  },
+  botBannerText: {
+    fontSize: 13,
+    color: "#666",
+    fontFamily: "Satoshi",
+  },
+  messagesContainer: {
     flex: 1,
-    paddingHorizontal: 16,
+    backgroundColor: "#f8f8f8",
   },
-  section: {
-    marginBottom: 20,
+  messagesContent: {
+    padding: 16,
+    paddingBottom: 100,
   },
-  sectionTitle: {
-    fontSize: 20,
-    marginBottom: 3,
+  messageBubble: {
+    maxWidth: "80%",
+    padding: 12,
+    borderRadius: 18,
+    marginBottom: 12,
   },
-  sectionDescription: {
+  userMessage: {
+    alignSelf: "flex-end",
+    backgroundColor: colors.primary,
+    borderBottomRightRadius: 4,
+  },
+  aiMessage: {
+    alignSelf: "flex-start",
+    backgroundColor: "#fff",
+    borderBottomLeftRadius: 4,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  botIcon: {
+    marginBottom: 4,
+  },
+  userMessageText: {
+    color: "#fff",
     fontSize: 16,
-    marginBottom: 16,
-    lineHeight: 20,
+    fontFamily: "Satoshi",
   },
-
- 
+  aiMessageText: {
+    color: "#000",
+    fontSize: 16,
+    fontFamily: "Satoshi",
+  },
+  timestamp: {
+    fontSize: 12,
+    color: "#999",
+    marginTop: 4,
+    alignSelf: "flex-end",
+  },
+  inputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 16,
+    paddingBottom: 30,
+    borderTopWidth: 1,
+    borderTopColor: "#f0f0f0",
+    backgroundColor: "#fff",
+  },
+  textInput: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderRadius: 24,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    maxHeight: 100,
+    marginRight: 12,
+    fontFamily: "Satoshi",
+  },
+  sendButton: {
+    padding: 12,
+    borderRadius: 24,
+    backgroundColor: "#f0f0f0",
+  },
+  sendButtonActive: {
+    backgroundColor: colors.primary,
+  },
 });
 
-export default DiscoverScreen;
+export default AIChatScreen;

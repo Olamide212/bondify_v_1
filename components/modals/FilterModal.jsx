@@ -5,6 +5,7 @@ import {
     ScrollView,
     Switch,
     Text,
+    TextInput,
     TouchableOpacity,
     View,
     useWindowDimensions,
@@ -22,6 +23,7 @@ const DEFAULT_FILTERS = {
   interests: [],
   verifiedOnly: false,
   activeToday: false,
+  location: "",
 };
 
 const FilterModal = ({ visible, onClose, initialFilters, onApply }) => {
@@ -33,6 +35,7 @@ const FilterModal = ({ visible, onClose, initialFilters, onApply }) => {
   const [selectedInterests, setSelectedInterests] = useState([]);
   const [verifiedOnly, setVerifiedOnly] = useState(false);
   const [activeToday, setActiveToday] = useState(false);
+  const [location, setLocation] = useState("");
   const [myInterests, setMyInterests] = useState([]);
 
   const [visibleModal, setVisibleModal] = useState(null);
@@ -57,6 +60,7 @@ const FilterModal = ({ visible, onClose, initialFilters, onApply }) => {
     );
     setVerifiedOnly(Boolean(hydratedFilters.verifiedOnly));
     setActiveToday(Boolean(hydratedFilters.activeToday));
+    setLocation(String(hydratedFilters.location || ""));
   }, [hydratedFilters, visible]);
 
   useEffect(() => {
@@ -89,6 +93,7 @@ const FilterModal = ({ visible, onClose, initialFilters, onApply }) => {
     setSelectedInterests(DEFAULT_FILTERS.interests);
     setVerifiedOnly(DEFAULT_FILTERS.verifiedOnly);
     setActiveToday(DEFAULT_FILTERS.activeToday);
+    setLocation(DEFAULT_FILTERS.location);
   };
 
   const handleApply = () => {
@@ -99,6 +104,7 @@ const FilterModal = ({ visible, onClose, initialFilters, onApply }) => {
       interests: selectedInterests,
       verifiedOnly,
       activeToday,
+      location: location.trim(),
     });
     onClose?.();
   };
@@ -141,6 +147,17 @@ const FilterModal = ({ visible, onClose, initialFilters, onApply }) => {
               maximumTrackTintColor="#d3d3d3"
               thumbTintColor={colors.primary}
             />
+
+            <View className="mt-4 mb-2">
+              <Text className="text-lg font-SatoshiBold mb-2">Location</Text>
+              <TextInput
+                className="border border-gray-200 rounded-xl px-4 py-3 text-base font-Satoshi"
+                placeholder="Filter by city, state, or country"
+                placeholderTextColor="#999"
+                value={location}
+                onChangeText={setLocation}
+              />
+            </View>
 
             <View className="flex-row items-center justify-between mt-6 mb-2">
               <Text className="text-lg font-SatoshiBold">Age Range</Text>

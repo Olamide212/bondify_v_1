@@ -1,4 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import * as SecureStore from "expo-secure-store";
 import { authAPI } from "../services/authService";
 import { tokenManager } from "../utils/tokenManager";
 
@@ -154,7 +155,7 @@ export const restoreAuth = createAsyncThunk(
       await tokenManager.debugAllStoredValues();
       
       const token = await tokenManager.getToken();
-      const onboardingToken = await tokenManager.getOnboardingToken();
+      let onboardingToken = await tokenManager.getOnboardingToken();
       let currentUser = null;
 
       if (token) {
@@ -162,6 +163,16 @@ export const restoreAuth = createAsyncThunk(
           const response = await authAPI.getMe();
           const payload = response.data?.data ?? response.data;
           currentUser = payload?.user ?? payload ?? null;
+
+          // If user profile was fetched successfully, onboarding is complete.
+          // Clear any stale onboarding token that may have persisted due to
+          // a previous network failure during finalization.
+          if (currentUser && onboardingToken) {
+            console.log("🧹 Clearing stale onboarding token — user profile exists");
+            await tokenManager.setToken({ onboardingToken: null });
+            await SecureStore.deleteItemAsync("onboardingStep");
+            onboardingToken = null;
+          }
         } catch (error) {
           if (isInvalidAuthError(error)) {
             await tokenManager.removeTokens();
@@ -182,6 +193,16 @@ export const restoreAuth = createAsyncThunk(
             hasOnboardingSession: Boolean(onboardingToken),
           };
         }
+      }
+
+      // If there's no auth token but an onboarding token exists,
+      // the onboarding session is orphaned — clear it so the user
+      // can start fresh from login/signup.
+      if (!token && onboardingToken) {
+        console.log("🧹 Clearing orphaned onboarding token — no auth token");
+        await tokenManager.setToken({ onboardingToken: null });
+        await SecureStore.deleteItemAsync("onboardingStep");
+        onboardingToken = null;
       }
 
       return {
