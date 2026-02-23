@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const Like = require('../models/Like');
 const Match = require('../models/Match');
+const { mapImagesWithAccessUrls } = require('../utils/imageHelper');
 
 // @desc    Get discovery profiles
 // @route   GET /api/discover
@@ -118,12 +119,21 @@ const getDiscoveryProfiles = async (req, res, next) => {
       .skip(skip)
       .sort({ lastActive: -1 });
 
+    // Regenerate image URLs for each profile
+    const profilesWithImages = await Promise.all(
+      profiles.map(async (profile) => {
+        const profileObj = profile.toObject();
+        profileObj.images = await mapImagesWithAccessUrls(profileObj.images);
+        return profileObj;
+      })
+    );
+
     const total = await User.countDocuments(query);
 
     res.json({
       success: true,
       data: {
-        profiles,
+        profiles: profilesWithImages,
         pagination: {
           page: sanitizedPage,
           limit: sanitizedLimit,
@@ -244,7 +254,198 @@ const performAction = async (req, res, next) => {
   }
 };
 
+// @desc    Get users who liked the current user
+// @route   GET /api/discover/liked-you
+// @access  Private
+const getLikedYou = async (req, res, next) => {
+  try {
+    const userId = req.user._id;
+    const { page = 1, limit = 50 } = req.query;
+    const sanitizedPage = parseInt(page, 10) || 1;
+    const sanitizedLimit = Math.min(parseInt(limit, 10) || 50, 100);
+    const skip = (sanitizedPage - 1) * sanitizedLimit;
+
+    // Find users who already matched with the current user
+    const matchedUsers = await Match.find({
+      $or: [{ user1: userId }, { user2: userId }],
+      status: 'matched',
+    }).then((matches) =>
+      matches.map((m) =>
+        m.user1.toString() === userId.toString() ? m.user2 : m.user1
+      )
+    );
+
+    const likes = await Like.find({
+      likedUser: userId,
+      type: { $in: ['like', 'superlike'] },
+      user: { $nin: matchedUsers },
+    })
+      .populate('user', '-password -otp -otpExpiry')
+      .sort({ createdAt: -1 })
+      .limit(sanitizedLimit)
+      .skip(skip);
+
+    const total = await Like.countDocuments({
+      likedUser: userId,
+      type: { $in: ['like', 'superlike'] },
+      user: { $nin: matchedUsers },
+    });
+
+    const profiles = await Promise.all(
+      likes.map(async (like) => {
+        if (!like.user) return null;
+        const userObj = like.user.toObject();
+        userObj.images = await mapImagesWithAccessUrls(userObj.images);
+        return {
+          ...userObj,
+          likeType: like.type,
+          likedAt: like.createdAt,
+        };
+      })
+    );
+
+    res.json({
+      success: true,
+      data: {
+        profiles: profiles.filter(Boolean),
+        pagination: {
+          page: sanitizedPage,
+          limit: sanitizedLimit,
+          total,
+          pages: Math.ceil(total / sanitizedLimit),
+        },
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Get users the current user liked
+// @route   GET /api/discover/you-liked
+// @access  Private
+const getYouLiked = async (req, res, next) => {
+  try {
+    const userId = req.user._id;
+    const { page = 1, limit = 50 } = req.query;
+    const sanitizedPage = parseInt(page, 10) || 1;
+    const sanitizedLimit = Math.min(parseInt(limit, 10) || 50, 100);
+    const skip = (sanitizedPage - 1) * sanitizedLimit;
+
+    // Find users who already matched with the current user
+    const matchedUsers = await Match.find({
+      $or: [{ user1: userId }, { user2: userId }],
+      status: 'matched',
+    }).then((matches) =>
+      matches.map((m) =>
+        m.user1.toString() === userId.toString() ? m.user2 : m.user1
+      )
+    );
+
+    const likes = await Like.find({
+      user: userId,
+      type: { $in: ['like', 'superlike'] },
+      likedUser: { $nin: matchedUsers },
+    })
+      .populate('likedUser', '-password -otp -otpExpiry')
+      .sort({ createdAt: -1 })
+      .limit(sanitizedLimit)
+      .skip(skip);
+
+    const total = await Like.countDocuments({
+      user: userId,
+      type: { $in: ['like', 'superlike'] },
+      likedUser: { $nin: matchedUsers },
+    });
+
+    const profiles = await Promise.all(
+      likes.map(async (like) => {
+        if (!like.likedUser) return null;
+        const userObj = like.likedUser.toObject();
+        userObj.images = await mapImagesWithAccessUrls(userObj.images);
+        return {
+          ...userObj,
+          likeType: like.type,
+          likedAt: like.createdAt,
+        };
+      })
+    );
+
+    res.json({
+      success: true,
+      data: {
+        profiles: profiles.filter(Boolean),
+        pagination: {
+          page: sanitizedPage,
+          limit: sanitizedLimit,
+          total,
+          pages: Math.ceil(total / sanitizedLimit),
+        },
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Get users the current user passed on
+// @route   GET /api/discover/passed
+// @access  Private
+const getPassed = async (req, res, next) => {
+  try {
+    const userId = req.user._id;
+    const { page = 1, limit = 50 } = req.query;
+    const sanitizedPage = parseInt(page, 10) || 1;
+    const sanitizedLimit = Math.min(parseInt(limit, 10) || 50, 100);
+    const skip = (sanitizedPage - 1) * sanitizedLimit;
+
+    const likes = await Like.find({
+      user: userId,
+      type: 'pass',
+    })
+      .populate('likedUser', '-password -otp -otpExpiry')
+      .sort({ createdAt: -1 })
+      .limit(sanitizedLimit)
+      .skip(skip);
+
+    const total = await Like.countDocuments({
+      user: userId,
+      type: 'pass',
+    });
+
+    const profiles = await Promise.all(
+      likes.map(async (like) => {
+        if (!like.likedUser) return null;
+        const userObj = like.likedUser.toObject();
+        userObj.images = await mapImagesWithAccessUrls(userObj.images);
+        return {
+          ...userObj,
+          passedAt: like.createdAt,
+        };
+      })
+    );
+
+    res.json({
+      success: true,
+      data: {
+        profiles: profiles.filter(Boolean),
+        pagination: {
+          page: sanitizedPage,
+          limit: sanitizedLimit,
+          total,
+          pages: Math.ceil(total / sanitizedLimit),
+        },
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getDiscoveryProfiles,
   performAction,
+  getLikedYou,
+  getYouLiked,
+  getPassed,
 };
