@@ -1,4 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import * as SecureStore from "expo-secure-store";
 import { authAPI } from "../services/authService";
 import { tokenManager } from "../utils/tokenManager";
 
@@ -169,7 +170,6 @@ export const restoreAuth = createAsyncThunk(
           if (currentUser && onboardingToken) {
             console.log("🧹 Clearing stale onboarding token — user profile exists");
             await tokenManager.setToken({ onboardingToken: null });
-            const SecureStore = require("expo-secure-store");
             await SecureStore.deleteItemAsync("onboardingStep");
             onboardingToken = null;
           }
@@ -201,7 +201,6 @@ export const restoreAuth = createAsyncThunk(
       if (!token && onboardingToken) {
         console.log("🧹 Clearing orphaned onboarding token — no auth token");
         await tokenManager.setToken({ onboardingToken: null });
-        const SecureStore = require("expo-secure-store");
         await SecureStore.deleteItemAsync("onboardingStep");
         onboardingToken = null;
       }

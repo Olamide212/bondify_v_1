@@ -8,6 +8,7 @@ import {
   Text,
   View,
 } from "react-native";
+import { useSelector } from "react-redux";
 import Animated, {
   interpolate,
   runOnJS,
@@ -37,6 +38,8 @@ const Home = () => {
     matchCelebration,
     setMatchCelebration,
   } = useProfile();
+
+  const { user: currentUser } = useSelector((state) => state.auth);
 
   const [flashMessage, setFlashMessage] = useState(null);
   const [showFilterModal, setShowFilterModal] = useState(false);
@@ -218,8 +221,8 @@ const Home = () => {
         visible={!!matchCelebration}
         onClose={() => setMatchCelebration(null)}
         matchedUser={matchCelebration}
-        currentUser={null}
-        onSendMessage={(user) => {
+        currentUser={currentUser}
+        onSendMessage={() => {
           setMatchCelebration(null);
         }}
         onContinueSwiping={() => {

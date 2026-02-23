@@ -11,19 +11,9 @@ import {
 import { Heart, MessageCircle, ArrowRight, Sparkles } from "lucide-react-native";
 import BaseModal from "./BaseModal";
 import { colors } from "../../constant/colors";
+import { ICE_BREAKERS } from "../../constant/iceBreakers";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
-
-const ICE_BREAKERS = [
-  "If you could have dinner with anyone, dead or alive, who would it be? 🍽️",
-  "What's the most spontaneous thing you've ever done? ✨",
-  "What's your idea of a perfect weekend? 🌅",
-  "If you could travel anywhere tomorrow, where would you go? ✈️",
-  "What's a fun fact about you that most people don't know? 🤔",
-  "What's the best advice you've ever received? 💡",
-  "If you could master any skill instantly, what would it be? 🎯",
-  "What's the last thing that made you genuinely laugh? 😂",
-];
 
 const MatchCelebrationModal = ({
   visible,
@@ -103,7 +93,7 @@ const MatchCelebrationModal = ({
           >
             <View style={styles.sparkleRow}>
               <Sparkles size={24} color={colors.secondary} />
-              <Text style={styles.matchTitle}>It's a Match!</Text>
+              <Text style={styles.matchTitle}>It&apos;s a Match!</Text>
               <Sparkles size={24} color={colors.secondary} />
             </View>
             <Text style={styles.matchSubtitle}>

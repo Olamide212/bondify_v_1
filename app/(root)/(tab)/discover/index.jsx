@@ -14,7 +14,7 @@ import { Bot, Send } from "lucide-react-native";
 import { colors } from "../../../../constant/colors";
 import GeneralHeader from "../../../../components/headers/GeneralHeader";
 
-// Recommendation: Integrate OpenAI GPT-4o API for best AI chat experience.
+// Recommendation: Integrate OpenAI GPT-4 API for best AI chat experience.
 // Alternative: Google Gemini API — great for multi-modal and cost-effective usage.
 
 const AIChatScreen = () => {
