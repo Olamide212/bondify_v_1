@@ -1,16 +1,23 @@
-import { View, Text, TouchableOpacity, ScrollView } from "react-native";
-import React, { useState } from "react";
-import BaseModal from "./BaseModal";
+import { useState } from "react";
+import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { INTEREST_CATEGORIES } from "../../data/interestData";
 import ModalHeader from "../headers/ModalHeader";
+import BaseModal from "./BaseModal";
 
 const InterestsModal = ({
   visible,
   onClose,
   initialSelected = [],
+  highlightedInterests = [],
   onApply,
 }) => {
   const [selectedInterests, setSelectedInterests] = useState(initialSelected);
+
+  const normalizedHighlights = new Set(
+    (Array.isArray(highlightedInterests) ? highlightedInterests : []).map((interest) =>
+      String(interest).toLowerCase()
+    )
+  );
 
   const toggleInterest = (interest) => {
     setSelectedInterests((prev) =>
@@ -49,21 +56,29 @@ const InterestsModal = ({
               <View className="flex-row flex-wrap gap-2">
                 {category.items.map((interest) => {
                   const selected = selectedInterests.includes(interest);
+                  const isHighlighted = normalizedHighlights.has(
+                    String(interest).toLowerCase()
+                  );
+
+                  const chipClassName = selected
+                    ? "bg-[#FF0066] border-[#FF0066]"
+                    : isHighlighted
+                      ? "bg-secondary border-secondary"
+                      : "bg-white border-[#D1D1D1]";
+
+                  const textClassName = selected
+                    ? "text-white"
+                    : isHighlighted
+                      ? "text-black"
+                      : "text-app";
+
                   return (
                     <TouchableOpacity
                       key={interest}
                       onPress={() => toggleInterest(interest)}
-                      className={`px-4 py-2 rounded-full border ${
-                        selected
-                          ? "bg-[#FF0066] border-[#FF0066]"
-                          : "bg-white border-[#D1D1D1]"
-                      }`}
+                      className={`px-4 py-2 rounded-full border ${chipClassName}`}
                     >
-                      <Text
-                        className={`font-SatoshiMedium ${
-                          selected ? "text-white" : "text-app"
-                        }`}
-                      >
+                      <Text className={`font-SatoshiMedium ${textClassName}`}>
                         {interest}
                       </Text>
                     </TouchableOpacity>

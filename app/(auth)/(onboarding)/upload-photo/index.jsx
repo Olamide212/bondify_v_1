@@ -98,7 +98,7 @@ const UploadPhoto = () => {
                         resizeMode="cover"
                       />
                     ) : (
-                      <Ionicons name="add" size={32} color="#5A56D0" />
+                      <Ionicons name="add" size={32} color="#EE5F2B" />
                     )}
                   </TouchableOpacity>
 
@@ -106,7 +106,7 @@ const UploadPhoto = () => {
                   {photo && (
                     <TouchableOpacity
                       onPress={() => removeImage(index)}
-                      className="absolute -top-2 -right-2 bg-black rounded-full p-1"
+                      className="absolute -top-2 -right-2 bg-primary rounded-full p-1"
                     >
                       <Ionicons name="close" size={16} color="white" />
                     </TouchableOpacity>

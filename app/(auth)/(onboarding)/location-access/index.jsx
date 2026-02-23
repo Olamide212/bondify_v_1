@@ -12,6 +12,24 @@ const LocationAccess = () => {
     isOnboarding: true,
   });
 
+  const isOnboardingAlreadyCompletedError = (error) => {
+    const message = typeof error === "string" ? error : error?.message;
+    return (
+      typeof message === "string" &&
+      message.toLowerCase().includes("onboarding already completed")
+    );
+  };
+
+  const finalizeOnboardingSafely = async () => {
+    try {
+      await finalizeOnboarding();
+    } catch (error) {
+      if (!isOnboardingAlreadyCompletedError(error)) {
+        throw error;
+      }
+    }
+  };
+
   const handleLocationAccess = async () => {
     setLoading(true);
     try {
@@ -24,8 +42,8 @@ const LocationAccess = () => {
             {
               text: "Continue Anyway",
               onPress: async () => {
-                await finalizeOnboarding();
-                router.replace("root-tabs");
+                await finalizeOnboardingSafely();
+                router.replace("/root-tabs");
               },
             },
           ]
@@ -56,10 +74,15 @@ const LocationAccess = () => {
         },
       });
 
-      await finalizeOnboarding();
+      await finalizeOnboardingSafely();
 
-      router.replace("root-tabs");
+      router.replace("/root-tabs");
     } catch (err) {
+      if (isOnboardingAlreadyCompletedError(err)) {
+        router.replace("/root-tabs");
+        return;
+      }
+
       console.error("Location access error:", err);
       Alert.alert(
         "Location Error",
@@ -68,8 +91,13 @@ const LocationAccess = () => {
           {
             text: "Continue Anyway",
             onPress: async () => {
-              await finalizeOnboarding();
-              router.replace("root-tabs");
+              try {
+                await finalizeOnboardingSafely();
+              } catch (error) {
+                console.error("Finalize onboarding error:", error);
+              } finally {
+                router.replace("/root-tabs");
+              }
             },
           },
         ]

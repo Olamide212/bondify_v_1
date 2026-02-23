@@ -105,7 +105,7 @@ const Interests = () => {
                               onPress={() => toggleInterest(interest)}
                               className={`px-4 py-2 rounded-full border ${
                                 selected
-                                  ? "bg-secondary border-secondary"
+                                  ? "bg-primary border-primary"
                                   : "bg-white border-[#D1D1D1]"
                               }`}
                             >

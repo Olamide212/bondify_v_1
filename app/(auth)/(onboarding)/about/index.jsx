@@ -86,13 +86,13 @@ const About = () => {
                       onPress={() => handleSelectPredefined(bio)}
                       className={`px-4 py-3 rounded-full border ${
                         isSelected
-                          ? "bg-secondary border-secondary"
+                          ? "bg-primary border-primary"
                           : "bg-gray-100 border-gray-200"
                       }`}
                     >
                       <Text
                         className={`text-base font-SatoshiMedium ${
-                          isSelected ? "text-black" : "text-gray-700"
+                          isSelected ? "text-white" : "text-gray-700"
                         }`}
                       >
                         {bio}

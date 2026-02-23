@@ -54,7 +54,7 @@ const ProfileScreen = () => {
 
   return (
     <SafeAreaProvider>
-      <SafeAreaView className="flex-1 bg-[#fff] ">
+      <SafeAreaView className="flex-1 bg-[#F8F6F6] ">
         <GeneralHeader
           title="Profile"
           icon=<Bell color="#000" />
@@ -67,7 +67,7 @@ const ProfileScreen = () => {
           }
           contentContainerStyle={{
             paddingBottom: 80,
-            backgroundColor: "#fff",
+            backgroundColor: "#F8F6F6",
           }}
         >
           {loading ? (

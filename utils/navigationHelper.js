@@ -38,6 +38,7 @@ export const determineNextRoute = async ({
       console.log("Last step from SecureStore:", lastStep);
 
       if (lastStep) {
+       
         const route = `/(onboarding)/${lastStep}`;
         console.log("Returning:", route);
         return route;

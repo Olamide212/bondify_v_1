@@ -13,21 +13,12 @@ export const useProfile = () => {
 
 export const ProfileProvider = ({ children }) => {
   const DEFAULT_HOME_FILTERS = {
-    gender: "Everyone",
+    showMe: "everyone",
     ageRange: [18, 90],
     maxDistance: 1000,
-    locationQuery: "",
     interests: [],
-    lookingFor: "",
-    zodiac: "",
-    ethnicity: "",
-    education: "",
-    drinking: "",
-    smoking: "",
-    religion: "",
-    communicationStyle: "",
-    loveLanguage: "",
-    exercise: "",
+    verifiedOnly: false,
+    activeToday: false,
   };
 
   // Global stats
@@ -237,10 +228,6 @@ export const ProfileProvider = ({ children }) => {
     return Number.isFinite(parsed) ? parsed : null;
   };
 
-  const normalizedLocationQuery = String(homeFilters.locationQuery || "")
-    .trim()
-    .toLowerCase();
-
   const homeProfiles = profilesData
     .filter((profile) => !homeSwipedProfiles.includes(profile.id))
     .filter((profile) => {
@@ -250,9 +237,17 @@ export const ProfileProvider = ({ children }) => {
         return false;
       }
 
-      if (homeFilters.gender && homeFilters.gender !== "Everyone") {
-        const expectedGender = String(homeFilters.gender).toLowerCase();
-        if (String(profile?.gender || "").toLowerCase() !== expectedGender) {
+      if (homeFilters.showMe && homeFilters.showMe !== "everyone") {
+        const genderMap = {
+          men: "male",
+          women: "female",
+        };
+
+        const expectedGender = genderMap[String(homeFilters.showMe).toLowerCase()];
+        if (
+          expectedGender &&
+          String(profile?.gender || "").toLowerCase() !== expectedGender
+        ) {
           return false;
         }
       }
@@ -263,13 +258,6 @@ export const ProfileProvider = ({ children }) => {
           profileDistance !== null &&
           profileDistance > Number(homeFilters.maxDistance)
         ) {
-          return false;
-        }
-      }
-
-      if (normalizedLocationQuery) {
-        const profileLocation = String(profile?.location || "").toLowerCase();
-        if (!profileLocation.includes(normalizedLocationQuery)) {
           return false;
         }
       }
@@ -287,25 +275,29 @@ export const ProfileProvider = ({ children }) => {
         }
       }
 
-      const scalarRules = [
-        ["lookingFor", "lookingFor"],
-        ["zodiac", "zodiac"],
-        ["ethnicity", "ethnicity"],
-        ["education", "education"],
-        ["drinking", "drinking"],
-        ["smoking", "smoking"],
-        ["religion", "religion"],
-        ["communicationStyle", "communicationStyle"],
-        ["loveLanguage", "loveStyle"],
-        ["exercise", "exercise"],
-      ];
+      if (homeFilters.verifiedOnly && !profile?.verified) {
+        return false;
+      }
 
-      for (const [filterKey, profileKey] of scalarRules) {
-        const filterValue = String(homeFilters?.[filterKey] || "").trim().toLowerCase();
-        if (!filterValue) continue;
+      if (homeFilters.activeToday) {
+        const lastActiveValue = profile?.lastActive;
+        const isStringActiveToday = String(lastActiveValue || "")
+          .toLowerCase()
+          .includes("today");
 
-        const profileValue = String(profile?.[profileKey] || "").trim().toLowerCase();
-        if (profileValue !== filterValue) {
+        let isDateActiveToday = false;
+        if (lastActiveValue) {
+          const parsedDate = new Date(lastActiveValue);
+          if (!Number.isNaN(parsedDate.getTime())) {
+            const now = new Date();
+            isDateActiveToday =
+              parsedDate.getFullYear() === now.getFullYear() &&
+              parsedDate.getMonth() === now.getMonth() &&
+              parsedDate.getDate() === now.getDate();
+          }
+        }
+
+        if (!isStringActiveToday && !isDateActiveToday) {
           return false;
         }
       }

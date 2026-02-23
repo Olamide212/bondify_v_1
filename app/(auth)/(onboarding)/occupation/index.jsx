@@ -53,14 +53,14 @@ const Occupation = () => {
                     onPress={() => handleSelect(item.value)}
                     className={`px-4 py-2 rounded-full  border ${
                       selectedOccupation === item.value
-                        ? "bg-secondary border-secondary"
+                        ? "bg-primary border-primary"
                         : "bg-white border-[#D1D1D1]"
                     }`}
                   >
                     <Text
                       className={`${
                         selectedOccupation === item.value
-                          ? "text-black"
+                          ? "text-white"
                           : "text-black"
                       } font-SatoshiMedium text-lg`}
                     >

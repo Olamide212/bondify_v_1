@@ -106,7 +106,7 @@ export default function ProfileDetails() {
 
   return (
     <SafeAreaProvider>
-      <SafeAreaView className="flex-1 pb-0 bg-white">
+      <SafeAreaView className="flex-1 pb-0 bg-[#F8F6F6] ">
         <GeneralHeader
           title="Edit Profile"
           leftIcon={<ArrowLeft />}
