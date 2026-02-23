@@ -59,9 +59,9 @@ export default function ExploreTabComponents() {
     setLoading(true);
     try {
       const [likedYou, youLiked, passed] = await Promise.all([
-        profileService.getLikedYou().catch(() => []),
-        profileService.getYouLiked().catch(() => []),
-        profileService.getPassed().catch(() => []),
+        profileService.getLikedYou().catch((err) => { console.warn('Failed to fetch liked-you:', err?.message); return []; }),
+        profileService.getYouLiked().catch((err) => { console.warn('Failed to fetch you-liked:', err?.message); return []; }),
+        profileService.getPassed().catch((err) => { console.warn('Failed to fetch passed:', err?.message); return []; }),
       ]);
       setLikedYouData(likedYou.map(normalizeProfile));
       setYouLikedData(youLiked.map(normalizeProfile));

@@ -254,6 +254,17 @@ const performAction = async (req, res, next) => {
   }
 };
 
+// Helper to get list of user IDs already matched with the current user
+const getMatchedUserIds = async (userId) => {
+  const matches = await Match.find({
+    $or: [{ user1: userId }, { user2: userId }],
+    status: 'matched',
+  });
+  return matches.map((m) =>
+    m.user1.toString() === userId.toString() ? m.user2 : m.user1
+  );
+};
+
 // @desc    Get users who liked the current user
 // @route   GET /api/discover/liked-you
 // @access  Private
@@ -265,15 +276,7 @@ const getLikedYou = async (req, res, next) => {
     const sanitizedLimit = Math.min(parseInt(limit, 10) || 50, 100);
     const skip = (sanitizedPage - 1) * sanitizedLimit;
 
-    // Find users who already matched with the current user
-    const matchedUsers = await Match.find({
-      $or: [{ user1: userId }, { user2: userId }],
-      status: 'matched',
-    }).then((matches) =>
-      matches.map((m) =>
-        m.user1.toString() === userId.toString() ? m.user2 : m.user1
-      )
-    );
+    const matchedUsers = await getMatchedUserIds(userId);
 
     const likes = await Like.find({
       likedUser: userId,
@@ -332,15 +335,7 @@ const getYouLiked = async (req, res, next) => {
     const sanitizedLimit = Math.min(parseInt(limit, 10) || 50, 100);
     const skip = (sanitizedPage - 1) * sanitizedLimit;
 
-    // Find users who already matched with the current user
-    const matchedUsers = await Match.find({
-      $or: [{ user1: userId }, { user2: userId }],
-      status: 'matched',
-    }).then((matches) =>
-      matches.map((m) =>
-        m.user1.toString() === userId.toString() ? m.user2 : m.user1
-      )
-    );
+    const matchedUsers = await getMatchedUserIds(userId);
 
     const likes = await Like.find({
       user: userId,

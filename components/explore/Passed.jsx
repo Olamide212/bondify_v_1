@@ -24,7 +24,7 @@ const Passed = ({ data, onUserPress }) => {
 
       <FlatList
         data={data}
-        keyExtractor={(item) => (item._id || item.id).toString()}
+        keyExtractor={(item) => (item.id || item._id || "").toString()}
         renderItem={({ item }) => (
           <UsersProfileCard
             profile={item}
