@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import GeneralHeader from "../../components/headers/GeneralHeader";
+import { colors } from "../../constant/colors";
 import { useNationalities } from "../../hooks/useNationalities";
 
 const NationalityModal = ({ visible, onClose, onSelect }) => {
@@ -40,7 +41,7 @@ const filteredNationalities = useMemo(() => {
           />
 
           {loading && (
-            <ActivityIndicator size="large" style={{ marginTop: 20 }} />
+            <ActivityIndicator size="large" color={colors.primary} style={{ marginTop: 20 }} />
           )}
 
           {error && <Text style={styles.errorText}>{error}</Text>}

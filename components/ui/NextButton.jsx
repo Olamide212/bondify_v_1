@@ -1,7 +1,7 @@
-import React from "react";
-import { Text, TouchableOpacity, ActivityIndicator, View, StyleSheet } from "react-native";
 import Entypo from "@expo/vector-icons/Entypo";
 import { LinearGradient } from "expo-linear-gradient";
+import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { colors } from "../../constant/colors";
 
 const NextButton = ({
   title = "", 
@@ -15,7 +15,7 @@ const NextButton = ({
 }) => {
     const renderContent = () =>
       loading ? (
-        <ActivityIndicator color="#fff" />
+        <ActivityIndicator color={colors.primary} />
       ) : (
         <View className="flex-row">
           <Text
@@ -83,7 +83,7 @@ const NextButton = ({
       } ${className}`}
     >
       {loading ? (
-        <ActivityIndicator color={variant === "secondary" ? "#000" : "#fff"} />
+        <ActivityIndicator color={colors.primary} />
       ) : (
         <View className="flex-row items-center justify-center">
           {title !== "" && (

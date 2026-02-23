@@ -132,6 +132,12 @@ const getMessages = async (matchId, options = {}, config = {}) => {
   }
 };
 
+const getCachedMessages = async (matchId, options = {}) => {
+  const cacheKey = buildMessagesCacheKey(matchId, options);
+  const cachedMessages = await readCachedMessages(cacheKey);
+  return Array.isArray(cachedMessages) ? cachedMessages : [];
+};
+
 const sendMessage = async (matchId, payload) => {
   try {
     const response = await apiClient.post(`/messages/${matchId}`, payload);
@@ -228,6 +234,7 @@ const deleteMessage = async (messageId) => {
 };
 
 export const messageService = {
+  getCachedMessages,
   getMessages,
   sendMessage,
   uploadChatMedia,

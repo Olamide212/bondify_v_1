@@ -27,6 +27,7 @@ export const ProfileProvider = ({ children }) => {
   const [likes, setLikes] = useState(0);
   const [profilesData, setProfilesData] = useState([]);
   const [profilesLoading, setProfilesLoading] = useState(true);
+  const [profilesRefreshNonce, setProfilesRefreshNonce] = useState(0);
   const [homeFilters, setHomeFilters] = useState(DEFAULT_HOME_FILTERS);
 
   // Separate states for home and discover screens
@@ -148,6 +149,10 @@ export const ProfileProvider = ({ children }) => {
   // default value.
   const isFirstRender = useRef(true);
 
+  const refreshProfiles = useCallback(() => {
+    setProfilesRefreshNonce((prev) => prev + 1);
+  }, []);
+
   useEffect(() => {
     let isMounted = true;
 
@@ -204,7 +209,7 @@ export const ProfileProvider = ({ children }) => {
     return () => {
       isMounted = false;
     };
-  }, [homeFilters, buildApiParams]);
+  }, [homeFilters, buildApiParams, profilesRefreshNonce]);
 
   // Home screen actions
   const addHomeSwipedProfile = (profileId) => {
@@ -232,7 +237,18 @@ export const ProfileProvider = ({ children }) => {
       if (actionResponse?.isMatch) {
         setMatches((prev) => prev + 1);
         // Trigger match celebration modal
-        setMatchCelebration(swipedProfile);
+        const matchedProfile = {
+          ...swipedProfile,
+          matchId:
+            actionResponse?.match?._id ||
+            actionResponse?.match?.id ||
+            swipedProfile?.matchId,
+          images:
+            actionResponse?.likedUser?.images?.length > 0
+              ? actionResponse.likedUser.images
+              : swipedProfile?.images || [],
+        };
+        setMatchCelebration(matchedProfile);
       }
     }
   };
@@ -402,6 +418,7 @@ export const ProfileProvider = ({ children }) => {
     setHomeCurrentIndex,
     setDiscoverCurrentIndex,
     profilesLoading,
+    refreshProfiles,
     homeFilters,
     setHomeFilters,
 

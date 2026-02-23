@@ -1,11 +1,73 @@
 // components/MessageBubble.js
-import React from "react";
-import { View, Text, Image, StyleSheet } from "react-native";
-import { Check, CheckCheck, Mic } from "lucide-react-native";
-import { formatTime } from "../../utils/helper";
+import { Audio } from "expo-av";
+import { Check, CheckCheck, Mic, Pause, Play, User } from "lucide-react-native";
+import { useEffect, useRef, useState } from "react";
+import { ActivityIndicator, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { colors } from "../../constant/colors";
 
+const formatMessageDateTime = (value) => {
+  const date = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+
+  return date.toLocaleString([], {
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+};
+
 const MessageBubble = ({ message }) => {
+  const [isPlayingVoice, setIsPlayingVoice] = useState(false);
+  const [isImageLoading, setIsImageLoading] = useState(Boolean(message.imageUrl));
+  const [imageFailed, setImageFailed] = useState(!message.imageUrl);
+  const soundRef = useRef(null);
+
+  useEffect(() => {
+    return () => {
+      if (soundRef.current) {
+        soundRef.current.unloadAsync().catch(() => {});
+        soundRef.current = null;
+      }
+    };
+  }, []);
+
+  const handleVoicePress = async () => {
+    const voiceUrl = message.mediaUrl || message.imageUrl;
+    if (!voiceUrl) return;
+
+    if (soundRef.current) {
+      if (isPlayingVoice) {
+        await soundRef.current.pauseAsync();
+        setIsPlayingVoice(false);
+      } else {
+        await soundRef.current.playAsync();
+        setIsPlayingVoice(true);
+      }
+      return;
+    }
+
+    const { sound } = await Audio.Sound.createAsync(
+      { uri: voiceUrl },
+      { shouldPlay: true }
+    );
+
+    soundRef.current = sound;
+    setIsPlayingVoice(true);
+
+    sound.setOnPlaybackStatusUpdate((status) => {
+      if (!status?.isLoaded) return;
+
+      setIsPlayingVoice(status.isPlaying);
+
+      if (status.didJustFinish) {
+        sound.unloadAsync().catch(() => {});
+        soundRef.current = null;
+        setIsPlayingVoice(false);
+      }
+    });
+  };
+
   const getStatusIcon = (status) => {
     switch (status) {
       case "sent":
@@ -45,19 +107,59 @@ const MessageBubble = ({ message }) => {
       )}
 
       {message.type === "image" && (
-        <Image source={{ uri: message.imageUrl }} style={styles.image} />
+        <View style={styles.imageWrapper}>
+          {!imageFailed && message.imageUrl ? (
+            <Image
+              source={{ uri: message.imageUrl }}
+              style={styles.image}
+              onLoadStart={() => {
+                setIsImageLoading(true);
+                setImageFailed(false);
+              }}
+              onLoadEnd={() => setIsImageLoading(false)}
+              onError={() => {
+                setIsImageLoading(false);
+                setImageFailed(true);
+              }}
+            />
+          ) : (
+            <View style={[styles.image, styles.imagePlaceholder]}>
+              <User size={22} color="#94A3B8" />
+            </View>
+          )}
+
+          {isImageLoading && (
+            <View style={styles.imageLoadingOverlay}>
+              <ActivityIndicator size="small" color={colors.primary} />
+            </View>
+          )}
+        </View>
       )}
 
       {message.type === "voice" && (
-        <View
+        <TouchableOpacity
           style={[
             styles.voice,
             message.sender === "me" ? styles.myVoice : styles.theirVoice,
           ]}
+          onPress={handleVoicePress}
+          activeOpacity={0.8}
         >
+          {isPlayingVoice ? (
+            <Pause
+              size={18}
+              color={message.sender === "me" ? "white" : "#6B7280"}
+            />
+          ) : (
+            <Play
+              size={18}
+              color={message.sender === "me" ? "white" : "#6B7280"}
+            />
+          )}
           <Mic
-            size={18}
+            size={16}
             color={message.sender === "me" ? "white" : "#6B7280"}
+            style={styles.voiceMic}
           />
           <Text
             style={[
@@ -69,7 +171,7 @@ const MessageBubble = ({ message }) => {
           >
             {message.voiceDuration}s
           </Text>
-        </View>
+        </TouchableOpacity>
       )}
 
       <View
@@ -78,7 +180,7 @@ const MessageBubble = ({ message }) => {
           message.sender === "me" ? styles.myMeta : styles.theirMeta,
         ]}
       >
-        <Text style={styles.time}>{formatTime(message.timestamp)}</Text>
+        {/* <Text style={styles.time}>{formatMessageDateTime(message.timestamp)}</Text> */}
         {message.sender === "me" && getStatusIcon(message.status)}
       </View>
     </View>
@@ -126,6 +228,24 @@ const styles = StyleSheet.create({
     height: 150,
     borderRadius: 12,
   },
+  imageWrapper: {
+    width: 200,
+    height: 150,
+    borderRadius: 12,
+    overflow: "hidden",
+    backgroundColor: "#F8FAFC",
+  },
+  imagePlaceholder: {
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#F8FAFC",
+  },
+  imageLoadingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(255,255,255,0.35)",
+  },
   voice: {
     flexDirection: "row",
     alignItems: "center",
@@ -144,6 +264,9 @@ const styles = StyleSheet.create({
   duration: {
     marginLeft: 8,
     fontSize: 14,
+  },
+  voiceMic: {
+    marginLeft: 6,
   },
   myDuration: {
     color: "#fff",

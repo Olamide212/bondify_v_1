@@ -1,21 +1,26 @@
 // components/ChatScreen.js
+import { useRouter } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
   StyleSheet,
   Text,
+  TouchableOpacity,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useSelector } from "react-redux";
 import { colors } from "../../constant/colors";
+import { matchService } from "../../services/matchService";
 import { messageService } from "../../services/messageService";
 import { socketService } from "../../services/socketService";
 import { formatRelativeDate } from "../../utils/helper";
 import Header from "../headers/ChatHeader";
+import BaseModal from "../modals/BaseModal";
 import InputToolbar from "./InputToolbar";
 import MessageBubble from "./MessageBubble";
 
@@ -23,10 +28,14 @@ const MESSAGE_PAGE_SIZE = 20;
 const LOAD_OLDER_TRIGGER_PX = 140;
 
 const ChatScreen = ({ matchedUser, onBack }) => {
+  const router = useRouter();
   const [messages, setMessages] = useState([]);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [nextCursor, setNextCursor] = useState(null);
   const [hasMoreMessages, setHasMoreMessages] = useState(false);
   const [isLoadingOlder, setIsLoadingOlder] = useState(false);
+  const [isActionsModalVisible, setIsActionsModalVisible] = useState(false);
+  const [isProcessingAction, setIsProcessingAction] = useState(false);
   const scrollViewRef = useRef(null);
   const contentHeightRef = useRef(0);
   const scrollOffsetYRef = useRef(0);
@@ -77,8 +86,21 @@ const ChatScreen = ({ matchedUser, onBack }) => {
         setMessages([]);
         setNextCursor(null);
         setHasMoreMessages(false);
+        setIsInitialLoading(false);
         return;
       }
+
+      setIsInitialLoading(true);
+
+      const cachedMessages = await messageService.getCachedMessages(
+        matchedUser.matchId,
+        { limit: MESSAGE_PAGE_SIZE }
+      );
+
+      if (isMounted && cachedMessages.length > 0) {
+        setMessages(normalizeMessages(cachedMessages));
+      }
+
       try {
         const response = await messageService.getMessages(
           matchedUser.matchId,
@@ -93,9 +115,15 @@ const ChatScreen = ({ matchedUser, onBack }) => {
         }
       } catch (_error) {
         if (isMounted) {
-          setMessages([]);
+          if (cachedMessages.length === 0) {
+            setMessages([]);
+          }
           setNextCursor(null);
           setHasMoreMessages(false);
+        }
+      } finally {
+        if (isMounted) {
+          setIsInitialLoading(false);
         }
       }
     };
@@ -337,6 +365,74 @@ const ChatScreen = ({ matchedUser, onBack }) => {
 
   if (!matchedUser) return null;
 
+  const getDateKey = (dateValue) => {
+    const date = dateValue instanceof Date ? dateValue : new Date(dateValue);
+    if (Number.isNaN(date.getTime())) return "";
+
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
+  const formatDateLabel = (dateValue) => {
+    const date = dateValue instanceof Date ? dateValue : new Date(dateValue);
+    if (Number.isNaN(date.getTime())) return "";
+
+    return date.toLocaleDateString([], {
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+  };
+
+  const openProfile = () => {
+    if (!matchedUser?.id) return;
+    router.push({
+      pathname: `/user-profile/${matchedUser.id}`,
+      params: { showActions: "false" },
+    });
+  };
+
+  const handleUnmatch = () => {
+    if (!matchedUser?.matchId || isProcessingAction) return;
+
+    Alert.alert(
+      "Unmatch",
+      `Unmatch ${matchedUser.name}? This action cannot be undone.`,
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Unmatch",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              setIsProcessingAction(true);
+              await matchService.unmatch(matchedUser.matchId);
+              setIsActionsModalVisible(false);
+              onBack?.({ unmatchedMatchId: matchedUser.matchId });
+            } catch (error) {
+              Alert.alert("Unable to unmatch", error?.message || "Please try again.");
+            } finally {
+              setIsProcessingAction(false);
+            }
+          },
+        },
+      ]
+    );
+  };
+
+  const handleBlock = () => {
+    setIsActionsModalVisible(false);
+    Alert.alert("Block", "Block action will be available once backend support is connected.");
+  };
+
+  const handleReport = () => {
+    setIsActionsModalVisible(false);
+    Alert.alert("Report", "Report action will be available once backend support is connected.");
+  };
+
   return (
     <SafeAreaView className='flex-1' edges={["top", "left", "right"]}>
       <KeyboardAvoidingView
@@ -344,7 +440,12 @@ const ChatScreen = ({ matchedUser, onBack }) => {
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         keyboardVerticalOffset={0}
       >
-        <Header matchedUser={matchedUser} onBack={onBack} />
+        <Header
+          matchedUser={matchedUser}
+          onBack={() => onBack?.()}
+          onOpenProfile={openProfile}
+          onOpenActions={() => setIsActionsModalVisible(true)}
+        />
 
         <ScrollView
           ref={scrollViewRef}
@@ -378,7 +479,7 @@ const ChatScreen = ({ matchedUser, onBack }) => {
         >
           {isLoadingOlder && (
             <View style={styles.loadingOlderContainer}>
-              <ActivityIndicator size='small' color='#9CA3AF' />
+              <ActivityIndicator size='small' color={colors.primary} />
             </View>
           )}
 
@@ -391,11 +492,35 @@ const ChatScreen = ({ matchedUser, onBack }) => {
             </View>
           </View>
 
-          {messages.map((message) => (
-            <MessageBubble key={message.id} message={message} />
-          ))}
+          {messages.map((message, index) => {
+            const previousMessage = messages[index - 1];
+            const showDateSeparator =
+              index === 0 ||
+              getDateKey(message.timestamp) !== getDateKey(previousMessage?.timestamp);
 
-          {messages.length === 0 && (
+            return (
+              <View key={message.id}>
+                {showDateSeparator && (
+                  <View style={styles.dateSeparatorContainer}>
+                    <View style={styles.dateSeparatorPill}>
+                      <Text style={styles.dateSeparatorText}>
+                        {formatDateLabel(message.timestamp)}
+                      </Text>
+                    </View>
+                  </View>
+                )}
+                <MessageBubble message={message} />
+              </View>
+            );
+          })}
+
+          {isInitialLoading && messages.length === 0 && (
+            <View style={styles.emptyStateContainer}>
+              <ActivityIndicator size='small' color={colors.primary} />
+            </View>
+          )}
+
+          {!isInitialLoading && messages.length === 0 && (
             <View style={styles.emptyStateContainer}>
               <Text style={styles.emptyStateTitle}>No messages yet</Text>
               <Text style={styles.emptyStateSubtitle}>
@@ -412,6 +537,42 @@ const ChatScreen = ({ matchedUser, onBack }) => {
             onSendVoice={handleSendVoice}
           />
         </View>
+
+        <BaseModal
+          visible={isActionsModalVisible}
+          onClose={() => !isProcessingAction && setIsActionsModalVisible(false)}
+        >
+          <View style={styles.actionsModalContainer}>
+            <TouchableOpacity
+              style={styles.actionItem}
+              onPress={handleUnmatch}
+              disabled={isProcessingAction}
+            >
+              <Text style={styles.actionDangerText}>Unmatch</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.actionItem}
+              onPress={handleBlock}
+              disabled={isProcessingAction}
+            >
+              <Text style={styles.actionDangerText}>Block</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.actionItem}
+              onPress={handleReport}
+              disabled={isProcessingAction}
+            >
+              <Text style={styles.actionDangerText}>Report</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.actionItem}
+              onPress={() => setIsActionsModalVisible(false)}
+              disabled={isProcessingAction}
+            >
+              <Text style={styles.actionCancelText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </BaseModal>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -433,6 +594,21 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 16,
 
+  },
+  dateSeparatorContainer: {
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  dateSeparatorPill: {
+    backgroundColor: colors.background,
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    borderRadius: 999,
+  },
+  dateSeparatorText: {
+    fontSize: 12,
+    color: "#6B7280",
+    fontWeight: "600",
   },
   loadingOlderContainer: {
     alignItems: "center",
@@ -490,6 +666,29 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#6B7280",
     textAlign: "center",
+  },
+  actionsModalContainer: {
+    paddingHorizontal: 16,
+    paddingBottom: 10,
+  },
+  actionItem: {
+    minHeight: 50,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#F3F4F6",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 10,
+  },
+  actionDangerText: {
+    color: "#DC2626",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  actionCancelText: {
+    color: "#111827",
+    fontSize: 16,
+    fontWeight: "600",
   },
 });
 

@@ -229,7 +229,7 @@ const MyInfo = ({ profile, onUpdateField }) => {
   };
 
   return (
-    <View className="bg-gray-50 border border-gray-100  mx-4 p-5 rounded-2xl">
+    <View className="bg-white border border-gray-100  mx-4 p-5 rounded-2xl">
       {items.map(({ key, title, icon: Icon, screen, type, options }, index) => {
         const isLast = index === items.length - 1;
         const targetField = fieldMap[key] || key;

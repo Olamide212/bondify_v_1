@@ -10,8 +10,7 @@ const BasicInfo = ({ profile }) => {
   const computedAge = getProfileAge(profile);
 
   return (
-    <View className="px-6 py-4 bg-gray-50 border border-gray-100 mx-4 rounded-2xl ">
-      <TextHeadingOne name="Basic Info" icon={User} />
+    <View className="px-6 py-4 bg-white border border-gray-100 mx-4 rounded-2xl ">
       <View className="flex-row items-center mb-1">
         <Text className="text-black text-3xl font-SatoshiBold capitalize" numberOfLines={1}>{fullName}</Text>
       </View>

@@ -11,6 +11,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import GeneralHeader from "../../../components/headers/GeneralHeader";
 import Button from "../../../components/ui/Button";
+import { colors } from "../../../constant/colors";
 import { useLookupOptions } from "../../../hooks/useLookupOptions";
 import { profileService } from "../../../services/profileService";
 
@@ -83,7 +84,7 @@ const InterestsScreen = () => {
       />
 
       {loading ? (
-        <ActivityIndicator size="large" color="#5A56D0" style={{ marginTop: 20 }} />
+        <ActivityIndicator size="large" color={colors.primary} style={{ marginTop: 20 }} />
       ) : (
         <ScrollView
           className="flex-1 px-4"

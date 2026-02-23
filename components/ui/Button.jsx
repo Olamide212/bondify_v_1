@@ -1,11 +1,11 @@
-import React from "react";
-import {
-  Text,
-  TouchableOpacity,
-  ActivityIndicator,
-  StyleSheet,
-} from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
+import {
+    ActivityIndicator,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+} from "react-native";
+import { colors } from "../../constant/colors";
 
 const Button = ({
   title = "Button",
@@ -18,7 +18,7 @@ const Button = ({
 }) => {
   const renderContent = () =>
     loading ? (
-      <ActivityIndicator color="#fff" />
+      <ActivityIndicator color={colors.primary} />
     ) : (
       <Text
         className={`text-xl font-GeneralSansMedium text-white ${textClassName}`}
@@ -80,7 +80,7 @@ const Button = ({
       } ${className}`}
     >
       {loading ? (
-        <ActivityIndicator color={variant === "secondary" ? "#000" : "#fff"} />
+        <ActivityIndicator color={colors.primary} />
       ) : (
         <Text
           className={`text-xl font-GeneralSansMedium ${textStyle} ${textClassName}`}

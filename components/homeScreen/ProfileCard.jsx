@@ -1,87 +1,66 @@
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { Image } from "expo-image";
-import { useRouter } from "expo-router";
 import {
-    Baby,
-    Ban,
-    Briefcase,
-    ChevronRight,
-    Cigarette,
-    Dog,
-    Dumbbell,
-    Flag,
-    GraduationCap,
-    Heart,
-    ChevronLeft as LeftIcon,
-    MapPin,
-    Ruler,
-    Share2,
-    Wallet,
-    Wine,
-    X
+  Baby,
+  Ban,
+  Briefcase,
+  Cigarette,
+  Dog,
+  Dumbbell,
+  Flag,
+  GraduationCap,
+  Heart,
+  MapPin,
+  Ruler,
+  Share2,
+  Wallet,
+  Wine,
 } from "lucide-react-native";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
-    Animated,
-    Dimensions,
-    findNodeHandle,
-    Modal,
-    Pressable,
-    Text,
-    TouchableOpacity,
-    TouchableWithoutFeedback,
-    UIManager,
-    View
+  Animated,
+  Dimensions,
+  findNodeHandle,
+  Text,
+  TouchableOpacity,
+  UIManager,
+  View
 } from "react-native";
 import { Icons } from "../../constant/icons";
+import { usePersistentUriCache } from "../../hooks/usePersistentUriCache";
 import CommentBox from "../ui/CommentBox";
 import DirectMessageBox from "../ui/DirectMessageBox";
-import VerifiedIcon from "../ui/VerifiedIcon";
+import ProfileHeroSection from "./profileCard/ProfileHeroSection";
+import ProfileImageModal from "./profileCard/ProfileImageModal";
 
 const MAX_BIO_LENGTH = 120;
-const { width, height } = Dimensions.get("window");
+const { height } = Dimensions.get("window");
 const FALLBACK_PROFILE_IMAGE = "https://via.placeholder.com/800x1200?text=No+Photo";
 
 const ProfileCard = ({ profile }) => {
   const [showFullBio, setShowFullBio] = useState(false);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const currentImageIndex = 0;
   const [modalVisible, setModalVisible] = useState(false);
   const [modalImageIndex, setModalImageIndex] = useState(0);
-  const [showHeader, setShowHeader] = useState(false);
   const [imageLayouts, setImageLayouts] = useState({});
   const [visibleCommentBoxIndex, setVisibleCommentBoxIndex] = useState(null);
   const [scrollOffset, setScrollOffset] = useState(0);
 
-  const scrollY = useRef(new Animated.Value(0)).current;
   const scrollViewRef = useRef(null);
   const commentBoxRefs = useRef([]);
 
   const totalImages = profile?.images?.length || 1;
-  const profileImages = Array.isArray(profile?.images) ? profile.images : [];
+  const profileImages = useMemo(
+    () => (Array.isArray(profile?.images) ? profile.images : []),
+    [profile?.images]
+  );
   const getImageUri = (index) => profileImages[index] || FALLBACK_PROFILE_IMAGE;
-  const router = useRouter();
 
-  // Animation values for comment indicators
-  const commentAnimations = useRef(
-    profile?.images?.map(() => new Animated.Value(0)) || []
-  ).current;
-
-  const goNext = () => {
-    setCurrentImageIndex((prev) => (prev + 1) % totalImages);
-  };
-
-  const goPrev = () => {
-    setCurrentImageIndex((prev) => (prev - 1 + totalImages) % totalImages);
-  };
-
-  const handlePress = (e) => {
-    const pressX = e.nativeEvent.locationX;
-    if (pressX > width / 2) {
-      goNext();
-    } else {
-      goPrev();
-    }
-  };
+  const { isHydrated: isImageCacheHydrated, isUriCached, touchUri } =
+    usePersistentUriCache({
+      storageKey: "@bondify/cache/profile/imageUris",
+      maxSize: 500,
+    });
 
   const openImageModal = (index) => {
     setModalImageIndex(index);
@@ -92,29 +71,20 @@ const ProfileCard = ({ profile }) => {
     setModalVisible(false);
   };
 
-  const goNextModal = () => {
-    setModalImageIndex((prev) => (prev + 1) % totalImages);
-  };
-
-  const goPrevModal = () => {
-    setModalImageIndex((prev) => (prev - 1 + totalImages) % totalImages);
-  };
-
   // Handle scroll events to show/hide header and check comment box visibility
   const handleScroll = (event) => {
     const offsetY = event.nativeEvent.contentOffset.y;
     setScrollOffset(offsetY);
-    setShowHeader(offsetY > 100);
     checkCommentBoxVisibility(offsetY);
   };
 
   // Check which comment boxes should be visible based on scroll position
-  const checkCommentBoxVisibility = (scrollOffset) => {
+  const checkCommentBoxVisibility = useCallback((currentScrollOffset) => {
     if (!scrollViewRef.current) return;
 
     // Calculate visibility for each comment box
-    const viewportTop = scrollOffset;
-    const viewportBottom = scrollOffset + height;
+    const viewportTop = currentScrollOffset;
+    const viewportBottom = currentScrollOffset + height;
 
     commentBoxRefs.current.forEach((ref, index) => {
       if (!ref) return;
@@ -135,7 +105,7 @@ const ProfileCard = ({ profile }) => {
         }
       });
     });
-  };
+  }, [visibleCommentBoxIndex]);
 
   // Store layout information for each image
   const handleImageLayout = (index, event) => {
@@ -158,7 +128,7 @@ const ProfileCard = ({ profile }) => {
     if (Object.keys(imageLayouts).length > 0) {
       checkCommentBoxVisibility(scrollOffset);
     }
-  }, [imageLayouts, scrollOffset]);
+  }, [checkCommentBoxVisibility, imageLayouts, scrollOffset]);
 
   if (!profile) return null;
 
@@ -169,59 +139,17 @@ const ProfileCard = ({ profile }) => {
 
   return (
     <View className="relative ">
-      {/* Image Modal */}
-      <Modal
+      <ProfileImageModal
         visible={modalVisible}
-        transparent={false}
-        onRequestClose={closeImageModal}
-        animationType="fade"
-      >
-        <View className="flex-1 bg-black">
-          <Pressable
-            className="absolute top-14 right-6 z-50 bg-black/50 rounded-full p-2"
-            onPress={closeImageModal}
-          >
-            <X color="white" size={24} />
-          </Pressable>
-
-          <View className="flex-1 justify-center">
-            <Image
-              source={{ uri: getImageUri(modalImageIndex) }}
-              style={{ width: "100%", height: "100%" }}
-              contentFit="cover"
-            />
-
-            {modalImageIndex > 0 && (
-              <Pressable
-                className="absolute left-4 bg-black/50 rounded-full p-3"
-                onPress={goPrevModal}
-              >
-                <LeftIcon color="white" size={28} />
-              </Pressable>
-            )}
-
-            {modalImageIndex < totalImages - 1 && (
-              <Pressable
-                className="absolute right-4 bg-black/50 rounded-full p-3"
-                onPress={goNextModal}
-              >
-                <ChevronRight color="white" size={28} />
-              </Pressable>
-            )}
-          </View>
-
-          <View className="absolute bottom-10 left-0 right-0 flex-row justify-center">
-            {profileImages.map((_, index) => (
-              <View
-                key={index}
-                className={`h-2 w-2 rounded-full mx-1 ${
-                  index === modalImageIndex ? "bg-white" : "bg-gray-400"
-                }`}
-              />
-            ))}
-          </View>
-        </View>
-      </Modal>
+        onClose={closeImageModal}
+        totalImages={totalImages}
+        modalImageIndex={modalImageIndex}
+        onChangeImageIndex={setModalImageIndex}
+        getImageUri={getImageUri}
+        isImageCacheHydrated={isImageCacheHydrated}
+        isUriCached={isUriCached}
+        onMarkUriLoaded={touchUri}
+      />
 
       <Animated.ScrollView
         ref={scrollViewRef}
@@ -231,90 +159,16 @@ const ProfileCard = ({ profile }) => {
         onScroll={handleScroll}
       >
         <View className="">
-          {/* Make the main image clickable */}
-          <Pressable onPress={() => openImageModal(currentImageIndex)}>
-            <View
-              onLayout={(e) => handleImageLayout(0, e)}
-              className=" shadow-lg overflow-hidden bg-white"
-              style={{
-                width: "100%",
-                height: 820,
-              }}
-            >
-              <TouchableWithoutFeedback
-                onPress={() => openImageModal(currentImageIndex)}
-              >
-                <View className="relative  w-full">
-                  <Image
-                    source={{ uri: getImageUri(currentImageIndex) }}
-                    className="w-full h-full"
-                    contentFit="cover"
-                    style={{
-                      width: "100%",
-                      height: 950,
-                    }}
-                  />
-
-                  <View className="absolute bottom-64 left-6 right-6">
-                    <View className="flex-row items-center mb-6">
-                      <Text className="text-white text-4xl font-SatoshiBold mr-2">
-                        {profile.name}
-                      </Text>
-
-                      <View className="flex-row items-center gap-2">
-                        <Text className="text-white text-4xl font-Satoshi">
-                          {profile.age}
-                        </Text>
-                        {profile.verified && (
-                          <VerifiedIcon />
-                        )}
-                      </View>
-                    </View>
-
-                    <View className="flex-row items-center flex-wrap gap-x-4 gap-y-4">
-                      {profile.lastActive && (
-                        <View className="flex-row items-center bg-primary px-4 py-2 rounded-full">
-                          <View className="w-3 h-3 bg-secondary rounded-full" />
-                          <Text className="text-white font-SatoshiMedium ml-2 capitalize">
-                            {profile.lastActive}
-                          </Text>
-                        </View>
-                      )}
-                      {profile.occupation && (
-                        <View className="flex-row items-center bg-secondary px-4 py-2 rounded-full">
-                          <Briefcase size={18} color={"#000"} />
-                          <Text className="text-black font-SatoshiMedium ml-2 capitalize">
-                            {profile.occupation}
-                          </Text>
-                        </View>
-                      )}
-                      {profile.religion && (
-                        <View className="flex-row items-center bg-secondary px-4 py-2 rounded-full">
-                          <MaterialCommunityIcons
-                            name="hands-pray"
-                            size={20}
-                      color={"#000"}
-                          />
-                          <Text className="text-black font-SatoshiMedium ml-2 capitalize">
-                            {profile.religion}
-                          </Text>
-                        </View>
-                      )}
-
-                      {profile.location && (
-                        <View className="flex-row items-center bg-secondary px-4 py-2 rounded-full">
-                          <MapPin size={18} color={"#000"} />
-                          <Text className="text-black font-SatoshiMedium ml-2">
-                            {profile.distance}, {profile.location}
-                          </Text>
-                        </View>
-                      )}
-                    </View>
-                  </View>
-                </View>
-              </TouchableWithoutFeedback>
-            </View>
-          </Pressable>
+          <ProfileHeroSection
+            profile={profile}
+            currentImageIndex={currentImageIndex}
+            getImageUri={getImageUri}
+            openImageModal={openImageModal}
+            handleImageLayout={handleImageLayout}
+            isImageCacheHydrated={isImageCacheHydrated}
+            isUriCached={isUriCached}
+            onMarkUriLoaded={touchUri}
+          />
 
           <View className="py-6 ">
             {/* Mutual Connections */}

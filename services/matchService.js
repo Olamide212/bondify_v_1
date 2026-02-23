@@ -92,6 +92,29 @@ const getMatches = async (options = {}) => {
   }
 };
 
+const getCachedMatches = async (options = {}) => {
+  const cacheKey = buildCacheKey(options);
+  const cachedMatches = await readCachedMatches(cacheKey);
+  return Array.isArray(cachedMatches) ? cachedMatches : [];
+};
+
+const unmatch = async (matchId) => {
+  if (!matchId) {
+    throw new Error("Match ID is required");
+  }
+
+  try {
+    const response = await apiClient.delete(`/matches/${matchId}`);
+    return response.data?.data ?? response.data;
+  } catch (error) {
+    const message =
+      error.response?.data?.message || error.message || "Failed to unmatch user";
+    throw new Error(message);
+  }
+};
+
 export const matchService = {
+  getCachedMatches,
   getMatches,
+  unmatch,
 };

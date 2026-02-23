@@ -36,10 +36,9 @@ const Education = ({ profile, onUpdateField }) => {
   return (
     <>
       <TouchableOpacity
-        className="px-6 py-4 bg-gray-50 border border-gray-100 mx-4 rounded-2xl"
+        className="px-6 py-4 bg-white border border-gray-100 mx-4 rounded-2xl"
         onPress={() => setModalVisible(true)}
       >
-       <TextHeadingOne name="Education Level" icon={GraduationCap} />
         <View className="mb-1">
           {selectedEducation ? (
             <Text className="text-black text-2xl font-SatoshiMedium">

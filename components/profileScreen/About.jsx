@@ -31,10 +31,10 @@ const AboutMe = ({ profile, onUpdateField }) => {
     return (
       <>
       <TouchableOpacity
-        className="px-6 py-4 bg-gray-50 border border-gray-100 mx-4 rounded-2xl"
+        className="px-6 py-4 bg-white border border-gray-100 mx-4 rounded-2xl"
         onPress={() => !isSaving && setModalVisible(true)}
       >
-        <TextHeadingOne name="About Me" icon={FileText} />
+       
         <View className=" mb-1">
           <Text className="text-black text-xl font-SatoshiMedium">
             {profile?.bio || "Tell people about yourself"}

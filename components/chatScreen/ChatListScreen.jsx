@@ -1,21 +1,162 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { User } from "lucide-react-native";
+import React from "react";
 import {
-    FlatList,
-    Image,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  FlatList,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { colors } from "../../constant/colors";
 import { formatRelativeDate } from "../../utils/helper";
 import GeneralHeader from "../headers/GeneralHeader";
 
-const ChatListScreen = ({ users, onSelectUser }) => {
+const AVATAR_URI_CACHE_KEY = "@bondify/cache/chat/avatarUris";
+const MAX_AVATAR_URI_CACHE_SIZE = 300;
+const loadedAvatarUris = new Set();
+
+const safeParse = (value) => {
+  try {
+    return JSON.parse(value);
+  } catch {
+    return null;
+  }
+};
+
+const trimLoadedAvatarUris = () => {
+  while (loadedAvatarUris.size > MAX_AVATAR_URI_CACHE_SIZE) {
+    const oldestUri = loadedAvatarUris.values().next().value;
+    if (!oldestUri) break;
+    loadedAvatarUris.delete(oldestUri);
+  }
+};
+
+const touchLoadedAvatarUri = (uri) => {
+  if (!uri) return;
+  if (loadedAvatarUris.has(uri)) {
+    loadedAvatarUris.delete(uri);
+  }
+  loadedAvatarUris.add(uri);
+  trimLoadedAvatarUris();
+};
+
+const persistLoadedAvatarUris = async () => {
+  try {
+    trimLoadedAvatarUris();
+    await AsyncStorage.setItem(
+      AVATAR_URI_CACHE_KEY,
+      JSON.stringify(Array.from(loadedAvatarUris))
+    );
+  } catch (error) {
+    console.warn("Failed to persist avatar URI cache:", error?.message || error);
+  }
+};
+
+const ChatListScreen = ({ users, onSelectUser, isLoading = false }) => {
+  const [isAvatarCacheHydrated, setIsAvatarCacheHydrated] = React.useState(
+    loadedAvatarUris.size > 0
+  );
+
   const newMatches = users.filter((user) => !user.hasChatted);
   const placeholderSlots = Array.from({ length: 5 }, (_, index) => ({
     id: `placeholder-${index}`,
   }));
+
+  React.useEffect(() => {
+    let isMounted = true;
+
+    const hydrateAvatarCache = async () => {
+      try {
+        const raw = await AsyncStorage.getItem(AVATAR_URI_CACHE_KEY);
+        const parsed = safeParse(raw);
+        if (Array.isArray(parsed)) {
+          parsed
+            .filter(Boolean)
+            .slice(-MAX_AVATAR_URI_CACHE_SIZE)
+            .forEach((uri) => touchLoadedAvatarUri(String(uri)));
+        }
+      } catch (error) {
+        console.warn("Failed to hydrate avatar URI cache:", error?.message || error);
+      } finally {
+        if (isMounted) {
+          setIsAvatarCacheHydrated(true);
+        }
+      }
+    };
+
+    hydrateAvatarCache();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const getFirstName = (fullName) => {
+    const normalized = String(fullName || "").trim();
+    if (!normalized) return "Unknown";
+    return normalized.split(/\s+/)[0];
+  };
+
+  const AvatarImage = ({ uri, style, iconSize = 20, isCacheReady = false }) => {
+    const [loading, setLoading] = React.useState(
+      Boolean(uri) && isCacheReady && !loadedAvatarUris.has(uri)
+    );
+    const [failed, setFailed] = React.useState(!uri);
+
+    React.useEffect(() => {
+      const shouldLoad =
+        Boolean(uri) && isCacheReady && !loadedAvatarUris.has(uri);
+      setLoading(shouldLoad);
+      setFailed(!uri);
+    }, [isCacheReady, uri]);
+
+    return (
+      <View style={[style, styles.avatarFallback]}>
+        {!failed && uri ? (
+          <Image
+            source={{ uri }}
+            style={style}
+            onLoadStart={() => {
+              if (isCacheReady && !loadedAvatarUris.has(uri)) {
+                setLoading(true);
+              }
+              setFailed(false);
+            }}
+            onLoad={async () => {
+              if (uri) {
+                touchLoadedAvatarUri(uri);
+                await persistLoadedAvatarUris();
+              }
+
+              setLoading(false);
+              setFailed(false);
+            }}
+            onLoadEnd={() => {
+              if (loadedAvatarUris.has(uri)) {
+                setLoading(false);
+              }
+            }}
+            onError={() => {
+              setLoading(false);
+              setFailed(true);
+            }}
+          />
+        ) : (
+          <User size={iconSize} color="#94A3B8" />
+        )}
+
+        {loading && (
+          <View style={styles.avatarLoadingOverlay}>
+            <ActivityIndicator size="small" color={colors.primary} />
+          </View>
+        )}
+      </View>
+    );
+  };
 
   return (
     <SafeAreaView style={styles.listContainer}>
@@ -43,16 +184,18 @@ const ChatListScreen = ({ users, onSelectUser }) => {
                   style={styles.newMatchItem}
                   onPress={() => onSelectUser(match)}
                 >
-                  <Image
-                    source={{ uri: match.profileImage }}
+                  <AvatarImage
+                    uri={match.profileImage}
                     style={styles.newMatchImage}
+                    iconSize={22}
+                    isCacheReady={isAvatarCacheHydrated}
                   />
                   <Text
                     style={styles.newMatchName}
                     numberOfLines={1}
                     className="font-SatoshiBold capitalize"
                   >
-                    {match.name}
+                    {getFirstName(match.name)}
                   </Text>
                 </TouchableOpacity>
               );
@@ -70,7 +213,12 @@ const ChatListScreen = ({ users, onSelectUser }) => {
 
       <View className="bg-white flex-1 rounded-t-3xl pt-3">
         <Text className="pl-5 pt-4 font-SatoshiBold text-lg">Active chats</Text>
-        {users.length === 0 ? (
+        {isLoading && users.length === 0 ? (
+          <View style={styles.emptyStateContainer}>
+            <ActivityIndicator size="small" color={colors.primary} />
+            <Text style={styles.loadingLabel}>Loading conversations...</Text>
+          </View>
+        ) : users.length === 0 ? (
           <View style={styles.emptyStateContainer}>
             <Text style={styles.emptyStateTitle}>No conversations yet</Text>
             <Text style={styles.emptyStateSubtitle}>
@@ -87,15 +235,17 @@ const ChatListScreen = ({ users, onSelectUser }) => {
                 onPress={() => onSelectUser(item)}
               >
                 <View style={styles.profileContainer}>
-                  <Image
-                    source={{ uri: item.profileImage }}
+                  <AvatarImage
+                    uri={item.profileImage}
                     style={styles.profileImage}
+                    iconSize={20}
+                    isCacheReady={isAvatarCacheHydrated}
                   />
                   {item.isOnline && <View style={styles.onlineIndicator} />}
                 </View>
 
                 <View style={styles.matchInfo}>
-                  <Text style={styles.matchName} className='capitalize'>{item.name}</Text>
+                  <Text style={styles.matchName} className='capitalize'>{getFirstName(item.name)}</Text>
                   <Text
                     style={styles.matchMessage}
                     numberOfLines={1}
@@ -192,6 +342,18 @@ const styles = StyleSheet.create({
     height: 56,
     borderRadius: 28,
   },
+  avatarFallback: {
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#F8FAFC",
+    overflow: "hidden",
+  },
+  avatarLoadingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(255,255,255,0.45)",
+  },
   onlineIndicator: {
     position: "absolute",
     bottom: 2,
@@ -213,7 +375,7 @@ const styles = StyleSheet.create({
     color: "#1F2937",
   },
   matchMessage: {
-    fontSize: 14,
+    fontSize: 16,
     color: "#6B7280",
     marginTop: 4,
   },
@@ -274,6 +436,12 @@ const styles = StyleSheet.create({
   emptyStateSubtitle: {
     fontSize: 14,
     color: "#6B7280",
+    textAlign: "center",
+  },
+  loadingLabel: {
+    fontSize: 14,
+    color: "#6B7280",
+    marginTop: 10,
     textAlign: "center",
   },
 });

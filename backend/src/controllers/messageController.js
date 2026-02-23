@@ -220,6 +220,30 @@ const sendMessage = async (req, res, next) => {
       message: messagePayload,
     });
 
+    const senderName =
+      messagePayload?.sender?.name ||
+      [messagePayload?.sender?.firstName, messagePayload?.sender?.lastName]
+        .filter(Boolean)
+        .join(' ') ||
+      'New message';
+
+    const notificationBody =
+      type === 'image'
+        ? 'Sent you a photo'
+        : type === 'voice'
+          ? 'Sent you a voice note'
+          : normalizedContent || 'Sent you a message';
+
+    io.to(`user:${String(receiverId)}`).emit('notification:new', {
+      id: String(message._id),
+      type: 'message',
+      matchId: String(matchId),
+      title: senderName,
+      body: notificationBody,
+      createdAt: new Date().toISOString(),
+      senderId: String(userId),
+    });
+
     // Notify sender that message was delivered
     io.to(`user:${String(userId)}`).emit('message:delivered', {
       matchId,

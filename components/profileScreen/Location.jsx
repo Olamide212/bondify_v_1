@@ -1,16 +1,16 @@
 import * as ExpoLocation from "expo-location";
-import { MapPin, X } from "lucide-react-native";
+import { X } from "lucide-react-native";
 import { useEffect, useMemo, useState } from "react";
 import {
-  ActivityIndicator,
-  Alert,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Alert,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
+import { colors } from "../../constant/colors";
 import BaseModal from "../modals/BaseModal";
-import TextHeadingOne from "../ui/TextHeadingOne";
 
 const Location = ({ profile, onUpdateField }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -103,10 +103,10 @@ const Location = ({ profile, onUpdateField }) => {
   return (
     <>
       <TouchableOpacity
-        className="px-6 py-4 bg-gray-50 border border-gray-100 mx-4 rounded-2xl"
+        className="px-6 py-4 bg-white border border-gray-100 mx-4 rounded-2xl"
         onPress={() => setIsModalVisible(true)}
       >
-        <TextHeadingOne name="Location" icon={MapPin} />
+       
         <View className="mb-1">
           <Text className="text-black text-2xl font-SatoshiMedium">
             {locationText || "Location not set"}
@@ -133,7 +133,7 @@ const Location = ({ profile, onUpdateField }) => {
             disabled={isDetectingLocation}
           >
             {isDetectingLocation ? (
-              <ActivityIndicator color="#fff" />
+              <ActivityIndicator color={colors.primary} />
             ) : (
               <Text className="text-white text-center text-lg font-GeneralSansMedium">
                 Use Current Location
@@ -171,7 +171,7 @@ const Location = ({ profile, onUpdateField }) => {
             disabled={isSaving}
           >
             {isSaving ? (
-              <ActivityIndicator color="#fff" />
+              <ActivityIndicator color={colors.primary} />
             ) : (
               <Text className="text-white text-center text-lg font-GeneralSansMedium">
                 Save Location

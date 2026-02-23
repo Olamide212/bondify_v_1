@@ -11,6 +11,8 @@ import {
 } from "react-native";
 import { colors } from "../../constant/colors";
 
+const VOICE_ICON_COLOR = "#64748B";
+
 const InputToolbar = ({ sendMessage, onSendImage, onSendVoice }) => {
   const [messageText, setMessageText] = useState("");
   const [recording, setRecording] = useState(null);
@@ -139,18 +141,11 @@ const InputToolbar = ({ sendMessage, onSendImage, onSendVoice }) => {
           onPress={handleImagePicker}
           disabled={isUploadingMedia || isRecording}
         >
-          <ImagePlus color={colors.primary} size={20} />
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.iconButton}
-          onPress={handleVoicePress}
-          disabled={isUploadingMedia}
-        >
-          <Mic color={isRecording ? "#EF4444" : colors.primary} size={20} />
+          <ImagePlus color={colors.gray} size={20} />
         </TouchableOpacity>
       </View>
 
+<View className='bg-[#F3F4F6] flex-1 flex-row items-center rounded-2xl mr-3 '>
       <TextInput
         style={styles.input}
         placeholder="Type a message..."
@@ -158,15 +153,27 @@ const InputToolbar = ({ sendMessage, onSendImage, onSendVoice }) => {
         onChangeText={setMessageText}
         multiline
       />
+       <TouchableOpacity
+          style={styles.iconButton}
+          onPress={handleVoicePress}
+          disabled={isUploadingMedia}
+        >
+          <Mic color={VOICE_ICON_COLOR} size={20} />
+        </TouchableOpacity>
+        </View>
 
-      <TouchableOpacity
-        style={styles.iconButton}
-        onPress={handleSend}
-        disabled={!isSendEnabled}
-        className='bg-primary rounded-full p-2'
-      >
-        <Send color={"#fff"} size={20} />
-      </TouchableOpacity>
+      <View style={styles.rightActions}>
+       
+
+        <TouchableOpacity
+          style={styles.iconButton}
+          onPress={handleSend}
+          disabled={!isSendEnabled}
+          className='bg-primary rounded-full p-2'
+        >
+          <Send color={"#fff"} size={20} />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -186,6 +193,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginRight: 8,
+  },
+  rightActions: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginLeft: 4,
   },
   iconButton: {
     padding: 10,

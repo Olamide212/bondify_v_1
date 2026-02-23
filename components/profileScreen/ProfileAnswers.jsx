@@ -57,16 +57,16 @@ const ProfileAnswers = ({ profile, onUpdateField }) => {
   };
 
   return (
-    <View className="px-6 py-4 bg-gray-50 border border-gray-100 mx-4 rounded-2xl ">
-      <TextHeadingOne name="More About Me" icon={MessageCircle} />
+    <View className="px-6 py-4 bg-white border border-gray-100 mx-4 rounded-2xl ">
+  
       {/* Show answers */}
       {answers.length > 0 ? (
         answers.map((item, index) => (
           <View key={index} className="mb-4">
-            <Text className="text-black text-xl font-Satoshi mb-1">
+            <Text className="text-primary text-xl font-Satoshi mb-1">
               {item.question}
             </Text>
-            <Text className="font-SatoshiMedium text-2xl text-gray-700 ">
+            <Text className="font-SatoshiMedium text-2xl text-black capitalize">
               {item.answer.trim() || "No answer provided."}
             </Text>
           </View>
@@ -81,7 +81,7 @@ const ProfileAnswers = ({ profile, onUpdateField }) => {
       <TouchableOpacity onPress={() => setShowModal(true)}>
         <View className="flex-row justify-between items-center mt-2">
           <Text className="font-SatoshiBold text-primary text-lg">
-            Add a question...
+            Add a prompt...
           </Text>
           <View className="w-6 h-6 rounded-full bg-primary items-center justify-center">
             <Plus size={14} color="#fff" />

@@ -94,9 +94,9 @@ const Register = () => {
               showsVerticalScrollIndicator={false}
             >
               <Text className="text-3xl font-GeneralSansSemiBold text-black mt-4 mb-1">
-                Create an account
+              Join Bondies
               </Text>
-              <Text className="text-black text-lg font-Satoshi mb-7">
+              <Text className="text-black text-lg font-SatoshiMedium mb-7">
                 Find your perfect match with just a few steps. Sign up now and
                 join millions of people finding love on Bondies.
               </Text>

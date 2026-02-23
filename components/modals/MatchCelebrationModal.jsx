@@ -1,17 +1,18 @@
-import React, { useEffect, useRef, useState } from "react";
+import { ArrowRight, Heart, MessageCircle, Sparkles } from "lucide-react-native";
+import { useEffect, useRef, useState } from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
-  Pressable,
-  Image,
   Animated,
   Dimensions,
+  Image,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
 } from "react-native";
-import { Heart, MessageCircle, ArrowRight, Sparkles } from "lucide-react-native";
-import BaseModal from "./BaseModal";
 import { colors } from "../../constant/colors";
 import { ICE_BREAKERS } from "../../constant/iceBreakers";
+import BaseModal from "./BaseModal";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
@@ -26,12 +27,11 @@ const MatchCelebrationModal = ({
   const scaleAnim = useRef(new Animated.Value(0)).current;
   const heartAnim = useRef(new Animated.Value(0)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
-  const [iceBreaker, setIceBreaker] = useState("");
+  const [selectedIceBreaker, setSelectedIceBreaker] = useState("");
 
   useEffect(() => {
     if (visible) {
-      // Pick a random ice breaker
-      setIceBreaker(ICE_BREAKERS[Math.floor(Math.random() * ICE_BREAKERS.length)]);
+      setSelectedIceBreaker("");
 
       // Entrance animations
       Animated.sequence([
@@ -62,7 +62,8 @@ const MatchCelebrationModal = ({
   }, [visible, scaleAnim, heartAnim, fadeAnim]);
 
   const handleSendMessage = () => {
-    onSendMessage?.(matchedUser, iceBreaker);
+    if (!selectedIceBreaker) return;
+    onSendMessage?.(matchedUser, selectedIceBreaker);
     onClose?.();
   };
 
@@ -155,20 +156,56 @@ const MatchCelebrationModal = ({
             </View>
           </Animated.View>
 
-          {/* Ice Breaker suggestion */}
+          {/* Ice Breaker suggestions */}
           <Animated.View style={[styles.iceBreakerContainer, { opacity: fadeAnim }]}>
             <View style={styles.iceBreakerHeader}>
               <MessageCircle size={18} color={colors.primary} />
-              <Text style={styles.iceBreakerLabel}>Ice Breaker</Text>
+              <Text style={styles.iceBreakerLabel}>Pick an Ice Breaker</Text>
             </View>
-            <Text style={styles.iceBreakerText}>{iceBreaker}</Text>
+
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.iceBreakerList}
+            >
+              {ICE_BREAKERS.map((item) => {
+                const isSelected = selectedIceBreaker === item;
+                return (
+                  <Pressable
+                    key={item}
+                    onPress={() => setSelectedIceBreaker(item)}
+                    style={[
+                      styles.iceBreakerChip,
+                      isSelected
+                        ? styles.iceBreakerChipSelected
+                        : styles.iceBreakerChipUnselected,
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.iceBreakerChipText,
+                        isSelected
+                          ? styles.iceBreakerChipTextSelected
+                          : styles.iceBreakerChipTextUnselected,
+                      ]}
+                    >
+                      {item}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </ScrollView>
           </Animated.View>
 
           {/* Action buttons */}
           <Animated.View style={[styles.buttonsContainer, { opacity: fadeAnim }]}>
             <Pressable
-              style={styles.sendMessageButton}
+              style={[
+                styles.sendMessageButton,
+                !selectedIceBreaker && styles.sendMessageButtonDisabled,
+              ]}
               onPress={handleSendMessage}
+              disabled={!selectedIceBreaker}
             >
               <MessageCircle size={20} color="#fff" />
               <Text style={styles.sendMessageText}>Send a message</Text>
@@ -296,6 +333,36 @@ const styles = StyleSheet.create({
     color: "#fff",
     lineHeight: 24,
   },
+  iceBreakerList: {
+    gap: 10,
+    paddingRight: 4,
+  },
+  iceBreakerChip: {
+    maxWidth: SCREEN_WIDTH - 110,
+    borderRadius: 14,
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+    borderWidth: 1,
+  },
+  iceBreakerChipSelected: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
+  },
+  iceBreakerChipUnselected: {
+    backgroundColor: "rgba(255,255,255,0.08)",
+    borderColor: "rgba(255,255,255,0.2)",
+  },
+  iceBreakerChipText: {
+    fontSize: 14,
+    lineHeight: 20,
+    fontFamily: "SatoshiMedium",
+  },
+  iceBreakerChipTextSelected: {
+    color: "#fff",
+  },
+  iceBreakerChipTextUnselected: {
+    color: "rgba(255,255,255,0.9)",
+  },
   buttonsContainer: {
     width: SCREEN_WIDTH - 48,
     gap: 12,
@@ -308,6 +375,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
     paddingVertical: 16,
     borderRadius: 30,
+  },
+  sendMessageButtonDisabled: {
+    opacity: 0.45,
   },
   sendMessageText: {
     color: "#fff",

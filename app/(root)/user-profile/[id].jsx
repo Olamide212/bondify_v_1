@@ -2,25 +2,26 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { ChevronLeft } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
 import {
-    ActivityIndicator,
-    Dimensions,
-    Pressable,
-    StyleSheet,
-    Text,
-    View
+  ActivityIndicator,
+  Dimensions,
+  Pressable,
+  StyleSheet,
+  Text,
+  View
 } from "react-native";
 import Animated, {
-    interpolate,
-    runOnJS,
-    useAnimatedScrollHandler,
-    useAnimatedStyle,
-    useSharedValue,
-    withTiming,
+  interpolate,
+  runOnJS,
+  useAnimatedScrollHandler,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
 } from "react-native-reanimated";
 import ActionButtons from "../../../components/homeScreen/ActionButtons";
 import ProfileCard from "../../../components/homeScreen/ProfileCard";
 import BackArrow from "../../../components/ui/BackArrow";
 import VerifiedIcon from "../../../components/ui/VerifiedIcon";
+import { colors } from "../../../constant/colors";
 import { useProfile } from "../../../context/ProfileContext";
 import { profileService } from "../../../services/profileService";
 
@@ -65,6 +66,46 @@ const UserProfile = () => {
     return parts.join(", ");
   };
 
+  const formatDistance = (profile) => {
+    const directDistance =
+      profile?.distance ??
+      profile?.distanceText ??
+      profile?.distanceLabel ??
+      profile?.location?.distance;
+
+    if (typeof directDistance === "string") {
+      return directDistance.trim();
+    }
+
+    if (typeof directDistance === "number" && Number.isFinite(directDistance)) {
+      return `${directDistance} km`;
+    }
+
+    const distanceKm = profile?.distanceKm ?? profile?.distanceInKm;
+    if (typeof distanceKm === "number" && Number.isFinite(distanceKm)) {
+      return `${distanceKm} km`;
+    }
+
+    if (typeof distanceKm === "string" && distanceKm.trim()) {
+      return distanceKm.trim().toLowerCase().includes("km")
+        ? distanceKm.trim()
+        : `${distanceKm.trim()} km`;
+    }
+
+    const distanceMiles = profile?.distanceMiles ?? profile?.distanceInMiles;
+    if (typeof distanceMiles === "number" && Number.isFinite(distanceMiles)) {
+      return `${distanceMiles} miles`;
+    }
+
+    if (typeof distanceMiles === "string" && distanceMiles.trim()) {
+      return distanceMiles.trim().toLowerCase().includes("mile")
+        ? distanceMiles.trim()
+        : `${distanceMiles.trim()} miles`;
+    }
+
+    return "";
+  };
+
   const normalizeProfile = (profile) => {
     const normalizedImages = normalizeImages(profile?.images);
     return {
@@ -78,7 +119,7 @@ const UserProfile = () => {
       gender: profile?.gender,
       zodiac: profile?.zodiacSign ?? profile?.zodiac,
       location: formatLocation(profile?.location) || profile?.location,
-      distance: profile?.distance,
+      distance: formatDistance(profile),
       bondScore: profile?.bondScore,
       verified: profile?.verified ?? profile?.isVerified ?? false,
       occupation: profile?.occupation,
@@ -97,7 +138,6 @@ const UserProfile = () => {
       exercise: profile?.exercise,
       pets: profile?.pets,
       children: profile?.children,
-      lastActive: profile?.lastActive,
       joined: profile?.joined,
       language: profile?.languages ?? profile?.language ?? [],
       nationality: profile?.nationality,
@@ -124,7 +164,7 @@ const UserProfile = () => {
         );
 
         if (profileFromContext) {
-          if (isMounted) setCurrentProfile(profileFromContext);
+          if (isMounted) setCurrentProfile(normalizeProfile(profileFromContext));
           return;
         }
 
@@ -243,7 +283,7 @@ const UserProfile = () => {
   if (loadingProfile) {
     return (
       <View className="flex-1 items-center justify-center bg-white">
-        <ActivityIndicator size="large" color="#5A56D0" />
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
@@ -284,7 +324,7 @@ const UserProfile = () => {
           <View style={styles.centerContent}>
             <View className="flex-row items-center gap-1">
               <View className='flex-row items-center'>
-                <Text className="text-black text-2xl font-SatoshiBold mr-2">
+                <Text className="text-black text-2xl font-SatoshiBold mr-2 capitalize" numberOfLines={1}>
                   {currentProfile.name}
                 </Text>
                 <Text className="text-black text-2xl font-Satoshi">

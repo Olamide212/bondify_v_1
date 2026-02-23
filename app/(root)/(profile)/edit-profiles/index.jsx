@@ -16,6 +16,8 @@ import School from "../../../../components/profileScreen/School";
 import Verification from "../../../../components/profileScreen/Verification";
 import Education from "../../../../components/profileScreen/WorkAndEducation";
 import { profileService } from "../../../../services/profileService";
+import { colors } from "../../../../constant/colors";
+import TextHeadingOne from "../../../../components/ui/TextHeadingOne";
 
 export default function ProfileDetails() {
   const [profile, setProfile] = useState({});
@@ -114,25 +116,25 @@ export default function ProfileDetails() {
   };
 
   return (
-    <SafeAreaProvider>
-      <SafeAreaView className="flex-1 pb-0 bg-[#F8F6F6] ">
+    <SafeAreaProvider className='bg-white'>
+      <SafeAreaView className="flex-1 pb-0 bg-white ">
         <GeneralHeader
           title="Edit Profile"
           leftIcon={<ArrowLeft />}
           className="bg-white"
         />
         <ScrollView
-          className="flex-1 flex-col gap-6"
+          className="flex-1 flex-col gap-6 bg-background"
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
           }
           contentContainerStyle={{
-            paddingBottom: 40,
-            backgroundColor: "#fff",
+            paddingBottom: 30,
+     
           }}
         >
           {loading && (
-            <ActivityIndicator size="large" color="#5A56D0" style={{ marginTop: 20 }} />
+            <ActivityIndicator size="large" color={colors.primary} style={{ marginTop: 20 }} />
           )}
           <View className="flex-1 gap-3">
 
@@ -144,40 +146,47 @@ export default function ProfileDetails() {
           />
 
           <View>
+            <TextHeadingOne name="Verification" />
             <Verification profile={profile}  />
           </View>
 
           <View>
+                 <TextHeadingOne name="Basic Info" />
             <BasicInfo profile={profile} />
           </View>
 
           <View>
-        
+            <TextHeadingOne name="Bio" />
             <AboutMe profile={profile} onUpdateField={handleUpdateField} />
           </View>
 
           <View>
+                <TextHeadingOne name="Location" />
             <Location profile={profile} onUpdateField={handleUpdateField} />
           </View>
 
           <View>
+                <TextHeadingOne name="Education Level"  />
             <Education profile={profile} onUpdateField={handleUpdateField} />
           </View>
 
           <View>
+                <TextHeadingOne name="School" />
             <School profile={profile} onUpdateField={handleUpdateField} />
           </View>
 
           <View>
+                <TextHeadingOne name="Occupation" />
             <Occupation profile={profile} onUpdateField={handleUpdateField} />
           </View>
 
           <View>
-
+    <TextHeadingOne name="Prompt" />
             <ProfileAnswers profile={profile} onUpdateField={handleUpdateField} />
           </View>
 
           <View className="">
+                <TextHeadingOne name="About Me" />
             <MyInfo profile={profile} onUpdateField={handleUpdateField} />
           </View>
           </View>

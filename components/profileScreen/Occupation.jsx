@@ -17,10 +17,10 @@ const Occupation = ({ profile, onUpdateField }) => {
   return (
     <>
       <TouchableOpacity
-        className="px-6 py-4 bg-gray-50 border border-gray-100 mx-4 rounded-2xl "
+        className="px-6 py-4 bg-white border border-gray-100 mx-4 rounded-2xl "
         onPress={() => setShowModal(true)}
       >
-        <TextHeadingOne name="Occupation" icon={Briefcase} />
+
         
         <View className="mb-1">
           {selectedOccupation ? (

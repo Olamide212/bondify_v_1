@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const Like = require('../models/Like');
 const Match = require('../models/Match');
+const { getIO } = require('../socket');
 const { mapImagesWithAccessUrls } = require('../utils/imageHelper');
 
 // @desc    Get discovery profiles
@@ -222,6 +223,43 @@ const performAction = async (req, res, next) => {
           initiatedBy: userId,
           matchedAt: new Date(),
         });
+
+        const io = getIO();
+
+        const currentUserName =
+          currentUser?.name ||
+          [currentUser?.firstName, currentUser?.lastName].filter(Boolean).join(' ') ||
+          'Someone';
+        const likedUserName =
+          likedUser?.name ||
+          [likedUser?.firstName, likedUser?.lastName].filter(Boolean).join(' ') ||
+          'Someone';
+
+        const matchPayloadForCurrentUser = {
+          id: String(match._id),
+          type: 'match',
+          matchId: String(match._id),
+          userId: String(likedUserId),
+          title: "It's a match!",
+          body: `You and ${likedUserName} liked each other.`,
+          createdAt: new Date().toISOString(),
+        };
+
+        const matchPayloadForLikedUser = {
+          id: String(match._id),
+          type: 'match',
+          matchId: String(match._id),
+          userId: String(userId),
+          title: "It's a match!",
+          body: `You and ${currentUserName} liked each other.`,
+          createdAt: new Date().toISOString(),
+        };
+
+        io.to(`user:${String(userId)}`).emit('match:new', matchPayloadForCurrentUser);
+        io.to(`user:${String(likedUserId)}`).emit('match:new', matchPayloadForLikedUser);
+
+        io.to(`user:${String(userId)}`).emit('notification:new', matchPayloadForCurrentUser);
+        io.to(`user:${String(likedUserId)}`).emit('notification:new', matchPayloadForLikedUser);
 
         isMatch = true;
 

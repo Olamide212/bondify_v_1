@@ -46,11 +46,11 @@ const ProfilePhotoGrid = ({ photos: initialPhotos = [], onAddPhoto, onRemovePhot
   };
 
   return (
-    <View className="p-6  bg-gray-50 border border-gray-100 rounded-2xl mx-4 mt-4">
+    <View className="p-6  bg-white border border-gray-100 rounded-2xl mx-4 mt-4">
    
       <View className="flex-row flex-wrap justify-between gap-y-3">
         {photoSlots.map((item, index) => (
-          <View key={`photo-${index}`} className="w-[32.5%]">
+          <View key={`photo-${index}`} className="w-[32.5%] aspect-square ">
             {renderItem(item, index)}
           </View>
         ))}

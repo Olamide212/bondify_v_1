@@ -12,19 +12,68 @@ export default function Chat() {
   const [currentScreen, setCurrentScreen] = useState("list");
   const [selectedUser, setSelectedUser] = useState(null);
   const [matchUsers, setMatchUsers] = useState([]);
+  const [isLoadingMatches, setIsLoadingMatches] = useState(true);
   const currentUserId = useSelector(
     (state) => state.auth.user?.id || state.auth.user?._id
   );
 
+  const getUserActivityTimestamp = (user) => {
+    const rawActivity = user?.activityAt || user?.matchedDate;
+    if (!rawActivity) return 0;
+
+    if (typeof rawActivity === "number") {
+      return Number.isNaN(rawActivity) ? 0 : rawActivity;
+    }
+
+    const parsed = new Date(rawActivity).getTime();
+    return Number.isNaN(parsed) ? 0 : parsed;
+  };
+
+  const sortUsersByActivity = (users) =>
+    [...users].sort((a, b) => {
+      const activityDiff =
+        getUserActivityTimestamp(b) - getUserActivityTimestamp(a);
+      if (activityDiff !== 0) return activityDiff;
+
+      const aId = String(a?.matchId ?? a?.id ?? "");
+      const bId = String(b?.matchId ?? b?.id ?? "");
+      return aId.localeCompare(bId);
+    });
+
   useEffect(() => {
     let isMounted = true;
 
+    const getActivityTimestamp = (match) => {
+      const latestActivity = match?.lastMessageAt || match?.matchedAt;
+      if (!latestActivity) return 0;
+
+      const parsedDate = new Date(latestActivity).getTime();
+      return Number.isNaN(parsedDate) ? 0 : parsedDate;
+    };
+
     const normalizeMatches = (matches) =>
-      matches.map((match) => {
+      [...matches]
+        .sort((a, b) => {
+          const activityDiff = getActivityTimestamp(b) - getActivityTimestamp(a);
+          if (activityDiff !== 0) return activityDiff;
+
+          const aId = String(a?.matchId ?? a?.id ?? a?.user?._id ?? a?.user?.id ?? "");
+          const bId = String(b?.matchId ?? b?.id ?? b?.user?._id ?? b?.user?.id ?? "");
+          return aId.localeCompare(bId);
+        })
+        .map((match) => {
+        const getFirstName = (fullName) => {
+          const normalized = String(fullName || "").trim();
+          if (!normalized) return "Unknown";
+          return normalized.split(/\s+/)[0];
+        };
+
         const images = Array.isArray(match.user?.images)
           ? match.user.images
               .map((image) =>
-                typeof image === "string" ? image : image?.url
+                typeof image === "string"
+                  ? image
+                  : image?.url || image?.uri || image?.secure_url
               )
               .filter(Boolean)
           : [];
@@ -36,14 +85,19 @@ export default function Chat() {
           id: match.user?._id ?? match.user?.id,
           matchId: match.matchId ?? match.id,
           name:
-            match.user?.name ||
-            [match.user?.firstName, match.user?.lastName].filter(Boolean).join(" ") ||
-            "Unknown",
+            getFirstName(
+              match.user?.name ||
+                [match.user?.firstName, match.user?.lastName]
+                  .filter(Boolean)
+                  .join(" ") ||
+                "Unknown"
+            ),
           profileImage,
           isOnline: match.user?.online ?? false,
           matchedDate: match.matchedAt
             ? new Date(match.matchedAt)
             : new Date(),
+          activityAt: getActivityTimestamp(match),
           lastMessage: latestMessage || (hasChatted ? "Tap to continue chatting" : "No messages yet"),
           unread: Number(match.unread || 0),
           hasChatted,
@@ -51,14 +105,31 @@ export default function Chat() {
       });
 
     const loadMatches = async () => {
+      setIsLoadingMatches(true);
+
       try {
+        const cachedMatches = await matchService.getCachedMatches();
+
+        if (isMounted && cachedMatches.length > 0) {
+          setMatchUsers(normalizeMatches(cachedMatches));
+        }
+
         const matches = await matchService.getMatches();
         if (isMounted) {
           setMatchUsers(matches.length > 0 ? normalizeMatches(matches) : []);
         }
       } catch (_error) {
         if (isMounted) {
-          setMatchUsers([]);
+          const fallbackCachedMatches = await matchService.getCachedMatches();
+          setMatchUsers(
+            fallbackCachedMatches.length > 0
+              ? normalizeMatches(fallbackCachedMatches)
+              : []
+          );
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoadingMatches(false);
         }
       }
     };
@@ -93,8 +164,13 @@ export default function Chat() {
             ? "Sent a voice note"
             : "New message");
 
+      const messageActivityAt = (() => {
+        const parsed = new Date(message.createdAt || Date.now()).getTime();
+        return Number.isNaN(parsed) ? Date.now() : parsed;
+      })();
+
       setMatchUsers((prevUsers) =>
-        prevUsers.map((user) => {
+        sortUsersByActivity(prevUsers.map((user) => {
           if (String(user.matchId) !== String(matchId)) {
             return user;
           }
@@ -102,13 +178,14 @@ export default function Chat() {
           return {
             ...user,
             hasChatted: true,
+            activityAt: messageActivityAt,
             lastMessage: previewText,
             unread:
               !isSentByCurrentUser && !isCurrentChatOpen
                 ? Number(user.unread || 0) + 1
                 : user.unread,
           };
-        })
+        }))
       );
     };
 
@@ -148,7 +225,17 @@ export default function Chat() {
     setCurrentScreen("chat");
   };
 
-  const handleBackToList = () => {
+  const handleBackToList = (options = {}) => {
+    const unmatchedMatchId = options?.unmatchedMatchId;
+
+    if (unmatchedMatchId) {
+      setMatchUsers((prevUsers) =>
+        prevUsers.filter(
+          (user) => String(user.matchId) !== String(unmatchedMatchId)
+        )
+      );
+    }
+
     setCurrentScreen("list");
     setSelectedUser(null);
   };
@@ -159,7 +246,11 @@ export default function Chat() {
       <View style={styles.container}>
     
         {currentScreen === "list" ? (
-          <ChatListScreen users={matchUsers} onSelectUser={handleSelectUser} />
+          <ChatListScreen
+            users={matchUsers}
+            onSelectUser={handleSelectUser}
+            isLoading={isLoadingMatches}
+          />
         ) : (
           <ChatScreen matchedUser={selectedUser} onBack={handleBackToList} />
         )}

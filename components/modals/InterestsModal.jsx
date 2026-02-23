@@ -28,7 +28,7 @@ const InterestsModal = ({
   };
 
   return (
-    <BaseModal onClose={onClose} visible={visible}>
+    <BaseModal onClose={onClose} visible={visible} fullScreen>
       <View>
         <ModalHeader
           onClose={onClose}
@@ -61,15 +61,15 @@ const InterestsModal = ({
                   );
 
                   const chipClassName = selected
-                    ? "bg-[#FF0066] border-[#FF0066]"
+                    ? "bg-primary border-primary"
                     : isHighlighted
-                      ? "bg-secondary border-secondary"
+                      ? "bg-primary border-primary"
                       : "bg-white border-[#D1D1D1]";
 
                   const textClassName = selected
                     ? "text-white"
                     : isHighlighted
-                      ? "text-black"
+                      ? "text-white"
                       : "text-app";
 
                   return (
@@ -78,7 +78,7 @@ const InterestsModal = ({
                       onPress={() => toggleInterest(interest)}
                       className={`px-4 py-2 rounded-full border ${chipClassName}`}
                     >
-                      <Text className={`font-SatoshiMedium ${textClassName}`}>
+                      <Text className={`font-SatoshiMedium text-lg ${textClassName}`}>
                         {interest}
                       </Text>
                     </TouchableOpacity>

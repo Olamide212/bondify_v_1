@@ -70,11 +70,11 @@ const ProfileScreen = () => {
           }
           contentContainerStyle={{
             paddingBottom: 80,
-            backgroundColor: colors.background,
+            // backgroundColor: colors.background,
           }}
         >
           {loading ? (
-            <ActivityIndicator size="large" color="#5A56D0" style={{ marginTop: 24 }} />
+            <ActivityIndicator size="large" color={colors.primary} style={{ marginTop: 24 }} />
           ) : (
             <>
               <ProfileSection profile={profile || {}} />
