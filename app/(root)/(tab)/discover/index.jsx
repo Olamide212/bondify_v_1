@@ -1,39 +1,33 @@
-import React, { useState, useEffect, useRef } from "react";
+import { Bot, Send } from "lucide-react-native";
+import { useEffect, useRef, useState } from "react";
 import {
-  View,
-  Text,
-  TextInput,
-  ScrollView,
   KeyboardAvoidingView,
   Platform,
   Pressable,
+  ScrollView,
   StyleSheet,
+  Text,
+  TextInput,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Bot, Send } from "lucide-react-native";
-import { colors } from "../../../../constant/colors";
 import GeneralHeader from "../../../../components/headers/GeneralHeader";
+import { colors } from "../../../../constant/colors";
 
 // Recommendation: Integrate OpenAI GPT-4 API for best AI chat experience.
 // Alternative: Google Gemini API — great for multi-modal and cost-effective usage.
 
 const AIChatScreen = () => {
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState([
+    {
+      id: 1,
+      text: "Hi there! I'm BonBot, your personal dating assistant. I can help you find better matches, suggest ice breakers, and give dating advice. How can I help you today?",
+      isUser: false,
+      timestamp: new Date(),
+    },
+  ]);
   const [userInput, setUserInput] = useState("");
   const scrollViewRef = useRef(null);
-
-  useEffect(() => {
-    if (messages.length === 0) {
-      setMessages([
-        {
-          id: 1,
-          text: "Hi there! I'm BonBot, your personal dating assistant. I can help you find better matches, suggest ice breakers, and give dating advice. How can I help you today?",
-          isUser: false,
-          timestamp: new Date(),
-        },
-      ]);
-    }
-  }, []);
 
   useEffect(() => {
     if (scrollViewRef.current) {
@@ -82,7 +76,7 @@ const AIChatScreen = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
       <GeneralHeader title="AI Chat" />
 
       <View style={styles.botBanner}>
@@ -129,7 +123,7 @@ const AIChatScreen = () => {
 
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
-        keyboardVerticalOffset={90}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 16 : 0}
       >
         <View style={styles.inputContainer}>
           <TextInput
@@ -163,6 +157,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
+    position: "relative",
   },
   botBanner: {
     flexDirection: "row",
@@ -181,11 +176,11 @@ const styles = StyleSheet.create({
   },
   messagesContainer: {
     flex: 1,
-    backgroundColor: "#f8f8f8",
+    backgroundColor: "#fff",
   },
   messagesContent: {
     padding: 16,
-    paddingBottom: 100,
+    paddingBottom: 16,
   },
   messageBubble: {
     maxWidth: "80%",
@@ -200,13 +195,9 @@ const styles = StyleSheet.create({
   },
   aiMessage: {
     alignSelf: "flex-start",
-    backgroundColor: "#fff",
+    backgroundColor: "#FFF8F5",
     borderBottomLeftRadius: 4,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
+  
   },
   botIcon: {
     marginBottom: 4,
@@ -231,10 +222,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     padding: 16,
-    paddingBottom: 30,
-    borderTopWidth: 1,
-    borderTopColor: "#f0f0f0",
+    paddingBottom: 10,
     backgroundColor: "#fff",
+
   },
   textInput: {
     flex: 1,

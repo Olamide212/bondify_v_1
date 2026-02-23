@@ -1,26 +1,23 @@
-import React, { useState } from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { View, StyleSheet, Image, Platform, Pressable } from "react-native";
-import { Bot, Send } from "lucide-react-native";
+import { useState } from "react";
+import { Image, Platform, StyleSheet, View } from "react-native";
 
-import HomeScreen from "./(root)/(tab)/home";
-import AIChatScreen from "./(root)/(tab)/discover";
-import ChatScreen from "./(root)/(tab)/chats";
-import ProfileScreen from "./(root)/(tab)/profile";
-import MatchesScreen from "./(root)/(tab)/matches";
-import { images } from "../constant/images";
-import { Icons } from "../constant/icons";
-import { colors } from "../constant/colors";
 import IceBreakerModal from "../components/modals/IceBreakerModal";
+import { colors } from "../constant/colors";
+import { Icons } from "../constant/icons";
+import { images } from "../constant/images";
+import ChatScreen from "./(root)/(tab)/chats";
+import AIChatScreen from "./(root)/(tab)/discover";
+import HomeScreen from "./(root)/(tab)/home";
+import MatchesScreen from "./(root)/(tab)/matches";
+import ProfileScreen from "./(root)/(tab)/profile";
 
 const Tab = createBottomTabNavigator();
 
 // Custom Icon Component without label
 const TabIcon = ({ focused, customImage }) => {
   return (
-    <View
-      style={[styles.tabIconContainer, focused && styles.activeTabContainer]}
-    >
+    <View style={styles.tabIconContainer}>
       <Image
         source={customImage}
         style={[
@@ -29,26 +26,6 @@ const TabIcon = ({ focused, customImage }) => {
         ]}
       />
     </View>
-  );
-};
-
-const AIChatTabIcon = ({ focused }) => {
-  return (
-    <View
-      style={[styles.tabIconContainer, focused && styles.activeTabContainer]}
-    >
-      <Bot size={24} color={focused ? colors.primary : "#fff"} />
-    </View>
-  );
-};
-
-const CenterIceBreakerButton = ({ onPress }) => {
-  return (
-    <Pressable style={styles.centerButtonWrapper} onPress={onPress}>
-      <View style={styles.centerButton}>
-        <Send size={26} color="#fff" />
-      </View>
-    </Pressable>
   );
 };
 
@@ -74,25 +51,23 @@ const RootTabs = () => {
           }}
         />
 
-        <Tab.Screen
-          name="AI Chat"
-          component={AIChatScreen}
-          options={{
-            tabBarIcon: ({ focused }) => <AIChatTabIcon focused={focused} />,
-          }}
-        />
-
-        <Tab.Screen
-          name="IceBreaker"
+    <Tab.Screen
+          name="Likes"
           component={MatchesScreen}
           options={{
             tabBarIcon: ({ focused }) => (
               <TabIcon focused={focused} customImage={Icons.heart} />
             ),
-            tabBarButton: (props) => (
-              <CenterIceBreakerButton
-                onPress={() => setShowIceBreakerModal(true)}
-              />
+         
+          }}
+        />
+
+        <Tab.Screen
+          name="AI Chat"
+          component={AIChatScreen}
+          options={{
+            tabBarIcon: ({ focused }) => (
+              <TabIcon focused={focused} customImage={Icons.AiIcon} />
             ),
           }}
         />
@@ -134,47 +109,42 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   tabBar: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
     height: 80,
-    backgroundColor: colors.primary,
-    borderTopWidth: 0,
-    paddingBottom: Platform.OS === "ios" ? 20 : 10,
-    elevation: 8,
-    ...Platform.select({
-      ios: {
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: -2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-      },
-      android: {
-        elevation: 8,
-      },
-    }),
+    backgroundColor: "#fff",
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderColor: "#F1F5F9",
+    paddingBottom: Platform.OS === "ios" ? 6 : 4,
+    // elevation: 8,
+    // ...Platform.select({
+    //   ios: {
+    //     shadowColor: "#000",
+    //     shadowOffset: { width: 0, height: -2 },
+    //     shadowOpacity: 0.1,
+    //     shadowRadius: 4,
+    //   },
+    //   android: {
+    //     elevation: 8,
+    //   },
+    // }),
   },
   tabIconContainer: {
     alignItems: "center",
     justifyContent: "center",
-    height: 44,
-    width: 44,
+    // height: 40,
+    // width: 40,
     borderRadius: 22,
   },
-  activeTabContainer: {
-    backgroundColor: colors.secondary,
-  },
   iconImage: {
-    width: 24,
-    height: 24,
+    width: 28,
+    height: 28,
     resizeMode: "contain",
   },
   activeIconImage: {
-    tintColor: colors.primary,
+    tintColor: colors.activePrimary,
   },
   inactiveIconImage: {
-    tintColor: "#fff",
+    tintColor: colors.inactiveTab,
   },
   centerButtonWrapper: {
     top: -20,
@@ -182,18 +152,18 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   centerButton: {
-    width: 62,
-    height: 62,
-    borderRadius: 31,
-    backgroundColor: colors.secondary,
+    width: 70,
+    height: 70,
+    borderRadius: 50,
+    backgroundColor: colors.primary,
     justifyContent: "center",
     alignItems: "center",
-    shadowColor: colors.secondary,
+    shadowColor: colors.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.4,
     shadowRadius: 8,
     elevation: 8,
-    borderWidth: 4,
-    borderColor: colors.primary,
+    // borderWidth: 4,
+    // borderColor: colors.primary,
   },
 });

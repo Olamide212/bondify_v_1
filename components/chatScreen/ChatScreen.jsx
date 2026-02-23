@@ -1,13 +1,14 @@
 // components/ChatScreen.js
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
-  ActivityIndicator,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
+    ActivityIndicator,
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    Text,
+    View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useSelector } from "react-redux";
@@ -22,6 +23,7 @@ const MESSAGE_PAGE_SIZE = 20;
 const LOAD_OLDER_TRIGGER_PX = 140;
 
 const ChatScreen = ({ matchedUser, onBack }) => {
+  const tabBarHeight = useBottomTabBarHeight();
   const [messages, setMessages] = useState([]);
   const [nextCursor, setNextCursor] = useState(null);
   const [hasMoreMessages, setHasMoreMessages] = useState(false);
@@ -305,7 +307,10 @@ const ChatScreen = ({ matchedUser, onBack }) => {
         <ScrollView
           ref={scrollViewRef}
           style={styles.messagesContainer}
-          contentContainerStyle={styles.messagesContent}
+          contentContainerStyle={[
+            styles.messagesContent,
+            { paddingBottom: tabBarHeight + 12 },
+          ]}
           onScroll={(event) => {
             const offsetY = event.nativeEvent.contentOffset.y;
             scrollOffsetYRef.current = offsetY;
@@ -361,7 +366,9 @@ const ChatScreen = ({ matchedUser, onBack }) => {
           )}
         </ScrollView>
 
-        <InputToolbar sendMessage={sendMessage} />
+        <View style={{ paddingBottom: tabBarHeight }}>
+          <InputToolbar sendMessage={sendMessage} />
+        </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );

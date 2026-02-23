@@ -93,7 +93,7 @@ const InfoSection = () => {
 
   return (
     <>
-      <View className="bg-white p-5 rounded-xl">
+      <View className="bg-white p-5 m-4 rounded-xl">
      
         {items.map(({ title, description, icon: Icon, link, modal }, index) => {
           const isLast = index === items.length - 1;

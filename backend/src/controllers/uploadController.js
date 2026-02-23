@@ -57,6 +57,16 @@ const uploadPhotos = async (req, res, next) => {
       });
     }
 
+    const existingCount = Array.isArray(user.images) ? user.images.length : 0;
+    const incomingCount = Array.isArray(req.files) ? req.files.length : 0;
+
+    if (existingCount + incomingCount > 6) {
+      return res.status(400).json({
+        success: false,
+        message: 'You can upload up to 6 photos only',
+      });
+    }
+
     const uploadPromises = req.files.map(async (file, index) => {
       const objectKey = getObjectKey(userId, file.originalname);
 

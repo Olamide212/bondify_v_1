@@ -10,6 +10,7 @@ import InfoSection from "../../../../components/profileScreen/InfoSection";
 import ProfileSection from "../../../../components/profileScreen/ProfileSection";
 import SubscriptionBannerSlider from "../../../../components/profileScreen/SubscriptionBannerSlider";
 import { profileService } from "../../../../services/profileService";
+import { colors } from "../../../../constant/colors";
 
 
 const ProfileScreen = () => {
@@ -54,20 +55,22 @@ const ProfileScreen = () => {
 
   return (
     <SafeAreaProvider>
-      <SafeAreaView className="flex-1 bg-[#F8F6F6] ">
-        <GeneralHeader
+     
+      <SafeAreaView className="flex-1 bg-white ">
+            <GeneralHeader
           title="Profile"
-          icon=<Bell color="#000" />
+          icon={<Bell color="#000" />}
           className="text-black"
           onPress={() => router.push("/settings")}
         />
+     
         <ScrollView
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
           }
           contentContainerStyle={{
             paddingBottom: 80,
-            backgroundColor: "#F8F6F6",
+            backgroundColor: colors.background,
           }}
         >
           {loading ? (

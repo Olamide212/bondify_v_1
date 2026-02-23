@@ -1,18 +1,16 @@
-import { View, Image, Platform, StyleSheet, Pressable } from "react-native";
-import React, { useState } from "react";
 import { Tabs } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { Bot, Send } from "lucide-react-native";
+import { useState } from "react";
+import { Image, Platform, Pressable, StyleSheet, View } from "react-native";
+import IceBreakerModal from "../../../components/modals/IceBreakerModal";
 import { colors } from "../../../constant/colors";
 import { Icons } from "../../../constant/icons";
 import { images } from "../../../constant/images";
-import IceBreakerModal from "../../../components/modals/IceBreakerModal";
 
 const TabIcon = ({ focused, customImage }) => {
   return (
-    <View
-      style={[styles.tabIconContainer, focused && styles.activeTabContainer]}
-    >
+    <View style={styles.tabIconContainer}>
       <Image
         source={customImage}
         style={[
@@ -26,10 +24,8 @@ const TabIcon = ({ focused, customImage }) => {
 
 const AIChatTabIcon = ({ focused }) => {
   return (
-    <View
-      style={[styles.tabIconContainer, focused && styles.activeTabContainer]}
-    >
-      <Bot size={24} color={focused ? colors.primary : "#fff"} />
+    <View style={styles.tabIconContainer}>
+      <Bot size={24} color={focused ? colors.activePrimary : colors.inactiveTab} />
     </View>
   );
 };
@@ -123,11 +119,11 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    height: 80,
-    backgroundColor: colors.primary,
+    height: 92,
+    backgroundColor: "#fff",
     borderTopWidth: 0,
     elevation: 8,
-    paddingBottom: Platform.OS === "ios" ? 20 : 10,
+    paddingBottom: Platform.OS === "ios" ? 0 : 6,
     ...Platform.select({
       ios: {
         shadowColor: "#000",
@@ -147,19 +143,16 @@ const styles = StyleSheet.create({
     width: 44,
     borderRadius: 22,
   },
-  activeTabContainer: {
-    backgroundColor: colors.secondary,
-  },
   iconImage: {
     width: 24,
     height: 24,
     resizeMode: "contain",
   },
   activeIconImage: {
-    tintColor: colors.primary,
+    tintColor: colors.activePrimary,
   },
   inactiveIconImage: {
-    tintColor: "#fff",
+    tintColor: colors.inactiveTab,
   },
   centerButtonWrapper: {
     top: -20,

@@ -20,6 +20,7 @@ const getDiscoveryProfiles = async (req, res, next) => {
       drinking,
       smoking,
       interests,
+      verifiedOnly,
       page = 1,
       limit = 20,
     } = req.query;
@@ -38,9 +39,11 @@ const getDiscoveryProfiles = async (req, res, next) => {
     const query = {
       _id: { $ne: userId, $nin: interactedUsers },
       isActive: true,
-      onboardingCompleted: true,
-      isVerified: true,
     };
+
+    if (String(verifiedOnly).toLowerCase() === 'true') {
+      query.isVerified = true;
+    }
 
     // Apply filters
     if (sanitizedMinAge || sanitizedMaxAge) {

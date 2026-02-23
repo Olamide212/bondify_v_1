@@ -8,6 +8,7 @@ import people from "../assets/icons/people.png"
 import compass from "../assets/icons/compass.png"
 import message from "../assets/icons/chat.png"
 import redo from "../assets/icons/refresh.png"
+import AiIcon from "../assets/icons/Ai.png"
 
 export const Icons = {
   arrowLeft,
@@ -18,5 +19,6 @@ export const Icons = {
   people,
   compass,
   message,
-  redo
+  redo,
+  AiIcon
 };
