@@ -46,6 +46,7 @@ const ExploreScreenTab = ({
       horizontal
       showsHorizontalScrollIndicator={false}
       contentContainerStyle={styles.scrollContainer}
+      className='bg-background'
     >
       {tabs.map(({ key, label, count }, index) => (
         <TouchableOpacity

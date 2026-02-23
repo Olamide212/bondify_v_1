@@ -13,7 +13,7 @@ const MessageBubble = ({ message }) => {
       case "delivered":
         return <CheckCheck color="#9CA3AF" size={12} />;
       case "read":
-        return <CheckCheck color="#EC4899" size={12} />;
+        return <CheckCheck color={colors.primary} size={12} />;
       default:
         return null;
     }

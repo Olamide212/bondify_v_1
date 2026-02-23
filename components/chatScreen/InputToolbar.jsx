@@ -1,103 +1,155 @@
 // components/InputToolbar.js
-import React, { useState } from "react";
+import { Audio } from "expo-av";
+import * as ImagePicker from "expo-image-picker";
+import { ImagePlus, Mic, Send } from "lucide-react-native";
+import { useEffect, useState } from "react";
 import {
-  View,
-  Text,
+  StyleSheet,
   TextInput,
   TouchableOpacity,
-  ScrollView,
-  Alert,
-  StyleSheet,
+  View,
 } from "react-native";
-import { Send, Smile, Camera, Mic } from "lucide-react-native";
+import { colors } from "../../constant/colors";
 
-const InputToolbar = ({ sendMessage }) => {
+const InputToolbar = ({ sendMessage, onSendImage, onSendVoice }) => {
   const [messageText, setMessageText] = useState("");
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [recording, setRecording] = useState(null);
   const [isRecording, setIsRecording] = useState(false);
+  const [recordingStartedAt, setRecordingStartedAt] = useState(null);
+  const [isUploadingMedia, setIsUploadingMedia] = useState(false);
 
-  const emojis = [
-    "😊",
-    "😂",
-    "❤️",
-    "😍",
-    "🥰",
-    "😘",
-    "👍",
-    "🔥",
-    "💯",
-    "🎉",
-    "🌟",
-    "💖",
-  ];
+  useEffect(() => {
+    return () => {
+      if (recording) {
+        recording.stopAndUnloadAsync().catch(() => {});
+      }
+    };
+  }, [recording]);
 
-  const handleImagePicker = () => {
-    Alert.alert("Send Image", "Choose an option", [
-      {
-        text: "Camera",
-        onPress: () =>
-          sendMessage(
-            undefined,
-            "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop"
-          ),
-      },
-      {
-        text: "Gallery",
-        onPress: () =>
-          sendMessage(
-            undefined,
-            "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=400&h=300&fit=crop"
-          ),
-      },
-      { text: "Cancel", style: "cancel" },
-    ]);
+  const handleImagePicker = async () => {
+    if (!onSendImage || isUploadingMedia) return;
+
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (permission.status !== "granted") {
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: false,
+      quality: 0.8,
+    });
+
+    if (result.canceled || !result.assets?.[0]?.uri) {
+      return;
+    }
+
+    const asset = result.assets[0];
+    const fileName =
+      asset.fileName ||
+      `image-${Date.now()}.${asset.uri.split(".").pop() || "jpg"}`;
+    const mimeType = asset.mimeType || "image/jpeg";
+
+    setIsUploadingMedia(true);
+    try {
+      await onSendImage({
+        uri: asset.uri,
+        fileName,
+        mimeType,
+      });
+    } finally {
+      setIsUploadingMedia(false);
+    }
   };
 
-  // const handleVoiceNote = () => {
-  //   if (isRecording) {
-  //     setIsRecording(false);
-  //     sendMessage(undefined, undefined, true);
-  //   } else {
-  //     setIsRecording(true);
-  //     setTimeout(() => {
-  //       setIsRecording(false);
-  //       sendMessage(undefined, undefined, true);
-  //     }, 2000);
-  //   }
-  // };
+  const startRecording = async () => {
+    if (isRecording || isUploadingMedia || !onSendVoice) return;
+
+    const permission = await Audio.requestPermissionsAsync();
+    if (!permission.granted) {
+      return;
+    }
+
+    await Audio.setAudioModeAsync({
+      allowsRecordingIOS: true,
+      playsInSilentModeIOS: true,
+    });
+
+    const { recording: newRecording } = await Audio.Recording.createAsync(
+      Audio.RecordingOptionsPresets.HIGH_QUALITY
+    );
+
+    setRecording(newRecording);
+    setIsRecording(true);
+    setRecordingStartedAt(Date.now());
+  };
+
+  const stopRecording = async () => {
+    if (!recording || !onSendVoice) return;
+
+    setIsUploadingMedia(true);
+    try {
+      await recording.stopAndUnloadAsync();
+      const uri = recording.getURI();
+
+      const durationMs = recordingStartedAt
+        ? Math.max(Date.now() - recordingStartedAt, 0)
+        : 0;
+
+      if (uri) {
+        const fileExtension = uri.split('.').pop() || 'm4a';
+        await onSendVoice({
+          uri,
+          fileName: `voice-${Date.now()}.${fileExtension}`,
+          mimeType: "audio/m4a",
+          durationMs,
+        });
+      }
+    } finally {
+      setRecording(null);
+      setIsRecording(false);
+      setRecordingStartedAt(null);
+      setIsUploadingMedia(false);
+    }
+  };
+
+  const handleVoicePress = async () => {
+    if (isRecording) {
+      await stopRecording();
+      return;
+    }
+
+    await startRecording();
+  };
 
   const handleSend = () => {
     if (messageText.trim()) {
       sendMessage(messageText);
       setMessageText("");
-      setShowEmojiPicker(false);
     }
   };
 
+  const isSendEnabled = messageText.trim().length > 0 && !isUploadingMedia;
+
   return (
     <View style={styles.container}>
-      {showEmojiPicker && (
-        <View style={styles.emojiPicker}>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {emojis.map((emoji, index) => (
-              <TouchableOpacity
-                key={index}
-                style={styles.emojiButton}
-                onPress={() => setMessageText((prev) => prev + emoji)}
-              >
-                <Text style={styles.emoji}>{emoji}</Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-        </View>
-      )}
+      <View style={styles.leftActions}>
+        <TouchableOpacity
+          style={styles.iconButton}
+          onPress={handleImagePicker}
+          disabled={isUploadingMedia || isRecording}
+        >
+          <ImagePlus color={colors.primary} size={20} />
+        </TouchableOpacity>
 
-      <TouchableOpacity
-        style={styles.iconButton}
-        onPress={() => setShowEmojiPicker(!showEmojiPicker)}
-      >
-        <Smile color="#6B7280" />
-      </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.iconButton}
+          onPress={handleVoicePress}
+          disabled={isUploadingMedia}
+        >
+          <Mic color={isRecording ? "#EF4444" : colors.primary} size={20} />
+        </TouchableOpacity>
+      </View>
 
       <TextInput
         style={styles.input}
@@ -107,21 +159,14 @@ const InputToolbar = ({ sendMessage }) => {
         multiline
       />
 
-      {messageText ? (
-        <TouchableOpacity style={styles.iconButton} onPress={handleSend}>
-          <Send color="#EC4899" />
-        </TouchableOpacity>
-      ) : (
-        <View style={styles.mediaButtons}>
-          <TouchableOpacity
-            style={styles.iconButton}
-            onPress={handleImagePicker}
-          >
-            <Camera color="#6B7280" />
-          </TouchableOpacity>
-          
-        </View>
-      )}
+      <TouchableOpacity
+        style={styles.iconButton}
+        onPress={handleSend}
+        disabled={!isSendEnabled}
+        className='bg-primary rounded-full p-2'
+      >
+        <Send color={"#fff"} size={20} />
+      </TouchableOpacity>
     </View>
   );
 };
@@ -130,42 +175,30 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 12,
+    paddingTop: 16,
+    paddingBottom: 8,
     paddingHorizontal: 16,
-    borderTopWidth: 1,
-    borderTopColor: "#E5E7EB",
-    backgroundColor: "#fff",
-  },
-  emojiPicker: {
-    position: "absolute",
-    bottom: 60,
-    left: 0,
-    right: 0,
     backgroundColor: "#fff",
     borderTopWidth: 1,
-    borderTopColor: "#E5E7EB",
-    paddingVertical: 8,
+    borderTopColor: "#F1F5F9",
   },
-  emojiButton: {
-    padding: 8,
-  },
-  emoji: {
-    fontSize: 24,
+  leftActions: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginRight: 8,
   },
   iconButton: {
-    padding: 8,
+    padding: 10,
   },
   input: {
     flex: 1,
     backgroundColor: "#F3F4F6",
-    borderRadius: 24,
-    paddingVertical: 10,
+    borderRadius: 15,
+    paddingVertical: 14,
     paddingHorizontal: 16,
     maxHeight: 100,
     fontSize: 16,
-  },
-  mediaButtons: {
-    flexDirection: "row",
+    marginRight: 8,
   },
 });
 

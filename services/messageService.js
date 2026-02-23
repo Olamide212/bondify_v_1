@@ -153,6 +153,36 @@ const sendMessage = async (matchId, payload) => {
   }
 };
 
+const uploadChatMedia = async ({ uri, mimeType, fileName }) => {
+  try {
+    const formData = new FormData();
+    formData.append('file', {
+      uri,
+      type: mimeType,
+      name: fileName,
+    });
+
+    const response = await apiClient.post('/upload/chat-media', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+
+    const payload = response.data?.data ?? response.data;
+    return {
+      mediaUrl: payload?.mediaUrl,
+      mediaType: payload?.mediaType,
+      publicId: payload?.publicId,
+    };
+  } catch (error) {
+    const message =
+      error.response?.data?.message ||
+      error.message ||
+      'Failed to upload chat media';
+    throw new Error(message);
+  }
+};
+
 const deleteMessage = async (messageId) => {
   try {
     const response = await apiClient.delete(`/messages/${messageId}`);
@@ -200,5 +230,6 @@ const deleteMessage = async (messageId) => {
 export const messageService = {
   getMessages,
   sendMessage,
+  uploadChatMedia,
   deleteMessage,
 };

@@ -250,7 +250,7 @@ const styles = StyleSheet.create({
   },
   actionButtonWrapper: {
     position: "absolute",
-    bottom: 85,
+    bottom: 5,
     left: 0,
     right: 0,
     zIndex: 10,

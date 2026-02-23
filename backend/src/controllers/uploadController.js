@@ -27,6 +27,24 @@ const getPublicUrl = (bucket, key) => {
   return `https://${bucket}.s3.${region}.amazonaws.com/${key}`;
 };
 
+const getChatMediaType = (mimeType = '') => {
+  if (mimeType.startsWith('audio/')) return 'voice';
+  return 'image';
+};
+
+const getChatObjectKey = (userId, originalname, mimeType = '') => {
+  const fallbackExtension = mimeType.startsWith('audio/') ? 'm4a' : 'jpg';
+  const extension = originalname?.includes('.')
+    ? originalname.split('.').pop().toLowerCase()
+    : fallbackExtension;
+  const safeExtension = /^[a-z0-9]+$/.test(extension)
+    ? extension
+    : fallbackExtension;
+  return `bondify/chat/${userId}/${Date.now()}-${Math.round(
+    Math.random() * 1e9
+  )}.${safeExtension}`;
+};
+
 // @desc    Upload profile photos
 // @route   POST /api/upload/photos
 // @access  Private
@@ -159,7 +177,59 @@ const deletePhoto = async (req, res, next) => {
   }
 };
 
+// @desc    Upload chat media (image/audio)
+// @route   POST /api/upload/chat-media
+// @access  Private
+const uploadChatMedia = async (req, res, next) => {
+  try {
+    const userId = req.user._id;
+    const bucket = process.env.AWS_S3_BUCKET;
+
+    if (!bucket) {
+      return res.status(500).json({
+        success: false,
+        message: 'Missing AWS_S3_BUCKET configuration',
+      });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: 'No file uploaded',
+      });
+    }
+
+    const mimeType = req.file?.mimetype || '';
+    const mediaType = getChatMediaType(mimeType);
+    const objectKey = getChatObjectKey(userId, req.file.originalname, mimeType);
+
+    await s3.send(
+      new PutObjectCommand({
+        Bucket: bucket,
+        Key: objectKey,
+        Body: req.file.buffer,
+        ContentType: getContentType(req.file),
+      })
+    );
+
+    const mediaUrl = getPublicUrl(bucket, objectKey);
+
+    res.json({
+      success: true,
+      message: 'Chat media uploaded successfully',
+      data: {
+        mediaUrl,
+        publicId: objectKey,
+        mediaType,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   uploadPhotos,
   deletePhoto,
+  uploadChatMedia,
 };

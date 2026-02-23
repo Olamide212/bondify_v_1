@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useSelector } from "react-redux";
+import { colors } from "../../constant/colors";
 import { messageService } from "../../services/messageService";
 import { socketService } from "../../services/socketService";
 import { formatRelativeDate } from "../../utils/helper";
@@ -54,10 +55,15 @@ const ChatScreen = ({ matchedUser, onBack }) => {
           id: message._id ?? message.id,
           text: message.content ?? "",
           imageUrl: message.mediaUrl ?? message.imageUrl,
+          mediaUrl: message.mediaUrl ?? message.imageUrl,
+          mediaDuration: message.mediaDuration,
           timestamp: message.createdAt ? new Date(message.createdAt) : new Date(),
           sender: isSender ? "me" : "them",
           status,
-          type,
+          type: message.type || type,
+          voiceDuration: message.mediaDuration
+            ? Math.max(1, Math.round(message.mediaDuration / 1000))
+            : undefined,
         };
       }),
     [currentUserId]
@@ -248,19 +254,32 @@ const ChatScreen = ({ matchedUser, onBack }) => {
     scrollViewRef.current?.scrollToEnd({ animated: true });
   }, [messages]);
 
-  const sendMessage = async (text, imageUrl, voiceNote) => {
+  const sendMessage = async (
+    text,
+    imageUrl,
+    voiceNote,
+    options = {}
+  ) => {
     if (!text && !imageUrl && !voiceNote) return;
     const tempId = `temp-${Date.now()}`;
+    const mediaDuration = options.mediaDuration;
+    const messageType =
+      options.type || (imageUrl ? "image" : voiceNote ? "voice" : "text");
     const newMessage = {
       id: tempId,
       text,
       imageUrl,
+      mediaUrl: imageUrl,
       voiceNote,
-      voiceDuration: voiceNote ? Math.floor(Math.random() * 30) + 5 : undefined,
+      voiceDuration:
+        typeof mediaDuration === "number" && mediaDuration > 0
+          ? Math.max(1, Math.round(mediaDuration / 1000))
+          : undefined,
       timestamp: new Date(),
       sender: "me",
       status: "sent",
-      type: imageUrl ? "image" : voiceNote ? "voice" : "text",
+      type: messageType,
+      mediaDuration,
     };
     setMessages((prev) => [...prev, newMessage]);
 
@@ -271,9 +290,10 @@ const ChatScreen = ({ matchedUser, onBack }) => {
 
     try {
       const payload = {
-        content: text,
-        type: imageUrl ? "image" : "text",
+        content: text || "",
+        type: messageType,
         mediaUrl: imageUrl,
+        mediaDuration,
       };
       const savedMessage = await messageService.sendMessage(
         matchedUser.matchId,
@@ -292,10 +312,33 @@ const ChatScreen = ({ matchedUser, onBack }) => {
     }
   };
 
+  const handleSendImage = async ({ uri, fileName, mimeType }) => {
+    const uploaded = await messageService.uploadChatMedia({
+      uri,
+      fileName,
+      mimeType,
+    });
+
+    await sendMessage("", uploaded.mediaUrl, false, { type: "image" });
+  };
+
+  const handleSendVoice = async ({ uri, fileName, mimeType, durationMs }) => {
+    const uploaded = await messageService.uploadChatMedia({
+      uri,
+      fileName,
+      mimeType,
+    });
+
+    await sendMessage("", uploaded.mediaUrl, true, {
+      type: "voice",
+      mediaDuration: durationMs,
+    });
+  };
+
   if (!matchedUser) return null;
 
   return (
-    <SafeAreaView className='flex-1'>
+    <SafeAreaView className='flex-1' edges={["top", "left", "right"]}>
       <KeyboardAvoidingView
         style={styles.container}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -363,7 +406,11 @@ const ChatScreen = ({ matchedUser, onBack }) => {
         </ScrollView>
 
         <View>
-          <InputToolbar sendMessage={sendMessage} />
+          <InputToolbar
+            sendMessage={sendMessage}
+            onSendImage={handleSendImage}
+            onSendVoice={handleSendVoice}
+          />
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -377,7 +424,7 @@ const styles = StyleSheet.create({
   },
   messagesContainer: {
     flex: 1,
-    backgroundColor: "#F9FAFB",
+    backgroundColor: '#fff',
   },
   messagesContent: {
     paddingVertical: 16,
@@ -385,6 +432,7 @@ const styles = StyleSheet.create({
   matchBanner: {
     alignItems: "center",
     marginBottom: 16,
+
   },
   loadingOlderContainer: {
     alignItems: "center",
@@ -392,13 +440,13 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
   },
   bannerContent: {
-    backgroundColor: "#FCE7F3",
+    backgroundColor: colors.background,
     paddingVertical: 8,
     paddingHorizontal: 16,
     borderRadius: 20,
   },
   bannerText: {
-    color: "#EC4899",
+    color: colors.primary,
     fontSize: 12,
   },
   messageBubbleContainer: {

@@ -1,11 +1,12 @@
-import React from "react";
-import { View, Text, FlatList, StyleSheet, Dimensions } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
+import { FlatList, StyleSheet, Text, View } from "react-native";
 import UsersProfileCard from "../ui/UsersProfileCard"; // Update path as needed
 
-const { width } = Dimensions.get("window");
 
 const LikedYou = ({ data, onUserPress, selectedUsers }) => {
+  const likedUsers = Array.isArray(data) ? data : [];
+  const selectedUserIds = Array.isArray(selectedUsers) ? selectedUsers : [];
+
   return (
     <View style={styles.tabContent}>
       <LinearGradient
@@ -15,7 +16,7 @@ const LikedYou = ({ data, onUserPress, selectedUsers }) => {
         style={styles.banner}
       >
         <Text style={styles.bannerTitle}>
-          💕 {data.length} people like you!
+          💕 {likedUsers.length} people like you!
         </Text>
         <Text style={styles.bannerSubtitle}>
           Like them back to start a conversation.
@@ -23,7 +24,7 @@ const LikedYou = ({ data, onUserPress, selectedUsers }) => {
       </LinearGradient>
 
       <FlatList
-        data={data}
+        data={likedUsers}
         keyExtractor={(item) => (item.id || item._id || "").toString()}
         renderItem={({ item }) => (
           <UsersProfileCard
@@ -31,7 +32,7 @@ const LikedYou = ({ data, onUserPress, selectedUsers }) => {
             onPress={() => onUserPress(item)}
             height={270}
             isSelectable={true}
-            isSelected={selectedUsers.includes(item.id || item._id)}
+            isSelected={selectedUserIds.includes(item.id || item._id)}
           />
         )}
         numColumns={2}

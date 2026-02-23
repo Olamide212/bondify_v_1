@@ -4,6 +4,7 @@ import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
 import { ArrowLeft, MoreVertical, Circle, Video } from "lucide-react-native";
 import { formatRelativeDate } from "../../utils/helper";
 import {colors} from "../../constant/colors"
+import { fonts } from "../../constant/fonts";
 
 const ChatHeader = ({ matchedUser, onBack }) => {
   if (!matchedUser) return null;
@@ -25,8 +26,8 @@ const ChatHeader = ({ matchedUser, onBack }) => {
         <View style={styles.statusContainer}>
           {matchedUser.isOnline && (
             <>
-              <Circle size={8} color="#10B981" fill="#10B981" />
-              <Text style={styles.onlineText}>Online</Text>
+             
+              <Text style={styles.onlineText} className='uppercase text-primary'>Active Now</Text>
             </>
           )}
         </View>
@@ -78,7 +79,7 @@ const styles = StyleSheet.create({
   },
   userName: {
     fontSize: 18,
-    fontWeight: "bold",
+fontFamily: fonts.SantoshiMedium,
     color: "#1F2937",
   },
   statusContainer: {
@@ -87,7 +88,6 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   onlineText: {
-    color: "#10B981",
     fontSize: 12,
     marginLeft: 4,
   },

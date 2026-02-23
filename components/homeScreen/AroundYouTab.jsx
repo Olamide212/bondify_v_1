@@ -1,6 +1,7 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import {
+  Info,
   MapPin
 } from "lucide-react-native";
 import { useState } from "react";
@@ -25,6 +26,21 @@ const AroundYouTab = ({ profile, actionMessage }) => {
   const currentImageUri = profile?.images?.[currentImageIndex] || FALLBACK_PROFILE_IMAGE;
   const router = useRouter();
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
+
+  const formatDisplayName = (fullName) => {
+    const parts = String(fullName || "")
+      .trim()
+      .split(/\s+/)
+      .filter(Boolean);
+
+    if (parts.length === 0) return "Unknown";
+    if (parts.length === 1) return parts[0];
+
+    const lastName = parts[0];
+    return `${lastName} `;
+  };
+
+  const displayName = formatDisplayName(profile?.name);
 
   const handleImageChange = (newIndex) => {
     Animated.timing(fadeAnim, {
@@ -56,7 +72,11 @@ const AroundYouTab = ({ profile, actionMessage }) => {
   const handleTap = (event) => {
     const tapX = event.nativeEvent.locationX;
     const cardCenter = screenWidth / 2;
-    tapX < cardCenter ? goPrev() : goNext();
+    if (tapX < cardCenter) {
+      goPrev();
+    } else {
+      goNext();
+    }
   };
 
   return (
@@ -96,8 +116,8 @@ const AroundYouTab = ({ profile, actionMessage }) => {
               <View style={styles.nameRow}>
                 <View style={styles.nameLeft}>
                   <View className='flex-row items-center gap-2'>
-                    <Text className='text-white font-GeneralSansSemiBold text-4xl'>{profile.name},</Text>
-                    <Text className='text-white text-4xl font-GeneralSans'>{profile.age}</Text>
+                    <Text className='text-white font-SatoshiBold text-4xl capitalize' numberOfLines={1}>{displayName},</Text>
+                    <Text className='text-white text-3xl font-SatoshiMedium'>{profile.age}</Text>
                   </View>
 
                   <View className="flex-row gap-3">
@@ -109,11 +129,8 @@ const AroundYouTab = ({ profile, actionMessage }) => {
                 <TouchableOpacity
                   style={styles.profileButton}
                   onPress={handleNavigateToProfile}
-                  className="bg-secondary"
                 >
-                  <Text className="text-primary text-sm leading-[12px] font-GeneralSansSemiBold text-center">
-                    View profile
-                  </Text>
+                  <Info size={24} color="#fff" />
                 </TouchableOpacity>
               </View>
 
@@ -214,7 +231,7 @@ const styles = StyleSheet.create({
   },
   profileInfo: {
     position: "absolute",
-    bottom: 200,
+    bottom: 120,
     left: 20,
     right: 20,
     zIndex: 10,
@@ -259,12 +276,13 @@ const styles = StyleSheet.create({
   },
 
   profileButton: {
-    width: 60,
-    height: 60,
+    width: 52,
+    height: 52,
     borderRadius: 100,
     justifyContent: "center",
     alignItems: "center",
     marginLeft: 10,
+    backgroundColor: "rgba(255,255,255,0.20)",
   },
 });
 

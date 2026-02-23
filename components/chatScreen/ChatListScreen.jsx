@@ -50,7 +50,7 @@ const ChatListScreen = ({ users, onSelectUser }) => {
                   <Text
                     style={styles.newMatchName}
                     numberOfLines={1}
-                    className="font-SatoshiBold"
+                    className="font-SatoshiBold capitalize"
                   >
                     {match.name}
                   </Text>
@@ -95,7 +95,7 @@ const ChatListScreen = ({ users, onSelectUser }) => {
                 </View>
 
                 <View style={styles.matchInfo}>
-                  <Text style={styles.matchName}>{item.name}</Text>
+                  <Text style={styles.matchName} className='capitalize'>{item.name}</Text>
                   <Text
                     style={styles.matchMessage}
                     numberOfLines={1}

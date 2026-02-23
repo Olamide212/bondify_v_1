@@ -15,14 +15,14 @@ import { colors } from "../../constant/colors";
 
 const ActionButtons = ({ onSwipe, onSuperLike, Redo=false }) => (
   <View className="flex-row justify-center items-center gap-4 px-4 py-6">
-    {Redo && (
+    {/* {Redo && (
       <TouchableOpacity
         onPress={() => onSwipe("left")}
         className="w-[60px] h-[60px] bg-gray-800 rounded-full items-center justify-center "
       >
         <RotateCcw size={26} color="#fff" />
       </TouchableOpacity>
-    )}
+    )} */}
 
     <TouchableOpacity
       onPress={() => onSwipe("left")}

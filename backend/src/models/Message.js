@@ -19,16 +19,20 @@ const messageSchema = new mongoose.Schema(
     },
     content: {
       type: String,
-      required: true,
+      default: '',
       maxlength: 2000,
     },
     type: {
       type: String,
-      enum: ['text', 'image', 'gif', 'emoji'],
+      enum: ['text', 'image', 'voice', 'gif', 'emoji'],
       default: 'text',
     },
     mediaUrl: {
       type: String,
+    },
+    mediaDuration: {
+      type: Number,
+      min: 0,
     },
     read: {
       type: Boolean,

@@ -139,9 +139,17 @@ const sendMessage = async (req, res, next) => {
     const io = getIO();
     const userId = req.user._id;
     const { matchId } = req.params;
-    const { content, type = 'text', mediaUrl } = req.body;
+    const { content, type = 'text', mediaUrl, mediaDuration } = req.body;
+    const normalizedContent = typeof content === 'string' ? content.trim() : '';
 
-    if (!content && !mediaUrl) {
+    if (type === 'text' && !normalizedContent) {
+      return res.status(400).json({
+        success: false,
+        message: 'Message content is required',
+      });
+    }
+
+    if (type !== 'text' && !mediaUrl && !normalizedContent) {
       return res.status(400).json({
         success: false,
         message: 'Message content or media is required',
@@ -178,9 +186,10 @@ const sendMessage = async (req, res, next) => {
       match: matchId,
       sender: userId,
       receiver: receiverId,
-      content,
+      content: normalizedContent,
       type,
       mediaUrl,
+      mediaDuration,
       delivered: true,
       deliveredAt: new Date(),
     });
