@@ -24,7 +24,7 @@ const YouLiked = ({ data, onUserPress }) => {
 
       <FlatList
         data={data}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={(item) => (item.id || item._id || "").toString()}
         renderItem={({ item }) => (
           <UsersProfileCard
             profile={item}

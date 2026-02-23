@@ -14,17 +14,32 @@ const { width } = Dimensions.get("window");
 const UsersProfileCard = ({ profile, height = 200, onPress }) => {
   // Safe access to profile properties with fallbacks
   const profileImages = profile?.images || [];
-  const profileName = profile?.name || "Unknown";
+  const profileName = profile?.name ||
+    [profile?.firstName, profile?.lastName].filter(Boolean).join(" ") ||
+    "Unknown";
   const profileAge = profile?.age || "";
   const profileOccupation = profile?.occupation;
-  const profileLocation = profile?.location || "Location unknown";
+  const profileLocation = typeof profile?.location === "object"
+    ? [profile?.location?.city, profile?.location?.state, profile?.location?.country].filter(Boolean).join(", ")
+    : profile?.location || "Location unknown";
   const profileNationality = profile?.nationality;
 
+  // Extract URL from image objects or strings
+  const getImageUrl = (image) => {
+    if (typeof image === "string") return image;
+    if (image && typeof image === "object") {
+      return image.url || image.uri || image.secure_url || null;
+    }
+    return null;
+  };
+
   // Determine the image source
-  const imageSource =
-    profileImages.length > 0
-      ? { uri: profileImages[0] }
-      : { uri: "https://via.placeholder.com/150" };
+  const firstImageUrl = profileImages.length > 0
+    ? getImageUrl(profileImages[0])
+    : null;
+  const imageSource = firstImageUrl
+    ? { uri: firstImageUrl }
+    : { uri: "https://via.placeholder.com/150" };
 
   return (
     <View style={[styles.cardContainer, { height }]}>

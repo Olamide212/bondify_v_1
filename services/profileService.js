@@ -288,6 +288,42 @@ const performSwipeAction = async ({ likedUserId, type }) => {
   }
 };
 
+const getLikedYou = async (params = {}) => {
+  try {
+    const response = await apiClient.get("/discover/liked-you", { params });
+    const payload = response.data?.data ?? response.data;
+    return payload?.profiles ?? [];
+  } catch (err) {
+    const message =
+      err.response?.data?.message || err.message || "Failed to fetch likes";
+    throw new Error(message);
+  }
+};
+
+const getYouLiked = async (params = {}) => {
+  try {
+    const response = await apiClient.get("/discover/you-liked", { params });
+    const payload = response.data?.data ?? response.data;
+    return payload?.profiles ?? [];
+  } catch (err) {
+    const message =
+      err.response?.data?.message || err.message || "Failed to fetch likes";
+    throw new Error(message);
+  }
+};
+
+const getPassed = async (params = {}) => {
+  try {
+    const response = await apiClient.get("/discover/passed", { params });
+    const payload = response.data?.data ?? response.data;
+    return payload?.profiles ?? [];
+  } catch (err) {
+    const message =
+      err.response?.data?.message || err.message || "Failed to fetch passed";
+    throw new Error(message);
+  }
+};
+
 export const profileService = {
   getMyProfile,
   getProfileById,
@@ -298,4 +334,7 @@ export const profileService = {
   getLookups,
   getDiscoveryProfiles,
   performSwipeAction,
+  getLikedYou,
+  getYouLiked,
+  getPassed,
 };

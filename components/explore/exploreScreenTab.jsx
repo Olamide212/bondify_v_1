@@ -14,6 +14,7 @@ const ExploreScreenTab = ({
   visitedCount,
   likedCount,
   youLikedCount,
+  passedCount,
 }) => {
   const scrollViewRef = useRef(null);
 
@@ -21,8 +22,7 @@ const ExploreScreenTab = ({
     { key: "visitedYou", label: "Visited You", count: visitedCount },
     { key: "likedYou", label: "Liked You", count: likedCount },
     { key: "youLiked", label: "You Liked", count: youLikedCount },
-    { key: "passed", label: "Passed", count: youLikedCount },
-    { key: "bondSent", label: "Bond", count: youLikedCount },
+    { key: "passed", label: "Passed", count: passedCount },
   ];
 
   const handleTabPress = (key, index) => {
