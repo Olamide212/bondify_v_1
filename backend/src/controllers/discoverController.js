@@ -21,6 +21,8 @@ const getDiscoveryProfiles = async (req, res, next) => {
       smoking,
       interests,
       verifiedOnly,
+      activeToday,
+      location,
       page = 1,
       limit = 20,
     } = req.query;
@@ -35,10 +37,11 @@ const getDiscoveryProfiles = async (req, res, next) => {
     // Get users that current user has already interacted with
     const interactedUsers = await Like.find({ user: userId }).distinct('likedUser');
 
-    // Build query
+    // Build query – only show users who finished onboarding
     const query = {
       _id: { $ne: userId, $nin: interactedUsers },
       isActive: true,
+      onboardingCompleted: true,
     };
 
     if (String(verifiedOnly).toLowerCase() === 'true') {
@@ -77,7 +80,24 @@ const getDiscoveryProfiles = async (req, res, next) => {
       query.interests = { $in: interestArray };
     }
 
-    // Location-based filtering
+    // Active-today filter
+    if (String(activeToday).toLowerCase() === 'true') {
+      const startOfDay = new Date();
+      startOfDay.setHours(0, 0, 0, 0);
+      query.lastActive = { $gte: startOfDay };
+    }
+
+    // Text-based location filter (city / state / country)
+    if (location && typeof location === 'string' && location.trim()) {
+      const escapedLocation = location.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      query.$or = [
+        { 'location.city': { $regex: escapedLocation, $options: 'i' } },
+        { 'location.state': { $regex: escapedLocation, $options: 'i' } },
+        { 'location.country': { $regex: escapedLocation, $options: 'i' } },
+      ];
+    }
+
+    // Geolocation-based distance filtering
     if (sanitizedMaxDistance && currentUser.location?.coordinates) {
       query.location = {
         $near: {

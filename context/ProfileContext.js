@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { profileService } from "../services/profileService";
 
 const ProfileContext = createContext();
@@ -101,6 +101,41 @@ export const ProfileProvider = ({ children }) => {
     };
   };
 
+  // Convert homeFilters into query params accepted by the backend
+  const buildApiParams = useCallback((filters) => {
+    const params = {};
+    const [minAge, maxAge] = filters.ageRange || [18, 90];
+    if (minAge && minAge !== 18) params.minAge = minAge;
+    if (maxAge && maxAge !== 90) params.maxAge = maxAge;
+
+    if (filters.showMe && filters.showMe !== "everyone") {
+      const genderMap = { men: "male", women: "female" };
+      const gender = genderMap[String(filters.showMe).toLowerCase()];
+      if (gender) params.gender = gender;
+    }
+
+    if (filters.maxDistance && filters.maxDistance < 1000) {
+      params.maxDistance = filters.maxDistance;
+    }
+
+    if (Array.isArray(filters.interests) && filters.interests.length > 0) {
+      params.interests = filters.interests;
+    }
+
+    if (filters.verifiedOnly) params.verifiedOnly = true;
+    if (filters.activeToday) params.activeToday = true;
+    if (filters.location && filters.location.trim()) {
+      params.location = filters.location.trim();
+    }
+
+    return params;
+  }, []);
+
+  // Track whether this is the first render so we can skip the redundant
+  // refetch that would otherwise fire when homeFilters is still at its
+  // default value.
+  const isFirstRender = useRef(true);
+
   useEffect(() => {
     let isMounted = true;
 
@@ -111,10 +146,11 @@ export const ProfileProvider = ({ children }) => {
         let page = 1;
         let totalPages = 1;
         const allProfiles = [];
+        const apiParams = buildApiParams(homeFilters);
 
         while (page <= totalPages) {
           const response = await profileService.getDiscoveryProfiles(
-            { page, limit: 100 },
+            { ...apiParams, page, limit: 100 },
             { includePagination: true }
           );
 
@@ -135,13 +171,20 @@ export const ProfileProvider = ({ children }) => {
         const normalizedProfiles = allProfiles.map(normalizeProfile);
         if (isMounted) {
           setProfilesData(normalizedProfiles);
+          // Reset index when fresh profiles are loaded after a filter change
+          if (!isFirstRender.current) {
+            setHomeCurrentIndex(0);
+          }
         }
       } catch (error) {
         if (isMounted) {
           setProfilesData([]);
         }
       } finally {
-        if (isMounted) setProfilesLoading(false);
+        if (isMounted) {
+          setProfilesLoading(false);
+          isFirstRender.current = false;
+        }
       }
     };
 
@@ -149,7 +192,7 @@ export const ProfileProvider = ({ children }) => {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [homeFilters, buildApiParams]);
 
   // Home screen actions
   const addHomeSwipedProfile = (profileId) => {
