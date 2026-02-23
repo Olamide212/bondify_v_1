@@ -206,16 +206,13 @@ const sendMessage = async (req, res, next) => {
       matchId,
       message: messagePayload,
     });
-    io.to(`user:${String(userId)}`).emit('message:new', {
-      matchId,
-      message: messagePayload,
-    });
     io.to(`user:${String(receiverId)}`).emit('message:new', {
       matchId,
       message: messagePayload,
     });
 
-    io.to(`user:${String(receiverId)}`).emit('message:delivered', {
+    // Notify sender that message was delivered
+    io.to(`user:${String(userId)}`).emit('message:delivered', {
       matchId,
       messageId: String(message._id),
       deliveredAt: new Date().toISOString(),

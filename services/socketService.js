@@ -55,8 +55,9 @@ const connect = async () => {
       transports: ["websocket"],
       auth: { token },
       reconnection: true,
-      reconnectionAttempts: 6,
-      reconnectionDelay: 500,
+      reconnectionAttempts: 15,
+      reconnectionDelay: 1000,
+      reconnectionDelayMax: 5000,
     });
   } else {
     socketInstance.auth = { token };
