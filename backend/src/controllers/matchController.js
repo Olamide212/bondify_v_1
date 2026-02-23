@@ -1,6 +1,7 @@
 const Match = require('../models/Match');
 const User = require('../models/User');
 const Message = require('../models/Message');
+const { mapImagesWithAccessUrls } = require('../utils/imageHelper');
 
 // @desc    Get all matches for current user
 // @route   GET /api/matches
@@ -28,6 +29,10 @@ const getMatches = async (req, res, next) => {
         ? match.user2
         : match.user1;
 
+      // Regenerate image URLs
+      const otherUserObj = otherUser.toObject();
+      otherUserObj.images = await mapImagesWithAccessUrls(otherUserObj.images);
+
       const latestMessage = await Message.findOne({ match: match._id })
         .sort({ createdAt: -1 })
         .select('content type mediaUrl createdAt sender');
@@ -51,7 +56,7 @@ const getMatches = async (req, res, next) => {
             }
           : null,
         unread,
-        user: otherUser,
+        user: otherUserObj,
       };
     }));
 

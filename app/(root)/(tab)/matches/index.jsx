@@ -1,112 +1,85 @@
-import React, { useState } from "react";
-import { View, ScrollView, Dimensions, StyleSheet } from "react-native";
+import React, { useCallback, useEffect, useState } from "react";
+import { View, ScrollView, ActivityIndicator, StyleSheet } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import GeneralHeader from "../../../../components/headers/GeneralHeader";
 import TabNavigation from "../../../../components/explore/exploreScreenTab";
 import VisitedYou from "../../../../components/explore/visitedYou";
 import LikedYou from "../../../../components/explore/LikedYou";
 import YouLiked from "../../../../components/explore/YouLiked";
+import Passed from "../../../../components/explore/Passed";
+import { profileService } from "../../../../services/profileService";
+import { colors } from "../../../../constant/colors";
 
-const { width } = Dimensions.get("window");
-const CARD_WIDTH = (width - 30) / 2;
+const normalizeProfile = (profile) => {
+  const normalizeImages = (images) => {
+    if (!Array.isArray(images)) return [];
+    return images
+      .map((image) => {
+        if (typeof image === "string") return image;
+        if (!image || typeof image !== "object") return null;
+        return image.url || image.uri || image.secure_url || null;
+      })
+      .filter(Boolean);
+  };
 
-// Mock data (would typically come from API or state management)
-const VisitedYouData = [
-  {
-    id: 1,
-    name: "Emma",
-    age: 26,
-    distance: "2 miles away",
-    image:
-      "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=400&h=600&fit=crop",
-    verified: true,
-    likedMe: false,
-    timeAgo: "2h",
-  },
-  {
-    id: 2,
-    name: "Sarah",
-    age: 24,
-    distance: "5 miles away",
-    image:
-      "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=400&h=600&fit=crop",
-    verified: false,
-    likedMe: false,
-    timeAgo: "4h",
-  },
-];
+  const formatLocation = (location) => {
+    if (!location || typeof location !== "object") return location || "";
+    const parts = [location.city, location.state, location.country].filter(Boolean);
+    return parts.join(", ");
+  };
 
-const LikedYouData = [
-  {
-    id: 3,
-    name: "Sophia",
-    age: 29,
-    distance: "3 miles away",
-    image:
-      "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=600&fit=crop",
-    verified: true,
-    likedMe: true,
-    timeAgo: "1h",
-  },
-  {
-    id: 4,
-    name: "Isabella",
-    age: 26,
-    distance: "2 miles away",
-    image:
-      "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=400&h=600&fit=crop",
-    verified: false,
-    likedMe: true,
-    timeAgo: "3h",
-  },
-  {
-    id: 5,
-    name: "Mia",
-    age: 25,
-    distance: "4 miles away",
-    image:
-      ["https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&h=600&fit=crop", "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&h=600&fit=crop"],
-    verified: true,
-    likedMe: true,
-    timeAgo: "5h",
-  },
-];
-
-const YouLikedData = [
-  {
-    id: 6,
-    name: "Olivia",
-    age: 27,
-    distance: "1 mile away",
-    image: [
-      "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&h=600&fit=crop",
-      "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&h=600&fit=crop",
-    ],
-    verified: true,
-    likedMe: false,
-    timeAgo: "1d",
-  },
-  {
-    id: 7,
-    name: "Ava",
-    age: 23,
-    distance: "3 miles away",
-    image: [
-      "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&h=600&fit=crop",
-      "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&h=600&fit=crop",
-    ],
-    verified: false,
-    likedMe: false,
-    timeAgo: "2d",
-  },
-];
+  return {
+    id: profile?._id ?? profile?.id,
+    name:
+      profile?.name ||
+      [profile?.firstName, profile?.lastName].filter(Boolean).join(" ") ||
+      "Unknown",
+    age: profile?.age ?? null,
+    images: normalizeImages(profile?.images),
+    location: formatLocation(profile?.location) || profile?.location || "",
+    occupation: profile?.occupation,
+    nationality: profile?.nationality,
+    verified: profile?.verified ?? profile?.isVerified ?? false,
+    likeType: profile?.likeType,
+    likedAt: profile?.likedAt,
+    passedAt: profile?.passedAt,
+  };
+};
 
 export default function ExploreTabComponents() {
-  const [activeTab, setActiveTab] = useState("visitedYou");
+  const [activeTab, setActiveTab] = useState("likedYou");
   const [selectedUsers, setSelectedUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const handleUserPress = (userId) => {
+  const [likedYouData, setLikedYouData] = useState([]);
+  const [youLikedData, setYouLikedData] = useState([]);
+  const [passedData, setPassedData] = useState([]);
+
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    try {
+      const [likedYou, youLiked, passed] = await Promise.all([
+        profileService.getLikedYou().catch((err) => { console.warn('Failed to fetch liked-you:', err?.message); return []; }),
+        profileService.getYouLiked().catch((err) => { console.warn('Failed to fetch you-liked:', err?.message); return []; }),
+        profileService.getPassed().catch((err) => { console.warn('Failed to fetch passed:', err?.message); return []; }),
+      ]);
+      setLikedYouData(likedYou.map(normalizeProfile));
+      setYouLikedData(youLiked.map(normalizeProfile));
+      setPassedData(passed.map(normalizeProfile));
+    } catch (_error) {
+      // Keep existing data on error
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  const handleUserPress = (user) => {
     if (activeTab === "likedYou") {
+      const userId = user?.id || user?._id;
       setSelectedUsers((prev) =>
         prev.includes(userId)
           ? prev.filter((id) => id !== userId)
@@ -116,56 +89,68 @@ export default function ExploreTabComponents() {
   };
 
   const renderActiveTab = () => {
+    if (loading) {
+      return (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={colors.primary} />
+        </View>
+      );
+    }
+
     switch (activeTab) {
       case "visitedYou":
         return (
-          <VisitedYou data={VisitedYouData} onUserPress={handleUserPress} />
+          <VisitedYou data={[]} onUserPress={handleUserPress} />
         );
       case "likedYou":
         return (
           <LikedYou
-            data={LikedYouData}
+            data={likedYouData}
             onUserPress={handleUserPress}
             selectedUsers={selectedUsers}
           />
         );
       case "youLiked":
-        return <YouLiked data={YouLikedData} onUserPress={handleUserPress} />;
+        return <YouLiked data={youLikedData} onUserPress={handleUserPress} />;
+      case "passed":
+        return <Passed data={passedData} onUserPress={handleUserPress} />;
       default:
         return (
-          <VisitedYou data={VisitedYouData} onUserPress={handleUserPress} />
+          <LikedYou
+            data={likedYouData}
+            onUserPress={handleUserPress}
+            selectedUsers={selectedUsers}
+          />
         );
     }
   };
 
   return (
     <SafeAreaProvider>
-      <SafeAreaView style={{ flex: 1, }}>
+      <SafeAreaView style={{ flex: 1 }}>
         <GeneralHeader title="Discover" />
-        <View >
+        <View>
           <TabNavigation
             activeTab={activeTab}
             setActiveTab={setActiveTab}
-            visitedCount={VisitedYouData.length}
-            likedCount={LikedYouData.length}
-            youLikedCount={YouLikedData.length}
+            visitedCount={0}
+            likedCount={likedYouData.length}
+            youLikedCount={youLikedData.length}
+            passedCount={passedData.length}
           />
         </View>
 
-        <ScrollView style={{ flex: 1,  }}>{renderActiveTab()}</ScrollView>
+        <ScrollView style={{ flex: 1 }}>{renderActiveTab()}</ScrollView>
       </SafeAreaView>
     </SafeAreaProvider>
   );
 }
 
-
 const styles = StyleSheet.create({
-  actionButtonWrapper: {
-    position: "absolute",
-    top: 110,
-    left: 0,
-    right: 0,
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
     alignItems: "center",
-    zIndex: 10,
+    paddingTop: 60,
   },
 });

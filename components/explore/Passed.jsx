@@ -1,24 +1,24 @@
 import React from "react";
 import { View, Text, FlatList, StyleSheet, Dimensions } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import UsersProfileCard from "../ui/UsersProfileCard"; // Update path as needed
+import UsersProfileCard from "../ui/UsersProfileCard";
 
 const { width } = Dimensions.get("window");
 
-const LikedYou = ({ data, onUserPress, selectedUsers }) => {
+const Passed = ({ data, onUserPress }) => {
   return (
     <View style={styles.tabContent}>
       <LinearGradient
-        colors={["#FD465C", "#A80EC1"]}
+        colors={["#6B7280", "#9CA3AF"]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 0 }}
         style={styles.banner}
       >
         <Text style={styles.bannerTitle}>
-          💕 {data.length} people like you!
+          👋 You passed on {data.length} people
         </Text>
         <Text style={styles.bannerSubtitle}>
-          Like them back to start a conversation.
+          You can revisit profiles you previously passed on.
         </Text>
       </LinearGradient>
 
@@ -30,8 +30,6 @@ const LikedYou = ({ data, onUserPress, selectedUsers }) => {
             profile={item}
             onPress={() => onUserPress(item)}
             height={270}
-            isSelectable={true}
-            isSelected={selectedUsers.includes(item.id || item._id)}
           />
         )}
         numColumns={2}
@@ -56,12 +54,13 @@ const styles = StyleSheet.create({
   bannerTitle: {
     color: "white",
     fontSize: 16,
-    fontWeight: "bold",
+    fontFamily: "SatoshiBold",
     marginBottom: 4,
   },
   bannerSubtitle: {
     color: "white",
     fontSize: 14,
+    fontFamily: "SatoshiMedium",
   },
   listContent: {
     alignItems: "center",
@@ -73,4 +72,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default LikedYou;
+export default Passed;
