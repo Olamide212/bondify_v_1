@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { View, ScrollView, ActivityIndicator, StyleSheet } from "react-native";
+import { View, ActivityIndicator, StyleSheet } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+import { useRouter } from "expo-router";
 import GeneralHeader from "../../../../components/headers/GeneralHeader";
 import TabNavigation from "../../../../components/explore/exploreScreenTab";
 import VisitedYou from "../../../../components/explore/visitedYou";
@@ -47,8 +48,8 @@ const normalizeProfile = (profile) => {
 };
 
 export default function ExploreTabComponents() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState("likedYou");
-  const [selectedUsers, setSelectedUsers] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const [likedYouData, setLikedYouData] = useState([]);
@@ -78,14 +79,13 @@ export default function ExploreTabComponents() {
   }, [fetchData]);
 
   const handleUserPress = (user) => {
-    if (activeTab === "likedYou") {
-      const userId = user?.id || user?._id;
-      setSelectedUsers((prev) =>
-        prev.includes(userId)
-          ? prev.filter((id) => id !== userId)
-          : [...prev, userId]
-      );
-    }
+    const userId = user?.id || user?._id;
+    // "youLiked" = view only (no actions), all other tabs show action buttons
+    const showActions = activeTab !== "youLiked";
+    router.push({
+      pathname: `/user-profile/${userId}`,
+      params: { showActions: showActions ? "true" : "false" },
+    });
   };
 
   const renderActiveTab = () => {
@@ -107,7 +107,6 @@ export default function ExploreTabComponents() {
           <LikedYou
             data={likedYouData}
             onUserPress={handleUserPress}
-            selectedUsers={selectedUsers}
           />
         );
       case "youLiked":
@@ -119,7 +118,6 @@ export default function ExploreTabComponents() {
           <LikedYou
             data={likedYouData}
             onUserPress={handleUserPress}
-            selectedUsers={selectedUsers}
           />
         );
     }
@@ -140,7 +138,7 @@ export default function ExploreTabComponents() {
           />
         </View>
 
-        <ScrollView style={{ flex: 1 }}>{renderActiveTab()}</ScrollView>
+        <View style={{ flex: 1 }}>{renderActiveTab()}</View>
       </SafeAreaView>
     </SafeAreaProvider>
   );

@@ -27,7 +27,7 @@ import { profileService } from "../../../services/profileService";
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 
 const UserProfile = () => {
-  const { id } = useLocalSearchParams();
+  const { id, showActions } = useLocalSearchParams();
   const router = useRouter();
   const { handleHomeSwipe, handleHomeSuperLike, homeProfiles } = useProfile();
 
@@ -322,9 +322,11 @@ const UserProfile = () => {
         </Animated.View>
       </Animated.ScrollView>
 
-      <View style={styles.actionButtonWrapper}>
-        <ActionButtons onSwipe={handleSwipe} onSuperLike={handleSuperLike} />
-      </View>
+      {showActions !== "false" && (
+        <View style={styles.actionButtonWrapper}>
+          <ActionButtons onSwipe={handleSwipe} onSuperLike={handleSuperLike} />
+        </View>
+      )}
     </View>
   );
 };
