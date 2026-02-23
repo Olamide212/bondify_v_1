@@ -89,7 +89,7 @@ const getDiscoveryProfiles = async (req, res, next) => {
 
     // Text-based location filter (city / state / country)
     if (location && typeof location === 'string' && location.trim()) {
-      const escapedLocation = location.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const escapedLocation = location.trim().slice(0, 100).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       query.$or = [
         { 'location.city': { $regex: escapedLocation, $options: 'i' } },
         { 'location.state': { $regex: escapedLocation, $options: 'i' } },
