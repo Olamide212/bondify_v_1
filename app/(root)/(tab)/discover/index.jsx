@@ -123,7 +123,7 @@ const AIChatScreen = () => {
 
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 16 : 0}
+        keyboardVerticalOffset={0}
       >
         <View style={styles.inputContainer}>
           <TextInput
@@ -222,7 +222,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     padding: 16,
-    paddingBottom: 10,
+    paddingBottom: 4,
     backgroundColor: "#fff",
 
   },

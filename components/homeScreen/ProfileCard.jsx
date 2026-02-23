@@ -1,54 +1,46 @@
-import React, { useState, useRef, useEffect } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  Dimensions,
-  TouchableWithoutFeedback,
-  Pressable,
-  Modal,
-  Animated,
-  TextInput,
-  ScrollView as RNScrollView,
-  findNodeHandle,
-  UIManager,
-} from "react-native";
-import { Image } from "expo-image";
-import {
-  Star,
-  ChevronLeft,
-  MapPin,
-  Briefcase,
-  GraduationCap,
-  Ruler,
-  Wine,
-  Cigarette,
-  Dog,
-  Dumbbell,
-  Info,
-  User,
-  Baby,
-  Sparkles,
-  X,
-  Wallet,
-  Heart,
-  Ban,
-  ChevronRight,
-  ChevronLeft as LeftIcon,
-  MessageCircle,
-  SendHorizonal as PaperPlane,
-} from "lucide-react-native";
-import { colors } from "../../constant/colors";
-import { useRouter } from "expo-router";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import { Share2, Slash, Flag } from "lucide-react-native";
+import { Image } from "expo-image";
+import { useRouter } from "expo-router";
+import {
+    Baby,
+    Ban,
+    Briefcase,
+    ChevronRight,
+    Cigarette,
+    Dog,
+    Dumbbell,
+    Flag,
+    GraduationCap,
+    Heart,
+    ChevronLeft as LeftIcon,
+    MapPin,
+    Ruler,
+    Share2,
+    Wallet,
+    Wine,
+    X
+} from "lucide-react-native";
+import { useEffect, useRef, useState } from "react";
+import {
+    Animated,
+    Dimensions,
+    findNodeHandle,
+    Modal,
+    Pressable,
+    Text,
+    TouchableOpacity,
+    TouchableWithoutFeedback,
+    UIManager,
+    View
+} from "react-native";
+import { Icons } from "../../constant/icons";
 import CommentBox from "../ui/CommentBox";
 import DirectMessageBox from "../ui/DirectMessageBox";
-import { Icons } from "../../constant/icons";
 import VerifiedIcon from "../ui/VerifiedIcon";
 
 const MAX_BIO_LENGTH = 120;
 const { width, height } = Dimensions.get("window");
+const FALLBACK_PROFILE_IMAGE = "https://via.placeholder.com/800x1200?text=No+Photo";
 
 const ProfileCard = ({ profile }) => {
   const [showFullBio, setShowFullBio] = useState(false);
@@ -65,6 +57,8 @@ const ProfileCard = ({ profile }) => {
   const commentBoxRefs = useRef([]);
 
   const totalImages = profile?.images?.length || 1;
+  const profileImages = Array.isArray(profile?.images) ? profile.images : [];
+  const getImageUri = (index) => profileImages[index] || FALLBACK_PROFILE_IMAGE;
   const router = useRouter();
 
   // Animation values for comment indicators
@@ -192,7 +186,7 @@ const ProfileCard = ({ profile }) => {
 
           <View className="flex-1 justify-center">
             <Image
-              source={{ uri: profile?.images?.[modalImageIndex] }}
+              source={{ uri: getImageUri(modalImageIndex) }}
               style={{ width: "100%", height: "100%" }}
               contentFit="cover"
             />
@@ -217,7 +211,7 @@ const ProfileCard = ({ profile }) => {
           </View>
 
           <View className="absolute bottom-10 left-0 right-0 flex-row justify-center">
-            {profile.images.map((_, index) => (
+            {profileImages.map((_, index) => (
               <View
                 key={index}
                 className={`h-2 w-2 rounded-full mx-1 ${
@@ -252,7 +246,7 @@ const ProfileCard = ({ profile }) => {
               >
                 <View className="relative  w-full">
                   <Image
-                    source={{ uri: profile?.images?.[currentImageIndex] }}
+                    source={{ uri: getImageUri(currentImageIndex) }}
                     className="w-full h-full"
                     contentFit="cover"
                     style={{

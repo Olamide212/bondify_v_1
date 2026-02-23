@@ -40,7 +40,19 @@ export const ProfileProvider = ({ children }) => {
   const normalizeImages = (images) => {
     if (!Array.isArray(images)) return [];
     return images
-      .map((image) => (typeof image === "string" ? image : image?.url))
+      .map((image) => {
+        if (typeof image === "string") return image;
+        if (!image || typeof image !== "object") return null;
+        return (
+          image.url ||
+          image.uri ||
+          image.secure_url ||
+          image.imageUrl ||
+          image.image ||
+          image.src ||
+          null
+        );
+      })
       .filter(Boolean);
   };
 

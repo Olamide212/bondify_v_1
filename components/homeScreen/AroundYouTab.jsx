@@ -1,31 +1,28 @@
-import React, { useState } from "react";
-import {
-  View,
-  Text,
-  Image,
-  TouchableOpacity,
-  StyleSheet,
-  Animated,
-  useWindowDimensions,
-} from "react-native";
-import {
-  Heart,
-  MapPin,
-  User,
-  Star,
-  Briefcase,
-  ChevronRight,
-} from "lucide-react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { BlurView } from "expo-blur";
 import { useRouter } from "expo-router";
-import VerifiedIcon from "../ui/VerifiedIcon";
+import {
+  MapPin
+} from "lucide-react-native";
+import { useState } from "react";
+import {
+  Animated,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  useWindowDimensions,
+  View,
+} from "react-native";
 import { colors } from "../../constant/colors";
+import VerifiedIcon from "../ui/VerifiedIcon";
+
+const FALLBACK_PROFILE_IMAGE = "https://via.placeholder.com/800x1200?text=No+Photo";
 
 const AroundYouTab = ({ profile, actionMessage }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [fadeAnim] = useState(new Animated.Value(1));
   const totalImages = profile?.images?.length || 1;
+  const currentImageUri = profile?.images?.[currentImageIndex] || FALLBACK_PROFILE_IMAGE;
   const router = useRouter();
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
 
@@ -80,9 +77,8 @@ const AroundYouTab = ({ profile, actionMessage }) => {
       >
         <Animated.View style={[styles.imageContainer]}>
           <Image
-            source={{ uri: profile?.images?.[currentImageIndex] }}
+            source={{ uri: currentImageUri }}
             style={styles.image}
-            contentFit="cover"
           />
           {/* Dark overlay */}
           <View style={styles.overlay} />

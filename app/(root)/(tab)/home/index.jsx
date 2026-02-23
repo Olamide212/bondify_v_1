@@ -1,6 +1,5 @@
 // Home.js (updated)
-import { Image } from "expo-image";
-import { Bot } from "lucide-react-native";
+import { Bell, SlidersHorizontal } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import {
   Pressable,
@@ -8,7 +7,6 @@ import {
   Text,
   View,
 } from "react-native";
-import { useSelector } from "react-redux";
 import Animated, {
   interpolate,
   runOnJS,
@@ -16,6 +14,7 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
+import { useSelector } from "react-redux";
 import ActionButtons from "../../../../components/homeScreen/ActionButtons";
 import AroundYou from "../../../../components/homeScreen/AroundYouTab";
 import AIAssistantModal from "../../../../components/modals/AIAssistantModal"; // New import
@@ -135,41 +134,25 @@ const Home = () => {
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.headerWrapper}>
-        <View className="flex-row justify-between gap-4">
+        <View className="flex-row justify-end gap-4">
           {/* AI Assistant Button */}
-          <Pressable onPress={() => setShowAIModal(true)}>
+          {/* <Pressable onPress={() => setShowAIModal(true)}>
             <View className="justify-center gap-2 rounded-full bg-secondary w-auto px-3 h-10 flex-row items-center ">
               <Bot size={22} color={colors.primary} />
               <Text className="font-GeneralSansMedium text-primary">AI Chat</Text>
             </View>
-          </Pressable>
+          </Pressable> */}
 
           <View className='flex-row gap-2'>
             <Pressable onPress={() => setShowFilterModal(true)}>
-              <View className="justify-center items-center rounded-full bg-black/10 w-12 h-12 ">
-                <Image
-                  source={require("../../../../assets/icons/bell.png")}
-                  style={{
-                    width: 18,
-                    height: 20,
-                    tintColor: "#ffffff",
-                  }}
-                  contentFit="cover"
-                />
+              <View className="justify-center items-center rounded-full bg-background w-14 h-14">
+                <Bell size={23} color={colors.primary} />
               </View>
             </Pressable>
 
             <Pressable onPress={() => setShowFilterModal(true)}>
-              <View className="justify-center items-center rounded-full bg-black/10  w-12 h-12">
-                <Image
-                  source={require("../../../../assets/icons/Slider-white.png")}
-                  style={{
-                    width: 18,
-                    height: 18,
-                    tintColor: "#ffffff",
-                  }}
-                  contentFit="contain"
-                />
+              <View className="justify-center items-center rounded-full bg-background w-14 h-14">
+                <SlidersHorizontal size={23} color={colors.primary} />
               </View>
             </Pressable>
           </View>
