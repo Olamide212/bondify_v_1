@@ -122,7 +122,7 @@ export const ProfileProvider = ({ children }) => {
     if (maxAge && maxAge !== 90) params.maxAge = maxAge;
 
     if (filters.showMe && filters.showMe !== "everyone") {
-      const genderMap = { men: "Male", women: "Female" };
+      const genderMap = { men: "male", women: "female" };
       const gender = genderMap[String(filters.showMe).toLowerCase()];
       if (gender) params.gender = gender;
     }
@@ -315,14 +315,14 @@ export const ProfileProvider = ({ children }) => {
 
       if (homeFilters.showMe && homeFilters.showMe !== "everyone") {
         const genderMap = {
-          men: "Male",
-          women: "Female",
+          men: "male",
+          women: "female",
         };
 
         const expectedGender = genderMap[String(homeFilters.showMe).toLowerCase()];
         if (
           expectedGender &&
-          profile?.gender !== expectedGender
+          String(profile?.gender || "").toLowerCase() !== expectedGender
         ) {
           return false;
         }

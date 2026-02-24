@@ -111,7 +111,7 @@ const Interests = () => {
                             >
                               <Text
                                 className={`font-PlusJakartaSansMedium ${
-                                  selected ? "text-black" : "text-app"
+                                  selected ? "text-white" : "text-app"
                                 }`}
                               >
                                 {interest}

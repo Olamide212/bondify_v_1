@@ -57,7 +57,10 @@ const Gender = () => {
                 title="Continue"
                 variant="gradient"
                 onPress={async () => {
-                  await updateProfileStep({ gender });
+                  // Find the selected option's label
+                  const selected = genderOptions.find(opt => opt.value === gender);
+                  const genderLabel = selected ? selected.label : gender;
+                  await updateProfileStep({ gender: genderLabel });
                   router.push("/meet");
                 }}
               />

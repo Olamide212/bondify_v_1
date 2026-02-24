@@ -1,11 +1,11 @@
 import { useRouter } from "expo-router";
-import { Image, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Image, StyleSheet, Text, View } from "react-native";
 import Svg, { Circle } from "react-native-svg";
 import { colors } from "../../constant/colors";
-import VerifiedIcon from "../ui/VerifiedIcon";
 import { getProfileAge } from "../../utils/ageHelper";
+import VerifiedIcon from "../ui/VerifiedIcon";
 
-const ProfileSection = ({ profile }) => {
+const ProfileSection = ({ profile, isUploading }) => {
   const completion = profile?.completionPercentage || 0;
   const profileImage = profile?.images?.[1]?.url || profile?.images?.[0] || profile?.profilePhoto || "";
   const displayAge = getProfileAge(profile);
@@ -49,13 +49,20 @@ const ProfileSection = ({ profile }) => {
         {/* Profile Image in center */}
         <View style={styles.imageWrapper} className="relative">
           {profileImage ? (
-            <Image source={{ uri: profileImage }} style={styles.image} resizeMode="cover" />
+            <>
+              <Image source={{ uri: profileImage }} style={styles.image} resizeMode="cover" />
+              {isUploading && (
+                <View style={[styles.image, { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.15)', justifyContent: 'center', alignItems: 'center' }]}> 
+                  <ActivityIndicator size="large" color={colors.primary} />
+                </View>
+              )}
+            </>
           ) : (
             <View className="w-[90px] h-[90px] rounded-full bg-gray-200" />
           )}
         </View>
         {completion > 0 && (
-          <View className="w-12 h-12 absolute bg-secondary px-2 py-1 rounded-full  z-50   flex-row justify-center items-center ">
+          <View className="w-14 h-14 absolute bg-secondary px-2 py-1 rounded-full  z-50   flex-row justify-center items-center ">
             <Text className="text-black font-PlusJakartaSansBold text-sm">
               {completion}%
             </Text>

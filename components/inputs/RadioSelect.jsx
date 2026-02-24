@@ -1,7 +1,6 @@
 // components/inputs/RadioSelect.jsx
-import React from "react";
-import { View, Text, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { Text, TouchableOpacity, View } from "react-native";
 
 const RadioSelect = ({
   label,
@@ -23,19 +22,26 @@ const RadioSelect = ({
         {options.map((option) => (
           <TouchableOpacity
             key={option.value}
-            className={`px-4 py-3 rounded-xl border  ${className}
-               ${value === option.value ? "border-primary" : "border-[#dadada]"}`}
+            className={`px-5 py-5 rounded-2xl border-2  ${className}
+               ${value === option.value ? "border-primary bg-primary/10" : "border-[#dadada]"}`}
             onPress={() => onChange(option.value)}
             style={{ borderRadius: 10 }}
           >
             <View className="flex-row justify-between items-center">
-              <Text
-                className={`text-app text-xl font-PlusJakartaSansMedium flex-1 pr-4 
-                  ${value === option.value ? "text-primary" : ""} `}
-                style={{ flexWrap: "wrap" }}
-              >
-                {option.label}
-              </Text>
+              <View className="flex-1 pr-4">
+                <Text
+                  className={`text-app text-[16px] font-PlusJakartaSansBold 
+                  ${value === option.value ? "text-black" : ""} `}
+                  style={{ flexWrap: "wrap" }}
+                >
+                  {option.label}
+                </Text>
+                {!!option.description && (
+                  <Text className="text-black text-base font-PlusJakartaSans mt-1">
+                    {option.description}
+                  </Text>
+                )}
+              </View>
               <Ionicons
                 name={
                   value === option.value

@@ -54,7 +54,12 @@ const Meet = () => {
                 title="Continue"
                 variant="gradient"
                 onPress={async () => {
-                  await updateProfileStep({ discoveryPreferences: { genderPreference: selectedOptions } });
+                  // Map selected values to their labels
+                  const preferenceLabels = selectedOptions.map(val => {
+                    const opt = meetOptions.find(o => o.value === val);
+                    return opt ? opt.label : val;
+                  });
+                  await updateProfileStep({ discoveryPreferences: { genderPreference: preferenceLabels } });
                   router.push("/marital-status");
                 }}
               />

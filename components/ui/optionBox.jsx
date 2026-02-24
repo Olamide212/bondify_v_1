@@ -28,6 +28,7 @@ export default function OptionBox({
           color: isActive ? "#fff" : "#333",
           fontFamily: fonts.PlusJakartaSansMedium,
         }}
+        className="text-[16px] text-center font-PlusJakartaSansMedium"
       >
         {label || value}
       </Text>

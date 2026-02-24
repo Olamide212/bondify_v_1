@@ -14,29 +14,138 @@ const connectDB = async () => {
 
 const lookupData = [
   // Genders
-  { type: 'genders', value: 'Male', label: 'Male', order: 1 },
-  { type: 'genders', value: 'Female', label: 'Female', order: 2 },
-  { type: 'genders', value: 'Non-binary', label: 'Non-binary', order: 3 },
-  { type: 'genders', value: 'Other', label: 'Other', order: 4 },
+  {
+    type: 'genders',
+    value: 'Male',
+    label: 'Male',
+    description: 'You identify as a man.',
+    order: 1,
+  },
+  {
+    type: 'genders',
+    value: 'Female',
+    label: 'Female',
+    description: 'You identify as a woman.',
+    order: 2,
+  },
+  {
+    type: 'genders',
+    value: 'Non-binary',
+    label: 'Non-binary',
+    description: 'You identify outside the male/female binary.',
+    order: 3,
+  },
+  {
+    type: 'genders',
+    value: 'Other',
+    label: 'Other',
+    description: 'You use another gender identity.',
+    order: 4,
+  },
 
   // Gender preferences
-  { type: 'gender-preferences', value: 'Woman', label: 'Woman', order: 1 },
-  { type: 'gender-preferences', value: 'Man', label: 'Man', order: 2 },
+  {
+    type: 'gender-preferences',
+    value: 'Woman',
+    label: 'Woman',
+    description: 'Show me people who identify as women.',
+    order: 1,
+  },
+  {
+    type: 'gender-preferences',
+    value: 'Man',
+    label: 'Man',
+    description: 'Show me people who identify as men.',
+    order: 2,
+  },
+  {
+    type: 'gender-preferences',
+    value: 'Everyone',
+    label: 'Everyone',
+    description: 'Show me people of all genders.',
+    order: 3,
+  },
 
   // Relationship status
-  { type: 'relationship-status', value: 'Never married', label: 'Never married', order: 1 },
-  { type: 'relationship-status', value: 'Divorced', label: 'Divorced', order: 2 },
-  { type: 'relationship-status', value: 'Separated', label: 'Separated', order: 3 },
-  { type: 'relationship-status', value: 'Annulled', label: 'Annulled', order: 4 },
-  { type: 'relationship-status', value: 'Widowed', label: 'Widowed', order: 5 },
+  {
+    type: 'relationship-status',
+    value: 'Never married',
+    label: 'Never married',
+    description: 'You have never been legally married.',
+    order: 1,
+  },
+  {
+    type: 'relationship-status',
+    value: 'Divorced',
+    label: 'Divorced',
+    description: 'Your previous marriage ended through divorce.',
+    order: 2,
+  },
+  {
+    type: 'relationship-status',
+    value: 'Separated',
+    label: 'Separated',
+    description: 'You are legally married but currently separated.',
+    order: 3,
+  },
+  {
+    type: 'relationship-status',
+    value: 'Annulled',
+    label: 'Annulled',
+    description: 'A previous marriage was legally annulled.',
+    order: 4,
+  },
+  {
+    type: 'relationship-status',
+    value: 'Widowed',
+    label: 'Widowed',
+    description: 'Your spouse has passed away.',
+    order: 5,
+  },
 
   // Looking for
-  { type: 'looking-for', value: 'Long term', label: 'Long term', order: 1 },
-  { type: 'looking-for', value: 'Something Casual', label: 'Something Casual', order: 2 },
-  { type: 'looking-for', value: 'Short term', label: 'Short term', order: 3 },
-  { type: 'looking-for', value: 'Meet business oriented people', label: 'Meet business oriented people', order: 4 },
-  { type: 'looking-for', value: 'I am not sure', label: 'I am not sure', order: 5 },
-  { type: 'looking-for', value: 'A Committed relationship', label: 'A Committed relationship', order: 6 },
+  {
+    type: 'looking-for',
+    value: 'Long term',
+    label: 'Long term',
+    description: 'Looking for a serious relationship with long-term potential.',
+    order: 1,
+  },
+  {
+    type: 'looking-for',
+    value: 'Something Casual',
+    label: 'Something Casual',
+    description: 'Open to relaxed connections without heavy expectations.',
+    order: 2,
+  },
+  {
+    type: 'looking-for',
+    value: 'Short term',
+    label: 'Short term',
+    description: 'Interested in a meaningful but short-term connection.',
+    order: 3,
+  },
+  {
+    type: 'looking-for',
+    value: 'Meet business oriented people',
+    label: 'Meet business oriented people',
+    description: 'Hoping to connect with ambitious, business-minded people.',
+    order: 4,
+  },
+  {
+    type: 'looking-for',
+    value: 'I am not sure',
+    label: 'I am not sure',
+    description: 'Still exploring and open to seeing where things go.',
+    order: 5,
+  },
+  {
+    type: 'looking-for',
+    value: 'A Committed relationship',
+    label: 'A Committed relationship',
+    description: 'Looking for an exclusive, committed partnership.',
+    order: 6,
+  },
 
   // Drinking habits
   { type: 'drinking-habits', value: "No, I don't drink", label: "No, I don't drink", order: 1 },
@@ -179,11 +288,41 @@ const lookupData = [
   { type: 'personalities', value: 'Spontaneous', label: 'Spontaneous', order: 10 },
 
   // Family Plans
-  { type: 'family-plans', value: 'I want kids', label: 'I want kids', order: 1 },
-  { type: 'family-plans', value: 'I have kids', label: 'I have kids', order: 2 },
-  { type: 'family-plans', value: "I don't want kids", label: "I don't want kids", order: 3 },
-  { type: 'family-plans', value: 'I am open to kids', label: 'I am open to kids', order: 4 },
-  { type: 'family-plans', value: 'I prefer not to say', label: 'I prefer not to say', order: 5 },
+  {
+    type: 'family-plans',
+    value: 'I want kids',
+    label: 'I want kids',
+    description: 'You hope to have children in the future.',
+    order: 1,
+  },
+  {
+    type: 'family-plans',
+    value: 'I have kids',
+    label: 'I have kids',
+    description: 'You are already a parent.',
+    order: 2,
+  },
+  {
+    type: 'family-plans',
+    value: "I don't want kids",
+    label: "I don't want kids",
+    description: 'You are not planning to have children.',
+    order: 3,
+  },
+  {
+    type: 'family-plans',
+    value: 'I am open to kids',
+    label: 'I am open to kids',
+    description: 'You are open to discussing family plans.',
+    order: 4,
+  },
+  {
+    type: 'family-plans',
+    value: 'I prefer not to say',
+    label: 'I prefer not to say',
+    description: 'You prefer to keep this private for now.',
+    order: 5,
+  },
 
   // Same beliefs importance
   { type: 'same-beliefs', value: 'Is very important', label: 'Is very important', order: 1 },

@@ -5,6 +5,7 @@ import {
     KeyboardAvoidingView,
     Platform,
     SafeAreaView,
+    ScrollView,
     Text,
     TouchableWithoutFeedback,
     View,
@@ -38,7 +39,7 @@ const MaritalStatus = () => {
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View className="flex-1 px-2">
-            <View className="flex-1 mt-8">
+            <ScrollView className="flex-1 mt-8" showsVerticalScrollIndicator={false}>
               <Text className="text-3xl font-PlusJakartaSansBold text-app mb-2">
               Relationship Status?
               </Text>
@@ -56,7 +57,7 @@ const MaritalStatus = () => {
                 />
               </View>
               <Info title="You can change this details later from your profile" />
-            </View>
+            </ScrollView>
 
             <View className="w-full items-end pb-6">
               <Button

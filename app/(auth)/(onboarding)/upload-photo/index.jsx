@@ -16,6 +16,12 @@ import NextButton from "../../../../components/ui/NextButton";
 import Button from "../../../../components/ui/Button"
 import { useProfileSetup } from "../../../../hooks/useProfileSetup";
 import { profileService } from "../../../../services/profileService";
+import {  Lightbulb } from 'lucide-react-native'
+
+// Define colors object
+const colors = {
+  primary: "#EE5F2B", // Replace with your app's primary color if different
+};
 
 const UploadPhoto = () => {
   const router = useRouter();
@@ -75,11 +81,16 @@ const UploadPhoto = () => {
             {/* Title + Subtitle */}
             <View className="mb-6 mt-8">
               <Text className="text-3xl font-PlusJakartaSansBold  mb-2">
-                Add your photos
+                Add your best photos
               </Text>
-              <Text className="text-lg  font-PlusJakartaSans">
-                Members with 6 photos find their match faster
-              </Text>
+              <View className="flex-row items-start gap-2 mb-4 bg-primary/10 p-4 rounded-lg border border-primary/30">
+              <View>
+            
+                <Lightbulb size={20} color={colors.primary} style={{ marginTop: 2 }} />
+              </View>
+                <Text className='text-gray-600 font-PlusJakartaSansMedium text-base'>High-quality, clear photos help you get 3x better connections and higher engagement.</Text>
+              </View>
+             
             </View>
 
             {/* Photo grid */}

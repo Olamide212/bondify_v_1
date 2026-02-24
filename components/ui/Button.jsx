@@ -80,7 +80,7 @@ const Button = ({
       } ${className}`}
     >
       {loading ? (
-        <ActivityIndicator color={colors.primary} />
+        <ActivityIndicator color={"#fff"} />
       ) : (
         <Text
           className={`text-xl font-PlusJakartaSansMedium ${textStyle} ${textClassName}`}

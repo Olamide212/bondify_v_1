@@ -17,6 +17,7 @@ export const useLookupOptions = (type) => {
       const normalized = (lookups || []).map((item) => ({
         label: item.label,
         value: item.value,
+        description: item.description || "",
       }));
       setOptions(normalized);
     } catch (err) {

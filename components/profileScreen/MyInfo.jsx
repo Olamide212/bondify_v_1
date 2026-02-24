@@ -1,22 +1,22 @@
 import { useRouter } from "expo-router";
 import {
-  Baby,
-  BookOpen,
-  ChevronRight,
-  Cigarette,
-  Dumbbell,
-  Flag,
-  Globe,
-  Heart,
-  HeartHandshake,
-  MessageCircleHeart,
-  PawPrint,
-  Ruler,
-  Sparkles,
-  Users,
-  Wallet,
-  Wine,
-  X
+    Baby,
+    BookOpen,
+    ChevronRight,
+    Cigarette,
+    Dumbbell,
+    Flag,
+    Globe,
+    Heart,
+    HeartHandshake,
+    MessageCircleHeart,
+    PawPrint,
+    Ruler,
+    Sparkles,
+    Users,
+    Wallet,
+    Wine,
+    X
 } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
@@ -27,7 +27,6 @@ import BaseModal from "../modals/BaseModal";
 import ProfileEthnicityModal from "../modals/ProfileEthnicityModal";
 import ProfileReligionModal from "../modals/ProfileReligionModal";
 import ProfileDisplayZodiacModal from "../modals/ProfileZodiacDisplayModal";
-import TextHeadingOne from "../ui/TextHeadingOne";
 
 
 
@@ -44,6 +43,11 @@ const MyInfo = ({ profile, onUpdateField }) => {
   const [zodiacVisible, setZodiacVisible] = useState(false)
   const [ethnicityVisible, setEthnicityVisible] = useState(false)
   const [religionVisible, setReligionVisible] = useState(false)
+  const { options: familyPlansOptions } = useLookupOptions("family-plans");
+  const { options: drinkingHabitsOptions } = useLookupOptions("drinking-habits");
+  const { options: smokingHabitsOptions } = useLookupOptions("smoking-habits");
+  const { options: relationshipStatusOptions } = useLookupOptions("relationship-status");
+  const { options: lookingForOptions } = useLookupOptions("looking-for");
   const { options: sameBeliefsOptions } = useLookupOptions("same-beliefs");
 
   useEffect(() => {
@@ -225,8 +229,23 @@ const MyInfo = ({ profile, onUpdateField }) => {
 
   const handleSaveModal = (key, value) => {
     const targetField = fieldMap[key] || key;
-    setProfileData((prev) => ({ ...prev, [targetField]: value }));
-    onUpdateField?.(targetField, value);
+    let finalValue = value;
+    // Map modal key to lookup options
+    const lookupOptionsMap = {
+      kids: familyPlansOptions,
+      drink: drinkingHabitsOptions,
+      smoke: smokingHabitsOptions,
+      relationshipStatus: relationshipStatusOptions,
+      interestedIn: lookingForOptions,
+      sameBeliefs: sameBeliefsOptions,
+    };
+    const options = lookupOptionsMap[key];
+    if (options) {
+      const match = options.find(opt => opt.value === value || opt.label === value);
+      if (match) finalValue = match.label;
+    }
+    setProfileData((prev) => ({ ...prev, [targetField]: finalValue }));
+    onUpdateField?.(targetField, finalValue);
     setActiveModal(null);
   };
 
@@ -270,7 +289,7 @@ const MyInfo = ({ profile, onUpdateField }) => {
               </View>
 
               <View className="flex-1">
-                <Text className="text-xl text-gray-900 font-PlusJakartaSansMedium">
+                <Text className="text-xl text-gray-900 font-PlusJakartaSansSemiBold">
                   {title}
                 </Text>
                 {!value && (
@@ -279,7 +298,7 @@ const MyInfo = ({ profile, onUpdateField }) => {
                   </Text>
                 )}
                 {value && (
-                  <Text className="text-lg text-gray-700 font-PlusJakartaSansMedium capitalize">
+                  <Text className="text-lg text-gray-500 font-PlusJakartaSansMedium capitalize">
                     {displayValue}
                   </Text>
                 )}

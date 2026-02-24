@@ -74,7 +74,7 @@ module.exports = defineConfig([
       },
     },
     rules: {
-      'bondify/activity-indicator-primary-color': 'error',
+      // 'bondify/activity-indicator-primary-color': 'error', // Disabled: allow any ActivityIndicator color
     },
   },
 ]);

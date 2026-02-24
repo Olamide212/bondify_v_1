@@ -1,7 +1,6 @@
 // components/inputs/CheckboxSelect.jsx
-import React from "react";
-import { View, Text, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { Text, TouchableOpacity, View } from "react-native";
 import { colors } from "../../constant/colors";
 
 const CheckboxSelect = ({
@@ -32,13 +31,21 @@ const CheckboxSelect = ({
         {options.map((option) => (
           <TouchableOpacity
             key={option.value}
-            className={`flex-row items-center justify-between gap-2  px-4 rounded-xl border border-[#dadada] ${className}`}
+            className={`flex-row items-center justify-between gap-2 px-5 py-5 rounded-2xl border-2  ${className}
+               ${value.includes(option.value) ? "border-primary bg-primary/10" : "border-[#dadada]"}`}
             onPress={() => toggleSelection(option.value)}
-            style={{ height: 50, borderRadius: 10 }}
+            style={{ borderRadius: 10 }}
           >
-            <Text className="text-app text-xl font-PlusJakartaSansMedium">
-              {option.label}
-            </Text>
+            <View className="flex-1 pr-2">
+              <Text className="text-black text-xl font-PlusJakartaSansBold">
+                {option.label}
+              </Text>
+              {!!option.description && (
+                <Text className="text-black text-base font-PlusJakartaSans mt-1">
+                  {option.description}
+                </Text>
+              )}
+            </View>
             <Ionicons
               name={
                 value.includes(option.value) ? "checkbox" : "square-outline"

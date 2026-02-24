@@ -1,13 +1,14 @@
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
-  Keyboard,
-  KeyboardAvoidingView,
-  Platform,
-  SafeAreaView,
-  Text,
-  TouchableWithoutFeedback,
-  View,
+    Keyboard,
+    KeyboardAvoidingView,
+    Platform,
+    SafeAreaView,
+    ScrollView,
+    Text,
+    TouchableWithoutFeedback,
+    View,
 } from "react-native";
 
 import RadioSelect from "../../../../components/inputs/RadioSelect";
@@ -47,7 +48,7 @@ const Preference = () => {
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View className="flex-1 px-2">
-            <View className="flex-1 mt-8">
+            <ScrollView className="flex-1 mt-8" showsVerticalScrollIndicator={false}>
               <Text className="text-3xl font-PlusJakartaSansBold  mb-2">
                 What are you hoping to find on Bondies?
               </Text>
@@ -64,17 +65,17 @@ const Preference = () => {
                 />
               </View>
               <Info title="You can change this details later from your profile" />
-            </View>
+            </ScrollView>
 
             <View className="w-full items-end pb-6">
               <Button
                 title="Continue"
                 variant="gradient"
                 onPress={async () => {
-                  const normalizedPreference =
-                    lookingForValueMap[preference?.toLowerCase?.()] || preference;
-
-                  await updateProfileStep({ lookingFor: normalizedPreference });
+                  // Find the selected option's label
+                  const selected = lookingForOptions.find(opt => opt.value === preference);
+                  const preferenceLabel = selected ? selected.label : preference;
+                  await updateProfileStep({ lookingFor: preferenceLabel });
                   router.push("/religion");
                 }}
               />
