@@ -34,7 +34,7 @@ export default function DirectMessageBox({ profile, onSendMessage }) {
 
   return (
     <View className=" bg-white p-6">
-      <Text className="text-lg font-GeneralSansMedium mb-6">
+      <Text className="text-lg font-PlusJakartaSansMedium mb-6">
         Ready to Bond? Send {profile.name || "them"} a direct message now.
         Starting a conversation boosts your chances of matching—type your own
         message or let our AI suggest one for you.
@@ -49,7 +49,7 @@ export default function DirectMessageBox({ profile, onSendMessage }) {
           multiline
           value={message}
           onChangeText={setMessage}
-          className="font-GeneralSansMedium"
+          className="font-PlusJakartaSansMedium"
         />
       </View>
 
@@ -66,7 +66,7 @@ export default function DirectMessageBox({ profile, onSendMessage }) {
           className="w-[80%]  flex-row justify-center text-center"
           onPress={handleSend}
         >
-          <Text className="text-center text-white text-xl font-GeneralSansMedium">
+          <Text className="text-center text-white text-xl font-PlusJakartaSansMedium">
             Send a Bondo
           </Text>
         </TouchableOpacity>

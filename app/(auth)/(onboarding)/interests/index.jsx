@@ -88,12 +88,12 @@ const Interests = () => {
                 }}
               >
                 <View className="flex-1">
-                  <Text className="text-3xl font-SatoshiBold  mt-8 mb-4">
+                  <Text className="text-3xl font-PlusJakartaSansBold  mt-8 mb-4">
                     What are your interests?
                   </Text>
                   {INTEREST_CATEGORIES.map((category) => (
                     <View key={category.title} className="mb-6">
-                      <Text className="text-app font-SatoshiBold text-lg mb-3">
+                      <Text className="text-app font-PlusJakartaSansBold text-lg mb-3">
                         {category.title}
                       </Text>
                       <View className="flex-row flex-wrap gap-2">
@@ -110,7 +110,7 @@ const Interests = () => {
                               }`}
                             >
                               <Text
-                                className={`font-SatoshiMedium ${
+                                className={`font-PlusJakartaSansMedium ${
                                   selected ? "text-black" : "text-app"
                                 }`}
                               >

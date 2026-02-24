@@ -36,10 +36,10 @@ const ProfileAnswers = () => {
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View className="flex-1 px-2">
             <View className="flex-1 mt-8">
-              <Text className="text-[25px] font-SatoshiBold text-app mb-2">
+              <Text className="text-[25px] font-PlusJakartaSansBold text-app mb-2">
                 Write your profile answers
               </Text>
-              <Text className="text-app font-Satoshi">
+              <Text className="text-app font-PlusJakartaSans">
                 Select a prompt that excites you the list below and write your
                 answers
               </Text>

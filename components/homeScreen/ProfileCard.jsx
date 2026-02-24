@@ -174,7 +174,7 @@ const ProfileCard = ({ profile }) => {
             {/* Mutual Connections */}
             {profile.mutualFriends > 0 && (
               <View className="bg-white -mt-20 pt-14 p-4 mb-2 rounded-t-2xl">
-                <Text className="text-app text-[20px] font-GeneralSansSemiBold">
+                <Text className="text-app text-[20px] font-PlusJakartaSansSemiBold">
                   Shared interests
                 </Text>
 
@@ -185,7 +185,7 @@ const ProfileCard = ({ profile }) => {
                         key={index}
                         className="bg-primary/20   px-4 py-2 rounded-full"
                       >
-                        <Text className="text-primary text-[16px] font-Satoshi">
+                        <Text className="text-primary text-[16px] font-PlusJakartaSans">
                           {interest}
                         </Text>
                       </View>
@@ -199,13 +199,13 @@ const ProfileCard = ({ profile }) => {
             {profile.lookingFor && (
               <View className="bg-white  p-4 mb-2">
                 <View className="flex-row items-center mb-2">
-                  <Text className="text-[20px] font-GeneralSansSemiBold text-app">
+                  <Text className="text-[20px] font-PlusJakartaSansSemiBold text-app">
                     Looking for
                   </Text>
                 </View>
 
                 <View className="self-start items-center justify-center bg-gray-100   px-5 py-2 rounded-full">
-                  <Text className="text-black text-[16px] font-Satoshi">
+                  <Text className="text-black text-[16px] font-PlusJakartaSans">
                     {profile.lookingFor}
                   </Text>
                 </View>
@@ -216,11 +216,11 @@ const ProfileCard = ({ profile }) => {
             {profile.bio && (
               <View className="bg-white  mb-2 p-6 ">
                 <View className="flex-row items-center mb-3">
-                  <Text className="text-[20px] font-GeneralSansSemiBold text-app">
+                  <Text className="text-[20px] font-PlusJakartaSansSemiBold text-app">
                     Bio
                   </Text>
                 </View>
-                <Text className="text-app font-Satoshi text-[16px] ">
+                <Text className="text-app font-PlusJakartaSans text-[16px] ">
                   {displayedBio}
                 </Text>
                 {isBioLong && (
@@ -238,10 +238,10 @@ const ProfileCard = ({ profile }) => {
             {/* First question after bio */}
             {profile.questions?.[0] && (
               <View className="bg-white p-5 rounded-xl">
-                <Text className="text-app font-Satoshi text-base mb-2">
+                <Text className="text-app font-PlusJakartaSans text-base mb-2">
                   {profile.questions[0].question}
                 </Text>
-                <Text className="text-app font-SatoshiBold text-2xl leading-relaxed">
+                <Text className="text-app font-PlusJakartaSansBold text-2xl leading-relaxed">
                   {profile.questions[0].answer}
                 </Text>
               </View>
@@ -263,7 +263,7 @@ const ProfileCard = ({ profile }) => {
             {/* Essentials */}
             <View className="bg-white p-6 mb-2">
               <View className="flex-row items-center mb-4">
-                <Text className="text-[20px] font-GeneralSansSemiBold text-app ml-2">
+                <Text className="text-[20px] font-PlusJakartaSansSemiBold text-app ml-2">
                   Essentials
                 </Text>
               </View>
@@ -274,7 +274,7 @@ const ProfileCard = ({ profile }) => {
                   <View className="w-1/2 px-1.5 mb-3">
                     <View className="bg-gray-100  rounded-full px-4 py-2 flex-row items-center gap-3">
                       <MapPin color={"black"} size={18} />
-                      <Text className="text-app  text-base font-GeneralSansMedium">
+                      <Text className="text-app  text-base font-PlusJakartaSansMedium">
                         {profile.distance}
                       </Text>
                     </View>
@@ -285,7 +285,7 @@ const ProfileCard = ({ profile }) => {
                   <View className="w-1/2 px-1.5 mb-3">
                     <View className="bg-gray-100 rounded-full px-4 py-2 flex-row items-center gap-3">
                       <Briefcase color={"black"} size={18} />
-                      <Text className="text-app  text-base font-GeneralSansMedium">
+                      <Text className="text-app  text-base font-PlusJakartaSansMedium">
                         {profile.occupation}
                       </Text>
                     </View>
@@ -296,7 +296,7 @@ const ProfileCard = ({ profile }) => {
                   <View className="w-1/2 px-1.5 mb-3">
                     <View className="bg-gray-100  rounded-full px-4 py-2 flex-row items-center gap-3">
                       <Ruler color={"black"} size={18} />
-                      <Text className="text-app  text-base font-GeneralSansMedium">
+                      <Text className="text-app  text-base font-PlusJakartaSansMedium">
                         {profile.height}
                       </Text>
                     </View>
@@ -311,7 +311,7 @@ const ProfileCard = ({ profile }) => {
                         size={20}
                         color={"black"}
                       />
-                      <Text className="text-app  text-base font-GeneralSansMedium">
+                      <Text className="text-app  text-base font-PlusJakartaSansMedium">
                         {profile.religion}
                       </Text>
                     </View>
@@ -322,7 +322,7 @@ const ProfileCard = ({ profile }) => {
                   <View className="w-1/2 px-1.5 mb-3">
                     <View className="bg-gray-100  rounded-full px-4 py-2 flex-row items-center gap-3">
                       <Wine color={"black"} size={18} />
-                      <Text className="text-app  text-base font-GeneralSansMedium">
+                      <Text className="text-app  text-base font-PlusJakartaSansMedium">
                         {profile.drinking}
                       </Text>
                     </View>
@@ -333,7 +333,7 @@ const ProfileCard = ({ profile }) => {
                   <View className="w-1/2 px-1.5 mb-3">
                     <View className="bg-gray-100  rounded-full px-4 py-2 flex-row items-center gap-3">
                       <Cigarette color={"black"} size={18} />
-                      <Text className=" text-base font-GeneralSansMedium">
+                      <Text className=" text-base font-PlusJakartaSansMedium">
                         {profile.smoking}
                       </Text>
                     </View>
@@ -344,7 +344,7 @@ const ProfileCard = ({ profile }) => {
                   <View className="w-1/2 px-1.5 mb-3">
                     <View className="bg-gray-100  rounded-full px-4 py-2 flex-row items-center gap-3">
                       <Baby color={"black"} size={18} />
-                      <Text className="text-app  text-base font-GeneralSansMedium">
+                      <Text className="text-app  text-base font-PlusJakartaSansMedium">
                         {profile.children}
                       </Text>
                     </View>
@@ -355,7 +355,7 @@ const ProfileCard = ({ profile }) => {
                   <View className="w-1/2 px-1.5 mb-3">
                     <View className="bg-gray-100  rounded-full px-4 py-2 flex-row items-center gap-3">
                       <Dog color={"black"} size={18} />
-                      <Text className="text-app  text-base font-GeneralSansMedium">
+                      <Text className="text-app  text-base font-PlusJakartaSansMedium">
                         {profile.pets}
                       </Text>
                     </View>
@@ -366,7 +366,7 @@ const ProfileCard = ({ profile }) => {
                   <View className="w-1/2 px-1.5 mb-3">
                     <View className="bg-gray-100  rounded-full px-4 py-2 flex-row items-center gap-3">
                       <Dumbbell color={"black"} size={18} />
-                      <Text className="text-app text-base font-GeneralSansMedium">
+                      <Text className="text-app text-base font-PlusJakartaSansMedium">
                         {profile.exercise}
                       </Text>
                     </View>
@@ -378,7 +378,7 @@ const ProfileCard = ({ profile }) => {
             {/* Basics */}
             <View className="bg-white p-6 mb-2">
               <View className="flex-row items-center mb-4">
-                <Text className="text-[20px] font-GeneralSansSemiBold text-app ml-2">
+                <Text className="text-[20px] font-PlusJakartaSansSemiBold text-app ml-2">
                   Basics
                 </Text>
               </View>
@@ -389,7 +389,7 @@ const ProfileCard = ({ profile }) => {
                   <View className="w-1/2 px-1.5 mb-3">
                     <View className="bg-gray-100 rounded-full px-4 py-2 flex-row items-center gap-3">
                       <Image source={Icons.zodiacSign} />
-                      <Text className="text-app  text-base font-GeneralSansMedium">
+                      <Text className="text-app  text-base font-PlusJakartaSansMedium">
                         {profile.zodiac}
                       </Text>
                     </View>
@@ -400,7 +400,7 @@ const ProfileCard = ({ profile }) => {
                   <View className="w-1/2 px-1.5 mb-3">
                     <View className="bg-gray-100  rounded-full px-4 py-2 flex-row items-center gap-3">
                       <Heart color={"black"} size={18} />
-                      <Text className="text-app  text-base font-GeneralSansMedium">
+                      <Text className="text-app  text-base font-PlusJakartaSansMedium">
                         {profile.loveStyle}
                       </Text>
                     </View>
@@ -411,7 +411,7 @@ const ProfileCard = ({ profile }) => {
                   <View className="w-1/2 px-1.5 mb-3">
                     <View className="bg-gray-100  rounded-full px-4 py-2 flex-row items-center gap-3">
                       <Heart color={"black"} size={18} />
-                      <Text className="text-app  text-base font-GeneralSansMedium">
+                      <Text className="text-app  text-base font-PlusJakartaSansMedium">
                         {profile.communicationStyle}
                       </Text>
                     </View>
@@ -422,7 +422,7 @@ const ProfileCard = ({ profile }) => {
                   <View className="w-1/2 px-1.5 mb-3">
                     <View className="bg-gray-100  rounded-full px-4 py-2 flex-row items-center gap-3">
                       <Wallet size={20} color={"black"} />
-                      <Text className="text-app  text-base font-GeneralSansMedium">
+                      <Text className="text-app  text-base font-PlusJakartaSansMedium">
                         {profile.financialStyle}
                       </Text>
                     </View>
@@ -435,7 +435,7 @@ const ProfileCard = ({ profile }) => {
             {profile.personalities?.length > 0 && (
               <View className=" bg-white  p-6 ">
                 <View className="flex-row items-center mb-3">
-                  <Text className="text-[20px] font-GeneralSansSemiBold text-app">
+                  <Text className="text-[20px] font-PlusJakartaSansSemiBold text-app">
                     Personalities
                   </Text>
                 </View>
@@ -449,7 +449,7 @@ const ProfileCard = ({ profile }) => {
                       }`}
                     >
                       <Text
-                        className={`font-SatoshiMedium 
+                        className={`font-PlusJakartaSansMedium 
                            text-black
                         }`}
                       >
@@ -478,20 +478,20 @@ const ProfileCard = ({ profile }) => {
             {profile.school && (
               <View className="bg-white  mb-2 p-6 ">
                 <View className="flex-row items-center mb-3  ">
-                  <Text className="text-[20px] font-GeneralSansSemiBold text-app">
+                  <Text className="text-[20px] font-PlusJakartaSansSemiBold text-app">
                     School and education
                   </Text>
                 </View>
                 <View className="flex-1 flex-row flex-wrap gap-2 ">
                   <View className="bg-gray-100  flex-row items-center gap-2 px-4 py-2 rounded-full">
                     <GraduationCap color={"black"} size={18} />
-                    <Text className="text-app  text-base font-GeneralSansMedium">
+                    <Text className="text-app  text-base font-PlusJakartaSansMedium">
                       {profile.school}
                     </Text>
                   </View>
                   <View className="bg-gray-100  flex-row items-center gap-2 px-4 py-2 rounded-full">
                     <GraduationCap color={"black"} size={18} />
-                    <Text className="text-app  text-base font-GeneralSansMedium">
+                    <Text className="text-app  text-base font-PlusJakartaSansMedium">
                       {profile.education}
                     </Text>
                   </View>
@@ -503,7 +503,7 @@ const ProfileCard = ({ profile }) => {
             {profile.language && profile.language.length > 0 && (
               <View className="bg-white mb-2 p-6">
                 <View className="flex-row items-center mb-3">
-                  <Text className="text-[20px] font-GeneralSansSemiBold text-app">
+                  <Text className="text-[20px] font-PlusJakartaSansSemiBold text-app">
                     Languages and ethnicity
                   </Text>
                 </View>
@@ -514,7 +514,7 @@ const ProfileCard = ({ profile }) => {
                       key={index}
                       className="bg-gray-100  flex-row items-center gap-2 px-4 py-2 rounded-full"
                     >
-                      <Text className="text-app text-base font-GeneralSansMedium">
+                      <Text className="text-app text-base font-PlusJakartaSansMedium">
                         {lang}
                       </Text>
                     </View>
@@ -525,12 +525,12 @@ const ProfileCard = ({ profile }) => {
                   <View className="mt-2">
                     <View className="flex-1 flex-row flex-wrap gap-2 ">
                       <View className="bg-gray-100  flex-row items-center gap-2 px-4 py-2 rounded-full">
-                        <Text className="text-app  text-base font-GeneralSansMedium">
+                        <Text className="text-app  text-base font-PlusJakartaSansMedium">
                           {profile.nationality}
                         </Text>
                       </View>
                       <View className="bg-gray-100  flex-row items-center gap-2 px-4 py-2 rounded-full">
-                        <Text className="text-app  text-base font-GeneralSansMedium">
+                        <Text className="text-app  text-base font-PlusJakartaSansMedium">
                           {profile.ethnicity}
                         </Text>
                       </View>
@@ -542,10 +542,10 @@ const ProfileCard = ({ profile }) => {
             {/* Another question later */}
             {profile.questions?.[2] && (
               <View className="bg-white  p-5 rounded-xl">
-                <Text className="text-app font-Satoshi text-base mb-2">
+                <Text className="text-app font-PlusJakartaSans text-base mb-2">
                   {profile.questions[1].question}
                 </Text>
-                <Text className="text-app font-SatoshiBold text-2xl leading-relaxed">
+                <Text className="text-app font-PlusJakartaSansBold text-2xl leading-relaxed">
                   {profile.questions[1].answer}
                 </Text>
               </View>
@@ -567,10 +567,10 @@ const ProfileCard = ({ profile }) => {
             {/* Another question later */}
             {profile.questions?.[2] && (
               <View className="bg-white mb-2 p-5 rounded-xl">
-                <Text className="text-app font-Satoshi text-base mb-2">
+                <Text className="text-app font-PlusJakartaSans text-base mb-2">
                   {profile.questions[1].question}
                 </Text>
-                <Text className="text-app font-SatoshiBold text-2xl leading-relaxed">
+                <Text className="text-app font-PlusJakartaSansBold text-2xl leading-relaxed">
                   {profile.questions[1].answer}
                 </Text>
               </View>
@@ -580,7 +580,7 @@ const ProfileCard = ({ profile }) => {
             {profile.interests?.length > 0 && (
               <View className="mb-3 bg-white  p-6 ">
                 <View className="flex-row items-center mb-3">
-                  <Text className="text-[20px] font-GeneralSansSemiBold text-app">
+                  <Text className="text-[20px] font-PlusJakartaSansSemiBold text-app">
                     Interests
                   </Text>
                 </View>
@@ -595,7 +595,7 @@ const ProfileCard = ({ profile }) => {
                       }`}
                     >
                       <Text
-                        className={`font-SatoshiMedium ${
+                        className={`font-PlusJakartaSansMedium ${
                           profile.mutualInterests?.includes(interest)
                             ? "text-primary"
                             : "text-black"
@@ -620,7 +620,7 @@ const ProfileCard = ({ profile }) => {
                 <View className="w-16 h-16 bg-white flex-row justify-center items-center rounded-full">
                   <Share2 size={26} color="black" />
                 </View>
-                <Text className="mt-3 font-SatoshiMedium">Share</Text>
+                <Text className="mt-3 font-PlusJakartaSansMedium">Share</Text>
               </View>
 
               <View className="flex-1 p-5  justify-center items-center rounded-2xl">
@@ -628,7 +628,7 @@ const ProfileCard = ({ profile }) => {
                   <Ban size={26} color="black" />
                 </View>
 
-                <Text className="mt-3 font-SatoshiMedium">Block</Text>
+                <Text className="mt-3 font-PlusJakartaSansMedium">Block</Text>
               </View>
 
               <View className="flex-1 p-5  justify-center items-center rounded-2xl">
@@ -636,7 +636,7 @@ const ProfileCard = ({ profile }) => {
                   <Flag size={26} color="black" />
                 </View>
 
-                <Text className="mt-3 font-SatoshiMedium">Report</Text>
+                <Text className="mt-3 font-PlusJakartaSansMedium">Report</Text>
               </View>
             </View>
           </View>

@@ -324,10 +324,10 @@ const UserProfile = () => {
           <View style={styles.centerContent}>
             <View className="flex-row items-center gap-1">
               <View className='flex-row items-center'>
-                <Text className="text-black text-2xl font-SatoshiBold mr-2 capitalize" numberOfLines={1}>
+                <Text className="text-black text-2xl font-PlusJakartaSansBold mr-2 capitalize" numberOfLines={1}>
                   {currentProfile.name}
                 </Text>
-                <Text className="text-black text-2xl font-Satoshi">
+                <Text className="text-black text-2xl font-PlusJakartaSans">
                   {currentProfile.age}
                 </Text>
               </View>

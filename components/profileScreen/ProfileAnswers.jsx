@@ -63,16 +63,16 @@ const ProfileAnswers = ({ profile, onUpdateField }) => {
       {answers.length > 0 ? (
         answers.map((item, index) => (
           <View key={index} className="mb-4">
-            <Text className="text-primary text-xl font-Satoshi mb-1">
+            <Text className="text-primary text-xl font-PlusJakartaSans mb-1">
               {item.question}
             </Text>
-            <Text className="font-SatoshiMedium text-2xl text-black capitalize">
+            <Text className="font-PlusJakartaSansMedium text-2xl text-black capitalize">
               {item.answer.trim() || "No answer provided."}
             </Text>
           </View>
         ))
       ) : (
-        <Text className="text-gray-400  font-SatoshiMediumItalic">
+        <Text className="text-gray-400  font-PlusJakartaSansMediumItalic">
           No answers yet.
         </Text>
       )}
@@ -80,7 +80,7 @@ const ProfileAnswers = ({ profile, onUpdateField }) => {
       {/* Add Question Button */}
       <TouchableOpacity onPress={() => setShowModal(true)}>
         <View className="flex-row justify-between items-center mt-2">
-          <Text className="font-SatoshiBold text-primary text-lg">
+          <Text className="font-PlusJakartaSansBold text-primary text-lg">
             Add a prompt...
           </Text>
           <View className="w-6 h-6 rounded-full bg-primary items-center justify-center">
@@ -95,7 +95,7 @@ const ProfileAnswers = ({ profile, onUpdateField }) => {
         <SafeAreaView className="flex-1 bg-white p-6">
           {!selectedQuestion ? (
             <>
-              <Text className="text-xl text-center font-SatoshiBold mb-4">
+              <Text className="text-xl text-center font-PlusJakartaSansBold mb-4">
                 Choose a question
               </Text>
               <FlatList
@@ -106,21 +106,21 @@ const ProfileAnswers = ({ profile, onUpdateField }) => {
                     className="p-3 pb-4 border-b border-gray-200"
                     onPress={() => setSelectedQuestion(item)}
                   >
-                    <Text className="text-lg font-SatoshiMedium">{item}</Text>
+                    <Text className="text-lg font-PlusJakartaSansMedium">{item}</Text>
                   </TouchableOpacity>
                 )}
               />
             </>
           ) : (
             <>
-              <Text className="text-xl text-center font-SatoshiBold mb-4">
+              <Text className="text-xl text-center font-PlusJakartaSansBold mb-4">
                 {selectedQuestion}
               </Text>
               <TextInput
                 placeholder="Type your answer..."
                 value={answer}
                 onChangeText={setAnswer}
-                className="border-b border-black  px-3 py-5 text-lg font-SatoshiMedium mb-4"
+                className="border-b border-black  px-3 py-5 text-lg font-PlusJakartaSansMedium mb-4"
                 multiline
               />
               <View className='flex-1 justify-end'>
@@ -128,7 +128,7 @@ const ProfileAnswers = ({ profile, onUpdateField }) => {
                   onPress={() => setSelectedQuestion(null)}
                   className="mt-3"
                 >
-                  <Text className="text-primary font-SatoshiMedium text-center">
+                  <Text className="text-primary font-PlusJakartaSansMedium text-center">
                     Choose another question
                   </Text>
                 </TouchableOpacity>

@@ -21,7 +21,7 @@ const Button = ({
       <ActivityIndicator color={colors.primary} />
     ) : (
       <Text
-        className={`text-xl font-GeneralSansMedium text-white ${textClassName}`}
+        className={`text-xl font-PlusJakartaSansMedium text-white ${textClassName}`}
       >
         {title}
       </Text>
@@ -83,7 +83,7 @@ const Button = ({
         <ActivityIndicator color={colors.primary} />
       ) : (
         <Text
-          className={`text-xl font-GeneralSansMedium ${textStyle} ${textClassName}`}
+          className={`text-xl font-PlusJakartaSansMedium ${textStyle} ${textClassName}`}
         >
           {title}
         </Text>

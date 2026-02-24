@@ -26,7 +26,7 @@ export default function OptionBox({
       <Text
         style={{
           color: isActive ? "#fff" : "#333",
-          fontFamily: fonts.SantoshiMedium,
+          fontFamily: fonts.PlusJakartaSansMedium,
         }}
       >
         {label || value}

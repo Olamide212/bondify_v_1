@@ -117,13 +117,13 @@ const handleSubmit = async () => {
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View className="flex-1 px-2 mt-8">
-            <Text className="text-3xl font-GeneralSansSemiBold text-black">
+            <Text className="text-3xl font-PlusJakartaSansSemiBold text-black">
               Enter verification code
             </Text>
 
-            <Text className="mb-7 text-black text-xl font-Satoshi">
+            <Text className="mb-7 text-black text-xl font-PlusJakartaSans">
               Please enter the verification code sent to{" "}
-              <Text className="font-GeneralSansSemiBold">{pendingEmail}</Text>
+              <Text className="font-PlusJakartaSansSemiBold">{pendingEmail}</Text>
             </Text>
 
             <GlobalOtpInput

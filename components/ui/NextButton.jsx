@@ -19,7 +19,7 @@ const NextButton = ({
       ) : (
         <View className="flex-row">
           <Text
-            className={`text-xl font-SatoshiBold text-white ${textClassName}`}
+            className={`text-xl font-PlusJakartaSansBold text-white ${textClassName}`}
           >
             {title}
           </Text>
@@ -88,7 +88,7 @@ const NextButton = ({
         <View className="flex-row items-center justify-center">
           {title !== "" && (
             <Text
-              className={`text-lg font-SatoshiMedium ml-2 ${textStyle} ${textClassName}`}
+              className={`text-lg font-PlusJakartaSansMedium ml-2 ${textStyle} ${textClassName}`}
             >
               {title}
             </Text>

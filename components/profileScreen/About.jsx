@@ -36,10 +36,10 @@ const AboutMe = ({ profile, onUpdateField }) => {
       >
        
         <View className=" mb-1">
-          <Text className="text-black text-xl font-SatoshiMedium">
+          <Text className="text-black text-xl font-PlusJakartaSansMedium">
             {profile?.bio || "Tell people about yourself"}
           </Text>
-          <Text className="flex-1 text-lg text-primary font-SatoshiMedium mt-2">
+          <Text className="flex-1 text-lg text-primary font-PlusJakartaSansMedium mt-2">
             {profile?.bio ? "Edit About" : "Add About"}
           </Text>
         </View>
@@ -48,10 +48,10 @@ const AboutMe = ({ profile, onUpdateField }) => {
       <Modal visible={modalVisible} animationType="slide">
         <SafeAreaProvider>
           <SafeAreaView className="flex-1 bg-gray-50 border border-gray-100 p-6">
-            <Text className="text-2xl font-SatoshiMedium mb-6">About Me</Text>
+            <Text className="text-2xl font-PlusJakartaSansMedium mb-6">About Me</Text>
 
             <TextInput
-              className="border-b rounded-lg p-4 font-SatoshiMedium text-lg min-h-[120px]"
+              className="border-b rounded-lg p-4 font-PlusJakartaSansMedium text-lg min-h-[120px]"
               placeholder="Write something about yourself"
               value={bio}
               onChangeText={setBio}

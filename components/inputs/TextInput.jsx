@@ -28,14 +28,14 @@ const TextInput = ({
   return (
     <View className="mb-2 w-full">
       {label && (
-        <Text className="text-lg  font-SatoshiMedium mb-2">{label}</Text>
+        <Text className="text-lg  font-PlusJakartaSansMedium mb-2">{label}</Text>
       )}
       <View
         className={`flex-row items-center  px-4 border bg-white border-[#dcdcdc] ${className} `}
         style={{ height: 50, borderRadius: 10, marginBottom: 10 }}
       >
         <RNTextInput
-          className="flex-1 text-app   bg-white font-GeneralSansMedium text-[18px] "
+          className="flex-1 text-app   bg-white font-PlusJakartaSansMedium text-[18px] "
           placeholder={placeholder}
           placeholderTextColor="#929292"
           autoCapitalize="none"

@@ -40,7 +40,7 @@ const Onboarding = () => {
 
           {/* Text + Buttons */}
           <View className="items-center -mt-56 px-3">
-            <Text className="text-white font-GeneralSansBold text-3xl text-center mb-4">
+            <Text className="text-white font-PlusJakartaSansBold text-3xl text-center mb-4">
               Discover Love where your story begins.
             </Text>
 
@@ -60,7 +60,7 @@ const Onboarding = () => {
                 textClassName="font-santoshiMedium"
                 variant="black"
               />
-              <Text className="text-white font-GeneralSansMedium text-lg text-center mb-4 px-4">
+              <Text className="text-white font-PlusJakartaSansMedium text-lg text-center mb-4 px-4">
                 By joining our platform, you agree to our Terms and Conditions
               </Text>
             </View>

@@ -165,7 +165,7 @@ const ChatListScreen = ({ users, onSelectUser, isLoading = false }) => {
         className="text-black"
       />
       {/* Horizontal Scroll of New Matches */}
-      <Text className="text-black font-SatoshiBold pl-5 pb-2 text-lg pt-2">
+      <Text className="text-black font-PlusJakartaSansBold pl-5 pb-2 text-lg pt-2">
         New Matches
       </Text>
       <View style={styles.newMatchesWrapper}>
@@ -193,7 +193,7 @@ const ChatListScreen = ({ users, onSelectUser, isLoading = false }) => {
                   <Text
                     style={styles.newMatchName}
                     numberOfLines={1}
-                    className="font-SatoshiBold capitalize"
+                    className="font-PlusJakartaSansBold capitalize"
                   >
                     {getFirstName(match.name)}
                   </Text>
@@ -212,7 +212,7 @@ const ChatListScreen = ({ users, onSelectUser, isLoading = false }) => {
       </View>
 
       <View className="bg-white flex-1 rounded-t-3xl pt-3">
-        <Text className="pl-5 pt-4 font-SatoshiBold text-lg">Active chats</Text>
+        <Text className="pl-5 pt-4 font-PlusJakartaSansBold text-lg">Active chats</Text>
         {isLoading && users.length === 0 ? (
           <View style={styles.emptyStateContainer}>
             <ActivityIndicator size="small" color={colors.primary} />
@@ -249,7 +249,7 @@ const ChatListScreen = ({ users, onSelectUser, isLoading = false }) => {
                   <Text
                     style={styles.matchMessage}
                     numberOfLines={1}
-                    className="font-Satoshi"
+                    className="font-PlusJakartaSans"
                   >
                     {item.lastMessage || "No messages yet"}
                   </Text>

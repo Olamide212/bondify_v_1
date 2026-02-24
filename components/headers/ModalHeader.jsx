@@ -13,12 +13,12 @@ const ModalHeader = ({ onClose, centerText, rightText, onRightPress }) => {
         </TouchableOpacity>
 
         {/* Title */}
-        <Text className="text-xl font-SatoshiBold">{centerText}</Text>
+        <Text className="text-xl font-PlusJakartaSansBold">{centerText}</Text>
 
         {/* Right Action */}
         {rightText ? (
           <TouchableOpacity onPress={onRightPress}>
-            <Text className="text-primary font-SatoshiBold">{rightText}</Text>
+            <Text className="text-primary font-PlusJakartaSansBold">{rightText}</Text>
           </TouchableOpacity>
         ) : (
           <View style={{ width: 24 }} /> // placeholder for alignment

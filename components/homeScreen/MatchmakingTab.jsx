@@ -45,7 +45,7 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 14,
     fontWeight: "600",
-    fontFamily: "SatoshiMedium",
+    fontFamily: "PlusJakartaSansMedium",
   },
   matchmakingContent: {
     width: "100%",
@@ -54,7 +54,7 @@ const styles = StyleSheet.create({
   },
   matchmakingTitle: {
     fontSize: 24,
-    fontFamily: "SatoshiBold",
+    fontFamily: "PlusJakartaSansBold",
     textAlign: "center",
     marginBottom: 16,
     color: "#333",
@@ -80,7 +80,7 @@ const styles = StyleSheet.create({
   matchmakingButtonText: {
     color: "white",
     fontSize: 16,
-    fontFamily: "SatoshiMedium",
+    fontFamily: "PlusJakartaSansMedium",
   },
 });
 

@@ -50,7 +50,7 @@ const InterestsModal = ({
         >
           {INTEREST_CATEGORIES.map((category) => (
             <View key={category.title} className="mb-6">
-              <Text className="text-app font-SatoshiBold text-lg mb-3">
+              <Text className="text-app font-PlusJakartaSansBold text-lg mb-3">
                 {category.title}
               </Text>
               <View className="flex-row flex-wrap gap-2">
@@ -78,7 +78,7 @@ const InterestsModal = ({
                       onPress={() => toggleInterest(interest)}
                       className={`px-4 py-2 rounded-full border ${chipClassName}`}
                     >
-                      <Text className={`font-SatoshiMedium text-lg ${textClassName}`}>
+                      <Text className={`font-PlusJakartaSansMedium text-lg ${textClassName}`}>
                         {interest}
                       </Text>
                     </TouchableOpacity>

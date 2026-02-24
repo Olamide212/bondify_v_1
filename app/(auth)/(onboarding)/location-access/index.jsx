@@ -115,11 +115,11 @@ const LocationAccess = () => {
         resizeMode="contain"
       />
 
-      <Text className="text-2xl font-SatoshiBold text-center mt-6 ">
+      <Text className="text-2xl font-PlusJakartaSansBold text-center mt-6 ">
         Enable Location Access
       </Text>
 
-      <Text className="text-center font-Satoshi mt-2 text-lg ">
+      <Text className="text-center font-PlusJakartaSans mt-2 text-lg ">
         We use your location to show nearby users and matches based on
         proximity.
       </Text>

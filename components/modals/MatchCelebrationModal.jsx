@@ -252,13 +252,13 @@ const styles = StyleSheet.create({
   },
   matchTitle: {
     fontSize: 36,
-    fontFamily: "GeneralSansBold",
+    fontFamily: "PlusJakartaSansBold",
     color: "#fff",
     textAlign: "center",
   },
   matchSubtitle: {
     fontSize: 16,
-    fontFamily: "Satoshi",
+    fontFamily: "PlusJakartaSans",
     color: "rgba(255,255,255,0.8)",
     textAlign: "center",
   },
@@ -288,7 +288,7 @@ const styles = StyleSheet.create({
   placeholderText: {
     color: "#fff",
     fontSize: 32,
-    fontFamily: "GeneralSansBold",
+    fontFamily: "PlusJakartaSansBold",
   },
   heartBadge: {
     width: 52,
@@ -322,14 +322,14 @@ const styles = StyleSheet.create({
   },
   iceBreakerLabel: {
     fontSize: 14,
-    fontFamily: "SatoshiBold",
+    fontFamily: "PlusJakartaSansBold",
     color: colors.secondary,
     textTransform: "uppercase",
     letterSpacing: 1,
   },
   iceBreakerText: {
     fontSize: 16,
-    fontFamily: "SatoshiMedium",
+    fontFamily: "PlusJakartaSansMedium",
     color: "#fff",
     lineHeight: 24,
   },
@@ -355,7 +355,7 @@ const styles = StyleSheet.create({
   iceBreakerChipText: {
     fontSize: 14,
     lineHeight: 20,
-    fontFamily: "SatoshiMedium",
+    fontFamily: "PlusJakartaSansMedium",
   },
   iceBreakerChipTextSelected: {
     color: "#fff",
@@ -382,7 +382,7 @@ const styles = StyleSheet.create({
   sendMessageText: {
     color: "#fff",
     fontSize: 18,
-    fontFamily: "GeneralSansSemiBold",
+    fontFamily: "PlusJakartaSansSemiBold",
   },
   continueButton: {
     flexDirection: "row",
@@ -398,7 +398,7 @@ const styles = StyleSheet.create({
   continueText: {
     color: "#fff",
     fontSize: 18,
-    fontFamily: "GeneralSansMedium",
+    fontFamily: "PlusJakartaSansMedium",
   },
 });
 

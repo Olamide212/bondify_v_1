@@ -19,10 +19,10 @@ const ConfirmationScreen = ({title, subtitle}) => {
           contentFit="contain"
           style={{ width: 100, height: 80, marginBottom: 10 }}
         />
-        <Text className="text-[50px] font-SatoshiBold  mb-2 leading-[55px] ">
+        <Text className="text-[50px] font-PlusJakartaSansBold  mb-2 leading-[55px] ">
           {title}
         </Text>
-        <Text className="mb-7  font-SatoshiMedium">{subtitle}</Text>
+        <Text className="mb-7  font-PlusJakartaSansMedium">{subtitle}</Text>
       </View>
     </View>
   );

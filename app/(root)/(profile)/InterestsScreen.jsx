@@ -91,7 +91,7 @@ const InterestsScreen = () => {
           contentContainerStyle={{ paddingBottom: 100, paddingTop: 16 }}
           showsVerticalScrollIndicator={false}
         >
-          <Text className="text-xl font-SatoshiBold mb-3">Select your interests</Text>
+          <Text className="text-xl font-PlusJakartaSansBold mb-3">Select your interests</Text>
           <View className="flex-row flex-wrap gap-2">
             {allOptions.map((option) => {
               const selected = selectedInterests.includes(option.value);
@@ -106,7 +106,7 @@ const InterestsScreen = () => {
                   }`}
                 >
                   <Text
-                    className={`font-SatoshiMedium ${
+                    className={`font-PlusJakartaSansMedium ${
                       selected ? "text-black" : "text-black"
                     }`}
                   >

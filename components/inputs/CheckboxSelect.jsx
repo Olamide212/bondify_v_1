@@ -24,7 +24,7 @@ const CheckboxSelect = ({
   return (
     <View className={`mb-4 w-full ${className}`}>
       {label && (
-        <Text className="text-lg font-SatoshiMedium mb-2">{label}</Text>
+        <Text className="text-lg font-PlusJakartaSansMedium mb-2">{label}</Text>
       )}
       <View
         className={`flex ${horizontal ? "flex-row flex-wrap gap-4" : "flex-col gap-3"}`}
@@ -36,7 +36,7 @@ const CheckboxSelect = ({
             onPress={() => toggleSelection(option.value)}
             style={{ height: 50, borderRadius: 10 }}
           >
-            <Text className="text-app text-xl font-SatoshiMedium">
+            <Text className="text-app text-xl font-PlusJakartaSansMedium">
               {option.label}
             </Text>
             <Ionicons

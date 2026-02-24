@@ -24,7 +24,7 @@ const router = useRouter()
         style={{ width: 60, height: 40 }}
         contentFit="contain"
       />
-      <Text className="text-white font-SatoshiMedium">{title}</Text>
+      <Text className="text-white font-PlusJakartaSansMedium">{title}</Text>
     </View>
   );
 };

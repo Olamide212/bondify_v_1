@@ -93,10 +93,10 @@ const Register = () => {
               contentContainerStyle={{ paddingBottom: 20 }}
               showsVerticalScrollIndicator={false}
             >
-              <Text className="text-3xl font-GeneralSansSemiBold text-black mt-4 mb-1">
+              <Text className="text-3xl font-PlusJakartaSansSemiBold text-black mt-4 mb-1">
               Join Bondies
               </Text>
-              <Text className="text-black text-lg font-SatoshiMedium mb-7">
+              <Text className="text-black text-lg font-PlusJakartaSansMedium mb-7">
                 Find your perfect match with just a few steps. Sign up now and
                 join millions of people finding love on Bondies.
               </Text>
@@ -150,11 +150,11 @@ const Register = () => {
               />
 
               <View className="flex-row justify-center items-center gap-1 mt-4">
-                <Text className="text-lg font-GeneralSansMedium">
+                <Text className="text-lg font-PlusJakartaSansMedium">
                   Already have an account?
                 </Text>
                 <Pressable onPress={() => router.push("/login")}>
-                  <Text className="text-lg font-GeneralSansMedium text-primary">
+                  <Text className="text-lg font-PlusJakartaSansMedium text-primary">
                     Login
                   </Text>
                 </Pressable>

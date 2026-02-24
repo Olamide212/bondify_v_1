@@ -13,9 +13,9 @@ const Agreement = () => {
 
   return (
     <View className="bg-white flex-1 px-4 pt-8">
-      <Text className="text-3xl font-SatoshiBold">Welcome to Bondies!</Text>
+      <Text className="text-3xl font-PlusJakartaSansBold">Welcome to Bondies!</Text>
 
-      <Text className="mt-3 font-Satoshi text-lg text-gray-700">
+      <Text className="mt-3 font-PlusJakartaSans text-lg text-gray-700">
         To ensure the best experience, please follow our community guidelines:
       </Text>
 
@@ -24,8 +24,8 @@ const Agreement = () => {
           <View key={index} className="flex-row items-start gap-3">
             <View className="mt-1">{item.icon}</View>
             <View>
-              <Text className="text-xl font-SatoshiBold">{item.title}</Text>
-              <Text className="text-lg font-Satoshi text-app pr-6">
+              <Text className="text-xl font-PlusJakartaSansBold">{item.title}</Text>
+              <Text className="text-lg font-PlusJakartaSans text-app pr-6">
                 {item.description}
               </Text>
             </View>

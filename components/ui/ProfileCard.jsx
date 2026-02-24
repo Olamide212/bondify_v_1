@@ -4,9 +4,9 @@ import React from 'react'
 const ProfileCard = ({profile, title, subTitle, name}) => {
   return (
    <View className="px-6 py-4 bg-white mx-4 rounded-2xl">
-      <Text className="mb-2 font-SatoshiMedium text-lg text-gray-500">Basic Bio</Text>
+      <Text className="mb-2 font-PlusJakartaSansMedium text-lg text-gray-500">Basic Bio</Text>
       <View className="flex-row items-center mb-1">
-        <Text className="text-black text-3xl font-SatoshiBold">
+        <Text className="text-black text-3xl font-PlusJakartaSansBold">
           {name}
         </Text>
       </View>

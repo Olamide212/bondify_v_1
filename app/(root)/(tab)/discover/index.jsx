@@ -172,7 +172,7 @@ const styles = StyleSheet.create({
   botBannerText: {
     fontSize: 13,
     color: "#666",
-    fontFamily: "Satoshi",
+    fontFamily: "PlusJakartaSans",
   },
   messagesContainer: {
     flex: 1,
@@ -205,12 +205,12 @@ const styles = StyleSheet.create({
   userMessageText: {
     color: "#fff",
     fontSize: 16,
-    fontFamily: "Satoshi",
+    fontFamily: "PlusJakartaSans",
   },
   aiMessageText: {
     color: "#000",
     fontSize: 16,
-    fontFamily: "Satoshi",
+    fontFamily: "PlusJakartaSans",
   },
   timestamp: {
     fontSize: 12,
@@ -235,7 +235,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     maxHeight: 100,
     marginRight: 12,
-    fontFamily: "Satoshi",
+    fontFamily: "PlusJakartaSans",
   },
   sendButton: {
     padding: 12,
