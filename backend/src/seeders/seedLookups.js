@@ -24,24 +24,24 @@ const lookupData = [
   { type: 'gender-preferences', value: 'Man', label: 'Man', order: 2 },
 
   // Relationship status
-  { type: 'relationship-status', value: 'Never married', label: 'Never Married', order: 1 },
+  { type: 'relationship-status', value: 'Never married', label: 'Never married', order: 1 },
   { type: 'relationship-status', value: 'Divorced', label: 'Divorced', order: 2 },
   { type: 'relationship-status', value: 'Separated', label: 'Separated', order: 3 },
   { type: 'relationship-status', value: 'Annulled', label: 'Annulled', order: 4 },
   { type: 'relationship-status', value: 'Widowed', label: 'Widowed', order: 5 },
 
   // Looking for
-  { type: 'looking-for', value: 'Long term', label: 'A committed relationship', order: 1 },
+  { type: 'looking-for', value: 'Long term', label: 'Long term', order: 1 },
   { type: 'looking-for', value: 'Something Casual', label: 'Something Casual', order: 2 },
-  { type: 'looking-for', value: 'Short term', label: 'Finding a Date', order: 3 },
+  { type: 'looking-for', value: 'Short term', label: 'Short term', order: 3 },
   { type: 'looking-for', value: 'Meet business oriented people', label: 'Meet business oriented people', order: 4 },
   { type: 'looking-for', value: 'I am not sure', label: 'I am not sure', order: 5 },
-  { type: 'looking-for', value: 'A Committed relationship', label: 'Committed', order: 6 },
+  { type: 'looking-for', value: 'A Committed relationship', label: 'A Committed relationship', order: 6 },
 
   // Drinking habits
   { type: 'drinking-habits', value: "No, I don't drink", label: "No, I don't drink", order: 1 },
   { type: 'drinking-habits', value: 'Socially', label: 'Socially', order: 2 },
-  { type: 'drinking-habits', value: 'Rarely', label: 'Occasionally', order: 3 },
+  { type: 'drinking-habits', value: 'Rarely', label: 'Rarely', order: 3 },
   { type: 'drinking-habits', value: 'Regularly', label: 'Regularly', order: 4 },
   { type: 'drinking-habits', value: 'Prefer not to say', label: 'Prefer not to say', order: 5 },
 
@@ -145,10 +145,10 @@ const lookupData = [
   { type: 'languages', value: 'Hausa', label: 'Hausa', order: 14 },
 
   // Education
-  { type: 'education', value: 'High school', label: 'High School', order: 1 },
-  { type: 'education', value: 'Some college', label: 'Some College', order: 2 },
-  { type: 'education', value: 'Bachelors Degree', label: "Bachelor's Degree", order: 3 },
-  { type: 'education', value: 'Masters Degree', label: "Master's Degree", order: 4 },
+  { type: 'education', value: 'High school', label: 'High school', order: 1 },
+  { type: 'education', value: 'Some college', label: 'Some college', order: 2 },
+  { type: 'education', value: 'Bachelors Degree', label: 'Bachelors Degree', order: 3 },
+  { type: 'education', value: 'Masters Degree', label: 'Masters Degree', order: 4 },
   { type: 'education', value: 'PhD/Doctorate', label: 'PhD/Doctorate', order: 5 },
   { type: 'education', value: 'Trade/Technical School', label: 'Trade/Technical School', order: 6 },
 
@@ -179,11 +179,11 @@ const lookupData = [
   { type: 'personalities', value: 'Spontaneous', label: 'Spontaneous', order: 10 },
 
   // Family Plans
-  { type: 'family-plans', value: 'I want kids', label: 'Want Kids', order: 1 },
-  { type: 'family-plans', value: 'I have kids', label: 'Have Kids', order: 2 },
-  { type: 'family-plans', value: "I don't want kids", label: "Don't Want Kids", order: 3 },
-  { type: 'family-plans', value: 'I am open to kids', label: 'Open to Kids', order: 4 },
-  { type: 'family-plans', value: 'I prefer not to say', label: 'Prefer Not to Say', order: 5 },
+  { type: 'family-plans', value: 'I want kids', label: 'I want kids', order: 1 },
+  { type: 'family-plans', value: 'I have kids', label: 'I have kids', order: 2 },
+  { type: 'family-plans', value: "I don't want kids", label: "I don't want kids", order: 3 },
+  { type: 'family-plans', value: 'I am open to kids', label: 'I am open to kids', order: 4 },
+  { type: 'family-plans', value: 'I prefer not to say', label: 'I prefer not to say', order: 5 },
 
   // Same beliefs importance
   { type: 'same-beliefs', value: 'Is very important', label: 'Is very important', order: 1 },

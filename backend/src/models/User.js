@@ -70,7 +70,7 @@ const userSchema = new mongoose.Schema(
     },
     gender: {
       type: String,
-      enum: ['male', 'female', 'non-binary', 'other'],
+      enum: ['Male', 'Female', 'Non-binary', 'Other'],
     },
     bio: {
       type: String,
@@ -121,7 +121,7 @@ const userSchema = new mongoose.Schema(
     },
     religionImportance: {
       type: String,
-      enum: ['very-important', 'quite-important', 'not-important'],
+      enum: ['Is very important', 'Is quite important', "It doesn't matter to me at all"],
     },
     zodiacSign: {
       type: String,
@@ -131,11 +131,11 @@ const userSchema = new mongoose.Schema(
     }],
     drinking: {
       type: String,
-      enum: ['never', 'rarely', 'socially', 'regularly', 'prefer-not-to-say'],
+      enum: ["No, I don't drink", 'Socially', 'Rarely', 'Regularly', 'Prefer not to say'],
     },
     smoking: {
       type: String,
-      enum: ['never', 'rarely', 'socially', 'regularly', 'prefer-not-to-say'],
+      enum: ["No, I don't smoke", 'Socially', 'Occasionally', 'Regularly', 'Prefer not to say'],
     },
     exercise: {
       type: String,
@@ -147,13 +147,13 @@ const userSchema = new mongoose.Schema(
     },
     children: {
       type: String,
-      enum: ['have-kids', 'want-kids', 'dont-want-kids', 'open-to-kids', 'prefer-not-to-say'],
+      enum: ['I want kids', 'I have kids', "I don't want kids", 'I am open to kids', 'I prefer not to say'],
     },
 
     // Relationship Preferences
     lookingFor: {
       type: String,
-      enum: ['long-term', 'short-term', 'friendship', 'casual', 'not-sure'],
+      enum: ['Long term', 'Something Casual', 'Short term', 'Meet business oriented people', 'I am not sure', 'A Committed relationship'],
     },
     relationshipType: {
       type: String,
