@@ -268,16 +268,16 @@ const MyInfo = ({ profile, onUpdateField }) => {
               </View>
 
               <View className="flex-1">
-                <Text className="text-xl text-gray-900 font-GeneralSansMedium">
+                <Text className="text-xl text-gray-900 font-PlusJakartaSansMedium">
                   {title}
                 </Text>
                 {!value && (
-                  <Text className="text-lg text-red-500 font-SatoshiMedium">
+                  <Text className="text-lg text-red-500 font-PlusJakartaSansMedium">
                     Tap to Answer
                   </Text>
                 )}
                 {value && (
-                  <Text className="text-lg text-gray-700 font-SatoshiMedium capitalize">
+                  <Text className="text-lg text-gray-700 font-PlusJakartaSansMedium capitalize">
                     {displayValue}
                   </Text>
                 )}
@@ -298,7 +298,7 @@ const MyInfo = ({ profile, onUpdateField }) => {
               <X />
             </TouchableOpacity>
 
-            <Text className="text-xl text-center font-SatoshiBold mb-6 ">
+            <Text className="text-xl text-center font-PlusJakartaSansBold mb-6 ">
               {activeModal?.title}
             </Text>
             <View />
@@ -319,7 +319,7 @@ const MyInfo = ({ profile, onUpdateField }) => {
                   onPress={() => handleSaveModal(activeModal.key, option)}
                 >
                   <Text
-                    className={`text-xl text-center font-SatoshiMedium ${
+                    className={`text-xl text-center font-PlusJakartaSansMedium ${
                       selected ? "text-white" : "text-black"
                     }`}
                   >

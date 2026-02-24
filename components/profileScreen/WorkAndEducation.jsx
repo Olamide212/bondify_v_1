@@ -41,16 +41,16 @@ const Education = ({ profile, onUpdateField }) => {
       >
         <View className="mb-1">
           {selectedEducation ? (
-            <Text className="text-black text-2xl font-SatoshiMedium">
+            <Text className="text-black text-2xl font-PlusJakartaSansMedium">
               {educationLabel}
             </Text>
           ) : (
-            <Text className="text-gray-400  font-SatoshiMediumItalic">
+            <Text className="text-gray-400  font-PlusJakartaSansMediumItalic">
               No education added yet
             </Text>
           )}
 
-          <Text className="flex-1 text-lg text-primary font-SatoshiMedium mt-2">
+          <Text className="flex-1 text-lg text-primary font-PlusJakartaSansMedium mt-2">
             {selectedEducation ? "Change Education" : "Add My Education"}
           </Text>
         </View>

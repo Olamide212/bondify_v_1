@@ -30,10 +30,10 @@ const ForgotPassword = () => {
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View className="flex-1 px-2">
             <View className="flex-1 mt-8">
-              <Text className="text-3xl font-GeneralSansSemiBold text-black ">
+              <Text className="text-3xl font-PlusJakartaSansSemiBold text-black ">
                 Forgot password
               </Text>
-              <Text className="mb-5 text-black text-lg font-GeneralSans">
+              <Text className="mb-5 text-black text-lg font-PlusJakartaSans">
           Input your email address to reset your password
               </Text>
 

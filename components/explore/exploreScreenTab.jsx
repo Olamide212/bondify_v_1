@@ -120,11 +120,11 @@ const styles = StyleSheet.create({
   tabText: {
     fontSize: 13,
     color: "#888",
-    fontFamily: "SatoshiMedium",
+    fontFamily: "PlusJakartaSansMedium",
   },
   activeTabText: {
     color: "#fff",
-    fontFamily: "SatoshiBold",
+    fontFamily: "PlusJakartaSansBold",
   },
   badge: {
     backgroundColor: "#eee",
@@ -136,14 +136,14 @@ const styles = StyleSheet.create({
   badgeText: {
     color: "#333",
     fontSize: 11,
-    fontFamily: "SatoshiMedium",
+    fontFamily: "PlusJakartaSansMedium",
   },
   activeBadge: {
     backgroundColor: "#fff",
   },
   activeBadgeText: {
     color: colors.primary,
-    fontFamily: "SatoshiBold",
+    fontFamily: "PlusJakartaSansBold",
   },
 });
 

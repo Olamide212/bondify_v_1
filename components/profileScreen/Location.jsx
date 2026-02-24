@@ -108,10 +108,10 @@ const Location = ({ profile, onUpdateField }) => {
       >
        
         <View className="mb-1">
-          <Text className="text-black text-2xl font-SatoshiMedium">
+          <Text className="text-black text-2xl font-PlusJakartaSansMedium">
             {locationText || "Location not set"}
           </Text>
-          <Text className="flex-1 text-lg text-primary font-SatoshiMedium">
+          <Text className="flex-1 text-lg text-primary font-PlusJakartaSansMedium">
             Change your location
           </Text>
         </View>
@@ -123,7 +123,7 @@ const Location = ({ profile, onUpdateField }) => {
             <TouchableOpacity onPress={() => setIsModalVisible(false)}>
               <X />
             </TouchableOpacity>
-            <Text className="text-xl font-SatoshiBold">Edit Location</Text>
+            <Text className="text-xl font-PlusJakartaSansBold">Edit Location</Text>
             <View />
           </View>
 
@@ -135,13 +135,13 @@ const Location = ({ profile, onUpdateField }) => {
             {isDetectingLocation ? (
               <ActivityIndicator color={colors.primary} />
             ) : (
-              <Text className="text-white text-center text-lg font-GeneralSansMedium">
+              <Text className="text-white text-center text-lg font-PlusJakartaSansMedium">
                 Use Current Location
               </Text>
             )}
           </TouchableOpacity>
 
-          <Text className="text-lg text-black font-GeneralSansMedium mb-2">City</Text>
+          <Text className="text-lg text-black font-PlusJakartaSansMedium mb-2">City</Text>
           <TextInput
             value={city}
             onChangeText={setCity}
@@ -149,7 +149,7 @@ const Location = ({ profile, onUpdateField }) => {
             className="border border-gray-300 rounded-xl px-4 py-3 mb-4 text-base"
           />
 
-          <Text className="text-lg text-black font-GeneralSansMedium mb-2">State</Text>
+          <Text className="text-lg text-black font-PlusJakartaSansMedium mb-2">State</Text>
           <TextInput
             value={stateValue}
             onChangeText={setStateValue}
@@ -157,7 +157,7 @@ const Location = ({ profile, onUpdateField }) => {
             className="border border-gray-300 rounded-xl px-4 py-3 mb-4 text-base"
           />
 
-          <Text className="text-lg text-black font-GeneralSansMedium mb-2">Country</Text>
+          <Text className="text-lg text-black font-PlusJakartaSansMedium mb-2">Country</Text>
           <TextInput
             value={country}
             onChangeText={setCountry}
@@ -173,7 +173,7 @@ const Location = ({ profile, onUpdateField }) => {
             {isSaving ? (
               <ActivityIndicator color={colors.primary} />
             ) : (
-              <Text className="text-white text-center text-lg font-GeneralSansMedium">
+              <Text className="text-white text-center text-lg font-PlusJakartaSansMedium">
                 Save Location
               </Text>
             )}

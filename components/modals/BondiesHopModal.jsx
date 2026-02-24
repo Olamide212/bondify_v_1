@@ -58,7 +58,7 @@ const BondiesHopModal = ({ visible, onClose }) => {
     <BaseModal visible={visible} onClose={onClose}>
       <View className="flex-1 p-5">
         {/* Header */}
-        <Text className="text-2xl font-GeneralSansBold mb-2">
+        <Text className="text-2xl font-PlusJakartaSansBold mb-2">
           🌍 Bondies Hop
         </Text>
         <Text className="text-base text-gray-600 mb-5">
@@ -88,7 +88,7 @@ const BondiesHopModal = ({ visible, onClose }) => {
         />
 
         {/* Popular Destinations */}
-        <Text className="text-lg font-GeneralSansMedium mb-3">
+        <Text className="text-lg font-PlusJakartaSansMedium mb-3">
           Popular Destinations
         </Text>
         <FlatList
@@ -119,7 +119,7 @@ const BondiesHopModal = ({ visible, onClose }) => {
             selected ? "bg-primary" : "bg-gray-300"
           }`}
         >
-          <Text className="text-white text-lg font-GeneralSansMedium mr-2">
+          <Text className="text-white text-lg font-PlusJakartaSansMedium mr-2">
             {plan === "Gold" || plan === "Diamond"
               ? selected
                 ? `Hop to ${selected.name} (Free)`

@@ -6,7 +6,7 @@ const Card = ({ title, items }) => {
   return (
     <View className="bg-white mt-4  rounded-xl">
       {title && (
-        <Text className="text-xl font-GeneralSansMedium mb-3">
+        <Text className="text-xl font-PlusJakartaSansMedium mb-3">
           {title}
         </Text>
       )}
@@ -30,11 +30,11 @@ const Card = ({ title, items }) => {
               )}
             <View className="flex-row items-center gap-3 flex-1">
               <View className="flex-1">
-                <Text className="text-xl text-black font-GeneralSansMedium">
+                <Text className="text-xl text-black font-PlusJakartaSansMedium">
                   {title}
                 </Text>
                 {description && (
-                  <Text className="text-lg text-gray-500 font-Satoshi mt-0.5">
+                  <Text className="text-lg text-gray-500 font-PlusJakartaSans mt-0.5">
                     {description}
                   </Text>
                 )}

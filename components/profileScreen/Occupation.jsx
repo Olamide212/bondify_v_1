@@ -24,16 +24,16 @@ const Occupation = ({ profile, onUpdateField }) => {
         
         <View className="mb-1">
           {selectedOccupation ? (
-            <Text className="text-black text-2xl font-SatoshiMedium">
+            <Text className="text-black text-2xl font-PlusJakartaSansMedium">
               {selectedOccupation}
             </Text>
           ) : (
-            <Text className="text-gray-400  font-SatoshiMediumItalic">
+            <Text className="text-gray-400  font-PlusJakartaSansMediumItalic">
               No occupation added yet
             </Text>
           )}
 
-          <Text className="flex-1 text-lg text-primary font-SatoshiMedium mt-2">
+          <Text className="flex-1 text-lg text-primary font-PlusJakartaSansMedium mt-2">
             {selectedOccupation ? "Change occupation" : "Add My Occupation"}
           </Text>
         </View>

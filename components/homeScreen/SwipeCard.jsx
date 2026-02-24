@@ -230,7 +230,7 @@ const styles = StyleSheet.create({
     color: "#333",
     fontSize: 16,
     fontWeight: "600",
-    fontFamily: "SatoshiMedium",
+    fontFamily: "PlusJakartaSansMedium",
   },
   pagination: {
     position: "absolute",
@@ -344,7 +344,7 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 28,
     fontWeight: "700",
-    fontFamily: "SatoshiBold",
+    fontFamily: "PlusJakartaSansBold",
   },
   age: {
     color: "rgba(255,255,255,0.9)",
@@ -374,7 +374,7 @@ const styles = StyleSheet.create({
     color: "rgba(255,255,255,0.9)",
     fontSize: 16,
     marginLeft: 8,
-    fontFamily: "SatoshiMedium",
+    fontFamily: "PlusJakartaSansMedium",
   },
   interestsContainer: {
     flexDirection: "row",
@@ -392,6 +392,6 @@ const styles = StyleSheet.create({
   interestText: {
     color: "white",
     fontSize: 14,
-    fontFamily: "SatoshiMedium",
+    fontFamily: "PlusJakartaSansMedium",
   },
 });

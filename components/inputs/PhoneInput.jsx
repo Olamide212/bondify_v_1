@@ -93,7 +93,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#000",
     height: "100%",
-    fontFamily: "GeneralSansMedium",
+    fontFamily: "PlusJakartaSansMedium",
   },
 });
 

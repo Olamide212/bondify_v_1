@@ -37,7 +37,7 @@ const NotificationsModal = ({
       <SafeAreaProvider>
         <SafeAreaView className="flex-1 bg-white">
           <View className="px-5 py-3 flex-row items-center justify-between border-b border-gray-100">
-            <Text className="text-2xl font-SatoshiBold text-black">Notifications</Text>
+            <Text className="text-2xl font-PlusJakartaSansBold text-black">Notifications</Text>
             <TouchableOpacity onPress={onClose}>
               <X color={colors.primary} size={22} />
             </TouchableOpacity>
@@ -46,12 +46,12 @@ const NotificationsModal = ({
           {notifications.length > 0 && (
             <View className="px-5 py-3 border-b border-gray-100 flex-row items-center justify-between">
               <TouchableOpacity onPress={onMarkAllRead}>
-                <Text className="text-primary font-SatoshiMedium">
+                <Text className="text-primary font-PlusJakartaSansMedium">
                   {unreadCount > 0 ? "Mark all as read" : "All read"}
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={onClearAll}>
-                <Text className="text-primary font-SatoshiMedium">Clear all</Text>
+                <Text className="text-primary font-PlusJakartaSansMedium">Clear all</Text>
               </TouchableOpacity>
             </View>
           )}
@@ -66,8 +66,8 @@ const NotificationsModal = ({
             ListEmptyComponent={
               <View className="flex-1 items-center justify-center px-8">
                 <Bell color={colors.primary} size={28} />
-                <Text className="mt-3 text-lg text-black font-SatoshiBold">No notifications yet</Text>
-                <Text className="mt-1 text-center text-gray-500 font-Satoshi">
+                <Text className="mt-3 text-lg text-black font-PlusJakartaSansBold">No notifications yet</Text>
+                <Text className="mt-1 text-center text-gray-500 font-PlusJakartaSans">
                   New messages and matches will appear here in real time.
                 </Text>
               </View>
@@ -81,15 +81,15 @@ const NotificationsModal = ({
               >
                 <View className="flex-row items-start justify-between gap-4">
                   <View className="flex-1">
-                    <Text className="text-black font-SatoshiBold">
+                    <Text className="text-black font-PlusJakartaSansBold">
                       {item.title}
                       {!item.read ? " •" : ""}
                     </Text>
-                    <Text className="mt-1 text-gray-600 font-Satoshi" numberOfLines={2}>
+                    <Text className="mt-1 text-gray-600 font-PlusJakartaSans" numberOfLines={2}>
                       {item.body}
                     </Text>
                   </View>
-                  <Text className="text-xs text-gray-500 font-Satoshi">
+                  <Text className="text-xs text-gray-500 font-PlusJakartaSans">
                     {formatTimestamp(item.createdAt)}
                   </Text>
                 </View>

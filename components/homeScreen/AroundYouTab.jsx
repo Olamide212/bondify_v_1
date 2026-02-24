@@ -116,8 +116,8 @@ const AroundYouTab = ({ profile, actionMessage }) => {
               <View style={styles.nameRow}>
                 <View style={styles.nameLeft}>
                   <View className='flex-row items-center gap-2'>
-                    <Text className='text-white font-SatoshiBold text-4xl capitalize' numberOfLines={1}>{displayName},</Text>
-                    <Text className='text-white text-3xl font-SatoshiMedium'>{profile.age}</Text>
+                    <Text className='text-white font-PlusJakartaSansBold text-4xl capitalize' numberOfLines={1}>{displayName},</Text>
+                    <Text className='text-white text-3xl font-PlusJakartaSansMedium'>{profile.age}</Text>
                   </View>
 
                   <View className="flex-row gap-3">
@@ -138,7 +138,7 @@ const AroundYouTab = ({ profile, actionMessage }) => {
               {profile.location && (
                 <View className="flex-row items-center gap-1 -mt-2">
                   <MapPin size={18} color={colors.secondary} />
-                  <Text className="text-white font-GeneralSansMedium text-lg">
+                  <Text className="text-white font-PlusJakartaSansMedium text-lg">
                     {profile.location}
                     {profile.distance ? `,  ${profile.distance}` : ""}
                   </Text>
@@ -252,7 +252,7 @@ const styles = StyleSheet.create({
   name: {
     color: "white",
     fontSize: 28,
-    fontFamily: "SatoshiBold",
+    fontFamily: "PlusJakartaSansBold",
   },
 
   verifiedBadge: {
@@ -272,7 +272,7 @@ const styles = StyleSheet.create({
     color: "rgba(255,255,255,0.9)",
     fontSize: 16,
     marginLeft: 6,
-    fontFamily: "SatoshiMedium",
+    fontFamily: "PlusJakartaSansMedium",
   },
 
   profileButton: {

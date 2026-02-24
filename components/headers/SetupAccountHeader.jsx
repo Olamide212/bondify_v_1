@@ -17,10 +17,10 @@ const AccountSetupHeader = ({ title, rightText, showBack = true }) => {
         <View style={{ width: 24 }} />
       )}
 
-      <Text className="text-app font-SatoshiBold text-[20px]">{title}</Text>
+      <Text className="text-app font-PlusJakartaSansBold text-[20px]">{title}</Text>
 
       {rightText ? (
-        <Text className="text-app font-SatoshiMedium">{rightText}</Text>
+        <Text className="text-app font-PlusJakartaSansMedium">{rightText}</Text>
       ) : (
         <View style={{ width: 24 }} />
       )}

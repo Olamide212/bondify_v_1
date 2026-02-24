@@ -320,7 +320,7 @@ const Home = () => {
           {/* <Pressable onPress={() => setShowAIModal(true)}>
             <View className="justify-center gap-2 rounded-full bg-secondary w-auto px-3 h-10 flex-row items-center ">
               <Bot size={22} color={colors.primary} />
-              <Text className="font-GeneralSansMedium text-primary">AI Chat</Text>
+              <Text className="font-PlusJakartaSansMedium text-primary">AI Chat</Text>
             </View>
           </Pressable> */}
 
@@ -461,14 +461,14 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 24,
     color: "#111",
-    fontFamily: "SatoshiBold",
+    fontFamily: "PlusJakartaSansBold",
     marginBottom: 8,
     textAlign: "center",
   },
   emptySubtitle: {
     fontSize: 16,
     color: "#666",
-    fontFamily: "Satoshi",
+    fontFamily: "PlusJakartaSans",
     textAlign: "center",
   },
   headerWrapper: {

@@ -32,7 +32,7 @@ const AccordionItem = ({ question, children }) => {
         onPress={toggleOpen}
         className="flex-row justify-between items-center"
       >
-        <Text className="text-app w-[300px] font-SatoshiMedium text-base">
+        <Text className="text-app w-[300px] font-PlusJakartaSansMedium text-base">
           {question}
         </Text>
         <Feather

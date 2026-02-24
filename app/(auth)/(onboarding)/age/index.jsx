@@ -64,10 +64,10 @@ const Age = () => {
   return (
     <View className="bg-white flex-1">
       <View style={styles.container}>
-        <Text className="text-3xl font-SatoshiBold">
+        <Text className="text-3xl font-PlusJakartaSansBold">
           What&apos;s your date of birth?
         </Text>
-        <Text className="text-lg font-Satoshi">
+        <Text className="text-lg font-PlusJakartaSans">
           We’ll use this to calculate your age
         </Text>
 
@@ -140,7 +140,7 @@ const styles = StyleSheet.create({
   ageText: {
     marginTop: 60,
     fontSize: 20,
-    fontFamily: "SatoshiBold",
+    fontFamily: "PlusJakartaSansBold",
     color: "#333",
   },
 });

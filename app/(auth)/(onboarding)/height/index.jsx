@@ -17,8 +17,8 @@ const Height = () => {
   return (
     <View className="bg-white flex-1">
       <View style={styles.container}>
-        <Text className="text-3xl font-SatoshiBold">How Tall Are You?</Text>
-        <Text className='text-lg font-Satoshi mb-4'>
+        <Text className="text-3xl font-PlusJakartaSansBold">How Tall Are You?</Text>
+        <Text className='text-lg font-PlusJakartaSans mb-4'>
           Please provide your height in centimeters
         </Text>
 
@@ -54,13 +54,13 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 25,
-    fontFamily: "SatoshiBold",
+    fontFamily: "PlusJakartaSansBold",
     color: "#000",
   },
   subtitle: {
     fontSize: 14,
     color: "#000",
-    fontFamily: "Satoshi",
+    fontFamily: "PlusJakartaSans",
     marginBottom: 30,
   },
   pickerWrapper: {
@@ -72,7 +72,7 @@ const styles = StyleSheet.create({
   pickerItem: {
     fontSize: 28,
     height: 200,
-    fontFamily: "SatoshiBold",
+    fontFamily: "PlusJakartaSansBold",
     color: "#000",
   },
 });

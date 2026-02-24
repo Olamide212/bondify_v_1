@@ -83,7 +83,7 @@ const SubscriptionModal = ({ visible, onClose }) => {
           }}
         >
           <Text
-            style={{ fontSize: 20, fontFamily: "SatoshiBold", color: "#000" }}
+            style={{ fontSize: 20, fontFamily: "PlusJakartaSansBold", color: "#000" }}
           >
             Choose Your Plan
           </Text>
@@ -120,7 +120,7 @@ const SubscriptionModal = ({ visible, onClose }) => {
               {/* Title & Price */}
               <Text
                 style={{
-                  fontFamily: "SatoshiBold",
+                  fontFamily: "PlusJakartaSansBold",
                   fontSize: 22,
                   color: colors.primary,
                 }}
@@ -129,7 +129,7 @@ const SubscriptionModal = ({ visible, onClose }) => {
               </Text>
               <Text
                 style={{
-                  fontFamily: "SatoshiMedium",
+                  fontFamily: "PlusJakartaSansMedium",
                   fontSize: 18,
                   color: "#000",
                   marginTop: 4,
@@ -153,7 +153,7 @@ const SubscriptionModal = ({ visible, onClose }) => {
                     <Check size={18} color={colors.primary} />
                     <Text
                       style={{
-                        fontFamily: "Satoshi",
+                        fontFamily: "PlusJakartaSans",
                         fontSize: 16,
                         color: "#000",
                         marginLeft: 8,
@@ -186,7 +186,7 @@ const SubscriptionModal = ({ visible, onClose }) => {
                   <Text
                     style={{
                       color: "#fff",
-                      fontFamily: "SatoshiBold",
+                      fontFamily: "PlusJakartaSansBold",
                       fontSize: 16,
                     }}
                   >

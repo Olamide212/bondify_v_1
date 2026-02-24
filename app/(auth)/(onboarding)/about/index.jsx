@@ -50,7 +50,7 @@ const About = () => {
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View className="flex-1 px-3">
             <ScrollView className="flex-1 mt-8" showsVerticalScrollIndicator={false}>
-              <Text className="text-3xl font-SatoshiBold  mb-4">
+              <Text className="text-3xl font-PlusJakartaSansBold  mb-4">
                 Tell us a little about yourself
               </Text>
 
@@ -69,11 +69,11 @@ const About = () => {
                   borderRadius: 12,
                   textAlignVertical: "top",
                   fontSize: 16,
-                  fontFamily: fonts.SantoshiMedium
+                  fontFamily: fonts.PlusJakartaSansMedium
                 }}
               />
 
-              <Text className="text-lg font-SatoshiMedium mt-6 mb-3 text-gray-600">
+              <Text className="text-lg font-PlusJakartaSansMedium mt-6 mb-3 text-gray-600">
                 Or pick one of these:
               </Text>
 
@@ -91,7 +91,7 @@ const About = () => {
                       }`}
                     >
                       <Text
-                        className={`text-base font-SatoshiMedium ${
+                        className={`text-base font-PlusJakartaSansMedium ${
                           isSelected ? "text-white" : "text-gray-700"
                         }`}
                       >

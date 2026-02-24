@@ -37,7 +37,7 @@ const LoveStyleModal = ({
               }`}
             >
               <Text
-                className={`text-[16px] font-SatoshiMedium ${
+                className={`text-[16px] font-PlusJakartaSansMedium ${
                   isSelected ? "text-primary" : "text-black"
                 }`}
               >

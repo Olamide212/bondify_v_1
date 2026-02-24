@@ -42,7 +42,7 @@ const Drink = () => {
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View className="flex-1 px-2">
             <View className="flex-1 mt-8">
-              <Text className="text-3xl font-SatoshiBold  mb-2">
+              <Text className="text-3xl font-PlusJakartaSansBold  mb-2">
           Do you Drink?
               </Text>
 

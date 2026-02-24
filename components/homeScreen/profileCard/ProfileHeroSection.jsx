@@ -74,12 +74,12 @@ const ProfileHeroSection = ({
 
             <View className="absolute bottom-64 left-6 right-6">
               <View className="flex-row items-center mb-6">
-                <Text className="text-white text-4xl font-SatoshiBold mr-2 capitalize" numberOfLines={1}>
+                <Text className="text-white text-4xl font-PlusJakartaSansBold mr-2 capitalize" numberOfLines={1}>
                   {profile.name}
                 </Text>
 
                 <View className="flex-row items-center gap-2">
-                  <Text className="text-white text-4xl font-Satoshi">{profile.age}</Text>
+                  <Text className="text-white text-4xl font-PlusJakartaSans">{profile.age}</Text>
                   {profile.verified && <VerifiedIcon />}
                 </View>
               </View>
@@ -88,7 +88,7 @@ const ProfileHeroSection = ({
                 {profile.occupation && (
                   <View className="flex-row items-center bg-secondary px-4 py-2 rounded-full">
                     <Briefcase size={18} color={"#000"} />
-                    <Text className="text-black font-SatoshiMedium ml-2 capitalize">
+                    <Text className="text-black font-PlusJakartaSansMedium ml-2 capitalize">
                       {profile.occupation}
                     </Text>
                   </View>
@@ -100,7 +100,7 @@ const ProfileHeroSection = ({
                       size={20}
                       color={"#000"}
                     />
-                    <Text className="text-black font-SatoshiMedium ml-2 capitalize">
+                    <Text className="text-black font-PlusJakartaSansMedium ml-2 capitalize">
                       {profile.religion}
                     </Text>
                   </View>
@@ -109,7 +109,7 @@ const ProfileHeroSection = ({
                 {locationLabel && (
                   <View className="flex-row items-center bg-secondary px-4 py-2 rounded-full">
                     <MapPin size={18} color={"#000"} />
-                    <Text className="text-black font-SatoshiMedium ml-2">
+                    <Text className="text-black font-PlusJakartaSansMedium ml-2">
                       {locationLabel}
                     </Text>
                   </View>

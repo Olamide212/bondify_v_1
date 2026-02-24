@@ -143,7 +143,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-    fontFamily: "GeneralSansBold",
+    fontFamily: "PlusJakartaSansBold",
     color: "#000",
   },
   closeButton: {
@@ -158,7 +158,7 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 15,
-    fontFamily: "Satoshi",
+    fontFamily: "PlusJakartaSans",
     color: "#666",
     marginBottom: 24,
     lineHeight: 22,
@@ -174,7 +174,7 @@ const styles = StyleSheet.create({
   },
   sectionLabel: {
     fontSize: 16,
-    fontFamily: "SatoshiBold",
+    fontFamily: "PlusJakartaSansBold",
     color: "#000",
   },
   shuffleButton: {
@@ -188,7 +188,7 @@ const styles = StyleSheet.create({
   },
   shuffleText: {
     fontSize: 14,
-    fontFamily: "SatoshiMedium",
+    fontFamily: "PlusJakartaSansMedium",
     color: colors.primary,
   },
   suggestionItem: {
@@ -205,7 +205,7 @@ const styles = StyleSheet.create({
   },
   suggestionText: {
     fontSize: 15,
-    fontFamily: "Satoshi",
+    fontFamily: "PlusJakartaSans",
     color: "#333",
     lineHeight: 22,
   },
@@ -223,7 +223,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
     minHeight: 80,
     fontSize: 15,
-    fontFamily: "Satoshi",
+    fontFamily: "PlusJakartaSans",
     textAlignVertical: "top",
     color: "#000",
   },
@@ -248,7 +248,7 @@ const styles = StyleSheet.create({
   sendButtonText: {
     color: "#fff",
     fontSize: 18,
-    fontFamily: "GeneralSansSemiBold",
+    fontFamily: "PlusJakartaSansSemiBold",
   },
 });
 

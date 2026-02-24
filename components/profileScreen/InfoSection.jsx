@@ -121,10 +121,10 @@ const InfoSection = () => {
               <View className="flex-row items-center gap-3 flex-1">
                 <Icon size={20} />
                 <View className="flex-1">
-                  <Text className="text-[18px] text-black font-SatoshiBold">
+                  <Text className="text-[18px] text-black font-PlusJakartaSansBold">
                     {title}
                   </Text>
-                  <Text className="text-base text-gray-700 font-SatoshiMedium">
+                  <Text className="text-base text-gray-700 font-PlusJakartaSansMedium">
                     {description}
                   </Text>
                 </View>

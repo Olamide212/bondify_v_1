@@ -22,7 +22,7 @@ const WalletModal = ({ visible, onClose }) => {
       <SafeAreaView className='flex-1'>
         {/* Header */}
         <View className="flex-row items-center justify-between px-5 py-4 border-b border-gray-200">
-          <Text className="text-2xl font-SatoshiBold text-black">My Wallet</Text>
+          <Text className="text-2xl font-PlusJakartaSansBold text-black">My Wallet</Text>
           <TouchableOpacity onPress={onClose}>
             <X size={24} color="black" />
           </TouchableOpacity>
@@ -31,16 +31,16 @@ const WalletModal = ({ visible, onClose }) => {
         {/* Balance */}
         <View className="m-5 p-6 rounded-2xl bg-purple-600 items-center">
           <Coins size={32} color="white" />
-          <Text className="text-white text-lg mt-2 font-Satoshi">
+          <Text className="text-white text-lg mt-2 font-PlusJakartaSans">
             Current Balance
           </Text>
-          <Text className="text-white text-3xl font-SatoshiBold">
+          <Text className="text-white text-3xl font-PlusJakartaSansBold">
             {balance} Coins
           </Text>
         </View>
 
         {/* Buy Coins */}
-        <Text className="px-5 mb-3 text-xl font-SatoshiBold text-black">
+        <Text className="px-5 mb-3 text-xl font-PlusJakartaSansBold text-black">
           Buy Coins
         </Text>
 
@@ -58,12 +58,12 @@ const WalletModal = ({ visible, onClose }) => {
               onPress={() => setBalance(balance + item.coins + item.bonus)}
               className="bg-white border border-gray-200 rounded-2xl p-4 mb-4 flex-1 mx-1 shadow-sm"
             >
-              <Text className="text-xl font-SatoshiBold text-purple-600">
+              <Text className="text-xl font-PlusJakartaSansBold text-purple-600">
                 {item.coins} 💰
               </Text>
               <Text className="text-base text-black mt-1">{item.price}</Text>
               {item.bonus > 0 && (
-                <Text className="text-sm text-green-600 font-Satoshi mt-1">
+                <Text className="text-sm text-green-600 font-PlusJakartaSans mt-1">
                   +{item.bonus} bonus
                 </Text>
               )}

@@ -170,10 +170,10 @@ const UserProfileModal = ({ visible, onClose, profileId }) => {
             {/* Center: Name & Age */}
             <View style={styles.centerContent}>
               <View className="flex-row items-center">
-                <Text className="text-black text-xl font-SatoshiBold mr-2">
+                <Text className="text-black text-xl font-PlusJakartaSansBold mr-2">
                   {currentProfile.name}
                 </Text>
-                <Text className="text-black text-xl font-Satoshi">
+                <Text className="text-black text-xl font-PlusJakartaSans">
                   {currentProfile.age}
                 </Text>
                 {currentProfile.verified && (

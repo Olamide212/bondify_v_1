@@ -8,7 +8,7 @@ const HeaderWithLogo = ({ title, icon, onPress, leftIcon, className = "" }) => {
   return (
     <View className={`flex-row items-center justify-between px-4 py-4 bg-white ${className} `}>
       <Pressable onPress={() => router.back()}>{leftIcon}</Pressable>
-      <Text className={`text-black text-2xl font-SatoshiBold ${className}`}>
+      <Text className={`text-black text-2xl font-PlusJakartaSansBold ${className}`}>
         {title}
       </Text>
       <Pressable onPress={onPress}>{icon}</Pressable>

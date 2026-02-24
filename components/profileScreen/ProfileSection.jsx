@@ -56,7 +56,7 @@ const ProfileSection = ({ profile }) => {
         </View>
         {completion > 0 && (
           <View className="w-12 h-12 absolute bg-secondary px-2 py-1 rounded-full  z-50   flex-row justify-center items-center ">
-            <Text className="text-black font-SatoshiBold text-sm">
+            <Text className="text-black font-PlusJakartaSansBold text-sm">
               {completion}%
             </Text>
           </View>
@@ -118,7 +118,7 @@ const styles = StyleSheet.create({
   },
   name: {
     fontSize: 26,
-    fontFamily: "SatoshiBold",
+    fontFamily: "PlusJakartaSansBold",
     color: "#000",
     textAlign: "center",
   },

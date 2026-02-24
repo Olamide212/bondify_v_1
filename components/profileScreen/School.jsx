@@ -35,16 +35,16 @@ const School = ({ profile, onUpdateField }) => {
         <View className="mb-1">
         
           {!schoolName ? (
-            <Text className="text-gray-400  font-SatoshiMediumItalic">
+            <Text className="text-gray-400  font-PlusJakartaSansMediumItalic">
               No school added yet
             </Text>
           ) : (
-            <Text className="text-black text-2xl font-SatoshiMedium">
+            <Text className="text-black text-2xl font-PlusJakartaSansMedium">
               {schoolName.trim() || "No school added yet"}
             </Text>
           )}
 
-          <Text className="flex-1 text-lg text-primary mt-2 font-SatoshiMedium">
+          <Text className="flex-1 text-lg text-primary mt-2 font-PlusJakartaSansMedium">
             {schoolName ? "Change school" : "Add my school"}
           </Text>
         </View>
@@ -59,14 +59,14 @@ const School = ({ profile, onUpdateField }) => {
               <Pressable onPress={() => setModalVisible(false)} className="mr-4">
                 <ArrowLeft size={24} color="#000" />
               </Pressable>
-              <Text className="text-2xl font-SatoshiMedium text-center">
+              <Text className="text-2xl font-PlusJakartaSansMedium text-center">
                 Add your school
               </Text>
             </View>
 
             {/* Input Field */}
             <TextInput
-              className="border border-gray-300   rounded-lg p-4 mb-6 font-SatoshiMedium"
+              className="border border-gray-300   rounded-lg p-4 mb-6 font-PlusJakartaSansMedium"
               placeholder="Enter school name"
               value={schoolName}
               onChangeText={setSchoolName}

@@ -74,10 +74,10 @@ const UploadPhoto = () => {
           <View className='flex-1'>
             {/* Title + Subtitle */}
             <View className="mb-6 mt-8">
-              <Text className="text-3xl font-SatoshiBold  mb-2">
+              <Text className="text-3xl font-PlusJakartaSansBold  mb-2">
                 Add your photos
               </Text>
-              <Text className="text-lg  font-Satoshi">
+              <Text className="text-lg  font-PlusJakartaSans">
                 Members with 6 photos find their match faster
               </Text>
             </View>
@@ -124,7 +124,7 @@ const UploadPhoto = () => {
                   color="gray"
                   style={{ marginTop: 2 }}
                 />
-                <Text className="ml-2 font-Satoshi text-gray-600 text-sm">
+                <Text className="ml-2 font-PlusJakartaSans text-gray-600 text-sm">
                   Add photos of you where you can clearly see your face.
                 </Text>
               </View>
@@ -135,7 +135,7 @@ const UploadPhoto = () => {
                   color="gray"
                   style={{ marginTop: 2 }}
                 />
-                <Text className="ml-2 font-Satoshi text-gray-600 text-sm">
+                <Text className="ml-2 font-PlusJakartaSans text-gray-600 text-sm">
                   Photos that don’t clearly show you will be removed.
                 </Text>
               </View>

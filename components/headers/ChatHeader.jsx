@@ -141,7 +141,7 @@ const styles = StyleSheet.create({
   },
   userName: {
     fontSize: 18,
-fontFamily: fonts.SantoshiMedium,
+fontFamily: fonts.PlusJakartaSansMedium,
     color: "#1F2937",
   },
   statusContainer: {

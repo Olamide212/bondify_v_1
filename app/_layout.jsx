@@ -17,18 +17,20 @@ SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
 const [fontsLoaded] = useFonts({
-  GeneralSans: require("../assets/fonts/GeneralSans-Regular.otf"),
-  GeneralSansLight: require("../assets/fonts/GeneralSans-Light.otf"),
-  GeneralSansMedium: require("../assets/fonts/GeneralSans-Medium.otf"),
-  GeneralSansSemiBold: require("../assets/fonts/GeneralSans-Semibold.otf"),
-  GeneralSansBold: require("../assets/fonts/GeneralSans-Bold.otf"),
-  Satoshi: require("../assets/fonts/Satoshi-Regular.otf"),
-  SatoshiLight: require("../assets/fonts/Satoshi-Light.otf"),
-  SatoshiMedium: require("../assets/fonts/Satoshi-Medium.otf"),
-  SatoshiBold: require("../assets/fonts/Satoshi-Bold.otf"),
-  SatoshiItalic: require("../assets/fonts/Satoshi-Italic.otf"),
-  SatoshiItalicLight: require("../assets/fonts/Satoshi-LightItalic.otf"),
-  SatoshiMediumItalic: require("../assets/fonts/Satoshi-MediumItalic.otf"),
+  PlusJakartaSans: require("../assets/fonts/PlusJakartaSans_400Regular.ttf"),
+  PlusJakartaSansExtraLight: require("../assets/fonts/PlusJakartaSans_200ExtraLight.ttf"),
+  PlusJakartaSansLight: require("../assets/fonts/PlusJakartaSans_300Light.ttf"),
+  PlusJakartaSansMedium: require("../assets/fonts/PlusJakartaSans_500Medium.ttf"),
+  PlusJakartaSansSemiBold: require("../assets/fonts/PlusJakartaSans_600SemiBold.ttf"),
+  PlusJakartaSansBold: require("../assets/fonts/PlusJakartaSans_700Bold.ttf"),
+  PlusJakartaSansExtraBold: require("../assets/fonts/PlusJakartaSans_800ExtraBold.ttf"),
+  PlusJakartaSansItalic: require("../assets/fonts/PlusJakartaSans_400Regular_Italic.ttf"),
+  PlusJakartaSansExtraLightItalic: require("../assets/fonts/PlusJakartaSans_200ExtraLight_Italic.ttf"),
+  PlusJakartaSansLightItalic: require("../assets/fonts/PlusJakartaSans_300Light_Italic.ttf"),
+  PlusJakartaSansMediumItalic: require("../assets/fonts/PlusJakartaSans_500Medium_Italic.ttf"),
+  PlusJakartaSansSemiBoldItalic: require("../assets/fonts/PlusJakartaSans_600SemiBold_Italic.ttf"),
+  PlusJakartaSansBoldItalic: require("../assets/fonts/PlusJakartaSans_700Bold_Italic.ttf"),
+  PlusJakartaSansExtraBoldItalic: require("../assets/fonts/PlusJakartaSans_800ExtraBold_Italic.ttf"),
 });
 
   const onLayoutRootView = useCallback(async () => {
