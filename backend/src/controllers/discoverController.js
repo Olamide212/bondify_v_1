@@ -99,15 +99,13 @@ const getDiscoveryProfiles = async (req, res, next) => {
       ];
     }
 
-    // Geolocation-based distance filtering
+    // Geolocation-based distance filtering (use $geoWithin/$centerSphere instead of $near)
     if (sanitizedMaxDistance && currentUser.location?.coordinates) {
-      query.location = {
-        $near: {
-          $geometry: {
-            type: 'Point',
-            coordinates: currentUser.location.coordinates,
-          },
-          $maxDistance: sanitizedMaxDistance * 1000, // Convert km to meters
+      const earthRadius = 6378137; // in meters
+      const radius = (sanitizedMaxDistance * 1000) / earthRadius;
+      query['location.coordinates'] = {
+        $geoWithin: {
+          $centerSphere: [currentUser.location.coordinates, radius],
         },
       };
     }

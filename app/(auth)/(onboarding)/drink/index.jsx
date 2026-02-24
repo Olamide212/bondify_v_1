@@ -16,18 +16,6 @@ import Info from "../../../../components/ui/Info";
 import { useLookupOptions } from "../../../../hooks/useLookupOptions";
 import { useProfileSetup } from "../../../../hooks/useProfileSetup";
 
-const drinkingValueMap = {
-  no: "No, I don't drink",
-  never: "No, I don't drink",
-  occasionally: "Rarely",
-  occassionally: "Rarely",
-  rarely: "Rarely",
-  socially: "Socially",
-  often: "Regularly",
-  "a-lot": "Regularly",
-  regularly: "Regularly",
-  "prefer-not-to-say": "Prefer not to say",
-};
 
 
 const Drink = () => {
@@ -67,10 +55,7 @@ const Drink = () => {
                 title="Continue"
                 variant="gradient"
                 onPress={async () => {
-                  const normalizedDrinking =
-                    drinkingValueMap[drinking?.toLowerCase?.()] || drinking;
-
-                  await updateProfileStep({ drinking: normalizedDrinking });
+                  await updateProfileStep({ drinking });
                   router.push("/about");
                 }}
               />

@@ -17,24 +17,6 @@ import Info from "../../../../components/ui/Info";
 import { useLookupOptions } from "../../../../hooks/useLookupOptions";
 import { useProfileSetup } from "../../../../hooks/useProfileSetup";
 
-const childrenValueMap = {
-  "i want": "I want kids",
-  i_want: "I want kids",
-  "i want children": "I want kids",
-  "want-kids": "I want kids",
-  "i dont": "I don't want kids",
-  i_dont: "I don't want kids",
-  "i don't want children": "I don't want kids",
-  "dont-want-kids": "I don't want kids",
-  "i have": "I have kids",
-  i_have: "I have kids",
-  "i have children and want more": "I am open to kids",
-  "open-to-kids": "I am open to kids",
-  dont_want: "I have kids",
-  "i have children and don't want more": "I have kids",
-  "have-kids": "I have kids",
-  "prefer-not-to-say": "I prefer not to say",
-};
 
 
 const Kids = () => {
@@ -65,7 +47,7 @@ const Kids = () => {
                 <RadioSelect
                   value={children}
                   onChange={setChildren}
-                  options={familyPlanOptions}
+                  options={familyPlanOptions}  
                   className="mt-2"
                 />
               </View>
@@ -77,10 +59,7 @@ const Kids = () => {
                 title="Continue"
                 variant="gradient"
                 onPress={async () => {
-                  const normalizedChildren =
-                    childrenValueMap[children?.toLowerCase?.()] || children;
-
-                  await updateProfileStep({ children: normalizedChildren });
+                  await updateProfileStep({ children });
                   router.push("/preference");
                 }}
               />

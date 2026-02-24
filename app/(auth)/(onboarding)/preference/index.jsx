@@ -17,19 +17,6 @@ import Info from "../../../../components/ui/Info";
 import { useLookupOptions } from "../../../../hooks/useLookupOptions";
 import { useProfileSetup } from "../../../../hooks/useProfileSetup";
 
-const lookingForValueMap = {
-  "committed-relationship": "Long term",
-  "a-committed-relationship": "Long term",
-  marriage: "Long term",
-  "long-term": "Long term",
-  "finding-a-date": "Short term",
-  "short-term": "Short term",
-  "something-casual": "Something Casual",
-  casual: "Something Casual",
-  "meet-business-oriented-people": "Meet business oriented people",
-  friendship: "Meet business oriented people",
-  "not-sure": "I am not sure",
-};
 
 
 const Preference = () => {

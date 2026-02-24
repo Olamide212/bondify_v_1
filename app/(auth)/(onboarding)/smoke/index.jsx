@@ -16,18 +16,6 @@ import Info from "../../../../components/ui/Info";
 import { useLookupOptions } from "../../../../hooks/useLookupOptions";
 import { useProfileSetup } from "../../../../hooks/useProfileSetup";
 
-const smokingValueMap = {
-  no: "No, I don't smoke",
-  never: "No, I don't smoke",
-  occasionally: "Occasionally",
-  occassionally: "Occasionally",
-  rarely: "Occasionally",
-  socially: "Socially",
-  often: "Regularly",
-  "a-lot": "Regularly",
-  regularly: "Regularly",
-  "prefer-not-to-say": "Prefer not to say",
-};
 
 
 const Smoke = () => {
@@ -67,10 +55,7 @@ const Smoke = () => {
                 title="Continue"
                 variant="gradient"
                 onPress={async () => {
-                  const normalizedSmoking =
-                    smokingValueMap[smoking?.toLowerCase?.()] || smoking;
-
-                  await updateProfileStep({ smoking: normalizedSmoking });
+                  await updateProfileStep({ smoking });
                   router.push("/drink");
                 }}
               />
