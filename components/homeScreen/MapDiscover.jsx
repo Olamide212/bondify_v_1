@@ -202,7 +202,7 @@ const generateMockUsers = (center, filters) => {
         Math.random() * (filters.ageRange[1] - filters.ageRange[0]) +
           filters.ageRange[0]
       ),
-      gender: ["male", "female", "other"][i % 3],
+      gender: ["Male", "Female", "Other"][i % 3],
       location: {
         latitude: center.latitude + (distance / 111) * Math.cos(angle),
         longitude:

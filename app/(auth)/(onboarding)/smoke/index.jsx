@@ -17,11 +17,16 @@ import { useLookupOptions } from "../../../../hooks/useLookupOptions";
 import { useProfileSetup } from "../../../../hooks/useProfileSetup";
 
 const smokingValueMap = {
-  no: "never",
-  occasionally: "rarely",
-  occassionally: "rarely",
-  often: "regularly",
-  "a-lot": "regularly",
+  no: "No, I don't smoke",
+  never: "No, I don't smoke",
+  occasionally: "Occasionally",
+  occassionally: "Occasionally",
+  rarely: "Occasionally",
+  socially: "Socially",
+  often: "Regularly",
+  "a-lot": "Regularly",
+  regularly: "Regularly",
+  "prefer-not-to-say": "Prefer not to say",
 };
 
 

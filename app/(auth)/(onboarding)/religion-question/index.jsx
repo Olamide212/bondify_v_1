@@ -17,7 +17,10 @@ import { useLookupOptions } from "../../../../hooks/useLookupOptions";
 import { useProfileSetup } from "../../../../hooks/useProfileSetup";
 
 const religionImportanceMap = {
-  "not-matter": "not-important",
+  "not-matter": "It doesn't matter to me at all",
+  "very-important": "Is very important",
+  "not-important": "It doesn't matter to me at all",
+  "quite-important": "Is quite important",
 };
 
 

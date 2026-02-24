@@ -46,7 +46,7 @@ const updateProfileValidation = [
   body('age').optional().isInt({ min: 18, max: 100 }),
   body('dateOfBirth').optional().isISO8601(),
   body('birthdate').optional().isISO8601(),
-  body('gender').optional().isIn(['male', 'female', 'non-binary', 'other']),
+  body('gender').optional().isIn(['Male', 'Female', 'Non-binary', 'Other']),
   body('bio').optional().isLength({ max: 500 }),
   validate,
 ];
