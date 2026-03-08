@@ -18,6 +18,12 @@ const matchRoutes = require('./routes/matchRoutes');
 const messageRoutes = require('./routes/messageRoutes');
 const lookupRoutes = require('./routes/lookupRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
+const settingsRoutes = require('./routes/settingsRoutes');
+const premiumRoutes = require('./routes/premiumRoutes');
+const verificationRoutes = require('./routes/verificationRoutes');
+const eventRoutes = require('./routes/eventRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
+const aiRoutes = require('./routes/aiRoutes');
 
 // Initialize express app
 const app = express();
@@ -61,6 +67,12 @@ app.use('/api/matches', matchRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/lookup', lookupRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/settings', settingsRoutes);
+app.use('/api/premium', premiumRoutes);
+app.use('/api/verification', verificationRoutes);
+app.use('/api/events', eventRoutes);
+app.use('/api/notifications', notificationRoutes);
+app.use('/api/ai', aiRoutes);
 
 // 404 handler
 app.use('*', (req, res) => {

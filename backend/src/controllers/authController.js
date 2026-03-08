@@ -1,13 +1,20 @@
 const User = require('../models/User');
 const { generateToken, generateOnboardingToken } = require('../config/jwt');
 const { generateOTP, calculateOTPExpiry } = require('../config/otp');
+const { generateReferralCode } = require('../utils/referral');
 
 // @desc    Register new user
 // @route   POST /api/auth/signup
 // @access  Public
 const signup = async (req, res, next) => {
   try {
-    const { firstName, lastName, email, password, phoneNumber, countryCode } = req.body;
+    const { firstName, lastName, email, password, phoneNumber, countryCode, referralCode } = req.body;
+
+    // Handle referral
+    let referredByUser = null;
+    if (referralCode) {
+      referredByUser = await User.findOne({ referralCode: referralCode.toUpperCase() });
+    }
 
     // Check if user exists
     const userExists = await User.findOne({ email });
@@ -33,7 +40,17 @@ const signup = async (req, res, next) => {
       otp,
       otpExpiry,
       isVerified: false,
+      referredBy: referredByUser ? referredByUser._id : undefined,
     });
+
+    // Generate unique referral code for new user
+    user.referralCode = generateReferralCode(user._id.toString());
+    await user.save();
+
+    // Increment referrer's count
+    if (referredByUser) {
+      await User.findByIdAndUpdate(referredByUser._id, { $inc: { referralCount: 1 } });
+    }
 
     // Generate onboarding token
     const onboardingToken = generateOnboardingToken(user._id);

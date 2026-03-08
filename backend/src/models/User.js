@@ -23,6 +23,7 @@ const userSchema = new mongoose.Schema(
     },
     phoneNumber: {
       type: String,
+      unique: true,
       sparse: true,
     },
     countryCode: {
@@ -31,6 +32,14 @@ const userSchema = new mongoose.Schema(
     password: {
       type: String,
       required: true,
+      select: false,
+    },
+
+    // Pending email change (waiting for OTP verification)
+    pendingEmail: {
+      type: String,
+      lowercase: true,
+      trim: true,
       select: false,
     },
 
@@ -272,10 +281,83 @@ const userSchema = new mongoose.Schema(
       default: 0,
     },
 
+    // Referral
+    referralCode: {
+      type: String,
+      unique: true,
+      sparse: true,
+    },
+    referredBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+    },
+    referralCount: {
+      type: Number,
+      default: 0,
+    },
+
+    // Premium Plan
+    premiumPlan: {
+      type: String,
+      enum: ['basic', 'gold', 'platinum'],
+      default: null,
+    },
+    premiumFeatures: {
+      unlimitedLikes: { type: Boolean, default: false },
+      seeWhoLikedYou: { type: Boolean, default: false },
+      superLikes: { type: Number, default: 0 },
+      boosts: { type: Number, default: 0 },
+      rewind: { type: Boolean, default: false },
+      incognitoMode: { type: Boolean, default: false },
+      priorityMatching: { type: Boolean, default: false },
+    },
+
+    // Notification Settings
+    notificationSettings: {
+      newMatch: { type: Boolean, default: true },
+      newMessage: { type: Boolean, default: true },
+      newLike: { type: Boolean, default: true },
+      superLike: { type: Boolean, default: true },
+      eventReminder: { type: Boolean, default: true },
+      emailNotifications: { type: Boolean, default: true },
+      pushNotifications: { type: Boolean, default: true },
+      marketingEmails: { type: Boolean, default: false },
+    },
+
+    // Privacy Settings
+    privacySettings: {
+      profileVisibility: {
+        type: String,
+        enum: ['everyone', 'matches_only', 'nobody'],
+        default: 'everyone',
+      },
+      showLastActive: { type: Boolean, default: true },
+      showDistance: { type: Boolean, default: true },
+      showAge: { type: Boolean, default: true },
+      showOnlineStatus: { type: Boolean, default: true },
+      allowMessageFromNonMatches: { type: Boolean, default: false },
+    },
+
+    // Verification
+    verificationStatus: {
+      type: String,
+      enum: ['unverified', 'pending', 'under_review', 'verified', 'rejected'],
+      default: 'unverified',
+    },
+
+    // Push Token (for push notifications)
+    pushToken: {
+      type: String,
+    },
+
     // Account Status
     isActive: {
       type: Boolean,
       default: true,
+    },
+    isDeleted: {
+      type: Boolean,
+      default: false,
     },
     deactivatedAt: {
       type: Date,
