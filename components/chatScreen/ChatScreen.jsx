@@ -20,6 +20,7 @@ import { colors } from "../../constant/colors";
 import { matchService } from "../../services/matchService";
 import { messageService } from "../../services/messageService";
 import { socketService } from "../../services/socketService";
+import SettingsService from "../../services/settingsService";
 import { formatRelativeDate } from "../../utils/helper";
 import Header from "../headers/ChatHeader";
 import BaseModal from "../modals/BaseModal";
@@ -29,14 +30,18 @@ import MessageBubble from "./MessageBubble";
 const MESSAGE_PAGE_SIZE = 20;
 const LOAD_OLDER_TRIGGER_PX = 140;
 
-const ChatScreen = ({ matchedUser, onBack }) => {
+const REPORT_REASONS = [
+  { value: "inappropriate_content", label: "Inappropriate content" },
+  { value: "harassment", label: "Harassment or bullying" },
+  { value: "fake_profile", label: "Fake profile" },
+  { value: "spam", label: "Spam" },
+  { value: "underage", label: "Underage user" },
+  { value: "other", label: "Other" },
+];
 
+const ChatScreen = ({ matchedUser, onBack }) => {
   const [isTyping, setIsTyping] = useState(false);
   const typingTimeoutRef = useRef(null);
-
-
-
-
 
   // Typing indicator handlers
   useEffect(() => {
@@ -60,6 +65,7 @@ const ChatScreen = ({ matchedUser, onBack }) => {
       if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
     };
   }, [matchedUser?.matchId, currentUserId]);
+
   const router = useRouter();
   const [messages, setMessages] = useState([]);
   const [isInitialLoading, setIsInitialLoading] = useState(true);
@@ -68,6 +74,11 @@ const ChatScreen = ({ matchedUser, onBack }) => {
   const [isLoadingOlder, setIsLoadingOlder] = useState(false);
   const [isActionsModalVisible, setIsActionsModalVisible] = useState(false);
   const [isProcessingAction, setIsProcessingAction] = useState(false);
+
+  // Report modal state
+  const [isReportModalVisible, setIsReportModalVisible] = useState(false);
+  const [selectedReportReason, setSelectedReportReason] = useState(null);
+
   const scrollViewRef = useRef(null);
   const contentHeightRef = useRef(0);
   const scrollOffsetYRef = useRef(0);
@@ -457,20 +468,71 @@ const ChatScreen = ({ matchedUser, onBack }) => {
   };
 
   const handleBlock = () => {
+    if (!matchedUser?.id || isProcessingAction) return;
+
     setIsActionsModalVisible(false);
-    Alert.alert("Block", "Block action will be available once backend support is connected.");
+
+    Alert.alert(
+      "Block",
+      `Block ${matchedUser.name}? They won't be able to see your profile or contact you. This will also remove your match.`,
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Block",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              setIsProcessingAction(true);
+              await SettingsService.blockUser(matchedUser.id);
+              // Navigate back and signal the match should be removed from the list
+              onBack?.({ unmatchedMatchId: matchedUser.matchId, blocked: true });
+            } catch (error) {
+              Alert.alert("Unable to block", error?.message || "Please try again.");
+            } finally {
+              setIsProcessingAction(false);
+            }
+          },
+        },
+      ]
+    );
   };
 
   const handleReport = () => {
+    if (!matchedUser?.id || isProcessingAction) return;
     setIsActionsModalVisible(false);
-    Alert.alert("Report", "Report action will be available once backend support is connected.");
+    setSelectedReportReason(null);
+    setIsReportModalVisible(true);
+  };
+
+  const submitReport = async () => {
+    if (!selectedReportReason) {
+      Alert.alert("Select a reason", "Please choose a reason before submitting.");
+      return;
+    }
+
+    try {
+      setIsProcessingAction(true);
+      await SettingsService.reportUser(matchedUser.id, {
+        reason: selectedReportReason,
+        matchId: matchedUser.matchId,
+      });
+      setIsReportModalVisible(false);
+      Alert.alert(
+        "Report submitted",
+        "Thank you for keeping the community safe. We'll review this report."
+      );
+    } catch (error) {
+      Alert.alert("Unable to submit report", error?.message || "Please try again.");
+    } finally {
+      setIsProcessingAction(false);
+    }
   };
 
   return (
     <SafeAreaView className='flex-1' edges={["top", "left", "right", "bottom"]}>
       <KeyboardAvoidingView
         style={styles.container}
-        behavior={Platform.OS === "ios" ? "padding" : "padding"} // padding for both
+        behavior={Platform.OS === "ios" ? "padding" : "padding"}
         keyboardVerticalOffset={Platform.OS === "android" ? StatusBar.currentHeight : 0}
       >
         <Header
@@ -570,9 +632,6 @@ const ChatScreen = ({ matchedUser, onBack }) => {
           )}
         </ScrollView>
 
-
-
-
         <InputToolbar
           sendMessage={sendMessage}
           onSendImage={handleSendImage}
@@ -581,12 +640,7 @@ const ChatScreen = ({ matchedUser, onBack }) => {
           currentUserId={currentUserId}
         />
 
-       
-      
-   
-
-
-
+        {/* ── Actions sheet ── */}
         <BaseModal
           visible={isActionsModalVisible}
           onClose={() => !isProcessingAction && setIsActionsModalVisible(false)}
@@ -622,29 +676,67 @@ const ChatScreen = ({ matchedUser, onBack }) => {
             </TouchableOpacity>
           </View>
         </BaseModal>
+
+        {/* ── Report reason picker ── */}
+        <BaseModal
+          visible={isReportModalVisible}
+          onClose={() => !isProcessingAction && setIsReportModalVisible(false)}
+        >
+          <View style={styles.actionsModalContainer}>
+            <Text style={styles.reportTitle}>Why are you reporting {matchedUser.name}?</Text>
+
+            {REPORT_REASONS.map((item) => (
+              <TouchableOpacity
+                key={item.value}
+                style={[
+                  styles.actionItem,
+                  selectedReportReason === item.value && styles.actionItemSelected,
+                ]}
+                onPress={() => setSelectedReportReason(item.value)}
+                disabled={isProcessingAction}
+              >
+                <Text
+                  style={[
+                    styles.reportReasonText,
+                    selectedReportReason === item.value && styles.reportReasonTextSelected,
+                  ]}
+                >
+                  {item.label}
+                </Text>
+              </TouchableOpacity>
+            ))}
+
+            <TouchableOpacity
+              style={[
+                styles.actionItem,
+                styles.reportSubmitButton,
+                !selectedReportReason && styles.reportSubmitButtonDisabled,
+              ]}
+              onPress={submitReport}
+              disabled={isProcessingAction || !selectedReportReason}
+            >
+              {isProcessingAction ? (
+                <ActivityIndicator size="small" color="#fff" />
+              ) : (
+                <Text style={styles.reportSubmitText}>Submit Report</Text>
+              )}
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.actionItem}
+              onPress={() => setIsReportModalVisible(false)}
+              disabled={isProcessingAction}
+            >
+              <Text style={styles.actionCancelText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </BaseModal>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  fab: {
-    position: 'absolute',
-    right: 24,
-    bottom: 100,
-    backgroundColor: '#6366F1',
-    borderRadius: 28,
-    width: 56,
-    height: 56,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 6,
-    zIndex: 100,
-  },
   container: {
     flex: 1,
     backgroundColor: "#fff",
@@ -659,7 +751,6 @@ const styles = StyleSheet.create({
   matchBanner: {
     alignItems: "center",
     marginBottom: 16,
-
   },
   dateSeparatorContainer: {
     alignItems: "center",
@@ -691,31 +782,6 @@ const styles = StyleSheet.create({
     color: colors.primary,
     fontSize: 12,
   },
-  messageBubbleContainer: {
-    marginBottom: 8,
-    paddingHorizontal: 16,
-  },
-  theirMessageContainer: {
-    alignItems: "flex-start",
-  },
-  messageBubble: {
-    maxWidth: "80%",
-    borderRadius: 20,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-  },
-  theirMessageBubble: {
-    backgroundColor: "#fff",
-    borderTopLeftRadius: 4,
-    borderWidth: 1,
-    borderColor: "#E5E7EB",
-  },
-  messageText: {
-    fontSize: 16,
-  },
-  theirMessageText: {
-    color: "#1F2937",
-  },
   emptyStateContainer: {
     marginTop: 80,
     alignItems: "center",
@@ -745,6 +811,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 10,
+    paddingHorizontal: 12,
+  },
+  actionItemSelected: {
+    borderColor: colors.primary,
+    backgroundColor: `${colors.primary}15`,
   },
   actionDangerText: {
     color: "#DC2626",
@@ -755,6 +826,38 @@ const styles = StyleSheet.create({
     color: "#111827",
     fontSize: 16,
     fontWeight: "600",
+  },
+  // Report modal
+  reportTitle: {
+    fontSize: 15,
+    fontWeight: "700",
+    color: "#111827",
+    textAlign: "center",
+    marginBottom: 14,
+    marginTop: 4,
+  },
+  reportReasonText: {
+    fontSize: 15,
+    color: "#374151",
+    fontWeight: "500",
+  },
+  reportReasonTextSelected: {
+    color: colors.primary,
+    fontWeight: "700",
+  },
+  reportSubmitButton: {
+    backgroundColor: "#DC2626",
+    borderColor: "#DC2626",
+    marginTop: 4,
+  },
+  reportSubmitButtonDisabled: {
+    backgroundColor: "#FCA5A5",
+    borderColor: "#FCA5A5",
+  },
+  reportSubmitText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "700",
   },
 });
 

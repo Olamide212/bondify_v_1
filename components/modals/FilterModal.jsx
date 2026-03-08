@@ -120,13 +120,13 @@ const FilterModal = ({ visible, onClose, initialFilters, onApply }) => {
         <SafeAreaView className="flex-1 bg-white rounded-t-3xl overflow-hidden">
           <View className="flex-row items-center justify-between px-4 pb-4 border-b border-gray-200">
             <TouchableOpacity onPress={onClose}>
-              <Text className="text-base font-PlusJakartaSansMedium text-gray-800">Close</Text>
+              <Text className="text-lg font-PlusJakartaSansMedium text-gray-800">Close</Text>
             </TouchableOpacity>
 
-            <Text className="text-xl font-PlusJakartaSansBold">Discovery Settings</Text>
+            <Text className="text-xl font-PlusJakartaSansBold">Show Me</Text>
 
             <TouchableOpacity onPress={handleReset}>
-              <Text className="text-base font-PlusJakartaSansBold text-primary">Reset</Text>
+              <Text className="text-lg font-PlusJakartaSansBold text-primary">Reset</Text>
             </TouchableOpacity>
           </View>
 

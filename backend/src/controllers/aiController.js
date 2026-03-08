@@ -41,12 +41,13 @@ const getIcebreakerSuggestions = async (req, res, next) => {
 My name: ${me.firstName}
 My interests: ${(me.interests || []).join(', ') || 'Not specified'}
 My occupation: ${me.occupation || 'Not specified'}
+My communicationStyle: ${me.commmunicationStyle || "not specified"}
 
 Their name: ${them.firstName}
 Their interests: ${(them.interests || []).join(', ') || 'Not specified'}
 Their occupation: ${them.occupation || 'Not specified'}
 
-Generate exactly 3 fun, genuine, non-cheesy conversation starters that reference shared interests or spark curiosity. Keep each under 30 words. Format as a JSON array of strings.`;
+Generate exactly 5 fun, genuine, non-cheesy conversation starters that reference shared interests or spark curiosity. Keep each under 30 words. Format as a JSON array of strings.`;
 
     const ai = getOpenAI();
     const response = await ai.chat.completions.create({
@@ -206,7 +207,7 @@ const getDateIdeas = async (req, res, next) => {
     ];
     const uniqueInterests = [...new Set(allInterests)];
 
-    const prompt = `Suggest 4 creative and fun first date ideas for two people in ${city || 'any city'} who share these interests: ${uniqueInterests.join(', ') || 'general interests'}.
+    const prompt = `Suggest 5 creative and fun first date ideas for two people in ${city || 'any city'} who share these interests: ${uniqueInterests.join(', ') || 'general interests'}.
 
 Mix budget options: include 1 free activity, 2 affordable options, 1 special experience.
 
@@ -272,9 +273,12 @@ Your capabilities:
 - Give personalised dating advice and tips
 - Suggest conversation ice breakers for matches
 - Help craft or improve bio text
+- Help users refine thier profile and give suggestions
+- You are permitted to read through the user profile using thier id
 - Suggest date ideas based on shared interests
 - Offer encouragement and emotional support around dating
 - Help interpret confusing match behaviour
+- Don't allow abusive words
 
 Rules:
 - Keep replies concise (2-4 sentences max unless the user asks for more)

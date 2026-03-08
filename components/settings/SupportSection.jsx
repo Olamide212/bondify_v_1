@@ -1,24 +1,28 @@
 import React from "react";
 import { Crown, Globe, BadgeCheck, Plane } from "lucide-react-native";
 import SettingCard from "./SettingCard";
+import { useRouter } from "expo-router";
+
 
 const SupportSection = () => {
+const router = useRouter()
+
   const items = [
     {
       title: "Help Center (FAQ)",
-      onPress: () => console.log("Navigate to Verification"),
+      onPress: () => router.push("/faq"),
     },
     {
       title: "Report a Problem",
-      onPress: () => console.log("Navigate to Premium"),
+      onPress: () => router.push("/report-a-problem"),
     },
     {
       title: "Contact Support",
-      onPress: () => console.log("Navigate to Premium"),
+      onPress: () => router.push("/contact-support"),
     },
     {
       title: "Community Guidelines",
-      onPress: () => console.log("Navigate to Premium"),
+      onPress: () => router.push("/community-guidelines"),
     },
   ];
 

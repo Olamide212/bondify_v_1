@@ -1,6 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Bell, SlidersHorizontal } from "lucide-react-native";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Pressable,
   RefreshControl,
@@ -24,14 +24,28 @@ import FilterModal from "../../../../components/modals/FilterModal";
 import MatchCelebrationModal from "../../../../components/modals/MatchCelebrationModal";
 import NotificationsModal from "../../../../components/modals/NotificationsModal";
 import UserProfileModal from "../../../../components/modals/UserProfileModal";
+import { NotificationBanner } from "../../../../components/ui/NotificationBanner";
 import LogoLoader from "../../../../components/ui/LogoLoader";
 import { colors } from "../../../../constant/colors";
 import { useProfile } from "../../../../context/ProfileContext";
 import { messageService } from "../../../../services/messageService";
+import SettingsService from "../../../../services/settingsService";
 import { socketService } from "../../../../services/socketService";
 
 const NOTIFICATIONS_STORAGE_KEY = "@bondify/cache/home/notifications";
+const NOTIF_SETTINGS_STORAGE_KEY = "@bondify/cache/notificationSettings";
 const MAX_NOTIFICATIONS = 100;
+
+const DEFAULT_NOTIF_SETTINGS = {
+  newMatch: true,
+  newMessage: true,
+  newLike: true,
+  superLike: true,
+  eventReminder: true,
+  pushNotifications: true,
+  emailNotifications: true,
+  marketingEmails: false,
+};
 
 const safeParse = (value) => {
   try {
@@ -65,13 +79,87 @@ const Home = () => {
   const [selectedProfileId, setSelectedProfileId] = useState(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [notifications, setNotifications] = useState([]);
-  const animation = useSharedValue(1);
-  const flashAnim = useSharedValue(0);
 
   const unreadNotificationsCount = useMemo(
     () => notifications.filter((item) => !item.read).length,
     [notifications]
   );
+
+  // ─── Banner queue ──────────────────────────────────────────────────────────
+  // activeBanner   — the notification currently displayed in the banner
+  // bannerQueue    — ref-backed FIFO queue of pending banners
+  const [activeBanner, setActiveBanner] = useState(null);
+  const bannerQueueRef = useRef([]);
+  const bannerBusyRef = useRef(false);
+
+  const showNotificationsModalRef = useRef(false);
+  useEffect(() => {
+    showNotificationsModalRef.current = showNotificationsModal;
+  }, [showNotificationsModal]);
+
+  const advanceBannerQueue = useCallback(() => {
+    const next = bannerQueueRef.current.shift();
+    if (next) {
+      bannerBusyRef.current = true;
+      setActiveBanner(next);
+    } else {
+      bannerBusyRef.current = false;
+      setActiveBanner(null);
+    }
+  }, []);
+
+  const enqueueBanner = useCallback(
+    (notification) => {
+      // Never show banner when the notifications modal is open
+      if (showNotificationsModalRef.current) return;
+
+      if (bannerBusyRef.current) {
+        bannerQueueRef.current.push(notification);
+      } else {
+        bannerBusyRef.current = true;
+        setActiveBanner(notification);
+      }
+    },
+    []
+  );
+
+  // ─── Notification settings ─────────────────────────────────────────────────
+  const [notifSettings, setNotifSettings] = useState(DEFAULT_NOTIF_SETTINGS);
+  const notifSettingsRef = useRef(DEFAULT_NOTIF_SETTINGS);
+  useEffect(() => {
+    notifSettingsRef.current = notifSettings;
+  }, [notifSettings]);
+
+  useEffect(() => {
+    let mounted = true;
+    const load = async () => {
+      try {
+        const cached = safeParse(
+          await AsyncStorage.getItem(NOTIF_SETTINGS_STORAGE_KEY)
+        );
+        if (mounted && cached) {
+          setNotifSettings((prev) => ({ ...prev, ...cached }));
+        }
+      } catch {}
+
+      try {
+        const res = await SettingsService.getNotificationSettings();
+        if (mounted && res?.data) {
+          setNotifSettings((prev) => ({ ...prev, ...res.data }));
+          await AsyncStorage.setItem(
+            NOTIF_SETTINGS_STORAGE_KEY,
+            JSON.stringify(res.data)
+          ).catch(() => {});
+        }
+      } catch {}
+    };
+    load();
+    return () => { mounted = false; };
+  }, []);
+
+  // ─── Profile card animation ────────────────────────────────────────────────
+  const animation = useSharedValue(1);
+  const flashAnim = useSharedValue(0);
 
   const currentProfile =
     homeProfiles.length > 0
@@ -86,7 +174,6 @@ const Home = () => {
   const showFlashMessage = (direction) => {
     const message = direction === "right" ? "Liked ❤️" : "Passed 👎";
     setFlashMessage(message);
-
     flashAnim.value = 0;
     flashAnim.value = withTiming(1, { duration: 300 }, () => {
       flashAnim.value = withTiming(0, { duration: 300, delay: 400 }, () => {
@@ -117,63 +204,41 @@ const Home = () => {
   const animatedStyle = useAnimatedStyle(() => {
     const translateY = interpolate(animation.value, [0, 1], [60, 0]);
     const scale = interpolate(animation.value, [0, 1], [0.9, 1]);
-    return {
-      transform: [{ translateY }, { scale }],
-      opacity: animation.value,
-    };
+    return { transform: [{ translateY }, { scale }], opacity: animation.value };
   });
 
-  const flashStyle = useAnimatedStyle(() => {
-    return {
-      opacity: flashAnim.value,
-      transform: [
-        { translateY: interpolate(flashAnim.value, [0, 1], [-20, 0]) },
-      ],
-    };
-  });
+  const flashStyle = useAnimatedStyle(() => ({
+    opacity: flashAnim.value,
+    transform: [{ translateY: interpolate(flashAnim.value, [0, 1], [-20, 0]) }],
+  }));
 
   useEffect(() => {
-    if (!profilesLoading && isRefreshing) {
-      setIsRefreshing(false);
-    }
+    if (!profilesLoading && isRefreshing) setIsRefreshing(false);
   }, [profilesLoading, isRefreshing]);
 
+  // ─── Hydrate / persist notification cache ─────────────────────────────────
   useEffect(() => {
     let isMounted = true;
-
-    const hydrateNotifications = async () => {
-      try {
-        const raw = await AsyncStorage.getItem(NOTIFICATIONS_STORAGE_KEY);
+    AsyncStorage.getItem(NOTIFICATIONS_STORAGE_KEY)
+      .then((raw) => {
         const parsed = safeParse(raw);
         if (!isMounted || !Array.isArray(parsed)) return;
-
-        const normalized = parsed
-          .filter(Boolean)
-          .map((item) => ({ ...item, read: Boolean(item?.read) }))
-          .slice(0, MAX_NOTIFICATIONS);
-
-        setNotifications(normalized);
-      } catch (error) {
-        console.warn("Failed to hydrate notifications cache:", error?.message || error);
-      }
-    };
-
-    hydrateNotifications();
+        setNotifications(
+          parsed
+            .filter(Boolean)
+            .map((item) => ({ ...item, read: Boolean(item?.read) }))
+            .slice(0, MAX_NOTIFICATIONS)
+        );
+      })
+      .catch((e) => console.warn("Failed to hydrate notifications:", e?.message));
     return () => { isMounted = false; };
   }, []);
 
   useEffect(() => {
-    const persistNotifications = async () => {
-      try {
-        await AsyncStorage.setItem(
-          NOTIFICATIONS_STORAGE_KEY,
-          JSON.stringify(notifications.slice(0, MAX_NOTIFICATIONS))
-        );
-      } catch (error) {
-        console.warn("Failed to persist notifications cache:", error?.message || error);
-      }
-    };
-    persistNotifications();
+    AsyncStorage.setItem(
+      NOTIFICATIONS_STORAGE_KEY,
+      JSON.stringify(notifications.slice(0, MAX_NOTIFICATIONS))
+    ).catch((e) => console.warn("Failed to persist notifications:", e?.message));
   }, [notifications]);
 
   const markNotificationAsRead = useCallback((notificationId) => {
@@ -189,11 +254,14 @@ const Home = () => {
     setNotifications((prev) => prev.map((item) => ({ ...item, read: true })));
   }, []);
 
+  // ─── Socket listeners ──────────────────────────────────────────────────────
   useEffect(() => {
     let isMounted = true;
 
-    const mapNotificationPayload = (payload = {}) => ({
-      id: payload.id || `${payload.type || "notification"}-${payload.matchId || Date.now()}-${Math.random()}`,
+    const mapPayload = (payload = {}) => ({
+      id:
+        payload.id ||
+        `${payload.type || "notification"}-${payload.matchId || Date.now()}-${Math.random()}`,
       type: payload.type || "notification",
       title: payload.title || "Notification",
       body: payload.body || "You have a new update.",
@@ -204,51 +272,72 @@ const Home = () => {
     });
 
     const pushNotification = (payload) => {
-      const normalized = mapNotificationPayload(payload);
+      const normalized = mapPayload(payload);
+
+      // Add to notification list
       setNotifications((prev) => {
-        const existing = prev.find((item) => String(item.id) === String(normalized.id));
-        const nextNotification = {
+        const existing = prev.find(
+          (item) => String(item.id) === String(normalized.id)
+        );
+        const next = {
           ...normalized,
           read:
             normalized.read ||
             Boolean(existing?.read) ||
-            Boolean(showNotificationsModal),
+            showNotificationsModalRef.current,
         };
-        const deduped = prev.filter((item) => String(item.id) !== String(nextNotification.id));
-        return [nextNotification, ...deduped].slice(0, MAX_NOTIFICATIONS);
+        const deduped = prev.filter(
+          (item) => String(item.id) !== String(next.id)
+        );
+        return [next, ...deduped].slice(0, MAX_NOTIFICATIONS);
       });
+
+      // Show banner (respects modal-open check inside enqueueBanner)
+      enqueueBanner(normalized);
     };
 
-    const handleNotificationNew = (payload) => pushNotification(payload);
+    const handleNotificationNew = (payload) => {
+      if (!notifSettingsRef.current.pushNotifications) return;
+      pushNotification(payload);
+    };
 
-    // ✅ REMOVED match:new from here — ProfileContext owns it now.
-    // Only push it as a notification entry, ProfileContext handles the modal.
     const handleMatchNew = (payload) => {
+      if (!notifSettingsRef.current.pushNotifications) return;
+      if (!notifSettingsRef.current.newMatch) return;
       pushNotification({
         ...payload,
         type: "match",
-        title: payload?.matchedUser?.name || payload?.profile?.name || "New Match!",
+        title:
+          payload?.matchedUser?.name ||
+          payload?.profile?.name ||
+          "New Match!",
         body: "You have a new match 🎉",
       });
     };
 
     const handleMessageNew = ({ matchId, message }) => {
       if (!message) return;
+      if (!notifSettingsRef.current.pushNotifications) return;
+      if (!notifSettingsRef.current.newMessage) return;
 
       const senderName =
         message.sender?.name ||
-        [message.sender?.firstName, message.sender?.lastName].filter(Boolean).join(" ") ||
+        [message.sender?.firstName, message.sender?.lastName]
+          .filter(Boolean)
+          .join(" ") ||
         "New message";
 
       const body =
         message.type === "image"
           ? "Sent you a photo"
           : message.type === "voice"
-            ? "Sent you a voice note"
-            : message.content || "Sent you a message";
+          ? "Sent you a voice note"
+          : message.content || "Sent you a message";
 
       pushNotification({
-        id: `${matchId || message._id || message.id}-${message._id || message.id || Date.now()}`,
+        id: `${matchId || message._id || message.id}-${
+          message._id || message.id || Date.now()
+        }`,
         type: "message",
         title: senderName,
         body,
@@ -261,7 +350,6 @@ const Home = () => {
     const connectSocket = async () => {
       const socket = await socketService.connect();
       if (!socket || !isMounted) return;
-
       socketService.on("notification:new", handleNotificationNew);
       socketService.on("match:new", handleMatchNew);
       socketService.on("message:new", handleMessageNew);
@@ -275,11 +363,9 @@ const Home = () => {
       socketService.off("match:new", handleMatchNew);
       socketService.off("message:new", handleMessageNew);
     };
-  }, [showNotificationsModal]);
+  }, [enqueueBanner]);
 
-  const handleOpenNotifications = () => {
-    setShowNotificationsModal(true);
-  };
+  const handleOpenNotifications = () => setShowNotificationsModal(true);
 
   const handlePressNotification = (notification) => {
     if (!notification) return;
@@ -291,9 +377,20 @@ const Home = () => {
     setShowNotificationsModal(false);
   };
 
-  if (profilesLoading) {
-    return <LogoLoader color={colors.primary} />;
-  }
+  // Tapping the banner navigates just like tapping in the modal
+  const handleBannerPress = (notification) => {
+    if (!notification) return;
+    markNotificationAsRead(notification.id);
+    if (
+      (notification.type === "match" || notification.type === "message") &&
+      notification.userId
+    ) {
+      setSelectedProfileId(notification.userId);
+      setShowProfileModal(true);
+    }
+  };
+
+  if (profilesLoading) return <LogoLoader color={colors.primary} />;
 
   const hasProfiles = Array.isArray(homeProfiles) && homeProfiles.length > 0;
 
@@ -304,16 +401,25 @@ const Home = () => {
 
   return (
     <View style={styles.container}>
+      {/* ── In-app notification banner ── */}
+      <NotificationBanner
+        notification={activeBanner}
+        onDismiss={advanceBannerQueue}
+        onPress={handleBannerPress}
+      />
+
       <View style={styles.headerWrapper}>
         <View className="flex-row justify-end gap-4">
-          <View className='flex-row gap-2'>
+          <View className="flex-row gap-2">
             <Pressable onPress={handleOpenNotifications}>
               <View className="justify-center items-center rounded-full bg-background w-14 h-14">
                 <Bell size={23} color={colors.primary} />
                 {unreadNotificationsCount > 0 && (
                   <View style={styles.notificationsBadge}>
                     <Text style={styles.notificationsBadgeText}>
-                      {unreadNotificationsCount > 99 ? "99+" : unreadNotificationsCount}
+                      {unreadNotificationsCount > 99
+                        ? "99+"
+                        : unreadNotificationsCount}
                     </Text>
                   </View>
                 )}
@@ -349,10 +455,7 @@ const Home = () => {
       >
         {hasProfiles && currentProfile ? (
           <Animated.View style={[animatedStyle, { flex: 1 }]}>
-            <AroundYou
-              profile={currentProfile}
-              onViewProfile={handleViewProfile}
-            />
+            <AroundYou profile={currentProfile} onViewProfile={handleViewProfile} />
           </Animated.View>
         ) : (
           <View style={styles.emptyContainer}>
@@ -366,7 +469,11 @@ const Home = () => {
 
       {hasProfiles && currentProfile && (
         <View style={styles.actionButtonWrapper}>
-          <ActionButtons onSwipe={handleSwipe} onSuperLike={handleSuperLike} Redo={true} />
+          <ActionButtons
+            onSwipe={handleSwipe}
+            onSuperLike={handleSuperLike}
+            Redo={true}
+          />
         </View>
       )}
 
@@ -398,7 +505,6 @@ const Home = () => {
         fullScreen
       />
 
-      {/* ✅ Match Celebration Modal — driven purely by ProfileContext state */}
       <MatchCelebrationModal
         visible={!!matchCelebration}
         onClose={() => setMatchCelebration(null)}
@@ -424,10 +530,7 @@ const Home = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-  },
+  container: { flex: 1, backgroundColor: "#fff" },
   emptyContainer: {
     flex: 1,
     backgroundColor: "#fff",
@@ -472,14 +575,8 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     zIndex: 100,
   },
-  flashText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  aroundYouContainer: {
-    flex: 1,
-  },
+  flashText: { color: "#fff", fontSize: 16, fontWeight: "bold" },
+  aroundYouContainer: { flex: 1 },
   notificationsBadge: {
     position: "absolute",
     top: 6,
@@ -492,11 +589,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  notificationsBadgeText: {
-    color: "#fff",
-    fontSize: 10,
-    fontWeight: "700",
-  },
+  notificationsBadgeText: { color: "#fff", fontSize: 10, fontWeight: "700" },
 });
 
 export default Home;

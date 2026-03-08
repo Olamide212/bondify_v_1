@@ -1,56 +1,49 @@
-import { View, Text } from 'react-native'
 import React from 'react'
-import AccountSection from '../../../../components/settings/AccountSection'
+import { View, StyleSheet, StatusBar } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { ScrollView } from 'react-native-gesture-handler'
+import { ArrowLeft } from "lucide-react-native"
+import { useTheme } from '../../../../context/ThemeContext'
 import GeneralHeader from "../../../../components/headers/GeneralHeader"
-import { ArrowLeft } from "lucide-react-native";
+import AccountSection from '../../../../components/settings/AccountSection'
 import PrivacySection from '../../../../components/settings/PrivacySection'
 import PreferencesSection from '../../../../components/settings/PreferencesSection'
 import SupportSection from '../../../../components/settings/SupportSection'
 import LegalSection from '../../../../components/settings/LegalSection'
 import AccountAction from '../../../../components/settings/AccountAction'
-import TextHeadingOne from '../../../../components/ui/TextHeadingOne'
 
 const SettingScreen = () => {
+  const { colors } = useTheme()
+
   return (
-    <SafeAreaView className="flex-1 bg-white">
-      <GeneralHeader title="Profile settings" leftIcon={<ArrowLeft />} />
+    <SafeAreaView style={[styles.safe, { backgroundColor: colors.surface }]}>
+      <StatusBar barStyle={colors.statusBarStyle} backgroundColor={colors.surface} />
+
+      <GeneralHeader title="Profile settings" leftIcon={<ArrowLeft color={colors.textPrimary} />} />
+
       <ScrollView
-        contentContainerStyle={{
-          paddingBottom: 80,
-          backgroundColor: "#f1f1f1",
-        }}
+        contentContainerStyle={[styles.scrollContent, { backgroundColor: colors.background }]}
+        style={{ backgroundColor: colors.background }}
+        showsVerticalScrollIndicator={false}
       >
-        <View>
-          <AccountSection />
-        </View>
-        <View>
-
-
-          <PrivacySection />
-        </View>
-        <View>
-
-
-          <PreferencesSection />
-        </View>
-        <View>
-
-
-          <SupportSection />
-        </View>
-        <View>
-  
-          <LegalSection />
-        </View>
-        <View>
-
-          <AccountAction />
-        </View>
+        <AccountSection />
+        <PrivacySection />
+        <PreferencesSection />
+        <SupportSection />
+        <LegalSection />
+        <AccountAction />
       </ScrollView>
     </SafeAreaView>
-  );
+  )
 }
+
+const styles = StyleSheet.create({
+  safe: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingBottom: 80,
+  },
+})
 
 export default SettingScreen

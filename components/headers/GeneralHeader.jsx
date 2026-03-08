@@ -1,19 +1,64 @@
-import { View, Text, Pressable } from "react-native";
 import React from "react";
+import { View, Text, Pressable, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
+import { useTheme } from "../../context/ThemeContext";
 
-const HeaderWithLogo = ({ title, icon, onPress, leftIcon, className = "" }) => {
+const GeneralHeader = ({ title, icon, onPress, leftIcon, style, textStyle }) => {
   const router = useRouter();
+  const { colors } = useTheme();
 
   return (
-    <View className={`flex-row items-center justify-between px-4 py-4 bg-white ${className} `}>
-      <Pressable onPress={() => router.back()}>{leftIcon}</Pressable>
-      <Text className={`text-black text-2xl font-PlusJakartaSansBold ${className}`}>
+    <View
+      style={[
+        styles.container,
+        {
+          backgroundColor: colors.surface,
+          borderBottomColor: colors.border,
+        },
+        style,
+      ]}
+    >
+      <Pressable
+        onPress={() => router.back()}
+        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+        style={styles.side}
+      >
+        {leftIcon}
+      </Pressable>
+
+      <Text style={[styles.title, { color: colors.textPrimary }, textStyle]}>
         {title}
       </Text>
-      <Pressable onPress={onPress}>{icon}</Pressable>
+
+      <Pressable
+        onPress={onPress}
+        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+        style={styles.side}
+      >
+        {icon}
+      </Pressable>
     </View>
   );
 };
 
-export default HeaderWithLogo;
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+  },
+  title: {
+    fontSize: 20,
+    fontFamily: "PlusJakartaSansBold",
+  },
+  // Keeps title centred when one side is empty
+  side: {
+    minWidth: 28,
+    alignItems: "center",
+  },
+});
+
+export default GeneralHeader;

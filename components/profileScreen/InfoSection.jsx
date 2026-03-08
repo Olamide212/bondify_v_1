@@ -18,6 +18,7 @@ import FilterModal from "../modals/FilterModal";
 import WalletModal from "../modals/WalletModal"; 
 import BondiesHobModal from "../modals/BondiesHopModal"
 import TextHeadingOne from "../ui/TextHeadingOne";
+import { colors } from "../../constant/colors";
 
 
 
@@ -120,7 +121,7 @@ const InfoSection = () => {
               }}
             >
               <View className="flex-row items-center gap-3 flex-1">
-                <Icon size={20} />
+                <Icon size={24} color={colors.primary} />
                 <View className="flex-1">
                   <Text className="text-[18px] text-black font-PlusJakartaSansBold">
                     {title}

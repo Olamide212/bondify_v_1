@@ -13,7 +13,7 @@ const SettingsService = {
    * @param {{ phoneNumber: string, countryCode: string }} data
    */
   updatePhoneNumber: async (data) => {
-    const response = await apiClient.patch("/api/settings/phone", data);
+    const response = await apiClient.patch("/settings/phone", data);
     return response.data;
   },
 
@@ -33,7 +33,7 @@ const SettingsService = {
    * @param {{ email: string }} data
    */
   updateEmail: async (data) => {
-    const response = await apiClient.patch("/api/settings/email", data);
+    const response = await apiClient.patch("/settings/email", data);
     return response.data;
   },
 
@@ -42,7 +42,7 @@ const SettingsService = {
    * @param {{ otp: string }} data
    */
   verifyEmailUpdate: async (data) => {
-    const response = await apiClient.post("/api/settings/email/verify", data);
+    const response = await apiClient.post("/settings/email/verify", data);
     return response.data;
   },
 
@@ -54,7 +54,7 @@ const SettingsService = {
    *             emailNotifications, pushNotifications, marketingEmails }}
    */
   getNotificationSettings: async () => {
-    const response = await apiClient.get("/api/settings/notifications");
+    const response = await apiClient.get("/settings/notifications");
     return response.data;
   },
 
@@ -69,7 +69,7 @@ const SettingsService = {
    * }} data
    */
   updateNotificationSettings: async (data) => {
-    const response = await apiClient.patch("/api/settings/notifications", data);
+    const response = await apiClient.patch("/settings/notifications", data);
     return response.data;
   },
 
@@ -81,7 +81,7 @@ const SettingsService = {
    *             showAge, showOnlineStatus, allowMessageFromNonMatches }}
    */
   getPrivacySettings: async () => {
-    const response = await apiClient.get("/api/settings/privacy");
+    const response = await apiClient.get("/settings/privacy");
     return response.data;
   },
 
@@ -95,7 +95,7 @@ const SettingsService = {
    * }} data
    */
   updatePrivacySettings: async (data) => {
-    const response = await apiClient.patch("/api/settings/privacy", data);
+    const response = await apiClient.patch("/settings/privacy", data);
     return response.data;
   },
 
@@ -110,7 +110,7 @@ const SettingsService = {
    * }} data
    */
   blockUser: async (userId, data = {}) => {
-    const response = await apiClient.post(`/api/settings/block/${userId}`, data);
+    const response = await apiClient.post(`/settings/block/${userId}`, data);
     return response.data;
   },
 
@@ -119,7 +119,7 @@ const SettingsService = {
    * @param {string} userId
    */
   unblockUser: async (userId) => {
-    const response = await apiClient.delete(`/api/settings/block/${userId}`);
+    const response = await apiClient.delete(`/settings/block/${userId}`);
     return response.data;
   },
 
@@ -128,7 +128,7 @@ const SettingsService = {
    * @param {{ page?: number, limit?: number }} params
    */
   getBlockedUsers: async (params = {}) => {
-    const response = await apiClient.get("/api/settings/blocked-users", { params });
+    const response = await apiClient.get("/settings/blocked-users", { params });
     return response.data;
   },
 
@@ -139,7 +139,7 @@ const SettingsService = {
    * @param {{ password: string, reason?: string }} data
    */
   deleteAccount: async (data) => {
-    const response = await apiClient.delete("/api/settings/account", { data });
+    const response = await apiClient.delete("/settings/account", { data });
     return response.data;
   },
 
@@ -150,7 +150,7 @@ const SettingsService = {
    * @returns {{ referralCode: string, referralCount: number, referralLink: string }}
    */
   getReferralCode: async () => {
-    const response = await apiClient.get("/api/settings/referral-code");
+    const response = await apiClient.get("/settings/referral-code");
     return response.data;
   },
 
@@ -162,7 +162,7 @@ const SettingsService = {
    * @param {{ pushToken: string }} data
    */
   updatePushToken: async (data) => {
-    const response = await apiClient.patch("/api/settings/push-token", data);
+    const response = await apiClient.patch("/settings/push-token", data);
     return response.data;
   },
 };

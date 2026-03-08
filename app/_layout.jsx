@@ -8,6 +8,7 @@ import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
 import { DiscoveryProfilesProvider } from "../context/DiscoveryProfilesContext";
 import { ProfileProvider } from "../context/ProfileContext";
+import { ThemeProvider } from "../context/ThemeContext";
 import { ToastProvider } from "../context/ToastContext";
 import { WalletProvider } from "../context/WalletContext";
 import "../global.css";
@@ -51,6 +52,7 @@ const [fontsLoaded] = useFonts({
       <StatusBar barStyle="dark-content" />
       <Provider store={store}>
         <PersistGate loading={null} persistor={persistor}>
+          <ThemeProvider>
           <WalletProvider>
             <ProfileProvider>
               <DiscoveryProfilesProvider>
@@ -66,6 +68,7 @@ const [fontsLoaded] = useFonts({
               </DiscoveryProfilesProvider>
             </ProfileProvider>
           </WalletProvider>
+          </ThemeProvider>
         </PersistGate>
       </Provider>
     </GestureHandlerRootView>

@@ -8,7 +8,7 @@ import { ArrowLeft } from "lucide-react-native";
 const SupportCenter = () => {
   const contactItems = [
     {
-      title: "+31 20 123 4567",
+      title: "+234 810 0275 274",
       description: "Call us",
       icon: Phone,
       onPress: () => console.log("Call pressed"),

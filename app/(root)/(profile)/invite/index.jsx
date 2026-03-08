@@ -1,5 +1,5 @@
 import { Share } from "react-native";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -9,65 +9,72 @@ import {
   Image,
   Alert,
   Clipboard,
+  ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { ArrowLeft, Copy, Share2, Gift, Star } from "lucide-react-native";
+import { Copy, Share2, Gift, Star, Users } from "lucide-react-native";
+import { ArrowLeft } from "lucide-react-native";
 import GeneralHeader from "../../../../components/headers/GeneralHeader";
-import ReferralHistoryModal from "../../../../components/modals/ReferralHistoryModal";
+import SettingsService from "../../../../services/settingsService";
 
-
-
-const REFERRAL_CODE = "BONDIES-LOVE-24";
-const PRIMARY = "#E8572A";
+const PRIMARY       = "#E8572A";
 const PRIMARY_LIGHT = "#FFF0EB";
 
 const InviteScreen = ({ navigation }) => {
-  const [copied, setCopied] = useState(false);
-  const [showHistory, setShowHistory] = useState(false);
-const [referralHistory, setReferralHistory] = useState([]);
-const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+  const [referralCode,  setReferralCode]  = useState(null);
+  const [referralCount, setReferralCount] = useState(0);
+  const [referralLink,  setReferralLink]  = useState(null);
+  const [isLoading,     setIsLoading]     = useState(true);
+  const [fetchError,    setFetchError]    = useState(null);
+  const [copied,        setCopied]        = useState(false);
 
+  // ── Fetch referral code on mount ──────────────────────────────
+  const fetchReferralCode = useCallback(async () => {
+    setIsLoading(true);
+    setFetchError(null);
+    try {
+      const response = await SettingsService.getReferralCode();
+      // response.data = { referralCode, referralCount, referralLink }
+      const { referralCode: code, referralCount: count, referralLink: link } =
+        response?.data ?? {};
+      setReferralCode(code  ?? null);
+      setReferralCount(count ?? 0);
+      setReferralLink(link  ?? null);
+    } catch (err) {
+      setFetchError("Couldn't load your referral code. Tap to retry.");
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
-// Fetch when opening
-const handleViewHistory = async () => {
-  setShowHistory(true);
-  setIsLoadingHistory(true);
-  try {
-    const data = await referralService.getHistory(); // your API call
-    setReferralHistory(data);
-  } catch (e) {
-    setReferralHistory([]);
-  } finally {
-    setIsLoadingHistory(false);
-  }
-};
+  useEffect(() => {
+    fetchReferralCode();
+  }, [fetchReferralCode]);
 
+  // ── Copy code to clipboard ────────────────────────────────────
   const handleCopy = () => {
-    Clipboard.setString(REFERRAL_CODE);
+    if (!referralCode) return;
+    Clipboard.setString(referralCode);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
+  // ── Share sheet ───────────────────────────────────────────────
   const handleShare = async () => {
+    if (!referralCode) return;
+    const shareText = referralLink
+      ? `Join me on Bondies! Use my referral code ${referralCode} or tap the link: ${referralLink} 🎉`
+      : `Join me on Bondies and find your perfect match! Use my referral code ${referralCode} when signing up and we both get 1 Month AI Plus free! 🎉`;
     try {
-      await Share.share({
-        message: `Join me on Bondies and find your perfect match! Use my referral code ${REFERRAL_CODE} when signing up and we both get 1 Month AI Plus free! 🎉`,
-        title: "Join Bondies",
-      });
-    } catch (error) {
+      await Share.share({ message: shareText, title: "Join Bondies" });
+    } catch {
       Alert.alert("Error", "Could not share referral code.");
     }
   };
 
-//   const handleViewHistory = () => {
-//     navigation?.navigate("ReferralHistory");
-//   };
-
   return (
     <SafeAreaView style={styles.safe}>
- 
-
-      <GeneralHeader title="Refer & Earn"  leftIcon={<ArrowLeft />} />
+      <GeneralHeader title="Refer & Earn" leftIcon={<ArrowLeft />} />
 
       <ScrollView
         style={styles.scroll}
@@ -112,44 +119,61 @@ const handleViewHistory = async () => {
         <View style={styles.codeCard}>
           <Text style={styles.codeLabel}>YOUR REFERRAL CODE</Text>
 
-          <Pressable onPress={handleCopy} style={styles.codeBox}>
-            <Text style={styles.codeText}>{REFERRAL_CODE}</Text>
-            <View style={styles.copyIcon}>
-              <Copy size={18} color={copied ? "#4CAF50" : PRIMARY} />
+          {isLoading ? (
+            // ── Loading state ──
+            <View style={styles.loadingBox}>
+              <ActivityIndicator size="small" color={PRIMARY} />
+              <Text style={styles.loadingText}>Generating your code...</Text>
             </View>
-          </Pressable>
+          ) : fetchError ? (
+            // ── Error state with retry ──
+            <Pressable style={styles.errorBox} onPress={fetchReferralCode}>
+              <Text style={styles.errorText}>{fetchError}</Text>
+              <Text style={styles.retryText}>Tap to retry</Text>
+            </Pressable>
+          ) : (
+            // ── Code display ──
+            <Pressable onPress={handleCopy} style={styles.codeBox}>
+              <Text style={styles.codeText}>Bondies - {referralCode}</Text>
+              <View style={styles.copyIcon}>
+                <Copy size={18} color={copied ? "#4CAF50" : PRIMARY} />
+              </View>
+            </Pressable>
+          )}
 
           {copied && (
             <Text style={styles.copiedText}>Copied to clipboard!</Text>
           )}
 
-          <Pressable style={styles.shareBtn} onPress={handleShare}>
+          {/* Referral count badge */}
+          {!isLoading && !fetchError && (
+            <View style={styles.countBadge}>
+              <Users size={14} color={PRIMARY} />
+              <Text style={styles.countText}>
+                {referralCount === 0
+                  ? "No referrals yet — share your code!"
+                  : `${referralCount} friend${referralCount === 1 ? "" : "s"} joined using your code`}
+              </Text>
+            </View>
+          )}
+
+          <Pressable
+            style={[styles.shareBtn, (isLoading || !referralCode) && styles.shareBtnDisabled]}
+            onPress={handleShare}
+            disabled={isLoading || !referralCode}
+          >
             <Share2 size={20} color="#fff" />
             <Text style={styles.shareBtnText}>Share Your Code</Text>
-          </Pressable>
-
-          <Pressable onPress={handleViewHistory}>
-            <Text style={styles.historyLink}>View Referral History</Text>
           </Pressable>
         </View>
 
         {/* How it works */}
         <View style={styles.howSection}>
           <Text style={styles.howTitle}>How it works</Text>
-
           {[
-            {
-              step: "1",
-              text: "Send your unique code to friends who haven't joined Bondies yet.",
-            },
-            {
-              step: "2",
-              text: "They enter your code when signing up for their new account.",
-            },
-            {
-              step: "3",
-              text: "Once they complete their profile, you both unlock 30 days of AI Plus perks!",
-            },
+            { step: "1", text: "Send your unique code to friends who haven't joined Bondies yet." },
+            { step: "2", text: "They enter your code when signing up for their new account." },
+            { step: "3", text: "Once they complete their profile, you both unlock 30 days of AI Plus perks!" },
           ].map((item) => (
             <View key={item.step} style={styles.stepRow}>
               <View style={styles.stepBadge}>
@@ -160,234 +184,59 @@ const handleViewHistory = async () => {
           ))}
         </View>
       </ScrollView>
-
-
-<ReferralHistoryModal
-  visible={showHistory}
-  onClose={() => setShowHistory(false)}
-  referrals={referralHistory}
-  isLoading={isLoadingHistory}
-/>
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-    backgroundColor: "#fff",
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: "#fff",
-  },
-  backBtn: {
-    width: 38,
-    height: 38,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontFamily: "PlusJakartaSansBold",
-    color: "#111",
-  },
-  scroll: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingBottom: 40,
-  },
+  safe:          { flex: 1, backgroundColor: "#fff" },
+  scroll:        { flex: 1 },
+  scrollContent: { paddingBottom: 40 },
 
-  // Hero
-  heroContainer: {
-    marginHorizontal: 16,
-    borderRadius: 20,
-    overflow: "hidden",
-    height: 220,
-    marginBottom: 24,
-  },
-  heroImage: {
-    width: "100%",
-    height: "100%",
-  },
+  heroContainer: { marginHorizontal: 16, borderRadius: 20, overflow: "hidden", height: 220, marginBottom: 24 },
+  heroImage:     { width: "100%", height: "100%" },
 
-  // Title
-  title: {
-    fontSize: 22,
-    fontFamily: "PlusJakartaSansBold",
-    color: "#111",
-    textAlign: "center",
-    marginBottom: 8,
-    paddingHorizontal: 24,
-  },
-  subtitle: {
-    fontSize: 14,
-    fontFamily: "PlusJakartaSans",
-    color: "#666",
-    textAlign: "center",
-    lineHeight: 22,
-    paddingHorizontal: 32,
-    marginBottom: 24,
-  },
+  title:    { fontSize: 22, fontFamily: "PlusJakartaSansBold", color: "#111", textAlign: "center", marginBottom: 8, paddingHorizontal: 24 },
+  subtitle: { fontSize: 14, fontFamily: "PlusJakartaSans", color: "#666", textAlign: "center", lineHeight: 22, paddingHorizontal: 32, marginBottom: 24 },
 
-  // Reward Cards
-  rewardRow: {
-    flexDirection: "row",
-    gap: 12,
-    marginHorizontal: 16,
-    marginBottom: 20,
-  },
-  rewardCard: {
-    flex: 1,
-    backgroundColor: "#fff",
-    borderRadius: 16,
-    padding: 16,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.06,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  rewardIconWrap: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: PRIMARY_LIGHT,
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 10,
-  },
-  rewardLabel: {
-    fontSize: 11,
-    fontFamily: "PlusJakartaSansBold",
-    color: PRIMARY,
-    letterSpacing: 0.8,
-    marginBottom: 4,
-  },
-  rewardValue: {
-    fontSize: 13,
-    fontFamily: "PlusJakartaSansSemiBold",
-    color: "#111",
-    textAlign: "center",
-  },
+  rewardRow:     { flexDirection: "row", gap: 12, marginHorizontal: 16, marginBottom: 20 },
+  rewardCard:    { flex: 1, backgroundColor: "#fff", borderRadius: 16, padding: 16, alignItems: "center", shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 4, elevation: 2 },
+  rewardIconWrap:{ width: 48, height: 48, borderRadius: 24, backgroundColor: PRIMARY_LIGHT, justifyContent: "center", alignItems: "center", marginBottom: 10 },
+  rewardLabel:   { fontSize: 11, fontFamily: "PlusJakartaSansBold", color: PRIMARY, letterSpacing: 0.8, marginBottom: 4 },
+  rewardValue:   { fontSize: 13, fontFamily: "PlusJakartaSansSemiBold", color: "#111", textAlign: "center" },
 
-  // Code Card
-  codeCard: {
-    backgroundColor: "#fff",
-    borderRadius: 20,
-    marginHorizontal: 16,
-    padding: 20,
-    alignItems: "center",
-    marginBottom: 28,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.06,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  codeLabel: {
-    fontSize: 11,
-    fontFamily: "PlusJakartaSansBold",
-    color: "#999",
-    letterSpacing: 1.2,
-    marginBottom: 14,
-  },
-  codeBox: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    borderWidth: 1.5,
-    borderColor: PRIMARY,
-    borderStyle: "dashed",
-    borderRadius: 12,
-    paddingVertical: 14,
-    paddingHorizontal: 18,
-    width: "100%",
-    marginBottom: 6,
-    backgroundColor: PRIMARY_LIGHT,
-  },
-  codeText: {
-    fontSize: 18,
-    fontFamily: "PlusJakartaSansBold",
-    color: PRIMARY,
-    letterSpacing: 1.5,
-  },
-  copyIcon: {
-    padding: 4,
-  },
-  copiedText: {
-    fontSize: 12,
-    color: "#4CAF50",
-    fontFamily: "PlusJakartaSansMedium",
-    marginBottom: 6,
-  },
-  shareBtn: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 10,
-    backgroundColor: PRIMARY,
-    borderRadius: 30,
-    paddingVertical: 16,
-    width: "100%",
-    marginTop: 10,
-    marginBottom: 16,
-  },
-  shareBtnText: {
-    color: "#fff",
-    fontSize: 16,
-    fontFamily: "PlusJakartaSansSemiBold",
-  },
-  historyLink: {
-    fontSize: 14,
-    fontFamily: "PlusJakartaSansMedium",
-    color: PRIMARY,
-  },
+  codeCard: { backgroundColor: "#fff", borderRadius: 20, marginHorizontal: 16, padding: 20, alignItems: "center", marginBottom: 28, shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 4, elevation: 2 },
+  codeLabel: { fontSize: 11, fontFamily: "PlusJakartaSansBold", color: "#999", letterSpacing: 1.2, marginBottom: 14 },
 
-  // How it works
-  howSection: {
-    marginHorizontal: 16,
-  },
-  howTitle: {
-    fontSize: 18,
-    fontFamily: "PlusJakartaSansBold",
-    color: "#111",
-    marginBottom: 16,
-  },
-  stepRow: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    gap: 14,
-    marginBottom: 16,
-  },
-  stepBadge: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    backgroundColor: PRIMARY_LIGHT,
-    justifyContent: "center",
-    alignItems: "center",
-    flexShrink: 0,
-    marginTop: 1,
-  },
-  stepNumber: {
-    fontSize: 13,
-    fontFamily: "PlusJakartaSansBold",
-    color: PRIMARY,
-  },
-  stepText: {
-    flex: 1,
-    fontSize: 14,
-    fontFamily: "PlusJakartaSans",
-    color: "#444",
-    lineHeight: 22,
-  },
+  // Loading
+  loadingBox:  { paddingVertical: 20, alignItems: "center", gap: 10 },
+  loadingText: { fontSize: 13, fontFamily: "PlusJakartaSans", color: "#999" },
+
+  // Error
+  errorBox:  { borderWidth: 1.5, borderColor: "#FCA5A5", borderRadius: 12, paddingVertical: 14, paddingHorizontal: 18, width: "100%", alignItems: "center", backgroundColor: "#FEF2F2", marginBottom: 6, gap: 4 },
+  errorText: { fontSize: 13, fontFamily: "PlusJakartaSans", color: "#EF4444", textAlign: "center" },
+  retryText: { fontSize: 12, fontFamily: "PlusJakartaSansMedium", color: PRIMARY },
+
+  // Code box
+  codeBox:    { flexDirection: "row", alignItems: "center", justifyContent: "space-between", borderWidth: 1.5, borderColor: PRIMARY, borderStyle: "dashed", borderRadius: 12, paddingVertical: 14, paddingHorizontal: 18, width: "100%", marginBottom: 6, backgroundColor: PRIMARY_LIGHT },
+  codeText:   { fontSize: 18, fontFamily: "PlusJakartaSansBold", color: PRIMARY, letterSpacing: 1.5 },
+  copyIcon:   { padding: 4 },
+  copiedText: { fontSize: 12, color: "#4CAF50", fontFamily: "PlusJakartaSansMedium", marginBottom: 6 },
+
+  // Referral count
+  countBadge: { flexDirection: "row", alignItems: "center", gap: 6, backgroundColor: PRIMARY_LIGHT, borderRadius: 20, paddingHorizontal: 14, paddingVertical: 7, marginBottom: 16, marginTop: 6 },
+  countText:  { fontSize: 12, fontFamily: "PlusJakartaSansMedium", color: PRIMARY },
+
+  shareBtn:         { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10, backgroundColor: PRIMARY, borderRadius: 30, paddingVertical: 16, width: "100%", marginTop: 4 },
+  shareBtnDisabled: { backgroundColor: "#F9A88A" },
+  shareBtnText:     { color: "#fff", fontSize: 16, fontFamily: "PlusJakartaSansSemiBold" },
+
+  howSection: { marginHorizontal: 16 },
+  howTitle:   { fontSize: 18, fontFamily: "PlusJakartaSansBold", color: "#111", marginBottom: 16 },
+  stepRow:    { flexDirection: "row", alignItems: "flex-start", gap: 14, marginBottom: 16 },
+  stepBadge:  { width: 30, height: 30, borderRadius: 15, backgroundColor: PRIMARY_LIGHT, justifyContent: "center", alignItems: "center", flexShrink: 0, marginTop: 1 },
+  stepNumber: { fontSize: 13, fontFamily: "PlusJakartaSansBold", color: PRIMARY },
+  stepText:   { flex: 1, fontSize: 14, fontFamily: "PlusJakartaSans", color: "#444", lineHeight: 22 },
 });
 
 export default InviteScreen;

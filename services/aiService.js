@@ -27,7 +27,7 @@ const AIService = {
    *   // data.suggestions = ['Hey, you also hike? ...', ...]
    */
   getIcebreakerSuggestions: async (matchId) => {
-    const response = await apiClient.get(`/api/ai/icebreakers/${matchId}`);
+    const response = await apiClient.get(`/ai/icebreakers/${matchId}`);
     return response.data;
   },
 
@@ -48,7 +48,7 @@ const AIService = {
    *   // data.score = 84
    */
   getCompatibilityScore: async (userId) => {
-    const response = await apiClient.get(`/api/ai/compatibility/${userId}`);
+    const response = await apiClient.get(`/ai/compatibility/${userId}`);
     return response.data;
   },
 
@@ -64,7 +64,7 @@ const AIService = {
    *   // data.bio = 'Software engineer by day, jollof rice critic by night...'
    */
   generateBio: async (data) => {
-    const response = await apiClient.post("/api/ai/generate-bio", data);
+    const response = await apiClient.post("/ai/generate-bio", data);
     return response.data;
   },
 
@@ -84,7 +84,7 @@ const AIService = {
    *   // data.ideas[0] = { title: 'Sunset Boat Ride', ... }
    */
   getDateIdeas: async (matchId, params = {}) => {
-    const response = await apiClient.get(`/api/ai/date-ideas/${matchId}`, { params });
+    const response = await apiClient.get(`/ai/date-ideas/${matchId}`, { params });
     return response.data;
   },
   /**
@@ -102,7 +102,7 @@ const AIService = {
    *   // data.message = 'Try: "If you could travel anywhere tomorrow..."'
    */
   chat: async (messages) => {
-    const response = await apiClient.post('/api/ai/chat', { messages });
+    const response = await apiClient.post('/ai/chat', { messages });
     return response.data;
   },
 };
