@@ -5,4 +5,6 @@ export const colors = {
   gray: "#64748B",
   activePrimary: "#EE5F2B",
   inactiveTab: "#94A3B8",
+  primaryLight: "#FFF0EA",
+  primaryBorder: "#F5C4AC",
 };

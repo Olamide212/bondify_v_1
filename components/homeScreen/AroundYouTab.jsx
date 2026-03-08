@@ -4,7 +4,7 @@ import {
   Info,
   MapPin
 } from "lucide-react-native";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Animated,
   Image,
@@ -15,31 +15,58 @@ import {
   View,
 } from "react-native";
 import { colors } from "../../constant/colors";
+import { useProfile } from "../../context/ProfileContext";
+import FilterModal from "../modals/FilterModal";
 import VerifiedIcon from "../ui/VerifiedIcon";
 
 const FALLBACK_PROFILE_IMAGE = "https://via.placeholder.com/800x1200?text=No+Photo";
 
-const AroundYouTab = ({ profile, actionMessage }) => {
+
+
+const AroundYouTab = ({ actionMessage }) => {
+  const {
+    homeProfiles: profiles,
+    homeCurrentProfileIndex: currentProfileIndex,
+    setHomeCurrentIndex: setCurrentProfileIndex,
+    profilesLoading: loading,
+    homeFilters: filters,
+    setHomeFilters: applyFilters,
+  } = useProfile();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [fadeAnim] = useState(new Animated.Value(1));
-  const totalImages = profile?.images?.length || 1;
-  const currentImageUri = profile?.images?.[currentImageIndex] || FALLBACK_PROFILE_IMAGE;
+  const [filterModalVisible, setFilterModalVisible] = useState(false);
   const router = useRouter();
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
+
+  // Reset image index when profile changes
+  useEffect(() => {
+    setCurrentImageIndex(0);
+  }, [currentProfileIndex]);
+
+  if (loading) {
+    return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}><Text>Loading profiles...</Text></View>;
+  }
+  if (!profiles || profiles.length === 0) {
+    return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}><Text>No profiles found.</Text></View>;
+  }
+
+  const profile = profiles[currentProfileIndex];
+  if (!profile) {
+    return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}><Text>No profile found.</Text></View>;
+  }
+  const totalImages = profile?.images?.length || 1;
+  const currentImageUri = profile?.images?.[currentImageIndex] || FALLBACK_PROFILE_IMAGE;
 
   const formatDisplayName = (fullName) => {
     const parts = String(fullName || "")
       .trim()
       .split(/\s+/)
       .filter(Boolean);
-
     if (parts.length === 0) return "Unknown";
     if (parts.length === 1) return parts[0];
-
     const lastName = parts[0];
     return `${lastName} `;
   };
-
   const displayName = formatDisplayName(profile?.name);
 
   const handleImageChange = (newIndex) => {
@@ -58,15 +85,15 @@ const AroundYouTab = ({ profile, actionMessage }) => {
   };
 
   const goNext = () => {
-    handleImageChange((currentImageIndex + 1) % totalImages);
+    setCurrentProfileIndex((prev) => (prev + 1) % profiles.length);
   };
 
   const goPrev = () => {
-    handleImageChange((currentImageIndex - 1 + totalImages) % totalImages);
+    setCurrentProfileIndex((prev) => (prev - 1 + profiles.length) % profiles.length);
   };
 
   const handleNavigateToProfile = () => {
-    router.push(`/user-profile/${profile.id}`);
+    router.push(`/user-profile/${profile._id || profile.id}`);
   };
 
   const handleTap = (event) => {
@@ -79,8 +106,62 @@ const AroundYouTab = ({ profile, actionMessage }) => {
     }
   };
 
+  // Filter button
+  const handleOpenFilter = () => setFilterModalVisible(true);
+  const handleCloseFilter = () => setFilterModalVisible(false);
+  const handleApplyFilter = (filterValues) => {
+    // Map filter modal fields to backend query params
+    const {
+      maxDistance,
+      ageRange,
+      showMe,
+      interests,
+      verifiedOnly,
+      activeToday,
+      location,
+      allowExtendedDistance,
+    } = filterValues;
+    applyFilters({
+      maxDistance,
+      minAge: ageRange?.[0],
+      maxAge: ageRange?.[1],
+      gender: showMe !== 'everyone' ? showMe : undefined,
+      interests,
+      verifiedOnly,
+      activeToday,
+      location,
+      allowExtendedDistance,
+    });
+    setCurrentProfileIndex(0); // Reset to first profile after filtering
+    handleCloseFilter();
+  };
+
   return (
-    <View style={[styles.tabContent, { height: screenHeight - 200 }]}>
+    <View style={[styles.tabContent, { height: screenHeight - 200 }]}> 
+      {/* Filter Button */}
+      <View style={{ position: 'absolute', top: 20, right: 20, zIndex: 100 }}>
+        <TouchableOpacity onPress={handleOpenFilter} style={{ backgroundColor: colors.primary, borderRadius: 20, padding: 10 }}>
+          <Text style={{ color: '#fff', fontWeight: 'bold' }}>Filter</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Filter Modal */}
+      <FilterModal
+        visible={filterModalVisible}
+        onClose={handleCloseFilter}
+        initialFilters={{
+          maxDistance: filters.maxDistance,
+          ageRange: [filters.minAge || 18, filters.maxAge || 90],
+          showMe: filters.gender || 'everyone',
+          interests: filters.interests || [],
+          verifiedOnly: filters.verifiedOnly || false,
+          activeToday: filters.activeToday || false,
+          location: filters.location || '',
+          allowExtendedDistance: filters.allowExtendedDistance || false,
+        }}
+        onApply={handleApplyFilter}
+      />
+
       {/* Action Message */}
       {actionMessage && (
         <View style={styles.actionMessage}>
@@ -88,7 +169,6 @@ const AroundYouTab = ({ profile, actionMessage }) => {
         </View>
       )}
 
-      {/* Main Image with Fade Animation */}
       {/* Main Image with Fade Animation */}
       <TouchableOpacity
         style={styles.imageTouchContainer}

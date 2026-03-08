@@ -1,9 +1,9 @@
-import React from "react";
-import { View, Text, StyleSheet, ScrollView } from "react-native";
+import { Facebook, Instagram, Linkedin, Mail, Phone } from "lucide-react-native";
+import { ScrollView, StyleSheet, Text } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-import { Phone, Mail, Instagram, Linkedin, Facebook } from "lucide-react-native";
 import GeneralHeader from "../../../../components/headers/GeneralHeader";
 import Card from "../../../../components/ui/Card"; // adjust import path if needed
+import { ArrowLeft } from "lucide-react-native";
 
 const SupportCenter = () => {
   const contactItems = [
@@ -14,7 +14,7 @@ const SupportCenter = () => {
       onPress: () => console.log("Call pressed"),
     },
     {
-      title: "support@bondie.online",
+      title: "support@bondies.online",
       description: "Send us an email",
       icon: Mail,
       onPress: () => console.log("Email pressed"),
@@ -45,8 +45,9 @@ const SupportCenter = () => {
   return (
     <SafeAreaProvider>
       <SafeAreaView className="flex-1 bg-white">
-        <GeneralHeader title="Help and Support" />
-        <ScrollView contentContainerStyle={styles.scrollContent}>
+        <GeneralHeader title=" Support" leftIcon={<ArrowLeft />}
+          className="bg-white" />
+        <ScrollView contentContainerStyle={styles.scrollContent} className="flex-1 flex-col gap-6 bg-background">
           <Text style={styles.headerTitle}>Contact us</Text>
 
           <Text style={styles.infoText}>
@@ -71,9 +72,10 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 20,
-    fontWeight: "700",
+    fontFamily: "PlusJakartaSansBold",
     color: "#111",
-    marginBottom: 16,
+    marginBottom: 5,
+    marginTop: 10,
   },
   infoText: {
     textAlign: "left",
@@ -81,5 +83,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginBottom: 16,
     lineHeight: 20,
+    fontFamily: "PlusJakartaSansMedium",
   },
 });

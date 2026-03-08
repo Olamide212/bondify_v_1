@@ -32,6 +32,18 @@ const ProfileHeroSection = ({
     setMainImageLoading(Boolean(uri) && isImageCacheHydrated && !isUriCached(uri));
   }, [currentImageIndex, getImageUri, isImageCacheHydrated, isUriCached]);
 
+        const formatDisplayName = (fullName) => {
+      const parts = String(fullName || "")
+        .trim()
+        .split(/\s+/)
+        .filter(Boolean);
+      if (parts.length === 0) return "Unknown";
+      if (parts.length === 1) return parts[0];
+      const lastName = parts[0];
+      return `${lastName} `;
+    };
+    const displayName = formatDisplayName(profile?.name);
+
   return (
     <Pressable onPress={() => openImageModal(currentImageIndex)}>
       <View
@@ -75,7 +87,7 @@ const ProfileHeroSection = ({
             <View className="absolute bottom-64 left-6 right-6">
               <View className="flex-row items-center mb-6">
                 <Text className="text-white text-4xl font-PlusJakartaSansBold mr-2 capitalize" numberOfLines={1}>
-                  {profile.name}
+                  {displayName}
                 </Text>
 
                 <View className="flex-row items-center gap-2">
@@ -86,9 +98,9 @@ const ProfileHeroSection = ({
 
               <View className="flex-row items-center flex-wrap gap-x-4 gap-y-4">
                 {profile.occupation && (
-                  <View className="flex-row items-center bg-secondary px-4 py-2 rounded-full">
+                  <View className="flex-row items-center bg-white px-4 py-2 rounded-full">
                     <Briefcase size={18} color={"#000"} />
-                    <Text className="text-black font-PlusJakartaSansMedium ml-2 capitalize">
+                    <Text className="text-black font-PlusJakartaSansSemiBold ml-2 capitalize">
                       {profile.occupation}
                     </Text>
                   </View>
@@ -100,16 +112,16 @@ const ProfileHeroSection = ({
                       size={20}
                       color={"#000"}
                     />
-                    <Text className="text-black font-PlusJakartaSansMedium ml-2 capitalize">
+                    <Text className="text-black font-PlusJakartaSansSemiBold ml-2 capitalize">
                       {profile.religion}
                     </Text>
                   </View>
                 )}
 
                 {locationLabel && (
-                  <View className="flex-row items-center bg-secondary px-4 py-2 rounded-full">
+                  <View className="flex-row items-center bg-white px-4 py-2 rounded-full">
                     <MapPin size={18} color={"#000"} />
-                    <Text className="text-black font-PlusJakartaSansMedium ml-2">
+                    <Text className="text-black font-PlusJakartaSansSemiBold ml-2">
                       {locationLabel}
                     </Text>
                   </View>

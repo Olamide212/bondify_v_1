@@ -1,16 +1,17 @@
-import { Stack } from "expo-router";
-import "../global.css";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
-import * as SplashScreen from "expo-splash-screen";
 import { useFonts } from "expo-font";
-import { useEffect, useCallback } from "react";
+import { Stack } from "expo-router";
+import * as SplashScreen from "expo-splash-screen";
+import { useCallback, useEffect } from "react";
 import { StatusBar } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
-import { store, persistor } from "../store/store";
-import { ToastProvider } from "../context/ToastContext";
+import { DiscoveryProfilesProvider } from "../context/DiscoveryProfilesContext";
 import { ProfileProvider } from "../context/ProfileContext";
+import { ToastProvider } from "../context/ToastContext";
 import { WalletProvider } from "../context/WalletContext";
+import "../global.css";
+import { persistor, store } from "../store/store";
 
 
 SplashScreen.preventAutoHideAsync();
@@ -52,15 +53,17 @@ const [fontsLoaded] = useFonts({
         <PersistGate loading={null} persistor={persistor}>
           <WalletProvider>
             <ProfileProvider>
-              <ToastProvider>
-                <Stack screenOptions={{ headerShown: false }} className='bg-white'>
-                  {/* Only keep these if you’re customizing screen options */}
-                  <Stack.Screen name="index" />
-                  <Stack.Screen name="(root)" />
-                  <Stack.Screen name="(auth)" />
-                  <Stack.Screen name="root-tabs" />
-                </Stack>
-              </ToastProvider>
+              <DiscoveryProfilesProvider>
+                <ToastProvider>
+                  <Stack screenOptions={{ headerShown: false }} className='bg-white'>
+                    {/* Only keep these if you’re customizing screen options */}
+                    <Stack.Screen name="index" />
+                    <Stack.Screen name="(root)" />
+                    <Stack.Screen name="(auth)" />
+                    <Stack.Screen name="root-tabs" />
+                  </Stack>
+                </ToastProvider>
+              </DiscoveryProfilesProvider>
             </ProfileProvider>
           </WalletProvider>
         </PersistGate>

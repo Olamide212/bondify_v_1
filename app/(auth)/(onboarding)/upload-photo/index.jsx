@@ -88,7 +88,7 @@ const UploadPhoto = () => {
             
                 <Lightbulb size={20} color={colors.primary} style={{ marginTop: 2 }} />
               </View>
-                <Text className='text-gray-600 font-PlusJakartaSansMedium text-base'>High-quality, clear photos help you get 3x better connections and higher engagement.</Text>
+                <Text className='text-gray-600 font-PlusJakartaSansMedium text-base' numberOfLines={2}>High-quality, clear photos help you get 3x better connections and higher engagement.</Text>
               </View>
              
             </View>

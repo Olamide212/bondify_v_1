@@ -1,8 +1,9 @@
 // components/InputToolbar.js
+import { AntDesign } from '@expo/vector-icons';
 import { Audio } from "expo-av";
 import * as ImagePicker from "expo-image-picker";
-import { ImagePlus, Mic, Send } from "lucide-react-native";
-import { useEffect, useState } from "react";
+import { Mic, Send } from "lucide-react-native";
+import { useEffect, useRef, useState } from "react";
 import {
   StyleSheet,
   TextInput,
@@ -10,11 +11,15 @@ import {
   View,
 } from "react-native";
 import { colors } from "../../constant/colors";
+import { socketService } from "../../services/socketService";
+import RizzModal from "./RizzModal";
 
 const VOICE_ICON_COLOR = "#64748B";
 
-const InputToolbar = ({ sendMessage, onSendImage, onSendVoice }) => {
+const InputToolbar = ({ sendMessage, onSendImage, onSendVoice, matchId, currentUserId }) => {
   const [messageText, setMessageText] = useState("");
+  const [showRizzModal, setShowRizzModal] = useState(false);
+  const typingTimeoutRef = useRef(null);
   const [recording, setRecording] = useState(null);
   const [isRecording, setIsRecording] = useState(false);
   const [recordingStartedAt, setRecordingStartedAt] = useState(null);
@@ -133,25 +138,45 @@ const InputToolbar = ({ sendMessage, onSendImage, onSendVoice }) => {
 
   const isSendEnabled = messageText.trim().length > 0 && !isUploadingMedia;
 
+  // Emit typing event when user types
+  const handleTyping = (text) => {
+    setMessageText(text);
+    if (!matchId || !currentUserId) return;
+    socketService.emit("typing", { matchId, userId: currentUserId });
+    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+    typingTimeoutRef.current = setTimeout(() => {
+      socketService.emit("stop_typing", { matchId, userId: currentUserId });
+    }, 2000);
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.leftActions}>
         <TouchableOpacity
           style={styles.iconButton}
-          onPress={handleImagePicker}
-          disabled={isUploadingMedia || isRecording}
+          onPress={() => setShowRizzModal(true)}
         >
-          <ImagePlus color={colors.gray} size={20} />
+          <AntDesign name="robot" size={28} color={colors.gray} />
         </TouchableOpacity>
+            {/* Rizz Words Modal */}
+            <RizzModal
+              visible={showRizzModal}
+              onClose={() => setShowRizzModal(false)}
+              onSend={(rizz) => {
+                sendMessage(rizz);
+                setShowRizzModal(false);
+              }}
+            />
       </View>
 
-<View className='bg-[#F3F4F6] flex-1 flex-row items-center rounded-2xl mr-3 '>
+<View className=' border border-gray-200 flex-1 flex-row items-center rounded-full mr-3' style={{  paddingHorizontal: 5,  }}>
       <TextInput
         style={styles.input}
         placeholder="Type a message..."
         value={messageText}
-        onChangeText={setMessageText}
+        onChangeText={handleTyping}
         multiline
+        className='placeholder:text-gray-400 flex-1'
       />
        <TouchableOpacity
           style={styles.iconButton}
@@ -183,7 +208,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     paddingTop: 16,
-    paddingBottom: 8,
+    paddingBottom: 30,
     paddingHorizontal: 16,
     backgroundColor: "#fff",
     borderTopWidth: 1,
@@ -204,7 +229,7 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    backgroundColor: "#F3F4F6",
+
     borderRadius: 15,
     paddingVertical: 14,
     paddingHorizontal: 16,

@@ -15,6 +15,7 @@ import Info from "../../../../components/ui/Info";
 import AccordionItem from "../../../../components/ui/AccordionItem";
 import { useProfileSetup } from "../../../../hooks/useProfileSetup";
 import Button from "../../../../components/ui/Button";
+import { ScrollView } from "react-native-gesture-handler";
 
 const ProfileAnswers = () => {
   const [answers, setAnswers] = useState({});
@@ -33,6 +34,7 @@ const ProfileAnswers = () => {
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         keyboardVerticalOffset={Platform.OS === "ios" ? 20 : 0}
       >
+        <ScrollView className="flex-1" showsVerticalScrollIndicator={false} paddingBottom={20}>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View className="flex-1 px-2">
             <View className="flex-1 mt-8">
@@ -66,7 +68,7 @@ const ProfileAnswers = () => {
               <Info title="Pick a maximum of 3 questions for your profile" />
             </View>
 
-            <View className="w-full items-end pb-6">
+            <View className="w-full items-end pb-6 mt-6">
               <Button
                 title="Continue"
                 variant="gradient"
@@ -80,6 +82,7 @@ const ProfileAnswers = () => {
             </View>
           </View>
         </TouchableWithoutFeedback>
+        </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );

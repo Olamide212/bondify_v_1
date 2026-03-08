@@ -6,9 +6,12 @@ import ChatListScreen from "../../../../components/chatScreen/ChatListScreen";
 import ChatScreen from "../../../../components/chatScreen/ChatScreen";
 import { matchService } from "../../../../services/matchService";
 import { socketService } from "../../../../services/socketService";
+import { useNavigation } from "@react-navigation/native";
+
 
 
 export default function Chat() {
+  const navigation = useNavigation();
   const [currentScreen, setCurrentScreen] = useState("list");
   const [selectedUser, setSelectedUser] = useState(null);
   const [matchUsers, setMatchUsers] = useState([]);
@@ -17,6 +20,24 @@ export default function Chat() {
     (state) => state.auth.user?.id || state.auth.user?._id
   );
 
+
+
+  // Hide bottom tab bar when in chat screen
+  useEffect(() => {
+    navigation.setOptions({
+      tabBarStyle: currentScreen === "chat"
+        ? { display: "none" }
+        : {
+          height: 80,
+          backgroundColor: "#fff",
+          paddingTop: 10,
+          borderTopWidth: 1,
+          borderColor: "#F1F5F9",
+        },
+    });
+  }, [currentScreen, navigation]);
+
+  // get user activity timestamp for sorting
   const getUserActivityTimestamp = (user) => {
     const rawActivity = user?.activityAt || user?.matchedDate;
     if (!rawActivity) return 0;
@@ -62,47 +83,47 @@ export default function Chat() {
           return aId.localeCompare(bId);
         })
         .map((match) => {
-        const getFirstName = (fullName) => {
-          const normalized = String(fullName || "").trim();
-          if (!normalized) return "Unknown";
-          return normalized.split(/\s+/)[0];
-        };
+          const getFirstName = (fullName) => {
+            const normalized = String(fullName || "").trim();
+            if (!normalized) return "Unknown";
+            return normalized.split(/\s+/)[0];
+          };
 
-        const images = Array.isArray(match.user?.images)
-          ? match.user.images
+          const images = Array.isArray(match.user?.images)
+            ? match.user.images
               .map((image) =>
                 typeof image === "string"
                   ? image
                   : image?.url || image?.uri || image?.secure_url
               )
               .filter(Boolean)
-          : [];
-        const profileImage = images[0] || match.user?.profileImage;
-        const hasChatted = Boolean(match.lastMessageAt);
-        const latestMessage = match.lastMessage?.content;
+            : [];
+          const profileImage = images[0] || match.user?.profileImage;
+          const hasChatted = Boolean(match.lastMessageAt);
+          const latestMessage = match.lastMessage?.content;
 
-        return {
-          id: match.user?._id ?? match.user?.id,
-          matchId: match.matchId ?? match.id,
-          name:
-            getFirstName(
-              match.user?.name ||
+          return {
+            id: match.user?._id ?? match.user?.id,
+            matchId: match.matchId ?? match.id,
+            name:
+              getFirstName(
+                match.user?.name ||
                 [match.user?.firstName, match.user?.lastName]
                   .filter(Boolean)
                   .join(" ") ||
                 "Unknown"
-            ),
-          profileImage,
-          isOnline: match.user?.online ?? false,
-          matchedDate: match.matchedAt
-            ? new Date(match.matchedAt)
-            : new Date(),
-          activityAt: getActivityTimestamp(match),
-          lastMessage: latestMessage || (hasChatted ? "Tap to continue chatting" : "No messages yet"),
-          unread: Number(match.unread || 0),
-          hasChatted,
-        };
-      });
+              ),
+            profileImage,
+            isOnline: match.user?.online ?? false,
+            matchedDate: match.matchedAt
+              ? new Date(match.matchedAt)
+              : new Date(),
+            activityAt: getActivityTimestamp(match),
+            lastMessage: latestMessage || (hasChatted ? "Tap to continue chatting" : "No messages yet"),
+            unread: Number(match.unread || 0),
+            hasChatted,
+          };
+        });
 
     const loadMatches = async () => {
       setIsLoadingMatches(true);
@@ -227,7 +248,6 @@ export default function Chat() {
 
   const handleBackToList = (options = {}) => {
     const unmatchedMatchId = options?.unmatchedMatchId;
-
     if (unmatchedMatchId) {
       setMatchUsers((prevUsers) =>
         prevUsers.filter(
@@ -235,27 +255,23 @@ export default function Chat() {
         )
       );
     }
-
-    setCurrentScreen("list");
+    setCurrentScreen("list"); // This triggers the useEffect above to show tab bar again
     setSelectedUser(null);
   };
 
   return (
+    <View style={styles.container}>
 
-
-      <View style={styles.container}>
-    
-        {currentScreen === "list" ? (
-          <ChatListScreen
-            users={matchUsers}
-            onSelectUser={handleSelectUser}
-            isLoading={isLoadingMatches}
-          />
-        ) : (
-          <ChatScreen matchedUser={selectedUser} onBack={handleBackToList} />
-        )}
-      </View>
-    
+      {currentScreen === "list" ? (
+        <ChatListScreen
+          users={matchUsers}
+          onSelectUser={handleSelectUser}
+          isLoading={isLoadingMatches}
+        />
+      ) : (
+        <ChatScreen matchedUser={selectedUser} onBack={handleBackToList} />
+      )}
+    </View>
   );
 }
 

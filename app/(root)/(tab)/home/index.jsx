@@ -1,4 +1,3 @@
-// Home.js (updated)
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Bell, SlidersHorizontal } from "lucide-react-native";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -20,7 +19,7 @@ import Animated, {
 import { useSelector } from "react-redux";
 import ActionButtons from "../../../../components/homeScreen/ActionButtons";
 import AroundYou from "../../../../components/homeScreen/AroundYouTab";
-import AIAssistantModal from "../../../../components/modals/AIAssistantModal"; // New import
+import AIAssistantModal from "../../../../components/modals/AIAssistantModal";
 import FilterModal from "../../../../components/modals/FilterModal";
 import MatchCelebrationModal from "../../../../components/modals/MatchCelebrationModal";
 import NotificationsModal from "../../../../components/modals/NotificationsModal";
@@ -62,7 +61,7 @@ const Home = () => {
   const [showFilterModal, setShowFilterModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showNotificationsModal, setShowNotificationsModal] = useState(false);
-  const [showAIModal, setShowAIModal] = useState(false); // AI Modal state
+  const [showAIModal, setShowAIModal] = useState(false);
   const [selectedProfileId, setSelectedProfileId] = useState(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [notifications, setNotifications] = useState([]);
@@ -98,14 +97,12 @@ const Home = () => {
 
   const handleSwipe = (direction) => {
     if (!currentProfile) return;
-
     showFlashMessage(direction);
     handleHomeSwipe(direction, currentProfile);
   };
 
   const handleSuperLike = () => {
     if (!currentProfile) return;
-
     showFlashMessage("right");
     handleHomeSuperLike(currentProfile);
   };
@@ -120,7 +117,6 @@ const Home = () => {
   const animatedStyle = useAnimatedStyle(() => {
     const translateY = interpolate(animation.value, [0, 1], [60, 0]);
     const scale = interpolate(animation.value, [0, 1], [0.9, 1]);
-
     return {
       transform: [{ translateY }, { scale }],
       opacity: animation.value,
@@ -149,15 +145,11 @@ const Home = () => {
       try {
         const raw = await AsyncStorage.getItem(NOTIFICATIONS_STORAGE_KEY);
         const parsed = safeParse(raw);
-
         if (!isMounted || !Array.isArray(parsed)) return;
 
         const normalized = parsed
           .filter(Boolean)
-          .map((item) => ({
-            ...item,
-            read: Boolean(item?.read),
-          }))
+          .map((item) => ({ ...item, read: Boolean(item?.read) }))
           .slice(0, MAX_NOTIFICATIONS);
 
         setNotifications(normalized);
@@ -167,10 +159,7 @@ const Home = () => {
     };
 
     hydrateNotifications();
-
-    return () => {
-      isMounted = false;
-    };
+    return () => { isMounted = false; };
   }, []);
 
   useEffect(() => {
@@ -184,18 +173,14 @@ const Home = () => {
         console.warn("Failed to persist notifications cache:", error?.message || error);
       }
     };
-
     persistNotifications();
   }, [notifications]);
 
   const markNotificationAsRead = useCallback((notificationId) => {
     if (!notificationId) return;
-
     setNotifications((prev) =>
       prev.map((item) =>
-        String(item.id) === String(notificationId)
-          ? { ...item, read: true }
-          : item
+        String(item.id) === String(notificationId) ? { ...item, read: true } : item
       )
     );
   }, []);
@@ -220,7 +205,6 @@ const Home = () => {
 
     const pushNotification = (payload) => {
       const normalized = mapNotificationPayload(payload);
-
       setNotifications((prev) => {
         const existing = prev.find((item) => String(item.id) === String(normalized.id));
         const nextNotification = {
@@ -230,14 +214,24 @@ const Home = () => {
             Boolean(existing?.read) ||
             Boolean(showNotificationsModal),
         };
-
         const deduped = prev.filter((item) => String(item.id) !== String(nextNotification.id));
         return [nextNotification, ...deduped].slice(0, MAX_NOTIFICATIONS);
       });
     };
 
     const handleNotificationNew = (payload) => pushNotification(payload);
-    const handleMatchNew = (payload) => pushNotification(payload);
+
+    // ✅ REMOVED match:new from here — ProfileContext owns it now.
+    // Only push it as a notification entry, ProfileContext handles the modal.
+    const handleMatchNew = (payload) => {
+      pushNotification({
+        ...payload,
+        type: "match",
+        title: payload?.matchedUser?.name || payload?.profile?.name || "New Match!",
+        body: "You have a new match 🎉",
+      });
+    };
+
     const handleMessageNew = ({ matchId, message }) => {
       if (!message) return;
 
@@ -289,14 +283,11 @@ const Home = () => {
 
   const handlePressNotification = (notification) => {
     if (!notification) return;
-
     markNotificationAsRead(notification.id);
-
     if (notification.type === "match" && notification.userId) {
       setSelectedProfileId(notification.userId);
       setShowProfileModal(true);
     }
-
     setShowNotificationsModal(false);
   };
 
@@ -313,17 +304,8 @@ const Home = () => {
 
   return (
     <View style={styles.container}>
-      {/* Header */}
       <View style={styles.headerWrapper}>
         <View className="flex-row justify-end gap-4">
-          {/* AI Assistant Button */}
-          {/* <Pressable onPress={() => setShowAIModal(true)}>
-            <View className="justify-center gap-2 rounded-full bg-secondary w-auto px-3 h-10 flex-row items-center ">
-              <Bot size={22} color={colors.primary} />
-              <Text className="font-PlusJakartaSansMedium text-primary">AI Chat</Text>
-            </View>
-          </Pressable> */}
-
           <View className='flex-row gap-2'>
             <Pressable onPress={handleOpenNotifications}>
               <View className="justify-center items-center rounded-full bg-background w-14 h-14">
@@ -400,9 +382,7 @@ const Home = () => {
         notifications={notifications}
         onClose={() => setShowNotificationsModal(false)}
         onMarkAllRead={markAllNotificationsAsRead}
-        onClearAll={() => {
-          setNotifications([]);
-        }}
+        onClearAll={() => setNotifications([])}
         onPressNotification={handlePressNotification}
       />
 
@@ -412,14 +392,13 @@ const Home = () => {
         profileId={selectedProfileId}
       />
 
-      {/* AI Assistant Modal */}
       <AIAssistantModal
         visible={showAIModal}
         onClose={() => setShowAIModal(false)}
         fullScreen
       />
 
-      {/* Match Celebration Modal */}
+      {/* ✅ Match Celebration Modal — driven purely by ProfileContext state */}
       <MatchCelebrationModal
         visible={!!matchCelebration}
         onClose={() => setMatchCelebration(null)}
@@ -438,9 +417,7 @@ const Home = () => {
           }
           setMatchCelebration(null);
         }}
-        onContinueSwiping={() => {
-          setMatchCelebration(null);
-        }}
+        onContinueSwiping={() => setMatchCelebration(null)}
       />
     </View>
   );

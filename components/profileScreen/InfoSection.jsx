@@ -9,7 +9,8 @@ import {
   SlidersHorizontal,
   HelpCircle,
   Users,
-  CalendarHeart
+  CalendarHeart,
+  Coins
 } from "lucide-react-native";
 import { useRouter } from "expo-router";
 import SubscriptionModal from "../modals/SubscriptionModal";
@@ -52,12 +53,12 @@ const InfoSection = () => {
       icon: Crown,
       modal: "subscription",
     },
-    {
-      title: "Bondies Hop",
-      description: "Travel anywhere digitally and connect worldwide.",
-      icon: Plane,
-      modal: "passport",
-    },
+    // {
+    //   title: "Bondies Hop",
+    //   description: "Travel anywhere digitally and connect worldwide.",
+    //   icon: Plane,
+    //   modal: "passport",
+    // },
     // {
     //   title: "Coin Wallet & Gifts",
     //   description: "Check your coin balance, buy coins, and send gifts.",

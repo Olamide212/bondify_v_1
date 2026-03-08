@@ -71,14 +71,18 @@ export default function ImageSection({
     }
   }, [showComposer]);
 
+
+  
+
   return (
-    <View style={styles.wrapper}>
+    <View style={styles.wrapper} className=' mb-2 mx-2 rounded-2xl border border-gray-200'>
       {/* Image with modal trigger */}
-      <Pressable onPress={onPress}>
+      <Pressable onPress={onPress}  className='rounded-2xl'>
         <Image
           source={{ uri: imageUri }}
           style={styles.image}
           contentFit="cover"
+          className='rounded-2xl'
         />
       </Pressable>
 
@@ -89,7 +93,7 @@ export default function ImageSection({
             style={styles.sparkBtn}
             onPress={() => setShowComposer(true)}
           >
-            <Sparkles size={26} color="#5A56D0" />
+            <Sparkles size={26} color="#fff" />
           </TouchableOpacity>
         ) : (
           // Animated Composer
@@ -129,7 +133,7 @@ export default function ImageSection({
             {/* Send button */}
             {text.length > 0 && (
               <TouchableOpacity style={styles.sendBtn} onPress={handleSend}>
-                <PaperPlane size={20} color="#5A56D0" />
+                <PaperPlane size={20} color="#fff" />
               </TouchableOpacity>
             )}
           </Animated.View>
@@ -158,6 +162,7 @@ const styles = StyleSheet.create({
     width: "100%",
     height: 600, // Reduced height for better scrolling experience
     backgroundColor: "#eee",
+    borderRadius: 15
   },
   commentRow: {
     flexDirection: "row",
@@ -170,7 +175,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
   },
   sparkBtn: {
-    backgroundColor: "#FAE83C",
+    backgroundColor: colors.activePrimary,
     padding: 12,
     borderRadius: 30,
     shadowColor: "#000",
@@ -221,7 +226,7 @@ const styles = StyleSheet.create({
   },
   sendBtn: {
     marginLeft: 8,
-    backgroundColor: "#E0E7FF",
+    backgroundColor: colors.activePrimary,
     padding: 10,
     borderRadius: 20,
     alignItems: "center",

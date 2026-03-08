@@ -13,7 +13,6 @@ const getOpenAI = () => {
 
 // ─────────────────────────────────────────────
 //  AI ICEBREAKER SUGGESTIONS
-//  Given a match, generate 3 conversation starters
 // ─────────────────────────────────────────────
 const getIcebreakerSuggestions = async (req, res, next) => {
   try {
@@ -74,7 +73,6 @@ Generate exactly 3 fun, genuine, non-cheesy conversation starters that reference
 
 // ─────────────────────────────────────────────
 //  AI COMPATIBILITY SCORE
-//  Given two user profiles, compute AI-based compatibility
 // ─────────────────────────────────────────────
 const getCompatibilityScore = async (req, res, next) => {
   try {
@@ -151,7 +149,7 @@ const generateBio = async (req, res, next) => {
       return res.status(503).json({ success: false, message: 'AI service not configured' });
     }
 
-    const { tone } = req.body; // 'funny' | 'sincere' | 'adventurous' | 'professional'
+    const { tone } = req.body;
 
     const user = await User.findById(req.user._id).select(
       'firstName interests occupation loveLanguage lookingFor personalities'
@@ -240,18 +238,8 @@ Respond ONLY with a JSON array of objects like:
   }
 };
 
-module.exports = {
-  getIcebreakerSuggestions,
-  getCompatibilityScore,
-  generateBio,
-  getDateIdeas,
-  chat,
-};
-
 // ─────────────────────────────────────────────
 //  BONBOT — Conversational AI Chat
-//  Accepts the full message history so the model
-//  maintains context across turns.
 // ─────────────────────────────────────────────
 const chat = async (req, res, next) => {
   try {
@@ -259,14 +247,12 @@ const chat = async (req, res, next) => {
       return res.status(503).json({ success: false, message: 'AI service not configured' });
     }
 
-    // messages: [{ role: 'user'|'assistant', content: string }]
     const { messages } = req.body;
 
     if (!Array.isArray(messages) || messages.length === 0) {
       return res.status(400).json({ success: false, message: 'messages array is required' });
     }
 
-    // Fetch user context so BonBot gives personalised advice
     const user = await User.findById(req.user._id).select(
       'firstName age interests personalities lookingFor loveLanguage occupation'
     );
@@ -317,4 +303,15 @@ Rules:
   } catch (error) {
     next(error);
   }
+};
+
+// ─────────────────────────────────────────────
+//  EXPORTS — must be after ALL function definitions
+// ─────────────────────────────────────────────
+module.exports = {
+  getIcebreakerSuggestions,
+  getCompatibilityScore,
+  generateBio,
+  getDateIdeas,
+  chat,
 };

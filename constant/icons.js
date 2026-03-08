@@ -9,6 +9,11 @@ import compass from "../assets/icons/compass.png"
 import message from "../assets/icons/chat.png"
 import redo from "../assets/icons/refresh.png"
 import AiIcon from "../assets/icons/Ai.png"
+import AdFreeIcon from "../assets/icons/Ad-free.png"
+import BotIcon from "../assets/icons/bot.png"
+import deepConversationIcon from "../assets/icons/deep.png"
+import messageIcon from "../assets/icons/mess.png"
+import verifyIcon from "../assets/icons/verify.png"
 
 export const Icons = {
   arrowLeft,
@@ -20,5 +25,10 @@ export const Icons = {
   compass,
   message,
   redo,
-  AiIcon
+  AiIcon,
+  AdFreeIcon,
+  BotIcon,
+  deepConversationIcon,
+  messageIcon,
+  verifyIcon
 };

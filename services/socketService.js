@@ -98,6 +98,10 @@ const disconnect = () => {
   if (!socketInstance) return;
   socketInstance.disconnect();
 };
+const emit = (eventName, payload) => {
+  if (!socketInstance || !eventName) return;
+  socketInstance.emit(eventName, payload);
+};
 
 export const socketService = {
   connect,
@@ -105,5 +109,6 @@ export const socketService = {
   off,
   joinMatch,
   leaveMatch,
+  emit,
   disconnect,
 };

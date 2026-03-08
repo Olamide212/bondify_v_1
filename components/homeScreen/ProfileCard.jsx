@@ -137,6 +137,8 @@ const ProfileCard = ({ profile }) => {
     ? profile.bio
     : profile.bio?.slice(0, MAX_BIO_LENGTH) + (isBioLong ? "..." : "");
 
+
+
   return (
     <View className="relative ">
       <ProfileImageModal
@@ -170,7 +172,7 @@ const ProfileCard = ({ profile }) => {
             onMarkUriLoaded={touchUri}
           />
 
-          <View className="py-6 ">
+          <View className="py-3 ">
             {/* Mutual Connections */}
             {profile.mutualFriends > 0 && (
               <View className="bg-white -mt-20 pt-14 p-4 mb-2 rounded-t-2xl">
@@ -179,7 +181,7 @@ const ProfileCard = ({ profile }) => {
                 </Text>
 
                 {profile.mutualInterests.length > 0 && (
-                  <View className="flex flex-row flex-wrap gap-2 mt-2">
+                  <View className=" flex flex-row flex-wrap gap-2 mt-2">
                     {profile.mutualInterests.map((interest, index) => (
                       <View
                         key={index}
@@ -197,15 +199,15 @@ const ProfileCard = ({ profile }) => {
 
             {/* Looking For */}
             {profile.lookingFor && (
-              <View className="bg-white  p-4 mb-2">
+              <View className="bg-white  p-3 mb-2 mx-2 rounded-2xl border border-gray-200">
                 <View className="flex-row items-center mb-2">
-                  <Text className="text-[20px] font-PlusJakartaSansSemiBold text-app">
+                  <Text className="text-[18px] font-PlusJakartaSansSemiBold text-app">
                     Looking for
                   </Text>
                 </View>
 
                 <View className="self-start items-center justify-center bg-gray-100   px-5 py-2 rounded-full">
-                  <Text className="text-black text-[16px] font-PlusJakartaSans">
+                  <Text className="text-black text-[18px] font-PlusJakartaSans">
                     {profile.lookingFor}
                   </Text>
                 </View>
@@ -214,9 +216,9 @@ const ProfileCard = ({ profile }) => {
 
             {/* Bio */}
             {profile.bio && (
-              <View className="bg-white  mb-2 p-6 ">
+              <View className="bg-white  p-3 mb-2 mx-2 rounded-2xl border border-gray-200">
                 <View className="flex-row items-center mb-3">
-                  <Text className="text-[20px] font-PlusJakartaSansSemiBold text-app">
+                  <Text className="text-[18px] font-PlusJakartaSansSemiBold text-app">
                     Bio
                   </Text>
                 </View>
@@ -237,11 +239,11 @@ const ProfileCard = ({ profile }) => {
 
             {/* First question after bio */}
             {profile.questions?.[0] && (
-              <View className="bg-white p-5 rounded-xl">
+              <View className="bg-white  p-3 mb-2 mx-2 rounded-2xl border border-gray-200">
                 <Text className="text-app font-PlusJakartaSans text-base mb-2">
                   {profile.questions[0].question}
                 </Text>
-                <Text className="text-app font-PlusJakartaSansBold text-2xl leading-relaxed">
+                <Text className="text-app font-PlusJakartaSansBold text-2xl leading-relaxed capitalize">
                   {profile.questions[0].answer}
                 </Text>
               </View>
@@ -261,7 +263,7 @@ const ProfileCard = ({ profile }) => {
             </View>
 
             {/* Essentials */}
-            <View className="bg-white p-6 mb-2">
+            <View className="bg-white  p-3 mb-2 mx-3 rounded-2xl border border-gray-200">
               <View className="flex-row items-center mb-4">
                 <Text className="text-[20px] font-PlusJakartaSansSemiBold text-app ml-2">
                   Essentials
@@ -269,7 +271,7 @@ const ProfileCard = ({ profile }) => {
               </View>
 
               {/* Two-column grid layout */}
-              <View className="flex-row flex-wrap -mx-1.5">
+              <View className=" flex-row flex-wrap -mx-1.5">
                 {profile.distance && (
                   <View className="w-1/2 px-1.5 mb-3">
                     <View className="bg-gray-100  rounded-full px-4 py-2 flex-row items-center gap-3">
@@ -375,8 +377,9 @@ const ProfileCard = ({ profile }) => {
               </View>
             </View>
 
+
             {/* Basics */}
-            <View className="bg-white p-6 mb-2">
+            <View className="bg-white  p-3 mb-2 mx-3 rounded-2xl border border-gray-200">
               <View className="flex-row items-center mb-4">
                 <Text className="text-[20px] font-PlusJakartaSansSemiBold text-app ml-2">
                   Basics
@@ -539,6 +542,8 @@ const ProfileCard = ({ profile }) => {
                 )}
               </View>
             )}
+
+
             {/* Another question later */}
             {profile.questions?.[2] && (
               <View className="bg-white  p-5 rounded-xl">

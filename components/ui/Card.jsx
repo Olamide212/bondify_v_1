@@ -4,9 +4,9 @@ import { Ionicons } from "@expo/vector-icons";
 
 const Card = ({ title, items }) => {
   return (
-    <View className="bg-white mt-4  rounded-xl">
+    <View className="bg-white mt-4 p-6 border border-gray-200 rounded-xl">
       {title && (
-        <Text className="text-xl font-PlusJakartaSansMedium mb-3">
+        <Text className="text-xl font-PlusJakartaSansSemiBold mb-3">
           {title}
         </Text>
       )}
@@ -30,7 +30,7 @@ const Card = ({ title, items }) => {
               )}
             <View className="flex-row items-center gap-3 flex-1">
               <View className="flex-1">
-                <Text className="text-xl text-black font-PlusJakartaSansMedium">
+                <Text className="text-xl text-black font-PlusJakartaSansSemiBold">
                   {title}
                 </Text>
                 {description && (

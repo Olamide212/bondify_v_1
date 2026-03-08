@@ -1,19 +1,19 @@
-import React, { useState } from "react";
-import {
-  SafeAreaView,
-  Text,
-  View,
-  KeyboardAvoidingView,
-  Platform,
-  TouchableWithoutFeedback,
-  Keyboard,
-} from "react-native";
 import { useRouter } from "expo-router";
+import { useState } from "react";
+import {
+    Keyboard,
+    KeyboardAvoidingView,
+    Platform,
+    SafeAreaView,
+    Text,
+    TouchableWithoutFeedback,
+    View,
+} from "react-native";
 import { useDispatch, useSelector } from "react-redux";
-import { verifyOtp, resendOtp } from "../../../slices/authSlice";
-import { useToast } from "../../../context/ToastContext";
 import GlobalOtpInput from "../../../components/inputs/OtpInput";
 import Button from "../../../components/ui/Button";
+import { useToast } from "../../../context/ToastContext";
+import { resendOtp, verifyOtp } from "../../../slices/authSlice";
 import { tokenManager } from "../../../utils/tokenManager";
 
 const Validation = () => {
@@ -72,6 +72,11 @@ const handleSubmit = async () => {
       message: "OTP verified successfully",
       variant: "success",
     });
+
+    // Set onboarding step to agreement so onboarding redirect logic resumes here
+    await import("expo-secure-store").then(SecureStore =>
+      SecureStore.setItemAsync("onboardingStep", "agreement")
+    );
 
     console.log("🚀 Navigating to agreement...");
     router.replace("/(onboarding)/agreement");

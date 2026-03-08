@@ -1,5 +1,8 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
+import { useSelector } from "react-redux";
 import { profileService } from "../services/profileService";
+import { socketService } from "../services/socketService";
+import { tokenManager } from "../utils/tokenManager";
 
 const ProfileContext = createContext();
 
@@ -22,21 +25,23 @@ export const ProfileProvider = ({ children }) => {
     location: "",
   };
 
-  // Global stats
   const [matches, setMatches] = useState(0);
   const [likes, setLikes] = useState(0);
   const [profilesData, setProfilesData] = useState([]);
   const [profilesLoading, setProfilesLoading] = useState(true);
   const [profilesRefreshNonce, setProfilesRefreshNonce] = useState(0);
   const [homeFilters, setHomeFilters] = useState(DEFAULT_HOME_FILTERS);
-
-  // Separate states for home and discover screens
   const [homeSwipedProfiles, setHomeSwipedProfiles] = useState([]);
   const [discoverSwipedProfiles, setDiscoverSwipedProfiles] = useState([]);
   const [homeCurrentIndex, setHomeCurrentIndex] = useState(0);
   const [discoverCurrentIndex, setDiscoverCurrentIndex] = useState(0);
-
   const [matchCelebration, setMatchCelebration] = useState(null);
+
+  // ✅ Watch the auth state so we know when the user is fully logged in
+  const authUser = useSelector((state) => state.auth.user);
+  const currentUserId = authUser?.id ?? authUser?._id ?? null;
+
+  const normalizeProfileRef = useRef(null);
 
   const normalizeImages = (images) => {
     if (!Array.isArray(images)) return [];
@@ -59,13 +64,11 @@ export const ProfileProvider = ({ children }) => {
 
   const formatLocation = (location) => {
     if (!location || typeof location !== "object") return location || "";
-    const parts = [location.city, location.state, location.country].filter(
-      Boolean
-    );
+    const parts = [location.city, location.state, location.country].filter(Boolean);
     return parts.join(", ");
   };
 
-  const normalizeProfile = (profile) => {
+  const normalizeProfile = useCallback((profile) => {
     const normalizedImages = normalizeImages(profile?.images);
     const normalizedName =
       profile?.name ||
@@ -112,9 +115,46 @@ export const ProfileProvider = ({ children }) => {
       questions: profile?.questions ?? [],
       images: normalizedImages.length > 0 ? normalizedImages : [],
     };
-  };
+  }, []);
 
-  // Convert homeFilters into query params accepted by the backend
+  useEffect(() => {
+    normalizeProfileRef.current = normalizeProfile;
+  }, [normalizeProfile]);
+
+  // Socket listener — registered once on mount
+  useEffect(() => {
+    let isMounted = true;
+
+    const handleMatchNew = (data) => {
+      if (!isMounted || !data) return;
+      const normalize = normalizeProfileRef.current;
+      if (!normalize) return;
+
+      const matchedProfile = {
+        ...normalize(data?.matchedUser || data?.profile || {}),
+        matchId: data?.matchId || data?.match?._id || data?.match?.id,
+      };
+
+      setTimeout(() => {
+        if (isMounted) setMatchCelebration(matchedProfile);
+      }, 100);
+    };
+
+    const setupSocket = async () => {
+      const socket = await socketService.connect();
+      if (!socket || !isMounted) return;
+      socketService.off("match:new", handleMatchNew);
+      socketService.on("match:new", handleMatchNew);
+    };
+
+    setupSocket();
+
+    return () => {
+      isMounted = false;
+      socketService.off("match:new", handleMatchNew);
+    };
+  }, []);
+
   const buildApiParams = useCallback((filters) => {
     const params = {};
     const [minAge, maxAge] = filters.ageRange || [18, 90];
@@ -144,9 +184,6 @@ export const ProfileProvider = ({ children }) => {
     return params;
   }, []);
 
-  // Track whether this is the first render so we can skip the redundant
-  // refetch that would otherwise fire when homeFilters is still at its
-  // default value.
   const isFirstRender = useRef(true);
 
   const refreshProfiles = useCallback(() => {
@@ -156,10 +193,28 @@ export const ProfileProvider = ({ children }) => {
   useEffect(() => {
     let isMounted = true;
 
+    // ✅ Wait for token to be available before fetching — this is the core fix
+    // for new users not seeing profiles until they pull to refresh
+    const waitForToken = async (retries = 10, delayMs = 300) => {
+      for (let i = 0; i < retries; i++) {
+        const token = await tokenManager.getToken();
+        if (token) return token;
+        await new Promise((resolve) => setTimeout(resolve, delayMs));
+      }
+      return null;
+    };
+
     const loadProfiles = async () => {
       if (isMounted) setProfilesLoading(true);
 
       try {
+        // ✅ Block until the auth token is actually available in storage
+        const token = await waitForToken();
+        if (!token || !isMounted) {
+          if (isMounted) setProfilesLoading(false);
+          return;
+        }
+
         let page = 1;
         let totalPages = 1;
         const allProfiles = [];
@@ -178,9 +233,7 @@ export const ProfileProvider = ({ children }) => {
           allProfiles.push(...pageProfiles);
           totalPages = response?.pagination?.pages || page;
 
-          if (!response?.pagination) {
-            break;
-          }
+          if (!response?.pagination) break;
 
           page += 1;
         }
@@ -188,15 +241,10 @@ export const ProfileProvider = ({ children }) => {
         const normalizedProfiles = allProfiles.map(normalizeProfile);
         if (isMounted) {
           setProfilesData(normalizedProfiles);
-          // Reset index when fresh profiles are loaded after a filter change
-          if (!isFirstRender.current) {
-            setHomeCurrentIndex(0);
-          }
+          if (!isFirstRender.current) setHomeCurrentIndex(0);
         }
       } catch (error) {
-        if (isMounted) {
-          setProfilesData([]);
-        }
+        if (isMounted) setProfilesData([]);
       } finally {
         if (isMounted) {
           setProfilesLoading(false);
@@ -209,9 +257,11 @@ export const ProfileProvider = ({ children }) => {
     return () => {
       isMounted = false;
     };
-  }, [homeFilters, buildApiParams, profilesRefreshNonce]);
 
-  // Home screen actions
+  // ✅ currentUserId added as a dependency — when a new user logs in and the
+  // Redux auth state updates, this effect re-runs and fetches their profiles
+  }, [homeFilters, buildApiParams, profilesRefreshNonce, currentUserId]);
+
   const addHomeSwipedProfile = (profileId) => {
     if (!profileId) return;
     setHomeSwipedProfiles((prev) => [...prev, profileId]);
@@ -226,6 +276,9 @@ export const ProfileProvider = ({ children }) => {
       });
     } catch (error) {
       console.error("Swipe action failed:", { profileId, type, error });
+      if (error?.message?.toLowerCase().includes("already interacted")) {
+        addHomeSwipedProfile(profileId);
+      }
       return null;
     }
   };
@@ -236,19 +289,20 @@ export const ProfileProvider = ({ children }) => {
       setLikes((prev) => prev + 1);
       if (actionResponse?.isMatch) {
         setMatches((prev) => prev + 1);
-        // Trigger match celebration modal
-        const matchedProfile = {
-          ...swipedProfile,
-          matchId:
-            actionResponse?.match?._id ||
-            actionResponse?.match?.id ||
-            swipedProfile?.matchId,
-          images:
-            actionResponse?.likedUser?.images?.length > 0
-              ? actionResponse.likedUser.images
-              : swipedProfile?.images || [],
-        };
-        setMatchCelebration(matchedProfile);
+        setMatchCelebration((prev) => {
+          if (prev) return prev;
+          return {
+            ...swipedProfile,
+            matchId:
+              actionResponse?.match?._id ||
+              actionResponse?.match?.id ||
+              swipedProfile?.matchId,
+            images:
+              actionResponse?.likedUser?.images?.length > 0
+                ? actionResponse.likedUser.images
+                : swipedProfile?.images || [],
+          };
+        });
       }
     }
   };
@@ -257,7 +311,6 @@ export const ProfileProvider = ({ children }) => {
     const profileId = profile?.id;
     const type = direction === "right" ? "like" : "pass";
     const actionResponse = await recordSwipeAction(profileId, type);
-
     updateStatsForSwipe(type, actionResponse, profile);
     addHomeSwipedProfile(profileId);
     setHomeCurrentIndex((prev) => (prev + 1) % profilesData.length);
@@ -266,13 +319,11 @@ export const ProfileProvider = ({ children }) => {
   const handleHomeSuperLike = async (profile) => {
     const profileId = profile?.id;
     const actionResponse = await recordSwipeAction(profileId, "superlike");
-
     updateStatsForSwipe("superlike", actionResponse, profile);
     addHomeSwipedProfile(profileId);
     setHomeCurrentIndex((prev) => (prev + 1) % profilesData.length);
   };
 
-  // Discover screen actions
   const addDiscoverSwipedProfile = (profileId) => {
     if (!profileId) return;
     setDiscoverSwipedProfiles((prev) => [...prev, profileId]);
@@ -282,7 +333,6 @@ export const ProfileProvider = ({ children }) => {
     const profileId = profile?.id;
     const type = direction === "right" ? "like" : "pass";
     const actionResponse = await recordSwipeAction(profileId, type);
-
     updateStatsForSwipe(type, actionResponse, profile);
     addDiscoverSwipedProfile(profileId);
     setDiscoverCurrentIndex((prev) => (prev + 1) % profilesData.length);
@@ -291,13 +341,11 @@ export const ProfileProvider = ({ children }) => {
   const handleDiscoverSuperLike = async (profile) => {
     const profileId = profile?.id;
     const actionResponse = await recordSwipeAction(profileId, "superlike");
-
     updateStatsForSwipe("superlike", actionResponse, profile);
     addDiscoverSwipedProfile(profileId);
     setDiscoverCurrentIndex((prev) => (prev + 1) % profilesData.length);
   };
 
-  // Filter profiles for each screen
   const parseDistance = (distance) => {
     if (typeof distance === "number") return distance;
     const parsed = Number.parseFloat(String(distance || "").replace(/[^\d.]/g, ""));
@@ -309,58 +357,34 @@ export const ProfileProvider = ({ children }) => {
     .filter((profile) => {
       const [minAge, maxAge] = homeFilters.ageRange || [18, 90];
       const profileAge = Number(profile?.age);
-      if (Number.isFinite(profileAge) && (profileAge < minAge || profileAge > maxAge)) {
-        return false;
-      }
+      if (Number.isFinite(profileAge) && (profileAge < minAge || profileAge > maxAge)) return false;
 
       if (homeFilters.showMe && homeFilters.showMe !== "everyone") {
-        const genderMap = {
-          men: "male",
-          women: "female",
-        };
-
+        const genderMap = { men: "male", women: "female" };
         const expectedGender = genderMap[String(homeFilters.showMe).toLowerCase()];
-        if (
-          expectedGender &&
-          String(profile?.gender || "").toLowerCase() !== expectedGender
-        ) {
-          return false;
-        }
+        if (expectedGender && String(profile?.gender || "").toLowerCase() !== expectedGender) return false;
       }
 
       if (homeFilters.maxDistance) {
         const profileDistance = parseDistance(profile?.distance);
-        if (
-          profileDistance !== null &&
-          profileDistance > Number(homeFilters.maxDistance)
-        ) {
-          return false;
-        }
+        if (profileDistance !== null && profileDistance > Number(homeFilters.maxDistance)) return false;
       }
 
       if (Array.isArray(homeFilters.interests) && homeFilters.interests.length > 0) {
         const profileInterests = Array.isArray(profile?.interests)
-          ? profile.interests.map((interest) => String(interest).toLowerCase())
+          ? profile.interests.map((i) => String(i).toLowerCase())
           : [];
-        const hasInterestMatch = homeFilters.interests.some((interest) =>
-          profileInterests.includes(String(interest).toLowerCase())
+        const hasInterestMatch = homeFilters.interests.some((i) =>
+          profileInterests.includes(String(i).toLowerCase())
         );
-
-        if (!hasInterestMatch) {
-          return false;
-        }
+        if (!hasInterestMatch) return false;
       }
 
-      if (homeFilters.verifiedOnly && !profile?.verified) {
-        return false;
-      }
+      if (homeFilters.verifiedOnly && !profile?.verified) return false;
 
       if (homeFilters.activeToday) {
         const lastActiveValue = profile?.lastActive;
-        const isStringActiveToday = String(lastActiveValue || "")
-          .toLowerCase()
-          .includes("today");
-
+        const isStringActiveToday = String(lastActiveValue || "").toLowerCase().includes("today");
         let isDateActiveToday = false;
         if (lastActiveValue) {
           const parsedDate = new Date(lastActiveValue);
@@ -372,19 +396,13 @@ export const ProfileProvider = ({ children }) => {
               parsedDate.getDate() === now.getDate();
           }
         }
-
-        if (!isStringActiveToday && !isDateActiveToday) {
-          return false;
-        }
+        if (!isStringActiveToday && !isDateActiveToday) return false;
       }
 
-      // Location-based filtering
       if (homeFilters.location && homeFilters.location.trim()) {
         const filterLocation = homeFilters.location.trim().toLowerCase();
         const profileLocation = String(profile?.location || "").toLowerCase();
-        if (!profileLocation.includes(filterLocation)) {
-          return false;
-        }
+        if (!profileLocation.includes(filterLocation)) return false;
       }
 
       return true;
@@ -396,33 +414,24 @@ export const ProfileProvider = ({ children }) => {
 
   const value = {
     profiles: profilesData,
-    // Home screen
     homeCurrentProfileIndex: homeCurrentIndex,
     homeProfiles,
     handleHomeSwipe,
     handleHomeSuperLike,
     handleSwipe: handleHomeSwipe,
     handleSuperLike: handleHomeSuperLike,
-
-    // Discover screen
     discoverCurrentProfileIndex: discoverCurrentIndex,
     discoverProfiles,
     handleDiscoverSwipe,
     handleDiscoverSuperLike,
-
-    // Global stats
     matches,
     likes,
-
-    // Utility functions
     setHomeCurrentIndex,
     setDiscoverCurrentIndex,
     profilesLoading,
     refreshProfiles,
     homeFilters,
     setHomeFilters,
-
-    // Match celebration
     matchCelebration,
     setMatchCelebration,
   };

@@ -1,4 +1,5 @@
 // components/ChatScreen.js
+
 import { useRouter } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
@@ -7,10 +8,11 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  StatusBar,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useSelector } from "react-redux";
@@ -28,6 +30,36 @@ const MESSAGE_PAGE_SIZE = 20;
 const LOAD_OLDER_TRIGGER_PX = 140;
 
 const ChatScreen = ({ matchedUser, onBack }) => {
+
+  const [isTyping, setIsTyping] = useState(false);
+  const typingTimeoutRef = useRef(null);
+
+
+
+
+
+  // Typing indicator handlers
+  useEffect(() => {
+    if (!matchedUser?.matchId) return;
+
+    const handleTyping = ({ matchId, userId }) => {
+      if (String(matchId) !== String(matchedUser.matchId) || String(userId) === String(currentUserId)) return;
+      setIsTyping(true);
+      if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+      typingTimeoutRef.current = setTimeout(() => setIsTyping(false), 2500);
+    };
+    const handleStopTyping = ({ matchId, userId }) => {
+      if (String(matchId) !== String(matchedUser.matchId) || String(userId) === String(currentUserId)) return;
+      setIsTyping(false);
+    };
+    socketService.on("typing", handleTyping);
+    socketService.on("stop_typing", handleStopTyping);
+    return () => {
+      socketService.off("typing", handleTyping);
+      socketService.off("stop_typing", handleStopTyping);
+      if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+    };
+  }, [matchedUser?.matchId, currentUserId]);
   const router = useRouter();
   const [messages, setMessages] = useState([]);
   const [isInitialLoading, setIsInitialLoading] = useState(true);
@@ -282,6 +314,7 @@ const ChatScreen = ({ matchedUser, onBack }) => {
     scrollViewRef.current?.scrollToEnd({ animated: true });
   }, [messages]);
 
+  // Send message
   const sendMessage = async (
     text,
     imageUrl,
@@ -434,11 +467,11 @@ const ChatScreen = ({ matchedUser, onBack }) => {
   };
 
   return (
-    <SafeAreaView className='flex-1' edges={["top", "left", "right"]}>
+    <SafeAreaView className='flex-1' edges={["top", "left", "right", "bottom"]}>
       <KeyboardAvoidingView
         style={styles.container}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        keyboardVerticalOffset={0}
+        behavior={Platform.OS === "ios" ? "padding" : "padding"} // padding for both
+        keyboardVerticalOffset={Platform.OS === "android" ? StatusBar.currentHeight : 0}
       >
         <Header
           matchedUser={matchedUser}
@@ -451,6 +484,8 @@ const ChatScreen = ({ matchedUser, onBack }) => {
           ref={scrollViewRef}
           style={styles.messagesContainer}
           contentContainerStyle={styles.messagesContent}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="interactive"
           onScroll={(event) => {
             const offsetY = event.nativeEvent.contentOffset.y;
             scrollOffsetYRef.current = offsetY;
@@ -514,6 +549,11 @@ const ChatScreen = ({ matchedUser, onBack }) => {
             );
           })}
 
+          {isTyping && (
+            <View style={{ alignItems: "flex-start", marginLeft: 16, marginBottom: 8 }}>
+              <Text style={{ color: "#6B7280", fontStyle: "italic" }}>Typing...</Text>
+            </View>
+          )}
           {isInitialLoading && messages.length === 0 && (
             <View style={styles.emptyStateContainer}>
               <ActivityIndicator size='small' color={colors.primary} />
@@ -530,13 +570,22 @@ const ChatScreen = ({ matchedUser, onBack }) => {
           )}
         </ScrollView>
 
-        <View>
-          <InputToolbar
-            sendMessage={sendMessage}
-            onSendImage={handleSendImage}
-            onSendVoice={handleSendVoice}
-          />
-        </View>
+
+
+
+        <InputToolbar
+          sendMessage={sendMessage}
+          onSendImage={handleSendImage}
+          onSendVoice={handleSendVoice}
+          matchId={matchedUser?.matchId}
+          currentUserId={currentUserId}
+        />
+
+       
+      
+   
+
+
 
         <BaseModal
           visible={isActionsModalVisible}
@@ -579,6 +628,23 @@ const ChatScreen = ({ matchedUser, onBack }) => {
 };
 
 const styles = StyleSheet.create({
+  fab: {
+    position: 'absolute',
+    right: 24,
+    bottom: 100,
+    backgroundColor: '#6366F1',
+    borderRadius: 28,
+    width: 56,
+    height: 56,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 6,
+    zIndex: 100,
+  },
   container: {
     flex: 1,
     backgroundColor: "#fff",
