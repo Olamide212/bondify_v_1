@@ -21,12 +21,7 @@ const updatePhoneNumber = async (req, res, next) => {
     const otp = generateOTP();
     const otpExpiry = calculateOTPExpiry();
 
-    await User.findByIdAndUpdate(req.user._id, {
-      phoneNumber,
-      countryCode,
-      otp,
-      otpExpiry,
-    });
+    await User.findByIdAndUpdate(req.user._id, { phoneNumber, countryCode, otp, otpExpiry });
 
     // TODO: Send OTP via SMS (Twilio)
     console.log(`Phone update OTP for ${req.user.email}: ${otp}`);
@@ -50,12 +45,10 @@ const verifyPhoneUpdate = async (req, res, next) => {
     const user = await User.findById(req.user._id).select('+otp +otpExpiry');
     if (!user) return res.status(404).json({ success: false, message: 'User not found' });
 
-    if (user.otp !== otp) {
+    if (user.otp !== otp)
       return res.status(400).json({ success: false, message: 'Invalid OTP' });
-    }
-    if (user.otpExpiry < new Date()) {
+    if (user.otpExpiry < new Date())
       return res.status(400).json({ success: false, message: 'OTP expired' });
-    }
 
     user.otp = undefined;
     user.otpExpiry = undefined;
@@ -74,23 +67,17 @@ const updateEmail = async (req, res, next) => {
   try {
     const { email } = req.body;
 
-    if (!email) {
+    if (!email)
       return res.status(400).json({ success: false, message: 'Email is required' });
-    }
 
     const existing = await User.findOne({ email: email.toLowerCase(), _id: { $ne: req.user._id } });
-    if (existing) {
+    if (existing)
       return res.status(400).json({ success: false, message: 'Email already in use' });
-    }
 
     const otp = generateOTP();
     const otpExpiry = calculateOTPExpiry();
 
-    await User.findByIdAndUpdate(req.user._id, {
-      pendingEmail: email.toLowerCase(),
-      otp,
-      otpExpiry,
-    });
+    await User.findByIdAndUpdate(req.user._id, { pendingEmail: email.toLowerCase(), otp, otpExpiry });
 
     // TODO: Send OTP via email (Nodemailer)
     console.log(`Email update OTP for ${req.user.email}: ${otp}`);
@@ -114,15 +101,12 @@ const verifyEmailUpdate = async (req, res, next) => {
     const user = await User.findById(req.user._id).select('+otp +otpExpiry +pendingEmail');
     if (!user) return res.status(404).json({ success: false, message: 'User not found' });
 
-    if (user.otp !== otp) {
+    if (user.otp !== otp)
       return res.status(400).json({ success: false, message: 'Invalid OTP' });
-    }
-    if (user.otpExpiry < new Date()) {
+    if (user.otpExpiry < new Date())
       return res.status(400).json({ success: false, message: 'OTP expired' });
-    }
-    if (!user.pendingEmail) {
+    if (!user.pendingEmail)
       return res.status(400).json({ success: false, message: 'No pending email update' });
-    }
 
     user.email = user.pendingEmail;
     user.pendingEmail = undefined;
@@ -131,6 +115,67 @@ const verifyEmailUpdate = async (req, res, next) => {
     await user.save();
 
     res.json({ success: true, message: 'Email updated successfully' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// ─────────────────────────────────────────────
+//  CHANGE PASSWORD
+// ─────────────────────────────────────────────
+const changePassword = async (req, res, next) => {
+  try {
+    const { currentPassword, newPassword, confirmPassword } = req.body;
+
+    // ── Input validation ────────────────────────────────────────
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      return res.status(400).json({
+        success: false,
+        message: 'currentPassword, newPassword, and confirmPassword are all required',
+      });
+    }
+
+    if (newPassword !== confirmPassword) {
+      return res.status(400).json({
+        success: false,
+        message: 'New password and confirmation do not match',
+      });
+    }
+
+    if (newPassword.length < 8) {
+      return res.status(400).json({
+        success: false,
+        message: 'New password must be at least 8 characters long',
+      });
+    }
+
+    if (currentPassword === newPassword) {
+      return res.status(400).json({
+        success: false,
+        message: 'New password must be different from your current password',
+      });
+    }
+
+    // ── Verify current password ─────────────────────────────────
+    // password is select:false — must be explicitly requested
+    const user = await User.findById(req.user._id).select('+password');
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    const isMatch = await user.comparePassword(currentPassword);
+    if (!isMatch) {
+      return res.status(401).json({
+        success: false,
+        message: 'Current password is incorrect',
+      });
+    }
+
+    // ── Hash & save via pre('save') hook ────────────────────────
+    user.password = newPassword;
+    await user.save();
+
+    res.json({ success: true, message: 'Password changed successfully' });
   } catch (error) {
     next(error);
   }
@@ -242,12 +287,7 @@ const blockUser = async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'User already blocked' });
     }
 
-    await BlockedUser.create({
-      blocker: req.user._id,
-      blocked: userId,
-      reason: reason || 'other',
-      notes,
-    });
+    await BlockedUser.create({ blocker: req.user._id, blocked: userId, reason: reason || 'other', notes });
 
     res.json({ success: true, message: 'User blocked successfully' });
   } catch (error) {
@@ -380,6 +420,7 @@ module.exports = {
   verifyPhoneUpdate,
   updateEmail,
   verifyEmailUpdate,
+  changePassword,
   getNotificationSettings,
   updateNotificationSettings,
   getPrivacySettings,

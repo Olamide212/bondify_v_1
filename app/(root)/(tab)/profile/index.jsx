@@ -11,7 +11,7 @@ import ProfileSection from "../../../../components/profileScreen/ProfileSection"
 import SubscriptionBannerSlider from "../../../../components/profileScreen/SubscriptionBannerSlider";
 import { profileService } from "../../../../services/profileService";
 import { colors } from "../../../../constant/colors";
-import NotificationModal from "../../../../components/modals/NotificationsModal"
+
 
 
 const ProfileScreen = () => {
@@ -20,7 +20,7 @@ const ProfileScreen = () => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const lastFetchRef = useRef(0);
-  const [notificationModal, setNotificationModal] = useState(false)
+
 
   const loadProfile = useCallback(async ({ force = false, showLoading = true } = {}) => {
     const now = Date.now();
@@ -61,9 +61,6 @@ const ProfileScreen = () => {
       <SafeAreaView className="flex-1 bg-white ">
             <GeneralHeader
           title="Profile"
-          icon={<Bell color="#000" />}
-          className="text-black"
-          onPress={() => setNotificationModal(true)}
         />
      
         <ScrollView
@@ -88,7 +85,7 @@ const ProfileScreen = () => {
           <Perks />
           <SubscriptionBannerSlider />
         </ScrollView>
-        <NotificationModal visible={notificationModal} onClose={() => setNotificationModal(false)} />
+    
       </SafeAreaView>
     </SafeAreaProvider>
   );

@@ -22,7 +22,7 @@ const SettingsService = {
    * @param {{ otp: string }} data
    */
   verifyPhoneUpdate: async (data) => {
-    const response = await apiClient.post("/api/settings/phone/verify", data);
+    const response = await apiClient.post("/settings/phone/verify", data);
     return response.data;
   },
 
@@ -102,7 +102,7 @@ const SettingsService = {
   // ─── Block / Unblock ─────────────────────────────────────────
 
   /**
-   * Block a user.
+   * Block a user. Also unmatches any active match server-side.
    * @param {string} userId
    * @param {{
    *   reason?: 'harassment'|'spam'|'inappropriate_content'|'fake_profile'|'other',
@@ -129,6 +129,33 @@ const SettingsService = {
    */
   getBlockedUsers: async (params = {}) => {
     const response = await apiClient.get("/settings/blocked-users", { params });
+    return response.data;
+  },
+
+  // ─── Report ──────────────────────────────────────────────────
+
+  /**
+   * Report a user.
+   * @param {string} userId
+   * @param {{
+   *   reason: 'inappropriate_content'|'harassment'|'fake_profile'|'spam'|'underage'|'other',
+   *   details?: string,
+   *   matchId?: string
+   * }} data
+   */
+  reportUser: async (userId, data = {}) => {
+    const response = await apiClient.post(`/settings/report/${userId}`, data);
+    return response.data;
+  },
+
+  // ─── Change Password ─────────────────────────────────────────
+
+  /**
+   * Change the authenticated user's password.
+   * @param {{ currentPassword: string, newPassword: string, confirmPassword: string }} data
+   */
+  changePassword: async (data) => {
+    const response = await apiClient.patch("/settings/password", data);
     return response.data;
   },
 

@@ -1,10 +1,12 @@
 const express = require('express');
 const router = express.Router();
+const { protect } = require('../middleware/auth');
 const {
   updatePhoneNumber,
   verifyPhoneUpdate,
   updateEmail,
   verifyEmailUpdate,
+  changePassword,
   getNotificationSettings,
   updateNotificationSettings,
   getPrivacySettings,
@@ -16,37 +18,30 @@ const {
   getReferralCode,
   updatePushToken,
 } = require('../controllers/settingsController');
-const { protect } = require('../middleware/auth');
 
-// All settings routes require authentication
-router.use(protect);
+// ── Account ───────────────────────────────────────────────────────────────────
+router.patch('/phone',        protect, updatePhoneNumber);    // PATCH  /api/settings/phone
+router.post('/phone/verify',  protect, verifyPhoneUpdate);    // POST   /api/settings/phone/verify
+router.patch('/email',        protect, updateEmail);           // PATCH  /api/settings/email
+router.post('/email/verify',  protect, verifyEmailUpdate);    // POST   /api/settings/email/verify
+router.patch('/password',     protect, changePassword);        // PATCH  /api/settings/password
+router.delete('/account',     protect, deleteAccount);         // DELETE /api/settings/account
 
-// Phone & Email
-router.patch('/phone', updatePhoneNumber);
-router.post('/phone/verify', verifyPhoneUpdate);
-router.patch('/email', updateEmail);
-router.post('/email/verify', verifyEmailUpdate);
+// ── Notifications ─────────────────────────────────────────────────────────────
+router.get('/notifications',   protect, getNotificationSettings);    // GET   /api/settings/notifications
+router.patch('/notifications', protect, updateNotificationSettings); // PATCH /api/settings/notifications
 
-// Notification Settings
-router.get('/notifications', getNotificationSettings);
-router.patch('/notifications', updateNotificationSettings);
+// ── Privacy ───────────────────────────────────────────────────────────────────
+router.get('/privacy',   protect, getPrivacySettings);    // GET   /api/settings/privacy
+router.patch('/privacy', protect, updatePrivacySettings); // PATCH /api/settings/privacy
 
-// Privacy Settings
-router.get('/privacy', getPrivacySettings);
-router.patch('/privacy', updatePrivacySettings);
+// ── Block ─────────────────────────────────────────────────────────────────────
+router.post('/block/:userId',   protect, blockUser);       // POST   /api/settings/block/:userId
+router.delete('/block/:userId', protect, unblockUser);     // DELETE /api/settings/block/:userId
+router.get('/blocked-users',    protect, getBlockedUsers); // GET    /api/settings/blocked-users
 
-// Block/Unblock
-router.post('/block/:userId', blockUser);
-router.delete('/block/:userId', unblockUser);
-router.get('/blocked-users', getBlockedUsers);
-
-// Delete Account
-router.delete('/account', deleteAccount);
-
-// Referral
-router.get('/referral-code', getReferralCode);
-
-// Push Token
-router.patch('/push-token', updatePushToken);
+// ── Misc ──────────────────────────────────────────────────────────────────────
+router.get('/referral',     protect, getReferralCode); // GET   /api/settings/referral
+router.patch('/push-token', protect, updatePushToken); // PATCH /api/settings/push-token
 
 module.exports = router;
