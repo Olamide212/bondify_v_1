@@ -120,27 +120,12 @@ const Location = ({ profile, onUpdateField }) => {
       <BaseModal visible={isModalVisible} onClose={() => setIsModalVisible(false)} fullScreen>
         <View className="flex-1 bg-white p-6">
           <View className="flex-row justify-between items-center mb-6">
-            <TouchableOpacity onPress={() => setIsModalVisible(false)}>
+            <Text className="text-xl font-PlusJakartaSansBold">Edit Location</Text>
+               <TouchableOpacity onPress={() => setIsModalVisible(false)}>
               <X />
             </TouchableOpacity>
-            <Text className="text-xl font-PlusJakartaSansBold">Edit Location</Text>
-            <View />
+    
           </View>
-
-          <TouchableOpacity
-            className="bg-primary rounded-full py-4 px-5 mb-6"
-            onPress={handleUseCurrentLocation}
-            disabled={isDetectingLocation}
-          >
-            {isDetectingLocation ? (
-              <ActivityIndicator color={colors.primary} />
-            ) : (
-              <Text className="text-white text-center text-lg font-PlusJakartaSansMedium">
-                Use Current Location
-              </Text>
-            )}
-          </TouchableOpacity>
-
           <Text className="text-lg text-black font-PlusJakartaSansMedium mb-2">City</Text>
           <TextInput
             value={city}
@@ -164,6 +149,20 @@ const Location = ({ profile, onUpdateField }) => {
             placeholder="Enter country"
             className="border border-gray-300 rounded-xl px-4 py-3 mb-6 text-base"
           />
+
+              <TouchableOpacity
+            className="bg-primary rounded-full py-4 px-5 mb-6"
+            onPress={handleUseCurrentLocation}
+            disabled={isDetectingLocation}
+          >
+            {isDetectingLocation ? (
+              <ActivityIndicator color={colors.primary} />
+            ) : (
+              <Text className="text-white text-center text-lg font-PlusJakartaSansMedium">
+                Use Current Location
+              </Text>
+            )}
+          </TouchableOpacity>
 
           <TouchableOpacity
             className="bg-black rounded-full py-4 px-5"

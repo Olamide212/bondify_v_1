@@ -1,4 +1,4 @@
-import { MessageCircle, Plus } from "lucide-react-native";
+import { MessageCircle, Plus, X } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import { FlatList, Modal, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
@@ -95,9 +95,15 @@ const ProfileAnswers = ({ profile, onUpdateField }) => {
         <SafeAreaView className="flex-1 bg-white p-6">
           {!selectedQuestion ? (
             <>
-              <Text className="text-xl text-center font-PlusJakartaSansBold mb-4">
+            <View className="flex-row items-center justify-between mb-6">
+               <Text className="text-xl text-center font-PlusJakartaSansBold ">
                 Choose a question
               </Text>
+              <TouchableOpacity onPress={() => setShowModal(false)}>
+                 <X />
+              </TouchableOpacity>
+            </View>
+            
               <FlatList
                 data={QUESTIONS}
                 keyExtractor={(item, index) => index.toString()}

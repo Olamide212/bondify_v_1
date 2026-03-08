@@ -2,7 +2,7 @@ import * as ImagePicker from "expo-image-picker";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { ArrowLeft } from "lucide-react-native";
 import React, { useState } from "react";
-import { ActivityIndicator, Alert, RefreshControl, ScrollView, View } from "react-native";
+import { ActivityIndicator, Alert, RefreshControl, ScrollView, View, Text } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import GeneralHeader from "../../../../components/headers/GeneralHeader";
 import AboutMe from "../../../../components/profileScreen/About";
@@ -138,13 +138,16 @@ export default function ProfileDetails() {
           )}
           <View className="flex-1 gap-3">
 
+<View>
+              <TextHeadingOne name="Media"  />
+             
           <ProfilePhotoGrid
             photos={profile?.images || []}
             onAddPhoto={handleAddPhoto}
             onRemovePhoto={handleRemovePhoto}
             title="My Photos"
           />
-
+</View>
           <View>
             <TextHeadingOne name="Verification" />
             <Verification profile={profile}  />

@@ -1,4 +1,4 @@
-import { FileText } from "lucide-react-native";
+import { FileText, X } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import { Modal, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
@@ -48,7 +48,11 @@ const AboutMe = ({ profile, onUpdateField }) => {
       <Modal visible={modalVisible} animationType="slide">
         <SafeAreaProvider>
           <SafeAreaView className="flex-1 bg-gray-50 border border-gray-100 p-6">
-            <Text className="text-2xl font-PlusJakartaSansMedium mb-6">About Me</Text>
+            <View className="flex-row items-center justify-between mb-6">
+                  <Text className="text-2xl font-PlusJakartaSansSemiBold ">About Me</Text>
+            <X    onPress={() => !isSaving && setModalVisible(false)} />
+            </View>
+        
 
             <TextInput
               className="border-b rounded-lg p-4 font-PlusJakartaSansMedium text-lg min-h-[120px]"
@@ -64,13 +68,7 @@ const AboutMe = ({ profile, onUpdateField }) => {
 
             <View className="mt-auto">
               <Button title="Save" onPress={handleSave} loading={isSaving} disabled={isSaving} />
-              <Button
-                className="mt-3 bg-white border border-primary"
-                title="Cancel"
-                variant="secondary"
-                disabled={isSaving}
-                onPress={() => !isSaving && setModalVisible(false)}
-              />
+            
             </View>
           </SafeAreaView>
         </SafeAreaProvider>

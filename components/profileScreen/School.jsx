@@ -44,9 +44,6 @@ const School = ({ profile, onUpdateField }) => {
             </Text>
           )}
 
-          <Text className="flex-1 text-lg text-primary mt-2 font-PlusJakartaSansMedium">
-            {schoolName ? "Change school" : "Add my school"}
-          </Text>
         </View>
       </TouchableOpacity>
 

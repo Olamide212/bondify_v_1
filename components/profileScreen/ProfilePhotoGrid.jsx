@@ -1,6 +1,6 @@
 import { Plus, X } from "lucide-react-native";
 import { useMemo, useState } from "react";
-import { ActivityIndicator, Image, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Image, TouchableOpacity, View, Text } from "react-native";
 
 const MAX_PHOTOS = 6;
 
@@ -24,6 +24,7 @@ const ProfilePhotoGrid = ({ photos: initialPhotos = [], onAddPhoto, onRemovePhot
     if (!item) {
       // Empty slot -> show plus icon
       return (
+       
         <TouchableOpacity
           className="w-full aspect-square rounded-xl overflow-hidden bg-gray-100 justify-center items-center"
           onPress={async () => {
@@ -39,6 +40,7 @@ const ProfilePhotoGrid = ({ photos: initialPhotos = [], onAddPhoto, onRemovePhot
             <Plus size={28} color="#999" />
           )}
         </TouchableOpacity>
+   
       );
     }
 
@@ -92,7 +94,8 @@ const ProfilePhotoGrid = ({ photos: initialPhotos = [], onAddPhoto, onRemovePhot
   };
 
   return (
-    <View className="p-6  bg-white border border-gray-100 rounded-2xl mx-4 mt-4">
+    <View className="p-6  bg-white border border-gray-100 rounded-2xl mx-4 ">
+
       <View className="flex-row flex-wrap justify-between gap-y-3">
         {photoSlots.map((item, index) => (
           <View key={`photo-${index}`} className="w-[32.5%] aspect-square ">

@@ -11,6 +11,7 @@ import AIChatScreen from "./(root)/(tab)/discover";
 import HomeScreen from "./(root)/(tab)/home";
 import MatchesScreen from "./(root)/(tab)/matches";
 import ProfileScreen from "./(root)/(tab)/profile";
+import MapScreen from "./(root)/(tab)/map"
 
 const Tab = createBottomTabNavigator();
 
@@ -64,7 +65,7 @@ const RootTabs = () => {
 
         <Tab.Screen
           name="AI Chat"
-          component={AIChatScreen}
+          component={MapScreen}
           options={{
             tabBarIcon: ({ focused }) => (
               <TabIcon focused={focused} customImage={Icons.AiIcon} />

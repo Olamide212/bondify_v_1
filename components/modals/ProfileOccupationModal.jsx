@@ -31,7 +31,7 @@ const OccupationModal = ({ visible, onClose, onSelect, initialSelected }) => {
     <BaseModal
       onClose={onClose}
       visible={visible}
-    fullScreen
+
     >
       <SafeAreaView className="flex-1 bg-white">
         <KeyboardAvoidingView
@@ -44,7 +44,7 @@ const OccupationModal = ({ visible, onClose, onSelect, initialSelected }) => {
               {/* Header */}
               <View className="mt-6 mb-6">
                 <Text className="text-3xl font-PlusJakartaSansBold">
-                  What's your occupation?
+                  What&apos;s your occupation?
                 </Text>
               </View>
 

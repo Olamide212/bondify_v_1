@@ -18,7 +18,7 @@ const router = useRouter()
     },
     {
       title: "Contact Support",
-      onPress: () => router.push("/contact-support"),
+      onPress: () => router.push("/support-center"),
     },
     {
       title: "Community Guidelines",
