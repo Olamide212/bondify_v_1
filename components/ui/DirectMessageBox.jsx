@@ -1,129 +1,193 @@
-import React, { useState } from "react";
+import { Loader, SendHorizontal, Sparkles } from "lucide-react-native";
+import { useState } from "react";
 import {
-  View,
+  ActivityIndicator,
+  Alert,
+  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  StyleSheet,
+  View,
 } from "react-native";
-import { SendHorizontal, Sparkles } from "lucide-react-native";
-import SuggestionModal from "../modals/AiSuggestionModal";
+import { colors } from "../../constant/colors";
+import { matchService } from "../../services/matchService";
+import { messageService } from "../../services/messageService";
+import AISuggestionModal from "../modals/AiSuggestionModal";
 
-const suggestions = [
-  "Hey 👋, your profile looks interesting!",
-  "I'd love to know more about your hobbies ✨",
-  "You seem like someone who loves adventures 🌍",
-  "That smile is contagious 😄, what's your secret?",
-  "Coffee or Tea? ☕️🍵",
-];
-
-export default function DirectMessageBox({ profile, onSendMessage }) {
-  const [message, setMessage] = useState("");
+export default function DirectMessageBox({ profile }) {
+  const [message, setMessage]               = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [sending, setSending]               = useState(false);
+  const [sent, setSent]                     = useState(false);
 
-  const handleSend = () => {
+  const handleSend = async () => {
     const trimmed = message.trim();
-    if (!trimmed) return;
+    if (!trimmed || sending || sent) return;
 
-    // Call the parent component's send message function
-    onSendMessage?.(trimmed);
-    setMessage("");
+    setSending(true);
+    try {
+      // 1. Get the matchId for this profile
+      //    getMatches returns an array; find the one where the other user is this profile
+      const profileId = profile?.id ?? profile?._id;
+      const matches   = await matchService.getMatches();
+
+      const match = matches.find((m) => {
+        // Match objects can have users as IDs or populated objects
+        const userIds = (m.users ?? []).map((u) =>
+          typeof u === "object" ? String(u._id ?? u.id) : String(u)
+        );
+        return userIds.includes(String(profileId));
+      });
+
+      if (!match) {
+        Alert.alert(
+          "Not matched yet",
+          "You need to match with this person before sending a message."
+        );
+        return;
+      }
+
+      // 2. Send the message
+      await messageService.sendMessage(match._id ?? match.id, {
+        content: trimmed,
+        type: "text",
+      });
+
+      setMessage("");
+      setSent(true);
+
+      // Reset sent state after 3 seconds so they can send again
+      setTimeout(() => setSent(false), 3000);
+    } catch (err) {
+      console.error("DirectMessageBox send error:", err);
+      Alert.alert("Failed to send", "Something went wrong. Please try again.");
+    } finally {
+      setSending(false);
+    }
   };
 
-  const hasMessage = message.trim().length > 0;
-
   return (
-    <View className=" bg-white p-6">
-      <Text className="text-lg font-PlusJakartaSansMedium mb-6">
-        Ready to Bond? Send {profile.name || "them"} a direct message now.
-        Starting a conversation boosts your chances of matching—type your own
-        message or let our AI suggest one for you.
+    <View>
+      <Text className="text-lg font-PlusJakartaSansMedium mb-4">
+        Ready to Bond? Send {profile?.name || profile?.firstName || "them"} a
+        direct message now. Starting a conversation boosts your chances of
+        matching — type your own or let AI suggest one.
       </Text>
 
-      {/* Comment box */}
-      <View style={styles.commentBox}>
+      {/* Input */}
+      <View style={[styles.inputWrap, sent && styles.inputWrapSent]}>
         <TextInput
-          placeholder="Type a message...."
-          placeholderTextColor="#ccc"
+          placeholder={sent ? "Message sent! 🎉" : "Type a message…"}
+          placeholderTextColor={sent ? "#22C55E" : "#9CA3AF"}
           style={styles.input}
+          className="font-PlusJakartaSansMedium"
           multiline
           value={message}
           onChangeText={setMessage}
-          className="font-PlusJakartaSansMedium"
+          editable={!sending && !sent}
         />
       </View>
 
-      {/* Conditionally render buttons to avoid empty space */}
-
-      <View className="flex-row items-center bg-primary mt-4 px-2 py-2 rounded-full">
+      {/* Action row */}
+      <View style={styles.actionRow}>
+        {/* AI sparkle button */}
         <TouchableOpacity
-          className="w-10 h-10 flex-row items-center justify-center rounded-full bg-secondary "
+          style={styles.sparkleBtn}
           onPress={() => setShowSuggestions(true)}
+          disabled={sending}
         >
-          <Sparkles size={22} color="#5A56D0" />
+          <Sparkles size={20} color={colors.primary} />
         </TouchableOpacity>
+
+        {/* Send button */}
         <TouchableOpacity
-          className="w-[80%]  flex-row justify-center text-center"
+          style={[
+            styles.sendBtn,
+            (!message.trim() || sending || sent) && styles.sendBtnDisabled,
+          ]}
           onPress={handleSend}
+          disabled={!message.trim() || sending || sent}
+          activeOpacity={0.85}
         >
-          <Text className="text-center text-white text-xl font-PlusJakartaSansMedium">
-            Send a Bondo
-          </Text>
+          {sending ? (
+            <ActivityIndicator size="small" color="#fff" />
+          ) : sent ? (
+            <Text style={styles.sendBtnText}>Sent ✓</Text>
+          ) : (
+            <View style={styles.sendBtnInner}>
+              <Text style={styles.sendBtnText}>Send a Bondo</Text>
+              <SendHorizontal size={18} color="#fff" strokeWidth={2.5} />
+            </View>
+          )}
         </TouchableOpacity>
       </View>
 
       {/* AI Suggestion Modal */}
-      <SuggestionModal
+      <AISuggestionModal
         visible={showSuggestions}
         onClose={() => setShowSuggestions(false)}
-        suggestions={suggestions}
-        onSelectSuggestion={setMessage}
+        profile={profile}
+        onSelectSuggestion={(text) => {
+          setMessage(text);
+          setSent(false);
+        }}
       />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    backgroundColor: "white",
-
-    padding: 24,
-
-
-    borderWidth: 1,
-    borderColor: "#E5E7EB",
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginBottom: 16,
-    color: "#3B82F6",
-  },
-  commentBox: {
-    flexDirection: "row",
-    alignItems: "flex-end",
+  inputWrap: {
     borderWidth: 1,
     borderColor: "#D1D5DB",
-    borderRadius: 12,
-    padding: 12,
+    borderRadius: 14,
+    padding: 14,
+    marginBottom: 12,
+  },
+  inputWrapSent: {
+    borderColor: "#22C55E",
+    backgroundColor: "#F0FDF4",
   },
   input: {
-    flex: 1,
-    fontSize: 16,
-    color: "black",
-    minHeight: 50,
+    fontSize: 15,
+    color: "#111827",
+    minHeight: 52,
     maxHeight: 120,
-    marginRight: 8, // Add some spacing between input and buttons
   },
-  sparkleButton: {
-    backgroundColor: "rgba(59, 130, 246, 0.1)",
-    borderRadius: 9999,
-    padding: 12,
+  actionRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
   },
-  sendButton: {
-    marginLeft: 8,
-    backgroundColor: "rgba(59, 130, 246, 0.1)",
-    borderRadius: 9999,
-    padding: 12,
+  sparkleBtn: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: `${colors.primary}15`,
+    borderWidth: 1,
+    borderColor: `${colors.primary}30`,
+  },
+  sendBtn: {
+    flex: 1,
+    height: 48,
+    borderRadius: 50,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: colors.primary,
+  },
+  sendBtnDisabled: {
+    opacity: 0.45,
+  },
+  sendBtnInner: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  sendBtnText: {
+    color: "#fff",
+    fontSize: 15,
+    fontFamily: "PlusJakartaSansBold",
   },
 });

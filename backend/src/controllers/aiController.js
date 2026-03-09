@@ -41,13 +41,12 @@ const getIcebreakerSuggestions = async (req, res, next) => {
 My name: ${me.firstName}
 My interests: ${(me.interests || []).join(', ') || 'Not specified'}
 My occupation: ${me.occupation || 'Not specified'}
-My communicationStyle: ${me.commmunicationStyle || "not specified"}
 
 Their name: ${them.firstName}
 Their interests: ${(them.interests || []).join(', ') || 'Not specified'}
 Their occupation: ${them.occupation || 'Not specified'}
 
-Generate exactly 5 fun, genuine, non-cheesy conversation starters that reference shared interests or spark curiosity. Keep each under 30 words. Format as a JSON array of strings.`;
+Generate exactly 3 fun, genuine, non-cheesy conversation starters that reference shared interests or spark curiosity. Keep each under 30 words. Format as a JSON array of strings.`;
 
     const ai = getOpenAI();
     const response = await ai.chat.completions.create({
@@ -207,7 +206,7 @@ const getDateIdeas = async (req, res, next) => {
     ];
     const uniqueInterests = [...new Set(allInterests)];
 
-    const prompt = `Suggest 5 creative and fun first date ideas for two people in ${city || 'any city'} who share these interests: ${uniqueInterests.join(', ') || 'general interests'}.
+    const prompt = `Suggest 4 creative and fun first date ideas for two people in ${city || 'any city'} who share these interests: ${uniqueInterests.join(', ') || 'general interests'}.
 
 Mix budget options: include 1 free activity, 2 affordable options, 1 special experience.
 
@@ -273,12 +272,9 @@ Your capabilities:
 - Give personalised dating advice and tips
 - Suggest conversation ice breakers for matches
 - Help craft or improve bio text
-- Help users refine thier profile and give suggestions
-- You are permitted to read through the user profile using thier id
 - Suggest date ideas based on shared interests
 - Offer encouragement and emotional support around dating
 - Help interpret confusing match behaviour
-- Don't allow abusive words
 
 Rules:
 - Keep replies concise (2-4 sentences max unless the user asks for more)
@@ -309,6 +305,111 @@ Rules:
   }
 };
 
+// @desc  Generate a personalised first-message suggestion for a target user's profile
+// @route POST /api/ai/suggest-message
+// @access Private
+const suggestMessage = async (req, res, next) => {
+  try {
+    const { OpenAI } = require('openai');
+    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+    const currentUser = await User.findById(req.user._id).lean();
+    const { targetUserId } = req.body;
+    if (!targetUserId) {
+      return res.status(400).json({ success: false, message: 'targetUserId is required.' });
+    }
+
+    const targetUser = await User.findById(targetUserId)
+      .select('firstName interests occupation lookingFor religion')
+      .lean();
+
+    if (!targetUser) {
+      return res.status(404).json({ success: false, message: 'User not found.' });
+    }
+
+    const name        = targetUser.firstName || 'this person';
+    const interests   = (targetUser.interests ?? []).slice(0, 4).join(', ');
+    const lookingFor  = targetUser.lookingFor || '';
+    const religion    = targetUser.religion || '';
+    const occupation  = targetUser.occupation || '';
+
+    const contextBits = [
+      interests  && `interests: ${interests}`,
+      lookingFor && `looking for: ${lookingFor}`,
+      religion   && `religion: ${religion}`,
+      occupation && `works as: ${occupation}`,
+    ].filter(Boolean).join('; ');
+
+    const prompt = `You are helping someone send a first message on a dating app to ${name}.
+${contextBits ? `Their profile: ${contextBits}.` : ''}
+Write ONE short, genuine opening message (max 2 sentences, under 25 words).
+Be warm and specific to their profile if possible. Use 1 emoji max. No generic openers like "Hey how are you".
+Reply with ONLY the message text, nothing else.`;
+
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [{ role: 'user', content: prompt }],
+      max_tokens: 80,
+      temperature: 0.85,
+    });
+
+    const suggestion = completion.choices[0].message.content.trim();
+    res.json({ success: true, data: { suggestion } });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc  Generate a photo comment suggestion for a specific image on a user's profile
+// @route POST /api/ai/suggest-photo-comment
+// @access Private
+const suggestPhotoComment = async (req, res, next) => {
+  try {
+    const { OpenAI } = require('openai');
+    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+    const { targetUserId, imageIndex = 0 } = req.body;
+    if (!targetUserId) {
+      return res.status(400).json({ success: false, message: 'targetUserId is required.' });
+    }
+
+    const targetUser = await User.findById(targetUserId)
+      .select('firstName interests occupation lookingFor religion')
+      .lean();
+
+    if (!targetUser) {
+      return res.status(404).json({ success: false, message: 'User not found.' });
+    }
+
+    const name       = targetUser.firstName || 'this person';
+    const interests  = (targetUser.interests ?? []).slice(0, 4).join(', ');
+    const occupation = targetUser.occupation || '';
+
+    const contextBits = [
+      interests  && `interests: ${interests}`,
+      occupation && `works as: ${occupation}`,
+    ].filter(Boolean).join('; ');
+
+    const prompt = `You are helping someone write a comment on photo #${imageIndex + 1} of ${name}'s dating profile.
+${contextBits ? `Their profile: ${contextBits}.` : ''}
+Write ONE short, genuine photo comment (max 1 sentence, under 20 words).
+Be warm, specific, and flattering. Use 1 emoji max. Avoid generic phrases like "nice pic" or "so beautiful".
+Reply with ONLY the comment text, nothing else.`;
+
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [{ role: 'user', content: prompt }],
+      max_tokens: 60,
+      temperature: 0.85,
+    });
+
+    const suggestion = completion.choices[0].message.content.trim();
+    res.json({ success: true, data: { suggestion } });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // ─────────────────────────────────────────────
 //  EXPORTS — must be after ALL function definitions
 // ─────────────────────────────────────────────
@@ -318,4 +419,6 @@ module.exports = {
   generateBio,
   getDateIdeas,
   chat,
+  suggestMessage,
+  suggestPhotoComment,
 };

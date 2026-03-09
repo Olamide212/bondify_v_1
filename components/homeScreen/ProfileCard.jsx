@@ -24,7 +24,7 @@ import {
   Text,
   TouchableOpacity,
   UIManager,
-  View
+  View,
 } from "react-native";
 import { Icons } from "../../constant/icons";
 import { usePersistentUriCache } from "../../hooks/usePersistentUriCache";
@@ -36,6 +36,31 @@ import ProfileImageModal from "./profileCard/ProfileImageModal";
 const MAX_BIO_LENGTH = 120;
 const { height } = Dimensions.get("window");
 const FALLBACK_PROFILE_IMAGE = "https://via.placeholder.com/800x1200?text=No+Photo";
+
+// ─── Reusable highlighted chip ────────────────────────────────────────────────
+// isMutual = true  → orange tint (shared with current user)
+// isMutual = false → plain grey
+
+const InterestChip = ({ label, isMutual }) => (
+  <View
+    className={`rounded-full px-4 py-2 mr-2 mb-2 flex-row items-center gap-1 ${
+      isMutual ? "bg-primary/10 border border-primary/30" : "bg-gray-100"
+    }`}
+  >
+    {isMutual && (
+      <Text style={{ fontSize: 11 }}>✨</Text>
+    )}
+    <Text
+      className={`font-PlusJakartaSansMedium text-base ${
+        isMutual ? "text-primary" : "text-black"
+      }`}
+    >
+      {label}
+    </Text>
+  </View>
+);
+
+// ─────────────────────────────────────────────────────────────────────────────
 
 const ProfileCard = ({ profile }) => {
   const [showFullBio, setShowFullBio] = useState(false);
@@ -56,6 +81,13 @@ const ProfileCard = ({ profile }) => {
   );
   const getImageUri = (index) => profileImages[index] || FALLBACK_PROFILE_IMAGE;
 
+  // Normalise mutualInterests to a Set for O(1) lookup
+  const mutualSet = useMemo(
+    () => new Set((profile?.mutualInterests ?? []).map((i) => String(i).toLowerCase())),
+    [profile?.mutualInterests]
+  );
+  const isMutual = (item) => mutualSet.has(String(item).toLowerCase());
+
   const { isHydrated: isImageCacheHydrated, isUriCached, touchUri } =
     usePersistentUriCache({
       storageKey: "@bondify/cache/profile/imageUris",
@@ -67,67 +99,44 @@ const ProfileCard = ({ profile }) => {
     setModalVisible(true);
   };
 
-  const closeImageModal = () => {
-    setModalVisible(false);
-  };
+  const closeImageModal = () => setModalVisible(false);
 
-  // Handle scroll events to show/hide header and check comment box visibility
   const handleScroll = (event) => {
     const offsetY = event.nativeEvent.contentOffset.y;
     setScrollOffset(offsetY);
     checkCommentBoxVisibility(offsetY);
   };
 
-  // Check which comment boxes should be visible based on scroll position
-  const checkCommentBoxVisibility = useCallback((currentScrollOffset) => {
-    if (!scrollViewRef.current) return;
+  const checkCommentBoxVisibility = useCallback(
+    (currentScrollOffset) => {
+      if (!scrollViewRef.current) return;
+      const viewportTop    = currentScrollOffset;
+      const viewportBottom = currentScrollOffset + height;
 
-    // Calculate visibility for each comment box
-    const viewportTop = currentScrollOffset;
-    const viewportBottom = currentScrollOffset + height;
-
-    commentBoxRefs.current.forEach((ref, index) => {
-      if (!ref) return;
-
-      UIManager.measure(ref, (x, y, width, height, pageX, pageY) => {
-        const elementTop = pageY;
-        const elementBottom = pageY + height;
-
-        // Check if element is in viewport (with some threshold)
-        const isVisible =
-          elementBottom > viewportTop + 200 &&
-          elementTop < viewportBottom - 200;
-
-        if (isVisible) {
-          setVisibleCommentBoxIndex(index);
-        } else if (visibleCommentBoxIndex === index) {
-          setVisibleCommentBoxIndex(null);
-        }
+      commentBoxRefs.current.forEach((ref, index) => {
+        if (!ref) return;
+        UIManager.measure(ref, (x, y, w, h, pageX, pageY) => {
+          const isVisible =
+            pageY + h > viewportTop + 200 && pageY < viewportBottom - 200;
+          if (isVisible) setVisibleCommentBoxIndex(index);
+          else if (visibleCommentBoxIndex === index) setVisibleCommentBoxIndex(null);
+        });
       });
-    });
-  }, [visibleCommentBoxIndex]);
+    },
+    [visibleCommentBoxIndex]
+  );
 
-  // Store layout information for each image
   const handleImageLayout = (index, event) => {
-    const { y, height } = event.nativeEvent.layout;
-    setImageLayouts((prev) => ({
-      ...prev,
-      [index]: { y, height },
-    }));
+    const { y, height: h } = event.nativeEvent.layout;
+    setImageLayouts((prev) => ({ ...prev, [index]: { y, height: h } }));
   };
 
-  // Store comment box refs
   const setCommentBoxRef = (index, ref) => {
-    if (ref) {
-      commentBoxRefs.current[index] = findNodeHandle(ref);
-    }
+    if (ref) commentBoxRefs.current[index] = findNodeHandle(ref);
   };
 
   useEffect(() => {
-    // Initial check after layouts are set
-    if (Object.keys(imageLayouts).length > 0) {
-      checkCommentBoxVisibility(scrollOffset);
-    }
+    if (Object.keys(imageLayouts).length > 0) checkCommentBoxVisibility(scrollOffset);
   }, [checkCommentBoxVisibility, imageLayouts, scrollOffset]);
 
   if (!profile) return null;
@@ -137,10 +146,11 @@ const ProfileCard = ({ profile }) => {
     ? profile.bio
     : profile.bio?.slice(0, MAX_BIO_LENGTH) + (isBioLong ? "..." : "");
 
-
+  // Count for the section header badge
+  const mutualInterestCount = profile?.mutualInterests?.length ?? 0;
 
   return (
-    <View className="relative ">
+    <View className="relative">
       <ProfileImageModal
         visible={modalVisible}
         onClose={closeImageModal}
@@ -160,7 +170,7 @@ const ProfileCard = ({ profile }) => {
         showsVerticalScrollIndicator={false}
         onScroll={handleScroll}
       >
-        <View className="">
+        <View>
           <ProfileHeroSection
             profile={profile}
             currentImageIndex={currentImageIndex}
@@ -172,41 +182,38 @@ const ProfileCard = ({ profile }) => {
             onMarkUriLoaded={touchUri}
           />
 
-          <View className="py-3 ">
-            {/* Mutual Connections */}
-            {profile.mutualFriends > 0 && (
-              <View className="bg-white -mt-20 pt-14 p-4 mb-2 rounded-t-2xl">
-                <Text className="text-app text-[20px] font-PlusJakartaSansSemiBold">
-                  Shared interests
-                </Text>
+          <View className="py-3">
 
-                {profile.mutualInterests.length > 0 && (
-                  <View className=" flex flex-row flex-wrap gap-2 mt-2">
-                    {profile.mutualInterests.map((interest, index) => (
-                      <View
-                        key={index}
-                        className="bg-primary/20   px-4 py-2 rounded-full"
-                      >
-                        <Text className="text-primary text-[16px] font-PlusJakartaSans">
-                          {interest}
-                        </Text>
-                      </View>
-                    ))}
+            {/* ── Shared interests ── */}
+            {mutualInterestCount > 0 && (
+              <View className="bg-white -mt-20 pt-14 p-4 mb-2 rounded-t-2xl">
+                <View className="flex-row items-center justify-between mb-3">
+                  <Text className="text-app text-[20px] font-PlusJakartaSansSemiBold">
+                    Shared interests
+                  </Text>
+                  {/* Count badge */}
+                  <View className="bg-primary/10 px-3 py-1 rounded-full">
+                    <Text className="text-primary text-sm font-PlusJakartaSansBold">
+                      {mutualInterestCount} in common
+                    </Text>
                   </View>
-                )}
+                </View>
+
+                <View className="flex-row flex-wrap">
+                  {profile.mutualInterests.map((interest, index) => (
+                    <InterestChip key={index} label={interest} isMutual />
+                  ))}
+                </View>
               </View>
             )}
 
-            {/* Looking For */}
+            {/* ── Looking For ── */}
             {profile.lookingFor && (
-              <View className="bg-white  p-3 mb-2 mx-2 rounded-2xl border border-gray-200">
-                <View className="flex-row items-center mb-2">
-                  <Text className="text-[18px] font-PlusJakartaSansSemiBold text-app">
-                    Looking for
-                  </Text>
-                </View>
-
-                <View className="self-start items-center justify-center bg-gray-100   px-5 py-2 rounded-full">
+              <View className="bg-white p-5 mb-2 mx-2 rounded-2xl border border-gray-200">
+                <Text className="text-[18px] font-PlusJakartaSansSemiBold text-app mb-2">
+                  Looking for
+                </Text>
+                <View className="self-start bg-gray-100 px-5 py-2 rounded-full">
                   <Text className="text-black text-[18px] font-PlusJakartaSans">
                     {profile.lookingFor}
                   </Text>
@@ -214,21 +221,17 @@ const ProfileCard = ({ profile }) => {
               </View>
             )}
 
-            {/* Bio */}
+            {/* ── Bio ── */}
             {profile.bio && (
-              <View className="bg-white  p-3 mb-2 mx-2 rounded-2xl border border-gray-200">
-                <View className="flex-row items-center mb-3">
-                  <Text className="text-[18px] font-PlusJakartaSansSemiBold text-app">
-                    Bio
-                  </Text>
-                </View>
-                <Text className="text-app font-PlusJakartaSans text-[16px] ">
+              <View className="bg-white p-5 mb-2 mx-2 rounded-2xl border border-gray-200">
+                <Text className="text-[18px] font-PlusJakartaSansSemiBold text-app mb-3">
+                  Bio
+                </Text>
+                <Text className="text-app font-PlusJakartaSans text-[16px]">
                   {displayedBio}
                 </Text>
                 {isBioLong && (
-                  <TouchableOpacity
-                    onPress={() => setShowFullBio(!showFullBio)}
-                  >
+                  <TouchableOpacity onPress={() => setShowFullBio(!showFullBio)}>
                     <Text className="text-primary mt-1 font-medium">
                       {showFullBio ? "Show less" : "Read more"}
                     </Text>
@@ -237,10 +240,10 @@ const ProfileCard = ({ profile }) => {
               </View>
             )}
 
-            {/* First question after bio */}
+            {/* ── Question 1 ── */}
             {profile.questions?.[0] && (
-              <View className="bg-white  p-3 mb-2 mx-2 rounded-2xl border border-gray-200">
-                <Text className="text-app font-PlusJakartaSans text-base mb-2">
+              <View className="bg-white p-5 mb-2 mx-2 rounded-2xl border border-gray-200">
+                <Text className="text-app font-PlusJakartaSans text-base">
                   {profile.questions[0].question}
                 </Text>
                 <Text className="text-app font-PlusJakartaSansBold text-2xl leading-relaxed capitalize">
@@ -249,305 +252,226 @@ const ProfileCard = ({ profile }) => {
               </View>
             )}
 
-            {/* First additional image with comment indicator */}
+            {/* ── Image 2 comment box ── */}
             <View ref={(ref) => setCommentBoxRef(0, ref)}>
               <CommentBox
                 imageUri={profile?.images?.[1]}
                 index={1}
                 onPress={() => openImageModal(1)}
-                onSendMessage={(message, idx) => {
-                  console.log("Send message for image", idx, message);
-                }}
                 showComposer={visibleCommentBoxIndex === 0}
+                profile={profile}
               />
             </View>
 
-            {/* Essentials */}
-            <View className="bg-white  p-3 mb-2 mx-3 rounded-2xl border border-gray-200">
-              <View className="flex-row items-center mb-4">
-                <Text className="text-[20px] font-PlusJakartaSansSemiBold text-app ml-2">
-                  Essentials
-                </Text>
-              </View>
-
-              {/* Two-column grid layout */}
-              <View className=" flex-row flex-wrap -mx-1.5">
+            {/* ── Essentials ── */}
+            <View className="bg-white p-5 mb-2 mx-3 rounded-2xl border border-gray-200">
+              <Text className="text-[20px] font-PlusJakartaSansSemiBold text-app ml-2 mb-4">
+                Essentials
+              </Text>
+              <View className="flex-row flex-wrap -mx-1.5">
                 {profile.distance && (
                   <View className="w-1/2 px-1.5 mb-3">
-                    <View className="bg-gray-100  rounded-full px-4 py-2 flex-row items-center gap-3">
-                      <MapPin color={"black"} size={18} />
-                      <Text className="text-app  text-base font-PlusJakartaSansMedium">
-                        {profile.distance}
-                      </Text>
+                    <View className="bg-gray-100 rounded-full px-4 py-2 flex-row items-center gap-3">
+                      <MapPin color="black" size={18} />
+                      <Text className="text-app text-base font-PlusJakartaSansMedium">{profile.distance}</Text>
                     </View>
                   </View>
                 )}
-
                 {profile.occupation && (
                   <View className="w-1/2 px-1.5 mb-3">
                     <View className="bg-gray-100 rounded-full px-4 py-2 flex-row items-center gap-3">
-                      <Briefcase color={"black"} size={18} />
-                      <Text className="text-app  text-base font-PlusJakartaSansMedium">
-                        {profile.occupation}
-                      </Text>
+                      <Briefcase color="black" size={18} />
+                      <Text className="text-app text-base font-PlusJakartaSansMedium">{profile.occupation}</Text>
                     </View>
                   </View>
                 )}
-
                 {profile.height && (
                   <View className="w-1/2 px-1.5 mb-3">
-                    <View className="bg-gray-100  rounded-full px-4 py-2 flex-row items-center gap-3">
-                      <Ruler color={"black"} size={18} />
-                      <Text className="text-app  text-base font-PlusJakartaSansMedium">
-                        {profile.height}
-                      </Text>
+                    <View className="bg-gray-100 rounded-full px-4 py-2 flex-row items-center gap-3">
+                      <Ruler color="black" size={18} />
+                      <Text className="text-app text-base font-PlusJakartaSansMedium">{profile.height}cm</Text>
                     </View>
                   </View>
                 )}
-
                 {profile.religion && (
                   <View className="w-1/2 px-1.5 mb-3">
-                    <View className="bg-gray-100  rounded-full px-4 py-2 flex-row items-center gap-3">
-                      <MaterialCommunityIcons
-                        name="hands-pray"
-                        size={20}
-                        color={"black"}
-                      />
-                      <Text className="text-app  text-base font-PlusJakartaSansMedium">
-                        {profile.religion}
-                      </Text>
+                    <View className="bg-gray-100 rounded-full px-4 py-2 flex-row items-center gap-3">
+                      <MaterialCommunityIcons name="hands-pray" size={20} color="black" />
+                      <Text className="text-app text-base font-PlusJakartaSansMedium">{profile.religion}</Text>
                     </View>
                   </View>
                 )}
-
                 {profile.drinking && (
                   <View className="w-1/2 px-1.5 mb-3">
-                    <View className="bg-gray-100  rounded-full px-4 py-2 flex-row items-center gap-3">
-                      <Wine color={"black"} size={18} />
-                      <Text className="text-app  text-base font-PlusJakartaSansMedium">
-                        {profile.drinking}
-                      </Text>
+                    <View className="bg-gray-100 rounded-full px-4 py-2 flex-row items-center gap-3">
+                      <Wine color="black" size={18} />
+                      <Text className="text-app text-base font-PlusJakartaSansMedium">{profile.drinking}</Text>
                     </View>
                   </View>
                 )}
-
                 {profile.smoking && (
                   <View className="w-1/2 px-1.5 mb-3">
-                    <View className="bg-gray-100  rounded-full px-4 py-2 flex-row items-center gap-3">
-                      <Cigarette color={"black"} size={18} />
-                      <Text className=" text-base font-PlusJakartaSansMedium">
-                        {profile.smoking}
-                      </Text>
+                    <View className="bg-gray-100 rounded-full px-4 py-2 flex-row items-center gap-3">
+                      <Cigarette color="black" size={18} />
+                      <Text className="text-base font-PlusJakartaSansMedium">{profile.smoking}</Text>
                     </View>
                   </View>
                 )}
-
                 {profile.children && (
                   <View className="w-1/2 px-1.5 mb-3">
-                    <View className="bg-gray-100  rounded-full px-4 py-2 flex-row items-center gap-3">
-                      <Baby color={"black"} size={18} />
-                      <Text className="text-app  text-base font-PlusJakartaSansMedium">
-                        {profile.children}
-                      </Text>
+                    <View className="bg-gray-100 rounded-full px-4 py-2 flex-row items-center gap-3">
+                      <Baby color="black" size={18} />
+                      <Text className="text-app text-base font-PlusJakartaSansMedium">{profile.children}</Text>
                     </View>
                   </View>
                 )}
-
                 {profile.pets && (
                   <View className="w-1/2 px-1.5 mb-3">
-                    <View className="bg-gray-100  rounded-full px-4 py-2 flex-row items-center gap-3">
-                      <Dog color={"black"} size={18} />
-                      <Text className="text-app  text-base font-PlusJakartaSansMedium">
-                        {profile.pets}
-                      </Text>
+                    <View className="bg-gray-100 rounded-full px-4 py-2 flex-row items-center gap-3">
+                      <Dog color="black" size={18} />
+                      <Text className="text-app text-base font-PlusJakartaSansMedium">{profile.pets}</Text>
                     </View>
                   </View>
                 )}
-
                 {profile.exercise && (
                   <View className="w-1/2 px-1.5 mb-3">
-                    <View className="bg-gray-100  rounded-full px-4 py-2 flex-row items-center gap-3">
-                      <Dumbbell color={"black"} size={18} />
-                      <Text className="text-app text-base font-PlusJakartaSansMedium">
-                        {profile.exercise}
-                      </Text>
+                    <View className="bg-gray-100 rounded-full px-4 py-2 flex-row items-center gap-3">
+                      <Dumbbell color="black" size={18} />
+                      <Text className="text-app text-base font-PlusJakartaSansMedium">{profile.exercise}</Text>
                     </View>
                   </View>
                 )}
               </View>
             </View>
 
-
-            {/* Basics */}
-            <View className="bg-white  p-3 mb-2 mx-3 rounded-2xl border border-gray-200">
-              <View className="flex-row items-center mb-4">
-                <Text className="text-[20px] font-PlusJakartaSansSemiBold text-app ml-2">
-                  Basics
-                </Text>
-              </View>
-
-              {/* Two-column grid layout */}
+            {/* ── Basics ── */}
+            <View className="bg-white p-5 mb-2 mx-3 rounded-2xl border border-gray-200">
+              <Text className="text-[20px] font-PlusJakartaSansSemiBold text-app ml-2 mb-4">
+                Basics
+              </Text>
               <View className="flex-row flex-wrap -mx-1.5">
                 {profile.zodiac && (
                   <View className="w-1/2 px-1.5 mb-3">
                     <View className="bg-gray-100 rounded-full px-4 py-2 flex-row items-center gap-3">
                       <Image source={Icons.zodiacSign} />
-                      <Text className="text-app  text-base font-PlusJakartaSansMedium">
-                        {profile.zodiac}
-                      </Text>
+                      <Text className="text-app text-base font-PlusJakartaSansMedium">{profile.zodiac}</Text>
                     </View>
                   </View>
                 )}
-
                 {profile.loveStyle && (
                   <View className="w-1/2 px-1.5 mb-3">
-                    <View className="bg-gray-100  rounded-full px-4 py-2 flex-row items-center gap-3">
-                      <Heart color={"black"} size={18} />
-                      <Text className="text-app  text-base font-PlusJakartaSansMedium">
-                        {profile.loveStyle}
-                      </Text>
+                    <View className="bg-gray-100 rounded-full px-4 py-2 flex-row items-center gap-3">
+                      <Heart color="black" size={18} />
+                      <Text className="text-app text-base font-PlusJakartaSansMedium">{profile.loveStyle}</Text>
                     </View>
                   </View>
                 )}
-
                 {profile.communicationStyle && (
                   <View className="w-1/2 px-1.5 mb-3">
-                    <View className="bg-gray-100  rounded-full px-4 py-2 flex-row items-center gap-3">
-                      <Heart color={"black"} size={18} />
-                      <Text className="text-app  text-base font-PlusJakartaSansMedium">
-                        {profile.communicationStyle}
-                      </Text>
+                    <View className="bg-gray-100 rounded-full px-4 py-2 flex-row items-center gap-3">
+                      <Heart color="black" size={18} />
+                      <Text className="text-app text-base font-PlusJakartaSansMedium">{profile.communicationStyle}</Text>
                     </View>
                   </View>
                 )}
-
                 {profile.financialStyle && (
                   <View className="w-1/2 px-1.5 mb-3">
-                    <View className="bg-gray-100  rounded-full px-4 py-2 flex-row items-center gap-3">
-                      <Wallet size={20} color={"black"} />
-                      <Text className="text-app  text-base font-PlusJakartaSansMedium">
-                        {profile.financialStyle}
-                      </Text>
+                    <View className="bg-gray-100 rounded-full px-4 py-2 flex-row items-center gap-3">
+                      <Wallet size={20} color="black" />
+                      <Text className="text-app text-base font-PlusJakartaSansMedium">{profile.financialStyle}</Text>
                     </View>
                   </View>
                 )}
               </View>
             </View>
 
-            {/* Personalities */}
+            {/* ── Personalities — highlighted if mutual ── */}
             {profile.personalities?.length > 0 && (
-              <View className=" bg-white  p-6 ">
-                <View className="flex-row items-center mb-3">
+              <View className="bg-white p-6 mb-2">
+                <View className="flex-row items-center justify-between mb-3">
                   <Text className="text-[20px] font-PlusJakartaSansSemiBold text-app">
                     Personalities
                   </Text>
+                  {profile.personalities.some(isMutual) && (
+                    <View className="bg-primary/10 px-3 py-1 rounded-full">
+                      <Text className="text-primary text-sm font-PlusJakartaSansBold">
+                        {profile.personalities.filter(isMutual).length} shared
+                      </Text>
+                    </View>
+                  )}
                 </View>
                 <View className="flex-row flex-wrap">
                   {profile.personalities.map((personality, index) => (
-                    <View
+                    <InterestChip
                       key={index}
-                      className={`rounded-full  px-4 py-2 mr-2 mb-2 
-                        
-                           bg-gray-100 
-                      }`}
-                    >
-                      <Text
-                        className={`font-PlusJakartaSansMedium 
-                           text-black
-                        }`}
-                      >
-                        {personality}
-                      </Text>
-                    </View>
+                      label={personality}
+                      isMutual={isMutual(personality)}
+                    />
                   ))}
                 </View>
               </View>
             )}
 
-            {/* Second additional image with comment indicator */}
+            {/* ── Image 3 comment box ── */}
             <View ref={(ref) => setCommentBoxRef(1, ref)}>
               <CommentBox
                 imageUri={profile?.images?.[2]}
                 index={2}
                 onPress={() => openImageModal(2)}
-                onSendMessage={(message, idx) => {
-                  console.log("Send message for image", idx, message);
-                }}
                 showComposer={visibleCommentBoxIndex === 1}
+                profile={profile}
               />
             </View>
 
-            {/* Education */}
+            {/* ── Education ── */}
             {profile.school && (
-              <View className="bg-white  mb-2 p-6 ">
-                <View className="flex-row items-center mb-3  ">
-                  <Text className="text-[20px] font-PlusJakartaSansSemiBold text-app">
-                    School and education
-                  </Text>
-                </View>
-                <View className="flex-1 flex-row flex-wrap gap-2 ">
-                  <View className="bg-gray-100  flex-row items-center gap-2 px-4 py-2 rounded-full">
-                    <GraduationCap color={"black"} size={18} />
-                    <Text className="text-app  text-base font-PlusJakartaSansMedium">
-                      {profile.school}
-                    </Text>
+              <View className="bg-white mb-2 p-5 mx-3 rounded-2xl border border-gray-200">
+                <Text className="text-[20px] font-PlusJakartaSansSemiBold text-app mb-3">
+                  School and education
+                </Text>
+                <View className="flex-1 flex-row flex-wrap gap-2">
+                  <View className="bg-gray-100 flex-row items-center gap-2 px-4 py-2 rounded-full">
+                    <GraduationCap color="black" size={18} />
+                    <Text className="text-app text-base font-PlusJakartaSansMedium">{profile.school}</Text>
                   </View>
-                  <View className="bg-gray-100  flex-row items-center gap-2 px-4 py-2 rounded-full">
-                    <GraduationCap color={"black"} size={18} />
-                    <Text className="text-app  text-base font-PlusJakartaSansMedium">
-                      {profile.education}
-                    </Text>
+                  <View className="bg-gray-100 flex-row items-center gap-2 px-4 py-2 rounded-full">
+                    <GraduationCap color="black" size={18} />
+                    <Text className="text-app text-base font-PlusJakartaSansMedium">{profile.education}</Text>
                   </View>
                 </View>
               </View>
             )}
 
-            {/* Languages */}
-            {profile.language && profile.language.length > 0 && (
-              <View className="bg-white mb-2 p-6">
-                <View className="flex-row items-center mb-3">
-                  <Text className="text-[20px] font-PlusJakartaSansSemiBold text-app">
-                    Languages and ethnicity
-                  </Text>
-                </View>
-
+            {/* ── Languages & Ethnicity ── */}
+            {profile.language?.length > 0 && (
+              <View className="bg-white mb-2 p-5 mx-3 rounded-2xl border border-gray-200">
+                <Text className="text-[20px] font-PlusJakartaSansSemiBold text-app mb-3">
+                  Languages and ethnicity
+                </Text>
                 <View className="flex-row flex-wrap gap-2">
                   {profile.language.map((lang, index) => (
-                    <View
-                      key={index}
-                      className="bg-gray-100  flex-row items-center gap-2 px-4 py-2 rounded-full"
-                    >
-                      <Text className="text-app text-base font-PlusJakartaSansMedium">
-                        {lang}
-                      </Text>
+                    <View key={index} className="bg-gray-100 flex-row items-center gap-2 px-4 py-2 rounded-full">
+                      <Text className="text-app text-base font-PlusJakartaSansMedium">{lang}</Text>
                     </View>
                   ))}
                 </View>
-
                 {profile.nationality && (
-                  <View className="mt-2">
-                    <View className="flex-1 flex-row flex-wrap gap-2 ">
-                      <View className="bg-gray-100  flex-row items-center gap-2 px-4 py-2 rounded-full">
-                        <Text className="text-app  text-base font-PlusJakartaSansMedium">
-                          {profile.nationality}
-                        </Text>
-                      </View>
-                      <View className="bg-gray-100  flex-row items-center gap-2 px-4 py-2 rounded-full">
-                        <Text className="text-app  text-base font-PlusJakartaSansMedium">
-                          {profile.ethnicity}
-                        </Text>
-                      </View>
+                  <View className="mt-2 flex-row flex-wrap gap-2">
+                    <View className="bg-gray-100 flex-row items-center gap-2 px-4 py-2 rounded-full">
+                      <Text className="text-app text-base font-PlusJakartaSansMedium">{profile.nationality}</Text>
+                    </View>
+                    <View className="bg-gray-100 flex-row items-center gap-2 px-4 py-2 rounded-full">
+                      <Text className="text-app text-base font-PlusJakartaSansMedium">{profile.ethnicity}</Text>
                     </View>
                   </View>
                 )}
               </View>
             )}
 
-
-            {/* Another question later */}
-            {profile.questions?.[2] && (
-              <View className="bg-white  p-5 rounded-xl">
-                <Text className="text-app font-PlusJakartaSans text-base mb-2">
+            {/* ── Question 2 ── */}
+            {profile.questions?.[1] && (
+              <View className="bg-white mb-2 p-5 mx-3 rounded-2xl border border-gray-200">
+                <Text className="text-app font-PlusJakartaSans text-base">
                   {profile.questions[1].question}
                 </Text>
                 <Text className="text-app font-PlusJakartaSansBold text-2xl leading-relaxed">
@@ -556,94 +480,71 @@ const ProfileCard = ({ profile }) => {
               </View>
             )}
 
-            {/* Third additional image with comment indicator */}
+            {/* ── Image 4 comment box ── */}
             <View ref={(ref) => setCommentBoxRef(2, ref)}>
               <CommentBox
                 imageUri={profile?.images?.[3]}
                 index={3}
                 onPress={() => openImageModal(3)}
-                onSendMessage={(message, idx) => {
-                  console.log("Send message for image", idx, message);
-                }}
                 showComposer={visibleCommentBoxIndex === 2}
+                profile={profile}
               />
             </View>
 
-            {/* Another question later */}
-            {profile.questions?.[2] && (
-              <View className="bg-white mb-2 p-5 rounded-xl">
-                <Text className="text-app font-PlusJakartaSans text-base mb-2">
-                  {profile.questions[1].question}
-                </Text>
-                <Text className="text-app font-PlusJakartaSansBold text-2xl leading-relaxed">
-                  {profile.questions[1].answer}
-                </Text>
-              </View>
-            )}
-
-            {/* Interests */}
+            {/* ── Interests — highlighted if mutual ── */}
             {profile.interests?.length > 0 && (
-              <View className="mb-3 bg-white  p-6 ">
-                <View className="flex-row items-center mb-3">
+              <View className="bg-white mb-2 p-5 mx-3 rounded-2xl border border-gray-200">
+                <View className="flex-row items-center justify-between mb-3">
                   <Text className="text-[20px] font-PlusJakartaSansSemiBold text-app">
                     Interests
                   </Text>
+                  {profile.interests.some(isMutual) && (
+                    <View className="bg-primary/10 px-3 py-1 rounded-full">
+                      <Text className="text-primary text-sm font-PlusJakartaSansBold">
+                        {profile.interests.filter(isMutual).length} shared ✨
+                      </Text>
+                    </View>
+                  )}
                 </View>
                 <View className="flex-row flex-wrap">
                   {profile.interests.map((interest, index) => (
-                    <View
+                    <InterestChip
                       key={index}
-                      className={`rounded-full  px-4 py-2 mr-2 mb-2 ${
-                        profile.mutualInterests?.includes(interest)
-                          ? "bg-secondary "
-                          : "bg-gray-100 "
-                      }`}
-                    >
-                      <Text
-                        className={`font-PlusJakartaSansMedium ${
-                          profile.mutualInterests?.includes(interest)
-                            ? "text-primary"
-                            : "text-black"
-                        }`}
-                      >
-                        {interest}
-                        {profile.mutualInterests?.includes(interest)}
-                      </Text>
-                    </View>
+                      label={interest}
+                      isMutual={isMutual(interest)}
+                    />
                   ))}
                 </View>
               </View>
             )}
 
-            {/* Final Comment Section at End */}
-            <DirectMessageBox profile={profile} />
+            {/* ── Direct Message ── */}
+            <View className="bg-white mb-2 p-5 mx-3 rounded-2xl border border-gray-200">
+              <DirectMessageBox profile={profile} />
+            </View>
 
-            {/* Buttons */}
+            {/* ── Share / Block / Report ── */}
             <View className="flex-row justify-between gap-4 my-4">
-              {/* Share */}
-              <View className="flex-1 p-5  justify-center items-center rounded-2xl">
+              <View className="flex-1 p-5 justify-center items-center rounded-2xl">
                 <View className="w-16 h-16 bg-white flex-row justify-center items-center rounded-full">
                   <Share2 size={26} color="black" />
                 </View>
                 <Text className="mt-3 font-PlusJakartaSansMedium">Share</Text>
               </View>
-
-              <View className="flex-1 p-5  justify-center items-center rounded-2xl">
+              <View className="flex-1 p-5 justify-center items-center rounded-2xl">
                 <View className="w-16 h-16 bg-white flex-row justify-center items-center rounded-full">
                   <Ban size={26} color="black" />
                 </View>
-
                 <Text className="mt-3 font-PlusJakartaSansMedium">Block</Text>
               </View>
-
-              <View className="flex-1 p-5  justify-center items-center rounded-2xl">
+              <View className="flex-1 p-5 justify-center items-center rounded-2xl">
                 <View className="w-16 h-16 bg-white flex-row justify-center items-center rounded-full">
                   <Flag size={26} color="black" />
                 </View>
-
                 <Text className="mt-3 font-PlusJakartaSansMedium">Report</Text>
               </View>
             </View>
+
           </View>
         </View>
       </Animated.ScrollView>

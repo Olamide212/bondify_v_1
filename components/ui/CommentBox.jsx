@@ -1,94 +1,101 @@
-import React, { useState, useEffect, useRef } from "react";
-import {
-  View,
-  TextInput,
-  TouchableOpacity,
-  Pressable,
-  StyleSheet,
-  Animated,
-  Easing,
-} from "react-native";
 import { Image } from "expo-image";
 import { SendHorizonal as PaperPlane, Sparkles, X } from "lucide-react-native";
-import SuggestionModal from "../modals/AiSuggestionModal";
+import { useEffect, useRef, useState } from "react";
+import {
+  ActivityIndicator,
+  Alert,
+  Animated,
+  Easing,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { colors } from "../../constant/colors";
+import { commentService } from "../../services/commentService";
+import AISuggestionModal from "../modals/AiSuggestionModal";
 
-// Define suggestions for the modal
-const suggestions = [
-  "This photo is amazing! 📸",
-  "I love this perspective! 👀",
-  "The lighting here is perfect! ✨",
-  "What a beautiful moment captured! ❤️",
-  "This looks like an incredible place! 🌍",
-];
-
-export default function ImageSection({
+export default function CommentBox({
   imageUri,
   index = 0,
   onPress,
-  onSendMessage,
-  scrollPosition, // New prop to track scroll position
-  commentThreshold = 0.7, // When to show comment box (70% of image visible)
+  showComposer: showComposerProp = false,
+  // The profile of the person whose photo this is
+  profile,
 }) {
-  const [text, setText] = useState("");
-  const [showComposer, setShowComposer] = useState(false);
+  const [text, setText]                   = useState("");
+  const [showComposer, setShowComposer]   = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [sending, setSending]             = useState(false);
+  const [sent, setSent]                   = useState(false);
 
-  // Animated value for sliding
-  const slideAnim = useRef(new Animated.Value(100)).current; // starts hidden
+  const slideAnim = useRef(new Animated.Value(100)).current;
 
-  const handleSend = () => {
-    const trimmed = text.trim();
-    if (!trimmed) return;
-    onSendMessage?.(trimmed, index);
-    setText("");
-  };
-
-  // Determine if comment box should be visible based on scroll position
+  // Sync with parent-controlled visibility (scroll-based)
   useEffect(() => {
-    if (scrollPosition !== undefined) {
-      // Show comment box when image is 70% visible
-      const shouldShow = scrollPosition >= commentThreshold;
-      setShowComposer(shouldShow);
-    }
-  }, [scrollPosition, commentThreshold]);
+    if (showComposerProp) setShowComposer(true);
+  }, [showComposerProp]);
 
   useEffect(() => {
-    if (showComposer) {
-      Animated.timing(slideAnim, {
-        toValue: 0,
-        duration: 350,
-        easing: Easing.out(Easing.ease),
-        useNativeDriver: true,
-      }).start();
-    } else {
-      Animated.timing(slideAnim, {
-        toValue: 100,
-        duration: 250,
-        easing: Easing.in(Easing.ease),
-        useNativeDriver: true,
-      }).start();
-    }
+    Animated.timing(slideAnim, {
+      toValue: showComposer ? 0 : 100,
+      duration: showComposer ? 350 : 250,
+      easing: showComposer ? Easing.out(Easing.ease) : Easing.in(Easing.ease),
+      useNativeDriver: true,
+    }).start();
   }, [showComposer]);
 
+  const handleSend = async () => {
+    const trimmed = text.trim();
+    if (!trimmed || sending || sent) return;
 
-  
+    const targetUserId = profile?._id ?? profile?.id;
+    if (!targetUserId) {
+      Alert.alert("Error", "Could not identify the profile. Please try again.");
+      return;
+    }
+
+    setSending(true);
+    try {
+      await commentService.sendPhotoComment({
+        targetUserId,
+        imageIndex: index,
+        imageUrl:   imageUri,
+        content:    trimmed,
+      });
+
+      setText("");
+      setSent(true);
+      // Reset after 3s so they can comment again
+      setTimeout(() => setSent(false), 3000);
+    } catch (err) {
+      console.error("CommentBox send error:", err);
+      Alert.alert("Failed to send", "Something went wrong. Please try again.");
+    } finally {
+      setSending(false);
+    }
+  };
+
+  if (!imageUri) return null;
 
   return (
-    <View style={styles.wrapper} className=' mb-2 mx-2 rounded-2xl border border-gray-200'>
-      {/* Image with modal trigger */}
-      <Pressable onPress={onPress}  className='rounded-2xl'>
+    <View style={styles.wrapper} className="mb-2 mx-2 rounded-2xl border border-gray-200">
+      {/* Image */}
+      <Pressable onPress={onPress} className="rounded-2xl">
         <Image
           source={{ uri: imageUri }}
           style={styles.image}
           contentFit="cover"
-          className='rounded-2xl'
+          className="rounded-2xl"
         />
       </Pressable>
 
+      {/* Composer overlay */}
       <View style={styles.commentRow}>
         {!showComposer ? (
-          // Default Spark Icon
+          // Sparkle FAB — tap to open composer
           <TouchableOpacity
             style={styles.sparkBtn}
             onPress={() => setShowComposer(true)}
@@ -96,58 +103,64 @@ export default function ImageSection({
             <Sparkles size={26} color="#fff" />
           </TouchableOpacity>
         ) : (
-          // Animated Composer
           <Animated.View
-            style={[
-              styles.composer,
-              { transform: [{ translateY: slideAnim }] },
-            ]}
+            style={[styles.composer, { transform: [{ translateY: slideAnim }] }]}
           >
-            {/* Close button */}
+            {/* Close */}
             <TouchableOpacity
               style={styles.closeBtn}
-              onPress={() => setShowComposer(false)}
+              onPress={() => { setShowComposer(false); setText(""); }}
             >
               <X size={20} color="#6B7280" />
             </TouchableOpacity>
 
-            {/* Text input */}
-            <View style={styles.inputContainer}>
+            {/* Input + AI sparkle */}
+            <View style={[styles.inputContainer, sent && styles.inputContainerSent]}>
               <TextInput
                 value={text}
                 onChangeText={setText}
-                placeholder="Type a message..."
-                placeholderTextColor="#ccc"
+                placeholder={sent ? "Comment sent! 🎉" : "Say something…"}
+                placeholderTextColor={sent ? "#22C55E" : "#ccc"}
                 style={styles.input}
                 multiline
                 maxLength={200}
+                editable={!sending && !sent}
               />
               <TouchableOpacity
                 style={styles.inputSparkle}
                 onPress={() => setShowSuggestions(true)}
+                disabled={sending}
               >
                 <Sparkles size={18} color={colors.primary} />
               </TouchableOpacity>
             </View>
 
             {/* Send button */}
-            {text.length > 0 && (
-              <TouchableOpacity style={styles.sendBtn} onPress={handleSend}>
-                <PaperPlane size={20} color="#fff" />
+            {(text.length > 0 || sending) && (
+              <TouchableOpacity
+                style={[styles.sendBtn, (sending || sent) && styles.sendBtnDisabled]}
+                onPress={handleSend}
+                disabled={sending || sent}
+              >
+                {sending
+                  ? <ActivityIndicator size="small" color="#fff" />
+                  : <PaperPlane size={20} color="#fff" />
+                }
               </TouchableOpacity>
             )}
           </Animated.View>
         )}
       </View>
 
-      {/* Suggestion Modal */}
-      <SuggestionModal
+      {/* AI Suggestion Modal — context='photo' gives photo-specific prompts */}
+      <AISuggestionModal
         visible={showSuggestions}
         onClose={() => setShowSuggestions(false)}
-        suggestions={suggestions}
+        profile={profile}
+        context="photo"
         onSelectSuggestion={(suggestion) => {
           setText(suggestion);
-          setShowSuggestions(false);
+          setSent(false);
         }}
       />
     </View>
@@ -155,27 +168,23 @@ export default function ImageSection({
 }
 
 const styles = StyleSheet.create({
-  wrapper: {
-    position: "relative",
-  },
+  wrapper: { position: "relative" },
   image: {
     width: "100%",
-    height: 600, // Reduced height for better scrolling experience
+    height: 600,
     backgroundColor: "#eee",
-    borderRadius: 15
+    borderRadius: 15,
   },
   commentRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginTop: 10,
-    paddingHorizontal: 10,
     position: "absolute",
     bottom: 10,
     right: 10,
+    flexDirection: "row",
+    alignItems: "center",
     justifyContent: "flex-end",
   },
   sparkBtn: {
-    backgroundColor: colors.activePrimary,
+    backgroundColor: colors.activePrimary ?? colors.primary,
     padding: 12,
     borderRadius: 30,
     shadowColor: "#000",
@@ -199,10 +208,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#E5E7EB",
   },
-  closeBtn: {
-    marginRight: 8,
-    padding: 4,
-  },
+  closeBtn: { marginRight: 8, padding: 4 },
   inputContainer: {
     flex: 1,
     flexDirection: "row",
@@ -214,22 +220,25 @@ const styles = StyleSheet.create({
     borderColor: "#E5E7EB",
     minHeight: 40,
   },
+  inputContainerSent: {
+    borderColor: "#22C55E",
+    backgroundColor: "#F0FDF4",
+  },
   input: {
     flex: 1,
-    fontSize: 16,
+    fontSize: 14,
     paddingVertical: 6,
     maxHeight: 100,
+    color: "#111827",
   },
-  inputSparkle: {
-    padding: 4,
-    marginLeft: 8,
-  },
+  inputSparkle: { padding: 4, marginLeft: 8 },
   sendBtn: {
     marginLeft: 8,
-    backgroundColor: colors.activePrimary,
+    backgroundColor: colors.activePrimary ?? colors.primary,
     padding: 10,
     borderRadius: 20,
     alignItems: "center",
     justifyContent: "center",
   },
+  sendBtnDisabled: { opacity: 0.5 },
 });

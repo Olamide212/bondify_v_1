@@ -25,6 +25,7 @@ const eventRoutes = require('./routes/eventRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
 const aiRoutes = require('./routes/aiRoutes');
 const mapRoutes = require('./routes/mapRoutes');
+const commentRoutes = require('./routes/commentRoutes');  
 
 // Initialize express app
 const app = express();
@@ -75,6 +76,7 @@ app.use('/api/events', eventRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/map', mapRoutes);
+app.use('/api/comments', commentRoutes);
 
 // 404 handler
 app.use('*', (req, res) => {
