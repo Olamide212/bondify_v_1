@@ -412,7 +412,6 @@ userSchema.methods.calculateCompletion = function () {
   // Bonus points for richer profiles
   if (Array.isArray(this.images)     && this.images.length >= 1)    completed += 3;
   if (Array.isArray(this.interests)  && this.interests.length >= 3)  completed += 2;
-  if (this.voicePrompt)                                               completed += 2;
 
   this.completionPercentage = Math.round((completed / (fields.length + 5)) * 100);
 };

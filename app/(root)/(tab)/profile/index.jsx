@@ -1,5 +1,5 @@
 import { useFocusEffect, useRouter } from "expo-router";
-import { Bell } from "lucide-react-native";
+import { Bell, Settings } from "lucide-react-native";
 import { useCallback, useRef, useState } from "react";
 import { ActivityIndicator, RefreshControl } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
@@ -61,6 +61,9 @@ const ProfileScreen = () => {
       <SafeAreaView className="flex-1 bg-white ">
             <GeneralHeader
           title="Profile"
+          icon={<Settings size={25} color={colors.textPrimary}
+           />}
+           onPress={() => router.push("/settings")}
         />
      
         <ScrollView

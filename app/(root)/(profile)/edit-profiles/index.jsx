@@ -62,7 +62,7 @@ const TabBar = ({ activeIndex, onChange, colors }) => {
   }, [activeIndex]);
 
   return (
-    <View style={[tb.wrap, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+    <View style={[tb.wrap, { backgroundColor: colors.surface,  }]}>
       {/* sliding pill */}
       <Animated.View
         style={[tb.pill, { width: tabW - 6, transform: [{ translateX: indicatorX }] }]}
@@ -92,9 +92,8 @@ const tb = StyleSheet.create({
   wrap: {
     flexDirection: 'row',
     marginHorizontal: 16,
-    marginBottom: 12,
-    borderRadius: 99,
-    borderWidth: 1,
+    marginVertical: 15,
+  
     padding: 3,
     position: 'relative',
     overflow: 'hidden',

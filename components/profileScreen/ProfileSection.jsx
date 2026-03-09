@@ -56,7 +56,7 @@ const ProfileSection = ({ profile, isUploading }) => {
   return (
     <TouchableOpacity
       activeOpacity={0.95}
-      onPress={() => router.push("/profile")}
+      onPress={() => router.push("/edit-profile")}
       style={styles.card}
     >
       {/* ── Circular profile photo ── */}
@@ -91,18 +91,19 @@ const ProfileSection = ({ profile, isUploading }) => {
       {/* ── Profile completion bar ── */}
       <View style={styles.completionSection}>
         <View style={styles.completionHeader}>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.completionTitle}>Profile Completion</Text>
-            <Text style={styles.completionSub}>
-              Get more matches with a full profile
-            </Text>
-          </View>
+         
           <Text style={styles.completionPct}>{completion}%</Text>
         </View>
         <View style={styles.track}>
           <View style={[styles.fill, { width: `${Math.min(completion, 100)}%` }]} />
         </View>
       </View>
+       <View style={{ flex: 1 }}>
+         
+            <Text style={styles.completionSub}>
+              Get more matches with a full profile
+            </Text>
+          </View>
 
       {/* ── Stats row ── */}
       <View style={styles.statsRow}>
@@ -193,11 +194,11 @@ const styles = StyleSheet.create({
     width:          "100%",
     paddingHorizontal: 20,
     paddingTop:     18,
-    paddingBottom:  16,
+
   },
   completionHeader: {
     flexDirection:  "row",
-    justifyContent: "space-between",
+    justifyContent: "flex-end",
     alignItems:     "flex-start",
     marginBottom:   10,
   },
@@ -210,12 +211,19 @@ const styles = StyleSheet.create({
     fontSize:   12,
     fontFamily: "PlusJakartaSans",
     color:      "#9CA3AF",
-    marginTop:  2,
+    marginVertical:  10,
   },
   completionPct: {
-    fontSize:   20,
+    fontSize:   13,
     fontFamily: "PlusJakartaSansBold",
-    color:      PRIMARY,
+    color:      "#fff",
+    backgroundColor: PRIMARY,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 30,
+    position: "absolute",
+    top: 2,
+    zIndex: 1,
   },
   track: {
     height:          6,
@@ -240,7 +248,7 @@ const styles = StyleSheet.create({
   },
   statChip: {
     flex:            1,
-    paddingVertical: 14,
+    paddingVertical: 20,
     alignItems:      "center",
     justifyContent:  "center",
     backgroundColor: "#FAFAFA",
@@ -248,6 +256,7 @@ const styles = StyleSheet.create({
     borderWidth:     1,
     borderColor:     "#F3F4F6",
     minHeight:       64,
+    marginTop: 15
   },
   statChipBorder: {
     marginLeft: 10,
