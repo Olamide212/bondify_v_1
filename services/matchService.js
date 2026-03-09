@@ -113,8 +113,23 @@ const unmatch = async (matchId) => {
   }
 };
 
+// @desc  Check if the current user has already interacted with a target user.
+// @returns {{ status: 'liked' | 'passed' | 'superliked' | 'matched' | 'none' }}
+const getInteractionStatus = async (targetUserId) => {
+  try {
+    const response = await apiClient.get(`/matches/interaction/${targetUserId}`);
+    return response.data?.data ?? { status: 'none' };
+  } catch (error) {
+    // Fail gracefully — if endpoint isn't wired yet, default to 'none'
+    // so the action buttons still render rather than permanently hiding.
+    console.warn("getInteractionStatus error:", error?.message);
+    return { status: 'none' };
+  }
+};
+
 export const matchService = {
   getCachedMatches,
   getMatches,
   unmatch,
+  getInteractionStatus,
 };

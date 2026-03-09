@@ -1,283 +1,212 @@
-// App.js
-import { useEffect, useState } from "react";
+// app/(tabs)/chat/index.js  (or wherever your Chat tab lives)
+
+import { useFocusEffect, useRouter } from "expo-router";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { useSelector } from "react-redux";
 import ChatListScreen from "../../../../components/chatScreen/ChatListScreen";
-import ChatScreen from "../../../../components/chatScreen/ChatScreen";
 import { matchService } from "../../../../services/matchService";
 import { socketService } from "../../../../services/socketService";
-import { useNavigation } from "@react-navigation/native";
 
+// ─── helpers ─────────────────────────────────────────────────────────────────
 
+const getActivityTimestamp = (entry) => {
+  const raw = entry?.lastMessageAt || entry?.matchedAt || entry?.activityAt;
+  if (!raw) return 0;
+  if (typeof raw === "number") return Number.isNaN(raw) ? 0 : raw;
+  const parsed = new Date(raw).getTime();
+  return Number.isNaN(parsed) ? 0 : parsed;
+};
+
+const sortByActivity = (users) =>
+  [...users].sort((a, b) => {
+    const diff = getActivityTimestamp(b) - getActivityTimestamp(a);
+    if (diff !== 0) return diff;
+    return String(a?.matchId ?? a?.id ?? "").localeCompare(
+      String(b?.matchId ?? b?.id ?? "")
+    );
+  });
+
+const getFirstName = (fullName) => {
+  const s = String(fullName || "").trim();
+  if (!s) return "Unknown";
+  return s.split(/\s+/)[0];
+};
+
+const normalizeMatches = (matches) =>
+  sortByActivity(matches).map((match) => {
+    const images = Array.isArray(match.user?.images)
+      ? match.user.images
+          .map((img) =>
+            typeof img === "string" ? img : img?.url || img?.uri || img?.secure_url
+          )
+          .filter(Boolean)
+      : [];
+
+    const profileImage = images[0] || match.user?.profileImage;
+    const hasChatted   = Boolean(match.lastMessageAt);
+    const latestMessage = match.lastMessage?.content;
+
+    return {
+      id:           match.user?._id ?? match.user?.id,
+      matchId:      match.matchId ?? match.id,
+      name:         getFirstName(
+        match.user?.name ||
+          [match.user?.firstName, match.user?.lastName].filter(Boolean).join(" ") ||
+          "Unknown"
+      ),
+      profileImage,
+      isOnline:     match.user?.online ?? false,
+      matchedDate:  match.matchedAt ? new Date(match.matchedAt) : new Date(),
+      activityAt:   getActivityTimestamp(match),
+      lastMessage:  latestMessage || (hasChatted ? "Tap to continue chatting" : "No messages yet"),
+      unread:       Number(match.unread || 0),
+      hasChatted,
+    };
+  });
+
+// ─────────────────────────────────────────────────────────────────────────────
 
 export default function Chat() {
-  const navigation = useNavigation();
-  const [currentScreen, setCurrentScreen] = useState("list");
-  const [selectedUser, setSelectedUser] = useState(null);
-  const [matchUsers, setMatchUsers] = useState([]);
+  const router         = useRouter();
+  const [matchUsers, setMatchUsers]       = useState([]);
   const [isLoadingMatches, setIsLoadingMatches] = useState(true);
-  const currentUserId = useSelector(
+  const currentUserId  = useSelector(
     (state) => state.auth.user?.id || state.auth.user?._id
   );
 
+  // ── Load matches ────────────────────────────────────────────────────────────
 
+  const loadMatches = useCallback(async (mounted = { current: true }) => {
+    setIsLoadingMatches(true);
+    try {
+      const cached = await matchService.getCachedMatches();
+      if (mounted.current && cached.length > 0) setMatchUsers(normalizeMatches(cached));
 
-  // Hide bottom tab bar when in chat screen
-  useEffect(() => {
-    navigation.setOptions({
-      tabBarStyle: currentScreen === "chat"
-        ? { display: "none" }
-        : {
-          height: 80,
-          backgroundColor: "#fff",
-          paddingTop: 10,
-          borderTopWidth: 1,
-          borderColor: "#F1F5F9",
-        },
-    });
-  }, [currentScreen, navigation]);
-
-  // get user activity timestamp for sorting
-  const getUserActivityTimestamp = (user) => {
-    const rawActivity = user?.activityAt || user?.matchedDate;
-    if (!rawActivity) return 0;
-
-    if (typeof rawActivity === "number") {
-      return Number.isNaN(rawActivity) ? 0 : rawActivity;
+      const fresh = await matchService.getMatches();
+      if (mounted.current) setMatchUsers(fresh.length > 0 ? normalizeMatches(fresh) : []);
+    } catch {
+      const fallback = await matchService.getCachedMatches();
+      if (mounted.current) setMatchUsers(fallback.length > 0 ? normalizeMatches(fallback) : []);
+    } finally {
+      if (mounted.current) setIsLoadingMatches(false);
     }
-
-    const parsed = new Date(rawActivity).getTime();
-    return Number.isNaN(parsed) ? 0 : parsed;
-  };
-
-  const sortUsersByActivity = (users) =>
-    [...users].sort((a, b) => {
-      const activityDiff =
-        getUserActivityTimestamp(b) - getUserActivityTimestamp(a);
-      if (activityDiff !== 0) return activityDiff;
-
-      const aId = String(a?.matchId ?? a?.id ?? "");
-      const bId = String(b?.matchId ?? b?.id ?? "");
-      return aId.localeCompare(bId);
-    });
+  }, []);
 
   useEffect(() => {
-    let isMounted = true;
+    const mounted = { current: true };
+    loadMatches(mounted);
+    return () => { mounted.current = false; };
+  }, [loadMatches]);
 
-    const getActivityTimestamp = (match) => {
-      const latestActivity = match?.lastMessageAt || match?.matchedAt;
-      if (!latestActivity) return 0;
+  // Refresh list when coming back from chat (e.g. unread counts reset)
+  useFocusEffect(
+    useCallback(() => {
+      const mounted = { current: true };
+      loadMatches(mounted);
+      return () => { mounted.current = false; };
+    }, [loadMatches])
+  );
 
-      const parsedDate = new Date(latestActivity).getTime();
-      return Number.isNaN(parsedDate) ? 0 : parsedDate;
-    };
-
-    const normalizeMatches = (matches) =>
-      [...matches]
-        .sort((a, b) => {
-          const activityDiff = getActivityTimestamp(b) - getActivityTimestamp(a);
-          if (activityDiff !== 0) return activityDiff;
-
-          const aId = String(a?.matchId ?? a?.id ?? a?.user?._id ?? a?.user?.id ?? "");
-          const bId = String(b?.matchId ?? b?.id ?? b?.user?._id ?? b?.user?.id ?? "");
-          return aId.localeCompare(bId);
-        })
-        .map((match) => {
-          const getFirstName = (fullName) => {
-            const normalized = String(fullName || "").trim();
-            if (!normalized) return "Unknown";
-            return normalized.split(/\s+/)[0];
-          };
-
-          const images = Array.isArray(match.user?.images)
-            ? match.user.images
-              .map((image) =>
-                typeof image === "string"
-                  ? image
-                  : image?.url || image?.uri || image?.secure_url
-              )
-              .filter(Boolean)
-            : [];
-          const profileImage = images[0] || match.user?.profileImage;
-          const hasChatted = Boolean(match.lastMessageAt);
-          const latestMessage = match.lastMessage?.content;
-
-          return {
-            id: match.user?._id ?? match.user?.id,
-            matchId: match.matchId ?? match.id,
-            name:
-              getFirstName(
-                match.user?.name ||
-                [match.user?.firstName, match.user?.lastName]
-                  .filter(Boolean)
-                  .join(" ") ||
-                "Unknown"
-              ),
-            profileImage,
-            isOnline: match.user?.online ?? false,
-            matchedDate: match.matchedAt
-              ? new Date(match.matchedAt)
-              : new Date(),
-            activityAt: getActivityTimestamp(match),
-            lastMessage: latestMessage || (hasChatted ? "Tap to continue chatting" : "No messages yet"),
-            unread: Number(match.unread || 0),
-            hasChatted,
-          };
-        });
-
-    const loadMatches = async () => {
-      setIsLoadingMatches(true);
-
-      try {
-        const cachedMatches = await matchService.getCachedMatches();
-
-        if (isMounted && cachedMatches.length > 0) {
-          setMatchUsers(normalizeMatches(cachedMatches));
-        }
-
-        const matches = await matchService.getMatches();
-        if (isMounted) {
-          setMatchUsers(matches.length > 0 ? normalizeMatches(matches) : []);
-        }
-      } catch (_error) {
-        if (isMounted) {
-          const fallbackCachedMatches = await matchService.getCachedMatches();
-          setMatchUsers(
-            fallbackCachedMatches.length > 0
-              ? normalizeMatches(fallbackCachedMatches)
-              : []
-          );
-        }
-      } finally {
-        if (isMounted) {
-          setIsLoadingMatches(false);
-        }
-      }
-    };
-
-    loadMatches();
-    return () => {
-      isMounted = false;
-    };
-  }, []);
+  // ── Socket updates ──────────────────────────────────────────────────────────
 
   useEffect(() => {
     let isMounted = true;
 
     const handleMessageNew = ({ matchId, message }) => {
-      if (!matchId || !message) return;
+      if (!matchId || !message || !isMounted) return;
 
-      const senderId = message.sender?._id || message.sender?.id || message.sender;
-      const isSentByCurrentUser =
-        senderId && currentUserId
-          ? String(senderId) === String(currentUserId)
-          : false;
-      const isCurrentChatOpen =
-        currentScreen === "chat" &&
-        selectedUser?.matchId &&
-        String(selectedUser.matchId) === String(matchId);
+      const senderId           = message.sender?._id || message.sender?.id || message.sender;
+      const isSentByMe         = senderId && currentUserId
+        ? String(senderId) === String(currentUserId)
+        : false;
 
-      const previewText =
-        message.content ||
-        (message.type === "image"
-          ? "Sent a photo"
-          : message.type === "voice"
-            ? "Sent a voice note"
-            : "New message");
+      const previewText = message.content ||
+        (message.type === "image" ? "Sent a photo" :
+         message.type === "voice" ? "Sent a voice note" : "New message");
 
-      const messageActivityAt = (() => {
-        const parsed = new Date(message.createdAt || Date.now()).getTime();
-        return Number.isNaN(parsed) ? Date.now() : parsed;
+      const activityAt = (() => {
+        const p = new Date(message.createdAt || Date.now()).getTime();
+        return Number.isNaN(p) ? Date.now() : p;
       })();
 
-      setMatchUsers((prevUsers) =>
-        sortUsersByActivity(prevUsers.map((user) => {
-          if (String(user.matchId) !== String(matchId)) {
-            return user;
-          }
-
-          return {
-            ...user,
-            hasChatted: true,
-            activityAt: messageActivityAt,
-            lastMessage: previewText,
-            unread:
-              !isSentByCurrentUser && !isCurrentChatOpen
-                ? Number(user.unread || 0) + 1
-                : user.unread,
-          };
-        }))
-      );
-    };
-
-    const handleMessagesRead = ({ matchId, byUserId }) => {
-      if (!matchId || !byUserId || String(byUserId) !== String(currentUserId)) {
-        return;
-      }
-
-      setMatchUsers((prevUsers) =>
-        prevUsers.map((user) =>
-          String(user.matchId) === String(matchId)
-            ? { ...user, unread: 0 }
-            : user
+      setMatchUsers((prev) =>
+        sortByActivity(
+          prev.map((u) =>
+            String(u.matchId) !== String(matchId)
+              ? u
+              : {
+                  ...u,
+                  hasChatted: true,
+                  activityAt,
+                  lastMessage: previewText,
+                  unread: isSentByMe ? u.unread : Number(u.unread || 0) + 1,
+                }
+          )
         )
       );
     };
 
-    const connectSocket = async () => {
+    const handleMessagesRead = ({ matchId, byUserId }) => {
+      if (!matchId || !byUserId || String(byUserId) !== String(currentUserId)) return;
+      setMatchUsers((prev) =>
+        prev.map((u) =>
+          String(u.matchId) === String(matchId) ? { ...u, unread: 0 } : u
+        )
+      );
+    };
+
+    const connect = async () => {
       const socket = await socketService.connect();
       if (!socket || !isMounted) return;
-
       socketService.on("message:new", handleMessageNew);
       socketService.on("messages:read", handleMessagesRead);
     };
 
-    connectSocket();
+    connect();
 
     return () => {
       isMounted = false;
       socketService.off("message:new", handleMessageNew);
       socketService.off("messages:read", handleMessagesRead);
     };
-  }, [currentScreen, currentUserId, selectedUser?.matchId]);
+  }, [currentUserId]);
+
+  // ── Navigation ──────────────────────────────────────────────────────────────
 
   const handleSelectUser = (user) => {
-    setSelectedUser(user);
-    setCurrentScreen("chat");
+    // Optimistically clear unread badge before navigating
+    setMatchUsers((prev) =>
+      prev.map((u) =>
+        String(u.matchId) === String(user.matchId) ? { ...u, unread: 0 } : u
+      )
+    );
+
+    router.push({
+      pathname: "/chat-screen",
+      params: {
+        matchId:      user.matchId,
+        userId:       user.id,
+        name:         user.name,
+        profileImage: user.profileImage ?? "",
+        isOnline:     String(user.isOnline ?? false),
+      },
+    });
   };
 
-  const handleBackToList = (options = {}) => {
-    const unmatchedMatchId = options?.unmatchedMatchId;
-    if (unmatchedMatchId) {
-      setMatchUsers((prevUsers) =>
-        prevUsers.filter(
-          (user) => String(user.matchId) !== String(unmatchedMatchId)
-        )
-      );
-    }
-    setCurrentScreen("list"); // This triggers the useEffect above to show tab bar again
-    setSelectedUser(null);
-  };
+  // ── Render ──────────────────────────────────────────────────────────────────
 
   return (
     <View style={styles.container}>
-
-      {currentScreen === "list" ? (
-        <ChatListScreen
-          users={matchUsers}
-          onSelectUser={handleSelectUser}
-          isLoading={isLoadingMatches}
-        />
-      ) : (
-        <ChatScreen matchedUser={selectedUser} onBack={handleBackToList} />
-      )}
+      <ChatListScreen
+        users={matchUsers}
+        onSelectUser={handleSelectUser}
+        isLoading={isLoadingMatches}
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-  },
+  container: { flex: 1, backgroundColor: "#fff" },
 });

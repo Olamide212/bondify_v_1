@@ -62,7 +62,7 @@ const ProfileSection = ({ profile, isUploading }) => {
           )}
         </View>
         {completion > 0 && (
-          <View className="w-14 h-14 absolute bg-primary px-2 py-1 rounded-full  z-50   flex-row justify-center items-center ">
+          <View className="w-16 h-16 absolute -left-5 bg-primary px-2 py-1 rounded-full  z-50   flex-row justify-center items-center ">
             <Text className="text-white font-PlusJakartaSansBold text-sm">
               {completion}%
             </Text>

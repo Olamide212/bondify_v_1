@@ -12,7 +12,7 @@
 import * as ImagePicker from 'expo-image-picker';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { ArrowLeft } from 'lucide-react-native';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -36,13 +36,13 @@ import Occupation from '../../../../components/profileScreen/Occupation';
 import ProfileAnswers from '../../../../components/profileScreen/ProfileAnswers';
 import ProfilePhotoGrid from '../../../../components/profileScreen/ProfilePhotoGrid';
 import School from '../../../../components/profileScreen/School';
-import VoicePrompt from '../../../../components/profileScreen/VoicePrompt';
 import Verification from '../../../../components/profileScreen/Verification';
+import VoicePrompt from '../../../../components/profileScreen/VoicePrompt';
 import Education from '../../../../components/profileScreen/WorkAndEducation';
 import TextHeadingOne from '../../../../components/ui/TextHeadingOne';
 import { colors as C } from '../../../../constant/colors';
-import { profileService } from '../../../../services/profileService';
 import { useTheme } from '../../../../context/ThemeContext';
+import { profileService } from '../../../../services/profileService';
 
 const { width: SW } = Dimensions.get('window');
 const TABS = ['Edit', 'View Profile'];
@@ -384,11 +384,11 @@ export default function ProfileDetails() {
 
   return (
     <SafeAreaProvider style={{ backgroundColor: colors.background }}>
-      <SafeAreaView style={[s.safe, { backgroundColor: colors.background }]}>
+      <SafeAreaView style={[s.safe, { backgroundColor: '#fff' }]}>
         <GeneralHeader
-          title="Profile"
+          title="Edit Profile"
           leftIcon={<ArrowLeft />}
-          style={{ backgroundColor: colors.background }}
+          style={{ backgroundColor: '#fff' }}
         />
 
         {/* Tab bar */}
@@ -397,7 +397,7 @@ export default function ProfileDetails() {
         {/* ── EDIT TAB ── */}
         {activeTab === 0 && (
           <ScrollView
-            style={{ flex: 1 }}
+            style={{ flex: 1, backgroundColor: '#f1f1f1' }}
             contentContainerStyle={{ paddingBottom: 40 }}
             refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
           >
@@ -408,7 +408,7 @@ export default function ProfileDetails() {
             <View style={s.sections}>
 
               <View>
-                <TextHeadingOne name="Media" />
+                {/* <TextHeadingOne name="Media" /> */}
                 <ProfilePhotoGrid
                   photos={profile?.images || []}
                   onAddPhoto={handleAddPhoto}
@@ -483,5 +483,5 @@ export default function ProfileDetails() {
 
 const s = StyleSheet.create({
   safe:     { flex: 1 },
-  sections: { flex: 1, gap: 12 },
+  sections: { flex: 1, gap: 12, marginTop: 10 },
 });

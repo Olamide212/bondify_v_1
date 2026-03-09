@@ -4,6 +4,7 @@ import {
   RefreshCw,
   Send,
   Sparkles,
+  ArrowLeft,
 } from "lucide-react-native";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
@@ -26,6 +27,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { colors } from "../../../constant/colors";
 import AIService from "../../../services/aiService";
 import { images } from "../../../constant/images";
+
 
 // ─── Constants ────────────────────────────────────────────────
 const PRIMARY       = colors.primary;   // your orange e.g. '#E8521A'
@@ -328,7 +330,8 @@ const AIChatScreen = ({ navigation }) => {
           style={styles.backBtn}
           hitSlop={8}
         >
-          <Text style={styles.backArrow}>←</Text>
+                  <ArrowLeft color="#000" size={28} style={styles.backArrow} />
+         
         </Pressable>
 
         <Image source={BOT_AVATAR} style={styles.headerAvatar} />
@@ -709,7 +712,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 12,
     paddingTop: 8,
-    paddingBottom: 14,
+    paddingBottom: 24,
     backgroundColor: "#fff",
     gap: 10,
   },

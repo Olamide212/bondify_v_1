@@ -187,7 +187,7 @@ const ProfileCard = ({ user, onClose }) => {
         activeOpacity={0.88}
         onPress={() => {
           onClose();
-          router.push({ pathname: '/user-profile', params: { userId: user?._id } });
+          router.push(`/user-profile/${user?._id || user?.id}`);
         }}
       >
         <Text style={pc.btnText}>View Profile</Text>
