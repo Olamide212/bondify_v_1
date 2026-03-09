@@ -20,24 +20,15 @@ import { colors } from "../../constant/colors";
 import { matchService } from "../../services/matchService";
 import { messageService } from "../../services/messageService";
 import { socketService } from "../../services/socketService";
-import SettingsService from "../../services/settingsService";
 import { formatRelativeDate } from "../../utils/helper";
 import Header from "../headers/ChatHeader";
 import BaseModal from "../modals/BaseModal";
+import BlockReportModal from "../modals/Blockreportmodal";
 import InputToolbar from "./InputToolbar";
 import MessageBubble from "./MessageBubble";
 
 const MESSAGE_PAGE_SIZE = 20;
 const LOAD_OLDER_TRIGGER_PX = 140;
-
-const REPORT_REASONS = [
-  { value: "inappropriate_content", label: "Inappropriate content" },
-  { value: "harassment", label: "Harassment or bullying" },
-  { value: "fake_profile", label: "Fake profile" },
-  { value: "spam", label: "Spam" },
-  { value: "underage", label: "Underage user" },
-  { value: "other", label: "Other" },
-];
 
 const ChatScreen = ({ matchedUser, onBack }) => {
   const [isTyping, setIsTyping] = useState(false);
@@ -75,9 +66,8 @@ const ChatScreen = ({ matchedUser, onBack }) => {
   const [isActionsModalVisible, setIsActionsModalVisible] = useState(false);
   const [isProcessingAction, setIsProcessingAction] = useState(false);
 
-  // Report modal state
-  const [isReportModalVisible, setIsReportModalVisible] = useState(false);
-  const [selectedReportReason, setSelectedReportReason] = useState(null);
+  // Block / Report modal state (uses shared BlockReportModal)
+  const [blockReportModal, setBlockReportModal] = useState({ visible: false, mode: "block" });
 
   const scrollViewRef = useRef(null);
   const contentHeightRef = useRef(0);
@@ -469,63 +459,15 @@ const ChatScreen = ({ matchedUser, onBack }) => {
 
   const handleBlock = () => {
     if (!matchedUser?.id || isProcessingAction) return;
-
     setIsActionsModalVisible(false);
-
-    Alert.alert(
-      "Block",
-      `Block ${matchedUser.name}? They won't be able to see your profile or contact you. This will also remove your match.`,
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Block",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              setIsProcessingAction(true);
-              await SettingsService.blockUser(matchedUser.id);
-              // Navigate back and signal the match should be removed from the list
-              onBack?.({ unmatchedMatchId: matchedUser.matchId, blocked: true });
-            } catch (error) {
-              Alert.alert("Unable to block", error?.message || "Please try again.");
-            } finally {
-              setIsProcessingAction(false);
-            }
-          },
-        },
-      ]
-    );
+    // Wait for the actions sheet close animation to finish before opening the next modal
+    setTimeout(() => setBlockReportModal({ visible: true, mode: "block" }), 350);
   };
 
   const handleReport = () => {
     if (!matchedUser?.id || isProcessingAction) return;
     setIsActionsModalVisible(false);
-    setSelectedReportReason(null);
-    setIsReportModalVisible(true);
-  };
-
-  const submitReport = async () => {
-    if (!selectedReportReason) {
-      Alert.alert("Select a reason", "Please choose a reason before submitting.");
-      return;
-    }
-
-    try {
-      setIsProcessingAction(true);
-      await SettingsService.reportUser(matchedUser.id, {
-        reason: selectedReportReason,
-        matchId: matchedUser.matchId,
-      });
-      setIsReportModalVisible(false);
-      Alert.alert(
-        "Report submitted",
-        "Thank you for keeping the community safe. We'll review this report."
-      );
-    } catch (error) {
-      Alert.alert("Unable to submit report", error?.message || "Please try again.");
-    } finally {
-      setIsProcessingAction(false);
-    }
+    setTimeout(() => setBlockReportModal({ visible: true, mode: "report" }), 350);
   };
 
   return (
@@ -677,60 +619,24 @@ const ChatScreen = ({ matchedUser, onBack }) => {
           </View>
         </BaseModal>
 
-        {/* ── Report reason picker ── */}
-        <BaseModal
-          visible={isReportModalVisible}
-          onClose={() => !isProcessingAction && setIsReportModalVisible(false)}
-        >
-          <View style={styles.actionsModalContainer}>
-            <Text style={styles.reportTitle}>Why are you reporting {matchedUser.name}?</Text>
-
-            {REPORT_REASONS.map((item) => (
-              <TouchableOpacity
-                key={item.value}
-                style={[
-                  styles.actionItem,
-                  selectedReportReason === item.value && styles.actionItemSelected,
-                ]}
-                onPress={() => setSelectedReportReason(item.value)}
-                disabled={isProcessingAction}
-              >
-                <Text
-                  style={[
-                    styles.reportReasonText,
-                    selectedReportReason === item.value && styles.reportReasonTextSelected,
-                  ]}
-                >
-                  {item.label}
-                </Text>
-              </TouchableOpacity>
-            ))}
-
-            <TouchableOpacity
-              style={[
-                styles.actionItem,
-                styles.reportSubmitButton,
-                !selectedReportReason && styles.reportSubmitButtonDisabled,
-              ]}
-              onPress={submitReport}
-              disabled={isProcessingAction || !selectedReportReason}
-            >
-              {isProcessingAction ? (
-                <ActivityIndicator size="small" color="#fff" />
-              ) : (
-                <Text style={styles.reportSubmitText}>Submit Report</Text>
-              )}
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.actionItem}
-              onPress={() => setIsReportModalVisible(false)}
-              disabled={isProcessingAction}
-            >
-              <Text style={styles.actionCancelText}>Cancel</Text>
-            </TouchableOpacity>
-          </View>
-        </BaseModal>
+        {/* ── Block / Report modal (shared component) ── */}
+        <BlockReportModal
+          visible={blockReportModal.visible}
+          mode={blockReportModal.mode}
+          profile={{
+            _id:       matchedUser.id,
+            name:      matchedUser.name,
+            images:    matchedUser.profileImage ? [matchedUser.profileImage] : [],
+          }}
+          onClose={() => setBlockReportModal((prev) => ({ ...prev, visible: false }))}
+          onSuccess={(mode) => {
+            setBlockReportModal((prev) => ({ ...prev, visible: false }));
+            if (mode === "block") {
+              // Navigate back and remove the match from the list
+              onBack?.({ unmatchedMatchId: matchedUser.matchId, blocked: true });
+            }
+          }}
+        />
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -827,38 +733,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
   },
-  // Report modal
-  reportTitle: {
-    fontSize: 15,
-    fontWeight: "700",
-    color: "#111827",
-    textAlign: "center",
-    marginBottom: 14,
-    marginTop: 4,
-  },
-  reportReasonText: {
-    fontSize: 15,
-    color: "#374151",
-    fontWeight: "500",
-  },
-  reportReasonTextSelected: {
-    color: colors.primary,
-    fontWeight: "700",
-  },
-  reportSubmitButton: {
-    backgroundColor: "#DC2626",
-    borderColor: "#DC2626",
-    marginTop: 4,
-  },
-  reportSubmitButtonDisabled: {
-    backgroundColor: "#FCA5A5",
-    borderColor: "#FCA5A5",
-  },
-  reportSubmitText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "700",
-  },
+  // Report / Block handled by BlockReportModal
 });
 
 export default ChatScreen;

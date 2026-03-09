@@ -138,12 +138,12 @@ const AroundYouTab = ({ actionMessage }) => {
 
   return (
     <View style={[styles.tabContent, { height: screenHeight - 200 }]}> 
-      {/* Filter Button */}
+      {/* Filter Button
       <View style={{ position: 'absolute', top: 20, right: 20, zIndex: 100 }}>
         <TouchableOpacity onPress={handleOpenFilter} style={{ backgroundColor: colors.primary, borderRadius: 20, padding: 10 }}>
           <Text style={{ color: '#fff', fontWeight: 'bold' }}>Filter</Text>
         </TouchableOpacity>
-      </View>
+      </View> */}
 
       {/* Filter Modal */}
       <FilterModal

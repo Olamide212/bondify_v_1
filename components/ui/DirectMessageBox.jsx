@@ -28,15 +28,19 @@ export default function DirectMessageBox({ profile }) {
     try {
       // 1. Get the matchId for this profile
       //    getMatches returns an array; find the one where the other user is this profile
-      const profileId = profile?.id ?? profile?._id;
+      const profileId = String(profile?.id ?? profile?._id ?? "");
       const matches   = await matchService.getMatches();
 
+      // The API returns matches shaped as:
+      //   { matchId, user: { _id, ... }, lastMessage, ... }
+      // so we compare against match.user._id — not a match.users[] array.
       const match = matches.find((m) => {
-        // Match objects can have users as IDs or populated objects
-        const userIds = (m.users ?? []).map((u) =>
-          typeof u === "object" ? String(u._id ?? u.id) : String(u)
+        const matchedUserId = String(
+          m.user?._id ?? m.user?.id ??     // populated user object
+          m.userId ??                       // flat userId field
+          ""
         );
-        return userIds.includes(String(profileId));
+        return matchedUserId === profileId;
       });
 
       if (!match) {
@@ -47,8 +51,9 @@ export default function DirectMessageBox({ profile }) {
         return;
       }
 
-      // 2. Send the message
-      await messageService.sendMessage(match._id ?? match.id, {
+      // 2. Send the message — matchId is the conversation ID
+      const conversationId = match.matchId ?? match._id ?? match.id;
+      await messageService.sendMessage(conversationId, {
         content: trimmed,
         type: "text",
       });

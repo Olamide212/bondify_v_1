@@ -7,6 +7,7 @@ const {
   completeOnboarding,
   getProfile,
   getMyProfile,
+  getProfileStats,
   uploadVoicePrompt,
   deleteVoicePrompt,
 } = require('../controllers/profileController');
@@ -21,6 +22,7 @@ const upload = multer({ storage: multer.memoryStorage() });
 router.get('/',    protect, getMyProfile);
 router.patch('/',  protect, updateProfileValidation, updateProfile);
 router.post('/complete-onboarding', protect, completeOnboarding);
+router.get('/stats', protect, getProfileStats);   // GET /api/profile/stats
 
 // ── Voice prompt — must come BEFORE /:id so Express doesn't treat
 //    "voice-prompt" as a dynamic :id param ──────────────────────────────────

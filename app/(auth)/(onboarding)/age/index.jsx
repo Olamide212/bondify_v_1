@@ -1,21 +1,21 @@
-import { Picker } from "@react-native-picker/picker";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import { Platform, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import Button from "../../../../components/ui/Button";
 import Info from "../../../../components/ui/Info";
+import WheelPicker from "../../../../components/ui/WheelPicker";
 import { months } from "../../../../data/months";
 import { useProfileSetup } from "../../../../hooks/useProfileSetup";
 
-
-
+const PRIMARY = "#E8651A";
 
 const getDaysInMonth = (year, month) => new Date(year, month + 1, 0).getDate();
-const calculateAge = (dob) => {
+
+const calculateAge = (year, month, day) => {
   const today = new Date();
-  let age = today.getFullYear() - dob.getFullYear();
-  const m = today.getMonth() - dob.getMonth();
-  if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) age--;
+  let age = today.getFullYear() - year;
+  const m = today.getMonth() - month;
+  if (m < 0 || (m === 0 && today.getDate() < day)) age--;
   return age;
 };
 
@@ -26,93 +26,106 @@ const Age = () => {
   const router = useRouter();
 
   const currentYear = new Date().getFullYear();
-  const years = Array.from({ length: 100 }, (_, i) => currentYear - i);
 
-  // Initialize state from profileData if exists
-  const [selectedDay, setSelectedDay] = useState(profileData.birthDay || 1);
-  const [selectedMonth, setSelectedMonth] = useState(
-    profileData.birthMonth || 0
-  );
-  const [selectedYear, setSelectedYear] = useState(
-    profileData.birthYear || currentYear - 25
-  );
-  const [age, setAge] = useState(null);
+  const [selectedDay,   setSelectedDay]   = useState(profileData.birthDay   || 11);
+  const [selectedMonth, setSelectedMonth] = useState(profileData.birthMonth || 5);   // June = 5
+  const [selectedYear,  setSelectedYear]  = useState(profileData.birthYear  || currentYear - 25);
 
-  const days = Array.from(
-    { length: getDaysInMonth(selectedYear, selectedMonth) },
-    (_, i) => i + 1
-  );
+  const daysInMonth = getDaysInMonth(selectedYear, selectedMonth);
 
-  // Update age display
+  // Clamp day if month/year changes shrinks available days
   useEffect(() => {
-    const dob = new Date(selectedYear, selectedMonth, selectedDay);
-    setAge(calculateAge(dob));
-  }, [selectedDay, selectedMonth, selectedYear]);
+    if (selectedDay > daysInMonth) setSelectedDay(daysInMonth);
+  }, [daysInMonth]);
 
-  // Auto-save to backend whenever selection changes
+  // Persist to backend
   useEffect(() => {
-    const month = String(selectedMonth + 1).padStart(2, "0");
-    const day = String(selectedDay).padStart(2, "0");
+    const month       = String(selectedMonth + 1).padStart(2, "0");
+    const day         = String(selectedDay).padStart(2, "0");
     const dateOfBirth = `${selectedYear}-${month}-${day}`;
-
     updateProfileStep({
       dateOfBirth,
-      age: calculateAge(new Date(selectedYear, selectedMonth, selectedDay)),
+      age: calculateAge(selectedYear, selectedMonth, selectedDay),
     });
   }, [selectedDay, selectedMonth, selectedYear]);
 
+  // ── Picker items ────────────────────────────────────────────────────────────
+  const dayItems = Array.from({ length: daysInMonth }, (_, i) => ({
+    label: String(i + 1),
+    value: i + 1,
+  }));
+
+  const monthItems = months.map((m, index) => ({
+    label: m,
+    value: index,
+  }));
+
+  const yearItems = Array.from({ length: 100 }, (_, i) => ({
+    label: String(currentYear - i),
+    value: currentYear - i,
+  }));
+
+  const age = calculateAge(selectedYear, selectedMonth, selectedDay);
+
   return (
-    <View className="bg-white flex-1">
-      <View style={styles.container}>
-        <Text className="text-3xl font-PlusJakartaSansBold">
-          What&apos;s your date of birth?
+    <View style={styles.screen}>
+      <View style={styles.content}>
+        {/* Heading */}
+        <Text style={styles.title}>What&apos;s your{"\n"}birthday?</Text>
+        <Text style={styles.subtitle}>
+          We&apos;ll use this to calculate your age
         </Text>
-        <Text className="text-lg font-PlusJakartaSans">
-          We’ll use this to calculate your age
-        </Text>
 
-        <View style={styles.pickerRow}>
-          <Picker
-            selectedValue={selectedDay}
-            style={styles.picker}
-            onValueChange={(value) => setSelectedDay(value)}
-          >
-            {days.map((day) => (
-              <Picker.Item key={day} label={String(day)} value={day} />
-            ))}
-          </Picker>
+        {/* Three wheel columns */}
+        <View style={styles.pickersRow}>
+          {/* Day */}
+          <View style={styles.pickerCol}>
+            <WheelPicker
+              items={dayItems}
+              selectedValue={selectedDay}
+              onValueChange={setSelectedDay}
+            />
+          </View>
 
-          <Picker
-            selectedValue={selectedMonth}
-            style={styles.picker}
-            onValueChange={(value) => setSelectedMonth(value)}
-          >
-            {months.map((month, index) => (
-              <Picker.Item key={index} label={month} value={index} />
-            ))}
-          </Picker>
+          {/* Month */}
+          <View style={[styles.pickerCol, styles.pickerColWide]}>
+            <WheelPicker
+              items={monthItems}
+              selectedValue={selectedMonth}
+              onValueChange={setSelectedMonth}
+            />
+          </View>
 
-          <Picker
-            selectedValue={selectedYear}
-            style={styles.picker}
-            onValueChange={(value) => setSelectedYear(value)}
-          >
-            {years.map((year) => (
-              <Picker.Item key={year} label={String(year)} value={year} />
-            ))}
-          </Picker>
+          {/* Year */}
+          <View style={styles.pickerCol}>
+            <WheelPicker
+              items={yearItems}
+              selectedValue={selectedYear}
+              onValueChange={setSelectedYear}
+            />
+          </View>
         </View>
 
-        {age !== null && (
-          <Text style={styles.ageText}>Age: {age} years old</Text>
+        {/* Age display */}
+        {age >= 0 && age <= 120 && (
+          <Text style={styles.ageText}>{age} years old</Text>
         )}
-        <View className="mt-3">
+
+        <View style={{ marginTop: 12 }}>
           <Info title="This can't be changed later" />
         </View>
       </View>
 
-      <View className="w-full items-end pb-6">
-        <Button title="Continue" variant="primary" onPress={() => router.push("/height")} />
+      {/* Footer: disclaimer + button */}
+      <View style={styles.footer}>
+        <Text style={styles.disclaimer}>
+          By tapping Next you confirm you&apos;re over 18 years old.
+        </Text>
+        <Button
+          title="Next →"
+          variant="primary"
+          onPress={() => router.push("/height")}
+        />
       </View>
     </View>
   );
@@ -121,26 +134,66 @@ const Age = () => {
 export default Age;
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingTop: 30,
-    alignItems: "center",
-  },
-  pickerRow: {
-    flexDirection: "row",
-    width: "100%",
-    justifyContent: "space-evenly",
-  },
-  picker: {
-    width: "30%",
+  screen: {
+    flex:            1,
     backgroundColor: "#fff",
-    color: "#333",
-    height: Platform.OS === "ios" ? 200 : 50,
   },
+  content: {
+    flex:            1,
+    paddingTop:      36,
+    paddingHorizontal: 24,
+    alignItems:      "center",
+  },
+  title: {
+    fontSize:    32,
+    fontFamily:  "PlusJakartaSansBold",
+    color:       "#111",
+    textAlign:   "center",
+    lineHeight:  40,
+    marginBottom: 10,
+  },
+  subtitle: {
+    fontSize:    15,
+    fontFamily:  "PlusJakartaSans",
+    color:       "#888",
+    textAlign:   "center",
+    marginBottom: 32,
+  },
+
+  // Picker row
+  pickersRow: {
+    flexDirection:   "row",
+    width:           "100%",
+    justifyContent:  "center",
+    alignItems:      "center",
+    gap:             8,
+  },
+  pickerCol: {
+    flex:            1,
+  },
+  pickerColWide: {
+    flex:            1.5,  // month names are longer
+  },
+
+  // Age readout
   ageText: {
-    marginTop: 60,
-    fontSize: 20,
-    fontFamily: "PlusJakartaSansBold",
-    color: "#333",
+    marginTop:   28,
+    fontSize:    18,
+    fontFamily:  "PlusJakartaSansBold",
+    color:       PRIMARY,
+  },
+
+  // Footer
+  footer: {
+    paddingHorizontal: 24,
+    paddingBottom:     36,
+    alignItems:        "center",
+    gap:               10,
+  },
+  disclaimer: {
+    fontSize:   12,
+    fontFamily: "PlusJakartaSans",
+    color:      "#aaa",
+    textAlign:  "center",
   },
 });

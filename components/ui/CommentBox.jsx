@@ -125,6 +125,7 @@ export default function CommentBox({
                 multiline
                 maxLength={200}
                 editable={!sending && !sent}
+                className='font-PlusJakartaSansMedium'
               />
               <TouchableOpacity
                 style={styles.inputSparkle}
@@ -200,7 +201,7 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     paddingHorizontal: 12,
     paddingVertical: 8,
-    width: "85%",
+    width: "97%",
     shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowRadius: 5,

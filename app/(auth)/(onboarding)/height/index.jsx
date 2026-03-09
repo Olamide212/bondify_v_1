@@ -1,44 +1,133 @@
-
-import React, { useState } from "react";
-import { View, Text, StyleSheet } from "react-native";
-import { Picker } from "@react-native-picker/picker";
-import NextButton from "../../../../components/ui/NextButton";
 import { useRouter } from "expo-router";
+import { useState } from "react";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Button from "../../../../components/ui/Button";
+import WheelPicker from "../../../../components/ui/WheelPicker";
 import { useProfileSetup } from "../../../../hooks/useProfileSetup";
+import { Eye } from "lucide-react-native";
+
+const PRIMARY = "#E8651A";
+
+// Heights 100–250 cm; ft/in equivalents
+const cmToFtIn = (cm) => {
+  const totalInches = cm / 2.54;
+  const ft  = Math.floor(totalInches / 12);
+  const inc = Math.round(totalInches % 12);
+  return `${ft}'${inc}"`;
+};
 
 const Height = () => {
-  const [selectedHeight, setSelectedHeight] = useState(170); // default to 170 cm
   const router = useRouter();
   const { updateProfileStep } = useProfileSetup({ isOnboarding: true });
 
-  const heights = Array.from({ length: 151 }, (_, i) => i + 100); // 100 - 250 cm
+  const [unit,           setUnit]           = useState("cm");   // 'cm' | 'ft'
+  const [selectedHeight, setSelectedHeight] = useState(179);    // in cm always
+  const [showOnProfile,  setShowOnProfile]  = useState(true);
+
+  // ── Picker items depend on unit ──────────────────────────────────────────
+  const cmItems = Array.from({ length: 151 }, (_, i) => {
+    const h = i + 100;
+    return { label: String(h), value: h };
+  });
+
+  const ftItems = Array.from({ length: 151 }, (_, i) => {
+    const cm = i + 100;
+    return { label: cmToFtIn(cm), value: cm };  // value still in cm
+  });
+
+  const items = unit === "cm" ? cmItems : ftItems;
+
+  const handleContinue = async () => {
+    await updateProfileStep({
+      height:          selectedHeight,
+      showHeightOnProfile: showOnProfile,
+    });
+    router.push("/gender");
+  };
 
   return (
-    <View className="bg-white flex-1">
-      <View style={styles.container}>
-        <Text className="text-3xl font-PlusJakartaSansBold">How Tall Are You?</Text>
-        <Text className='text-lg font-PlusJakartaSans mb-4'>
-          Please provide your height in centimeters
+    <View style={styles.screen}>
+      <View style={styles.content}>
+        {/* Heading */}
+        <Text style={styles.title}>How tall are you?</Text>
+        <Text style={styles.subtitle}>
+          We&apos;ll use this to help find your best matches.
         </Text>
 
-        <View style={styles.pickerWrapper}>
-          <Picker
-            selectedValue={selectedHeight}
-            onValueChange={(itemValue) => setSelectedHeight(itemValue)}
-            itemStyle={styles.pickerItem}
-          >
-            {heights.map((height) => (
-              <Picker.Item key={height} label={`${height} cm`} value={height} />
-            ))}
-          </Picker>
+        {/* Unit toggle: cm / ft */}
+        <View style={styles.unitToggle}>
+          {["cm", "ft"].map((u) => (
+            <TouchableOpacity
+              key={u}
+              style={[
+                styles.unitBtn,
+                unit === u && styles.unitBtnActive,
+              ]}
+              onPress={() => setUnit(u)}
+              activeOpacity={0.8}
+            >
+              <Text
+                style={[
+                  styles.unitBtnText,
+                  unit === u && styles.unitBtnTextActive,
+                ]}
+              >
+                {u}
+              </Text>
+            </TouchableOpacity>
+          ))}
         </View>
+
+        {/* Wheel picker */}
+        <View style={styles.pickerWrapper}>
+          <WheelPicker
+            items={items}
+            selectedValue={selectedHeight}
+            onValueChange={setSelectedHeight}
+            itemHeight={60}
+            suffix={unit === "cm" ? "cm" : undefined}
+          />
+        </View>
+
+        {/* Show on profile toggle */}
+        <TouchableOpacity
+          style={styles.toggleRow}
+          onPress={() => setShowOnProfile((prev) => !prev)}
+          activeOpacity={0.8}
+        >
+          <View style={styles.toggleLeft}>
+            <Eye size={20} color={PRIMARY} />
+            <View style={{ marginLeft: 10 }}>
+              <Text style={styles.toggleTitle}>Show on profile</Text>
+              <Text style={styles.toggleSub}>
+                People will be able to see your height
+              </Text>
+            </View>
+          </View>
+          {/* Custom toggle pill */}
+          <View
+            style={[
+              styles.pill,
+              showOnProfile ? styles.pillOn : styles.pillOff,
+            ]}
+          >
+            <View
+              style={[
+                styles.pillThumb,
+                showOnProfile ? styles.pillThumbOn : styles.pillThumbOff,
+              ]}
+            />
+          </View>
+        </TouchableOpacity>
       </View>
-      <View className="w-full items-end pb-6">
-        <Button title="Continue" variant="gradient" onPress={async () => {
-          await updateProfileStep({ height: selectedHeight });
-          router.push("/gender");
-        }} />
+
+      {/* Footer */}
+      <View style={styles.footer}>
+        <Button
+          title="Next →"
+          variant="primary"
+          onPress={handleContinue}
+        />
       </View>
     </View>
   );
@@ -47,32 +136,125 @@ const Height = () => {
 export default Height;
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingTop: 30,
-    alignItems: "center",
+  screen: {
+    flex:            1,
+    backgroundColor: "#fff",
   },
+  content: {
+    flex:              1,
+    paddingTop:        32,
+    paddingHorizontal: 24,
+    alignItems:        "center",
+  },
+
+  // Heading
   title: {
-    fontSize: 25,
-    fontFamily: "PlusJakartaSansBold",
-    color: "#000",
+    fontSize:    32,
+    fontFamily:  "PlusJakartaSansBold",
+    color:       "#111",
+    textAlign:   "center",
+    marginBottom: 8,
   },
   subtitle: {
-    fontSize: 14,
-    color: "#000",
-    fontFamily: "PlusJakartaSans",
-    marginBottom: 30,
+    fontSize:    15,
+    fontFamily:  "PlusJakartaSans",
+    color:       "#888",
+    textAlign:   "center",
+    marginBottom: 24,
   },
-  pickerWrapper: {
-    width: "100%",
-    height: 180,
-    justifyContent: "center",
-    backgroundColor: "transparent",
+
+  // Unit toggle
+  unitToggle: {
+    flexDirection:   "row",
+    backgroundColor: "#F3F4F6",
+    borderRadius:    50,
+    padding:         4,
+    marginBottom:    32,
+    width:           160,
   },
-  pickerItem: {
-    fontSize: 28,
-    height: 200,
+  unitBtn: {
+    flex:            1,
+    paddingVertical: 8,
+    alignItems:      "center",
+    borderRadius:    50,
+  },
+  unitBtnActive: {
+    backgroundColor: "#fff",
+    shadowColor:     "#000",
+    shadowOpacity:   0.08,
+    shadowRadius:    6,
+    shadowOffset:    { width: 0, height: 2 },
+    elevation:       2,
+  },
+  unitBtnText: {
+    fontSize:   14,
+    fontFamily: "PlusJakartaSansMedium",
+    color:      "#9CA3AF",
+  },
+  unitBtnTextActive: {
+    color:      "#111",
     fontFamily: "PlusJakartaSansBold",
-    color: "#000",
+  },
+
+  // Wheel
+  pickerWrapper: {
+    width: "60%",
+    alignItems: "center",
+  },
+
+  // Show on profile row
+  toggleRow: {
+    flexDirection:   "row",
+    alignItems:      "center",
+    justifyContent:  "space-between",
+    marginTop:       36,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    borderRadius:    16,
+    backgroundColor: "#FFF7F3",
+    width:           "100%",
+    borderWidth:     1,
+    borderColor:     "#FFE5D6",
+  },
+  toggleLeft: {
+    flexDirection: "row",
+    alignItems:    "center",
+    flex:          1,
+  },
+  toggleTitle: {
+    fontSize:   14,
+    fontFamily: "PlusJakartaSansBold",
+    color:      "#111",
+  },
+  toggleSub: {
+    fontSize:   12,
+    fontFamily: "PlusJakartaSans",
+    color:      "#999",
+    marginTop:  2,
+  },
+
+  // Toggle pill
+  pill: {
+    width:        48,
+    height:       26,
+    borderRadius: 13,
+    padding:      3,
+    justifyContent: "center",
+  },
+  pillOn:  { backgroundColor: PRIMARY },
+  pillOff: { backgroundColor: "#D1D5DB" },
+  pillThumb: {
+    width:        20,
+    height:       20,
+    borderRadius: 10,
+    backgroundColor: "#fff",
+  },
+  pillThumbOn:  { alignSelf: "flex-end" },
+  pillThumbOff: { alignSelf: "flex-start" },
+
+  // Footer
+  footer: {
+    paddingHorizontal: 24,
+    paddingBottom:     36,
   },
 });

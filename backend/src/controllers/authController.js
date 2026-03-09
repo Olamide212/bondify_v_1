@@ -2,6 +2,7 @@ const User = require('../models/User');
 const { generateToken, generateOnboardingToken } = require('../config/jwt');
 const { generateOTP, calculateOTPExpiry } = require('../config/otp');
 const { generateReferralCode } = require('../utils/referral');
+const { sendOtpEmail, sendWelcomeEmail } = require('../utils/termiiService');
 
 // @desc    Register new user
 // @route   POST /api/auth/signup
@@ -52,11 +53,11 @@ const signup = async (req, res, next) => {
       await User.findByIdAndUpdate(referredByUser._id, { $inc: { referralCount: 1 } });
     }
 
+    // Send OTP via Termii email (non-blocking — never crashes signup on email failure)
+    await sendOtpEmail({ email, firstName, otp });
+
     // Generate onboarding token
     const onboardingToken = generateOnboardingToken(user._id);
-
-    // TODO: Send OTP via email or SMS
-    console.log(`OTP for ${email}: ${otp}`);
 
     res.status(201).json({
       success: true,
@@ -111,11 +112,14 @@ const verifyOtp = async (req, res, next) => {
       });
     }
 
-    // Update user
+    // Mark user as verified
     user.isVerified = true;
     user.otp = undefined;
     user.otpExpiry = undefined;
     await user.save();
+
+    // Send welcome email (non-blocking)
+    await sendWelcomeEmail({ email, firstName: user.firstName });
 
     // Generate tokens
     const token = generateToken(user._id);
@@ -134,7 +138,6 @@ const verifyOtp = async (req, res, next) => {
           email: user.email,
           phoneNumber: user.phoneNumber,
           countryCode: user.countryCode,
-
           isVerified: user.isVerified,
           onboardingCompleted: user.onboardingCompleted,
         },
@@ -152,7 +155,7 @@ const resendOtp = async (req, res, next) => {
   try {
     const { email } = req.body;
 
-    const user = await User.findOne({ email }).select('+otp +otpExpiry');
+    const user = await User.findOne({ email }).select('+otp +otpExpiry +firstName');
 
     if (!user) {
       return res.status(404).json({
@@ -176,8 +179,8 @@ const resendOtp = async (req, res, next) => {
     user.otpExpiry = otpExpiry;
     await user.save();
 
-    // TODO: Send OTP via email or SMS
-    console.log(`New OTP for ${email}: ${otp}`);
+    // Send new OTP via Termii email (non-blocking)
+    await sendOtpEmail({ email, firstName: user.firstName, otp });
 
     res.json({
       success: true,
@@ -223,7 +226,6 @@ const login = async (req, res, next) => {
 
     // Check password
     const isPasswordMatch = await user.comparePassword(password);
-
     if (!isPasswordMatch) {
       return res.status(401).json({
         success: false,
@@ -232,15 +234,16 @@ const login = async (req, res, next) => {
     }
 
     if (!user.isVerified) {
-      // Generate new OTP for unverified users
+      // Generate new OTP and send via Termii
       const otp = generateOTP();
       const otpExpiry = calculateOTPExpiry();
-      
+
       user.otp = otp;
       user.otpExpiry = otpExpiry;
       await user.save();
 
-      console.log(`OTP for ${user.email}: ${otp}`);
+      // Send OTP email (non-blocking)
+      await sendOtpEmail({ email: user.email, firstName: user.firstName, otp });
 
       return res.status(403).json({
         success: false,
@@ -257,8 +260,8 @@ const login = async (req, res, next) => {
 
     // Generate tokens
     const token = generateToken(user._id);
-    const onboardingToken = user.onboardingCompleted 
-      ? null 
+    const onboardingToken = user.onboardingCompleted
+      ? null
       : generateOnboardingToken(user._id);
 
     res.json({
@@ -288,7 +291,6 @@ const login = async (req, res, next) => {
 const getMe = async (req, res, next) => {
   try {
     const user = await User.findById(req.user._id);
-
     res.json({
       success: true,
       data: { user },

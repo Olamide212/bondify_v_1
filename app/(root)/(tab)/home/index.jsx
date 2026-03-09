@@ -14,6 +14,7 @@ import Animated, {
   runOnJS,
   useAnimatedStyle,
   useSharedValue,
+  withSequence,
   withTiming,
 } from "react-native-reanimated";
 import { useSelector } from "react-redux";
@@ -31,6 +32,11 @@ import { useProfile } from "../../../../context/ProfileContext";
 import { messageService } from "../../../../services/messageService";
 import SettingsService from "../../../../services/settingsService";
 import { socketService } from "../../../../services/socketService";
+
+// ─── Swipe badge assets ───────────────────────────────────────────────────────
+const BOND_BADGE = require("../../../../assets/images/Bond_Badge_Right.png");
+const NOPE_BADGE = require("../../../../assets/images/Nope_Badge_Left.png");
+// ─────────────────────────────────────────────────────────────────────────────
 
 const NOTIFICATIONS_STORAGE_KEY = "@bondify/cache/home/notifications";
 const NOTIF_SETTINGS_STORAGE_KEY = "@bondify/cache/notificationSettings";
@@ -71,7 +77,12 @@ const Home = () => {
 
   const { user: currentUser } = useSelector((state) => state.auth);
 
-  const [flashMessage, setFlashMessage] = useState(null);
+  // ─── Swipe badge state ─────────────────────────────────────────────────────
+  // direction: 'right' (BOND) | 'left' (NOPE) | null
+  const [swipeBadgeDirection, setSwipeBadgeDirection] = useState(null);
+  const badgeOpacity = useSharedValue(0);
+  const badgeScale   = useSharedValue(0.6);
+
   const [showFilterModal, setShowFilterModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showNotificationsModal, setShowNotificationsModal] = useState(false);
@@ -86,11 +97,9 @@ const Home = () => {
   );
 
   // ─── Banner queue ──────────────────────────────────────────────────────────
-  // activeBanner   — the notification currently displayed in the banner
-  // bannerQueue    — ref-backed FIFO queue of pending banners
   const [activeBanner, setActiveBanner] = useState(null);
   const bannerQueueRef = useRef([]);
-  const bannerBusyRef = useRef(false);
+  const bannerBusyRef  = useRef(false);
 
   const showNotificationsModalRef = useRef(false);
   useEffect(() => {
@@ -108,20 +117,15 @@ const Home = () => {
     }
   }, []);
 
-  const enqueueBanner = useCallback(
-    (notification) => {
-      // Never show banner when the notifications modal is open
-      if (showNotificationsModalRef.current) return;
-
-      if (bannerBusyRef.current) {
-        bannerQueueRef.current.push(notification);
-      } else {
-        bannerBusyRef.current = true;
-        setActiveBanner(notification);
-      }
-    },
-    []
-  );
+  const enqueueBanner = useCallback((notification) => {
+    if (showNotificationsModalRef.current) return;
+    if (bannerBusyRef.current) {
+      bannerQueueRef.current.push(notification);
+    } else {
+      bannerBusyRef.current = true;
+      setActiveBanner(notification);
+    }
+  }, []);
 
   // ─── Notification settings ─────────────────────────────────────────────────
   const [notifSettings, setNotifSettings] = useState(DEFAULT_NOTIF_SETTINGS);
@@ -159,7 +163,6 @@ const Home = () => {
 
   // ─── Profile card animation ────────────────────────────────────────────────
   const animation = useSharedValue(1);
-  const flashAnim = useSharedValue(0);
 
   const currentProfile =
     homeProfiles.length > 0
@@ -171,26 +174,42 @@ const Home = () => {
     animation.value = withTiming(1, { duration: 600 });
   }, [homeCurrentProfileIndex, animation]);
 
-  const showFlashMessage = (direction) => {
-    const message = direction === "right" ? "Liked ❤️" : "Passed 👎";
-    setFlashMessage(message);
-    flashAnim.value = 0;
-    flashAnim.value = withTiming(1, { duration: 300 }, () => {
-      flashAnim.value = withTiming(0, { duration: 300, delay: 400 }, () => {
-        runOnJS(setFlashMessage)(null);
-      });
+  // ─── Swipe badge stamp animation ───────────────────────────────────────────
+  // Fast scale-in (stamp press) → brief hold → fade out
+  const showSwipeBadge = (direction) => {
+    setSwipeBadgeDirection(direction);
+    badgeScale.value   = 0.5;
+    badgeOpacity.value = 0;
+
+    // Stamp in with slight overshoot
+    badgeScale.value = withTiming(1.08, { duration: 160 }, () => {
+      badgeScale.value = withTiming(1, { duration: 100 });
     });
+
+    // Opacity: snap visible → hold → fade out → clear state
+    badgeOpacity.value = withSequence(
+      withTiming(1, { duration: 80 }),
+      withTiming(1, { duration: 580 }),
+      withTiming(0, { duration: 220 }, () => {
+        runOnJS(setSwipeBadgeDirection)(null);
+      })
+    );
   };
+
+  const badgeAnimStyle = useAnimatedStyle(() => ({
+    opacity:   badgeOpacity.value,
+    transform: [{ scale: badgeScale.value }],
+  }));
 
   const handleSwipe = (direction) => {
     if (!currentProfile) return;
-    showFlashMessage(direction);
+    showSwipeBadge(direction);
     handleHomeSwipe(direction, currentProfile);
   };
 
   const handleSuperLike = () => {
     if (!currentProfile) return;
-    showFlashMessage("right");
+    showSwipeBadge("right");
     handleHomeSuperLike(currentProfile);
   };
 
@@ -206,11 +225,6 @@ const Home = () => {
     const scale = interpolate(animation.value, [0, 1], [0.9, 1]);
     return { transform: [{ translateY }, { scale }], opacity: animation.value };
   });
-
-  const flashStyle = useAnimatedStyle(() => ({
-    opacity: flashAnim.value,
-    transform: [{ translateY: interpolate(flashAnim.value, [0, 1], [-20, 0]) }],
-  }));
 
   useEffect(() => {
     if (!profilesLoading && isRefreshing) setIsRefreshing(false);
@@ -273,8 +287,6 @@ const Home = () => {
 
     const pushNotification = (payload) => {
       const normalized = mapPayload(payload);
-
-      // Add to notification list
       setNotifications((prev) => {
         const existing = prev.find(
           (item) => String(item.id) === String(normalized.id)
@@ -291,8 +303,6 @@ const Home = () => {
         );
         return [next, ...deduped].slice(0, MAX_NOTIFICATIONS);
       });
-
-      // Show banner (respects modal-open check inside enqueueBanner)
       enqueueBanner(normalized);
     };
 
@@ -377,7 +387,6 @@ const Home = () => {
     setShowNotificationsModal(false);
   };
 
-  // Tapping the banner navigates just like tapping in the modal
   const handleBannerPress = (notification) => {
     if (!notification) return;
     markNotificationAsRead(notification.id);
@@ -435,10 +444,20 @@ const Home = () => {
         </View>
       </View>
 
-      {flashMessage && (
-        <Animated.View style={[styles.flashMessage, flashStyle]}>
-          <Text style={styles.flashText}>{flashMessage}</Text>
-        </Animated.View>
+      {/* ── BOND / NOPE stamp badge ── */}
+      {swipeBadgeDirection !== null && (
+        <Animated.Image
+          source={swipeBadgeDirection === "right" ? BOND_BADGE : NOPE_BADGE}
+          style={[
+            styles.swipeBadge,
+            swipeBadgeDirection === "right"
+              ? styles.swipeBadgeRight   // BOND on the left side of screen
+              : styles.swipeBadgeLeft,   // NOPE on the right side of screen
+            badgeAnimStyle,
+          ]}
+          resizeMode="contain"
+          pointerEvents="none"
+        />
       )}
 
       <ScrollView
@@ -565,17 +584,25 @@ const styles = StyleSheet.create({
     right: 0,
     zIndex: 10,
   },
-  flashMessage: {
+
+  // ── BOND / NOPE stamp badges ─────────────────────────────────────────────
+  swipeBadge: {
     position: "absolute",
-    top: 80,
-    alignSelf: "center",
-    backgroundColor: "rgba(0,0,0,0.6)",
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 20,
-    zIndex: 100,
+    width: 200,
+    height: 100,
+    zIndex: 200,
   },
-  flashText: { color: "#fff", fontSize: 16, fontWeight: "bold" },
+  // Swiped right → show BOND badge on the LEFT side (where thumb drags from)
+  swipeBadgeRight: {
+    top: "30%",
+    left: "5%",
+  },
+  // Swiped left → show NOPE badge on the RIGHT side
+  swipeBadgeLeft: {
+    top: "30%",
+    right: "5%",
+  },
+
   aroundYouContainer: { flex: 1 },
   notificationsBadge: {
     position: "absolute",

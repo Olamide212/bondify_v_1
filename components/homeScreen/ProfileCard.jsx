@@ -17,6 +17,8 @@ import {
   Wine,
 } from "lucide-react-native";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Share } from "react-native";
+import BlockReportModal from "../modals/Blockreportmodal";
 import {
   Animated,
   Dimensions,
@@ -70,6 +72,21 @@ const ProfileCard = ({ profile }) => {
   const [imageLayouts, setImageLayouts] = useState({});
   const [visibleCommentBoxIndex, setVisibleCommentBoxIndex] = useState(null);
   const [scrollOffset, setScrollOffset] = useState(0);
+  const [blockReportModal, setBlockReportModal] = useState({ visible: false, mode: "block" });
+
+  const openBlock  = () => setBlockReportModal({ visible: true, mode: "block" });
+  const openReport = () => setBlockReportModal({ visible: true, mode: "report" });
+  const closeModal = () => setBlockReportModal((prev) => ({ ...prev, visible: false }));
+
+  const handleShare = async () => {
+    const name = profile?.name || profile?.firstName || "someone";
+    try {
+      await Share.share({
+        title: `Check out ${name}'s profile on Bondies`,
+        message: `Hey! I found someone interesting on Bondies — ${name}. Download the app to connect! 💛`,
+      });
+    } catch {}
+  };
 
   const scrollViewRef = useRef(null);
   const commentBoxRefs = useRef([]);
@@ -525,25 +542,51 @@ const ProfileCard = ({ profile }) => {
 
             {/* ── Share / Block / Report ── */}
             <View className="flex-row justify-between gap-4 my-4">
-              <View className="flex-1 p-5 justify-center items-center rounded-2xl">
-                <View className="w-16 h-16 bg-white flex-row justify-center items-center rounded-full">
+              <TouchableOpacity
+                className="flex-1 p-5 justify-center items-center rounded-2xl"
+                onPress={handleShare}
+                activeOpacity={0.75}
+              >
+                <View className="w-16 h-16 bg-white flex-row justify-center items-center rounded-full shadow-sm">
                   <Share2 size={26} color="black" />
                 </View>
                 <Text className="mt-3 font-PlusJakartaSansMedium">Share</Text>
-              </View>
-              <View className="flex-1 p-5 justify-center items-center rounded-2xl">
-                <View className="w-16 h-16 bg-white flex-row justify-center items-center rounded-full">
-                  <Ban size={26} color="black" />
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                className="flex-1 p-5 justify-center items-center rounded-2xl"
+                onPress={openBlock}
+                activeOpacity={0.75}
+              >
+                <View className="w-16 h-16 bg-red-50 flex-row justify-center items-center rounded-full">
+                  <Ban size={26} color="#EF4444" />
                 </View>
-                <Text className="mt-3 font-PlusJakartaSansMedium">Block</Text>
-              </View>
-              <View className="flex-1 p-5 justify-center items-center rounded-2xl">
-                <View className="w-16 h-16 bg-white flex-row justify-center items-center rounded-full">
-                  <Flag size={26} color="black" />
+                <Text className="mt-3 font-PlusJakartaSansMedium text-red-500">Block</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                className="flex-1 p-5 justify-center items-center rounded-2xl"
+                onPress={openReport}
+                activeOpacity={0.75}
+              >
+                <View className="w-16 h-16 bg-orange-50 flex-row justify-center items-center rounded-full">
+                  <Flag size={26} color="#F59E0B" />
                 </View>
-                <Text className="mt-3 font-PlusJakartaSansMedium">Report</Text>
-              </View>
+                <Text className="mt-3 font-PlusJakartaSansMedium text-yellow-600">Report</Text>
+              </TouchableOpacity>
             </View>
+
+            {/* ── Block / Report Modal ── */}
+            <BlockReportModal
+              visible={blockReportModal.visible}
+              mode={blockReportModal.mode}
+              profile={profile}
+              onClose={closeModal}
+              onSuccess={(mode) => {
+                closeModal();
+                // Parent can handle navigation away after block if needed
+              }}
+            />
 
           </View>
         </View>

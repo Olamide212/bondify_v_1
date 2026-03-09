@@ -4,6 +4,7 @@ const {
 } = require('@aws-sdk/client-s3');
 const s3 = require('../config/s3');
 const User = require('../models/User');
+const Match = require('../models/Match');
 const { mapImagesWithAccessUrls } = require('../utils/imageHelper');
 
 const PROFILE_CACHE_TTL_MS = Number(process.env.PROFILE_CACHE_TTL_MS || 30000);
@@ -341,6 +342,60 @@ const getMyProfile = async (req, res, next) => {
   }
 };
 
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  PASTE INTO YOUR EXISTING profileController.js
+//  Requires: Match model (already imported in matchController — add to profile
+//  controller imports if not there):
+//    const Match = require('../models/Match');
+//  Then add  getProfileStats  to module.exports.
+// ─────────────────────────────────────────────────────────────────────────────
+
+// @desc    Get current user's profile stats (matches, likes received, profile views)
+// @route   GET /api/profile/stats
+// @access  Private
+const getProfileStats = async (req, res, next) => {
+  try {
+    const userId = req.user._id;
+
+    // Run all three counts in parallel for speed
+    const [user, matchCount] = await Promise.all([
+      // likesReceived is already maintained on the User document
+      User.findById(userId).select('likesReceived profileViews'),
+
+      // Count active matches where this user is a participant
+      Match.countDocuments({
+        users:  { $elemMatch: { $eq: userId } },
+        status: 'matched',
+      }),
+    ]);
+
+    res.json({
+      success: true,
+      data: {
+        matches:      matchCount              ?? 0,
+        likes:        user?.likesReceived     ?? 0,
+        profileViews: user?.profileViews      ?? 0,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// ─── Profile view tracker ─────────────────────────────────────────────────────
+// Call this whenever someone views another user's profile.
+// Already wired to GET /api/profile/:id  — add the increment there.
+//
+// Inside your existing getProfile controller, after fetching the profile user,
+// add this line (don't await it — fire-and-forget so it doesn't slow the response):
+//
+//   User.findByIdAndUpdate(profileUserId, { $inc: { profileViews: 1 } }).exec();
+//
+// Also add  profileViews: { type: Number, default: 0 }  to your User schema if
+// it doesn't exist yet.
+// ─────────────────────────────────────────────────────────────────────────────
+
 module.exports = {
   updateProfile,
   completeOnboarding,
@@ -348,4 +403,5 @@ module.exports = {
   getMyProfile,
   uploadVoicePrompt,
   deleteVoicePrompt,
+  getProfileStats
 };

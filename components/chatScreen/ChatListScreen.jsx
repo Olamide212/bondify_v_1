@@ -327,7 +327,7 @@ const ChatListScreen = ({ users, onSelectUser, isLoading = false }) => {
 
   return (
     <SafeAreaView style={styles.listContainer}>
-      <GeneralHeader title="Your messages" className="text-black" />
+      <GeneralHeader title="Chats" className="text-black" />
 
       {/* ── New Matches ── */}
       <Text style={styles.sectionLabel}>New Matches</Text>
