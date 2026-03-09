@@ -324,6 +324,75 @@ const getPassed = async (params = {}) => {
   }
 };
 
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  ADD THESE TWO METHODS TO YOUR EXISTING profileService.js
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Paste these alongside your existing profileService methods:
+
+  /**
+   * Upload a voice prompt audio file.
+   * @param {string} localUri — local file URI from expo-av recording
+   * @returns {{ voicePrompt: string, voicePromptPublicId: string }}
+   */
+  const uploadVoicePrompt = async (localUri) => {
+    const formData = new FormData();
+
+    // Derive filename and mime from URI
+    const filename  = localUri.split('/').pop() || 'voice.m4a';
+    const extension = filename.split('.').pop()?.toLowerCase() || 'm4a';
+    const mimeMap   = { m4a: 'audio/m4a', mp4: 'audio/mp4', aac: 'audio/aac', wav: 'audio/wav', mp3: 'audio/mpeg' };
+    const mimeType  = mimeMap[extension] || 'audio/m4a';
+
+    formData.append('voicePrompt', {
+      uri:  localUri,
+      name: filename,
+      type: mimeType,
+    });
+
+    const response = await apiClient.post('/profile/voice-prompt', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+
+    return response.data?.data ?? {};
+  };
+
+  /**
+   * Delete the current user's voice prompt.
+   */
+  const deleteVoicePrompt = async () => {
+    const response = await apiClient.delete('/profile/voice-prompt');
+    return response.data;
+  };
+
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  ADD THESE TWO ROUTES TO YOUR profileRoutes.js
+// ─────────────────────────────────────────────────────────────────────────────
+
+// (assuming multer is already configured for photo uploads — reuse the same instance)
+
+// const upload = multer({ storage: multer.memoryStorage() });
+
+// router.post('/voice-prompt',   protect, upload.single('voicePrompt'), uploadVoicePrompt);
+// router.delete('/voice-prompt', protect, deleteVoicePrompt);
+
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  ADD THESE FIELDS TO YOUR User.js MONGOOSE MODEL (inside the schema)
+// ─────────────────────────────────────────────────────────────────────────────
+
+// voicePrompt:          { type: String, default: null },   // Cloudinary secure_url
+// voicePromptPublicId:  { type: String, default: null },   // Cloudinary public_id for deletion
+
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  INSTALL (if not already present)
+// ─────────────────────────────────────────────────────────────────────────────
+
+// npx expo install expo-av expo-file-system
+
 export const profileService = {
   getMyProfile,
   getProfileById,
@@ -337,4 +406,6 @@ export const profileService = {
   getLikedYou,
   getYouLiked,
   getPassed,
+  uploadVoicePrompt,
+  deleteVoicePrompt,
 };

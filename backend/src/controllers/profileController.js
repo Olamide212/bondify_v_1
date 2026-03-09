@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const { mapImagesWithAccessUrls } = require('../utils/imageHelper');
+const cloudinary = require('../utils/cloudinary'); // adjust path as needed
 
 const PROFILE_CACHE_TTL_MS = Number(process.env.PROFILE_CACHE_TTL_MS || 30000);
 const profileCache = new Map();
@@ -126,7 +127,6 @@ const enumNormalizers = {
 
 const normalizeEnumField = (key, value) => {
   if (typeof value !== 'string') return value;
-
   const normalized = value.toLowerCase();
   return enumNormalizers[key]?.[normalized] || value;
 };
@@ -169,7 +169,6 @@ const normalizeBirthFields = (updates) => {
     const parsedDate = new Date(dateOfBirthValue);
     if (!Number.isNaN(parsedDate.getTime())) {
       normalizedUpdates.dateOfBirth = parsedDate;
-
       const computedAge = calculateAgeFromDate(parsedDate);
       if (typeof computedAge === 'number' && !Number.isNaN(computedAge)) {
         normalizedUpdates.age = computedAge;
@@ -185,6 +184,104 @@ const normalizeBirthFields = (updates) => {
   return normalizedUpdates;
 };
 
+// ─────────────────────────────────────────────────────────────────────────────
+//  VOICE PROMPT UPLOAD
+//  Receives a local file URI from the app (multipart/form-data, field: "voicePrompt")
+//  Uploads to Cloudinary under resource_type: 'video' (Cloudinary stores audio as video)
+//  Returns a signed URL stored on user.voicePrompt
+// ─────────────────────────────────────────────────────────────────────────────
+
+// @desc    Upload or replace voice prompt
+// @route   POST /api/profile/voice-prompt
+// @access  Private
+const uploadVoicePrompt = async (req, res, next) => {
+  try {
+    const userId = req.user._id;
+
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: 'No audio file provided.' });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found.' });
+    }
+
+    // Delete old voice prompt from Cloudinary if it exists
+    if (user.voicePromptPublicId) {
+      await cloudinary.uploader.destroy(user.voicePromptPublicId, { resource_type: 'video' }).catch(() => {});
+    }
+
+    // Upload new audio to Cloudinary
+    const uploadResult = await new Promise((resolve, reject) => {
+      const stream = cloudinary.uploader.upload_stream(
+        {
+          resource_type: 'video', // Cloudinary treats audio as video
+          folder: `bondies/voice_prompts/${String(userId)}`,
+          public_id: `voice_${Date.now()}`,
+          overwrite: true,
+        },
+        (error, result) => {
+          if (error) return reject(error);
+          resolve(result);
+        }
+      );
+      stream.end(req.file.buffer);
+    });
+
+    user.voicePrompt         = uploadResult.secure_url;
+    user.voicePromptPublicId = uploadResult.public_id;
+    user.calculateCompletion();
+    await user.save();
+
+    clearProfileCache(userId);
+
+    res.json({
+      success: true,
+      message: 'Voice prompt uploaded successfully.',
+      data: {
+        voicePrompt: user.voicePrompt,
+        voicePromptPublicId: user.voicePromptPublicId,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Delete voice prompt
+// @route   DELETE /api/profile/voice-prompt
+// @access  Private
+const deleteVoicePrompt = async (req, res, next) => {
+  try {
+    const userId = req.user._id;
+    const user   = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found.' });
+    }
+
+    if (user.voicePromptPublicId) {
+      await cloudinary.uploader.destroy(user.voicePromptPublicId, { resource_type: 'video' }).catch(() => {});
+    }
+
+    user.voicePrompt         = null;
+    user.voicePromptPublicId = null;
+    user.calculateCompletion();
+    await user.save();
+
+    clearProfileCache(userId);
+
+    res.json({ success: true, message: 'Voice prompt deleted.' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  EXISTING CONTROLLERS (unchanged)
+// ─────────────────────────────────────────────────────────────────────────────
+
 // @desc    Update user profile
 // @route   PATCH /api/profile
 // @access  Private
@@ -199,6 +296,9 @@ const updateProfile = async (req, res, next) => {
     delete updates.isVerified;
     delete updates.otp;
     delete updates.otpExpiry;
+    // voice prompt is handled by its own endpoint
+    delete updates.voicePrompt;
+    delete updates.voicePromptPublicId;
 
     updates = normalizeBirthFields(updates);
 
@@ -209,16 +309,11 @@ const updateProfile = async (req, res, next) => {
     const user = await User.findById(userId);
 
     if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: 'User not found',
-      });
+      return res.status(404).json({ success: false, message: 'User not found' });
     }
 
-    // Update fields
     Object.keys(updates).forEach((key) => {
       if (updates[key] !== undefined) {
-        // Handle nested location object
         if (key === 'location' && typeof updates[key] === 'object') {
           user.location = { ...user.location, ...updates[key] };
         } else {
@@ -227,9 +322,7 @@ const updateProfile = async (req, res, next) => {
       }
     });
 
-    // Recalculate completion percentage
     user.calculateCompletion();
-
     await user.save();
 
     clearProfileCache(user._id);
@@ -250,21 +343,14 @@ const updateProfile = async (req, res, next) => {
 const completeOnboarding = async (req, res, next) => {
   try {
     const userId = req.user._id;
-
-    const user = await User.findById(userId);
+    const user   = await User.findById(userId);
 
     if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: 'User not found',
-      });
+      return res.status(404).json({ success: false, message: 'User not found' });
     }
 
     if (user.onboardingCompleted) {
-      return res.status(400).json({
-        success: false,
-        message: 'Onboarding already completed',
-      });
+      return res.status(400).json({ success: false, message: 'Onboarding already completed' });
     }
 
     user.onboardingCompleted = true;
@@ -283,32 +369,25 @@ const completeOnboarding = async (req, res, next) => {
   }
 };
 
-// @desc    Get user profile
+// @desc    Get user profile by ID
 // @route   GET /api/profile/:id
 // @access  Private
 const getProfile = async (req, res, next) => {
   try {
-    const { id } = req.params;
-    const cacheKey = `id:${String(id)}`;
+    const { id }     = req.params;
+    const cacheKey   = `id:${String(id)}`;
 
     const cachedProfile = getCachedProfile(cacheKey);
     if (cachedProfile) {
-      return res.json({
-        success: true,
-        data: { profile: cachedProfile },
-      });
+      return res.json({ success: true, data: { profile: cachedProfile } });
     }
 
     const user = await User.findById(id);
 
     if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: 'User not found',
-      });
+      return res.status(404).json({ success: false, message: 'User not found' });
     }
 
-    // Hide sensitive information
     const profile = user.toObject();
     delete profile.password;
     delete profile.otp;
@@ -317,10 +396,7 @@ const getProfile = async (req, res, next) => {
 
     setCachedProfile(cacheKey, profile);
 
-    res.json({
-      success: true,
-      data: { profile },
-    });
+    res.json({ success: true, data: { profile } });
   } catch (error) {
     next(error);
   }
@@ -335,21 +411,13 @@ const getMyProfile = async (req, res, next) => {
 
     const cachedProfile = getCachedProfile(cacheKey);
     if (cachedProfile) {
-      return res.json({
-        success: true,
-        data: {
-          user: cachedProfile,
-        },
-      });
+      return res.json({ success: true, data: { user: cachedProfile } });
     }
 
     const user = await User.findById(req.user._id);
 
     if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: 'User not found',
-      });
+      return res.status(404).json({ success: false, message: 'User not found' });
     }
 
     const responseUser = {
@@ -359,12 +427,7 @@ const getMyProfile = async (req, res, next) => {
 
     setCachedProfile(cacheKey, responseUser);
 
-    res.json({
-      success: true,
-      data: {
-        user: responseUser,
-      },
-    });
+    res.json({ success: true, data: { user: responseUser } });
   } catch (error) {
     next(error);
   }
@@ -375,4 +438,6 @@ module.exports = {
   completeOnboarding,
   getProfile,
   getMyProfile,
+  uploadVoicePrompt,
+  deleteVoicePrompt,
 };

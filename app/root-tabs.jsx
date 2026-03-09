@@ -64,11 +64,11 @@ const RootTabs = () => {
         />
 
         <Tab.Screen
-          name="AI Chat"
+          name="Map"
           component={MapScreen}
           options={{
             tabBarIcon: ({ focused }) => (
-              <TabIcon focused={focused} customImage={Icons.AiIcon} />
+              <TabIcon focused={focused} customImage={Icons.mapIcon} />
             ),
           }}
         />

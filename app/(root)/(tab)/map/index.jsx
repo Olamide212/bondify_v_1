@@ -1,33 +1,19 @@
 /**
  * MapScreen.js
  *
- * Features:
- *  • react-native-maps MapView in 3-D perspective (camera pitch)
- *  • Nearby user markers with avatar bubbles
- *  • Profile detail bottom sheet on marker tap
- *  • Filter sheet (religion × lookingFor)
- *  • "My Status" floating card — create / view / delete status
- *  • UserStatusModal — text + image, AI suggestions, nudity guard
- *
- * Dependencies (add to package.json if missing):
- *   react-native-maps
- *   expo-location
- *   expo-image-picker
- *   react-native-bottom-sheet  (or use the built-in Animated approach below)
+ * Layout:
+ *  • MAP fills entire screen (3D pitch, showsBuildings)
+ *  • Floating top bar: search bar + 3D/Filter/Refresh buttons
+ *  • Horizontal quick-filter chips below top bar
+ *  • Filter modal (bottom sheet) — religion × lookingFor
+ *  • Right-edge FABs: zoom +/−, locate me
+ *  • Profile preview card slides up from bottom on marker tap
  */
 
-import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
 import { useFocusEffect, useRouter } from 'expo-router';
 import {
-  ChevronDown,
-  Filter,
-  Loader,
-  MapPin,
-  RefreshCw,
-  Sparkles,
-  X,
-  Zap,
+  Crosshair, Filter, MapPin, Minus, Plus, RefreshCw, Search, SlidersHorizontal, X,
 } from 'lucide-react-native';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
@@ -37,9 +23,7 @@ import {
   Dimensions,
   FlatList,
   Image,
-  KeyboardAvoidingView,
   Modal,
-  Platform,
   Pressable,
   ScrollView,
   StatusBar,
@@ -56,284 +40,205 @@ import mapService from '../../../../services/mapService';
 
 const { width: SW, height: SH } = Dimensions.get('window');
 
-// ─── Constants ────────────────────────────────────────────────────────────────
-
-const REACTION_EMOJIS = { heart: '❤️', fire: '🔥', laugh: '😂', wave: '👋' };
+// ─── Filter options ───────────────────────────────────────────────────────────
 
 const RELIGION_OPTIONS = [
-  { label: 'Any', value: '' },
+  { label: 'Any',       value: '' },
   { label: 'Christian', value: 'christian' },
-  { label: 'Muslim', value: 'muslim' },
-  { label: 'Jewish', value: 'jewish' },
-  { label: 'Hindu', value: 'hindu' },
-  { label: 'Buddhist', value: 'buddhist' },
+  { label: 'Muslim',    value: 'muslim' },
+  { label: 'Jewish',    value: 'jewish' },
+  { label: 'Hindu',     value: 'hindu' },
+  { label: 'Buddhist',  value: 'buddhist' },
   { label: 'Spiritual', value: 'spiritual' },
-  { label: 'Atheist', value: 'atheist' },
-  { label: 'Other', value: 'other' },
+  { label: 'Atheist',   value: 'atheist' },
+  { label: 'Other',     value: 'other' },
 ];
 
 const LOOKING_FOR_OPTIONS = [
-  { label: 'Any', value: '' },
-  { label: 'Long term', value: 'long term' },
-  { label: 'Something casual', value: 'casual' },
-  { label: 'Short term', value: 'short term' },
-  { label: 'A committed relationship', value: 'committed' },
-  { label: 'Not sure yet', value: 'not sure' },
+  { label: 'Any',                   value: '' },
+  { label: 'Long term',             value: 'long term' },
+  { label: 'Something casual',      value: 'casual' },
+  { label: 'Short term',            value: 'short term' },
+  { label: 'Committed relationship', value: 'committed' },
+  { label: 'Not sure yet',          value: 'not sure' },
+];
+
+// Quick-access preset chips (subset of full filter)
+const QUICK_CHIPS = [
+  { label: 'Christian searching for love', religion: 'christian', lookingFor: 'long term' },
+  { label: 'Muslim searching for love',    religion: 'muslim',    lookingFor: 'long term' },
+  { label: 'Something casual',            religion: '',          lookingFor: 'casual' },
+  { label: 'Committed relationship',       religion: '',          lookingFor: 'committed' },
+  { label: 'Jewish searching for love',    religion: 'jewish',    lookingFor: 'long term' },
+  { label: 'Spiritual connections',        religion: 'spiritual', lookingFor: '' },
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  SUB-COMPONENTS
+//  MAP MARKER
 // ─────────────────────────────────────────────────────────────────────────────
 
-/** Circular avatar marker shown on the map */
-const UserMarker = ({ user, onPress, colors }) => {
-  const hasStatus = !!user.status;
+const UserMarker = ({ user, onPress }) => {
+  const photo = user.profilePhoto ?? user.images?.[0]?.url ?? user.images?.[0] ?? null;
+
   return (
     <Marker
-      coordinate={{
-        latitude:  user.coordinates[1],
-        longitude: user.coordinates[0],
-      }}
-      onPress={() => onPress(user)}
+      coordinate={{ latitude: user.coordinates[1], longitude: user.coordinates[0] }}
+      onPress={() => onPress({ ...user, _resolvedPhoto: photo })}
       tracksViewChanges={false}
+      anchor={{ x: 0.5, y: 1 }}
     >
-      <View style={mk.markerContainer}>
-        {/* Status pulse ring */}
-        {hasStatus && <View style={[mk.pulse, { borderColor: '#E8651A' }]} />}
-
-        <View style={[mk.avatarRing, { borderColor: hasStatus ? '#E8651A' : colors.primary }]}>
-          {user.profilePhoto ? (
-            <Image source={{ uri: user.profilePhoto }} style={mk.avatar} />
+      <View style={mk.wrap}>
+        <View style={mk.ring}>
+          {photo ? (
+            <Image source={{ uri: photo }} style={mk.avatar} />
           ) : (
-            <View style={[mk.avatarFallback, { backgroundColor: colors.primaryLight ?? '#EEF2FF' }]}>
-              <Text style={[mk.avatarInitial, { color: colors.primary }]}>
-                {user.firstName?.[0]?.toUpperCase() ?? '?'}
-              </Text>
+            <View style={mk.fallback}>
+              <Text style={mk.initial}>{user.firstName?.[0]?.toUpperCase() ?? '?'}</Text>
             </View>
           )}
         </View>
-
-        {/* Status text bubble */}
-        {hasStatus && user.status?.text && (
-          <View style={mk.statusBubble}>
-            <Text style={mk.statusBubbleText} numberOfLines={1}>
-              {user.status.text}
-            </Text>
-          </View>
-        )}
-
-        {/* Marker tail */}
-        <View style={[mk.tail, { borderTopColor: hasStatus ? '#E8651A' : colors.primary }]} />
+        <View style={mk.label}>
+          <Text style={mk.labelText} numberOfLines={1}>
+            {user.firstName}{user.age ? `, ${user.age}` : ''}
+          </Text>
+        </View>
       </View>
     </Marker>
   );
 };
 
 const mk = StyleSheet.create({
-  markerContainer: { alignItems: 'center' },
-  pulse: {
-    position: 'absolute', top: -4, left: -4,
-    width: 58, height: 58, borderRadius: 29,
-    borderWidth: 2, opacity: 0.4,
+  wrap:    { alignItems: 'center' },
+  ring:    {
+    width: 54, height: 54, borderRadius: 27,
+    borderWidth: 3, borderColor: '#fff',
+    overflow: 'hidden', backgroundColor: '#E5E7EB',
+    shadowColor: '#000', shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.28, shadowRadius: 5, elevation: 7,
   },
-  avatarRing: {
-    width: 50, height: 50, borderRadius: 25,
-    borderWidth: 2.5, overflow: 'hidden',
-    backgroundColor: '#fff',
+  avatar:   { width: 48, height: 48, borderRadius: 24 },
+  fallback: {
+    width: 48, height: 48, borderRadius: 24,
+    backgroundColor: '#EEF2FF', alignItems: 'center', justifyContent: 'center',
   },
-  avatar: { width: 46, height: 46, borderRadius: 23 },
-  avatarFallback: {
-    width: 46, height: 46, borderRadius: 23,
-    alignItems: 'center', justifyContent: 'center',
+  initial:  { fontSize: 18, fontFamily: 'PlusJakartaSansBold', color: '#6366F1' },
+  label:    {
+    marginTop: 5, backgroundColor: '#fff',
+    paddingHorizontal: 9, paddingVertical: 3, borderRadius: 10,
+    shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.14, shadowRadius: 3, elevation: 3,
   },
-  avatarInitial: { fontSize: 18, fontFamily: 'PlusJakartaSansBold' },
-  statusBubble: {
-    marginTop: 4, backgroundColor: '#E8651A',
-    paddingHorizontal: 8, paddingVertical: 3,
-    borderRadius: 10, maxWidth: 120,
-  },
-  statusBubbleText: {
-    color: '#fff', fontSize: 10,
-    fontFamily: 'PlusJakartaSans',
-  },
-  tail: {
-    width: 0, height: 0,
-    borderLeftWidth: 5, borderRightWidth: 5, borderTopWidth: 7,
-    borderLeftColor: 'transparent', borderRightColor: 'transparent',
-  },
+  labelText: { fontSize: 11, fontFamily: 'PlusJakartaSansBold', color: '#111' },
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  PROFILE DETAIL SHEET
+//  PROFILE PREVIEW CARD
 // ─────────────────────────────────────────────────────────────────────────────
 
-const ProfileSheet = ({ user, onClose, colors }) => {
-  const router = useRouter();
-  const slideY = useRef(new Animated.Value(SH)).current;
+const ProfileCard = ({ user, onClose }) => {
+  const router  = useRouter();
+  const slideY  = useRef(new Animated.Value(220)).current;
+  const opacity = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     if (user) {
-      Animated.spring(slideY, {
-        toValue: 0, useNativeDriver: true, bounciness: 4,
-      }).start();
+      Animated.parallel([
+        Animated.spring(slideY,  { toValue: 0,   useNativeDriver: true, bounciness: 6 }),
+        Animated.timing(opacity, { toValue: 1,   duration: 200, useNativeDriver: true }),
+      ]).start();
+    } else {
+      Animated.parallel([
+        Animated.timing(slideY,  { toValue: 220, duration: 260, useNativeDriver: true }),
+        Animated.timing(opacity, { toValue: 0,   duration: 200, useNativeDriver: true }),
+      ]).start();
     }
   }, [user]);
 
-  const dismiss = () => {
-    Animated.timing(slideY, {
-      toValue: SH, duration: 280, useNativeDriver: true,
-    }).start(onClose);
-  };
-
-  if (!user) return null;
-
-  const pill = (label) => (
-    <View key={label} style={[ps.pill, { backgroundColor: colors.primaryLight ?? '#EEF2FF', borderColor: colors.primaryBorder ?? '#C7D2FE' }]}>
-      <Text style={[ps.pillText, { color: colors.primary }]}>{label}</Text>
-    </View>
-  );
+  const photo = user?._resolvedPhoto ?? null;
 
   return (
-    <Modal transparent animationType="none" visible={!!user} onRequestClose={dismiss}>
-      <Pressable style={ps.backdrop} onPress={dismiss} />
-      <Animated.View
-        style={[ps.sheet, { backgroundColor: colors.surface, transform: [{ translateY: slideY }] }]}
+    <Animated.View
+      pointerEvents={user ? 'auto' : 'none'}
+      style={[pc.card, { opacity, transform: [{ translateY: slideY }] }]}
+    >
+      <View style={pc.avatarWrap}>
+        {photo ? (
+          <Image source={{ uri: photo }} style={pc.avatar} resizeMode="cover" />
+        ) : (
+          <View style={[pc.avatar, pc.avatarFallback]}>
+            <Text style={pc.avatarInitial}>{user?.firstName?.[0]?.toUpperCase() ?? '?'}</Text>
+          </View>
+        )}
+        <View style={pc.onlineDot} />
+      </View>
+
+      <View style={pc.info}>
+        <Text style={pc.name} numberOfLines={1}>
+          {user?.firstName}{user?.age ? `, ${user.age}` : ''}
+        </Text>
+        <Text style={pc.sub} numberOfLines={1}>
+          {[user?.city && `📍 ${user.city}`, user?.religion && `🙏 ${user.religion}`]
+            .filter(Boolean).join('   ')}
+        </Text>
+      </View>
+
+      <TouchableOpacity
+        style={pc.btn}
+        activeOpacity={0.88}
+        onPress={() => {
+          onClose();
+          router.push({ pathname: '/user-profile', params: { userId: user?._id } });
+        }}
       >
-        {/* Handle */}
-        <View style={[ps.handle, { backgroundColor: colors.border }]} />
+        <Text style={pc.btnText}>View Profile</Text>
+      </TouchableOpacity>
 
-        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }}>
-          {/* Cover photo */}
-          <View style={ps.coverWrapper}>
-            {user.profilePhoto ? (
-              <Image source={{ uri: user.profilePhoto }} style={ps.cover} resizeMode="cover" />
-            ) : (
-              <View style={[ps.cover, { backgroundColor: colors.primaryLight }]} />
-            )}
-            <View style={ps.coverGradient} />
-            <TouchableOpacity style={ps.closeBtn} onPress={dismiss}>
-              <X size={18} color="#fff" strokeWidth={2.5} />
-            </TouchableOpacity>
-          </View>
-
-          <View style={{ paddingHorizontal: 20, paddingTop: 14 }}>
-            {/* Name + age */}
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-              <Text style={[ps.name, { color: colors.textPrimary }]}>
-                {user.firstName}{user.age ? `, ${user.age}` : ''}
-              </Text>
-              {user.verified && (
-                <View style={ps.verifiedBadge}>
-                  <Text style={{ fontSize: 10, color: '#fff' }}>✓</Text>
-                </View>
-              )}
-            </View>
-
-            {/* Location */}
-            {user.city && (
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: 12 }}>
-                <MapPin size={13} color={colors.textTertiary} />
-                <Text style={[ps.sub, { color: colors.textSecondary }]}>{user.city}</Text>
-              </View>
-            )}
-
-            {/* Pills */}
-            <View style={ps.pills}>
-              {user.religion && pill(`🙏 ${user.religion}`)}
-              {user.lookingFor && pill(`💛 ${user.lookingFor}`)}
-              {user.gender && pill(user.gender)}
-            </View>
-
-            {/* Active status */}
-            {user.status?.text && (
-              <View style={[ps.statusCard, { backgroundColor: '#FFF7ED', borderColor: '#FED7AA' }]}>
-                <Text style={ps.statusCardText}>&quot;{user.status.text}&quot;</Text>
-              </View>
-            )}
-            {user.status?.imageUrl && (
-              <Image
-                source={{ uri: user.status.imageUrl }}
-                style={ps.statusImage}
-                resizeMode="cover"
-              />
-            )}
-          </View>
-        </ScrollView>
-
-        {/* CTA */}
-        <View style={[ps.footer, { borderTopColor: colors.border, backgroundColor: colors.surface }]}>
-          <TouchableOpacity
-            style={[ps.msgBtn, { backgroundColor: colors.primary }]}
-            onPress={() => { dismiss(); /* router.push(`/chat/${user._id}`) */ }}
-          >
-            <Text style={ps.msgBtnText}>Say Hello 👋</Text>
-          </TouchableOpacity>
-        </View>
-      </Animated.View>
-    </Modal>
+      <TouchableOpacity style={pc.closeBtn} onPress={onClose} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+        <X size={15} color="#9CA3AF" strokeWidth={2.5} />
+      </TouchableOpacity>
+    </Animated.View>
   );
 };
 
-const ps = StyleSheet.create({
-  backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.45)' },
-  sheet: {
-    position: 'absolute', bottom: 0, left: 0, right: 0,
-    borderTopLeftRadius: 24, borderTopRightRadius: 24,
-    maxHeight: SH * 0.82, overflow: 'hidden',
+const pc = StyleSheet.create({
+  card: {
+    position: 'absolute', bottom: 28, left: 16, right: 16,
+    borderRadius: 24, padding: 14,
+    flexDirection: 'row', alignItems: 'center', gap: 14,
+    backgroundColor: '#fff',
+    shadowColor: '#000', shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.18, shadowRadius: 24, elevation: 14,
   },
-  handle: {
-    width: 36, height: 4, borderRadius: 2,
-    alignSelf: 'center', marginTop: 10, marginBottom: 4,
+  avatarWrap:     { position: 'relative' },
+  avatar:         { width: 66, height: 66, borderRadius: 18 },
+  avatarFallback: { backgroundColor: '#EEF2FF', alignItems: 'center', justifyContent: 'center' },
+  avatarInitial:  { fontSize: 26, fontFamily: 'PlusJakartaSansBold', color: '#6366F1' },
+  onlineDot: {
+    position: 'absolute', bottom: 2, right: 2,
+    width: 13, height: 13, borderRadius: 7,
+    backgroundColor: '#22C55E', borderWidth: 2, borderColor: '#fff',
   },
-  coverWrapper: { width: '100%', height: 220, position: 'relative' },
-  cover: { width: '100%', height: '100%' },
-  coverGradient: {
-    position: 'absolute', bottom: 0, left: 0, right: 0, height: 80,
-    background: 'transparent',
-  },
-  closeBtn: {
-    position: 'absolute', top: 12, right: 12,
-    backgroundColor: 'rgba(0,0,0,0.45)', borderRadius: 20, padding: 8,
-  },
-  name: { fontSize: 24, fontFamily: 'PlusJakartaSansBold' },
-  sub: { fontSize: 13, fontFamily: 'PlusJakartaSans' },
-  pills: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 14 },
-  pill: {
-    paddingHorizontal: 12, paddingVertical: 5,
-    borderRadius: 99, borderWidth: 1,
-  },
-  pillText: { fontSize: 12, fontFamily: 'PlusJakartaSansMedium' },
-  verifiedBadge: {
-    backgroundColor: '#3B82F6', width: 20, height: 20,
-    borderRadius: 10, alignItems: 'center', justifyContent: 'center',
-  },
-  statusCard: {
-    borderRadius: 12, borderWidth: 1, padding: 12, marginBottom: 12,
-  },
-  statusCardText: {
-    fontSize: 14, fontFamily: 'PlusJakartaSans',
-    color: '#92400E', fontStyle: 'italic',
-  },
-  statusImage: { width: '100%', height: 160, borderRadius: 12, marginBottom: 12 },
-  footer: {
-    padding: 16, borderTopWidth: StyleSheet.hairlineWidth,
-  },
-  msgBtn: {
-    borderRadius: 50, paddingVertical: 15, alignItems: 'center',
-  },
-  msgBtnText: { color: '#fff', fontSize: 16, fontFamily: 'PlusJakartaSansBold' },
+  info:    { flex: 1 },
+  name:    { fontSize: 17, fontFamily: 'PlusJakartaSansBold', color: '#111827', marginBottom: 4 },
+  sub:     { fontSize: 12, fontFamily: 'PlusJakartaSans', color: '#6B7280' },
+  btn:     { backgroundColor: '#E8651A', paddingHorizontal: 16, paddingVertical: 11, borderRadius: 50 },
+  btnText: { color: '#fff', fontFamily: 'PlusJakartaSansBold', fontSize: 13 },
+  closeBtn: { position: 'absolute', top: 10, right: 12, padding: 4 },
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  FILTER SHEET
+//  FILTER MODAL  — full bottom sheet
 // ─────────────────────────────────────────────────────────────────────────────
 
-const FilterSheet = ({ visible, filters, onChange, onApply, onClose, colors }) => {
+const FilterModal = ({ visible, filters, onChange, onApply, onReset, onClose, colors }) => {
   const slideY = useRef(new Animated.Value(SH)).current;
 
   useEffect(() => {
     Animated.spring(slideY, {
-      toValue: visible ? 0 : SH, useNativeDriver: true, bounciness: 3,
+      toValue: visible ? 0 : SH,
+      useNativeDriver: true,
+      bounciness: visible ? 3 : 0,
+      speed: visible ? 14 : 20,
     }).start();
   }, [visible]);
 
@@ -341,46 +246,73 @@ const FilterSheet = ({ visible, filters, onChange, onApply, onClose, colors }) =
     <TouchableOpacity
       onPress={onPress}
       style={[
-        fs.chip,
+        fm.chip,
         active
-          ? { backgroundColor: colors.primary, borderColor: colors.primary }
+          ? { backgroundColor: '#E8651A', borderColor: '#E8651A' }
           : { backgroundColor: colors.surface, borderColor: colors.border },
       ]}
     >
-      <Text style={[fs.chipText, { color: active ? '#fff' : colors.textPrimary }]}>{label}</Text>
+      <Text style={[fm.chipText, { color: active ? '#fff' : colors.textPrimary }]}>{label}</Text>
     </TouchableOpacity>
   );
 
+  const activeCount = [filters.religion, filters.lookingFor].filter(Boolean).length;
+
   return (
     <Modal transparent animationType="none" visible={visible} onRequestClose={onClose}>
-      <Pressable style={ps.backdrop} onPress={onClose} />
+      {/* Dimmed backdrop */}
+      <Pressable style={fm.backdrop} onPress={onClose} />
+
       <Animated.View
-        style={[fs.sheet, { backgroundColor: colors.surface, transform: [{ translateY: slideY }] }]}
+        style={[fm.sheet, { backgroundColor: colors.surface, transform: [{ translateY: slideY }] }]}
       >
-        <View style={[fs.header, { borderBottomColor: colors.border }]}>
-          <Text style={[fs.title, { color: colors.textPrimary }]}>Filter people</Text>
-          <TouchableOpacity onPress={onClose}>
-            <X size={22} color={colors.textPrimary} />
+        {/* Drag handle */}
+        <View style={[fm.handle, { backgroundColor: colors.border }]} />
+
+        {/* Header */}
+        <View style={[fm.header, { borderBottomColor: colors.border }]}>
+          <View>
+            <Text style={[fm.title, { color: colors.textPrimary }]}>Filter people</Text>
+            {activeCount > 0 && (
+              <Text style={[fm.subtitle, { color: colors.textSecondary }]}>
+                {activeCount} filter{activeCount > 1 ? 's' : ''} active
+              </Text>
+            )}
+          </View>
+          <TouchableOpacity
+            style={[fm.closeCircle, { backgroundColor: colors.background }]}
+            onPress={onClose}
+          >
+            <X size={16} color={colors.textSecondary} strokeWidth={2.5} />
           </TouchableOpacity>
         </View>
 
-        <ScrollView contentContainerStyle={{ padding: 20, gap: 20 }}>
-          <Text style={[fs.sectionTitle, { color: colors.textSecondary }]}>Religion</Text>
-          <View style={fs.chips}>
+        <ScrollView
+          contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 20, paddingBottom: 32, gap: 6 }}
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Religion */}
+          <Text style={[fm.sectionLabel, { color: colors.textSecondary }]}>🙏  Religion</Text>
+          <View style={fm.chips}>
             {RELIGION_OPTIONS.map((o) => (
               <Chip
-                key={o.value} label={o.label}
+                key={o.value}
+                label={o.label}
                 active={filters.religion === o.value}
                 onPress={() => onChange('religion', o.value)}
               />
             ))}
           </View>
 
-          <Text style={[fs.sectionTitle, { color: colors.textSecondary, marginTop: 8 }]}>Looking for</Text>
-          <View style={fs.chips}>
+          <View style={[fm.divider, { backgroundColor: colors.border }]} />
+
+          {/* Looking for */}
+          <Text style={[fm.sectionLabel, { color: colors.textSecondary }]}>💛  Looking for</Text>
+          <View style={fm.chips}>
             {LOOKING_FOR_OPTIONS.map((o) => (
               <Chip
-                key={o.value} label={o.label}
+                key={o.value}
+                label={o.label}
                 active={filters.lookingFor === o.value}
                 onPress={() => onChange('lookingFor', o.value)}
               />
@@ -388,18 +320,19 @@ const FilterSheet = ({ visible, filters, onChange, onApply, onClose, colors }) =
           </View>
         </ScrollView>
 
-        <View style={[fs.footer, { borderTopColor: colors.border, backgroundColor: colors.surface }]}>
+        {/* Footer */}
+        <View style={[fm.footer, { borderTopColor: colors.border, backgroundColor: colors.surface }]}>
           <TouchableOpacity
-            style={[fs.resetBtn, { borderColor: colors.border }]}
-            onPress={() => { onChange('religion', ''); onChange('lookingFor', ''); }}
+            style={[fm.resetBtn, { borderColor: colors.border }]}
+            onPress={onReset}
           >
-            <Text style={[fs.resetText, { color: colors.textSecondary }]}>Reset</Text>
+            <Text style={[fm.resetText, { color: colors.textSecondary }]}>Reset</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[fs.applyBtn, { backgroundColor: colors.primary }]}
+            style={fm.applyBtn}
             onPress={onApply}
           >
-            <Text style={fs.applyText}>Show results</Text>
+            <Text style={fm.applyText}>Show results</Text>
           </TouchableOpacity>
         </View>
       </Animated.View>
@@ -407,311 +340,55 @@ const FilterSheet = ({ visible, filters, onChange, onApply, onClose, colors }) =
   );
 };
 
-const fs = StyleSheet.create({
+const fm = StyleSheet.create({
+  backdrop: {
+    flex: 1, backgroundColor: 'rgba(0,0,0,0.42)',
+  },
   sheet: {
     position: 'absolute', bottom: 0, left: 0, right: 0,
-    borderTopLeftRadius: 24, borderTopRightRadius: 24,
-    maxHeight: SH * 0.75,
+    borderTopLeftRadius: 26, borderTopRightRadius: 26,
+    maxHeight: SH * 0.78,
+    overflow: 'hidden',
+  },
+  handle: {
+    width: 38, height: 4, borderRadius: 2,
+    alignSelf: 'center', marginTop: 12, marginBottom: 4,
   },
   header: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingHorizontal: 20, paddingVertical: 16, borderBottomWidth: StyleSheet.hairlineWidth,
+    flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between',
+    paddingHorizontal: 20, paddingVertical: 16,
+    borderBottomWidth: StyleSheet.hairlineWidth,
   },
-  title: { fontSize: 18, fontFamily: 'PlusJakartaSansBold' },
-  sectionTitle: { fontSize: 12, fontFamily: 'PlusJakartaSansBold', letterSpacing: 0.8, textTransform: 'uppercase' },
-  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  chip: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 99, borderWidth: 1 },
+  title:    { fontSize: 19, fontFamily: 'PlusJakartaSansBold' },
+  subtitle: { fontSize: 12, fontFamily: 'PlusJakartaSans', marginTop: 2 },
+  closeCircle: {
+    width: 34, height: 34, borderRadius: 17,
+    alignItems: 'center', justifyContent: 'center',
+  },
+  sectionLabel: {
+    fontSize: 12, fontFamily: 'PlusJakartaSansBold',
+    letterSpacing: 0.6, textTransform: 'uppercase',
+    marginBottom: 10, marginTop: 4,
+  },
+  chips:   { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  chip:    { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 99, borderWidth: 1 },
   chipText: { fontSize: 13, fontFamily: 'PlusJakartaSansMedium' },
+  divider: { height: StyleSheet.hairlineWidth, marginVertical: 16 },
   footer: {
-    flexDirection: 'row', gap: 12, padding: 16,
+    flexDirection: 'row', gap: 12,
+    paddingHorizontal: 20, paddingVertical: 16,
     borderTopWidth: StyleSheet.hairlineWidth,
   },
   resetBtn: {
     flex: 1, borderRadius: 50, paddingVertical: 14,
     alignItems: 'center', borderWidth: 1,
   },
-  resetText: { fontSize: 15, fontFamily: 'PlusJakartaSansMedium' },
-  applyBtn: { flex: 2, borderRadius: 50, paddingVertical: 14, alignItems: 'center' },
-  applyText: { color: '#fff', fontSize: 15, fontFamily: 'PlusJakartaSansBold' },
-});
-
-// ─────────────────────────────────────────────────────────────────────────────
-//  STATUS MODAL
-// ─────────────────────────────────────────────────────────────────────────────
-
-const StatusModal = ({ visible, myStatus, location, onClose, onSaved, colors }) => {
-  const [text, setText]                 = useState('');
-  const [imageUri, setImageUri]         = useState(null);
-  const [suggestions, setSuggestions]   = useState([]);
-  const [loadingAI, setLoadingAI]       = useState(false);
-  const [saving, setSaving]             = useState(false);
-  const [tab, setTab]                   = useState('write'); // 'write' | 'view'
-
-  useEffect(() => {
-    if (visible && myStatus) {
-      setText(myStatus.text || '');
-      setTab('view');
-    } else if (visible) {
-      setText('');
-      setImageUri(null);
-      setTab('write');
-    }
-  }, [visible, myStatus]);
-
-  const pickImage = async () => {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== 'granted') {
-      Alert.alert('Permission needed', 'Please allow photo access in Settings.');
-      return;
-    }
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true, aspect: [4, 3], quality: 0.8,
-    });
-    if (!result.canceled) setImageUri(result.assets[0].uri);
-  };
-
-  const fetchSuggestions = async () => {
-    setLoadingAI(true);
-    try {
-      const items = await mapService.getAISuggestions({ mood: text || undefined });
-      setSuggestions(items);
-    } catch {
-      Alert.alert('Could not load suggestions', 'Please try again.');
-    } finally {
-      setLoadingAI(false);
-    }
-  };
-
-  const handlePost = async () => {
-    if (!text.trim() && !imageUri) {
-      Alert.alert('Empty status', 'Add some text or a photo before posting.');
-      return;
-    }
-    if (!location) {
-      Alert.alert('Location needed', 'Enable location to post a status.');
-      return;
-    }
-    setSaving(true);
-    try {
-      await mapService.createStatus({
-        text:      text.trim() || undefined,
-        imageUrl:  imageUri || undefined,
-        latitude:  location.latitude,
-        longitude: location.longitude,
-      });
-      onSaved();
-      onClose();
-    } catch (err) {
-      const msg = err?.response?.data?.message || 'Something went wrong.';
-      Alert.alert('Could not post', msg);
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleDelete = async () => {
-    Alert.alert('Remove status', 'Delete your current status?', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Delete', style: 'destructive',
-        onPress: async () => {
-          await mapService.deleteStatus();
-          onSaved();
-          onClose();
-        },
-      },
-    ]);
-  };
-
-  return (
-    <Modal visible={visible} animationType="slide" presentationStyle="pageSheet" onRequestClose={onClose}>
-      <KeyboardAvoidingView
-        style={{ flex: 1, backgroundColor: colors.surface }}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      >
-        {/* Header */}
-        <View style={[sm.header, { borderBottomColor: colors.border }]}>
-          <TouchableOpacity onPress={onClose}>
-            <X size={22} color={colors.textPrimary} />
-          </TouchableOpacity>
-          <Text style={[sm.title, { color: colors.textPrimary }]}>My Status</Text>
-          <TouchableOpacity
-            onPress={handlePost}
-            disabled={saving}
-            style={[sm.postBtn, { backgroundColor: colors.primary }]}
-          >
-            {saving
-              ? <ActivityIndicator size="small" color="#fff" />
-              : <Text style={sm.postBtnText}>Post</Text>
-            }
-          </TouchableOpacity>
-        </View>
-
-        <ScrollView
-          style={{ flex: 1 }}
-          contentContainerStyle={{ padding: 20 }}
-          keyboardShouldPersistTaps="handled"
-        >
-          {/* Tabs */}
-          {myStatus && (
-            <View style={[sm.tabs, { backgroundColor: colors.background, borderColor: colors.border }]}>
-              {['write', 'view'].map((t) => (
-                <TouchableOpacity
-                  key={t}
-                  style={[sm.tab, tab === t && { backgroundColor: colors.surface }]}
-                  onPress={() => setTab(t)}
-                >
-                  <Text style={[sm.tabText, { color: tab === t ? colors.primary : colors.textSecondary }]}>
-                    {t === 'write' ? '✏️  Update' : '👁  Current'}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          )}
-
-          {tab === 'view' && myStatus ? (
-            /* ── View current status ── */
-            <View style={{ marginTop: 8 }}>
-              {myStatus.imageUrl && (
-                <Image source={{ uri: myStatus.imageUrl }} style={sm.currentImage} resizeMode="cover" />
-              )}
-              {myStatus.text && (
-                <View style={[sm.currentTextCard, { backgroundColor: '#FFF7ED', borderColor: '#FED7AA' }]}>
-                  <Text style={sm.currentText}>&quot;{myStatus.text}&quot;</Text>
-                </View>
-              )}
-              <TouchableOpacity style={sm.deleteBtn} onPress={handleDelete}>
-                <Text style={sm.deleteBtnText}>🗑  Remove status</Text>
-              </TouchableOpacity>
-            </View>
-          ) : (
-            /* ── Write / update status ── */
-            <>
-              {/* Text area */}
-              <View style={[sm.textArea, { backgroundColor: colors.inputBackground, borderColor: colors.border }]}>
-                <TextInput
-                  value={text}
-                  onChangeText={(v) => setText(v.slice(0, 280))}
-                  placeholder="What's on your mind? 💭"
-                  placeholderTextColor={colors.textTertiary}
-                  multiline
-                  style={[sm.input, { color: colors.textPrimary }]}
-                />
-                <Text style={[sm.charCount, { color: text.length > 250 ? '#EF4444' : colors.textTertiary }]}>
-                  {text.length}/280
-                </Text>
-              </View>
-
-              {/* Image preview */}
-              {imageUri && (
-                <View style={{ marginTop: 12 }}>
-                  <Image source={{ uri: imageUri }} style={sm.imagePreview} resizeMode="cover" />
-                  <TouchableOpacity
-                    style={sm.removeImage}
-                    onPress={() => setImageUri(null)}
-                  >
-                    <X size={14} color="#fff" />
-                  </TouchableOpacity>
-                </View>
-              )}
-
-              {/* Action row */}
-              <View style={{ flexDirection: 'row', gap: 10, marginTop: 14 }}>
-                <TouchableOpacity
-                  style={[sm.actionBtn, { borderColor: colors.border, backgroundColor: colors.surface }]}
-                  onPress={pickImage}
-                >
-                  <Text style={[sm.actionBtnText, { color: colors.textPrimary }]}>📷  Add photo</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={[sm.actionBtn, { borderColor: '#E8651A', backgroundColor: '#FFF7ED' }]}
-                  onPress={fetchSuggestions}
-                  disabled={loadingAI}
-                >
-                  {loadingAI
-                    ? <ActivityIndicator size="small" color="#E8651A" />
-                    : <Text style={[sm.actionBtnText, { color: '#E8651A' }]}>✨  AI ideas</Text>
-                  }
-                </TouchableOpacity>
-              </View>
-
-              {/* AI suggestions */}
-              {suggestions.length > 0 && (
-                <View style={{ marginTop: 16 }}>
-                  <Text style={[sm.suggestTitle, { color: colors.textSecondary }]}>
-                    Tap a suggestion to use it
-                  </Text>
-                  {suggestions.map((s, i) => (
-                    <TouchableOpacity
-                      key={i}
-                      style={[sm.suggestion, { backgroundColor: colors.surface, borderColor: colors.border }]}
-                      onPress={() => { setText(s); setSuggestions([]); }}
-                    >
-                      <Sparkles size={14} color="#E8651A" strokeWidth={1.8} />
-                      <Text style={[sm.suggestionText, { color: colors.textPrimary }]}>{s}</Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              )}
-
-              {/* Nudity notice */}
-              <View style={[sm.notice, { backgroundColor: '#FEF2F2', borderColor: '#FECACA' }]}>
-                <Text style={sm.noticeText}>
-                  🚫 Nudity and explicit content are strictly prohibited. Images are automatically reviewed.
-                </Text>
-              </View>
-            </>
-          )}
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </Modal>
-  );
-};
-
-const sm = StyleSheet.create({
-  header: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingHorizontal: 16, paddingVertical: 14, borderBottomWidth: StyleSheet.hairlineWidth,
+  resetText:  { fontSize: 15, fontFamily: 'PlusJakartaSansMedium' },
+  applyBtn:   {
+    flex: 2, borderRadius: 50, paddingVertical: 14,
+    alignItems: 'center', backgroundColor: '#E8651A',
   },
-  title: { fontSize: 17, fontFamily: 'PlusJakartaSansBold' },
-  postBtn: { borderRadius: 20, paddingHorizontal: 18, paddingVertical: 8 },
-  postBtnText: { color: '#fff', fontFamily: 'PlusJakartaSansBold', fontSize: 14 },
-  tabs: {
-    flexDirection: 'row', borderRadius: 12, borderWidth: 1,
-    padding: 3, marginBottom: 16,
-  },
-  tab: { flex: 1, paddingVertical: 8, borderRadius: 10, alignItems: 'center' },
-  tabText: { fontSize: 13, fontFamily: 'PlusJakartaSansMedium' },
-  textArea: {
-    borderRadius: 14, borderWidth: 1, padding: 14, minHeight: 110,
-  },
-  input: { fontSize: 16, fontFamily: 'PlusJakartaSans', lineHeight: 24 },
-  charCount: { fontSize: 11, fontFamily: 'PlusJakartaSans', textAlign: 'right', marginTop: 6 },
-  imagePreview: { width: '100%', height: 180, borderRadius: 14 },
-  removeImage: {
-    position: 'absolute', top: 8, right: 8,
-    backgroundColor: 'rgba(0,0,0,0.55)', borderRadius: 14, padding: 5,
-  },
-  actionBtn: {
-    flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-    gap: 6, paddingVertical: 12, borderRadius: 12, borderWidth: 1,
-  },
-  actionBtnText: { fontSize: 13, fontFamily: 'PlusJakartaSansMedium' },
-  suggestTitle: { fontSize: 12, fontFamily: 'PlusJakartaSansBold', marginBottom: 8, textTransform: 'uppercase', letterSpacing: 0.5 },
-  suggestion: {
-    flexDirection: 'row', alignItems: 'flex-start', gap: 10,
-    padding: 12, borderRadius: 12, borderWidth: 1, marginBottom: 8,
-  },
-  suggestionText: { flex: 1, fontSize: 14, fontFamily: 'PlusJakartaSans', lineHeight: 20 },
-  notice: { borderRadius: 10, borderWidth: 1, padding: 12, marginTop: 16 },
-  noticeText: { fontSize: 12, fontFamily: 'PlusJakartaSans', color: '#B91C1C', lineHeight: 18 },
-  currentImage: { width: '100%', height: 200, borderRadius: 16, marginBottom: 12 },
-  currentTextCard: { borderRadius: 14, borderWidth: 1, padding: 16, marginBottom: 16 },
-  currentText: { fontSize: 17, fontFamily: 'PlusJakartaSans', color: '#92400E', fontStyle: 'italic', lineHeight: 26 },
-  deleteBtn: { alignItems: 'center', paddingVertical: 14 },
-  deleteBtnText: { fontSize: 15, fontFamily: 'PlusJakartaSansMedium', color: '#EF4444' },
+  applyText:  { color: '#fff', fontSize: 15, fontFamily: 'PlusJakartaSansBold' },
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -722,51 +399,33 @@ const MapScreen = () => {
   const { colors, isDark } = useTheme();
   const mapRef = useRef(null);
 
-  const [location, setLocation]       = useState(null);
-  const [users, setUsers]             = useState([]);
-  const [loading, setLoading]         = useState(true);
+  const [location, setLocation]         = useState(null);
+  const [users, setUsers]               = useState([]);
+  const [loading, setLoading]           = useState(true);
   const [selectedUser, setSelectedUser] = useState(null);
-  const [showFilter, setShowFilter]   = useState(false);
-  const [showStatus, setShowStatus]   = useState(false);
-  const [myStatus, setMyStatus]       = useState(null);
-  const [is3D, setIs3D]               = useState(true);
-  const [filters, setFilters]         = useState({ religion: '', lookingFor: '' });
+  const [is3D, setIs3D]                 = useState(true);
+  const [activeChip, setActiveChip]     = useState(null);
+  const [showFilter, setShowFilter]     = useState(false);
+  const [searchQuery, setSearchQuery]   = useState('');
+  const [filters, setFilters]           = useState({ religion: '', lookingFor: '' });
+  // Draft filters inside the modal — only committed on "Show results"
+  const [draftFilters, setDraftFilters] = useState({ religion: '', lookingFor: '' });
 
-  // ── Location permission + initial load ─────────────────────
+  // ── Location init ───────────────────────────────────────────
 
   const initLocation = useCallback(async () => {
     try {
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
-        Alert.alert(
-          'Location required',
-          'Enable location access so others can find you on the map.',
-          [{ text: 'OK' }]
-        );
-        setLoading(false);
-        return;
+        Alert.alert('Location required', 'Enable location access so others can find you on the map.');
+        setLoading(false); return;
       }
-
-      const pos = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
-      const coords = {
-        latitude:  pos.coords.latitude,
-        longitude: pos.coords.longitude,
-      };
+      const pos    = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+      const coords = { latitude: pos.coords.latitude, longitude: pos.coords.longitude };
       setLocation(coords);
-
-      // Push to server
       mapService.updateLocation(coords).catch(() => {});
-
-      // Animate map to current position
-      mapRef.current?.animateCamera({
-        center:  coords,
-        pitch:   is3D ? 55 : 0,
-        heading: 0,
-        zoom:    15,
-      }, { duration: 1000 });
-
-      fetchNearby(coords);
-      fetchMyStatus();
+      mapRef.current?.animateCamera({ center: coords, pitch: 55, heading: 0, zoom: 15 }, { duration: 900 });
+      fetchNearby(coords, { religion: '', lookingFor: '' });
     } catch (err) {
       console.error('Location error:', err);
       setLoading(false);
@@ -775,33 +434,30 @@ const MapScreen = () => {
 
   useFocusEffect(useCallback(() => { initLocation(); }, [initLocation]));
 
-  // ── Data fetching ───────────────────────────────────────────
+  // ── Data ────────────────────────────────────────────────────
 
   const fetchNearby = async (coords = location, activeFilters = filters) => {
     if (!coords) return;
     setLoading(true);
     try {
       const res = await mapService.getNearbyUsers({
-        latitude:   coords.latitude,
-        longitude:  coords.longitude,
-        radiusKm:   30,
-        religion:   activeFilters.religion  || undefined,
+        latitude: coords.latitude, longitude: coords.longitude, radiusKm: 30,
+        religion:   activeFilters.religion   || undefined,
         lookingFor: activeFilters.lookingFor || undefined,
       });
       setUsers(res.data ?? []);
-    } catch (err) {
-      console.error('Fetch nearby error:', err);
-    } finally {
-      setLoading(false);
-    }
+    } catch (err) { console.error('Fetch nearby error:', err); }
+    finally { setLoading(false); }
   };
 
-  const fetchMyStatus = async () => {
-    try {
-      const s = await mapService.getMyStatus();
-      setMyStatus(s);
-    } catch {}
-  };
+  // ── Search filter (client-side on already-fetched users) ────
+
+  const filteredUsers = searchQuery.trim()
+    ? users.filter((u) =>
+        u.firstName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        u.city?.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : users;
 
   // ── 3D toggle ───────────────────────────────────────────────
 
@@ -809,31 +465,71 @@ const MapScreen = () => {
     const next = !is3D;
     setIs3D(next);
     if (location) {
-      mapRef.current?.animateCamera({
-        center:  location,
-        pitch:   next ? 55 : 0,
-        heading: 0,
-        zoom:    15,
-      }, { duration: 600 });
+      mapRef.current?.animateCamera(
+        { center: location, pitch: next ? 55 : 0, heading: 0, zoom: 15 },
+        { duration: 600 }
+      );
     }
   };
 
-  // ── Filter change ───────────────────────────────────────────
+  // ── Quick chip ──────────────────────────────────────────────
 
-  const handleFilterChange = (key, value) => {
-    setFilters((prev) => ({ ...prev, [key]: value }));
+  const handleChipPress = (index) => {
+    const isDeselect = activeChip === index;
+    setActiveChip(isDeselect ? null : index);
+    const next = isDeselect
+      ? { religion: '', lookingFor: '' }
+      : { religion: QUICK_CHIPS[index].religion, lookingFor: QUICK_CHIPS[index].lookingFor };
+    setFilters(next);
+    setDraftFilters(next);
+    fetchNearby(location, next);
+  };
+
+  // ── Filter modal ────────────────────────────────────────────
+
+  const openFilter = () => {
+    setDraftFilters({ ...filters }); // seed draft with current committed filters
+    setShowFilter(true);
+  };
+
+  const handleDraftChange = (key, value) => {
+    setDraftFilters((prev) => ({ ...prev, [key]: value }));
   };
 
   const applyFilters = () => {
+    setFilters(draftFilters);
+    setActiveChip(null); // chips reset when full filter applied
     setShowFilter(false);
-    fetchNearby(location, filters);
+    fetchNearby(location, draftFilters);
   };
 
-  // ── Active filter count badge ───────────────────────────────
+  const resetFilters = () => {
+    const cleared = { religion: '', lookingFor: '' };
+    setDraftFilters(cleared);
+    setFilters(cleared);
+    setActiveChip(null);
+    fetchNearby(location, cleared);
+    setShowFilter(false);
+  };
 
-  const activeFilterCount = Object.values(filters).filter(Boolean).length;
+  // ── FABs ────────────────────────────────────────────────────
+
+  const zoomIn  = () => mapRef.current?.getCamera().then((c) =>
+    mapRef.current.animateCamera({ ...c, zoom: (c.zoom ?? 14) + 1 }, { duration: 280 })
+  );
+  const zoomOut = () => mapRef.current?.getCamera().then((c) =>
+    mapRef.current.animateCamera({ ...c, zoom: (c.zoom ?? 14) - 1 }, { duration: 280 })
+  );
+  const locateMe = () => {
+    if (location) mapRef.current?.animateCamera(
+      { center: location, pitch: is3D ? 55 : 0, zoom: 15 }, { duration: 600 }
+    );
+  };
+
+  const activeFilterCount = [filters.religion, filters.lookingFor].filter(Boolean).length;
 
   // ─────────────────────────────────────────────────────────────
+
   return (
     <View style={{ flex: 1 }}>
       <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} translucent backgroundColor="transparent" />
@@ -844,226 +540,241 @@ const MapScreen = () => {
           ref={mapRef}
           style={StyleSheet.absoluteFill}
           provider={PROVIDER_GOOGLE}
-          initialCamera={{
-            center:  location,
-            pitch:   is3D ? 55 : 0,
-            heading: 0,
-            zoom:    15,
-          }}
+          initialCamera={{ center: location, pitch: 55, heading: 0, zoom: 15 }}
           showsUserLocation
           showsCompass={false}
           showsBuildings
           showsTraffic={false}
-          customMapStyle={isDark ? DARK_MAP_STYLE : []}
+          customMapStyle={isDark ? DARK_MAP_STYLE : LIGHT_MAP_STYLE}
           rotateEnabled
           pitchEnabled
         >
-          {users.map((u) => (
-            <UserMarker
-              key={u._id}
-              user={u}
-              onPress={setSelectedUser}
-              colors={colors}
-            />
+          {filteredUsers.map((u) => (
+            <UserMarker key={u._id} user={u} onPress={setSelectedUser} />
           ))}
         </MapView>
       ) : (
-        <View style={[s.mapPlaceholder, { backgroundColor: colors.background }]}>
-          <ActivityIndicator size="large" color={colors.primary} />
-          <Text style={[s.mapPlaceholderText, { color: colors.textSecondary }]}>
-            Getting your location…
-          </Text>
+        <View style={[s.mapLoading, { backgroundColor: colors.background }]}>
+          <ActivityIndicator size="large" color="#E8651A" />
+          <Text style={[s.mapLoadingText, { color: colors.textSecondary }]}>Getting your location…</Text>
         </View>
       )}
 
-      {/* ── TOP CONTROLS ── */}
-      <SafeAreaView edges={['top']} pointerEvents="box-none" style={s.topBar}>
-        {/* Title */}
-        <View style={[s.titleCard, { backgroundColor: colors.surface }]}>
-          <MapPin size={16} color={colors.primary} strokeWidth={2.5} />
-          <Text style={[s.titleText, { color: colors.textPrimary }]}>Nearby</Text>
-          {users.length > 0 && (
-            <View style={[s.countBadge, { backgroundColor: colors.primary }]}>
-              <Text style={s.countText}>{users.length}</Text>
-            </View>
-          )}
+      {/* ── FLOATING TOP CONTROLS ── */}
+      <SafeAreaView edges={['top']} pointerEvents="box-none" style={s.topSafe}>
+
+        {/* Row 1 — search bar + icon buttons */}
+        <View style={s.topRow}>
+          {/* Search bar */}
+          <View style={[s.searchBar, { backgroundColor: colors.surface }]}>
+            <Search size={15} color="#9CA3AF" strokeWidth={2} />
+            <TextInput
+              style={[s.searchInput, { color: colors.textPrimary }]}
+              placeholder="Search Bondies nearby..."
+              placeholderTextColor="#9CA3AF"
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              returnKeyType="search"
+            />
+            {searchQuery.length > 0 && (
+              <TouchableOpacity onPress={() => setSearchQuery('')} hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}>
+                <X size={13} color="#9CA3AF" strokeWidth={2.5} />
+              </TouchableOpacity>
+            )}
+          </View>
+
+          {/* Icon row */}
+          <View style={s.iconRow}>
+            {/* 3D / 2D */}
+            <TouchableOpacity style={[s.iconBtn, { backgroundColor: colors.surface }]} onPress={toggle3D}>
+              <Text style={[s.iconBtnLabel, { color: is3D ? '#E8651A' : colors.textSecondary }]}>
+                {is3D ? '3D' : '2D'}
+              </Text>
+            </TouchableOpacity>
+
+            {/* Filter */}
+            <TouchableOpacity
+              style={[s.iconBtn, { backgroundColor: colors.surface }]}
+              onPress={openFilter}
+            >
+              <SlidersHorizontal size={17} color={activeFilterCount ? '#E8651A' : colors.textSecondary} strokeWidth={2} />
+              {activeFilterCount > 0 && (
+                <View style={[s.badge, { backgroundColor: '#E8651A' }]}>
+                  <Text style={s.badgeText}>{activeFilterCount}</Text>
+                </View>
+              )}
+            </TouchableOpacity>
+
+            {/* Refresh */}
+            <TouchableOpacity
+              style={[s.iconBtn, { backgroundColor: colors.surface }]}
+              onPress={() => fetchNearby()}
+              disabled={loading}
+            >
+              {loading
+                ? <ActivityIndicator size="small" color="#E8651A" />
+                : <RefreshCw size={17} color={colors.textSecondary} strokeWidth={2} />
+              }
+            </TouchableOpacity>
+          </View>
         </View>
 
-        <View style={{ flexDirection: 'row', gap: 10 }}>
-          {/* 3D toggle */}
-          <TouchableOpacity
-            style={[s.iconBtn, { backgroundColor: colors.surface }]}
-            onPress={toggle3D}
-          >
-            <Text style={[s.iconBtnLabel, { color: is3D ? colors.primary : colors.textSecondary }]}>
-              {is3D ? '3D' : '2D'}
+        {/* Row 2 — Nearby count pill + quick-filter chips */}
+        <View style={s.row2}>
+          {/* Nearby count */}
+          <View style={[s.nearbyPill, { backgroundColor: colors.surface }]}>
+            <MapPin size={13} color="#E8651A" strokeWidth={2.5} />
+            <Text style={[s.nearbyText, { color: colors.textPrimary }]}>
+              {filteredUsers.length} nearby
             </Text>
-          </TouchableOpacity>
+          </View>
 
-          {/* Filter */}
-          <TouchableOpacity
-            style={[s.iconBtn, { backgroundColor: colors.surface }]}
-            onPress={() => setShowFilter(true)}
-          >
-            <Filter size={18} color={activeFilterCount ? colors.primary : colors.textSecondary} strokeWidth={2} />
-            {activeFilterCount > 0 && (
-              <View style={[s.filterBadge, { backgroundColor: colors.primary }]}>
-                <Text style={s.filterBadgeText}>{activeFilterCount}</Text>
-              </View>
-            )}
-          </TouchableOpacity>
-
-          {/* Refresh */}
-          <TouchableOpacity
-            style={[s.iconBtn, { backgroundColor: colors.surface }]}
-            onPress={() => fetchNearby()}
-            disabled={loading}
-          >
-            {loading
-              ? <ActivityIndicator size="small" color={colors.primary} />
-              : <RefreshCw size={18} color={colors.textSecondary} strokeWidth={2} />
-            }
-          </TouchableOpacity>
+          {/* Quick chips */}
+          <FlatList
+            data={QUICK_CHIPS}
+            keyExtractor={(_, i) => String(i)}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            pointerEvents="auto"
+            style={{ flex: 1 }}
+            contentContainerStyle={{ gap: 8, paddingRight: 16, paddingLeft: 8 }}
+            renderItem={({ item, index }) => {
+              const active = activeChip === index;
+              return (
+                <TouchableOpacity
+                  style={[s.chip, active ? s.chipActive : [s.chipInactive, { backgroundColor: colors.surface }]]}
+                  onPress={() => handleChipPress(index)}
+                  activeOpacity={0.82}
+                >
+                  <Text style={[s.chipText, { color: active ? '#fff' : colors.textPrimary }]}>
+                    {item.label}
+                  </Text>
+                  {active && <Text style={{ color: '#fff', fontSize: 10, marginLeft: 3 }}>✕</Text>}
+                </TouchableOpacity>
+              );
+            }}
+          />
         </View>
       </SafeAreaView>
 
-      {/* ── MY STATUS FLOATING CARD ── */}
-      <View pointerEvents="box-none" style={s.statusCardWrapper}>
-        <TouchableOpacity
-          style={[s.statusCard, {
-            backgroundColor: colors.surface,
-            borderColor: myStatus ? '#E8651A' : colors.border,
-          }]}
-          onPress={() => setShowStatus(true)}
-          activeOpacity={0.88}
-        >
-          <View style={s.statusCardLeft}>
-            <View style={[s.statusDot, { backgroundColor: myStatus ? '#E8651A' : colors.border }]} />
-            <Text style={[s.statusCardText, { color: myStatus ? colors.textPrimary : colors.textTertiary }]} numberOfLines={1}>
-              {myStatus?.text ?? 'Share your status…'}
-            </Text>
-          </View>
-          <Zap size={16} color={myStatus ? '#E8651A' : colors.textTertiary} strokeWidth={2} />
+      {/* ── Right FABs ── */}
+      <View style={s.fabs} pointerEvents="box-none">
+        <TouchableOpacity style={[s.fab, { backgroundColor: colors.surface }]} onPress={zoomIn}>
+          <MapPin size={0} />{/* placeholder to keep spacing */}
+          <Plus size={19} color="#374151" strokeWidth={2.5} />
+        </TouchableOpacity>
+        <TouchableOpacity style={[s.fab, { backgroundColor: colors.surface }]} onPress={zoomOut}>
+          <Minus size={19} color="#374151" strokeWidth={2.5} />
+        </TouchableOpacity>
+        <TouchableOpacity style={[s.fab, { backgroundColor: '#FFF7ED' }]} onPress={locateMe}>
+          <Crosshair size={19} color="#E8651A" strokeWidth={2.5} />
         </TouchableOpacity>
       </View>
 
-      {/* ── PROFILE DETAIL SHEET ── */}
-      <ProfileSheet
-        user={selectedUser}
-        onClose={() => setSelectedUser(null)}
-        colors={colors}
-      />
+      {/* ── Profile card ── */}
+      <ProfileCard user={selectedUser} onClose={() => setSelectedUser(null)} />
 
-      {/* ── FILTER SHEET ── */}
-      <FilterSheet
+      {/* ── Filter modal ── */}
+      <FilterModal
         visible={showFilter}
-        filters={filters}
-        onChange={handleFilterChange}
+        filters={draftFilters}
+        onChange={handleDraftChange}
         onApply={applyFilters}
+        onReset={resetFilters}
         onClose={() => setShowFilter(false)}
-        colors={colors}
-      />
-
-      {/* ── STATUS MODAL ── */}
-      <StatusModal
-        visible={showStatus}
-        myStatus={myStatus}
-        location={location}
-        onClose={() => setShowStatus(false)}
-        onSaved={() => { fetchMyStatus(); fetchNearby(); }}
         colors={colors}
       />
     </View>
   );
 };
 
-// ─── Screen styles ────────────────────────────────────────────────────────────
+// ─── Styles ───────────────────────────────────────────────────────────────────
 
 const s = StyleSheet.create({
-  mapPlaceholder: {
-    flex: 1, alignItems: 'center', justifyContent: 'center', gap: 12,
-  },
-  mapPlaceholderText: { fontFamily: 'PlusJakartaSans', fontSize: 14 },
+  mapLoading:     { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 12 },
+  mapLoadingText: { fontFamily: 'PlusJakartaSans', fontSize: 14 },
 
-  topBar: {
-    position: 'absolute', top: 0, left: 0, right: 0,
-    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
-    paddingHorizontal: 16, paddingBottom: 12,
+  topSafe: { position: 'absolute', top: 0, left: 0, right: 0 },
+
+  // Row 1
+  topRow: {
+    flexDirection: 'row', alignItems: 'center',
+    paddingHorizontal: 16, paddingBottom: 8, gap: 10,
   },
-  titleCard: {
-    flexDirection: 'row', alignItems: 'center', gap: 6,
-    paddingHorizontal: 14, paddingVertical: 10,
-    borderRadius: 20, elevation: 4,
+  searchBar: {
+    flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8,
+    borderRadius: 16, paddingHorizontal: 14, paddingVertical: 11,
     shadowColor: '#000', shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.12, shadowRadius: 6,
+    shadowOpacity: 0.1, shadowRadius: 6, elevation: 4,
   },
-  titleText: { fontFamily: 'PlusJakartaSansBold', fontSize: 15 },
-  countBadge: {
-    width: 20, height: 20, borderRadius: 10,
-    alignItems: 'center', justifyContent: 'center',
+  searchInput: {
+    flex: 1, fontSize: 13, fontFamily: 'PlusJakartaSans', padding: 0,
   },
-  countText: { color: '#fff', fontSize: 11, fontFamily: 'PlusJakartaSansBold' },
+  iconRow: { flexDirection: 'row', gap: 8 },
   iconBtn: {
     width: 42, height: 42, borderRadius: 21,
     alignItems: 'center', justifyContent: 'center',
-    elevation: 4,
     shadowColor: '#000', shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.12, shadowRadius: 6,
+    shadowOpacity: 0.12, shadowRadius: 6, elevation: 5,
   },
   iconBtnLabel: { fontFamily: 'PlusJakartaSansBold', fontSize: 13 },
-  filterBadge: {
+  badge: {
     position: 'absolute', top: 5, right: 5,
     width: 14, height: 14, borderRadius: 7,
     alignItems: 'center', justifyContent: 'center',
   },
-  filterBadgeText: { color: '#fff', fontSize: 9, fontFamily: 'PlusJakartaSansBold' },
+  badgeText: { color: '#fff', fontSize: 9, fontFamily: 'PlusJakartaSansBold' },
 
-  // Status card
-  statusCardWrapper: {
-    position: 'absolute', bottom: 30, left: 16, right: 16,
+  // Row 2
+  row2: {
+    flexDirection: 'row', alignItems: 'center',
+    paddingLeft: 16, paddingBottom: 8,
   },
-  statusCard: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingHorizontal: 16, paddingVertical: 14,
-    borderRadius: 18, borderWidth: 1.5,
-    elevation: 6,
+  nearbyPill: {
+    flexDirection: 'row', alignItems: 'center', gap: 5,
+    paddingHorizontal: 12, paddingVertical: 7, borderRadius: 20,
+    shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1, shadowRadius: 4, elevation: 3,
+  },
+  nearbyText:  { fontFamily: 'PlusJakartaSansBold', fontSize: 12 },
+
+  // Chips
+  chip:         { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 99, flexDirection: 'row', alignItems: 'center' },
+  chipActive:   { backgroundColor: '#E8651A' },
+  chipInactive: { borderWidth: 0 },
+  chipText:     { fontFamily: 'PlusJakartaSansMedium', fontSize: 12 },
+
+  // FABs
+  fabs: { position: 'absolute', right: 16, bottom: 130, gap: 10 },
+  fab:  {
+    width: 44, height: 44, borderRadius: 22,
+    alignItems: 'center', justifyContent: 'center',
     shadowColor: '#000', shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.15, shadowRadius: 8,
+    shadowOpacity: 0.14, shadowRadius: 6, elevation: 6,
   },
-  statusCardLeft: { flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1 },
-  statusDot: { width: 10, height: 10, borderRadius: 5 },
-  statusCardText: { fontFamily: 'PlusJakartaSans', fontSize: 14, flex: 1 },
 });
 
-// ─── Google Maps dark style ───────────────────────────────────────────────────
+// ─── Map styles ───────────────────────────────────────────────────────────────
+
+const LIGHT_MAP_STYLE = [
+  { featureType: 'poi',            stylers: [{ visibility: 'off' }] },
+  { featureType: 'transit',        stylers: [{ visibility: 'simplified' }] },
+  { featureType: 'road',           elementType: 'geometry', stylers: [{ color: '#ffffff' }] },
+  { featureType: 'road.arterial',  elementType: 'geometry', stylers: [{ color: '#f5f5f5' }] },
+  { featureType: 'road.highway',   elementType: 'geometry', stylers: [{ color: '#e8e8e8' }] },
+  { featureType: 'water',          elementType: 'geometry', stylers: [{ color: '#c9d8f0' }] },
+  { featureType: 'landscape',      elementType: 'geometry', stylers: [{ color: '#f5f5f0' }] },
+];
 
 const DARK_MAP_STYLE = [
-  { elementType: 'geometry', stylers: [{ color: '#1d2c4d' }] },
-  { elementType: 'labels.text.fill', stylers: [{ color: '#8ec3b9' }] },
+  { elementType: 'geometry',           stylers: [{ color: '#1d2c4d' }] },
+  { elementType: 'labels.text.fill',   stylers: [{ color: '#8ec3b9' }] },
   { elementType: 'labels.text.stroke', stylers: [{ color: '#1a3646' }] },
-  { featureType: 'administrative.country', elementType: 'geometry.stroke', stylers: [{ color: '#4b6878' }] },
-  { featureType: 'administrative.land_parcel', elementType: 'labels.text.fill', stylers: [{ color: '#64779e' }] },
-  { featureType: 'administrative.province', elementType: 'geometry.stroke', stylers: [{ color: '#4b6878' }] },
-  { featureType: 'landscape.man_made', elementType: 'geometry.stroke', stylers: [{ color: '#334e87' }] },
-  { featureType: 'landscape.natural', elementType: 'geometry', stylers: [{ color: '#023e58' }] },
-  { featureType: 'poi', elementType: 'geometry', stylers: [{ color: '#283d6a' }] },
-  { featureType: 'poi', elementType: 'labels.text.fill', stylers: [{ color: '#6f9ba5' }] },
-  { featureType: 'poi', elementType: 'labels.text.stroke', stylers: [{ color: '#1d2c4d' }] },
-  { featureType: 'poi.park', elementType: 'geometry.fill', stylers: [{ color: '#023e58' }] },
-  { featureType: 'poi.park', elementType: 'labels.text.fill', stylers: [{ color: '#3C7680' }] },
-  { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#304a7d' }] },
-  { featureType: 'road', elementType: 'labels.text.fill', stylers: [{ color: '#98a5be' }] },
-  { featureType: 'road', elementType: 'labels.text.stroke', stylers: [{ color: '#1d2c4d' }] },
+  { featureType: 'road',        elementType: 'geometry', stylers: [{ color: '#304a7d' }] },
   { featureType: 'road.highway', elementType: 'geometry', stylers: [{ color: '#2c6675' }] },
-  { featureType: 'road.highway', elementType: 'geometry.stroke', stylers: [{ color: '#255763' }] },
-  { featureType: 'road.highway', elementType: 'labels.text.fill', stylers: [{ color: '#b0d5ce' }] },
-  { featureType: 'road.highway', elementType: 'labels.text.stroke', stylers: [{ color: '#023968' }] },
-  { featureType: 'transit', elementType: 'labels.text.fill', stylers: [{ color: '#98a5be' }] },
-  { featureType: 'transit', elementType: 'labels.text.stroke', stylers: [{ color: '#1d2c4d' }] },
-  { featureType: 'transit.line', elementType: 'geometry.fill', stylers: [{ color: '#283d6a' }] },
-  { featureType: 'transit.station', elementType: 'geometry', stylers: [{ color: '#3a4762' }] },
-  { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#0e1626' }] },
-  { featureType: 'water', elementType: 'labels.text.fill', stylers: [{ color: '#4e6d70' }] },
+  { featureType: 'water',        elementType: 'geometry', stylers: [{ color: '#0e1626' }] },
+  { featureType: 'landscape.natural', elementType: 'geometry', stylers: [{ color: '#023e58' }] },
+  { featureType: 'poi',          stylers: [{ visibility: 'off' }] },
 ];
 
 export default MapScreen;
