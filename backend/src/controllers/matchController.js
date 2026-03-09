@@ -1,5 +1,6 @@
 const Match = require('../models/Match');
 const User = require('../models/User');
+const Like = require('../models/Like');
 const Message = require('../models/Message');
 const { mapImagesWithAccessUrls } = require('../utils/imageHelper');
 
@@ -172,8 +173,66 @@ const unmatch = async (req, res, next) => {
   }
 };
 
+// ─────────────────────────────────────────────────────────────────────────────
+//  PASTE THIS INTO YOUR EXISTING matchController.js
+//  Then add  getInteractionStatus  to the module.exports at the bottom.
+// ─────────────────────────────────────────────────────────────────────────────
+
+// @desc    Check whether the current user has already interacted with a target
+// @route   GET /api/matches/interaction/:targetId
+// @access  Private
+// ─────────────────────────────────────────────────────────────────────────────
+//  PASTE THIS INTO YOUR EXISTING matchController.js
+//  Then add  getInteractionStatus  to the module.exports at the bottom.
+// ─────────────────────────────────────────────────────────────────────────────
+
+// @desc    Check whether the current user has already interacted with a target
+// @route   GET /api/matches/interaction/:targetId
+// @access  Private
+const getInteractionStatus = async (req, res, next) => {
+  try {
+    const currentUserId = req.user._id;
+    const { targetId }  = req.params;
+
+    // 1. Check for a mutual match first
+    const match = await Match.findOne({
+      users:  { $all: [currentUserId, targetId] },
+      status: 'matched',
+    });
+    if (match) {
+      return res.json({ success: true, data: { status: 'matched' } });
+    }
+
+    // 2. Check Like record — fields: user, likedUser, type ('like'|'superlike'|'pass')
+    const interaction = await Like.findOne({
+      user:      currentUserId,
+      likedUser: targetId,
+    });
+
+    if (!interaction) {
+      return res.json({ success: true, data: { status: 'none' } });
+    }
+
+    const statusMap = {
+      like:      'liked',
+      superlike: 'superliked',
+      pass:      'passed',
+    };
+
+    const status = statusMap[interaction.type] ?? 'liked';
+    return res.json({ success: true, data: { status } });
+
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Add to module.exports:
+// module.exports = { getMatches, getMatch, unmatch, getInteractionStatus };
+
 module.exports = {
   getMatches,
   getMatch,
   unmatch,
-};
+  getInteractionStatus,
+}
