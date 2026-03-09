@@ -1,6 +1,10 @@
+const {
+  PutObjectCommand,
+  DeleteObjectCommand,
+} = require('@aws-sdk/client-s3');
+const s3 = require('../config/s3');
 const User = require('../models/User');
 const { mapImagesWithAccessUrls } = require('../utils/imageHelper');
-const cloudinary = require('../utils/cloudinary'); // adjust path as needed
 
 const PROFILE_CACHE_TTL_MS = Number(process.env.PROFILE_CACHE_TTL_MS || 30000);
 const profileCache = new Map();
@@ -8,21 +12,13 @@ const profileCache = new Map();
 const getCachedProfile = (key) => {
   const cachedEntry = profileCache.get(key);
   if (!cachedEntry) return null;
-
   const isExpired = Date.now() - cachedEntry.cachedAt > PROFILE_CACHE_TTL_MS;
-  if (isExpired) {
-    profileCache.delete(key);
-    return null;
-  }
-
+  if (isExpired) { profileCache.delete(key); return null; }
   return cachedEntry.data;
 };
 
 const setCachedProfile = (key, data) => {
-  profileCache.set(key, {
-    data,
-    cachedAt: Date.now(),
-  });
+  profileCache.set(key, { data, cachedAt: Date.now() });
 };
 
 const clearProfileCache = (userId) => {
@@ -31,98 +27,63 @@ const clearProfileCache = (userId) => {
   profileCache.delete(`id:${String(userId)}`);
 };
 
+// ─── S3 helpers (same pattern as uploadController) ───────────────────────────
+
+const getVoicePromptObjectKey = (userId, originalname) => {
+  const fallbackExt = 'm4a';
+  const extension = originalname?.includes('.')
+    ? originalname.split('.').pop().toLowerCase()
+    : fallbackExt;
+  const safeExt = /^[a-z0-9]+$/.test(extension) ? extension : fallbackExt;
+  return `bondies/voice_prompts/${userId}/${Date.now()}-${Math.round(Math.random() * 1e9)}.${safeExt}`;
+};
+
+const getPublicUrl = (bucket, key) => {
+  const baseUrl = process.env.AWS_S3_PUBLIC_BASE_URL;
+  if (baseUrl) return `${baseUrl.replace(/\/$/, '')}/${key}`;
+  const region = process.env.AWS_REGION;
+  return `https://${bucket}.s3.${region}.amazonaws.com/${key}`;
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 const enumNormalizers = {
   lookingFor: {
-    'committed-relationship': 'Long term',
-    'a-committed-relationship': 'Long term',
-    marriage: 'Long term',
-    'long-term': 'Long term',
-    'finding-a-date': 'Short term',
-    'short-term': 'Short term',
-    'something-casual': 'Something Casual',
-    casual: 'Something Casual',
-    'meet-business-oriented-people': 'Meet business oriented people',
-    friendship: 'Meet business oriented people',
-    'i-am-not-sure': 'I am not sure',
-    'not-sure': 'I am not sure',
+    'committed-relationship': 'Long term', 'a-committed-relationship': 'Long term',
+    marriage: 'Long term', 'long-term': 'Long term',
+    'finding-a-date': 'Short term', 'short-term': 'Short term',
+    'something-casual': 'Something Casual', casual: 'Something Casual',
+    'meet-business-oriented-people': 'Meet business oriented people', friendship: 'Meet business oriented people',
+    'i-am-not-sure': 'I am not sure', 'not-sure': 'I am not sure',
   },
   children: {
-    'i want': 'I want kids',
-    i_want: 'I want kids',
-    'i want children': 'I want kids',
-    'want-kids': 'I want kids',
-    i_dont: "I don't want kids",
-    'i dont': "I don't want kids",
-    "i don't want children": "I don't want kids",
-    'dont-want-kids': "I don't want kids",
-    i_have: 'I have kids',
-    'i have children and want more': 'I am open to kids',
-    'open-to-kids': 'I am open to kids',
-    dont_want: 'I have kids',
-    "i have children and don't want more": 'I have kids',
-    'have-kids': 'I have kids',
+    'i want': 'I want kids', i_want: 'I want kids', 'i want children': 'I want kids', 'want-kids': 'I want kids',
+    i_dont: "I don't want kids", 'i dont': "I don't want kids", "i don't want children": "I don't want kids", 'dont-want-kids': "I don't want kids",
+    i_have: 'I have kids', 'i have children and want more': 'I am open to kids', 'open-to-kids': 'I am open to kids',
+    dont_want: 'I have kids', "i have children and don't want more": 'I have kids', 'have-kids': 'I have kids',
     'prefer-not-to-say': 'I prefer not to say',
   },
   drinking: {
-    no: "No, I don't drink",
-    never: "No, I don't drink",
-    occasionally: 'Rarely',
-    occassionally: 'Rarely',
-    rarely: 'Rarely',
-    socially: 'Socially',
-    often: 'Regularly',
-    'a-lot': 'Regularly',
-    regularly: 'Regularly',
-    'prefer-not': 'Prefer not to say',
-    'prefer-not-to-say': 'Prefer not to say',
+    no: "No, I don't drink", never: "No, I don't drink",
+    occasionally: 'Rarely', occassionally: 'Rarely', rarely: 'Rarely',
+    socially: 'Socially', often: 'Regularly', 'a-lot': 'Regularly', regularly: 'Regularly',
+    'prefer-not': 'Prefer not to say', 'prefer-not-to-say': 'Prefer not to say',
   },
   smoking: {
-    no: "No, I don't smoke",
-    never: "No, I don't smoke",
-    occasionally: 'Occasionally',
-    occassionally: 'Occasionally',
-    rarely: 'Occasionally',
-    socially: 'Socially',
-    often: 'Regularly',
-    'a-lot': 'Regularly',
-    regularly: 'Regularly',
-    quitting: 'Regularly',
-    'prefer-not': 'Prefer not to say',
-    'prefer-not-to-say': 'Prefer not to say',
+    no: "No, I don't smoke", never: "No, I don't smoke",
+    occasionally: 'Occasionally', occassionally: 'Occasionally', rarely: 'Occasionally',
+    socially: 'Socially', often: 'Regularly', 'a-lot': 'Regularly', regularly: 'Regularly', quitting: 'Regularly',
+    'prefer-not': 'Prefer not to say', 'prefer-not-to-say': 'Prefer not to say',
   },
-  financialStyle: {
-    frugal: 'saver',
-    moderate: 'balanced',
-    generous: 'spender',
-    luxury: 'spender',
-    'prefer-not': 'prefer-not-to-say',
-  },
-  loveLanguage: {
-    words: 'words-of-affirmation',
-    acts: 'acts-of-service',
-    gifts: 'receiving-gifts',
-    time: 'quality-time',
-    touch: 'physical-touch',
-  },
-  communicationStyle: {
-    humorous: 'balanced',
-    deep: 'emotional',
-    'prefer-not': 'balanced',
-  },
+  financialStyle: { frugal: 'saver', moderate: 'balanced', generous: 'spender', luxury: 'spender', 'prefer-not': 'prefer-not-to-say' },
+  loveLanguage: { words: 'words-of-affirmation', acts: 'acts-of-service', gifts: 'receiving-gifts', time: 'quality-time', touch: 'physical-touch' },
+  communicationStyle: { humorous: 'balanced', deep: 'emotional', 'prefer-not': 'balanced' },
   religionImportance: {
-    'is-very-important': 'Is very important',
-    'very-important': 'Is very important',
-    'is-quite-important': 'Is quite important',
-    'quite-important': 'Is quite important',
-    'not-matter': "It doesn't matter to me at all",
-    'not-important': "It doesn't matter to me at all",
+    'is-very-important': 'Is very important', 'very-important': 'Is very important',
+    'is-quite-important': 'Is quite important', 'quite-important': 'Is quite important',
+    'not-matter': "It doesn't matter to me at all", 'not-important': "It doesn't matter to me at all",
   },
-  gender: {
-    male: 'Male',
-    female: 'Female',
-    'non-binary': 'Non-binary',
-    other: 'Other',
-  },
+  gender: { male: 'Male', female: 'Female', 'non-binary': 'Non-binary', other: 'Other' },
 };
 
 const normalizeEnumField = (key, value) => {
@@ -134,103 +95,81 @@ const normalizeEnumField = (key, value) => {
 const calculateAgeFromDate = (dobInput) => {
   const dob = new Date(dobInput);
   if (Number.isNaN(dob.getTime())) return null;
-
   const today = new Date();
   let age = today.getFullYear() - dob.getFullYear();
   const monthDiff = today.getMonth() - dob.getMonth();
-
-  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
-    age -= 1;
-  }
-
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) age -= 1;
   return age;
 };
 
 const normalizeBirthFields = (updates) => {
-  const normalizedUpdates = { ...updates };
-
-  let dateOfBirthValue =
-    normalizedUpdates.dateOfBirth ||
-    normalizedUpdates.birthdate ||
-    null;
-
-  if (
-    !dateOfBirthValue &&
-    normalizedUpdates.birthYear &&
-    normalizedUpdates.birthMonth !== undefined &&
-    normalizedUpdates.birthDay
-  ) {
-    const month = String(Number(normalizedUpdates.birthMonth) + 1).padStart(2, '0');
-    const day = String(normalizedUpdates.birthDay).padStart(2, '0');
-    dateOfBirthValue = `${normalizedUpdates.birthYear}-${month}-${day}`;
+  const n = { ...updates };
+  let dob = n.dateOfBirth || n.birthdate || null;
+  if (!dob && n.birthYear && n.birthMonth !== undefined && n.birthDay) {
+    const month = String(Number(n.birthMonth) + 1).padStart(2, '0');
+    const day   = String(n.birthDay).padStart(2, '0');
+    dob = `${n.birthYear}-${month}-${day}`;
   }
-
-  if (dateOfBirthValue) {
-    const parsedDate = new Date(dateOfBirthValue);
-    if (!Number.isNaN(parsedDate.getTime())) {
-      normalizedUpdates.dateOfBirth = parsedDate;
-      const computedAge = calculateAgeFromDate(parsedDate);
-      if (typeof computedAge === 'number' && !Number.isNaN(computedAge)) {
-        normalizedUpdates.age = computedAge;
-      }
+  if (dob) {
+    const parsed = new Date(dob);
+    if (!Number.isNaN(parsed.getTime())) {
+      n.dateOfBirth = parsed;
+      const age = calculateAgeFromDate(parsed);
+      if (typeof age === 'number' && !Number.isNaN(age)) n.age = age;
     }
   }
-
-  delete normalizedUpdates.birthdate;
-  delete normalizedUpdates.birthYear;
-  delete normalizedUpdates.birthMonth;
-  delete normalizedUpdates.birthDay;
-
-  return normalizedUpdates;
+  delete n.birthdate; delete n.birthYear; delete n.birthMonth; delete n.birthDay;
+  return n;
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  VOICE PROMPT UPLOAD
-//  Receives a local file URI from the app (multipart/form-data, field: "voicePrompt")
-//  Uploads to Cloudinary under resource_type: 'video' (Cloudinary stores audio as video)
-//  Returns a signed URL stored on user.voicePrompt
+//  VOICE PROMPT — AWS S3
 // ─────────────────────────────────────────────────────────────────────────────
 
 // @desc    Upload or replace voice prompt
 // @route   POST /api/profile/voice-prompt
 // @access  Private
+// Middleware: upload.single('voicePrompt')  (reuse multer memoryStorage instance)
 const uploadVoicePrompt = async (req, res, next) => {
   try {
     const userId = req.user._id;
+    // Use a dedicated voice bucket env var if set, otherwise fall back to the main bucket
+    const bucket = process.env.AWS_S3_VOICE_BUCKET || process.env.AWS_S3_BUCKET;
+
+    if (!bucket) {
+      return res.status(500).json({ success: false, message: 'Missing AWS_S3_BUCKET configuration' });
+    }
 
     if (!req.file) {
-      return res.status(400).json({ success: false, message: 'No audio file provided.' });
+      return res.status(400).json({ success: false, message: 'No audio file provided' });
     }
 
     const user = await User.findById(userId);
     if (!user) {
-      return res.status(404).json({ success: false, message: 'User not found.' });
+      return res.status(404).json({ success: false, message: 'User not found' });
     }
 
-    // Delete old voice prompt from Cloudinary if it exists
-    if (user.voicePromptPublicId) {
-      await cloudinary.uploader.destroy(user.voicePromptPublicId, { resource_type: 'video' }).catch(() => {});
+    // Delete previous voice prompt from S3 if one exists
+    if (user.voicePromptKey) {
+      await s3
+        .send(new DeleteObjectCommand({ Bucket: bucket, Key: user.voicePromptKey }))
+        .catch(() => {}); // non-fatal
     }
 
-    // Upload new audio to Cloudinary
-    const uploadResult = await new Promise((resolve, reject) => {
-      const stream = cloudinary.uploader.upload_stream(
-        {
-          resource_type: 'video', // Cloudinary treats audio as video
-          folder: `bondies/voice_prompts/${String(userId)}`,
-          public_id: `voice_${Date.now()}`,
-          overwrite: true,
-        },
-        (error, result) => {
-          if (error) return reject(error);
-          resolve(result);
-        }
-      );
-      stream.end(req.file.buffer);
-    });
+    // Upload new audio to S3
+    const objectKey = getVoicePromptObjectKey(userId, req.file.originalname);
 
-    user.voicePrompt         = uploadResult.secure_url;
-    user.voicePromptPublicId = uploadResult.public_id;
+    await s3.send(
+      new PutObjectCommand({
+        Bucket:      bucket,
+        Key:         objectKey,
+        Body:        req.file.buffer,
+        ContentType: req.file.mimetype || 'audio/m4a',
+      })
+    );
+
+    user.voicePrompt    = getPublicUrl(bucket, objectKey);
+    user.voicePromptKey = objectKey; // stored so we can delete it later
     user.calculateCompletion();
     await user.save();
 
@@ -238,10 +177,10 @@ const uploadVoicePrompt = async (req, res, next) => {
 
     res.json({
       success: true,
-      message: 'Voice prompt uploaded successfully.',
+      message: 'Voice prompt uploaded successfully',
       data: {
-        voicePrompt: user.voicePrompt,
-        voicePromptPublicId: user.voicePromptPublicId,
+        voicePrompt:    user.voicePrompt,
+        voicePromptKey: user.voicePromptKey,
       },
     });
   } catch (error) {
@@ -255,31 +194,34 @@ const uploadVoicePrompt = async (req, res, next) => {
 const deleteVoicePrompt = async (req, res, next) => {
   try {
     const userId = req.user._id;
-    const user   = await User.findById(userId);
+    const bucket = process.env.AWS_S3_VOICE_PROMPT_BUCKET || process.env.AWS_S3_BUCKET;
 
+    const user = await User.findById(userId);
     if (!user) {
-      return res.status(404).json({ success: false, message: 'User not found.' });
+      return res.status(404).json({ success: false, message: 'User not found' });
     }
 
-    if (user.voicePromptPublicId) {
-      await cloudinary.uploader.destroy(user.voicePromptPublicId, { resource_type: 'video' }).catch(() => {});
+    if (user.voicePromptKey) {
+      await s3
+        .send(new DeleteObjectCommand({ Bucket: bucket, Key: user.voicePromptKey }))
+        .catch(() => {});
     }
 
-    user.voicePrompt         = null;
-    user.voicePromptPublicId = null;
+    user.voicePrompt    = null;
+    user.voicePromptKey = null;
     user.calculateCompletion();
     await user.save();
 
     clearProfileCache(userId);
 
-    res.json({ success: true, message: 'Voice prompt deleted.' });
+    res.json({ success: true, message: 'Voice prompt deleted' });
   } catch (error) {
     next(error);
   }
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  EXISTING CONTROLLERS (unchanged)
+//  EXISTING CONTROLLERS
 // ─────────────────────────────────────────────────────────────────────────────
 
 // @desc    Update user profile
@@ -288,26 +230,21 @@ const deleteVoicePrompt = async (req, res, next) => {
 const updateProfile = async (req, res, next) => {
   try {
     const userId = req.user._id;
-    let updates = req.body;
+    let updates  = req.body;
 
-    // Prevent updating sensitive fields
     delete updates.password;
     delete updates.email;
     delete updates.isVerified;
     delete updates.otp;
     delete updates.otpExpiry;
-    // voice prompt is handled by its own endpoint
+    // voice prompt has its own dedicated endpoint — block via general update
     delete updates.voicePrompt;
-    delete updates.voicePromptPublicId;
+    delete updates.voicePromptKey;
 
     updates = normalizeBirthFields(updates);
-
-    Object.keys(updates).forEach((key) => {
-      updates[key] = normalizeEnumField(key, updates[key]);
-    });
+    Object.keys(updates).forEach((key) => { updates[key] = normalizeEnumField(key, updates[key]); });
 
     const user = await User.findById(userId);
-
     if (!user) {
       return res.status(404).json({ success: false, message: 'User not found' });
     }
@@ -324,14 +261,9 @@ const updateProfile = async (req, res, next) => {
 
     user.calculateCompletion();
     await user.save();
-
     clearProfileCache(user._id);
 
-    res.json({
-      success: true,
-      message: 'Profile updated successfully',
-      data: { user },
-    });
+    res.json({ success: true, message: 'Profile updated successfully', data: { user } });
   } catch (error) {
     next(error);
   }
@@ -345,25 +277,15 @@ const completeOnboarding = async (req, res, next) => {
     const userId = req.user._id;
     const user   = await User.findById(userId);
 
-    if (!user) {
-      return res.status(404).json({ success: false, message: 'User not found' });
-    }
-
-    if (user.onboardingCompleted) {
-      return res.status(400).json({ success: false, message: 'Onboarding already completed' });
-    }
+    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+    if (user.onboardingCompleted) return res.status(400).json({ success: false, message: 'Onboarding already completed' });
 
     user.onboardingCompleted = true;
     user.calculateCompletion();
     await user.save();
-
     clearProfileCache(user._id);
 
-    res.json({
-      success: true,
-      message: 'Onboarding completed successfully',
-      data: { user },
-    });
+    res.json({ success: true, message: 'Onboarding completed successfully', data: { user } });
   } catch (error) {
     next(error);
   }
@@ -374,28 +296,20 @@ const completeOnboarding = async (req, res, next) => {
 // @access  Private
 const getProfile = async (req, res, next) => {
   try {
-    const { id }     = req.params;
-    const cacheKey   = `id:${String(id)}`;
+    const { id }   = req.params;
+    const cacheKey = `id:${String(id)}`;
 
-    const cachedProfile = getCachedProfile(cacheKey);
-    if (cachedProfile) {
-      return res.json({ success: true, data: { profile: cachedProfile } });
-    }
+    const cached = getCachedProfile(cacheKey);
+    if (cached) return res.json({ success: true, data: { profile: cached } });
 
     const user = await User.findById(id);
-
-    if (!user) {
-      return res.status(404).json({ success: false, message: 'User not found' });
-    }
+    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
 
     const profile = user.toObject();
-    delete profile.password;
-    delete profile.otp;
-    delete profile.otpExpiry;
+    delete profile.password; delete profile.otp; delete profile.otpExpiry;
     profile.images = await mapImagesWithAccessUrls(profile.images);
 
     setCachedProfile(cacheKey, profile);
-
     res.json({ success: true, data: { profile } });
   } catch (error) {
     next(error);
@@ -409,16 +323,11 @@ const getMyProfile = async (req, res, next) => {
   try {
     const cacheKey = `my:${String(req.user._id)}`;
 
-    const cachedProfile = getCachedProfile(cacheKey);
-    if (cachedProfile) {
-      return res.json({ success: true, data: { user: cachedProfile } });
-    }
+    const cached = getCachedProfile(cacheKey);
+    if (cached) return res.json({ success: true, data: { user: cached } });
 
     const user = await User.findById(req.user._id);
-
-    if (!user) {
-      return res.status(404).json({ success: false, message: 'User not found' });
-    }
+    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
 
     const responseUser = {
       ...user.toObject(),
@@ -426,7 +335,6 @@ const getMyProfile = async (req, res, next) => {
     };
 
     setCachedProfile(cacheKey, responseUser);
-
     res.json({ success: true, data: { user: responseUser } });
   } catch (error) {
     next(error);

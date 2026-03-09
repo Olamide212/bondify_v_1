@@ -68,7 +68,7 @@ const userSchema = new mongoose.Schema(
     },
 
     // Basic Information
- 
+
     age: {
       type: Number,
       min: 18,
@@ -295,7 +295,8 @@ const userSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
-
+    voicePrompt: { type: String, default: null },  // S3 public URL
+    voicePromptKey: { type: String, default: null },  // S3 object key for deletion
     // Premium Plan
     premiumPlan: {
       type: String,
@@ -382,7 +383,7 @@ userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) {
     return next();
   }
-  
+
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
   next();
@@ -400,7 +401,7 @@ userSchema.methods.calculateCompletion = function () {
     'occupation', 'education', 'height', 'religion',
     'ethnicity', 'drinking', 'smoking', 'lookingFor', 'images'
   ];
-  
+
   let completed = 0;
   fields.forEach(field => {
     if (field.includes('.')) {
@@ -414,7 +415,7 @@ userSchema.methods.calculateCompletion = function () {
   // Additional checks
   if (this.images && this.images.length > 0) completed += 3;
   if (this.interests && this.interests.length >= 3) completed += 2;
-  
+  if (this.voicePrompt) completed += 2;
   this.completionPercentage = Math.round((completed / (fields.length + 5)) * 100);
 };
 
@@ -424,7 +425,7 @@ userSchema.virtual('bondScore').get(function () {
   const base = this.completionPercentage || 0;
   const activityBonus = this.verified ? 10 : 0;
   const interestBonus = Math.min((this.interests?.length || 0) * 2, 10);
-  
+
   return Math.min(base + activityBonus + interestBonus, 100);
 });
 
