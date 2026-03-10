@@ -85,7 +85,7 @@ const ProfileScreen = () => {
           )}
 
           <InfoSection />
-          <Perks />
+          {/* <Perks /> */}
           <SubscriptionBannerSlider />
         </ScrollView>
     

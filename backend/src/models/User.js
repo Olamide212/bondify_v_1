@@ -147,36 +147,36 @@ const userSchema = new mongoose.Schema(
     },
     exercise: {
       type: String,
-      enum: ['never', 'rarely', 'sometimes', 'often', 'daily'],
+      enum: ['Never', 'Rarely', 'Sometimes', 'Often', 'Daily'],
     },
     pets: {
       type: String,
-      enum: ['have-pets', 'want-pets', 'dont-want-pets', 'allergic', 'prefer-not-to-say'],
+      enum: ['I Have pets', 'Want pets', "Don't want pets", 'Allergic', 'Prefer not to say'],
     },
     children: {
       type: String,
-      enum: ['I want kids', 'I have kids', "I don't want kids", 'I am open to kids', 'I prefer not to say'],
+      enum: ['I Want kids', 'I Have kids', "I Don't want kids", 'I Am open to kids', 'I Prefer not to say'],
     },
 
     // Relationship Preferences
     lookingFor: {
       type: String,
-      enum: ['Long term', 'Something Casual', 'Short term', 'Meet business oriented people', 'I am not sure', 'A Committed relationship'],
+      enum: ['Long term relationship', 'Something Casual', 'Short term relationship', 'Meet business oriented people', 'I am not sure', 'A Committed relationship', 'Marriage', 'Friendship', 'Activity partner', 'Just here for fun', 'Other'],
     },
     relationshipType: {
       type: String,
     },
     communicationStyle: {
       type: String,
-      enum: ['direct', 'thoughtful', 'emotional', 'logical', 'balanced'],
+      enum: ['Direct', 'Thoughtful', 'Emotional', 'Logical', 'Balanced'],
     },
     loveLanguage: {
       type: String,
-      enum: ['words-of-affirmation', 'quality-time', 'physical-touch', 'acts-of-service', 'receiving-gifts'],
+      enum: ['Words of Affirmation', 'Quality Time', 'Physical Touch', 'Acts of Service', 'Receiving Gifts'],
     },
     financialStyle: {
       type: String,
-      enum: ['spender', 'saver', 'investor', 'balanced', 'prefer-not-to-say'],
+      enum: ['Spender', 'Saver', 'Investor', 'Balanced', 'Prefer not to say'],
     },
 
     // Interests & Personality

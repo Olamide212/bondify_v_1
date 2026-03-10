@@ -106,8 +106,8 @@ const lookupData = [
   // Looking for
   {
     type: 'looking-for',
-    value: 'Long term',
-    label: 'Long term',
+    value: 'Long term relationship',
+    label: 'Long term relationship',
     description: 'Looking for a serious relationship with long-term potential.',
     order: 1,
   },
@@ -120,8 +120,8 @@ const lookupData = [
   },
   {
     type: 'looking-for',
-    value: 'Short term',
-    label: 'Short term',
+    value: 'Short term relationship',
+    label: 'Short term relationship',
     description: 'Interested in a meaningful but short-term connection.',
     order: 3,
   },
@@ -145,6 +145,41 @@ const lookupData = [
     label: 'A Committed relationship',
     description: 'Looking for an exclusive, committed partnership.',
     order: 6,
+  },
+  {
+    type: 'looking-for',
+    value: 'Marriage',
+    label: 'Marriage',
+    description: 'Looking for a lifelong partnership through marriage.',
+    order: 7,
+  },
+  {
+    type: 'looking-for',
+    value: 'Friendship',
+    label: 'Friendship',
+    description: 'Looking to build meaningful friendships.',
+    order: 8,
+  },
+  {
+    type: 'looking-for',
+    value: 'Activity partner',
+    label: 'Activity partner',
+    description: 'Looking for someone to share activities and hobbies with.',
+    order: 9,
+  },
+  {
+    type: 'looking-for',
+    value: 'Just here for fun',
+    label: 'Just here for fun',
+    description: 'Not looking for anything serious, just casual fun.',
+    order: 10,
+  },
+  {
+    type: 'looking-for',
+    value: 'Other',
+    label: 'Other',
+    description: 'Looking for something else not listed here.',
+    order: 11,
   },
 
   // Drinking habits

@@ -1,16 +1,18 @@
-import React from 'react'
-import { View, StyleSheet, StatusBar } from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
-import { ScrollView } from 'react-native-gesture-handler'
+import Constants from 'expo-constants'
 import { ArrowLeft } from "lucide-react-native"
-import { useTheme } from '../../../../context/ThemeContext'
+import { StatusBar, StyleSheet, Text, View } from 'react-native'
+import { ScrollView } from 'react-native-gesture-handler'
+import { SafeAreaView } from 'react-native-safe-area-context'
 import GeneralHeader from "../../../../components/headers/GeneralHeader"
-import AccountSection from '../../../../components/settings/AccountSection'
-import PrivacySection from '../../../../components/settings/PrivacySection'
-import PreferencesSection from '../../../../components/settings/PreferencesSection'
-import SupportSection from '../../../../components/settings/SupportSection'
-import LegalSection from '../../../../components/settings/LegalSection'
 import AccountAction from '../../../../components/settings/AccountAction'
+import AccountSection from '../../../../components/settings/AccountSection'
+import LegalSection from '../../../../components/settings/LegalSection'
+import PreferencesSection from '../../../../components/settings/PreferencesSection'
+import PrivacySection from '../../../../components/settings/PrivacySection'
+import SupportSection from '../../../../components/settings/SupportSection'
+import { useTheme } from '../../../../context/ThemeContext'
+
+const appVersion = Constants.expoConfig?.version ?? Constants.manifest?.version ?? '1.0.0'
 
 const SettingScreen = () => {
   const { colors } = useTheme()
@@ -32,6 +34,16 @@ const SettingScreen = () => {
         <SupportSection />
         <LegalSection />
         <AccountAction />
+
+        {/* ── App version ── */}
+        <View style={styles.versionContainer}>
+          <Text style={[styles.versionText, { color: colors.textSecondary ?? '#9CA3AF' }]}>
+            Bondies v{appVersion}
+          </Text>
+          <Text style={[styles.versionText, { color: colors.textSecondary ?? '#9CA3AF' }]}>
+            © {new Date().getFullYear()} Oatchip Limited.
+          </Text>
+        </View>
       </ScrollView>
     </SafeAreaView>
   )
@@ -42,7 +54,16 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingBottom: 80,
+    paddingBottom: 40,
+  },
+  versionContainer: {
+    alignItems: 'center',
+    paddingVertical: 14,
+  },
+  versionText: {
+    fontSize: 13,
+    fontFamily: 'PlusJakartaSans',
+    letterSpacing: 0.3,
   },
 })
 
