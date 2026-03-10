@@ -254,18 +254,16 @@ export default function VerificationScreen() {
         type: "image/jpeg",
       });
 
-      const res = await fetch(`${apiClient}/verification/verify`, {
-        method:  "POST",
+      const res = await apiClient.post("/verification/verify", formData, {
         headers: {
           Authorization: `Bearer ${token}`,
-          // Note: do NOT set Content-Type — fetch sets it automatically for FormData
+          // Note: do NOT set Content-Type — axios sets it automatically for FormData
         },
-        body: formData,
       });
 
-      const data = await res.json();
+      const data = res.data;
 
-      if (!res.ok) throw new Error(data.message || "Upload failed");
+      if (res.status !== 200) throw new Error(data.message || "Upload failed");
 
       setStep(STEP.DONE);
     } catch (err) {

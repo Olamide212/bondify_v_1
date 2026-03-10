@@ -3,7 +3,7 @@
  *
  * POST /api/profile/verify
  *   - Accepts a selfie (multipart/form-data, field: "selfie")
- *   - Uploads to S3 under bondify/verifications/{userId}/
+ *   - Uploads to S3 under bondies/verifications/{userId}/
  *   - Runs a basic face-presence check via OpenAI Vision
  *   - Sets user.verificationStatus = "pending" (admin/cron approves later)
  *     OR auto-approves if face is clearly detected (configurable via VERIFY_AUTO_APPROVE=true)
@@ -29,7 +29,7 @@ const AUTO_APPROVE = process.env.VERIFY_AUTO_APPROVE === 'true';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 const getS3Key = (userId) =>
-  `bondify/verifications/${userId}/${Date.now()}-${Math.round(Math.random() * 1e9)}.jpg`;
+  `bondies/verifications/${userId}/${Date.now()}-${Math.round(Math.random() * 1e9)}.jpg`;
 
 const getPublicUrl = (bucket, key) => {
   const base = process.env.AWS_S3_PUBLIC_BASE_URL;
@@ -89,7 +89,7 @@ Rules:
 const submitVerification = async (req, res) => {
   try {
     const userId = req.user._id;
-    const bucket = process.env.AWS_S3_BUCKET;
+    const bucket = process.env.AWS_S3_USERS_VERIFICATION_BUCKET;
 
     // ── Guards ──────────────────────────────────────────────────────────────
     if (!bucket) {
