@@ -126,11 +126,7 @@ const MyInfo = ({ profile, onUpdateField }) => {
       icon:    PawPrint,
       type:    "modal",
       options: [
-        "have-pets",
-        "want-pets",
-        "dont-want-pets",
-        "allergic",
-        "prefer-not-to-say",
+       'I Have pets', 'Want pets', "Don't want pets", 'Allergic', 'Prefer not to say'
       ],
     },
     {
@@ -172,12 +168,7 @@ const MyInfo = ({ profile, onUpdateField }) => {
       icon:    Users,
       type:    "modal",
       options: [
-        "Long term",
-        "Something Casual",
-        "Short term",
-        "Meet business oriented people",
-        "I am not sure",
-        "A Committed relationship",
+        'Long term relationship', 'Something Casual', 'Short term relationship', 'Meet business oriented people', 'I am not sure', 'A Committed relationship', 'Marriage', 'Friendship', 'Activity partner', 'Just here for fun', 'Other'
       ],
     },
     {

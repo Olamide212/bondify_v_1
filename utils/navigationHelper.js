@@ -1,63 +1,43 @@
 import * as SecureStore from "expo-secure-store";
 
-// navigationHelper.js - Add debugging
-export const determineNextRoute = async ({
-  token,
-  onboardingToken,
-  pendingEmail,
-}) => {
-  console.log("determineNextRoute called with:", {
-    token: token ? "yes" : "no",
-    onboardingToken: onboardingToken ? "yes" : "no",
-    pendingEmail: pendingEmail ? "yes" : "no",
-  });
+/**
+ * Determines the next route after auth restoration.
+ *
+ * Hard contract: resolves in ≤ 1 500 ms no matter what.
+ * - SecureStore reads race against a 800 ms timeout so a slow keychain
+ *   never blocks the whole splash screen.
+ */
 
-  // 1️⃣ No active auth/onboarding session
+const SECURE_STORE_TIMEOUT_MS = 800;
+
+// SecureStore.getItemAsync wrapped with a timeout so it never hangs.
+const getItemSafe = (key) =>
+  Promise.race([
+    SecureStore.getItemAsync(key).catch(() => null),
+    new Promise((resolve) => setTimeout(() => resolve(null), SECURE_STORE_TIMEOUT_MS)),
+  ]);
+
+export const determineNextRoute = async ({ token, onboardingToken, pendingEmail }) => {
+  // 1. No session at all → onboarding
   if (!token && !onboardingToken) {
-    try {
-      await SecureStore.deleteItemAsync("onboardingStep");
-    } catch (error) {
-      console.warn("Failed to clear stale onboarding step:", error);
-    }
-
-    console.log("Returning /onboarding due to missing token and onboardingToken");
+    // Fire-and-forget — don't await, we already know the route
+    SecureStore.deleteItemAsync("onboardingStep").catch(() => {});
     return "/onboarding";
   }
 
-  // 2️⃣ Pending OTP
-  if (pendingEmail) {
-    console.log("Returning /validation due to pendingEmail");
-    return "/validation";
-  }
+  // 2. Pending OTP verification
+  if (pendingEmail) return "/validation";
 
-  // 3️⃣ Onboarding flow (must take priority over token when onboarding isn't complete)
+  // 3. Onboarding in progress — read last step (with timeout so it never hangs)
   if (onboardingToken) {
-    console.log("Checking onboarding step...");
-    try {
-      const lastStep = await SecureStore.getItemAsync("onboardingStep");
-      console.log("Last step from SecureStore:", lastStep);
-
-      if (lastStep) {
-       
-        const route = `/(onboarding)/${lastStep}`;
-        console.log("Returning:", route);
-        return route;
-      }
-
-      console.log("Returning /(onboarding)/age as default");
-      return "/(onboarding)/age";
-    } catch (error) {
-      console.error("Error reading SecureStore:", error);
-      return "/(onboarding)/age";
-    }
+    const lastStep = await getItemSafe("onboardingStep");
+    if (lastStep) return `/(onboarding)/${lastStep}`;
+    return "/(onboarding)/age";
   }
 
-  // 4️⃣ Fully authenticated
-  if (token) {
-    console.log("Returning /root-tabs due to token");
-    return "/root-tabs";
-  }
+  // 4. Fully authenticated
+  if (token) return "/root-tabs";
 
-  // 5️⃣ New/unauthenticated user
+  // 5. Fallback
   return "/onboarding";
 };

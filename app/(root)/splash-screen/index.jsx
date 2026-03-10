@@ -1,11 +1,11 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { Alert, TouchableOpacity, View } from "react-native";
 import Animated, {
-    useAnimatedStyle,
-    useSharedValue,
-    withTiming,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
 } from "react-native-reanimated";
 import { useDispatch, useSelector } from "react-redux";
 import { useAuthRestore } from "../../../hooks/useAuthRestore";
@@ -14,91 +14,59 @@ import { persistor } from "../../../store/store";
 import { determineNextRoute } from "../../../utils/navigationHelper";
 import { tokenManager } from "../../../utils/tokenManager";
 
-const SplashScreen = () => {
-  const dispatch = useDispatch();
-  const router = useRouter();
-  const hasNavigated = useRef(false);
-  const resetInProgressRef = useRef(false);
-  const tapCountRef = useRef(0);
-  const tapResetTimerRef = useRef(null);
-  const [isRouting, setIsRouting] = useState(false);
+// Hard cap: if we haven't navigated within this many ms, force /onboarding
+const NAV_TIMEOUT_MS = 2000;
 
-  // Restore auth state
+const SplashScreen = () => {
+  const dispatch      = useDispatch();
+  const router        = useRouter();
+  const hasNavigated  = useRef(false);
+  const resetInProgressRef = useRef(false);
+  const tapCountRef   = useRef(0);
+  const tapResetTimerRef = useRef(null);
+
   const { restored, token, onboardingToken } = useAuthRestore();
   const { pendingEmail } = useSelector((state) => state.auth);
 
-  // Animation values
-  const iconScale = useSharedValue(0.9);
-  const textOpacity = useSharedValue(0);
+  // ── Animations ──────────────────────────────────────────────────────────────
+  const iconScale    = useSharedValue(0.9);
+  const textOpacity  = useSharedValue(0);
   const textTranslate = useSharedValue(20);
 
-  // Run animation once
   useEffect(() => {
-    iconScale.value = withTiming(0.6, { duration: 1000 });
-    textOpacity.value = withTiming(1, { duration: 800 });
-    textTranslate.value = withTiming(0, { duration: 800 });
+    iconScale.value     = withTiming(0.6, { duration: 800 });
+    textOpacity.value   = withTiming(1,   { duration: 600 });
+    textTranslate.value = withTiming(0,   { duration: 600 });
   }, []);
 
-  // Navigate after auth restoration
+  // ── Navigation ──────────────────────────────────────────────────────────────
+  const navigate = (route) => {
+    if (hasNavigated.current) return;
+    hasNavigated.current = true;
+    router.replace(route);
+  };
+
+  // Hard timeout — always fires at 2 s regardless of auth state
   useEffect(() => {
-    console.log("Navigation Check:", {
-      restored,
-      isRouting,
-      hasNavigated: hasNavigated.current,
-      routerReady: router.isReady,
-      token: token ? "exists" : "null",
-      pendingEmail: pendingEmail ? "exists" : "null"
-    });
-
-    if (!restored || hasNavigated.current || isRouting) return;
-
-    const performNavigation = async () => {
-      setIsRouting(true);
-      try {
-        const nextRoute = await determineNextRoute({
-          token,
-          onboardingToken,
-          pendingEmail,
-        });
-
-        console.log("Navigation: Next route =", nextRoute);
-
-        if (nextRoute && !hasNavigated.current) {
-          hasNavigated.current = true;
-          
-          // Small delay to ensure animation completes
-          await new Promise(resolve => setTimeout(resolve, 500));
-          
-          router.replace(nextRoute);
-        }
-      } catch (error) {
-        console.error("Navigation Error:", error);
-        // Fallback to onboarding on error
-        if (!hasNavigated.current) {
-          hasNavigated.current = true;
-          router.replace("/onboarding");
-        }
-      } finally {
-        setIsRouting(false);
+    const id = setTimeout(() => {
+      if (!hasNavigated.current) {
+        console.warn("[SplashScreen] Hard timeout — forcing /onboarding");
+        navigate("/onboarding");
       }
-    };
+    }, NAV_TIMEOUT_MS);
+    return () => clearTimeout(id);
+  }, []);
 
-    performNavigation();
-  }, [restored, token, onboardingToken, pendingEmail, router]);
-
-  // Safety timeout fallback
+  // Navigate as soon as auth state is restored (no artificial delay)
   useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      if (!hasNavigated.current && restored) {
-        console.warn("Splash screen timeout - forcing navigation");
-        hasNavigated.current = true;
-        router.replace("/onboarding");
-      }
-    }, 5000);
+    if (!restored || hasNavigated.current) return;
 
-    return () => clearTimeout(timeoutId);
-  }, [restored, router]);
+    determineNextRoute({ token, onboardingToken, pendingEmail })
+      .then(navigate)
+      .catch(() => navigate("/onboarding"));
+  }, [restored]);
 
+  // ── Animated styles ─────────────────────────────────────────────────────────
   const iconStyle = useAnimatedStyle(() => ({
     transform: [{ scale: iconScale.value }],
   }));
@@ -108,31 +76,22 @@ const SplashScreen = () => {
     transform: [{ translateX: textTranslate.value }],
   }));
 
+  // ── Emergency reset (7 taps) ─────────────────────────────────────────────
   const performEmergencyReset = async () => {
     if (resetInProgressRef.current) return;
     resetInProgressRef.current = true;
-
     try {
       await tokenManager.removeTokens();
-
-      const allKeys = await AsyncStorage.getAllKeys();
+      const allKeys   = await AsyncStorage.getAllKeys();
       const resetKeys = allKeys.filter(
-        (key) => key === "persist:root" || key.startsWith("@bondify/cache/")
+        (k) => k === "persist:root" || k.startsWith("@bondify/cache/")
       );
-
-      if (resetKeys.length > 0) {
-        await AsyncStorage.multiRemove(resetKeys);
-      }
-
+      if (resetKeys.length > 0) await AsyncStorage.multiRemove(resetKeys);
       await persistor.purge();
       dispatch(logout());
-
-      hasNavigated.current = true;
-      router.replace("/onboarding");
-    } catch (error) {
-      console.error("Emergency reset failed:", error);
-      hasNavigated.current = true;
-      router.replace("/onboarding");
+      navigate("/onboarding");
+    } catch {
+      navigate("/onboarding");
     } finally {
       resetInProgressRef.current = false;
     }
@@ -140,33 +99,23 @@ const SplashScreen = () => {
 
   const handleDebugTap = () => {
     tapCountRef.current += 1;
-
-    if (tapResetTimerRef.current) {
-      clearTimeout(tapResetTimerRef.current);
-    }
-
-    tapResetTimerRef.current = setTimeout(() => {
-      tapCountRef.current = 0;
-    }, 1200);
+    if (tapResetTimerRef.current) clearTimeout(tapResetTimerRef.current);
+    tapResetTimerRef.current = setTimeout(() => { tapCountRef.current = 0; }, 1200);
 
     if (tapCountRef.current >= 7) {
       tapCountRef.current = 0;
-
       Alert.alert(
         "Emergency Reset",
         "This will clear local session/cache and return to onboarding.",
         [
           { text: "Cancel", style: "cancel" },
-          {
-            text: "Reset",
-            style: "destructive",
-            onPress: performEmergencyReset,
-          },
+          { text: "Reset", style: "destructive", onPress: performEmergencyReset },
         ]
       );
     }
   };
 
+  // ── Render ───────────────────────────────────────────────────────────────────
   return (
     <View className="flex-1 bg-primary items-center justify-center">
       <TouchableOpacity className="items-center" activeOpacity={1} onPress={handleDebugTap}>

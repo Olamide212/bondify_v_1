@@ -6,39 +6,41 @@ const lookupSchema = new mongoose.Schema(
       type: String,
       required: true,
       enum: [
+        // Original types
+        'genders',
+        'gender-preferences',
+        'family-plans',
+        'drinking-habits',
+        'smoking-habits',
+        'relationship-status',
+        'looking-for',
+        'same-beliefs',
         'interests',
         'religions',
         'ethnicities',
         'languages',
-        'genders',
-        'gender-preferences',
-        'relationship-status',
-        'looking-for',
-        'drinking-habits',
-        'smoking-habits',
-        'occupations',
         'education',
         'zodiac',
         'personalities',
-        'family-plans',
+        'occupations',
         'nationality',
-        'same-beliefs',
-        'other',
+        // Added in Session 6 — required for MyInfo DB-driven options
+        'exercise-habits',
+        'pets',
+        'communication-style',
+        'love-language',
+        'financial-style',
       ],
-    },
-    value: {
-      type: String,
-      required: true,
     },
     label: {
       type: String,
       required: true,
+      trim: true,
     },
-    description: {
+    value: {
       type: String,
-    },
-    category: {
-      type: String,
+      required: true,
+      trim: true,
     },
     order: {
       type: Number,
@@ -48,15 +50,18 @@ const lookupSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    metadata: {
+      type: mongoose.Schema.Types.Mixed,
+    },
   },
   {
     timestamps: true,
   }
 );
 
-// Indexes
+// Compound index so GET /api/lookup/:type is fast
+lookupSchema.index({ type: 1, order: 1 });
 lookupSchema.index({ type: 1, isActive: 1 });
-lookupSchema.index({ type: 1, value: 1 }, { unique: true });
 
 const Lookup = mongoose.model('Lookup', lookupSchema);
 
