@@ -1,25 +1,19 @@
 import { ArrowLeft, School as SchoolIcon } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import {
-  Modal,
-  Pressable,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+  Pressable, StyleSheet, Text, TextInput,
+  TouchableOpacity, View,
 } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-import Button from "../ui/Button";
-import TextHeadingOne from "../ui/TextHeadingOne";
 import BaseModal from "../modals/BaseModal";
+import Button from "../ui/Button";
+import { colors } from "../../constant/colors";
 
 const School = ({ profile, onUpdateField }) => {
   const [modalVisible, setModalVisible] = useState(false);
-  const [schoolName, setSchoolName] = useState(profile?.school || "");
+  const [schoolName, setSchoolName]     = useState(profile?.school || "");
 
-  useEffect(() => {
-    setSchoolName(profile?.school || "");
-  }, [profile?.school]);
+  useEffect(() => { setSchoolName(profile?.school || ""); }, [profile?.school]);
 
   const handleSave = async () => {
     await onUpdateField?.("school", schoolName);
@@ -28,57 +22,116 @@ const School = ({ profile, onUpdateField }) => {
 
   return (
     <>
-      <TouchableOpacity
-        className="px-6 py-4 bg-white border border-gray-100 mx-4 rounded-2xl"
-        onPress={() => setModalVisible(true)}
-      >
-        <View className="mb-1">
-        
-          {!schoolName ? (
-            <Text className="text-gray-400  font-PlusJakartaSansMediumItalic">
-              No school added yet
+      <TouchableOpacity style={s.card} onPress={() => setModalVisible(true)} activeOpacity={0.8}>
+        <View style={s.cardLeft}>
+          <View style={s.iconCircle}>
+            <SchoolIcon size={18} color={colors.primary} strokeWidth={2} />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={s.cardValue} numberOfLines={1}>
+              {schoolName.trim() || "Not set"}
             </Text>
-          ) : (
-            <Text className="text-black text-2xl font-PlusJakartaSansMedium">
-              {schoolName.trim() || "No school added yet"}
+            <Text style={s.cardCta}>
+              {schoolName.trim() ? "Change school" : "Add your school"}
             </Text>
-          )}
-
+          </View>
         </View>
       </TouchableOpacity>
 
-      <BaseModal visible={modalVisible} onClose={() => setModalVisible(false)} fullScreen={true}>
-
+      <BaseModal visible={modalVisible} onClose={() => setModalVisible(false)} fullScreen>
         <SafeAreaProvider>
-          <SafeAreaView className="flex-1 bg-white p-6">
-            {/* Header */}
-            <View className="flex-row  items-center mb-6">
-              <Pressable onPress={() => setModalVisible(false)} className="mr-4">
-                <ArrowLeft size={24} color="#000" />
+          <SafeAreaView style={s.modal}>
+            <View style={s.modalHeader}>
+              <Pressable onPress={() => setModalVisible(false)} hitSlop={8}>
+                <ArrowLeft size={22} color="#111" />
               </Pressable>
-              <Text className="text-2xl font-PlusJakartaSansMedium text-center">
-                Add your school
-              </Text>
+              <Text style={s.modalTitle}>School</Text>
+              <View style={{ width: 22 }} />
             </View>
-
-            {/* Input Field */}
             <TextInput
-              className="border border-gray-300   rounded-lg p-4 mb-6 font-PlusJakartaSansMedium"
+              style={s.input}
               placeholder="Enter school name"
+              placeholderTextColor="#9CA3AF"
               value={schoolName}
               onChangeText={setSchoolName}
-              autoFocus={true}
-
+              autoFocus
             />
-
-            {/* Save Button */}
-            <Button title="Save" onPress={handleSave} disabled={!schoolName} />
+            <View style={s.footer}>
+              <Button title="Save" onPress={handleSave} disabled={!schoolName.trim()} />
+            </View>
           </SafeAreaView>
         </SafeAreaProvider>
-
       </BaseModal>
     </>
   );
 };
 
 export default School;
+
+const s = StyleSheet.create({
+  card: {
+    backgroundColor:  "#fff",
+    borderRadius:     16,
+    borderWidth:      1,
+    borderColor:      "#F3F4F6",
+    marginHorizontal: 16,
+    padding:          16,
+  },
+  cardLeft: {
+    flexDirection: "row",
+    alignItems:    "center",
+    gap:           12,
+  },
+  iconCircle: {
+    width:           40,
+    height:          40,
+    borderRadius:    99,
+    backgroundColor: "#FEF3EC",
+    alignItems:      "center",
+    justifyContent:  "center",
+  },
+  cardValue: {
+    fontSize:     16,
+    fontFamily:   "PlusJakartaSansSemiBold",
+    color:        "#111",
+    marginBottom: 2,
+  },
+  cardCta: {
+    fontSize:   13,
+    fontFamily: "PlusJakartaSansMedium",
+    color:      colors.primary,
+  },
+  modal: {
+    flex:              1,
+    backgroundColor:   "#fff",
+    paddingHorizontal: 20,
+    paddingTop:        12,
+  },
+  modalHeader: {
+    flexDirection:  "row",
+    alignItems:     "center",
+    justifyContent: "space-between",
+    marginBottom:   24,
+  },
+  modalTitle: {
+    fontSize:   18,
+    fontFamily: "PlusJakartaSansBold",
+    color:      "#111",
+  },
+  input: {
+    borderWidth:       1,
+    borderColor:       "#E5E7EB",
+    borderRadius:      12,
+    paddingHorizontal: 16,
+    paddingVertical:   14,
+    fontSize:          15,
+    fontFamily:        "PlusJakartaSansMedium",
+    color:             "#111",
+    backgroundColor:   "#FAFAFA",
+    marginBottom:      20,
+  },
+  footer: {
+    marginTop:     "auto",
+    paddingBottom: 12,
+  },
+});

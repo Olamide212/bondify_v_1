@@ -1,22 +1,23 @@
 const express = require('express');
-const router = express.Router();
+const router  = express.Router();
 const {
   submitVerification,
-  getVerificationStatus,
-  reviewVerification,
-  listPendingVerifications,
+  approveVerification,
+  rejectVerification,
 } = require('../controllers/verificationController');
 const { protect } = require('../middleware/auth');
 const upload = require('../middleware/upload');
 
 router.use(protect);
 
-// User routes
-router.post('/submit', upload.single('idSelfie'), submitVerification);
-router.get('/status', getVerificationStatus);
+// ── User ──────────────────────────────────────────────────────────────────────
+// POST /api/profile/verify   (called from the app — field name: "selfie")
+router.post('/verify', upload.single('selfie'), submitVerification);
 
-// Admin routes (add admin middleware in production)
-router.get('/admin/pending', listPendingVerifications);
-router.patch('/admin/:verificationId/review', reviewVerification);
+// ── Admin ─────────────────────────────────────────────────────────────────────
+// Add your admin middleware here before going to production
+// e.g. router.use(requireAdmin);
+router.patch('/admin/verify/:userId/approve', approveVerification);
+router.patch('/admin/verify/:userId/reject',  rejectVerification);
 
 module.exports = router;

@@ -43,6 +43,8 @@ import TextHeadingOne from '../../../../components/ui/TextHeadingOne';
 import { colors as C } from '../../../../constant/colors';
 import { useTheme } from '../../../../context/ThemeContext';
 import { profileService } from '../../../../services/profileService';
+import InterestCard from '../../../../components/profileScreen/InterestCard';
+import LifestyleCard from '../../../../components/profileScreen/Lifestyle';
 
 const { width: SW } = Dimensions.get('window');
 const TABS = ['Edit', 'View Profile'];
@@ -461,6 +463,11 @@ export default function ProfileDetails() {
                 <TextHeadingOne name="Prompt" />
                 <ProfileAnswers profile={profile} onUpdateField={handleUpdateField} />
               </View>
+
+
+<View>
+<InterestCard profile={profile} onUpdateField={handleUpdateField} />
+</View>
 
               <View>
                 <TextHeadingOne name="About Me" />

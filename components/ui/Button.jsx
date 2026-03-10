@@ -4,6 +4,7 @@ import {
     StyleSheet,
     Text,
     TouchableOpacity,
+    View
 } from "react-native";
 import { colors } from "../../constant/colors";
 
@@ -62,14 +63,14 @@ const Button = ({
 
   const textStyle =
     variant === "primary"
-      ? "text-white"
+      ? "text-white font-PlusJakartaSansSemiBold"
       : variant === "white"
-        ? "text-black"
+        ? "text-black font-PlusJakartaSansSemiBold"
         : variant === "secondary"
-          ? "text-primary"
+          ? "text-primary font-PlusJakartaSansSemiBold"
           : variant === "neutral"
-            ? "text-[#1E4234] "
-            : "text-white";
+            ? "text-[#1E4234] font-PlusJakartaSansSemiBold"
+            : "text-white font-PlusJakartaSansSemiBold";
 
   return (
     <TouchableOpacity
@@ -80,10 +81,14 @@ const Button = ({
       } ${className}`}
     >
       {loading ? (
-        <ActivityIndicator color={"#fff"} />
+        <View className="flex-row items-center gap-2">
+ <ActivityIndicator color={"#fff"} />
+        <Text className='text-xl font-PlusJakartaSansSemiBold text-white'>Loading...</Text>
+        </View>
+       
       ) : (
         <Text
-          className={`text-xl font-PlusJakartaSansMedium ${textStyle} ${textClassName}`}
+          className={`text-xl font-PlusJakartaSansSemiBold ${textStyle} ${textClassName}`}
         >
           {title}
         </Text>

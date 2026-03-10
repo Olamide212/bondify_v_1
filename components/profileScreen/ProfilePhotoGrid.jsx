@@ -1,110 +1,273 @@
 import { Plus, X } from "lucide-react-native";
 import { useMemo, useState } from "react";
-import { ActivityIndicator, Image, TouchableOpacity, View, Text } from "react-native";
+import {
+  ActivityIndicator, Image, StyleSheet,
+  Text, TouchableOpacity, View,
+} from "react-native";
+import { colors } from "../../constant/colors";
+
+/**
+ * Grid layout (6 slots total):
+ *
+ *  ┌──────────────┬────────┐
+ *  │              │   1    │
+ *  │      0       ├────────┤
+ *  │  (featured)  │   2    │
+ *  ├───────┬──────┴──┬─────┤
+ *  │   3   │    4    │  5  │
+ *  └───────┴─────────┴─────┘
+ *
+ *  Slot 0   : tall featured (left, spans full height of top section)
+ *  Slots 1-2: stacked vertically on the right of featured
+ *  Slots 3-5: 3 equal cells in the bottom row
+ */
 
 const MAX_PHOTOS = 6;
+const GAP        = 8;
+const RADIUS     = 14;
 
-const ProfilePhotoGrid = ({ photos: initialPhotos = [], onAddPhoto, onRemovePhoto }) => {
-  const [isAdding, setIsAdding] = useState(false);
-  const [removingIndex, setRemovingIndex] = useState(null);
-  // Only track loading for already uploaded images
-  const [imageLoading, setImageLoading] = useState(
-    Array(initialPhotos.length).fill(false)
+// ─── Individual slot ──────────────────────────────────────────────────────────
+const Slot = ({
+  item, index, featured,
+  isAdding, removingIndex, imageLoading,
+  onAdd, onRemove, onLoadStart, onLoadEnd,
+}) => {
+  if (!item) {
+    return (
+      <TouchableOpacity
+        style={[s.slot, featured && s.slotFeatured, s.emptySlot]}
+        onPress={onAdd}
+        disabled={isAdding}
+        activeOpacity={0.75}
+      >
+        {isAdding
+          ? <ActivityIndicator size="small" color={colors.primary} />
+          : <View style={s.plusCircle}>
+              <Plus size={featured ? 24 : 20} color={colors.primary} strokeWidth={2.5} />
+            </View>
+        }
+      </TouchableOpacity>
+    );
+  }
+
+  const uri = item?.url || item;
+  return (
+    <View style={[s.slot, featured && s.slotFeatured, s.filledSlot, featured && s.slotFeaturedFilled]}>
+      <Image source={{ uri }} style={StyleSheet.absoluteFill} resizeMode="cover"
+        onLoadStart={() => onLoadStart(index)}
+        onLoadEnd={() => onLoadEnd(index)}
+      />
+      {imageLoading[index] && (
+        <View style={s.imgOverlay}>
+          <ActivityIndicator size="small" color={colors.primary} />
+        </View>
+      )}
+      {featured && (
+        <View style={s.mainBadge}>
+          <Text style={s.mainBadgeText}>Main</Text>
+        </View>
+      )}
+      <TouchableOpacity
+        style={s.removeBtn}
+        onPress={() => onRemove(item, index)}
+        disabled={removingIndex === index}
+        hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+      >
+        {removingIndex === index
+          ? <ActivityIndicator size={12} color="#fff" />
+          : <X size={13} color="#fff" strokeWidth={2.8} />
+        }
+      </TouchableOpacity>
+    </View>
   );
-  // Fill remaining slots with nulls (for plus icons)
-  const photoSlots = useMemo(() => {
-    const filled = [...initialPhotos];
-    while (filled.length < MAX_PHOTOS) {
-      filled.push(null);
-    }
-    return filled;
+};
+
+// ─── Component ────────────────────────────────────────────────────────────────
+const ProfilePhotoGrid = ({ photos: initialPhotos = [], onAddPhoto, onRemovePhoto }) => {
+  const [isAdding,      setIsAdding]      = useState(false);
+  const [removingIndex, setRemovingIndex] = useState(null);
+  const [imageLoading,  setImageLoading]  = useState(Array(MAX_PHOTOS).fill(false));
+
+  const slots = useMemo(() => {
+    const f = [...initialPhotos];
+    while (f.length < MAX_PHOTOS) f.push(null);
+    return f.slice(0, MAX_PHOTOS);
   }, [initialPhotos]);
 
-  const renderItem = (item, index) => {
-    if (!item) {
-      // Empty slot -> show plus icon
-      return (
-       
-        <TouchableOpacity
-          className="w-full aspect-square rounded-xl overflow-hidden bg-gray-100 justify-center items-center"
-          onPress={async () => {
-            // Only show spinner after user selects a photo
-            await onAddPhoto?.();
-            setIsAdding(false);
-          }}
-          disabled={isAdding}
-        >
-          {isAdding ? (
-            <ActivityIndicator size="small" color="#EE5F2B" />
-          ) : (
-            <Plus size={28} color="#999" />
-          )}
-        </TouchableOpacity>
-   
-      );
-    }
+  const handleAdd    = async () => { setIsAdding(true); try { await onAddPhoto?.(); } finally { setIsAdding(false); } };
+  const handleRemove = async (item, i) => { setRemovingIndex(i); try { await onRemovePhoto?.(item, i); } finally { setRemovingIndex(null); } };
+  const onLoadStart  = (i) => setImageLoading((p) => { const a=[...p]; a[i]=true;  return a; });
+  const onLoadEnd    = (i) => setImageLoading((p) => { const a=[...p]; a[i]=false; return a; });
 
-    const imageUri = item?.url || item;
-
-    return (
-      <View className="w-full aspect-square rounded-xl overflow-hidden">
-        <Image
-          source={{ uri: imageUri }}
-          className="w-full h-full"
-          onLoadStart={() => {
-            setImageLoading((prev) => {
-              const arr = [...prev];
-              arr[index] = true;
-              return arr;
-            });
-          }}
-          onLoadEnd={() => {
-            setImageLoading((prev) => {
-              const arr = [...prev];
-              arr[index] = false;
-              return arr;
-            });
-          }}
-        />
-        {imageLoading[index] && (
-          <View className="absolute inset-0 bg-black/10 justify-center items-center">
-            <ActivityIndicator size="small" color="#EE5F2B" />
-          </View>
-        )}
-        <TouchableOpacity
-          onPress={async () => {
-            setRemovingIndex(index);
-            try {
-              await onRemovePhoto?.(item, index);
-            } finally {
-              setRemovingIndex(null);
-            }
-          }}
-          className="absolute top-1 right-1 bg-black/50 p-1 rounded-full"
-          disabled={removingIndex === index}
-        >
-          {removingIndex === index ? (
-            <ActivityIndicator size={14} color="#fff" />
-          ) : (
-            <X size={16} color="#fff" />
-          )}
-        </TouchableOpacity>
-      </View>
-    );
-  };
+  const sp = (index, extra = {}) => ({
+    item: slots[index], index, isAdding, removingIndex, imageLoading,
+    onAdd: handleAdd, onRemove: handleRemove, onLoadStart, onLoadEnd,
+    ...extra,
+  });
 
   return (
-    <View className="p-6  bg-white border border-gray-100 rounded-2xl mx-4 ">
+    <View style={s.card}>
 
-      <View className="flex-row flex-wrap justify-between gap-y-3">
-        {photoSlots.map((item, index) => (
-          <View key={`photo-${index}`} className="w-[32.5%] aspect-square ">
-            {renderItem(item, index)}
+      {/* Header */}
+      <View style={s.header}>
+        <Text style={s.title}>Photos</Text>
+        <Text style={s.countText}>{initialPhotos.length} of {MAX_PHOTOS}</Text>
+      </View>
+
+      {/* ── Top section: featured (left) + 2 stacked (right) ── */}
+      <View style={s.topRow}>
+
+        {/* Slot 0: featured tall */}
+        <View style={s.featuredCol}>
+          <Slot {...sp(0, { featured: true })} />
+        </View>
+
+        {/* Slots 1-2: stacked vertically */}
+        <View style={s.stackedCol}>
+          <View style={s.stackedCell}>
+            <Slot {...sp(1)} />
+          </View>
+          <View style={s.stackedCell}>
+            <Slot {...sp(2)} />
+          </View>
+        </View>
+
+      </View>
+
+      {/* ── Bottom row: slots 3, 4, 5 (always 3 equal) ── */}
+      <View style={s.bottomRow}>
+        {[3, 4, 5].map((idx) => (
+          <View key={idx} style={s.bottomCell}>
+            <Slot {...sp(idx)} />
           </View>
         ))}
       </View>
+
     </View>
   );
 };
 
 export default ProfilePhotoGrid;
+
+// ─── Styles ───────────────────────────────────────────────────────────────────
+const s = StyleSheet.create({
+  card: {
+    backgroundColor:  '#fff',
+    borderRadius:     20,
+    borderWidth:      1,
+    borderColor:      '#F3F4F6',
+    marginHorizontal: 16,
+    padding:          16,
+  },
+
+  header: {
+    flexDirection:  'row',
+    justifyContent: 'space-between',
+    alignItems:     'center',
+    marginBottom:   14,
+  },
+  title: {
+    fontSize:   18,
+    fontFamily: 'PlusJakartaSansBold',
+    color:      '#111',
+  },
+  countText: {
+    fontSize:   13,
+    fontFamily: 'PlusJakartaSansMedium',
+    color:      '#9CA3AF',
+  },
+
+  // ── Top section ──
+  topRow: {
+    flexDirection: 'row',
+    gap:           GAP,
+    marginBottom:  GAP,
+  },
+  featuredCol: {
+    flex: 1.4,                 // featured takes more width
+  },
+  stackedCol: {
+    flex:          1,
+    flexDirection: 'column',
+    gap:           GAP,
+  },
+  stackedCell: {
+    flex:        1,
+    aspectRatio: 1,
+  },
+
+  // ── Bottom row ──
+  bottomRow: {
+    flexDirection: 'row',
+    gap:           GAP,
+  },
+  bottomCell: {
+    flex:        1,
+    aspectRatio: 1,
+  },
+
+  // ── Base slot ──
+  slot: {
+    borderRadius:    RADIUS,
+    overflow:        'hidden',
+    alignItems:      'center',
+    justifyContent:  'center',
+    aspectRatio:     1,
+    flex:            1,
+  },
+  slotFeatured: {
+    aspectRatio: 0.68,  // taller than square — matches screenshot
+  },
+  emptySlot: {
+    borderWidth:     1.5,
+    borderColor:     '#E0E0E0',
+    borderStyle:     'dashed',
+    backgroundColor: '#F9FAFB',
+  },
+  filledSlot: {
+    borderWidth: 0,
+  },
+  slotFeaturedFilled: {
+    borderWidth: 2.5,
+    borderColor: colors.primary,
+    borderStyle: 'solid',
+  },
+
+  // ── Slot internals ──
+  plusCircle: {
+    width:           42,
+    height:          42,
+    borderRadius:    99,
+    backgroundColor: '#FEF3EC',
+    alignItems:      'center',
+    justifyContent:  'center',
+  },
+  imgOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.08)',
+    alignItems:      'center',
+    justifyContent:  'center',
+  },
+  mainBadge: {
+    position:          'absolute',
+    bottom:            8,
+    left:              8,
+    backgroundColor:   'rgba(0,0,0,0.42)',
+    borderRadius:      99,
+    paddingHorizontal: 9,
+    paddingVertical:   3,
+  },
+  mainBadgeText: {
+    fontSize:   11,
+    fontFamily: 'PlusJakartaSansSemiBold',
+    color:      '#fff',
+  },
+  removeBtn: {
+    position:        'absolute',
+    bottom:          8,
+    right:           8,
+    backgroundColor: 'rgba(0,0,0,0.46)',
+    borderRadius:    99,
+    padding:         5,
+  },
+});

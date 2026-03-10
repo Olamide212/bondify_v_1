@@ -1,16 +1,14 @@
 import { GraduationCap } from "lucide-react-native";
 import { useEffect, useMemo, useState } from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useLookupOptions } from "../../hooks/useLookupOptions";
 import ProfileEducationModal from "../modals/ProfileEducationModal";
-import TextHeadingOne from "../ui/TextHeadingOne";
+import { colors } from "../../constant/colors";
 
 const Education = ({ profile, onUpdateField }) => {
-  const [modalVisible, setModalVisible] = useState(false);
-  const [selectedEducation, setSelectedEducation] = useState(
-    profile?.education || null
-  );
-  const { options: educationOptions } = useLookupOptions("education");
+  const [modalVisible, setModalVisible]         = useState(false);
+  const [selectedEducation, setSelectedEducation] = useState(profile?.education || null);
+  const { options: educationOptions }            = useLookupOptions("education");
 
   useEffect(() => {
     setSelectedEducation(profile?.education || null);
@@ -22,37 +20,30 @@ const Education = ({ profile, onUpdateField }) => {
   };
 
   const educationLabel = useMemo(() => {
-    if (!selectedEducation) return "Add My Education";
-
-    const option = educationOptions.find((opt) => opt.value === selectedEducation);
+    if (!selectedEducation) return null;
+    const option = educationOptions.find((o) => o.value === selectedEducation);
     if (option?.label) return option.label;
-
     return selectedEducation
       .split("-")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
       .join(" ");
   }, [educationOptions, selectedEducation]);
 
   return (
     <>
-      <TouchableOpacity
-        className="px-6 py-4 bg-white border border-gray-100 mx-4 rounded-2xl"
-        onPress={() => setModalVisible(true)}
-      >
-        <View className="mb-1">
-          {selectedEducation ? (
-            <Text className="text-black text-2xl font-PlusJakartaSansMedium">
-              {educationLabel}
+      <TouchableOpacity style={s.card} onPress={() => setModalVisible(true)} activeOpacity={0.8}>
+        <View style={s.cardLeft}>
+          <View style={s.iconCircle}>
+            <GraduationCap size={18} color={colors.primary} strokeWidth={2} />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={s.cardValue} numberOfLines={1}>
+              {educationLabel || "Not set"}
             </Text>
-          ) : (
-            <Text className="text-gray-400  font-PlusJakartaSansMediumItalic">
-              No education added yet
+            <Text style={s.cardCta}>
+              {educationLabel ? "Change education" : "Add your education"}
             </Text>
-          )}
-
-          <Text className="flex-1 text-lg text-primary font-PlusJakartaSansMedium mt-2">
-            {selectedEducation ? "Change Education" : "Add My Education"}
-          </Text>
+          </View>
         </View>
       </TouchableOpacity>
 
@@ -67,3 +58,38 @@ const Education = ({ profile, onUpdateField }) => {
 };
 
 export default Education;
+
+const s = StyleSheet.create({
+  card: {
+    backgroundColor:  "#fff",
+    borderRadius:     16,
+    borderWidth:      1,
+    borderColor:      "#F3F4F6",
+    marginHorizontal: 16,
+    padding:          16,
+  },
+  cardLeft: {
+    flexDirection: "row",
+    alignItems:    "center",
+    gap:           12,
+  },
+  iconCircle: {
+    width:           40,
+    height:          40,
+    borderRadius:    99,
+    backgroundColor: "#FEF3EC",
+    alignItems:      "center",
+    justifyContent:  "center",
+  },
+  cardValue: {
+    fontSize:     16,
+    fontFamily:   "PlusJakartaSansSemiBold",
+    color:        "#111",
+    marginBottom: 2,
+  },
+  cardCta: {
+    fontSize:   13,
+    fontFamily: "PlusJakartaSansMedium",
+    color:      colors.primary,
+  },
+});

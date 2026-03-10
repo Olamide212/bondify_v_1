@@ -1,191 +1,209 @@
-const Verification = require('../models/Verification');
-const User = require('../models/User');
-const Notification = require('../models/Notification');
-const { uploadToS3, deleteFromS3 } = require('../utils/imageHelper');
+/**
+ * verificationController.js
+ *
+ * POST /api/profile/verify
+ *   - Accepts a selfie (multipart/form-data, field: "selfie")
+ *   - Uploads to S3 under bondify/verifications/{userId}/
+ *   - Runs a basic face-presence check via OpenAI Vision
+ *   - Sets user.verificationStatus = "pending" (admin/cron approves later)
+ *     OR auto-approves if face is clearly detected (configurable via VERIFY_AUTO_APPROVE=true)
+ *
+ * User model additions required (add to User.js):
+ *   verificationStatus: { type: String, enum: ['none','pending','approved','rejected'], default: 'none' },
+ *   verificationSelfieUrl: { type: String },
+ *   verificationSubmittedAt: { type: Date },
+ *
+ * profileRoutes.js addition:
+ *   const upload = require('../middleware/upload');
+ *   const { submitVerification } = require('../controllers/verificationController');
+ *   router.post('/verify', protect, upload.single('selfie'), submitVerification);
+ */
 
-// ─────────────────────────────────────────────
-//  SUBMIT VERIFICATION
-// ─────────────────────────────────────────────
-const submitVerification = async (req, res, next) => {
+const { PutObjectCommand } = require('@aws-sdk/client-s3');
+const s3      = require('../config/s3');
+const User    = require('../models/User');
+const OpenAI  = require('openai');
+
+const openai  = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const AUTO_APPROVE = process.env.VERIFY_AUTO_APPROVE === 'true';
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+const getS3Key = (userId) =>
+  `bondify/verifications/${userId}/${Date.now()}-${Math.round(Math.random() * 1e9)}.jpg`;
+
+const getPublicUrl = (bucket, key) => {
+  const base = process.env.AWS_S3_PUBLIC_BASE_URL;
+  if (base) return `${base.replace(/\/$/, '')}/${key}`;
+  return `https://${bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`;
+};
+
+/**
+ * Uses OpenAI Vision to check if a clear human face is present in the selfie.
+ * Returns { faceDetected: boolean, reason: string }
+ */
+const checkFaceWithAI = async (imageBuffer, mimeType = 'image/jpeg') => {
   try {
-    const { idType } = req.body;
+    const base64 = imageBuffer.toString('base64');
+    const response = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      max_tokens: 100,
+      messages: [
+        {
+          role: 'user',
+          content: [
+            {
+              type: 'image_url',
+              image_url: { url: `data:${mimeType};base64,${base64}`, detail: 'low' },
+            },
+            {
+              type: 'text',
+              text: `Does this image contain a clear, real human face suitable for identity verification?
+Reply ONLY in this exact JSON format (no markdown):
+{"faceDetected": true/false, "reason": "one sentence explanation"}
 
-    if (!idType) {
-      return res.status(400).json({ success: false, message: 'idType is required' });
+Rules:
+- faceDetected must be true ONLY if: single real human face, eyes visible, not obscured, not a photo of a photo, no mask/sunglasses, adequate lighting
+- faceDetected false if: no face, cartoon, multiple faces, covered face, too dark/blurry, document photo`,
+            },
+          ],
+        },
+      ],
+    });
+
+    const raw  = response.choices[0]?.message?.content?.trim() || '';
+    const clean = raw.replace(/```json|```/g, '').trim();
+    return JSON.parse(clean);
+  } catch (err) {
+    console.error('[verification] AI face check failed:', err.message);
+    // Fail open — let it go to manual review
+    return { faceDetected: true, reason: 'AI check unavailable, queued for manual review' };
+  }
+};
+
+// ─── Controller ───────────────────────────────────────────────────────────────
+/**
+ * @desc    Submit selfie for identity verification
+ * @route   POST /api/profile/verify
+ * @access  Private
+ */
+const submitVerification = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const bucket = process.env.AWS_S3_BUCKET;
+
+    // ── Guards ──────────────────────────────────────────────────────────────
+    if (!bucket) {
+      return res.status(500).json({ success: false, message: 'Storage not configured.' });
     }
 
     if (!req.file) {
-      return res.status(400).json({
+      return res.status(400).json({ success: false, message: 'No selfie file provided.' });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found.' });
+    }
+
+    if (user.verified) {
+      return res.status(400).json({ success: false, message: 'Account is already verified.' });
+    }
+
+    if (user.verificationStatus === 'pending') {
+      return res.status(400).json({ success: false, message: 'Verification is already pending review.' });
+    }
+
+    // ── AI face check ────────────────────────────────────────────────────────
+    const { faceDetected, reason } = await checkFaceWithAI(req.file.buffer, req.file.mimetype);
+
+    if (!faceDetected) {
+      return res.status(422).json({
         success: false,
-        message: 'Please upload a clear photo of yourself holding your ID',
+        message: `Selfie rejected: ${reason}. Please take a clear photo of your face.`,
       });
     }
 
-    // Check if existing verification
-    const existing = await Verification.findOne({ user: req.user._id });
-    if (existing) {
-      if (existing.status === 'pending' || existing.status === 'under_review') {
-        return res.status(400).json({
-          success: false,
-          message: 'A verification request is already pending. Please wait for review.',
-        });
-      }
-      if (existing.status === 'approved') {
-        return res.status(400).json({ success: false, message: 'Account is already verified' });
-      }
-    }
+    // ── Upload to S3 ─────────────────────────────────────────────────────────
+    const key = getS3Key(userId.toString());
+    await s3.send(new PutObjectCommand({
+      Bucket:      bucket,
+      Key:         key,
+      Body:        req.file.buffer,
+      ContentType: req.file.mimetype,
+    }));
 
-    // Upload image to S3
-    const uploadResult = await uploadToS3(req.file, `verifications/${req.user._id}`);
+    const selfieUrl = getPublicUrl(bucket, key);
 
-    const verificationData = {
-      user: req.user._id,
-      idType,
-      selfieWithIdUrl: { url: uploadResult.url, publicId: uploadResult.publicId },
-      status: 'pending',
-      submittedAt: new Date(),
+    // ── Update user ──────────────────────────────────────────────────────────
+    const newStatus = AUTO_APPROVE ? 'approved' : 'pending';
+    const updatePayload = {
+      verificationStatus:      newStatus,
+      verificationSelfieUrl:   selfieUrl,
+      verificationSubmittedAt: new Date(),
     };
 
-    let verification;
-    if (existing) {
-      // Resubmission after rejection — delete old image if exists
-      if (existing.selfieWithIdUrl?.publicId) {
-        await deleteFromS3(existing.selfieWithIdUrl.publicId).catch(() => {});
-      }
-      verification = await Verification.findByIdAndUpdate(existing._id, verificationData, { new: true });
-    } else {
-      verification = await Verification.create(verificationData);
+    if (AUTO_APPROVE) {
+      updatePayload.verified = true;
     }
 
-    // Update user verification status
-    await User.findByIdAndUpdate(req.user._id, { verificationStatus: 'pending' });
+    await User.findByIdAndUpdate(userId, updatePayload);
 
-    res.status(201).json({
+    return res.status(200).json({
       success: true,
-      message: 'Verification submitted successfully. We will review within 24-48 hours.',
-      data: {
-        id: verification._id,
-        status: verification.status,
-        submittedAt: verification.submittedAt,
-      },
+      message: AUTO_APPROVE
+        ? 'Verification approved. Your profile is now verified!'
+        : 'Selfie submitted successfully. We will review it shortly.',
+      status:  newStatus,
     });
-  } catch (error) {
-    next(error);
+
+  } catch (err) {
+    console.error('[submitVerification] error:', err);
+    return res.status(500).json({ success: false, message: 'Verification submission failed.' });
   }
 };
 
-// ─────────────────────────────────────────────
-//  GET MY VERIFICATION STATUS
-// ─────────────────────────────────────────────
-const getVerificationStatus = async (req, res, next) => {
+/**
+ * @desc    Admin: approve a pending verification
+ * @route   PATCH /api/admin/verify/:userId/approve
+ * @access  Admin only
+ */
+const approveVerification = async (req, res) => {
   try {
-    const verification = await Verification.findOne({ user: req.user._id }).select(
-      '-selfieWithIdUrl.publicId'
-    );
+    const user = await User.findByIdAndUpdate(
+      req.params.userId,
+      { verified: true, verificationStatus: 'approved' },
+      { new: true }
+    ).select('name verified verificationStatus');
 
-    if (!verification) {
-      return res.json({
-        success: true,
-        data: { status: 'unverified', message: 'No verification submitted yet' },
-      });
-    }
+    if (!user) return res.status(404).json({ success: false, message: 'User not found.' });
 
-    res.json({
-      success: true,
-      data: {
-        status: verification.status,
-        idType: verification.idType,
-        submittedAt: verification.submittedAt,
-        reviewedAt: verification.reviewedAt,
-        rejectionReason: verification.status === 'rejected' ? verification.rejectionReason : undefined,
-      },
-    });
-  } catch (error) {
-    next(error);
+    return res.status(200).json({ success: true, user });
+  } catch (err) {
+    console.error('[approveVerification] error:', err);
+    return res.status(500).json({ success: false, message: 'Approval failed.' });
   }
 };
 
-// ─────────────────────────────────────────────
-//  ADMIN: REVIEW VERIFICATION
-// ─────────────────────────────────────────────
-const reviewVerification = async (req, res, next) => {
+/**
+ * @desc    Admin: reject a pending verification
+ * @route   PATCH /api/admin/verify/:userId/reject
+ * @access  Admin only
+ */
+const rejectVerification = async (req, res) => {
   try {
-    const { verificationId } = req.params;
-    const { action, rejectionReason } = req.body; // action: 'approve' | 'reject'
+    const user = await User.findByIdAndUpdate(
+      req.params.userId,
+      { verified: false, verificationStatus: 'rejected', verificationSelfieUrl: null },
+      { new: true }
+    ).select('name verified verificationStatus');
 
-    if (!['approve', 'reject'].includes(action)) {
-      return res.status(400).json({ success: false, message: 'action must be approve or reject' });
-    }
+    if (!user) return res.status(404).json({ success: false, message: 'User not found.' });
 
-    const verification = await Verification.findById(verificationId).populate('user', 'email');
-    if (!verification) {
-      return res.status(404).json({ success: false, message: 'Verification not found' });
-    }
-
-    const status = action === 'approve' ? 'approved' : 'rejected';
-
-    await Verification.findByIdAndUpdate(verificationId, {
-      status,
-      reviewedAt: new Date(),
-      reviewedBy: req.user._id,
-      rejectionReason: action === 'reject' ? rejectionReason : undefined,
-    });
-
-    // Update user
-    const userUpdate = {
-      verificationStatus: action === 'approve' ? 'verified' : 'rejected',
-    };
-    if (action === 'approve') userUpdate.verified = true;
-
-    await User.findByIdAndUpdate(verification.user._id, userUpdate);
-
-    // Notify user
-    await Notification.create({
-      recipient: verification.user._id,
-      type: action === 'approve' ? 'verification_approved' : 'verification_rejected',
-      title: action === 'approve' ? '✅ Identity Verified!' : '❌ Verification Rejected',
-      body:
-        action === 'approve'
-          ? 'Your identity has been verified. Your profile now shows a verified badge!'
-          : `Your verification was rejected. Reason: ${rejectionReason || 'Please resubmit with a clearer photo.'}`,
-    });
-
-    res.json({ success: true, message: `Verification ${status}` });
-  } catch (error) {
-    next(error);
+    return res.status(200).json({ success: true, user });
+  } catch (err) {
+    console.error('[rejectVerification] error:', err);
+    return res.status(500).json({ success: false, message: 'Rejection failed.' });
   }
 };
 
-// ─────────────────────────────────────────────
-//  ADMIN: LIST PENDING VERIFICATIONS
-// ─────────────────────────────────────────────
-const listPendingVerifications = async (req, res, next) => {
-  try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 20;
-    const skip = (page - 1) * limit;
-
-    const verifications = await Verification.find({ status: { $in: ['pending', 'under_review'] } })
-      .populate('user', 'firstName lastName email images')
-      .sort({ submittedAt: 1 }) // oldest first
-      .skip(skip)
-      .limit(limit);
-
-    const total = await Verification.countDocuments({ status: { $in: ['pending', 'under_review'] } });
-
-    res.json({
-      success: true,
-      data: verifications,
-      pagination: { total, page, pages: Math.ceil(total / limit) },
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-module.exports = {
-  submitVerification,
-  getVerificationStatus,
-  reviewVerification,
-  listPendingVerifications,
-};
+module.exports = { submitVerification, approveVerification, rejectVerification };

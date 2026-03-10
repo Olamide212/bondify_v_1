@@ -1,14 +1,12 @@
 import { Briefcase } from "lucide-react-native";
 import { useEffect, useState } from "react";
-import { Text, TouchableOpacity, View } from "react-native";
-import OccupationModal from "../modals/ProfileOccupationModal"; // adjust path
-import TextHeadingOne from "../ui/TextHeadingOne";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import OccupationModal from "../modals/ProfileOccupationModal";
+import { colors } from "../../constant/colors";
 
 const Occupation = ({ profile, onUpdateField }) => {
-  const [selectedOccupation, setSelectedOccupation] = useState(
-    profile?.occupation || null
-  );
-  const [showModal, setShowModal] = useState(false);
+  const [selectedOccupation, setSelectedOccupation] = useState(profile?.occupation || null);
+  const [showModal, setShowModal]                   = useState(false);
 
   useEffect(() => {
     setSelectedOccupation(profile?.occupation || null);
@@ -16,42 +14,69 @@ const Occupation = ({ profile, onUpdateField }) => {
 
   return (
     <>
-      <TouchableOpacity
-        className="px-6 py-4 bg-white border border-gray-100 mx-4 rounded-2xl "
-        onPress={() => setShowModal(true)}
-      >
-
-        
-        <View className="mb-1">
-          {selectedOccupation ? (
-            <Text className="text-black text-2xl font-PlusJakartaSansMedium">
-              {selectedOccupation}
+      <TouchableOpacity style={s.card} onPress={() => setShowModal(true)} activeOpacity={0.8}>
+        <View style={s.cardLeft}>
+          <View style={s.iconCircle}>
+            <Briefcase size={18} color={colors.primary} strokeWidth={2} />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={s.cardValue} numberOfLines={1}>
+              {selectedOccupation || "Not set"}
             </Text>
-          ) : (
-            <Text className="text-gray-400  font-PlusJakartaSansMediumItalic">
-              No occupation added yet
+            <Text style={s.cardCta}>
+              {selectedOccupation ? "Change occupation" : "Add your occupation"}
             </Text>
-          )}
-
-          <Text className="flex-1 text-lg text-primary font-PlusJakartaSansMedium mt-2">
-            {selectedOccupation ? "Change occupation" : "Add My Occupation"}
-          </Text>
+          </View>
         </View>
       </TouchableOpacity>
 
-      {/* Fullscreen modal for selecting occupation */}
       <OccupationModal
         visible={showModal}
         onClose={() => setShowModal(false)}
+        initialSelected={selectedOccupation}
         onSelect={async (occupation) => {
           setSelectedOccupation(occupation);
           await onUpdateField?.("occupation", occupation);
           setShowModal(false);
         }}
-        initialSelected={selectedOccupation}
       />
     </>
   );
 };
 
 export default Occupation;
+
+const s = StyleSheet.create({
+  card: {
+    backgroundColor:  "#fff",
+    borderRadius:     16,
+    borderWidth:      1,
+    borderColor:      "#F3F4F6",
+    marginHorizontal: 16,
+    padding:          16,
+  },
+  cardLeft: {
+    flexDirection: "row",
+    alignItems:    "center",
+    gap:           12,
+  },
+  iconCircle: {
+    width:           40,
+    height:          40,
+    borderRadius:    99,
+    backgroundColor: "#FEF3EC",
+    alignItems:      "center",
+    justifyContent:  "center",
+  },
+  cardValue: {
+    fontSize:     16,
+    fontFamily:   "PlusJakartaSansSemiBold",
+    color:        "#111",
+    marginBottom: 2,
+  },
+  cardCta: {
+    fontSize:   13,
+    fontFamily: "PlusJakartaSansMedium",
+    color:      colors.primary,
+  },
+});

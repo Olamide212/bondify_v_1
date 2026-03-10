@@ -567,12 +567,9 @@ const userSchema = new mongoose.Schema(
     voicePromptKey: { type: String, default: null }, // S3 object key for deletion
 
     // Verification & Status
-    verified: { type: Boolean, default: false },
-    verificationStatus: {
-      type: String,
-      enum: ['unverified', 'pending', 'under_review', 'verified', 'rejected'],
-      default: 'unverified',
-    },
+  verificationStatus:      { type: String, enum: ['none','pending','approved','rejected'], default: 'none' },
+verificationSelfieUrl:   { type: String },
+verificationSubmittedAt: { type: Date },
 
     // Premium
     isPremium:        { type: Boolean, default: false },
@@ -660,8 +657,14 @@ const userSchema = new mongoose.Schema(
     deactivatedAt:{ type: Date },
     deletedAt:    { type: Date },
   },
+
+
   { timestamps: true }
+
+
 );
+
+
 
 // ── Indexes ───────────────────────────────────────────────────────────────────
 userSchema.index({ location: '2dsphere' });

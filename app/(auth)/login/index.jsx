@@ -135,7 +135,7 @@ const EmailLogin = () => {
             <View className="w-full items-end pb-6">
               <Button
                 title="Login"
-                variant="gradient"
+                variant="primary"
                 onPress={handleLogin}
                 loading={loading}
               />

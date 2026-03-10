@@ -1,7 +1,8 @@
 import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
+  Animated,
   Image,
   StyleSheet,
   Text,
@@ -12,12 +13,12 @@ import { getProfileAge } from "../../utils/ageHelper";
 import apiClient from "../../utils/axiosInstance";
 import VerifiedIcon from "../ui/VerifiedIcon";
 
-const PRIMARY = "#E8651A";
-const INDIGO  = "#6366F1";
+const PRIMARY    = "#E8651A";
 const PHOTO_SIZE = 130;
+const TRACK_H_PADDING = 20; // must match completionSection paddingHorizontal
 
 const ProfileSection = ({ profile, isUploading }) => {
-  const completion   = profile?.completionPercentage || 0;
+  const completion   = Math.min(profile?.completionPercentage || 0, 100);
   const profileImage =
     profile?.images?.[0]?.url ||
     profile?.images?.[0]       ||
@@ -26,15 +27,38 @@ const ProfileSection = ({ profile, isUploading }) => {
   const displayAge = getProfileAge(profile);
   const router     = useRouter();
 
-  // ── Live stats ──────────────────────────────────────────────────────────────
-  const [stats, setStats]           = useState({ matches: 0, likes: 0, profileViews: 0 });
+  // ── Track width (measured on layout so badge offset is pixel-accurate) ──
+  const [trackWidth, setTrackWidth] = useState(0);
+
+  // ── Animated fill value 0→100 ───────────────────────────────────────────
+  const fillAnim = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    Animated.timing(fillAnim, {
+      toValue:         completion,
+      duration:        700,
+      useNativeDriver: false,
+    }).start();
+  }, [completion]);
+
+  // Badge slides from left:0 to left:(trackWidth - BADGE_WIDTH)
+  const BADGE_W = 38;
+  const badgeLeft = trackWidth
+    ? fillAnim.interpolate({
+        inputRange:  [0, 100],
+        outputRange: [0, trackWidth - BADGE_W],
+        extrapolate: "clamp",
+      })
+    : 0;
+
+  // ── Live stats ───────────────────────────────────────────────────────────
+  const [stats, setStats]               = useState({ matches: 0, likes: 0, profileViews: 0 });
   const [statsLoading, setStatsLoading] = useState(true);
 
   useEffect(() => {
     let mounted = true;
-    const fetchStats = async () => {
+    (async () => {
       try {
-        const res = await apiClient.get("/profile/stats");
+        const res  = await apiClient.get("/profile/stats");
         const data = res.data?.data ?? res.data ?? {};
         if (mounted) {
           setStats({
@@ -43,13 +67,9 @@ const ProfileSection = ({ profile, isUploading }) => {
             profileViews: data.profileViews ?? 0,
           });
         }
-      } catch {
-        // silently keep zeros — non-critical UI
-      } finally {
-        if (mounted) setStatsLoading(false);
-      }
-    };
-    fetchStats();
+      } catch { /* keep zeros */ }
+      finally { if (mounted) setStatsLoading(false); }
+    })();
     return () => { mounted = false; };
   }, []);
 
@@ -59,15 +79,11 @@ const ProfileSection = ({ profile, isUploading }) => {
       onPress={() => router.push("/edit-profile")}
       style={styles.card}
     >
-      {/* ── Circular profile photo ── */}
+      {/* ── Photo ── */}
       <View style={styles.photoWrapper}>
         {profileImage ? (
           <>
-            <Image
-              source={{ uri: profileImage }}
-              style={styles.photo}
-              resizeMode="cover"
-            />
+            <Image source={{ uri: profileImage }} style={styles.photo} resizeMode="cover" />
             {isUploading && (
               <View style={styles.uploadOverlay}>
                 <ActivityIndicator size="large" color={PRIMARY} />
@@ -79,7 +95,7 @@ const ProfileSection = ({ profile, isUploading }) => {
         )}
       </View>
 
-      {/* ── Name + verified ── */}
+      {/* ── Name ── */}
       <View style={styles.nameRow}>
         <Text style={styles.nameText} numberOfLines={1}>
           {profile?.firstName || "Your Profile"}
@@ -88,39 +104,52 @@ const ProfileSection = ({ profile, isUploading }) => {
         {profile?.verified && <VerifiedIcon />}
       </View>
 
-      {/* ── Profile completion bar ── */}
+      {/* ── Completion bar + sliding badge ── */}
       <View style={styles.completionSection}>
-        <View style={styles.completionHeader}>
-         
-          <Text style={styles.completionPct}>{completion}%</Text>
-        </View>
-        <View style={styles.track}>
-          <View style={[styles.fill, { width: `${Math.min(completion, 100)}%` }]} />
-        </View>
-      </View>
-       <View style={{ flex: 1 }}>
-         
-            <Text style={styles.completionSub}>
-              Get more matches with a full profile
-            </Text>
-          </View>
+        {/* Extra space above the track so the floating badge isn't clipped */}
+        <View style={styles.badgeSpace} />
 
-      {/* ── Stats row ── */}
+        <View
+          style={styles.track}
+          onLayout={(e) => setTrackWidth(e.nativeEvent.layout.width)}
+        >
+          {/* Animated fill */}
+          <Animated.View
+            style={[
+              styles.fill,
+              {
+                width: fillAnim.interpolate({
+                  inputRange:  [0, 100],
+                  outputRange: ["0%", "100%"],
+                  extrapolate: "clamp",
+                }),
+              },
+            ]}
+          />
+
+          {/* Badge — floats above the right edge of the fill */}
+          {trackWidth > 0 && (
+            <Animated.View style={[styles.badge, { left: badgeLeft }]}>
+              <Text style={styles.badgeText}>{completion}%</Text>
+            </Animated.View>
+          )}
+        </View>
+
+        <Text style={styles.completionSub}>Get more matches with a full profile</Text>
+      </View>
+
+      {/* ── Stats ── */}
       <View style={styles.statsRow}>
         {[
-          { value: stats.matches,      label: "MATCHES"      },
-          { value: stats.likes,        label: "LIKES"        },
+          { value: stats.matches,      label: "MATCHES"       },
+          { value: stats.likes,        label: "LIKES"         },
           { value: stats.profileViews, label: "PROFILE VIEWS" },
         ].map(({ value, label }, i) => (
-          <View
-            key={label}
-            style={[styles.statChip, i > 0 && styles.statChipBorder]}
-          >
-            {statsLoading ? (
-              <ActivityIndicator size="small" color={PRIMARY} />
-            ) : (
-              <Text style={styles.statValue}>{value}</Text>
-            )}
+          <View key={label} style={[styles.statChip, i > 0 && styles.statChipBorder]}>
+            {statsLoading
+              ? <ActivityIndicator size="small" color={PRIMARY} />
+              : <Text style={styles.statValue}>{value}</Text>
+            }
             <Text style={styles.statLabel}>{label}</Text>
           </View>
         ))}
@@ -133,21 +162,21 @@ export default ProfileSection;
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor:  "#fff",
-    borderRadius:     24,
-    marginHorizontal: 16,
-    marginTop:        16,
-    overflow:         "hidden",
-    shadowColor:      "#000",
-    shadowOpacity:    0.08,
-    shadowRadius:     16,
-    shadowOffset:     { width: 0, height: 4 },
-    elevation:        6,
-    paddingBottom:    20,
-    alignItems:       "center",
+    backgroundColor:   "#fff",
+    borderRadius:      24,
+    marginHorizontal:  16,
+    marginTop:         16,
+    overflow:          "hidden",
+    shadowColor:       "#000",
+    shadowOpacity:     0.08,
+    shadowRadius:      16,
+    shadowOffset:      { width: 0, height: 4 },
+    elevation:         6,
+    paddingBottom:     20,
+    alignItems:        "center",
   },
 
-  // ── Photo ────────────────────────────────────────────────────────────────
+  // Photo
   photoWrapper: {
     marginTop:        28,
     width:            PHOTO_SIZE,
@@ -163,9 +192,7 @@ const styles = StyleSheet.create({
     height:       "100%",
     borderRadius: PHOTO_SIZE / 2,
   },
-  photoPlaceholder: {
-    backgroundColor: "#d1d5db",
-  },
+  photoPlaceholder: { backgroundColor: "#d1d5db" },
   uploadOverlay: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: "rgba(0,0,0,0.4)",
@@ -173,12 +200,12 @@ const styles = StyleSheet.create({
     justifyContent:  "center",
   },
 
-  // ── Name ─────────────────────────────────────────────────────────────────
+  // Name
   nameRow: {
-    flexDirection:  "row",
-    alignItems:     "center",
-    gap:            8,
-    marginTop:      16,
+    flexDirection:     "row",
+    alignItems:        "center",
+    gap:               8,
+    marginTop:         16,
     paddingHorizontal: 24,
   },
   nameText: {
@@ -189,62 +216,55 @@ const styles = StyleSheet.create({
     flexShrink:    1,
   },
 
-  // ── Completion ────────────────────────────────────────────────────────────
+  // Completion
   completionSection: {
-    width:          "100%",
-    paddingHorizontal: 20,
-    paddingTop:     18,
-
+    width:             "100%",
+    paddingHorizontal: TRACK_H_PADDING,
+    paddingTop:        16,
   },
-  completionHeader: {
-    flexDirection:  "row",
-    justifyContent: "flex-end",
-    alignItems:     "flex-start",
-    marginBottom:   10,
-  },
-  completionTitle: {
-    fontSize:   14,
-    fontFamily: "PlusJakartaSansBold",
-    color:      INDIGO,
-  },
-  completionSub: {
-    fontSize:   12,
-    fontFamily: "PlusJakartaSans",
-    color:      "#9CA3AF",
-    marginVertical:  10,
-  },
-  completionPct: {
-    fontSize:   13,
-    fontFamily: "PlusJakartaSansBold",
-    color:      "#fff",
-    backgroundColor: PRIMARY,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 30,
-    position: "absolute",
-    top: 2,
-    zIndex: 1,
+  // Reserve vertical room above the track for the floating badge
+  badgeSpace: {
+    height: 26,
   },
   track: {
     height:          6,
     borderRadius:    99,
     backgroundColor: "#E5E7EB",
-    overflow:        "hidden",
+    overflow:        "visible", // badge floats above so must NOT clip
   },
   fill: {
     height:          "100%",
     borderRadius:    99,
     backgroundColor: PRIMARY,
-    maxWidth:        "100%",
+  },
+  badge: {
+    position:      "absolute",
+    top:           -26,          // sits above the bar
+    alignItems:    "center",
+  },
+  badgeText: {
+    fontSize:          12,
+    fontFamily:        "PlusJakartaSansBold",
+    color:             "#fff",
+    backgroundColor:   PRIMARY,
+    paddingHorizontal: 7,
+    paddingVertical:   2,
+    borderRadius:      30,
+    overflow:          "hidden",
+  },
+  completionSub: {
+    fontSize:     12,
+    fontFamily:   "PlusJakartaSans",
+    color:        "#9CA3AF",
+    marginTop:    14,
+    marginBottom: 4,
   },
 
-  // ── Stats ─────────────────────────────────────────────────────────────────
+  // Stats
   statsRow: {
-    flexDirection:    "row",
-    width:            "100%",
-    marginHorizontal: 0,
+    flexDirection:     "row",
+    width:             "100%",
     paddingHorizontal: 20,
-    gap:              0,
   },
   statChip: {
     flex:            1,
@@ -256,11 +276,9 @@ const styles = StyleSheet.create({
     borderWidth:     1,
     borderColor:     "#F3F4F6",
     minHeight:       64,
-    marginTop: 15
+    marginTop:       15,
   },
-  statChipBorder: {
-    marginLeft: 10,
-  },
+  statChipBorder: { marginLeft: 10 },
   statValue: {
     fontSize:     20,
     fontFamily:   "PlusJakartaSansBold",
