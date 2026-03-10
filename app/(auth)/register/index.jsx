@@ -144,7 +144,7 @@ const Register = () => {
             <View className="pb-6">
               <Button
                 title="Create Account"
-                variant="gradient"
+                variant="primary"
                 loading={loading}
                 onPress={handleSignup}
               />

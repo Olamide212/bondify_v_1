@@ -567,7 +567,7 @@ const userSchema = new mongoose.Schema(
     voicePromptKey: { type: String, default: null }, // S3 object key for deletion
 
     // Verification & Status
-  verificationStatus:      { type: String, enum: ['none','pending','approved','rejected'], default: 'none' },
+     verificationStatus:      { type: String, enum: ['unverified','pending','approved','rejected'], default: 'unverified' },
 verificationSelfieUrl:   { type: String },
 verificationSubmittedAt: { type: Date },
 
