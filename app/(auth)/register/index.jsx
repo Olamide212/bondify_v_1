@@ -24,6 +24,7 @@ const Register = () => {
     phone: "",
     firstName: "",
     lastName: "",
+    userName: "",
     email: "",
     password: "",
   });
@@ -38,10 +39,10 @@ const Register = () => {
   };
 
   const handleSignup = async () => {
-    const { firstName, lastName, phone, countryCode, email, password } =
+    const { firstName, lastName, userName, phone, countryCode, email, password } =
       formData;
 
-    if (!firstName || !lastName || !phone || !email || !password) {
+    if (!firstName || !lastName || !userName || !phone || !email || !password) {
       showToast({
         message: "All fields including password are required",
         variant: "error",
@@ -63,6 +64,7 @@ const Register = () => {
         signup({
           firstName,
           lastName,
+          userName,
           email,
           phoneNumber: `${phone}`,
           countryCode: countryCode,
@@ -94,14 +96,22 @@ const Register = () => {
               showsVerticalScrollIndicator={false}
             >
               <Text className="text-3xl font-PlusJakartaSansSemiBold text-black mt-4 mb-1">
-              Join Bondies
+                Join Bondies
               </Text>
               <Text className="text-black text-lg font-PlusJakartaSansMedium mb-7">
                 Find your perfect match with just a few steps. Sign up now and
                 join millions of people finding love on Bondies.
               </Text>
 
-         
+              <View>
+                <TextInput
+                  placeholder="Username"
+                  value={formData.userName}
+                  onChangeText={(text) => handleChange("userName", text)}
+                />
+                <Text>Please note that this would be display name</Text>
+              </View>
+
 
               <TextInput
                 placeholder="First name"
@@ -114,7 +124,7 @@ const Register = () => {
                 value={formData.lastName}
                 onChangeText={(text) => handleChange("lastName", text)}
               />
-                   {/* 📱 Phone Input */}
+              {/* 📱 Phone Input */}
               <GlobalPhoneInput
                 phoneNumber={formData.phone}
                 countryCode={formData.countryCode}

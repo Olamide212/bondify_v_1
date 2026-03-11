@@ -9,7 +9,7 @@ const { sendOtpEmail, sendWelcomeEmail } = require('../utils/termiiService');
 // @access  Public
 const signup = async (req, res, next) => {
   try {
-    const { firstName, lastName, email, password, phoneNumber, countryCode, referralCode } = req.body;
+    const { firstName, lastName, userName, email, password, phoneNumber, countryCode, referralCode } = req.body;
 
     // Handle referral
     let referredByUser = null;
@@ -26,6 +26,27 @@ const signup = async (req, res, next) => {
       });
     }
 
+    // Check if phone number exists    const phoneExists = await User.findOne({ phoneNumber, countryCode });
+    const phoneExists = await User.findOne({
+      phoneNumber: String(phoneNumber || '').replace(/\D/g, ''),
+      countryCode: countryCode ? `+${String(countryCode).replace(/\D/g, '')}` : undefined,
+    });
+    if (phoneExists) {
+      return res.status(400).json({
+        success: false,
+        message: 'User already exists with this phone number',
+      });
+    };
+
+    // Check if username exists
+    const userNameExists = await User.findOne({ userName });
+    if (userNameExists) {
+      return res.status(400).json({
+        success: false,
+        message: 'User already exists with this username',
+      });
+    }
+
     // Generate OTP
     const otp = generateOTP();
     const otpExpiry = calculateOTPExpiry();
@@ -34,6 +55,7 @@ const signup = async (req, res, next) => {
     const user = await User.create({
       firstName,
       lastName,
+      userName,
       email,
       password,
       phoneNumber,
