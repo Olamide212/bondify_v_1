@@ -122,8 +122,7 @@ const Register = () => {
 
               <View>
                 <TextInput
-                  placeholder="Username"
-                  
+                  placeholder="Username/Display name"
                   value={formData.userName}
                   onChangeText={(text) => handleChange("userName", text)}
                 />
