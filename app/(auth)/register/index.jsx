@@ -17,6 +17,7 @@ import { useToast } from "../../../context/ToastContext";
 import Button from "../../../components/ui/Button";
 import { ScrollView } from "react-native-gesture-handler";
 import { useRouter } from "expo-router";
+import { StatusBar } from "expo-status-bar";
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -83,6 +84,7 @@ const Register = () => {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
+      <StatusBar style="dark" />
       <KeyboardAvoidingView
         className="flex-1"
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -95,7 +97,7 @@ const Register = () => {
               contentContainerStyle={{ paddingBottom: 20 }}
               showsVerticalScrollIndicator={false}
             >
-              <Text className="text-3xl font-PlusJakartaSansSemiBold text-black mt-4 mb-1">
+              <Text className="text-3xl font-PlusJakartaSansBold text-black mt-4 mb-1">
                 Join Bondies
               </Text>
               <Text className="text-black text-lg font-PlusJakartaSansMedium mb-7">
@@ -103,14 +105,7 @@ const Register = () => {
                 join millions of people finding love on Bondies.
               </Text>
 
-              <View>
-                <TextInput
-                  placeholder="Username"
-                  value={formData.userName}
-                  onChangeText={(text) => handleChange("userName", text)}
-                />
-                <Text>Please note that this would be display name</Text>
-              </View>
+
 
 
               <TextInput
@@ -124,6 +119,15 @@ const Register = () => {
                 value={formData.lastName}
                 onChangeText={(text) => handleChange("lastName", text)}
               />
+
+              <View>
+                <TextInput
+                  placeholder="Username"
+                  
+                  value={formData.userName}
+                  onChangeText={(text) => handleChange("userName", text)}
+                />
+              </View>
               {/* 📱 Phone Input */}
               <GlobalPhoneInput
                 phoneNumber={formData.phone}
@@ -148,28 +152,29 @@ const Register = () => {
                 onChangeText={(text) => handleChange("password", text)}
                 secureTextEntry
               />
+              {/* Footer */}
+              <View className="pb-6">
+                <Button
+                  title="Create Account"
+                  variant="primary"
+                  loading={loading}
+                  onPress={handleSignup}
+                />
+
+                <View className="flex-row justify-center items-center gap-1 mt-4">
+                  <Text className="text-lg font-PlusJakartaSansMedium">
+                    Already have an account?
+                  </Text>
+                  <Pressable onPress={() => router.push("/login")}>
+                    <Text className="text-lg font-PlusJakartaSansMedium text-primary">
+                      Login
+                    </Text>
+                  </Pressable>
+                </View>
+              </View>
             </ScrollView>
 
-            {/* Footer */}
-            <View className="pb-6">
-              <Button
-                title="Create Account"
-                variant="primary"
-                loading={loading}
-                onPress={handleSignup}
-              />
 
-              <View className="flex-row justify-center items-center gap-1 mt-4">
-                <Text className="text-lg font-PlusJakartaSansMedium">
-                  Already have an account?
-                </Text>
-                <Pressable onPress={() => router.push("/login")}>
-                  <Text className="text-lg font-PlusJakartaSansMedium text-primary">
-                    Login
-                  </Text>
-                </Pressable>
-              </View>
-            </View>
           </View>
         </TouchableWithoutFeedback>
       </KeyboardAvoidingView>

@@ -9,88 +9,108 @@ const { sendOtpEmail, sendWelcomeEmail } = require('../utils/termiiService');
 // @access  Public
 const signup = async (req, res, next) => {
   try {
-    const { firstName, lastName, userName, email, password, phoneNumber, countryCode, referralCode } = req.body;
+    const {
+      firstName, lastName, userName, email,
+      password, phoneNumber, countryCode, referralCode,
+    } = req.body;
 
-    // Handle referral
+    // 1. Email uniqueness
+    const userExists = await User.findOne({ email });
+    if (userExists) {
+      return res.status(400).json({
+        success: false,
+        message: 'An account with this email already exists.',
+      });
+    }
+
+    // 2. Phone uniqueness (only query if phone was provided)
+    const sanitizedPhone = String(phoneNumber || '').replace(/\D/g, '');
+    const sanitizedCode  = countryCode
+      ? `+${String(countryCode).replace(/\D/g, '')}`
+      : null;
+
+    if (sanitizedPhone) {
+      const phoneQuery = { phoneNumber: sanitizedPhone };
+      if (sanitizedCode) phoneQuery.countryCode = sanitizedCode;
+
+      const phoneExists = await User.findOne(phoneQuery);
+      if (phoneExists) {
+        return res.status(400).json({
+          success: false,
+          message: 'An account with this phone number already exists.',
+        });
+      }
+    }
+
+    // 3. Username uniqueness (only query if userName was actually provided)
+    // BUG: original code did findOne({ userName: undefined }) when userName
+    // was missing from the request body. MongoDB treats that as a query for
+    // documents where the field is absent, matching the first user without
+    // a userName and falsely returning a 400 "already exists" error.
+    if (userName) {
+      const userNameExists = await User.findOne({ userName: userName.trim() });
+      if (userNameExists) {
+        return res.status(400).json({
+          success: false,
+          message: 'This username is already taken.',
+        });
+      }
+    }
+
+    // 4. Referral
     let referredByUser = null;
     if (referralCode) {
       referredByUser = await User.findOne({ referralCode: referralCode.toUpperCase() });
     }
 
-    // Check if user exists
-    const userExists = await User.findOne({ email });
-    if (userExists) {
-      return res.status(400).json({
-        success: false,
-        message: 'User already exists with this email',
-      });
-    }
-
-    // Check if phone number exists    const phoneExists = await User.findOne({ phoneNumber, countryCode });
-    const phoneExists = await User.findOne({
-      phoneNumber: String(phoneNumber || '').replace(/\D/g, ''),
-      countryCode: countryCode ? `+${String(countryCode).replace(/\D/g, '')}` : undefined,
-    });
-    if (phoneExists) {
-      return res.status(400).json({
-        success: false,
-        message: 'User already exists with this phone number',
-      });
-    };
-
-    // Check if username exists
-    const userNameExists = await User.findOne({ userName });
-    if (userNameExists) {
-      return res.status(400).json({
-        success: false,
-        message: 'User already exists with this username',
-      });
-    }
-
-    // Generate OTP
-    const otp = generateOTP();
+    // 5. Create user
+    const otp       = generateOTP();
     const otpExpiry = calculateOTPExpiry();
 
-    // Create user
     const user = await User.create({
       firstName,
       lastName,
-      userName,
+      ...(userName ? { userName: userName.trim() } : {}),
       email,
       password,
-      phoneNumber,
-      countryCode,
+      phoneNumber:  sanitizedPhone || undefined,
+      countryCode:  sanitizedCode  || undefined,
       otp,
       otpExpiry,
       isVerified: false,
-      referredBy: referredByUser ? referredByUser._id : undefined,
+      referredBy: referredByUser?._id,
     });
 
-    // Generate unique referral code for new user
     user.referralCode = generateReferralCode(user._id.toString());
     await user.save();
 
-    // Increment referrer's count
     if (referredByUser) {
       await User.findByIdAndUpdate(referredByUser._id, { $inc: { referralCount: 1 } });
     }
 
-    // Send OTP via Termii email (non-blocking — never crashes signup on email failure)
     await sendOtpEmail({ email, firstName, otp });
 
-    // Generate onboarding token
     const onboardingToken = generateOnboardingToken(user._id);
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
-      message: 'User registered successfully. Please verify OTP.',
+      message: 'Account created. Please verify the OTP sent to your email.',
       data: {
         userId: user._id,
-        email: user.email,
+        email:  user.email,
         onboardingToken,
       },
     });
+
   } catch (error) {
+    // Catch MongoDB duplicate key race conditions and surface them cleanly
+    if (error.code === 11000) {
+      const field = Object.keys(error.keyPattern || {})[0] || 'field';
+      return res.status(400).json({
+        success: false,
+        message: `An account with this ${field} already exists.`,
+      });
+    }
     next(error);
   }
 };
@@ -105,62 +125,42 @@ const verifyOtp = async (req, res, next) => {
     const user = await User.findOne({ email }).select('+otp +otpExpiry');
 
     if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: 'User not found',
-      });
+      return res.status(404).json({ success: false, message: 'User not found.' });
     }
-
     if (user.isVerified) {
-      return res.status(400).json({
-        success: false,
-        message: 'User already verified',
-      });
+      return res.status(400).json({ success: false, message: 'User already verified.' });
     }
-
-    // Check OTP
     if (user.otp !== otp) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid OTP',
-      });
+      return res.status(400).json({ success: false, message: 'Invalid OTP.' });
     }
-
-    // Check OTP expiry
     if (user.otpExpiry < new Date()) {
-      return res.status(400).json({
-        success: false,
-        message: 'OTP expired',
-      });
+      return res.status(400).json({ success: false, message: 'OTP has expired.' });
     }
 
-    // Mark user as verified
     user.isVerified = true;
-    user.otp = undefined;
-    user.otpExpiry = undefined;
+    user.otp        = undefined;
+    user.otpExpiry  = undefined;
     await user.save();
 
-    // Send welcome email (non-blocking)
     await sendWelcomeEmail({ email, firstName: user.firstName });
 
-    // Generate tokens
-    const token = generateToken(user._id);
+    const token           = generateToken(user._id);
     const onboardingToken = generateOnboardingToken(user._id);
 
-    res.json({
+    return res.json({
       success: true,
-      message: 'OTP verified successfully',
+      message: 'OTP verified successfully.',
       data: {
         token,
         onboardingToken,
         user: {
-          id: user._id,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          email: user.email,
-          phoneNumber: user.phoneNumber,
-          countryCode: user.countryCode,
-          isVerified: user.isVerified,
+          id:                  user._id,
+          firstName:           user.firstName,
+          lastName:            user.lastName,
+          email:               user.email,
+          phoneNumber:         user.phoneNumber,
+          countryCode:         user.countryCode,
+          isVerified:          user.isVerified,
           onboardingCompleted: user.onboardingCompleted,
         },
       },
@@ -180,34 +180,21 @@ const resendOtp = async (req, res, next) => {
     const user = await User.findOne({ email }).select('+otp +otpExpiry +firstName');
 
     if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: 'User not found',
-      });
+      return res.status(404).json({ success: false, message: 'User not found.' });
     }
-
     if (user.isVerified) {
-      return res.status(400).json({
-        success: false,
-        message: 'User already verified',
-      });
+      return res.status(400).json({ success: false, message: 'User already verified.' });
     }
 
-    // Generate new OTP
-    const otp = generateOTP();
+    const otp       = generateOTP();
     const otpExpiry = calculateOTPExpiry();
-
-    user.otp = otp;
-    user.otpExpiry = otpExpiry;
+    user.otp        = otp;
+    user.otpExpiry  = otpExpiry;
     await user.save();
 
-    // Send new OTP via Termii email (non-blocking)
     await sendOtpEmail({ email, firstName: user.firstName, otp });
 
-    res.json({
-      success: true,
-      message: 'OTP sent successfully',
-    });
+    return res.json({ success: true, message: 'OTP resent successfully.' });
   } catch (error) {
     next(error);
   }
@@ -220,84 +207,69 @@ const login = async (req, res, next) => {
   try {
     const { phoneNumber, countryCode, password } = req.body;
 
-    const sanitizedPhoneNumber = String(phoneNumber || '').replace(/\D/g, '');
-    const sanitizedCountryCode = countryCode
+    const sanitizedPhone = String(phoneNumber || '').replace(/\D/g, '');
+    const sanitizedCode  = countryCode
       ? `+${String(countryCode).replace(/\D/g, '')}`
-      : undefined;
+      : null;
 
-    // Check user exists
     let user = null;
-
-    if (sanitizedCountryCode) {
+    if (sanitizedCode) {
       user = await User.findOne({
-        phoneNumber: sanitizedPhoneNumber,
-        countryCode: sanitizedCountryCode,
+        phoneNumber: sanitizedPhone,
+        countryCode: sanitizedCode,
       }).select('+password');
     }
-
     if (!user) {
-      user = await User.findOne({ phoneNumber: sanitizedPhoneNumber }).select('+password');
+      user = await User.findOne({ phoneNumber: sanitizedPhone }).select('+password');
     }
 
     if (!user) {
-      return res.status(401).json({
-        success: false,
-        message: 'Invalid credentials',
-      });
+      return res.status(401).json({ success: false, message: 'Invalid credentials.' });
     }
 
-    // Check password
-    const isPasswordMatch = await user.comparePassword(password);
-    if (!isPasswordMatch) {
-      return res.status(401).json({
-        success: false,
-        message: 'Invalid credentials',
-      });
+    const isMatch = await user.comparePassword(password);
+    if (!isMatch) {
+      return res.status(401).json({ success: false, message: 'Invalid credentials.' });
     }
 
     if (!user.isVerified) {
-      // Generate new OTP and send via Termii
-      const otp = generateOTP();
+      const otp       = generateOTP();
       const otpExpiry = calculateOTPExpiry();
-
-      user.otp = otp;
-      user.otpExpiry = otpExpiry;
+      user.otp        = otp;
+      user.otpExpiry  = otpExpiry;
       await user.save();
-
-      // Send OTP email (non-blocking)
       await sendOtpEmail({ email: user.email, firstName: user.firstName, otp });
 
       return res.status(403).json({
         success: false,
-        message: 'Please verify your account. OTP sent to your email.',
+        message: 'Account not verified. OTP sent to your email.',
         requiresVerification: true,
         email: user.email,
       });
     }
 
-    // Update last active
     user.lastActive = new Date();
-    user.online = true;
+    user.online     = true;
     await user.save();
 
-    // Generate tokens
-    const token = generateToken(user._id);
+    const token           = generateToken(user._id);
     const onboardingToken = user.onboardingCompleted
       ? null
       : generateOnboardingToken(user._id);
 
-    res.json({
+    return res.json({
       success: true,
-      message: 'Login successful',
+      message: 'Login successful.',
       data: {
         token,
         ...(onboardingToken && { onboardingToken }),
         user: {
-          id: user._id,
-          email: user.email,
-          name: user.name,
-          username: user.username,
-          onboardingCompleted: user.onboardingCompleted,
+          id:                   user._id,
+          email:                user.email,
+          firstName:            user.firstName,
+          lastName:             user.lastName,
+          userName:             user.userName,
+          onboardingCompleted:  user.onboardingCompleted,
           completionPercentage: user.completionPercentage,
         },
       },
@@ -313,19 +285,10 @@ const login = async (req, res, next) => {
 const getMe = async (req, res, next) => {
   try {
     const user = await User.findById(req.user._id);
-    res.json({
-      success: true,
-      data: { user },
-    });
+    return res.json({ success: true, data: { user } });
   } catch (error) {
     next(error);
   }
 };
 
-module.exports = {
-  signup,
-  verifyOtp,
-  resendOtp,
-  login,
-  getMe,
-};
+module.exports = { signup, verifyOtp, resendOtp, login, getMe };

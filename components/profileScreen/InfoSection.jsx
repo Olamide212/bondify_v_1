@@ -66,12 +66,12 @@ const InfoSection = () => {
     //   icon: Coins,
     //   modal: "wallet", 
     // },
-    {
-      title: "Settings",
-      description: "Manage your preferences, notifications, and privacy.",
-      icon: Settings,
-      link: "settings",
-    },
+    // {
+    //   title: "Settings",
+    //   description: "Manage your preferences, notifications, and privacy.",
+    //   icon: Settings,
+    //   link: "settings",
+    // },
     {
       title: "Events and Communities",
       description:
