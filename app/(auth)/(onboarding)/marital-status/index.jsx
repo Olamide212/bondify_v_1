@@ -9,6 +9,7 @@ import {
     Text,
     TouchableWithoutFeedback,
     View,
+      ActivityIndicator
 } from "react-native";
 
 import RadioSelect from "../../../../components/inputs/RadioSelect";
@@ -25,10 +26,16 @@ const relationshipTypeMap = {
 
 const MaritalStatus = () => {
   const [maritalStatus, setMaritalStatus] = useState("");
-  const { options: relationshipStatusOptions } = useLookupOptions("relationship-status");
+  const { options: relationshipStatusOptions, loading } = useLookupOptions("relationship-status");
 
   const router = useRouter();
   const { updateProfileStep } = useProfileSetup({ isOnboarding: true });
+
+  if (loading) {
+    return (
+      <ActivityIndicator size="large" color="#E8651A" style={{ flex: 1, justifyContent: "center", alignItems: "center" }} />
+    );
+  }
 
   return (
     <SafeAreaView className="flex-1 bg-white">

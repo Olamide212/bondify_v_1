@@ -8,6 +8,7 @@ import {
     Text,
     TouchableWithoutFeedback,
     View,
+    ActivityIndicator
 } from "react-native";
 
 import RadioSelect from "../../../../components/inputs/RadioSelect";
@@ -26,10 +27,16 @@ const religionImportanceMap = {
 
 const ReligionQuestions = () => {
   const [religionImportance, setReligionImportance] = useState("");
-  const { options: sameBeliefsOptions } = useLookupOptions("same-beliefs");
+  const { options: sameBeliefsOptions, loading } = useLookupOptions("same-beliefs");
 
   const router = useRouter();
   const { updateProfileStep } = useProfileSetup({ isOnboarding: true });
+
+  if (loading) {
+    return (
+      <ActivityIndicator size="large" color="#E8651A" style={{ flex: 1, justifyContent: "center", alignItems: "center" }} />
+    );
+  }
 
   return (
     <SafeAreaView className="flex-1 bg-white">

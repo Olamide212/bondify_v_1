@@ -40,7 +40,7 @@ const Onboarding = () => {
 
           {/* Text + Buttons */}
           <View className="items-center -mt-56 px-3">
-            <Text className="text-white font-PlusJakartaSansBold text-3xl text-center mb-4">
+            <Text className="text-white font-PlusJakartaSansBold text-[21px] text-center mb-4">
               Discover Love where your story begins.
             </Text>
 

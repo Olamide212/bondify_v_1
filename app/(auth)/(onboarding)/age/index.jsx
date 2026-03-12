@@ -145,7 +145,7 @@ const styles = StyleSheet.create({
     alignItems:      "center",
   },
   title: {
-    fontSize:    32,
+    fontSize:    30,
     fontFamily:  "PlusJakartaSansBold",
     color:       "#111",
     textAlign:   "center",

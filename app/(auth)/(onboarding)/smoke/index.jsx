@@ -8,6 +8,7 @@ import {
     Text,
     TouchableWithoutFeedback,
     View,
+      ActivityIndicator
 } from "react-native";
 
 import RadioSelect from "../../../../components/inputs/RadioSelect";
@@ -20,10 +21,16 @@ import { useProfileSetup } from "../../../../hooks/useProfileSetup";
 
 const Smoke = () => {
   const [smoking, setSmoking] = useState("");
-  const { options: smokingOptions } = useLookupOptions("smoking-habits");
+  const { options: smokingOptions, loading } = useLookupOptions("smoking-habits");
 
   const router = useRouter();
   const { updateProfileStep } = useProfileSetup({ isOnboarding: true });
+
+  if (loading) {
+    return (
+      <ActivityIndicator size="large" color="#E8651A" style={{ flex: 1, justifyContent: "center", alignItems: "center" }} />
+    );
+  }
 
   return (
     <SafeAreaView className="flex-1 bg-white">

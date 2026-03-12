@@ -9,6 +9,7 @@ import {
   Keyboard,
   ScrollView,
   TouchableOpacity,
+    ActivityIndicator
 } from "react-native";
 import { useRouter } from "expo-router";
 import Button from "../../../../components/ui/Button";
@@ -19,11 +20,17 @@ const Occupation = () => {
   const router = useRouter();
   const [selectedOccupation, setSelectedOccupation] = useState(null);
   const { updateProfileStep } = useProfileSetup({ isOnboarding: true });
-  const { options: occupationOptions } = useLookupOptions("occupations");
+  const { options: occupationOptions, loading } = useLookupOptions("occupations");
 
   const handleSelect = (itemValue) => {
     setSelectedOccupation(itemValue);
   };
+
+  if (loading) {
+    return (
+      <ActivityIndicator size="large" color="#E8651A" style={{ flex: 1, justifyContent: "center", alignItems: "center" }} />
+    );
+  }
 
   return (
     <SafeAreaView className="flex-1 bg-white">

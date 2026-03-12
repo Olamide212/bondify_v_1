@@ -8,6 +8,7 @@ import {
     Text,
     TouchableWithoutFeedback,
     View,
+    ActivityIndicator,
 } from "react-native";
 
 import RadioSelect from "../../../../components/inputs/RadioSelect";
@@ -19,10 +20,16 @@ import { useProfileSetup } from "../../../../hooks/useProfileSetup";
 
 const Gender = () => {
   const [gender, setGender] = useState("");
-  const { options: genderOptions } = useLookupOptions("genders");
+  const { options: genderOptions, loading } = useLookupOptions("genders");
 
   const router = useRouter();
   const { updateProfileStep } = useProfileSetup({ isOnboarding: true });
+
+  if (loading) {
+    return (
+      <ActivityIndicator size="large" color="#E8651A" style={{ flex: 1, justifyContent: "center", alignItems: "center" }} />
+    );
+  }
 
   return (
     <SafeAreaView className="flex-1 bg-white">
