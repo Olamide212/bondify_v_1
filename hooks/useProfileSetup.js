@@ -7,8 +7,9 @@ import { tokenManager } from "../utils/tokenManager";
 
 const ONBOARDING_STEPS = [
   "age",
-  "height",
+  // "height",
   "gender",
+  "ethnicity",
   "meet",
   "marital-status",
   "kids",
@@ -19,10 +20,11 @@ const ONBOARDING_STEPS = [
   "occupation",
   "smoke",
   "drink",
-  "about",
   "interests",
-  "upload-photo",
+  "about",
   "profile-answers",
+  "upload-photo",
+  "verification",
   "location-access"
 ];
 

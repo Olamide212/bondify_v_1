@@ -142,7 +142,7 @@ const handleSubmit = async () => {
             <View className="w-full items-end mt-8">
               <Button
                 title="Continue"
-                variant="gradient"
+                variant="primary"
                 onPress={handleSubmit}
                 loading={loading}
               />

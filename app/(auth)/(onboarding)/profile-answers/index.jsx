@@ -77,7 +77,7 @@ const ProfileAnswers = () => {
                     .filter(([, answer]) => answer.trim() !== "")
                     .map(([question, answer]) => ({ question, answer }));
                   await updateProfileStep({ questions });
-                  router.push("/location-access");
+                  router.push("/upload-photo");
               }} />
             </View>
           </View>

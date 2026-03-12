@@ -64,7 +64,7 @@ const Kids = () => {
             <View className="w-full items-end pb-6">
               <Button
                 title="Continue"
-                variant="gradient"
+                variant="primary"
                 onPress={async () => {
                   await updateProfileStep({ children });
                   router.push("/preference");

@@ -1,74 +1,189 @@
-import { View, Text, TouchableOpacity, Pressable } from "react-native";
-import React from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { Image } from "expo-image";
-import Button from "../../../components/ui/Button";
-import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
+import { Image } from "expo-image";
 import { StatusBar } from "expo-status-bar";
+import { useRouter } from "expo-router";
+import { Pressable, StyleSheet, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import Button from "../../../components/ui/Button";
+import {images} from "../../../constant/images";
+
+// ── Swap this for your own local asset once you have the photo ──────────────
+// e.g. require("../../../assets/images/african-couple.jpg")
+
 
 const Onboarding = () => {
   const router = useRouter();
 
   return (
-    <LinearGradient
-      colors={["#EE5F2B", "#EE5F2B"]}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 0, y: 1 }}
-      style={{ flex: 1 }}
-    >
+    <View style={styles.root}>
       <StatusBar style="light" />
-      <SafeAreaView className="flex-1">
-        <View className="flex-1 justify-between pb-4">
-          {/* Logo at top */}
-          <View className="justify-center items-center pt-4">
+
+      {/* ── Full-screen couple photo ── */}
+      <Image
+        source={images.onboardingImage}
+        style={StyleSheet.absoluteFill}
+        contentFit="cover"
+      />
+
+      {/* ── Primary orange overlay (semi-transparent) ── */}
+      <LinearGradient
+        colors={[
+          "rgba(238, 95, 43, 0.55)",   // top — lighter tint
+          "rgba(238, 95, 43, 0.70)",   // mid
+          "rgba(238, 95, 43, 0.92)",   // bottom — almost solid for text legibility
+        ]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 0, y: 1 }}
+        style={StyleSheet.absoluteFill}
+      />
+
+      {/* ── Content ── */}
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.inner}>
+
+          {/* Logo */}
+          <View style={styles.logoWrap}>
             <Image
               source={require("../../../assets/images/bondies-logo.png")}
-              style={{ width: 120, height: 40 }}
-              resizeMode="contain"
+              style={styles.logo}
+              contentFit="contain"
             />
           </View>
 
-          {/* Main Image */}
-          <View className="-mt-48">
-            <Image
-              source={require("../../../assets/images/l-image.png")}
-              style={{ width: "100%", height: 450 }}
-              contentFit="cover"
-            />
-          </View>
+          {/* Spacer — pushes content to bottom */}
+          <View style={{ flex: 1 }} />
 
-          {/* Text + Buttons */}
-          <View className="items-center -mt-56 px-3">
-            <Text className="text-white font-PlusJakartaSansBold text-[21px] text-center mb-4">
-              Discover Love where your story begins.
+          {/* Bottom section */}
+          <View style={styles.bottomSection}>
+
+            {/* Tagline */}
+            <Text style={styles.tagline}>
+              Discover Love where{"\n"}your story begins.
             </Text>
 
+            {/* African identity line */}
+            <View style={styles.identityRow}>
+              <View style={styles.identityLine} />
+              <Text style={styles.identityText}>Made for Africans </Text>
+              <View style={styles.identityLine} />
+            </View>
+
             {/* Buttons */}
-            <View className="w-full">
+            <View style={styles.buttonsWrap}>
               <Button
-                title="Continue Phone Number"
+                title="Continue with Phone Number"
                 onPress={() => router.push("/login")}
                 className="mb-3"
-                textClassName="font-santoshiMedium"
+                textClassName="font-PlusJakartaSansSemiBold"
                 variant="white"
               />
               <Button
                 title="Create an Account"
                 onPress={() => router.push("/register")}
-                className="mb-3 bg-transparent border-[1.5px] border-white"
-                textClassName="font-santoshiMedium"
+                style={styles.outlineBtn}
+                textClassName="font-PlusJakartaSansMedium"
                 variant="black"
               />
-              <Text className="text-white font-PlusJakartaSansMedium text-lg text-center mb-4 px-4">
-                By joining our platform, you agree to our Terms and Conditions
-              </Text>
             </View>
+
+            {/* Terms */}
+            <Text style={styles.terms}>
+              By joining, you agree to our{" "}
+           
+                <Text style={styles.termsLink}>Terms & Conditions</Text>
+     
+            </Text>
           </View>
         </View>
       </SafeAreaView>
-    </LinearGradient>
+    </View>
   );
 };
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+    backgroundColor: "#EE5F2B",
+  },
+  safeArea: {
+    flex: 1,
+  },
+  inner: {
+    flex:            1,
+    paddingHorizontal: 24,
+    paddingBottom:   12,
+  },
+
+  // Logo
+  logoWrap: {
+    alignItems: "center",
+    paddingTop: 8,
+  },
+  logo: {
+    width:  130,
+    height: 44,
+  },
+
+  // Bottom
+  bottomSection: {
+    width: "100%",
+  },
+  tagline: {
+    fontSize:    28,
+    fontFamily:  "PlusJakartaSansBold",
+    color:       "#fff",
+    textAlign:   "center",
+    lineHeight:  38,
+    marginBottom: 16,
+    textShadowColor:  "rgba(0,0,0,0.15)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 4,
+  },
+
+  // "Made for Africans" divider
+  identityRow: {
+    flexDirection:  "row",
+    alignItems:     "center",
+    justifyContent: "center",
+    gap:            10,
+    marginBottom:   24,
+  },
+  identityLine: {
+    flex:            1,
+    height:          1,
+    backgroundColor: "rgba(255,255,255,0.35)",
+  },
+  identityText: {
+    fontSize:   15,
+    fontFamily: "PlusJakartaSansSemiBold",
+    color:      "rgba(255,255,255,0.9)",
+    letterSpacing: 0.5,
+  },
+
+  // Buttons
+  buttonsWrap: {
+    gap:          12,
+    marginBottom: 16,
+  },
+  outlineBtn: {
+    backgroundColor: "transparent",
+    borderWidth:     1.5,
+    borderColor:     "#fff",
+  },
+
+  // Terms
+  terms: {
+    fontSize:   13,
+    fontFamily: "PlusJakartaSansMedium",
+    color:      "rgba(255,255,255,0.75)",
+    textAlign:  "center",
+    lineHeight: 18,
+    paddingHorizontal: 16,
+  },
+  termsLink: {
+    color:      "#fff",
+    fontFamily: "PlusJakartaSansBold",
+  },
+});
 
 export default Onboarding;

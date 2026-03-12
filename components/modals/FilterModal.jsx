@@ -8,7 +8,7 @@ import {
   Text,
   TouchableOpacity,
   View,
-  useWindowDimensions
+  useWindowDimensions,
 } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { colors } from "../../constant/colors";
@@ -17,7 +17,7 @@ import BaseModal from "./BaseModal";
 import InterestsModal from "./InterestsModal";
 
 const DEFAULT_FILTERS = {
-  maxDistance: 1000,
+  maxDistance: 100,           // km
   ageRange: [18, 90],
   showMe: "everyone",
   interests: [],
@@ -30,17 +30,16 @@ const DEFAULT_FILTERS = {
 const FilterModal = ({ visible, onClose, initialFilters, onApply }) => {
   const { width } = useWindowDimensions();
 
-  const [maxDistance, setMaxDistance] = useState(DEFAULT_FILTERS.maxDistance);
-  const [ageRange, setAgeRange] = useState(DEFAULT_FILTERS.ageRange);
-  const [showMe, setShowMe] = useState(DEFAULT_FILTERS.showMe);
-  const [selectedInterests, setSelectedInterests] = useState([]);
-  const [verifiedOnly, setVerifiedOnly] = useState(false);
-  const [activeToday, setActiveToday] = useState(false);
-  const [location, setLocation] = useState("");
-  const [allowExtendedDistance, setAllowExtendedDistance] = useState(false);
-  const [myInterests, setMyInterests] = useState([]);
-
-  const [visibleModal, setVisibleModal] = useState(null);
+  const [maxDistance,            setMaxDistance]            = useState(DEFAULT_FILTERS.maxDistance);
+  const [ageRange,               setAgeRange]               = useState(DEFAULT_FILTERS.ageRange);
+  const [showMe,                 setShowMe]                 = useState(DEFAULT_FILTERS.showMe);
+  const [selectedInterests,      setSelectedInterests]      = useState([]);
+  const [verifiedOnly,           setVerifiedOnly]           = useState(false);
+  const [activeToday,            setActiveToday]            = useState(false);
+  const [location,               setLocation]               = useState("");
+  const [allowExtendedDistance,  setAllowExtendedDistance]  = useState(false);
+  const [myInterests,            setMyInterests]            = useState([]);
+  const [visibleModal,           setVisibleModal]           = useState(null);
 
   const hydratedFilters = useMemo(
     () => ({ ...DEFAULT_FILTERS, ...(initialFilters || {}) }),
@@ -68,7 +67,6 @@ const FilterModal = ({ visible, onClose, initialFilters, onApply }) => {
 
   useEffect(() => {
     if (!visible) return;
-
     let isMounted = true;
 
     const loadMyInterests = async () => {
@@ -76,17 +74,14 @@ const FilterModal = ({ visible, onClose, initialFilters, onApply }) => {
         const myProfile = await profileService.getMyProfile();
         if (!isMounted) return;
         setMyInterests(Array.isArray(myProfile?.interests) ? myProfile.interests : []);
-      } catch (_error) {
+      } catch {
         if (!isMounted) return;
         setMyInterests([]);
       }
     };
 
     loadMyInterests();
-
-    return () => {
-      isMounted = false;
-    };
+    return () => { isMounted = false; };
   }, [visible]);
 
   const handleReset = () => {
@@ -118,6 +113,7 @@ const FilterModal = ({ visible, onClose, initialFilters, onApply }) => {
     <BaseModal visible={visible} onClose={onClose} fullScreen>
       <SafeAreaProvider>
         <SafeAreaView className="flex-1 bg-white rounded-t-3xl overflow-hidden">
+          {/* ── Header ── */}
           <View className="flex-row items-center justify-between px-4 pb-4 border-b border-gray-200">
             <TouchableOpacity onPress={onClose}>
               <Text className="text-lg font-PlusJakartaSansMedium text-gray-800">Close</Text>
@@ -137,14 +133,17 @@ const FilterModal = ({ visible, onClose, initialFilters, onApply }) => {
             keyboardShouldPersistTaps="handled"
             nestedScrollEnabled
           >
-            <View className='pb-10 border-b-gray-100 border-b mb-6'>
+            {/* ── Maximum Distance ── */}
+            <View className="pb-10 border-b-gray-100 border-b mb-6">
               <View className="flex-row items-center justify-between mb-2">
                 <Text className="text-xl font-PlusJakartaSansBold">Maximum Distance</Text>
                 <View className="flex-row items-center gap-1 bg-primary/5 px-3 py-2 rounded-full">
-                  <Text className="text-lg text-primary font-PlusJakartaSansBold">{maxDistance} miles</Text>
+                  <Text className="text-lg text-primary font-PlusJakartaSansBold">
+                    {maxDistance} km
+                  </Text>
                 </View>
-
               </View>
+
               <Slider
                 style={{ width: "100%", height: 50 }}
                 minimumValue={2}
@@ -156,6 +155,13 @@ const FilterModal = ({ visible, onClose, initialFilters, onApply }) => {
                 maximumTrackTintColor="#d3d3d3"
                 thumbTintColor={colors.primary}
               />
+
+              {/* Min / max edge labels */}
+              <View className="flex-row justify-between px-1 -mt-1 mb-2">
+                <Text className="text-xs text-gray-400 font-PlusJakartaSans">2 km</Text>
+                <Text className="text-xs text-gray-400 font-PlusJakartaSans">1,000 km</Text>
+              </View>
+
               <View className="flex-row items-center gap-2 mt-2">
                 <TouchableOpacity
                   activeOpacity={0.8}
@@ -171,33 +177,19 @@ const FilterModal = ({ visible, onClose, initialFilters, onApply }) => {
                 <Text className="text-base font-PlusJakartaSansMedium">
                   Show people further away if I run out
                 </Text>
-
               </View>
             </View>
 
-            {/* <View className="mt-4 mb-2">
-              <Text className="text-lg font-PlusJakartaSansBold mb-2">Location</Text>
-              <TextInput
-                className="border border-gray-200 rounded-xl px-4 py-3 text-base font-PlusJakartaSans"
-                placeholder="Filter by city, state, or country"
-                placeholderTextColor="#999"
-                value={location}
-                onChangeText={setLocation}
-              />
-            </View> */}
-
-            <View className='border-b-gray-100 border-b pb-10'>
+            {/* ── Age Range ── */}
+            <View className="border-b-gray-100 border-b pb-10">
               <View className="flex-row items-center justify-between mt-6 mb-2">
                 <Text className="text-xl font-PlusJakartaSansBold">Age Range</Text>
-                <View className='flex-row items-center gap-1 bg-primary/5 px-3  rounded-full'>
+                <View className="flex-row items-center gap-1 bg-primary/5 px-3 rounded-full">
                   <Text className="text-lg text-primary font-PlusJakartaSansBold">
                     {ageRange[0]} – {ageRange[1]}
                   </Text>
-
                 </View>
-
               </View>
-
 
               <MultiSlider
                 sliderLength={Math.max(240, width - 36)}
@@ -218,14 +210,14 @@ const FilterModal = ({ visible, onClose, initialFilters, onApply }) => {
               />
             </View>
 
-
-            <View className='flex-col  w-full'>
+            {/* ── Show Me ── */}
+            <View className="flex-col w-full">
               <Text className="text-xl font-PlusJakartaSansBold mt-6 mb-2">Show Me</Text>
-              <View className="w-full flex-col items-center   mb-2 bg-[#F1F5F9] px-5 py-2 rounded-xl">
-                <View className=" flex-row flex-wrap justify-between gap-10  ">
+              <View className="w-full flex-col items-center mb-2 bg-[#F1F5F9] px-5 py-2 rounded-xl">
+                <View className="flex-row flex-wrap justify-between gap-10">
                   {[
-                    { label: "Men", value: "men" },
-                    { label: "Women", value: "women" },
+                    { label: "Men",      value: "men"      },
+                    { label: "Women",    value: "women"    },
                     { label: "Everyone", value: "everyone" },
                   ].map((option) => {
                     const isSelected = showMe === option.value;
@@ -233,21 +225,23 @@ const FilterModal = ({ visible, onClose, initialFilters, onApply }) => {
                       <TouchableOpacity
                         key={option.value}
                         onPress={() => setShowMe(option.value)}
-                        className={`px-4 py-2 rounded-xl  ${isSelected
-                          ? "bg-white"
-                          : ""
-                          }`}
+                        className={`px-4 py-2 rounded-xl ${isSelected ? "bg-white" : ""}`}
                       >
-                        <Text className={`font-PlusJakartaSansBold  ${isSelected ? "text-primary" : "text-gray-500 "} text-lg`}>{option.label}</Text>
+                        <Text
+                          className={`font-PlusJakartaSansBold text-lg ${
+                            isSelected ? "text-primary" : "text-gray-500"
+                          }`}
+                        >
+                          {option.label}
+                        </Text>
                       </TouchableOpacity>
                     );
                   })}
                 </View>
               </View>
-
             </View>
 
-
+            {/* ── Interests ── */}
             <TouchableOpacity
               className="py-6 border-b border-gray-200"
               onPress={() => setVisibleModal("interests")}
@@ -259,7 +253,7 @@ const FilterModal = ({ visible, onClose, initialFilters, onApply }) => {
 
               {(() => {
                 const hasSelections = selectedInterests.length > 0;
-                const interestList = hasSelections ? selectedInterests : myInterests;
+                const interestList  = hasSelections ? selectedInterests : myInterests;
 
                 if (!interestList.length) {
                   return (
@@ -270,43 +264,41 @@ const FilterModal = ({ visible, onClose, initialFilters, onApply }) => {
                 }
 
                 return (
-                  <>
-                    <View className="flex-row flex-wrap gap-2 mt-3">
-                      {interestList.map((interest) => {
-                        const isShared = myInterests.includes(interest);
-                        return (
-                          <View
-                            key={interest}
-                            className={`px-3 py-1 rounded-full border ${
-                              isShared
-                                ? "bg-primary/10 border-primary"
-                                : "bg-gray-100 border-gray-200"
+                  <View className="flex-row flex-wrap gap-2 mt-3">
+                    {interestList.map((interest) => {
+                      const isShared = myInterests.includes(interest);
+                      return (
+                        <View
+                          key={interest}
+                          className={`px-3 py-1 rounded-full border ${
+                            isShared
+                              ? "bg-primary/10 border-primary"
+                              : "bg-gray-100 border-gray-200"
+                          }`}
+                        >
+                          <Text
+                            className={`text-lg font-PlusJakartaSansMedium ${
+                              isShared ? "text-primary" : "text-gray-700"
                             }`}
                           >
-                            <Text
-                              className={`text-lg font-PlusJakartaSansMedium ${
-                                isShared ? "text-primary" : "text-gray-700"
-                              }`}
-                            >
-                              {interest}
-                            </Text>
-                          </View>
-                        );
-                      })}
-                    </View>
-                  </>
+                            {interest}
+                          </Text>
+                        </View>
+                      );
+                    })}
+                  </View>
                 );
               })()}
             </TouchableOpacity>
 
+            {/* ── Advanced Filters ── */}
             <Text className="text-xl font-PlusJakartaSansBold mt-8 mb-4">Advanced filter</Text>
 
-            <View className="flex-row justify-between items-center py-4 ">
+            <View className="flex-row justify-between items-center py-4">
               <View className="flex-row items-center gap-3">
                 <View className="p-3 rounded-full bg-blue-100 items-center justify-center">
-                    <Ionicons name="shield-checkmark" size={20} color={"#2563EB"} />
+                  <Ionicons name="shield-checkmark" size={20} color="#2563EB" />
                 </View>
-              
                 <Text className="text-[16px] font-PlusJakartaSansMedium">Verified user only</Text>
               </View>
               <Switch
@@ -317,12 +309,11 @@ const FilterModal = ({ visible, onClose, initialFilters, onApply }) => {
               />
             </View>
 
-            <View className="flex-row justify-between items-center py-4 ">
+            <View className="flex-row justify-between items-center py-4">
               <View className="flex-row items-center gap-3">
                 <View className="p-3 rounded-full bg-green-100 items-center justify-center">
-                   <Ionicons name="flash" size={20} color={"#16A34A"} />
+                  <Ionicons name="flash" size={20} color="#16A34A" />
                 </View>
-               
                 <Text className="text-[16px] font-PlusJakartaSansMedium">Active today</Text>
               </View>
               <Switch
@@ -334,6 +325,7 @@ const FilterModal = ({ visible, onClose, initialFilters, onApply }) => {
             </View>
           </ScrollView>
 
+          {/* ── Apply button ── */}
           <View className="px-4 py-3 border-t border-gray-100 bg-white">
             <TouchableOpacity
               className="bg-primary rounded-full py-4 items-center justify-center"

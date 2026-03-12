@@ -1,6 +1,11 @@
-import React, { useState } from "react";
+import { Audio } from "expo-av";
+import { File, Paths } from "expo-file-system/next";
+import { useRouter } from "expo-router";
+import { Check, Mic, Pause, Play, RefreshCw, Sparkles, Square, Trash2 } from "lucide-react-native";
+import React, { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   Animated,
   Keyboard,
   KeyboardAvoidingView,
@@ -11,37 +16,21 @@ import {
   TextInput,
   TouchableOpacity,
   TouchableWithoutFeedback,
-  View,
+  View
 } from "react-native";
-import { useRouter } from "expo-router";
-import { Sparkles, RefreshCw, Check } from "lucide-react-native";
 import Button from "../../../../components/ui/Button";
-import { useProfileSetup } from "../../../../hooks/useProfileSetup";
 import { fonts } from "../../../../constant/fonts";
+import { useProfileSetup } from "../../../../hooks/useProfileSetup";
+import AIService, { BIO_TONES } from "../../../../services/aiService";
 
-const PREDEFINED_BIOS = [
-  "Looking for something real and meaningful 💛",
-  "Adventure lover seeking a partner in crime 🌍",
-  "Coffee addict & dog lover. Let's chat! ☕🐶",
-  "Hopeless romantic with a great sense of humor 😄",
-  "Living life one adventure at a time ✈️",
-  "Foodie who loves trying new restaurants 🍕",
-  "Gym enthusiast & Netflix binger 💪📺",
-  "Music lover looking for my duet partner 🎵",
-  "Simple soul with big dreams ✨",
-  "Work hard, love harder ❤️",
-  "Just here to meet genuine people 🤝",
-  "Swipe right if you love spontaneous road trips 🚗",
-];
+// ─── AI Suggestion Card (using backend AI service) ─────────────────────────────
 
-// ─── AI suggestion card ───────────────────────────────────────────────────────
-
-const AISuggestionCard = ({ onUseSuggestion }) => {
-  const [keywords, setKeywords]     = useState("");
+const AISuggestionCard = ({ onUseSuggestion, onVoicePermissionRequest }) => {
+  const [selectedTone, setSelectedTone] = useState("sincere");
   const [suggestion, setSuggestion] = useState("");
-  const [loading, setLoading]       = useState(false);
-  const [error, setError]           = useState("");
-  const [used, setUsed]             = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [used, setUsed] = useState(false);
 
   const pulseAnim = React.useRef(new Animated.Value(1)).current;
 
@@ -49,7 +38,7 @@ const AISuggestionCard = ({ onUseSuggestion }) => {
     Animated.loop(
       Animated.sequence([
         Animated.timing(pulseAnim, { toValue: 0.92, duration: 700, useNativeDriver: true }),
-        Animated.timing(pulseAnim, { toValue: 1,    duration: 700, useNativeDriver: true }),
+        Animated.timing(pulseAnim, { toValue: 1, duration: 700, useNativeDriver: true }),
       ])
     ).start();
   };
@@ -60,10 +49,6 @@ const AISuggestionCard = ({ onUseSuggestion }) => {
   };
 
   const generateBio = async (retry = false) => {
-    if (!keywords.trim() && !retry) {
-      setError("Add a few words about yourself first.");
-      return;
-    }
     setError("");
     setLoading(true);
     setSuggestion("");
@@ -71,35 +56,8 @@ const AISuggestionCard = ({ onUseSuggestion }) => {
     startPulse();
 
     try {
-      const response = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: "claude-sonnet-4-20250514",
-          max_tokens: 1000,
-          messages: [
-            {
-              role: "user",
-              content: `You are helping someone write a dating profile bio. 
-Based on these keywords/traits about them: "${keywords || "fun, adventurous, genuine"}"
-Write ONE short, warm, and engaging dating profile bio.
-Rules:
-- Maximum 2 sentences
-- Sound natural and human, not corporate
-- Include 1-2 relevant emojis
-- Make them sound attractive and approachable
-- Do NOT use clichés like "love to laugh" or "sapiosexual"
-- Return ONLY the bio text, nothing else`,
-            },
-          ],
-        }),
-      });
-
-      const data = await response.json();
-      const text = data?.content?.[0]?.text?.trim();
-
-      if (!text) throw new Error("Empty response");
-      setSuggestion(text);
+      const response = await AIService.generateBio({ tone: selectedTone });
+      setSuggestion(response.bio || "");
     } catch (err) {
       console.error("AI bio error:", err);
       setError("Couldn't generate a suggestion. Try again.");
@@ -130,9 +88,12 @@ Rules:
       <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
         <View
           style={{
-            width: 34, height: 34, borderRadius: 17,
+            width: 34,
+            height: 34,
+            borderRadius: 17,
             backgroundColor: "#E8651A",
-            alignItems: "center", justifyContent: "center",
+            alignItems: "center",
+            justifyContent: "center",
           }}
         >
           <Sparkles size={16} color="#fff" strokeWidth={2} />
@@ -142,37 +103,42 @@ Rules:
             Write with AI ✨
           </Text>
           <Text style={{ fontFamily: fonts.PlusJakartaSans, fontSize: 12, color: "#9CA3AF", marginTop: 1 }}>
-            Describe yourself in a few words — we&apos;ll do the rest
+            Pick a vibe, we&apos;ll craft your bio
           </Text>
         </View>
       </View>
 
-      {/* Keyword input */}
-      <TextInput
-        placeholder="e.g. outdoorsy, funny, dog dad, architect..."
-        placeholderTextColor="#C4A89A"
-        value={keywords}
-        onChangeText={(t) => { setKeywords(t); setError(""); }}
-        style={{
-          backgroundColor: "#fff",
-          borderWidth: 1,
-          borderColor: error ? "#EF4444" : "#FDD9C0",
-          borderRadius: 12,
-          paddingHorizontal: 14,
-          paddingVertical: 12,
-          fontSize: 14,
-          fontFamily: fonts.PlusJakartaSansMedium,
-          color: "#1a1a1a",
-        }}
-        returnKeyType="done"
-        onSubmitEditing={() => generateBio()}
-      />
-
-      {!!error && (
-        <Text style={{ fontFamily: fonts.PlusJakartaSans, fontSize: 12, color: "#EF4444", marginTop: -8 }}>
-          {error}
-        </Text>
-      )}
+      {/* Tone selector */}
+      <View style={{ gap: 8 }}>
+        <Text style={{ fontFamily: fonts.PlusJakartaSansMedium, fontSize: 12, color: "#6B7280" }}>Select tone:</Text>
+        <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
+          {BIO_TONES.map((tone) => (
+            <TouchableOpacity
+              key={tone.key}
+              onPress={() => setSelectedTone(tone.key)}
+              activeOpacity={0.7}
+              style={{
+                paddingVertical: 8,
+                paddingHorizontal: 12,
+                borderRadius: 50,
+                backgroundColor: selectedTone === tone.key ? "#E8651A" : "#fff",
+                borderWidth: 1,
+                borderColor: selectedTone === tone.key ? "#E8651A" : "#FDD9C0",
+              }}
+            >
+              <Text
+                style={{
+                  fontFamily: fonts.PlusJakartaSansMedium,
+                  fontSize: 12,
+                  color: selectedTone === tone.key ? "#fff" : "#1a1a1a",
+                }}
+              >
+                {tone.label}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </View>
 
       {/* Generate button */}
       <TouchableOpacity
@@ -195,9 +161,15 @@ Rules:
           <Sparkles size={16} color="#fff" strokeWidth={2} />
         )}
         <Text style={{ color: "#fff", fontFamily: fonts.PlusJakartaSansBold, fontSize: 14 }}>
-          {loading ? "Writing your bio…" : "Generate bio"}
+          {loading ? "Crafting bio…" : "Generate bio"}
         </Text>
       </TouchableOpacity>
+
+      {!!error && (
+        <Text style={{ fontFamily: fonts.PlusJakartaSans, fontSize: 12, color: "#EF4444", marginTop: -8 }}>
+          {error}
+        </Text>
+      )}
 
       {/* Suggestion result */}
       {!!suggestion && (
@@ -232,10 +204,7 @@ Rules:
                 gap: 6,
               }}
             >
-              {used
-                ? <Check size={15} color="#fff" strokeWidth={2.5} />
-                : null
-              }
+              {used ? <Check size={15} color="#fff" strokeWidth={2.5} /> : null}
               <Text style={{ color: "#fff", fontFamily: fonts.PlusJakartaSansBold, fontSize: 13 }}>
                 {used ? "Added to bio" : "Use this"}
               </Text>
@@ -269,14 +238,396 @@ Rules:
   );
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  MAIN SCREEN
+// ─── Voice Prompt Section ─────────────────────────────────────────────────────
+
+const VoicePromptSection = ({ onUseVoice }) => {
+  const [phase, setPhase] = useState("idle"); // idle | recording | recorded | playing
+  const [duration, setDuration] = useState(0);
+  const [playPos, setPlayPos] = useState(0);
+  const [playDuration, setPlayDuration] = useState(0);
+  const [recordUri, setRecordUri] = useState(null);
+
+  const recordingRef = useRef(null);
+  const soundRef = useRef(null);
+  const timerRef = useRef(null);
+
+  useEffect(() => {
+    return () => {
+      clearInterval(timerRef.current);
+      recordingRef.current?.stopAndUnloadAsync().catch(() => {});
+      soundRef.current?.unloadAsync().catch(() => {});
+    };
+  }, []);
+
+  const startRecording = async () => {
+    try {
+      const { status } = await Audio.requestPermissionsAsync();
+      if (status !== "granted") {
+        Alert.alert("Permission needed", "Enable microphone access to record your bio.");
+        return;
+      }
+
+      await Audio.setAudioModeAsync({
+        allowsRecordingIOS: true,
+        playsInSilentModeIOS: true,
+      });
+
+      const { recording } = await Audio.Recording.createAsync(
+        Audio.RecordingOptionsPresets.HIGH_QUALITY
+      );
+      recordingRef.current = recording;
+      setPhase("recording");
+      setDuration(0);
+      setPlayPos(0);
+      setPlayDuration(0);
+
+      timerRef.current = setInterval(() => {
+        setDuration((d) => {
+          if (d + 1 >= 60) {
+            stopRecording();
+            return 60;
+          }
+          return d + 1;
+        });
+      }, 1000);
+    } catch (err) {
+      console.error("Start recording error:", err);
+      Alert.alert("Error", "Could not start recording.");
+    }
+  };
+
+  const stopRecording = async () => {
+    try {
+      clearInterval(timerRef.current);
+
+      const rec = recordingRef.current;
+      if (!rec) return;
+
+      await rec.stopAndUnloadAsync();
+      const tempUri = rec.getURI();
+      recordingRef.current = null;
+
+      await Audio.setAudioModeAsync({
+        allowsRecordingIOS: false,
+        playsInSilentModeIOS: true,
+        staysActiveInBackground: false,
+      });
+
+      if (!tempUri) return;
+
+      const fileName = `voice_bio_${Date.now()}.m4a`;
+      const destFile = new File(Paths.cache, fileName);
+      const srcFile = new File(tempUri);
+      await srcFile.copy(destFile);
+
+      setRecordUri(destFile.uri);
+      setPhase("recorded");
+    } catch (err) {
+      console.error("Stop recording error:", err);
+      Alert.alert("Error", "Could not save recording. Please try again.");
+    }
+  };
+
+  const startPlayback = async () => {
+    try {
+      if (!recordUri) return;
+
+      await Audio.setAudioModeAsync({
+        allowsRecordingIOS: false,
+        playsInSilentModeIOS: true,
+        staysActiveInBackground: false,
+      });
+
+      if (soundRef.current) {
+        await soundRef.current.unloadAsync();
+        soundRef.current = null;
+      }
+
+      const { sound, status } = await Audio.Sound.createAsync(
+        { uri: recordUri },
+        { shouldPlay: true, progressUpdateIntervalMillis: 100 }
+      );
+
+      soundRef.current = sound;
+      setPhase("playing");
+      setPlayPos(0);
+
+      if (status?.durationMillis) {
+        setPlayDuration(Math.floor(status.durationMillis / 1000));
+      }
+
+      sound.setOnPlaybackStatusUpdate((s) => {
+        if (!s.isLoaded) return;
+
+        if (s.durationMillis && s.durationMillis > 0) {
+          setPlayDuration(Math.floor(s.durationMillis / 1000));
+        }
+
+        setPlayPos(Math.floor((s.positionMillis ?? 0) / 1000));
+
+        if (s.didJustFinish) {
+          setPhase("recorded");
+          setPlayPos(0);
+          sound.unloadAsync().catch(() => {});
+          soundRef.current = null;
+        }
+      });
+    } catch (err) {
+      console.error("Playback error:", err);
+      Alert.alert("Error", "Could not play the recording.");
+      setPhase("recorded");
+    }
+  };
+
+  const pausePlayback = async () => {
+    try {
+      await soundRef.current?.pauseAsync();
+      setPhase("recorded");
+    } catch (err) {
+      console.error("Pause error:", err);
+    }
+  };
+
+  const formatTime = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
+
+  const handleDelete = () => {
+    Alert.alert("Delete recording", "Remove this voice bio?", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Delete",
+        style: "destructive",
+        onPress: async () => {
+          await soundRef.current?.unloadAsync().catch(() => {});
+          soundRef.current = null;
+          setRecordUri(null);
+          setPhase("idle");
+          setDuration(0);
+          setPlayPos(0);
+          setPlayDuration(0);
+        },
+      },
+    ]);
+  };
+
+  const handleUseVoice = () => {
+    if (recordUri) {
+      onUseVoice(recordUri);
+    }
+  };
+
+  return (
+    <View
+      style={{
+        backgroundColor: "#F0F9FF",
+        borderRadius: 20,
+        borderWidth: 1.5,
+        borderColor: "#BAE6FD",
+        padding: 18,
+        marginBottom: 24,
+        gap: 14,
+      }}
+    >
+      {/* Header */}
+      <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+        <View
+          style={{
+            width: 34,
+            height: 34,
+            borderRadius: 17,
+            backgroundColor: "#0284C7",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Mic size={16} color="#fff" strokeWidth={2} />
+        </View>
+        <View style={{ flex: 1 }}>
+          <Text style={{ fontFamily: fonts.PlusJakartaSansBold, fontSize: 15, color: "#1a1a1a" }}>
+            Voice Bio 🎤
+          </Text>
+          <Text style={{ fontFamily: fonts.PlusJakartaSans, fontSize: 12, color: "#9CA3AF", marginTop: 1 }}>
+            Record yourself introducing yourself
+          </Text>
+        </View>
+      </View>
+
+      {/* Recording phase */}
+      {phase === "idle" && !recordUri && (
+        <TouchableOpacity
+          onPress={startRecording}
+          activeOpacity={0.85}
+          style={{
+            backgroundColor: "#0284C7",
+            borderRadius: 50,
+            paddingVertical: 12,
+            alignItems: "center",
+            flexDirection: "row",
+            justifyContent: "center",
+            gap: 8,
+          }}
+        >
+          <Mic size={16} color="#fff" strokeWidth={2} />
+          <Text style={{ color: "#fff", fontFamily: fonts.PlusJakartaSansBold, fontSize: 14 }}>
+            Start recording
+          </Text>
+        </TouchableOpacity>
+      )}
+
+      {/* Recording active */}
+      {phase === "recording" && (
+        <View style={{ gap: 12 }}>
+          <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
+            <Text style={{ fontFamily: fonts.PlusJakartaSansMedium, fontSize: 14, color: "#1a1a1a" }}>
+              Recording... {formatTime(duration)}
+            </Text>
+            <View
+              style={{
+                width: 12,
+                height: 12,
+                borderRadius: 6,
+                backgroundColor: "#EF4444",
+                shadowColor: "#EF4444",
+                shadowOpacity: 0.8,
+                shadowRadius: 8,
+                elevation: 3,
+              }}
+            />
+          </View>
+          <TouchableOpacity
+            onPress={stopRecording}
+            activeOpacity={0.85}
+            style={{
+              backgroundColor: "#EF4444",
+              borderRadius: 50,
+              paddingVertical: 12,
+              alignItems: "center",
+              flexDirection: "row",
+              justifyContent: "center",
+              gap: 8,
+            }}
+          >
+            <Square size={16} color="#fff" strokeWidth={2} />
+            <Text style={{ color: "#fff", fontFamily: fonts.PlusJakartaSansBold, fontSize: 14 }}>Stop</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+
+      {/* Recorded/Playback phase */}
+      {recordUri && (
+        <View style={{ gap: 12 }}>
+          {/* Progress bar */}
+          <View style={{ gap: 4 }}>
+            <View
+              style={{
+                height: 4,
+                backgroundColor: "#E0F2FE",
+                borderRadius: 2,
+                overflow: "hidden",
+              }}
+            >
+              <View
+                style={{
+                  height: "100%",
+                  backgroundColor: "#0284C7",
+                  width: `${playDuration > 0 ? (playPos / playDuration) * 100 : 0}%`,
+                }}
+              />
+            </View>
+            <View style={{ flexDirection: "row", justifyContent: "space-between", paddingHorizontal: 2 }}>
+              <Text style={{ fontFamily: fonts.PlusJakartaSans, fontSize: 11, color: "#9CA3AF" }}>
+                {formatTime(playPos)}
+              </Text>
+              <Text style={{ fontFamily: fonts.PlusJakartaSans, fontSize: 11, color: "#9CA3AF" }}>
+                {formatTime(playDuration)}
+              </Text>
+            </View>
+          </View>
+
+          {/* Controls */}
+          <View style={{ flexDirection: "row", gap: 10 }}>
+            <TouchableOpacity
+              onPress={phase === "playing" ? pausePlayback : startPlayback}
+              activeOpacity={0.85}
+              style={{
+                flex: 1,
+                backgroundColor: "#0284C7",
+                borderRadius: 50,
+                paddingVertical: 10,
+                alignItems: "center",
+                flexDirection: "row",
+                justifyContent: "center",
+                gap: 6,
+              }}
+            >
+              {phase === "playing" ? (
+                <>
+                  <Pause size={15} color="#fff" strokeWidth={2.5} />
+                  <Text style={{ color: "#fff", fontFamily: fonts.PlusJakartaSansBold, fontSize: 13 }}>
+                    Pause
+                  </Text>
+                </>
+              ) : (
+                <>
+                  <Play size={15} color="#fff" strokeWidth={2.5} />
+                  <Text style={{ color: "#fff", fontFamily: fonts.PlusJakartaSansBold, fontSize: 13 }}>
+                    Play
+                  </Text>
+                </>
+              )}
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={handleDelete}
+              activeOpacity={0.8}
+              style={{
+                paddingHorizontal: 12,
+                paddingVertical: 10,
+                borderRadius: 50,
+                borderWidth: 1.5,
+                borderColor: "#BAE6FD",
+              }}
+            >
+              <Trash2 size={14} color="#0284C7" strokeWidth={2.5} />
+            </TouchableOpacity>
+          </View>
+
+          {/* Use voice option */}
+          <TouchableOpacity
+            onPress={handleUseVoice}
+            activeOpacity={0.85}
+            style={{
+              backgroundColor: "#E0F2FE",
+              borderRadius: 50,
+              paddingVertical: 10,
+              alignItems: "center",
+              flexDirection: "row",
+              justifyContent: "center",
+              gap: 6,
+            }}
+          >
+            <Check size={15} color="#0284C7" strokeWidth={2.5} />
+            <Text style={{ color: "#0284C7", fontFamily: fonts.PlusJakartaSansBold, fontSize: 13 }}>
+              Use this voice bio
+            </Text>
+          </TouchableOpacity>
+        </View>
+      )}
+    </View>
+  );
+};
+
 // ─────────────────────────────────────────────────────────────────────────────
 
 const About = () => {
   const [aboutText, setAboutText] = useState("");
+  const [voiceBioUri, setVoiceBioUri] = useState(null);
   const router = useRouter();
   const { updateProfileStep } = useProfileSetup({ isOnboarding: true });
+
+  const handleUseVoice = (uri) => {
+    setVoiceBioUri(uri);
+    Alert.alert("Voice bio added!", "Your voice bio is ready to submit.");
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-white">
@@ -296,18 +647,22 @@ const About = () => {
                 Tell us a little about yourself
               </Text>
 
+              <Text className="text-base font-PlusJakartaSans text-gray-600 mb-6">
+                Choose one of three ways: type your bio, let AI write one, or record your voice.
+              </Text>
+
               {/* Manual bio input */}
               <TextInput
-                placeholder="Write your cool intro here..."
+                placeholder="Write your bio here..."
                 placeholderTextColor="#999"
                 value={aboutText}
                 onChangeText={setAboutText}
                 multiline
-                numberOfLines={10}
+                numberOfLines={6}
                 style={{
                   backgroundColor: "#f1f1f1",
                   color: "#000",
-                  height: 100,
+                  height: 120,
                   padding: 16,
                   borderRadius: 12,
                   textAlignVertical: "top",
@@ -320,35 +675,8 @@ const About = () => {
               {/* ── AI suggestion card ── */}
               <AISuggestionCard onUseSuggestion={(text) => setAboutText(text)} />
 
-              {/* Predefined bios */}
-              <Text className="text-lg font-PlusJakartaSansMedium mb-3 text-gray-600">
-                Or pick one of these:
-              </Text>
-
-              <View className="flex-row flex-wrap gap-2 mb-8">
-                {PREDEFINED_BIOS.map((bio, index) => {
-                  const isSelected = aboutText === bio;
-                  return (
-                    <TouchableOpacity
-                      key={index}
-                      onPress={() => setAboutText(bio)}
-                      className={`px-4 py-3 rounded-full border ${
-                        isSelected
-                          ? "bg-primary border-primary"
-                          : "bg-gray-100 border-gray-200"
-                      }`}
-                    >
-                      <Text
-                        className={`text-base font-PlusJakartaSansMedium ${
-                          isSelected ? "text-white" : "text-gray-700"
-                        }`}
-                      >
-                        {bio}
-                      </Text>
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
+              {/* ── Voice bio section ── */}
+              <VoicePromptSection onUseVoice={handleUseVoice} />
             </ScrollView>
 
             <View className="w-full items-end pb-6">
@@ -356,8 +684,17 @@ const About = () => {
                 title="Continue"
                 variant="gradient"
                 onPress={async () => {
-                  await updateProfileStep({ bio: aboutText });
-                  router.push("/interests");
+                  if (!aboutText && !voiceBioUri) {
+                    Alert.alert("Bio required", "Please add a text bio or record a voice bio.");
+                    return;
+                  }
+
+                  const bioData = {};
+                  if (aboutText) bioData.bio = aboutText;
+                  if (voiceBioUri) bioData.voiceBio = voiceBioUri;
+
+                  await updateProfileStep(bioData);
+                  router.push("/profile-answers");
                 }}
               />
             </View>

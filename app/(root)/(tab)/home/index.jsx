@@ -1,7 +1,9 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useFocusEffect } from "expo-router";
 import { Bell, SlidersHorizontal } from "lucide-react-native";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
+  AppState,
   Pressable,
   RefreshControl,
   ScrollView,
@@ -20,6 +22,7 @@ import Animated, {
 import { useSelector } from "react-redux";
 import ActionButtons from "../../../../components/homeScreen/ActionButtons";
 import AroundYou from "../../../../components/homeScreen/AroundYouTab";
+import EmptyDeckSlider from "../../../../components/homeScreen/EmptyDeckSlider";
 import AIAssistantModal from "../../../../components/modals/AIAssistantModal";
 import FilterModal from "../../../../components/modals/FilterModal";
 import MatchCelebrationModal from "../../../../components/modals/MatchCelebrationModal";
@@ -36,29 +39,25 @@ import { socketService } from "../../../../services/socketService";
 // ─── Swipe badge assets ───────────────────────────────────────────────────────
 const BOND_BADGE = require("../../../../assets/images/Bond_Badge_Right.png");
 const NOPE_BADGE = require("../../../../assets/images/Nope_Badge_Left.png");
-// ─────────────────────────────────────────────────────────────────────────────
 
-const NOTIFICATIONS_STORAGE_KEY = "@bondify/cache/home/notifications";
+const NOTIFICATIONS_STORAGE_KEY  = "@bondify/cache/home/notifications";
 const NOTIF_SETTINGS_STORAGE_KEY = "@bondify/cache/notificationSettings";
 const MAX_NOTIFICATIONS = 100;
 
 const DEFAULT_NOTIF_SETTINGS = {
-  newMatch: true,
-  newMessage: true,
-  newLike: true,
-  superLike: true,
-  eventReminder: true,
-  pushNotifications: true,
+  newMatch:           true,
+  newMessage:         true,
+  newLike:            true,
+  superLike:          true,
+  eventReminder:      true,
+  pushNotifications:  true,
   emailNotifications: true,
-  marketingEmails: false,
+  marketingEmails:    false,
 };
 
 const safeParse = (value) => {
-  try {
-    return JSON.parse(value);
-  } catch {
-    return null;
-  }
+  try { return JSON.parse(value); }
+  catch { return null; }
 };
 
 const Home = () => {
@@ -77,26 +76,54 @@ const Home = () => {
 
   const { user: currentUser } = useSelector((state) => state.auth);
 
-  // ─── Swipe badge state ─────────────────────────────────────────────────────
-  // direction: 'right' (BOND) | 'left' (NOPE) | null
+  // ─── hasEverLoaded: prevents false empty-state on initial mount ───────────
+  // Flips to true once profilesLoading transitions false for the first time.
+  // Without this, the screen flashes "No users" immediately on mount because
+  // homeProfiles is [] while the first fetch is still in-flight.
+  const hasEverLoaded = useRef(false);
+  useEffect(() => {
+    if (!profilesLoading) {
+      hasEverLoaded.current = true;
+    }
+  }, [profilesLoading]);
+
+  // ─── Auto-refresh on tab focus ────────────────────────────────────────────
+  // Fires every time the Home tab gains focus (user navigates back to it).
+  useFocusEffect(
+    useCallback(() => {
+      refreshProfiles();
+    }, [refreshProfiles])
+  );
+
+  // ─── Auto-refresh when app returns from background ────────────────────────
+  useEffect(() => {
+    const subscription = AppState.addEventListener("change", (nextState) => {
+      if (nextState === "active") {
+        refreshProfiles();
+      }
+    });
+    return () => subscription.remove();
+  }, [refreshProfiles]);
+
+  // ─── Swipe badge ──────────────────────────────────────────────────────────
   const [swipeBadgeDirection, setSwipeBadgeDirection] = useState(null);
   const badgeOpacity = useSharedValue(0);
   const badgeScale   = useSharedValue(0.6);
 
-  const [showFilterModal, setShowFilterModal] = useState(false);
-  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [showFilterModal,        setShowFilterModal]        = useState(false);
+  const [showProfileModal,       setShowProfileModal]       = useState(false);
   const [showNotificationsModal, setShowNotificationsModal] = useState(false);
-  const [showAIModal, setShowAIModal] = useState(false);
-  const [selectedProfileId, setSelectedProfileId] = useState(null);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [notifications, setNotifications] = useState([]);
+  const [showAIModal,            setShowAIModal]            = useState(false);
+  const [selectedProfileId,      setSelectedProfileId]      = useState(null);
+  const [isRefreshing,           setIsRefreshing]           = useState(false);
+  const [notifications,          setNotifications]          = useState([]);
 
   const unreadNotificationsCount = useMemo(
     () => notifications.filter((item) => !item.read).length,
     [notifications]
   );
 
-  // ─── Banner queue ──────────────────────────────────────────────────────────
+  // ─── Banner queue ─────────────────────────────────────────────────────────
   const [activeBanner, setActiveBanner] = useState(null);
   const bannerQueueRef = useRef([]);
   const bannerBusyRef  = useRef(false);
@@ -127,7 +154,7 @@ const Home = () => {
     }
   }, []);
 
-  // ─── Notification settings ─────────────────────────────────────────────────
+  // ─── Notification settings ────────────────────────────────────────────────
   const [notifSettings, setNotifSettings] = useState(DEFAULT_NOTIF_SETTINGS);
   const notifSettingsRef = useRef(DEFAULT_NOTIF_SETTINGS);
   useEffect(() => {
@@ -138,22 +165,14 @@ const Home = () => {
     let mounted = true;
     const load = async () => {
       try {
-        const cached = safeParse(
-          await AsyncStorage.getItem(NOTIF_SETTINGS_STORAGE_KEY)
-        );
-        if (mounted && cached) {
-          setNotifSettings((prev) => ({ ...prev, ...cached }));
-        }
+        const cached = safeParse(await AsyncStorage.getItem(NOTIF_SETTINGS_STORAGE_KEY));
+        if (mounted && cached) setNotifSettings((prev) => ({ ...prev, ...cached }));
       } catch {}
-
       try {
         const res = await SettingsService.getNotificationSettings();
         if (mounted && res?.data) {
           setNotifSettings((prev) => ({ ...prev, ...res.data }));
-          await AsyncStorage.setItem(
-            NOTIF_SETTINGS_STORAGE_KEY,
-            JSON.stringify(res.data)
-          ).catch(() => {});
+          await AsyncStorage.setItem(NOTIF_SETTINGS_STORAGE_KEY, JSON.stringify(res.data)).catch(() => {});
         }
       } catch {}
     };
@@ -161,36 +180,32 @@ const Home = () => {
     return () => { mounted = false; };
   }, []);
 
-  // ─── Profile card animation ────────────────────────────────────────────────
+  // ─── Profile card animation ───────────────────────────────────────────────
   const animation = useSharedValue(1);
 
-  const currentProfile =
-    homeProfiles.length > 0
-      ? homeProfiles[homeCurrentProfileIndex % homeProfiles.length]
-      : null;
+  const hasProfiles  = Array.isArray(homeProfiles) && homeProfiles.length > 0;
+  const currentProfile = hasProfiles
+    ? homeProfiles[homeCurrentProfileIndex % homeProfiles.length]
+    : null;
 
   useEffect(() => {
     animation.value = 0;
     animation.value = withTiming(1, { duration: 600 });
   }, [homeCurrentProfileIndex, animation]);
 
-  // ─── Swipe badge stamp animation ───────────────────────────────────────────
-  // Fast scale-in (stamp press) → brief hold → fade out
+  // ─── Swipe badge stamp animation ─────────────────────────────────────────
   const showSwipeBadge = (direction) => {
     setSwipeBadgeDirection(direction);
     badgeScale.value   = 0.5;
     badgeOpacity.value = 0;
 
-    // Stamp in with slight overshoot
     badgeScale.value = withTiming(1.08, { duration: 160 }, () => {
       badgeScale.value = withTiming(1, { duration: 100 });
     });
-
-    // Opacity: snap visible → hold → fade out → clear state
     badgeOpacity.value = withSequence(
-      withTiming(1, { duration: 80 }),
-      withTiming(1, { duration: 580 }),
-      withTiming(0, { duration: 220 }, () => {
+      withTiming(1,  { duration: 80  }),
+      withTiming(1,  { duration: 580 }),
+      withTiming(0,  { duration: 220 }, () => {
         runOnJS(setSwipeBadgeDirection)(null);
       })
     );
@@ -215,22 +230,23 @@ const Home = () => {
 
   const handleViewProfile = () => {
     if (currentProfile) {
-      setSelectedProfileId(currentProfile.id);
+      setSelectedProfileId(currentProfile._id || currentProfile.id);
       setShowProfileModal(true);
     }
   };
 
   const animatedStyle = useAnimatedStyle(() => {
     const translateY = interpolate(animation.value, [0, 1], [60, 0]);
-    const scale = interpolate(animation.value, [0, 1], [0.9, 1]);
+    const scale      = interpolate(animation.value, [0, 1], [0.9, 1]);
     return { transform: [{ translateY }, { scale }], opacity: animation.value };
   });
 
+  // Stop pull-to-refresh spinner once loading settles
   useEffect(() => {
     if (!profilesLoading && isRefreshing) setIsRefreshing(false);
   }, [profilesLoading, isRefreshing]);
 
-  // ─── Hydrate / persist notification cache ─────────────────────────────────
+  // ─── Notification cache ───────────────────────────────────────────────────
   useEffect(() => {
     let isMounted = true;
     AsyncStorage.getItem(NOTIFICATIONS_STORAGE_KEY)
@@ -238,8 +254,7 @@ const Home = () => {
         const parsed = safeParse(raw);
         if (!isMounted || !Array.isArray(parsed)) return;
         setNotifications(
-          parsed
-            .filter(Boolean)
+          parsed.filter(Boolean)
             .map((item) => ({ ...item, read: Boolean(item?.read) }))
             .slice(0, MAX_NOTIFICATIONS)
         );
@@ -268,7 +283,7 @@ const Home = () => {
     setNotifications((prev) => prev.map((item) => ({ ...item, read: true })));
   }, []);
 
-  // ─── Socket listeners ──────────────────────────────────────────────────────
+  // ─── Socket listeners ─────────────────────────────────────────────────────
   useEffect(() => {
     let isMounted = true;
 
@@ -276,21 +291,19 @@ const Home = () => {
       id:
         payload.id ||
         `${payload.type || "notification"}-${payload.matchId || Date.now()}-${Math.random()}`,
-      type: payload.type || "notification",
-      title: payload.title || "Notification",
-      body: payload.body || "You have a new update.",
+      type:      payload.type      || "notification",
+      title:     payload.title     || "Notification",
+      body:      payload.body      || "You have a new update.",
       createdAt: payload.createdAt || new Date().toISOString(),
-      matchId: payload.matchId,
-      userId: payload.userId,
-      read: Boolean(payload.read),
+      matchId:   payload.matchId,
+      userId:    payload.userId,
+      read:      Boolean(payload.read),
     });
 
     const pushNotification = (payload) => {
       const normalized = mapPayload(payload);
       setNotifications((prev) => {
-        const existing = prev.find(
-          (item) => String(item.id) === String(normalized.id)
-        );
+        const existing = prev.find((item) => String(item.id) === String(normalized.id));
         const next = {
           ...normalized,
           read:
@@ -298,9 +311,7 @@ const Home = () => {
             Boolean(existing?.read) ||
             showNotificationsModalRef.current,
         };
-        const deduped = prev.filter(
-          (item) => String(item.id) !== String(next.id)
-        );
+        const deduped = prev.filter((item) => String(item.id) !== String(next.id));
         return [next, ...deduped].slice(0, MAX_NOTIFICATIONS);
       });
       enqueueBanner(normalized);
@@ -316,12 +327,9 @@ const Home = () => {
       if (!notifSettingsRef.current.newMatch) return;
       pushNotification({
         ...payload,
-        type: "match",
-        title:
-          payload?.matchedUser?.name ||
-          payload?.profile?.name ||
-          "New Match!",
-        body: "You have a new match 🎉",
+        type:  "match",
+        title: payload?.matchedUser?.name || payload?.profile?.name || "New Match!",
+        body:  "You have a new match 🎉",
       });
     };
 
@@ -332,28 +340,22 @@ const Home = () => {
 
       const senderName =
         message.sender?.name ||
-        [message.sender?.firstName, message.sender?.lastName]
-          .filter(Boolean)
-          .join(" ") ||
+        [message.sender?.firstName, message.sender?.lastName].filter(Boolean).join(" ") ||
         "New message";
 
       const body =
-        message.type === "image"
-          ? "Sent you a photo"
-          : message.type === "voice"
-          ? "Sent you a voice note"
-          : message.content || "Sent you a message";
+        message.type === "image" ? "Sent you a photo"
+        : message.type === "voice" ? "Sent you a voice note"
+        : message.content || "Sent you a message";
 
       pushNotification({
-        id: `${matchId || message._id || message.id}-${
-          message._id || message.id || Date.now()
-        }`,
-        type: "message",
-        title: senderName,
+        id: `${matchId || message._id || message.id}-${message._id || message.id || Date.now()}`,
+        type:      "message",
+        title:     senderName,
         body,
         createdAt: message.createdAt || new Date().toISOString(),
         matchId,
-        userId: message.sender?._id || message.sender?.id,
+        userId:    message.sender?._id || message.sender?.id,
       });
     };
 
@@ -361,8 +363,8 @@ const Home = () => {
       const socket = await socketService.connect();
       if (!socket || !isMounted) return;
       socketService.on("notification:new", handleNotificationNew);
-      socketService.on("match:new", handleMatchNew);
-      socketService.on("message:new", handleMessageNew);
+      socketService.on("match:new",        handleMatchNew);
+      socketService.on("message:new",      handleMessageNew);
     };
 
     connectSocket();
@@ -370,8 +372,8 @@ const Home = () => {
     return () => {
       isMounted = false;
       socketService.off("notification:new", handleNotificationNew);
-      socketService.off("match:new", handleMatchNew);
-      socketService.off("message:new", handleMessageNew);
+      socketService.off("match:new",        handleMatchNew);
+      socketService.off("message:new",      handleMessageNew);
     };
   }, [enqueueBanner]);
 
@@ -399,14 +401,20 @@ const Home = () => {
     }
   };
 
-  if (profilesLoading) return <LogoLoader color={colors.primary} />;
-
-  const hasProfiles = Array.isArray(homeProfiles) && homeProfiles.length > 0;
-
   const onRefresh = () => {
     setIsRefreshing(true);
     refreshProfiles();
   };
+
+  // ─── Render guards ────────────────────────────────────────────────────────
+  // Show full-screen loader only on the very first load (before we've ever
+  // received data). After that we let the UI render stale data + spinner.
+  const showFullLoader = profilesLoading && !hasEverLoaded.current;
+
+  // Show empty-deck only once we know the first load finished with no profiles.
+  const showEmptyDeck  = hasEverLoaded.current && !profilesLoading && !hasProfiles;
+
+  if (showFullLoader) return <LogoLoader color={colors.primary} />;
 
   return (
     <View style={styles.container}>
@@ -426,9 +434,7 @@ const Home = () => {
                 {unreadNotificationsCount > 0 && (
                   <View style={styles.notificationsBadge}>
                     <Text style={styles.notificationsBadgeText}>
-                      {unreadNotificationsCount > 99
-                        ? "99+"
-                        : unreadNotificationsCount}
+                      {unreadNotificationsCount > 99 ? "99+" : unreadNotificationsCount}
                     </Text>
                   </View>
                 )}
@@ -450,9 +456,7 @@ const Home = () => {
           source={swipeBadgeDirection === "right" ? BOND_BADGE : NOPE_BADGE}
           style={[
             styles.swipeBadge,
-            swipeBadgeDirection === "right"
-              ? styles.swipeBadgeRight   // BOND on the left side of screen
-              : styles.swipeBadgeLeft,   // NOPE on the right side of screen
+            swipeBadgeDirection === "right" ? styles.swipeBadgeRight : styles.swipeBadgeLeft,
             badgeAnimStyle,
           ]}
           resizeMode="contain"
@@ -474,16 +478,22 @@ const Home = () => {
       >
         {hasProfiles && currentProfile ? (
           <Animated.View style={[animatedStyle, { flex: 1 }]}>
-            <AroundYou profile={currentProfile} onViewProfile={handleViewProfile} />
+            <AroundYou
+              profile={currentProfile}
+              onViewProfile={handleViewProfile}
+            />
           </Animated.View>
-        ) : (
-          <View style={styles.emptyContainer}>
-            <Text style={styles.emptyTitle}>No users around you yet</Text>
-            <Text style={styles.emptySubtitle}>
-              Check back shortly to discover newly registered users.
-            </Text>
-          </View>
-        )}
+        ) : showEmptyDeck ? (
+          // ── Animated multi-line slider shown when deck is genuinely empty ──
+        <EmptyDeckSlider
+  onRefresh={(km) => {
+    setHomeFilters(prev => ({ ...prev, maxDistance: km }));
+    refreshProfiles();
+  }}
+  loading={profilesLoading}
+  currentDistance={homeFilters?.maxDistance ?? 50}
+/>
+        ) : null /* still loading first batch — full loader handles it above */}
       </ScrollView>
 
       {hasProfiles && currentProfile && (
@@ -534,7 +544,7 @@ const Home = () => {
             try {
               await messageService.sendMessage(matchedProfile.matchId, {
                 content: selectedIceBreaker,
-                type: "text",
+                type:    "text",
               });
             } catch (error) {
               console.error("Failed to send ice breaker:", error);
@@ -550,71 +560,45 @@ const Home = () => {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#fff" },
-  emptyContainer: {
-    flex: 1,
-    backgroundColor: "#fff",
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: 24,
-  },
-  emptyTitle: {
-    fontSize: 24,
-    color: "#111",
-    fontFamily: "PlusJakartaSansBold",
-    marginBottom: 8,
-    textAlign: "center",
-  },
-  emptySubtitle: {
-    fontSize: 16,
-    color: "#666",
-    fontFamily: "PlusJakartaSans",
-    textAlign: "center",
-  },
+
   headerWrapper: {
     position: "absolute",
-    top: 60,
-    left: 20,
-    right: 20,
-    zIndex: 50,
+    top:      60,
+    left:     20,
+    right:    20,
+    zIndex:   50,
   },
   actionButtonWrapper: {
     position: "absolute",
-    bottom: 5,
-    left: 0,
-    right: 0,
-    zIndex: 10,
+    bottom:   5,
+    left:     0,
+    right:    0,
+    zIndex:   10,
   },
 
   // ── BOND / NOPE stamp badges ─────────────────────────────────────────────
   swipeBadge: {
     position: "absolute",
-    width: 200,
-    height: 100,
-    zIndex: 200,
+    width:    200,
+    height:   100,
+    zIndex:   200,
   },
-  // Swiped right → show BOND badge on the LEFT side (where thumb drags from)
-  swipeBadgeRight: {
-    top: "30%",
-    left: "5%",
-  },
-  // Swiped left → show NOPE badge on the RIGHT side
-  swipeBadgeLeft: {
-    top: "30%",
-    right: "5%",
-  },
+  swipeBadgeRight: { top: "30%", left:  "5%" },
+  swipeBadgeLeft:  { top: "30%", right: "5%" },
 
   aroundYouContainer: { flex: 1 },
+
   notificationsBadge: {
-    position: "absolute",
-    top: 6,
-    right: 6,
-    minWidth: 18,
-    height: 18,
-    borderRadius: 9,
+    position:          "absolute",
+    top:               6,
+    right:             6,
+    minWidth:          18,
+    height:            18,
+    borderRadius:      9,
     paddingHorizontal: 4,
-    backgroundColor: colors.primary,
-    alignItems: "center",
-    justifyContent: "center",
+    backgroundColor:   colors.primary,
+    alignItems:        "center",
+    justifyContent:    "center",
   },
   notificationsBadgeText: { color: "#fff", fontSize: 10, fontWeight: "700" },
 });

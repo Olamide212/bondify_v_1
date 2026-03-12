@@ -49,6 +49,7 @@ const MiniWaveform = ({ isActive }) => {
       );
     }
     return () => anims?.forEach((a) => a.stop());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isActive]);
 
   return (
@@ -74,54 +75,92 @@ const VoicePromptButton = ({ uri }) => {
   const [phase, setPhase] = useState("idle"); // idle | loading | playing | paused
   const soundRef = useRef(null);
 
-  // cleanup on unmount
   useEffect(() => {
+    console.log("[VoicePrompt] Component mounted with URI:", uri);
     return () => {
-      soundRef.current?.unloadAsync().catch(() => {});
+      console.log("[VoicePrompt] Cleaning up sound");
+      soundRef.current?.unloadAsync().catch((err) => {
+        console.error("[VoicePrompt] Cleanup error:", err);
+      });
     };
-  }, []);
+  }, [uri]);
 
   const handlePress = async () => {
     if (phase === "playing") {
-      await soundRef.current?.pauseAsync();
-      setPhase("paused");
+      console.log("[VoicePrompt] Pausing playback");
+      try {
+        await soundRef.current?.pauseAsync();
+        setPhase("paused");
+      } catch (err) {
+        console.error("[VoicePrompt] Pause error:", err);
+      }
       return;
     }
 
     if (phase === "paused") {
-      await soundRef.current?.playAsync();
-      setPhase("playing");
+      console.log("[VoicePrompt] Resuming playback");
+      try {
+        await soundRef.current?.playAsync();
+        setPhase("playing");
+      } catch (err) {
+        console.error("[VoicePrompt] Resume error:", err);
+        setPhase("idle");
+      }
       return;
     }
 
     // idle → load + play
+    console.log("[VoicePrompt] Starting playback from:", uri);
     setPhase("loading");
     try {
-      // unload any previous instance
+      // Unload any previous instance
       if (soundRef.current) {
+        console.log("[VoicePrompt] Unloading previous sound");
         await soundRef.current.unloadAsync();
         soundRef.current = null;
       }
 
+      // Set audio mode BEFORE creating the sound
+      console.log("[VoicePrompt] Setting audio mode");
       await Audio.setAudioModeAsync({
         allowsRecordingIOS: false,
         playsInSilentModeIOS: true,
+        staysActiveInBackground: false,
       });
 
-      const { sound } = await Audio.Sound.createAsync(
+      console.log("[VoicePrompt] Creating sound object from URI");
+      const { sound, status } = await Audio.Sound.createAsync(
         { uri },
-        { shouldPlay: true }
+        { shouldPlay: false } // Don't autoplay yet
       );
-      soundRef.current = sound;
-      setPhase("playing");
 
+      console.log("[VoicePrompt] Sound created successfully, status:", status);
+      soundRef.current = sound;
+
+      // Set up status update listener
       sound.setOnPlaybackStatusUpdate((status) => {
+        console.log("[VoicePrompt] Playback status update:", {
+          isLoaded: status.isLoaded,
+          didJustFinish: status.didJustFinish,
+          isPlaying: status.isPlaying,
+        });
+
         if (status.isLoaded && status.didJustFinish) {
+          console.log("[VoicePrompt] Playback finished");
           setPhase("idle");
         }
       });
+
+      // Now play the sound
+      console.log("[VoicePrompt] Starting playback");
+      await sound.playAsync();
+      setPhase("playing");
     } catch (err) {
-      console.error("VoicePrompt playback error:", err);
+      console.error("[VoicePrompt] Playback error:", {
+        message: err.message,
+        code: err.code,
+        uri,
+      });
       setPhase("idle");
     }
   };
@@ -198,6 +237,15 @@ const ProfileHeroSection = ({
   onMarkUriLoaded,
 }) => {
   const [mainImageLoading, setMainImageLoading] = useState(false);
+
+  useEffect(() => {
+    console.log("[ProfileHeroSection] Profile data loaded:", {
+      id: profile?._id,
+      name: profile?.name,
+      hasVoicePrompt: !!profile?.voicePrompt,
+      voicePromptUrl: profile?.voicePrompt?.substring(0, 50) + "...",
+    });
+  }, [profile]);
 
   const locationLabel = [profile?.distance, profile?.location]
     .filter(Boolean)

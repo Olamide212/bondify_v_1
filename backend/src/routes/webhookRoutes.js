@@ -9,3 +9,5 @@ router.post('/webhooks/whatsapp', express.urlencoded({ extended: false }), async
   if (body === 'STOP') await handleOptOut(from);
   res.status(200).send('<Response></Response>');
 });
+
+module.exports = router;

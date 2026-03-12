@@ -104,6 +104,7 @@ const getDiscoveryProfiles = async (req, res, next) => {
     const skip = (sanitizedPage - 1) * sanitizedLimit;
 
     // FIX: run find + count in parallel; add _id tiebreaker for stable pagination
+    // Explicitly exclude sensitive fields but include voicePrompt
     const [profiles, total] = await Promise.all([
       User.find(query)
         .select('-password -otp -otpExpiry -verificationSelfieUrl')

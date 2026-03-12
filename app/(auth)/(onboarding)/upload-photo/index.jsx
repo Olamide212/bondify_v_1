@@ -64,7 +64,7 @@ const UploadPhoto = () => {
     setUploading(true);
     try {
       await profileService.uploadPhotos(selectedPhotos);
-      router.push("/profile-answers");
+      router.push("/verification");
     } catch (err) {
       console.error("Photo upload error:", err);
       Alert.alert("Upload Failed", "Failed to upload photos. Please try again.");
@@ -157,7 +157,7 @@ const UploadPhoto = () => {
           <View className="items-end">
             <Button
               title={uploading ? "Uploading..." : "Continue"}
-              variant="gradient"
+              variant="primary"
               onPress={handleContinue}
               loading={uploading}
               disabled={uploading}

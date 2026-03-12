@@ -1,46 +1,53 @@
 /**
- * app/(root)/(profile)/verification.jsx
+ * app/(root)/(onboarding)/photo-verification.jsx
  *
- * Selfie verification screen — Settings entry point.
+ * Onboarding step: selfie verification.
+ * Same camera/upload flow as the settings verification screen, but:
+ *   - Has a "Skip for now" option (user can verify later from settings)
+ *   - Done step navigates forward to next onboarding step (not back to profile)
+ *   - Uses onboardingToken from Redux auth state (onboarding users may not have
+ *     a full auth token yet — falls back gracefully)
  *
- * BUG FIX: endpoint was /verification/verify (no such route → server returned 400).
- *          Correct route is /profile/verify (profileRoutes.js is mounted at /api/profile).
+ * Flow: INTRO → CAMERA → PREVIEW → DONE → /interests (or next step)
  *
- * Flow: INTRO → CAMERA → PREVIEW → DONE
+ * Route: Change NEXT_ROUTE below to match your onboarding sequence.
  */
 
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { useRouter } from "expo-router";
 import {
-  Camera,
-  CheckCircle,
-  ChevronLeft,
-  RefreshCw,
-  ShieldCheck,
+    Camera,
+    CheckCircle,
+    ChevronLeft,
+    RefreshCw,
+    ShieldCheck,
 } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
 import {
-  ActivityIndicator,
-  Alert,
-  Image,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Alert,
+    Image,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { colors } from "../../../constant/colors";
-import apiClient from "../../../utils/axiosInstance";
-import { tokenManager } from "../../../utils/tokenManager";
+import { colors } from "../../../../constant/colors";
+import apiClient from "../../../../utils/axiosInstance";
+import { tokenManager } from "../../../../utils/tokenManager";
 
 const PRIMARY = colors.primary;
+
+// ── Change this to the next screen in your onboarding sequence ────────────────
+const NEXT_ROUTE = "/location-access";
 
 // ─── Steps ────────────────────────────────────────────────────────────────────
 const STEP = { INTRO: "intro", CAMERA: "camera", PREVIEW: "preview", DONE: "done" };
 
 // ─── Intro ────────────────────────────────────────────────────────────────────
-const IntroStep = ({ onStart }) => (
+const IntroStep = ({ onStart, onSkip }) => (
   <ScrollView contentContainerStyle={is.container} showsVerticalScrollIndicator={false}>
     <View style={is.iconWrap}>
       <ShieldCheck size={48} color={PRIMARY} strokeWidth={1.5} />
@@ -54,9 +61,9 @@ const IntroStep = ({ onStart }) => (
 
     <View style={is.steps}>
       {[
-        { n: "1", t: "Take a clear selfie", d: "Face the camera in good lighting"      },
-        { n: "2", t: "We review it",        d: "Usually takes a few minutes"            },
-        { n: "3", t: "Get your badge",      d: "Verified badge appears on your profile" },
+        { n: "1", t: "Take a clear selfie", d: "Face the camera in good lighting"       },
+        { n: "2", t: "We review it",        d: "Usually takes a few minutes"             },
+        { n: "3", t: "Get your badge",      d: "Verified badge appears on your profile"  },
       ].map(({ n, t, d }) => (
         <View key={n} style={is.stepRow}>
           <View style={is.stepNum}>
@@ -74,13 +81,18 @@ const IntroStep = ({ onStart }) => (
       <Camera size={18} color="#fff" strokeWidth={2} />
       <Text style={is.btnText}>Open Camera</Text>
     </TouchableOpacity>
+
+    {/* Onboarding-specific: allow skipping */}
+    <TouchableOpacity style={is.skipBtn} onPress={onSkip} activeOpacity={0.7}>
+      <Text style={is.skipText}>Skip for now</Text>
+    </TouchableOpacity>
   </ScrollView>
 );
 
 const is = StyleSheet.create({
-  container:   { paddingHorizontal: 24, paddingTop: 16, paddingBottom: 40 },
+  container:   { paddingHorizontal: 24, paddingTop: 16, paddingBottom: 48 },
   iconWrap:    { width: 88, height: 88, borderRadius: 99, backgroundColor: "#FEF3EC", alignItems: "center", justifyContent: "center", alignSelf: "center", marginBottom: 20 },
-  title:       { fontSize: 22, fontFamily: "PlusJakartaSansBold", color: "#111", textAlign: "center", marginBottom: 10 },
+  title:       { fontSize: 24, fontFamily: "PlusJakartaSansBold", color: "#111", textAlign: "center", marginBottom: 10 },
   body:        { fontSize: 14, fontFamily: "PlusJakartaSans", color: "#6B7280", textAlign: "center", lineHeight: 22, marginBottom: 28 },
   steps:       { gap: 16, marginBottom: 32 },
   stepRow:     { flexDirection: "row", alignItems: "flex-start", gap: 14 },
@@ -88,8 +100,10 @@ const is = StyleSheet.create({
   stepNumText: { fontSize: 14, fontFamily: "PlusJakartaSansBold", color: PRIMARY },
   stepTitle:   { fontSize: 15, fontFamily: "PlusJakartaSansSemiBold", color: "#111", marginBottom: 2 },
   stepDesc:    { fontSize: 13, fontFamily: "PlusJakartaSans", color: "#9CA3AF" },
-  btn:         { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, backgroundColor: PRIMARY, borderRadius: 99, paddingVertical: 16 },
+  btn:         { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, backgroundColor: PRIMARY, borderRadius: 99, paddingVertical: 16, marginBottom: 12 },
   btnText:     { fontSize: 16, fontFamily: "PlusJakartaSansBold", color: "#fff" },
+  skipBtn:     { alignItems: "center", paddingVertical: 12 },
+  skipText:    { fontSize: 14, fontFamily: "PlusJakartaSansMedium", color: "#9CA3AF" },
 });
 
 // ─── Camera Step ──────────────────────────────────────────────────────────────
@@ -151,8 +165,8 @@ const CameraStep = ({ onCapture }) => {
 const cs = StyleSheet.create({
   container:    { flex: 1, backgroundColor: "#000" },
   overlay:      { ...StyleSheet.absoluteFillObject, alignItems: "center", justifyContent: "center" },
-  oval:         { width: 230, height: 290, borderRadius: 999, borderWidth: 2.5, borderColor: "rgba(255,255,255,0.7)", borderStyle: "dashed" },
-  hint:         { marginTop: 16, fontSize: 13, fontFamily: "PlusJakartaSansMedium", color: "rgba(255,255,255,0.8)" },
+  oval:         { width: 230, height: 290, borderRadius: 999, borderWidth: 2.5, borderColor: "rgba(255,255,255,0.75)", borderStyle: "dashed" },
+  hint:         { marginTop: 16, fontSize: 13, fontFamily: "PlusJakartaSansMedium", color: "rgba(255,255,255,0.85)" },
   shutterRow:   { position: "absolute", bottom: 48, width: "100%", alignItems: "center" },
   shutter:      { width: 72, height: 72, borderRadius: 99, backgroundColor: "#fff", alignItems: "center", justifyContent: "center", borderWidth: 4, borderColor: "rgba(255,255,255,0.4)" },
   shutterInner: { width: 54, height: 54, borderRadius: 99, backgroundColor: PRIMARY },
@@ -208,18 +222,19 @@ const ps = StyleSheet.create({
 });
 
 // ─── Done Step ────────────────────────────────────────────────────────────────
-const DoneStep = ({ onBack }) => (
+// Onboarding variant: shows a "Continue →" button instead of "Back to Profile"
+const DoneStep = ({ onContinue }) => (
   <View style={ds.container}>
     <View style={ds.iconWrap}>
       <CheckCircle size={52} color="#10B981" strokeWidth={1.5} />
     </View>
-    <Text style={ds.title}>Selfie Submitted!</Text>
+    <Text style={ds.title}>Selfie Submitted! 🎉</Text>
     <Text style={ds.body}>
-      We&apos;re reviewing your photo now. You&apos;ll be notified once your profile is
-      verified — usually within a few minutes.
+      We&apos;re reviewing your photo now. You&apos;ll receive your verified badge shortly
+      — usually within a few minutes.
     </Text>
-    <TouchableOpacity style={ds.btn} onPress={onBack} activeOpacity={0.85}>
-      <Text style={ds.btnText}>Back to Profile</Text>
+    <TouchableOpacity style={ds.btn} onPress={onContinue} activeOpacity={0.85}>
+      <Text style={ds.btnText}>Continue →</Text>
     </TouchableOpacity>
   </View>
 );
@@ -227,29 +242,38 @@ const DoneStep = ({ onBack }) => (
 const ds = StyleSheet.create({
   container: { flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 32, backgroundColor: "#fff" },
   iconWrap:  { width: 96, height: 96, borderRadius: 99, backgroundColor: "#D1FAE5", alignItems: "center", justifyContent: "center", marginBottom: 24 },
-  title:     { fontSize: 22, fontFamily: "PlusJakartaSansBold", color: "#111", marginBottom: 10, textAlign: "center" },
-  body:      { fontSize: 14, fontFamily: "PlusJakartaSans", color: "#6B7280", textAlign: "center", lineHeight: 22, marginBottom: 32 },
-  btn:       { backgroundColor: "#111", borderRadius: 99, paddingVertical: 16, paddingHorizontal: 40 },
+  title:     { fontSize: 24, fontFamily: "PlusJakartaSansBold", color: "#111", marginBottom: 10, textAlign: "center" },
+  body:      { fontSize: 14, fontFamily: "PlusJakartaSans", color: "#6B7280", textAlign: "center", lineHeight: 22, marginBottom: 36 },
+  btn:       { backgroundColor: PRIMARY, borderRadius: 99, paddingVertical: 16, paddingHorizontal: 48 },
   btnText:   { fontSize: 16, fontFamily: "PlusJakartaSansBold", color: "#fff" },
 });
 
 // ─── Main Screen ──────────────────────────────────────────────────────────────
-export default function VerificationScreen() {
+export default function PhotoVerification() {
   const router = useRouter();
-  const [token, setToken] = useState(null);
+
+  const [authToken, setAuthToken] = useState(null);
+
+  // Load tokens from tokenManager on mount
+  // Try auth token first, fall back to onboarding token
+  useEffect(() => {
+    (async () => {
+      const token = await tokenManager.getToken();
+      if (token) {
+        setAuthToken(token);
+      } else {
+        const onboardingToken = await tokenManager.getOnboardingToken();
+        setAuthToken(onboardingToken);
+      }
+    })();
+  }, []);
 
   const [permission, requestPermission] = useCameraPermissions();
   const [step,       setStep]           = useState(STEP.INTRO);
   const [photoUri,   setPhotoUri]       = useState(null);
   const [submitting, setSubmitting]     = useState(false);
 
-  // Load token from tokenManager on mount
-  useEffect(() => {
-    (async () => {
-      const retrievedToken = await tokenManager.getToken();
-      setToken(retrievedToken);
-    })();
-  }, []);
+  const goNext = () => router.push(NEXT_ROUTE);
 
   // ── Start: request camera permission ─────────────────────────────────────
   const handleStart = async () => {
@@ -283,11 +307,12 @@ export default function VerificationScreen() {
         type: "image/jpeg",
       });
 
-      // Correct endpoint: verificationRoutes mounted at /api/verification
+      // Same endpoint as settings screen — /profile/verify
+      // (profileRoutes.js is mounted at /api/profile)
       await apiClient.post("/verification/verify", formData, {
         headers: {
-          // Do NOT set Content-Type for FormData — axios sets it with the correct boundary
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          // Do NOT set Content-Type for FormData — axios handles the multipart boundary
+          ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
         },
       });
 
@@ -303,21 +328,22 @@ export default function VerificationScreen() {
     }
   };
 
+  const handleBack = () => {
+    if (step === STEP.PREVIEW) { setStep(STEP.CAMERA); return; }
+    if (step === STEP.CAMERA)  { setStep(STEP.INTRO);  return; }
+    router.back();
+  };
+
   return (
     <SafeAreaView style={sc.safe} edges={["top"]}>
-      {/* ── Header (hidden on camera/done steps) ── */}
+      {/* ── Header (hidden during camera & done) ── */}
       {step !== STEP.CAMERA && step !== STEP.DONE && (
         <View style={sc.header}>
-          <TouchableOpacity
-            onPress={() =>
-              step === STEP.PREVIEW ? setStep(STEP.CAMERA) : router.back()
-            }
-            hitSlop={8}
-          >
+          <TouchableOpacity onPress={handleBack} hitSlop={8}>
             <ChevronLeft size={26} color="#111" strokeWidth={2} />
           </TouchableOpacity>
           <Text style={sc.headerTitle}>
-            {step === STEP.INTRO ? "Verification" : "Preview Selfie"}
+            {step === STEP.PREVIEW ? "Preview Selfie" : "Verify Identity"}
           </Text>
           <View style={{ width: 26 }} />
         </View>
@@ -334,8 +360,12 @@ export default function VerificationScreen() {
       )}
 
       <View style={{ flex: 1 }}>
-        {step === STEP.INTRO   && <IntroStep onStart={handleStart} />}
-        {step === STEP.CAMERA  && <CameraStep onCapture={handleCapture} />}
+        {step === STEP.INTRO   && (
+          <IntroStep onStart={handleStart} onSkip={goNext} />
+        )}
+        {step === STEP.CAMERA  && (
+          <CameraStep onCapture={handleCapture} />
+        )}
         {step === STEP.PREVIEW && (
           <PreviewStep
             uri={photoUri}
@@ -344,7 +374,9 @@ export default function VerificationScreen() {
             submitting={submitting}
           />
         )}
-        {step === STEP.DONE && <DoneStep onBack={() => router.back()} />}
+        {step === STEP.DONE && (
+          <DoneStep onContinue={goNext} />
+        )}
       </View>
     </SafeAreaView>
   );

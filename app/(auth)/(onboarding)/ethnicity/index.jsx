@@ -18,9 +18,9 @@ import { useLookupOptions } from "../../../../hooks/useLookupOptions";
 import { useProfileSetup } from "../../../../hooks/useProfileSetup";
 
 
-const Gender = () => {
-  const [gender, setGender] = useState("");
-  const { options: genderOptions, loading } = useLookupOptions("genders");
+const Ethnicity = () => {
+  const [ethnicity, setEthnicity] = useState("");
+  const { options: ethnicityOptions, loading } = useLookupOptions("ethnicity");
 
   const router = useRouter();
   const { updateProfileStep } = useProfileSetup({ isOnboarding: true });
@@ -50,24 +50,23 @@ const Gender = () => {
 
               <View>
                 <RadioSelect
-                  value={gender}
-                  onChange={setGender}
-                  options={genderOptions}
+                  value={ethnicity}
+                  onChange={setEthnicity}
+                  options={ethnicityOptions}
                   className="mt-2"
                 />
               </View>
+              <Info title="You can't change this details later from your profile" />
             </View>
 
             <View className="w-full items-end pb-6">
               <Button
                 title="Continue"
-                variant="primary"
+                variant="gradient"
                 onPress={async () => {
                   // Find the selected option's label
-                  const selected = genderOptions.find(opt => opt.value === gender);
-                  const genderLabel = selected ? selected.label : gender;
-                  await updateProfileStep({ gender: genderLabel });
-                  router.push("/ethnicity");
+               await updateProfileStep({ ethnicity });
+                  router.push("/meet");
                 }}
               />
             </View>
@@ -78,4 +77,4 @@ const Gender = () => {
   );
 };
 
-export default Gender;
+export default Ethnicity;

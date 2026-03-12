@@ -124,7 +124,7 @@ const Age = () => {
         <Button
           title="Next →"
           variant="primary"
-          onPress={() => router.push("/height")}
+          onPress={() => router.push("/gender")}
         />
       </View>
     </View>

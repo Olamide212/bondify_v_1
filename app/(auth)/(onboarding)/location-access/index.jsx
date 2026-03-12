@@ -127,7 +127,7 @@ const LocationAccess = () => {
       <View className="w-full mt-8">
         <Button
           onPress={handleLocationAccess}
-          variant="gradient"
+          variant="primary"
           title={loading ? "Getting Location..." : "Allow Location Access"}
           loading={loading}
           disabled={loading}

@@ -1,7 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import { useEffect, useRef } from "react";
-import { Alert, TouchableOpacity, View } from "react-native";
+import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -14,29 +14,33 @@ import { persistor } from "../../../store/store";
 import { determineNextRoute } from "../../../utils/navigationHelper";
 import { tokenManager } from "../../../utils/tokenManager";
 
-// Hard cap: if we haven't navigated within this many ms, force /onboarding
 const NAV_TIMEOUT_MS = 2000;
 
 const SplashScreen = () => {
-  const dispatch      = useDispatch();
-  const router        = useRouter();
-  const hasNavigated  = useRef(false);
+  const dispatch           = useDispatch();
+  const router             = useRouter();
+  const hasNavigated       = useRef(false);
   const resetInProgressRef = useRef(false);
-  const tapCountRef   = useRef(0);
-  const tapResetTimerRef = useRef(null);
+  const tapCountRef        = useRef(0);
+  const tapResetTimerRef   = useRef(null);
 
   const { restored, token, onboardingToken } = useAuthRestore();
   const { pendingEmail } = useSelector((state) => state.auth);
 
   // ── Animations ──────────────────────────────────────────────────────────────
-  const iconScale    = useSharedValue(0.9);
-  const textOpacity  = useSharedValue(0);
+  const iconScale     = useSharedValue(0.9);
+  const textOpacity   = useSharedValue(0);
   const textTranslate = useSharedValue(20);
+  const taglineOpacity = useSharedValue(0);
 
   useEffect(() => {
-    iconScale.value     = withTiming(0.6, { duration: 800 });
-    textOpacity.value   = withTiming(1,   { duration: 600 });
-    textTranslate.value = withTiming(0,   { duration: 600 });
+    iconScale.value      = withTiming(0.6, { duration: 800 });
+    textOpacity.value    = withTiming(1,   { duration: 600 });
+    textTranslate.value  = withTiming(0,   { duration: 600 });
+    // Tagline fades in slightly after logo
+    setTimeout(() => {
+      taglineOpacity.value = withTiming(1, { duration: 700 });
+    }, 400);
   }, []);
 
   // ── Navigation ──────────────────────────────────────────────────────────────
@@ -46,7 +50,6 @@ const SplashScreen = () => {
     router.replace(route);
   };
 
-  // Hard timeout — always fires at 2 s regardless of auth state
   useEffect(() => {
     const id = setTimeout(() => {
       if (!hasNavigated.current) {
@@ -57,10 +60,8 @@ const SplashScreen = () => {
     return () => clearTimeout(id);
   }, []);
 
-  // Navigate as soon as auth state is restored (no artificial delay)
   useEffect(() => {
     if (!restored || hasNavigated.current) return;
-
     determineNextRoute({ token, onboardingToken, pendingEmail })
       .then(navigate)
       .catch(() => navigate("/onboarding"));
@@ -72,8 +73,12 @@ const SplashScreen = () => {
   }));
 
   const textStyle = useAnimatedStyle(() => ({
-    opacity: textOpacity.value,
+    opacity:   textOpacity.value,
     transform: [{ translateX: textTranslate.value }],
+  }));
+
+  const taglineStyle = useAnimatedStyle(() => ({
+    opacity: taglineOpacity.value,
   }));
 
   // ── Emergency reset (7 taps) ─────────────────────────────────────────────
@@ -117,21 +122,81 @@ const SplashScreen = () => {
 
   // ── Render ───────────────────────────────────────────────────────────────────
   return (
-    <View className="flex-1 bg-primary items-center justify-center">
-      <TouchableOpacity className="items-center" activeOpacity={1} onPress={handleDebugTap}>
+    <View style={styles.container}>
+      <TouchableOpacity
+        style={styles.logoWrap}
+        activeOpacity={1}
+        onPress={handleDebugTap}
+      >
         <Animated.Image
           source={require("../../../assets/images/bondify-icon-white.png")}
-          style={[{ width: 100, height: 100 }, iconStyle]}
+          style={[styles.icon, iconStyle]}
           resizeMode="contain"
         />
         <Animated.Image
           source={require("../../../assets/images/bondies-logo-white (1).png")}
-          style={[{ width: 180, height: 80, marginTop: -20 }, textStyle]}
+          style={[styles.wordmark, textStyle]}
           resizeMode="contain"
         />
       </TouchableOpacity>
+
+      {/* Tagline at bottom */}
+      <Animated.View style={[styles.taglineWrap, taglineStyle]}>
+        {/* Divider dots */}
+        <View style={styles.dotsRow}>
+          <View style={styles.dot} />
+          <View style={styles.dot} />
+          <View style={styles.dot} />
+        </View>
+        <Text style={styles.tagline}>Built by Africans, for Africans 🌍</Text>
+      </Animated.View>
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex:            1,
+    backgroundColor: "#EE5F2B", // primary orange
+    alignItems:      "center",
+    justifyContent:  "center",
+  },
+  logoWrap: {
+    alignItems: "center",
+  },
+  icon: {
+    width:  100,
+    height: 100,
+  },
+  wordmark: {
+    width:     180,
+    height:    80,
+    marginTop: -20,
+  },
+  taglineWrap: {
+    position:  "absolute",
+    bottom:    48,
+    alignItems: "center",
+    gap:        10,
+  },
+  dotsRow: {
+    flexDirection: "row",
+    gap:           6,
+    marginBottom:  6,
+  },
+  dot: {
+    width:           4,
+    height:          4,
+    borderRadius:    2,
+    backgroundColor: "rgba(255,255,255,0.4)",
+  },
+  tagline: {
+    fontSize:      13,
+    fontFamily:    "PlusJakartaSansMedium",
+    color:         "rgba(255,255,255,0.85)",
+    letterSpacing: 0.5,
+    textAlign:     "center",
+  },
+});
 
 export default SplashScreen;

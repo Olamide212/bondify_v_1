@@ -79,7 +79,7 @@ const WheelPicker = ({
 
       // Progressive opacity: selected=1, ±1=0.45, ±2=0.18
       const opacity = isSelected ? 1 : distance === 1 ? 0.45 : 0.18;
-      const fontSize = isSelected ? 32 : distance === 1 ? 28 : 20;
+      const fontSize = isSelected ? 28 : distance === 1 ? 24 : 20;
       const fontWeight = isSelected ? "700" : "400";
 
       return (

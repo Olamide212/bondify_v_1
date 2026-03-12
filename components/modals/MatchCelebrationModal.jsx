@@ -1,4 +1,4 @@
-import { ArrowRight, Heart, MessageCircle, Sparkles } from "lucide-react-native";
+import { MessageCircle, Sparkles, X } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
 import {
   Animated,
@@ -24,42 +24,41 @@ const MatchCelebrationModal = ({
   onSendMessage,
   onContinueSwiping,
 }) => {
-  const scaleAnim = useRef(new Animated.Value(0)).current;
-  const heartAnim = useRef(new Animated.Value(0)).current;
-  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const scaleAnim   = useRef(new Animated.Value(0.85)).current;
+  const fadeAnim    = useRef(new Animated.Value(0)).current;
+  const badgeScale  = useRef(new Animated.Value(0)).current;
+
   const [selectedIceBreaker, setSelectedIceBreaker] = useState("");
 
   useEffect(() => {
     if (visible) {
       setSelectedIceBreaker("");
+      scaleAnim.setValue(0.85);
+      fadeAnim.setValue(0);
+      badgeScale.setValue(0);
 
-      // Entrance animations
-      Animated.sequence([
+      Animated.parallel([
         Animated.spring(scaleAnim, {
           toValue: 1,
-          tension: 50,
-          friction: 6,
+          tension: 60,
+          friction: 7,
           useNativeDriver: true,
         }),
-        Animated.parallel([
-          Animated.timing(heartAnim, {
-            toValue: 1,
-            duration: 600,
-            useNativeDriver: true,
-          }),
-          Animated.timing(fadeAnim, {
-            toValue: 1,
-            duration: 500,
-            useNativeDriver: true,
-          }),
-        ]),
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 350,
+          useNativeDriver: true,
+        }),
+        Animated.spring(badgeScale, {
+          toValue: 1,
+          tension: 80,
+          friction: 5,
+          delay: 200,
+          useNativeDriver: true,
+        }),
       ]).start();
-    } else {
-      scaleAnim.setValue(0);
-      heartAnim.setValue(0);
-      fadeAnim.setValue(0);
     }
-  }, [visible, scaleAnim, heartAnim, fadeAnim]);
+  }, [visible]);
 
   const handleSendMessage = () => {
     if (!selectedIceBreaker) return;
@@ -74,152 +73,133 @@ const MatchCelebrationModal = ({
 
   const matchedUserImage = matchedUser?.images?.[0];
   const currentUserImage = currentUser?.images?.[0];
+  const matchedName      = matchedUser?.name || matchedUser?.firstName || "someone special";
 
   return (
     <BaseModal visible={visible} onClose={onClose} fullScreen>
       <View style={styles.container}>
-        {/* Background gradient effect */}
-        <View style={styles.backgroundOverlay} />
 
-        {/* Celebration content */}
-        <View style={styles.content}>
+        {/* Close button */}
+        <Pressable style={styles.closeBtn} onPress={onClose} hitSlop={12}>
+          <X size={18} color="#555" />
+        </Pressable>
+
+        {/* Brandname */}
+        <Text style={styles.brandName}>Bondies</Text>
+
+        <Animated.View
+          style={[
+            styles.content,
+            { opacity: fadeAnim, transform: [{ scale: scaleAnim }] },
+          ]}
+        >
           {/* Title */}
-          <Animated.View
-            style={[
-              styles.titleContainer,
-              {
-                transform: [{ scale: scaleAnim }],
-              },
-            ]}
-          >
-            <View style={styles.sparkleRow}>
-              <Sparkles size={24} color={colors.secondary} />
-              <Text style={styles.matchTitle}>It&apos;s a Match!</Text>
-              <Sparkles size={24} color={colors.secondary} />
-            </View>
-            <Text style={styles.matchSubtitle}>
-              You and {matchedUser?.name || "someone special"} liked each other
-            </Text>
-          </Animated.View>
+          <Text style={styles.matchTitle}>It&apos;s a Match!</Text>
+          <Text style={styles.matchSubtitle}>You both sparked an interest!</Text>
 
           {/* Profile images */}
-          <Animated.View
-            style={[
-              styles.profilesContainer,
-              { transform: [{ scale: scaleAnim }] },
-            ]}
-          >
-            <View style={styles.profileImageWrapper}>
+          <View style={styles.profilesContainer}>
+            {/* Decorative doodles background */}
+            <View style={styles.doodleWrap} pointerEvents="none">
+              <Text style={styles.doodle1}>✏️</Text>
+              <Text style={styles.doodle2}>🌿</Text>
+              <Text style={styles.doodle3}>♡</Text>
+            </View>
+
+            {/* Current user */}
+            <View style={[styles.avatarWrapper, styles.avatarLeft]}>
               {currentUserImage ? (
-                <Image
-                  source={{ uri: currentUserImage }}
-                  style={styles.profileImage}
-                />
+                <Image source={{ uri: currentUserImage }} style={styles.avatar} />
               ) : (
-                <View style={[styles.profileImage, styles.placeholderImage]}>
-                  <Text style={styles.placeholderText}>You</Text>
+                <View style={[styles.avatar, styles.avatarPlaceholder]}>
+                  <Text style={styles.avatarInitial}>You</Text>
                 </View>
               )}
             </View>
 
+            {/* Sparkle badge */}
             <Animated.View
               style={[
-                styles.heartBadge,
-                {
-                  transform: [
-                    {
-                      scale: heartAnim.interpolate({
-                        inputRange: [0, 0.5, 1],
-                        outputRange: [0, 1.3, 1],
-                      }),
-                    },
-                  ],
-                },
+                styles.sparkBadge,
+                { transform: [{ scale: badgeScale }] },
               ]}
             >
-              <Heart size={28} color="#fff" fill="#fff" />
+              <Sparkles size={22} color="#fff" fill="#fff" />
             </Animated.View>
 
-            <View style={styles.profileImageWrapper}>
+            {/* Matched user */}
+            <View style={[styles.avatarWrapper, styles.avatarRight]}>
               {matchedUserImage ? (
-                <Image
-                  source={{ uri: matchedUserImage }}
-                  style={styles.profileImage}
-                />
+                <Image source={{ uri: matchedUserImage }} style={styles.avatar} />
               ) : (
-                <View style={[styles.profileImage, styles.placeholderImage]}>
-                  <Text style={styles.placeholderText}>
-                    {matchedUser?.name?.[0] || "?"}
+                <View style={[styles.avatar, styles.avatarPlaceholder]}>
+                  <Text style={styles.avatarInitial}>
+                    {matchedName?.[0]?.toUpperCase() || "?"}
                   </Text>
                 </View>
               )}
             </View>
-          </Animated.View>
+          </View>
 
-          {/* Ice Breaker suggestions */}
-          <Animated.View style={[styles.iceBreakerContainer, { opacity: fadeAnim }]}>
-            <View style={styles.iceBreakerHeader}>
-              <MessageCircle size={18} color={colors.primary} />
-              <Text style={styles.iceBreakerLabel}>Pick an Ice Breaker</Text>
-            </View>
+          {/* Body text */}
+          <Text style={styles.bodyText}>
+            You and{" "}
+            <Text style={styles.bodyNameBold}>{matchedName}</Text>
+            {" "}have sparked an interest in each other.
+          </Text>
+          <Text style={styles.ctaLine}>DON&apos;T KEEP THEM WAITING!</Text>
 
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.iceBreakerList}
-            >
-              {ICE_BREAKERS.map((item) => {
-                const isSelected = selectedIceBreaker === item;
-                return (
-                  <Pressable
-                    key={item}
-                    onPress={() => setSelectedIceBreaker(item)}
+          {/* Icebreakers */}
+          <Text style={styles.iceBreakerTitle}>QUICK ICEBREAKERS</Text>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.iceBreakerList}
+            style={styles.iceBreakerScroll}
+          >
+            {ICE_BREAKERS.map((item) => {
+              const isSelected = selectedIceBreaker === item;
+              return (
+                <Pressable
+                  key={item}
+                  onPress={() => setSelectedIceBreaker(isSelected ? "" : item)}
+                  style={[
+                    styles.chip,
+                    isSelected ? styles.chipSelected : styles.chipUnselected,
+                  ]}
+                >
+                  <Text
                     style={[
-                      styles.iceBreakerChip,
-                      isSelected
-                        ? styles.iceBreakerChipSelected
-                        : styles.iceBreakerChipUnselected,
+                      styles.chipText,
+                      isSelected ? styles.chipTextSelected : styles.chipTextUnselected,
                     ]}
                   >
-                    <Text
-                      style={[
-                        styles.iceBreakerChipText,
-                        isSelected
-                          ? styles.iceBreakerChipTextSelected
-                          : styles.iceBreakerChipTextUnselected,
-                      ]}
-                    >
-                      {item}
-                    </Text>
-                  </Pressable>
-                );
-              })}
-            </ScrollView>
-          </Animated.View>
+                    {item}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </ScrollView>
 
-          {/* Action buttons */}
-          <Animated.View style={[styles.buttonsContainer, { opacity: fadeAnim }]}>
+          {/* Buttons */}
+          <View style={styles.buttonsContainer}>
             <Pressable
               style={[
-                styles.sendMessageButton,
-                !selectedIceBreaker && styles.sendMessageButtonDisabled,
+                styles.sendBtn,
+                !selectedIceBreaker && styles.sendBtnDisabled,
               ]}
               onPress={handleSendMessage}
               disabled={!selectedIceBreaker}
             >
               <MessageCircle size={20} color="#fff" />
-              <Text style={styles.sendMessageText}>Send a message</Text>
+              <Text style={styles.sendBtnText}>Send a Message</Text>
             </Pressable>
 
-            <Pressable
-              style={styles.continueButton}
-              onPress={handleContinueSwiping}
-            >
-              <Text style={styles.continueText}>Continue swiping</Text>
-              <ArrowRight size={20} color={colors.primary} />
+            <Pressable style={styles.keepSwipingBtn} onPress={handleContinueSwiping}>
+              <Text style={styles.keepSwipingText}>Keep Swiping</Text>
             </Pressable>
-          </Animated.View>
-        </View>
+          </View>
+        </Animated.View>
       </View>
     </BaseModal>
   );
@@ -228,176 +208,233 @@ const MatchCelebrationModal = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#000",
-  },
-  backgroundOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(238, 95, 43, 0.15)",
-  },
-  content: {
-    flex: 1,
-    justifyContent: "center",
+    backgroundColor: "#FDF5EE", // warm cream — matches the design
     alignItems: "center",
+    paddingTop: 52,
     paddingHorizontal: 24,
+    paddingBottom: 36,
   },
-  titleContainer: {
+
+  // ── Header ──────────────────────────────────────────────────────────────────
+  closeBtn: {
+    position:        "absolute",
+    top:             52,
+    left:            20,
+    width:           36,
+    height:          36,
+    borderRadius:    18,
+    backgroundColor: "#EFEFEF",
+    alignItems:      "center",
+    justifyContent:  "center",
+  },
+  brandName: {
+    fontSize:    17,
+    fontFamily:  "PlusJakartaSansBold",
+    color:       "#222",
+    marginBottom: 28,
+  },
+
+  // ── Content wrapper ──────────────────────────────────────────────────────────
+  content: {
+    flex:       1,
+    width:      "100%",
     alignItems: "center",
-    marginBottom: 40,
   },
-  sparkleRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-    marginBottom: 8,
-  },
+
+  // ── Title ────────────────────────────────────────────────────────────────────
   matchTitle: {
-    fontSize: 36,
-    fontFamily: "PlusJakartaSansBold",
-    color: "#fff",
-    textAlign: "center",
+    fontSize:    38,
+    fontFamily:  "PlusJakartaSansBold",
+    color:       colors.primary,  // orange
+    textAlign:   "center",
+    marginBottom: 6,
   },
   matchSubtitle: {
-    fontSize: 16,
-    fontFamily: "PlusJakartaSans",
-    color: "rgba(255,255,255,0.8)",
-    textAlign: "center",
+    fontSize:    15,
+    fontFamily:  "PlusJakartaSans",
+    color:       "#666",
+    textAlign:   "center",
+    marginBottom: 32,
   },
+
+  // ── Profile images ───────────────────────────────────────────────────────────
   profilesContainer: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection:  "row",
+    alignItems:     "center",
     justifyContent: "center",
-    marginBottom: 40,
+    marginBottom:   32,
+    height:         140,
+    width:          "100%",
   },
-  profileImageWrapper: {
-    width: 120,
-    height: 120,
+  doodleWrap: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems:     "center",
+    justifyContent: "center",
+  },
+  doodle1: { position: "absolute", left:  "10%", top:    "10%", fontSize: 22, opacity: 0.35 },
+  doodle2: { position: "absolute", left:  "40%", top:    "5%",  fontSize: 20, opacity: 0.35 },
+  doodle3: { position: "absolute", right: "8%",  bottom: "15%", fontSize: 24, opacity: 0.35 },
+
+  avatarWrapper: {
+    width:        120,
+    height:       120,
     borderRadius: 60,
-    borderWidth: 3,
-    borderColor: colors.secondary,
-    overflow: "hidden",
+    borderWidth:  3,
+    borderColor:  "#fff",
+    overflow:     "hidden",
+    shadowColor:  "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 10,
+    elevation:    6,
+    backgroundColor: "#e5c9b8",
   },
-  profileImage: {
-    width: "100%",
+  avatarLeft: {
+    marginRight: -18,
+    zIndex:      1,
+  },
+  avatarRight: {
+    marginLeft: -18,
+    zIndex:     1,
+  },
+  avatar: {
+    width:  "100%",
     height: "100%",
   },
-  placeholderImage: {
-    backgroundColor: colors.primary,
-    justifyContent: "center",
-    alignItems: "center",
+  avatarPlaceholder: {
+    backgroundColor: "#e5c9b8",
+    alignItems:      "center",
+    justifyContent:  "center",
   },
-  placeholderText: {
-    color: "#fff",
-    fontSize: 32,
+  avatarInitial: {
+    color:      "#fff",
+    fontSize:   28,
     fontFamily: "PlusJakartaSansBold",
   },
-  heartBadge: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
+
+  // Sparkle badge — sits between the two avatars
+  sparkBadge: {
+    width:           44,
+    height:          44,
+    borderRadius:    22,
     backgroundColor: colors.primary,
-    justifyContent: "center",
-    alignItems: "center",
-    marginHorizontal: -16,
-    zIndex: 10,
-    shadowColor: colors.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.4,
-    shadowRadius: 8,
-    elevation: 8,
+    alignItems:      "center",
+    justifyContent:  "center",
+    zIndex:          10,
+    shadowColor:     colors.primary,
+    shadowOffset:    { width: 0, height: 4 },
+    shadowOpacity:   0.4,
+    shadowRadius:    8,
+    elevation:       8,
+    marginHorizontal: -4,
   },
-  iceBreakerContainer: {
-    backgroundColor: "rgba(255,255,255,0.1)",
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 32,
-    width: SCREEN_WIDTH - 48,
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.15)",
-  },
-  iceBreakerHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
+
+  // ── Body text ─────────────────────────────────────────────────────────────────
+  bodyText: {
+    fontSize:    15,
+    fontFamily:  "PlusJakartaSans",
+    color:       "#333",
+    textAlign:   "center",
+    lineHeight:  22,
     marginBottom: 8,
+    paddingHorizontal: 12,
   },
-  iceBreakerLabel: {
-    fontSize: 14,
+  bodyNameBold: {
     fontFamily: "PlusJakartaSansBold",
-    color: colors.secondary,
-    textTransform: "uppercase",
-    letterSpacing: 1,
+    color:      "#222",
   },
-  iceBreakerText: {
-    fontSize: 16,
-    fontFamily: "PlusJakartaSansMedium",
-    color: "#fff",
-    lineHeight: 24,
+  ctaLine: {
+    fontSize:    12,
+    fontFamily:  "PlusJakartaSansBold",
+    color:       colors.primary,
+    letterSpacing: 1.2,
+    marginBottom: 28,
+  },
+
+  // ── Icebreakers ───────────────────────────────────────────────────────────────
+  iceBreakerTitle: {
+    fontSize:    11,
+    fontFamily:  "PlusJakartaSansBold",
+    color:       "#999",
+    letterSpacing: 1.4,
+    marginBottom: 12,
+    alignSelf:   "flex-start",
+    marginLeft:  2,
+  },
+  iceBreakerScroll: {
+    width:        "100%",
+    marginBottom: 28,
   },
   iceBreakerList: {
-    gap: 10,
-    paddingRight: 4,
+    gap:         10,
+    paddingRight: 8,
   },
-  iceBreakerChip: {
-    maxWidth: SCREEN_WIDTH - 110,
-    borderRadius: 14,
-    paddingVertical: 12,
-    paddingHorizontal: 12,
-    borderWidth: 1,
+  chip: {
+    borderRadius:    20,
+    paddingVertical:   10,
+    paddingHorizontal: 16,
+    borderWidth:     1.5,
+    maxWidth:        SCREEN_WIDTH - 80,
   },
-  iceBreakerChipSelected: {
+  chipSelected: {
     backgroundColor: colors.primary,
-    borderColor: colors.primary,
+    borderColor:     colors.primary,
   },
-  iceBreakerChipUnselected: {
-    backgroundColor: "rgba(255,255,255,0.08)",
-    borderColor: "rgba(255,255,255,0.2)",
+  chipUnselected: {
+    backgroundColor: "#fff",
+    borderColor:     "#E5D5CB",
   },
-  iceBreakerChipText: {
-    fontSize: 14,
-    lineHeight: 20,
+  chipText: {
+    fontSize:   14,
     fontFamily: "PlusJakartaSansMedium",
+    lineHeight: 20,
   },
-  iceBreakerChipTextSelected: {
+  chipTextSelected: {
     color: "#fff",
   },
-  iceBreakerChipTextUnselected: {
-    color: "rgba(255,255,255,0.9)",
+  chipTextUnselected: {
+    color: colors.primary,
   },
+
+  // ── Buttons ───────────────────────────────────────────────────────────────────
   buttonsContainer: {
-    width: SCREEN_WIDTH - 48,
-    gap: 12,
+    width: "100%",
+    gap:   12,
   },
-  sendMessageButton: {
-    flexDirection: "row",
-    alignItems: "center",
+  sendBtn: {
+    flexDirection:  "row",
+    alignItems:     "center",
     justifyContent: "center",
-    gap: 10,
+    gap:            10,
     backgroundColor: colors.primary,
-    paddingVertical: 16,
-    borderRadius: 30,
+    paddingVertical: 17,
+    borderRadius:   30,
+    shadowColor:    colors.primary,
+    shadowOffset:   { width: 0, height: 4 },
+    shadowOpacity:  0.3,
+    shadowRadius:   8,
+    elevation:      4,
   },
-  sendMessageButtonDisabled: {
+  sendBtnDisabled: {
     opacity: 0.45,
   },
-  sendMessageText: {
-    color: "#fff",
-    fontSize: 18,
+  sendBtnText: {
+    color:      "#fff",
+    fontSize:   17,
     fontFamily: "PlusJakartaSansSemiBold",
   },
-  continueButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 10,
+  keepSwipingBtn: {
+    alignItems:      "center",
+    justifyContent:  "center",
+    paddingVertical: 17,
+    borderRadius:    30,
+    borderWidth:     1.5,
+    borderColor:     colors.primary,
     backgroundColor: "transparent",
-    paddingVertical: 16,
-    borderRadius: 30,
-    borderWidth: 1.5,
-    borderColor: "rgba(255,255,255,0.3)",
   },
-  continueText: {
-    color: "#fff",
-    fontSize: 18,
+  keepSwipingText: {
+    color:      colors.primary,
+    fontSize:   17,
     fontFamily: "PlusJakartaSansMedium",
   },
 });
