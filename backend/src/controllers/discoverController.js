@@ -1,140 +1,132 @@
-const User = require('../models/User');
-const Like = require('../models/Like');
-const Match = require('../models/Match');
+const User    = require('../models/User');
+const Like    = require('../models/Like');
+const Match   = require('../models/Match');
 const { getIO } = require('../socket');
 const { mapImagesWithAccessUrls } = require('../utils/imageHelper');
+const { sendMatchNotification }   = require('../utils/whatsappService');
 
 // @desc    Get discovery profiles
 // @route   GET /api/discover
 // @access  Private
 const getDiscoveryProfiles = async (req, res, next) => {
   try {
-    const userId = req.user._id;
-    const currentUser = await User.findById(userId);
+    const userId      = req.user._id;
+    const currentUser = await User.findById(userId).lean();
 
-    const {
-      minAge,
-      maxAge,
-      maxDistance,
-      gender,
-      religion,
-      ethnicity,
-      drinking,
-      smoking,
-      interests,
-      verifiedOnly,
-      activeToday,
-      location,
-      page = 1,
-      limit = 20,
-    } = req.query;
-
-    // Validate and sanitize numeric inputs
-    const sanitizedMinAge = minAge ? parseInt(minAge, 10) : undefined;
-    const sanitizedMaxAge = maxAge ? parseInt(maxAge, 10) : undefined;
-    const sanitizedMaxDistance = maxDistance ? parseInt(maxDistance, 10) : undefined;
-    const sanitizedPage = parseInt(page, 10) || 1;
-    const sanitizedLimit = Math.min(parseInt(limit, 10) || 20, 100); // Max 100
-
-    // Get users that current user has already interacted with
-    const interactedUsers = await Like.find({ user: userId }).distinct('likedUser');
-
-    // Build query – only show users who finished onboarding
-    const query = {
-      _id: { $ne: userId, $nin: interactedUsers },
-      isActive: true,
-      onboardingCompleted: true,
-    };
-
-    if (String(verifiedOnly).toLowerCase() === 'true') {
-      query.isVerified = true;
+    if (!currentUser) {
+      return res.status(404).json({ success: false, message: 'User not found.' });
     }
 
-    // Apply filters
+    const {
+      minAge, maxAge, maxDistance, gender, religion, ethnicity,
+      drinking, smoking, interests, verifiedOnly, activeToday, location,
+      page = 1, limit = 20,
+    } = req.query;
+
+    const sanitizedMinAge      = minAge      ? parseInt(minAge, 10)      : undefined;
+    const sanitizedMaxAge      = maxAge      ? parseInt(maxAge, 10)      : undefined;
+    const sanitizedMaxDistance = maxDistance ? parseInt(maxDistance, 10) : undefined;
+    const sanitizedPage        = Math.max(parseInt(page,  10) || 1, 1);
+    const sanitizedLimit       = Math.min(parseInt(limit, 10) || 20, 100);
+
+    // Exclude users already interacted with AND already matched with
+    const [interactedUsers, matchedUserIds] = await Promise.all([
+      Like.find({ user: userId }).distinct('likedUser'),
+      Match.find({
+        $or: [{ user1: userId }, { user2: userId }],
+        status: 'matched',
+      }).then((matches) =>
+        matches.map((m) =>
+          m.user1.toString() === userId.toString() ? m.user2 : m.user1
+        )
+      ),
+    ]);
+
+    const excludedIds = [
+      userId,
+      ...interactedUsers.map(String),
+      ...matchedUserIds.map(String),
+    ];
+
+    const query = {
+      _id:                 { $nin: excludedIds },
+      isActive:            true,
+      onboardingCompleted: true,
+      isDeleted:           { $ne: true },
+    };
+
+    // FIX: was querying isVerified (OTP field) — should be verified (identity badge)
+    if (String(verifiedOnly).toLowerCase() === 'true') {
+      query.verified = true;
+    }
+
     if (sanitizedMinAge || sanitizedMaxAge) {
       query.age = {};
       if (sanitizedMinAge) query.age.$gte = sanitizedMinAge;
       if (sanitizedMaxAge) query.age.$lte = sanitizedMaxAge;
     }
 
-    if (gender) {
-      query.gender = gender;
-    }
-
-    if (religion) {
-      query.religion = religion;
-    }
-
-    if (ethnicity) {
-      query.ethnicity = ethnicity;
-    }
-
-    if (drinking) {
-      query.drinking = drinking;
-    }
-
-    if (smoking) {
-      query.smoking = smoking;
-    }
+    if (gender)    query.gender    = gender;
+    if (religion)  query.religion  = religion;
+    if (ethnicity) query.ethnicity = ethnicity;
+    if (drinking)  query.drinking  = drinking;
+    if (smoking)   query.smoking   = smoking;
 
     if (interests) {
       const interestArray = Array.isArray(interests) ? interests : [interests];
       query.interests = { $in: interestArray };
     }
 
-    // Active-today filter
     if (String(activeToday).toLowerCase() === 'true') {
       const startOfDay = new Date();
       startOfDay.setHours(0, 0, 0, 0);
       query.lastActive = { $gte: startOfDay };
     }
 
-    // Text-based location filter (city / state / country)
     if (location && typeof location === 'string' && location.trim()) {
-      const escapedLocation = location.trim().slice(0, 100).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const escaped = location.trim().slice(0, 100).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       query.$or = [
-        { 'location.city': { $regex: escapedLocation, $options: 'i' } },
-        { 'location.state': { $regex: escapedLocation, $options: 'i' } },
-        { 'location.country': { $regex: escapedLocation, $options: 'i' } },
+        { 'location.city':    { $regex: escaped, $options: 'i' } },
+        { 'location.state':   { $regex: escaped, $options: 'i' } },
+        { 'location.country': { $regex: escaped, $options: 'i' } },
       ];
     }
 
-    // Geolocation-based distance filtering (use $geoWithin/$centerSphere instead of $near)
-    if (sanitizedMaxDistance && currentUser.location?.coordinates) {
-      const earthRadius = 6378137; // in meters
-      const radius = (sanitizedMaxDistance * 1000) / earthRadius;
+    if (sanitizedMaxDistance && currentUser.location?.coordinates?.length === 2) {
+      const radiusInRadians = (sanitizedMaxDistance * 1000) / 6378137;
       query['location.coordinates'] = {
         $geoWithin: {
-          $centerSphere: [currentUser.location.coordinates, radius],
+          $centerSphere: [currentUser.location.coordinates, radiusInRadians],
         },
       };
     }
 
     const skip = (sanitizedPage - 1) * sanitizedLimit;
 
-    const profiles = await User.find(query)
-      .select('-password -otp -otpExpiry')
-      .limit(sanitizedLimit)
-      .skip(skip)
-      .sort({ lastActive: -1 });
+    // FIX: run find + count in parallel; add _id tiebreaker for stable pagination
+    const [profiles, total] = await Promise.all([
+      User.find(query)
+        .select('-password -otp -otpExpiry -verificationSelfieUrl')
+        .sort({ lastActive: -1, _id: 1 })
+        .skip(skip)
+        .limit(sanitizedLimit)
+        .lean(),
+      User.countDocuments(query),
+    ]);
 
-    // Regenerate image URLs for each profile
     const profilesWithImages = await Promise.all(
       profiles.map(async (profile) => {
-        const profileObj = profile.toObject();
-        profileObj.images = await mapImagesWithAccessUrls(profileObj.images);
-        return profileObj;
+        profile.images = await mapImagesWithAccessUrls(profile.images);
+        return profile;
       })
     );
 
-    const total = await User.countDocuments(query);
-
-    res.json({
+    return res.json({
       success: true,
       data: {
         profiles: profilesWithImages,
         pagination: {
-          page: sanitizedPage,
+          page:  sanitizedPage,
           limit: sanitizedLimit,
           total,
           pages: Math.ceil(total / sanitizedLimit),
@@ -152,114 +144,142 @@ const getDiscoveryProfiles = async (req, res, next) => {
 const performAction = async (req, res, next) => {
   try {
     const userId = req.user._id;
-    const { likedUserId, type } = req.body; // type: 'like', 'superlike', 'pass'
+    const { likedUserId, type } = req.body;
 
     if (!['like', 'superlike', 'pass'].includes(type)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid action type',
-      });
+      return res.status(400).json({ success: false, message: 'Invalid action type.' });
     }
 
     const likedUser = await User.findById(likedUserId);
-
     if (!likedUser) {
-      return res.status(404).json({
-        success: false,
-        message: 'User not found',
-      });
+      return res.status(404).json({ success: false, message: 'User not found.' });
     }
 
-    // Check if already interacted
-    const existingLike = await Like.findOne({
-      user: userId,
-      likedUser: likedUserId,
-    });
-
+    const existingLike = await Like.findOne({ user: userId, likedUser: likedUserId });
     if (existingLike) {
-      return res.status(400).json({
-        success: false,
-        message: 'Already interacted with this user',
-      });
+      return res.status(400).json({ success: false, message: 'Already interacted with this user.' });
     }
 
-    // Create like/pass record
-    const like = await Like.create({
-      user: userId,
-      likedUser: likedUserId,
-      type,
-    });
+    await Like.create({ user: userId, likedUser: likedUserId, type });
 
-    // Update stats
-    const currentUser = await User.findById(userId);
+    // FIX: use atomic $inc instead of read-modify-save (avoids race conditions on stats)
     if (type === 'like') {
-      currentUser.likesGiven += 1;
-      likedUser.likesReceived += 1;
+      await Promise.all([
+        User.findByIdAndUpdate(userId,      { $inc: { likesGiven:         1 } }),
+        User.findByIdAndUpdate(likedUserId, { $inc: { likesReceived:      1 } }),
+      ]);
     } else if (type === 'superlike') {
-      currentUser.superLikesGiven += 1;
-      likedUser.superLikesReceived += 1;
+      await Promise.all([
+        User.findByIdAndUpdate(userId,      { $inc: { superLikesGiven:    1 } }),
+        User.findByIdAndUpdate(likedUserId, { $inc: { superLikesReceived: 1 } }),
+      ]);
     }
 
-    await currentUser.save();
-    await likedUser.save();
-
-    // Check for mutual like (match)
-    let isMatch = false;
     if (type === 'like' || type === 'superlike') {
       const reciprocalLike = await Like.findOne({
-        user: likedUserId,
+        user:      likedUserId,
         likedUser: userId,
-        type: { $in: ['like', 'superlike'] },
+        type:      { $in: ['like', 'superlike'] },
       });
 
       if (reciprocalLike) {
-        // Create match
-        const match = await Match.create({
-          user1: userId,
-          user2: likedUserId,
-          status: 'matched',
-          initiatedBy: userId,
-          matchedAt: new Date(),
-        });
+        // FIX: sort user IDs so user1 < user2 always — prevents duplicate matches
+        // from race conditions where both users swipe at the same time.
+        // findOneAndUpdate + upsert means the second request just gets the existing doc.
+        const [user1, user2] = [userId, likedUserId].map(String).sort();
+
+        const match = await Match.findOneAndUpdate(
+          { user1, user2 },
+          {
+            $setOnInsert: {
+              user1,
+              user2,
+              status:      'matched',
+              initiatedBy: userId,
+              matchedAt:   new Date(),
+            },
+          },
+          { upsert: true, new: true }
+        );
 
         const io = getIO();
+
+        const currentUser = await User.findById(userId)
+          .select('firstName lastName name')
+          .lean();
 
         const currentUserName =
           currentUser?.name ||
           [currentUser?.firstName, currentUser?.lastName].filter(Boolean).join(' ') ||
           'Someone';
+
         const likedUserName =
           likedUser?.name ||
           [likedUser?.firstName, likedUser?.lastName].filter(Boolean).join(' ') ||
           'Someone';
 
-        const matchPayloadForCurrentUser = {
-          id: String(match._id),
-          type: 'match',
-          matchId: String(match._id),
+        const basePayload = {
+          type:      'match',
+          matchId:   String(match._id),
+          createdAt: new Date().toISOString(),
+        };
+
+        io.to(`user:${String(userId)}`).emit('match:new', {
+          ...basePayload,
+          id:     `match-${match._id}-${userId}`,
           userId: String(likedUserId),
-          title: "It's a match!",
-          body: `You and ${likedUserName} liked each other.`,
-          createdAt: new Date().toISOString(),
-        };
-
-        const matchPayloadForLikedUser = {
-          id: String(match._id),
-          type: 'match',
-          matchId: String(match._id),
+          title:  "It's a match!",
+          body:   `You and ${likedUserName} liked each other.`,
+        });
+        io.to(`user:${String(likedUserId)}`).emit('match:new', {
+          ...basePayload,
+          id:     `match-${match._id}-${likedUserId}`,
           userId: String(userId),
-          title: "It's a match!",
-          body: `You and ${currentUserName} liked each other.`,
-          createdAt: new Date().toISOString(),
-        };
+          title:  "It's a match!",
+          body:   `You and ${currentUserName} liked each other.`,
+        });
+        io.to(`user:${String(userId)}`).emit('notification:new', {
+          ...basePayload,
+          id:     `notif-match-${match._id}-${userId}`,
+          userId: String(likedUserId),
+          title:  "It's a match!",
+          body:   `You and ${likedUserName} liked each other.`,
+        });
+        io.to(`user:${String(likedUserId)}`).emit('notification:new', {
+          ...basePayload,
+          id:     `notif-match-${match._id}-${likedUserId}`,
+          userId: String(userId),
+          title:  "It's a match!",
+          body:   `You and ${currentUserName} liked each other.`,
+        });
 
-        io.to(`user:${String(userId)}`).emit('match:new', matchPayloadForCurrentUser);
-        io.to(`user:${String(likedUserId)}`).emit('match:new', matchPayloadForLikedUser);
+        // ── WhatsApp offline notification (fire-and-forget) ───────────────
+        User.findById(likedUserId)
+          .select('online lastActive phoneNumber countryCode whatsappOptIn firstName')
+          .lean()
+          .then((receiver) => {
+            if (!receiver || !receiver.whatsappOptIn || !receiver.phoneNumber) return;
 
-        io.to(`user:${String(userId)}`).emit('notification:new', matchPayloadForCurrentUser);
-        io.to(`user:${String(likedUserId)}`).emit('notification:new', matchPayloadForLikedUser);
+            const threeMinutesAgo = new Date(Date.now() - 3 * 60 * 1000);
+            const effectivelyOnline =
+              receiver.online === true &&
+              receiver.lastActive &&
+              new Date(receiver.lastActive) > threeMinutesAgo;
 
-        isMatch = true;
+            if (effectivelyOnline) return;
+
+            const phone = `+${(receiver.countryCode || '').replace('+', '')}${receiver.phoneNumber.replace(/\D/g, '')}`;
+
+            sendMatchNotification({
+              toPhone:       phone,
+              recipientName: receiver.firstName || 'there',
+              matchedName:   currentUserName,
+              matchId:       String(match._id),
+            });
+          })
+          .catch((err) => {
+            console.error('[whatsapp] Match notification error:', err.message);
+          });
 
         return res.json({
           success: true,
@@ -268,8 +288,8 @@ const performAction = async (req, res, next) => {
             isMatch: true,
             match,
             likedUser: {
-              id: likedUser._id,
-              name: likedUser.name,
+              id:     likedUser._id,
+              name:   likedUser.name || [likedUser.firstName, likedUser.lastName].filter(Boolean).join(' '),
               images: likedUser.images,
             },
           },
@@ -277,25 +297,30 @@ const performAction = async (req, res, next) => {
       }
     }
 
-    res.json({
+    return res.json({
       success: true,
       message: 'Action recorded successfully',
-      data: {
-        isMatch: false,
-        like,
-      },
+      data: { isMatch: false },
     });
   } catch (error) {
+    // Handle upsert duplicate key race (belt-and-suspenders)
+    if (error.code === 11000) {
+      return res.json({
+        success: true,
+        message: "It's a match!",
+        data:    { isMatch: true },
+      });
+    }
     next(error);
   }
 };
 
-// Helper to get list of user IDs already matched with the current user
+// ── Helper ────────────────────────────────────────────────────────────────────
 const getMatchedUserIds = async (userId) => {
   const matches = await Match.find({
-    $or: [{ user1: userId }, { user2: userId }],
+    $or:    [{ user1: userId }, { user2: userId }],
     status: 'matched',
-  });
+  }).lean();
   return matches.map((m) =>
     m.user1.toString() === userId.toString() ? m.user2 : m.user1
   );
@@ -306,49 +331,47 @@ const getMatchedUserIds = async (userId) => {
 // @access  Private
 const getLikedYou = async (req, res, next) => {
   try {
-    const userId = req.user._id;
-    const { page = 1, limit = 50 } = req.query;
-    const sanitizedPage = parseInt(page, 10) || 1;
-    const sanitizedLimit = Math.min(parseInt(limit, 10) || 50, 100);
-    const skip = (sanitizedPage - 1) * sanitizedLimit;
+    const userId         = req.user._id;
+    const sanitizedPage  = Math.max(parseInt(req.query.page  || 1,  10), 1);
+    const sanitizedLimit = Math.min(parseInt(req.query.limit || 50, 10), 100);
+    const skip           = (sanitizedPage - 1) * sanitizedLimit;
 
     const matchedUsers = await getMatchedUserIds(userId);
 
-    const likes = await Like.find({
-      likedUser: userId,
-      type: { $in: ['like', 'superlike'] },
-      user: { $nin: matchedUsers },
-    })
-      .populate('user', '-password -otp -otpExpiry')
-      .sort({ createdAt: -1 })
-      .limit(sanitizedLimit)
-      .skip(skip);
-
-    const total = await Like.countDocuments({
-      likedUser: userId,
-      type: { $in: ['like', 'superlike'] },
-      user: { $nin: matchedUsers },
-    });
+    const [likes, total] = await Promise.all([
+      Like.find({
+        likedUser: userId,
+        type:      { $in: ['like', 'superlike'] },
+        user:      { $nin: matchedUsers },
+      })
+        .populate('user', '-password -otp -otpExpiry -verificationSelfieUrl')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(sanitizedLimit),
+      Like.countDocuments({
+        likedUser: userId,
+        type:      { $in: ['like', 'superlike'] },
+        user:      { $nin: matchedUsers },
+      }),
+    ]);
 
     const profiles = await Promise.all(
       likes.map(async (like) => {
         if (!like.user) return null;
-        const userObj = like.user.toObject();
-        userObj.images = await mapImagesWithAccessUrls(userObj.images);
-        return {
-          ...userObj,
-          likeType: like.type,
-          likedAt: like.createdAt,
-        };
+        const userObj    = like.user.toObject();
+        userObj.images   = await mapImagesWithAccessUrls(userObj.images);
+        userObj.likeType = like.type;
+        userObj.likedAt  = like.createdAt;
+        return userObj;
       })
     );
 
-    res.json({
+    return res.json({
       success: true,
       data: {
         profiles: profiles.filter(Boolean),
         pagination: {
-          page: sanitizedPage,
+          page:  sanitizedPage,
           limit: sanitizedLimit,
           total,
           pages: Math.ceil(total / sanitizedLimit),
@@ -365,49 +388,47 @@ const getLikedYou = async (req, res, next) => {
 // @access  Private
 const getYouLiked = async (req, res, next) => {
   try {
-    const userId = req.user._id;
-    const { page = 1, limit = 50 } = req.query;
-    const sanitizedPage = parseInt(page, 10) || 1;
-    const sanitizedLimit = Math.min(parseInt(limit, 10) || 50, 100);
-    const skip = (sanitizedPage - 1) * sanitizedLimit;
+    const userId         = req.user._id;
+    const sanitizedPage  = Math.max(parseInt(req.query.page  || 1,  10), 1);
+    const sanitizedLimit = Math.min(parseInt(req.query.limit || 50, 10), 100);
+    const skip           = (sanitizedPage - 1) * sanitizedLimit;
 
     const matchedUsers = await getMatchedUserIds(userId);
 
-    const likes = await Like.find({
-      user: userId,
-      type: { $in: ['like', 'superlike'] },
-      likedUser: { $nin: matchedUsers },
-    })
-      .populate('likedUser', '-password -otp -otpExpiry')
-      .sort({ createdAt: -1 })
-      .limit(sanitizedLimit)
-      .skip(skip);
-
-    const total = await Like.countDocuments({
-      user: userId,
-      type: { $in: ['like', 'superlike'] },
-      likedUser: { $nin: matchedUsers },
-    });
+    const [likes, total] = await Promise.all([
+      Like.find({
+        user:      userId,
+        type:      { $in: ['like', 'superlike'] },
+        likedUser: { $nin: matchedUsers },
+      })
+        .populate('likedUser', '-password -otp -otpExpiry -verificationSelfieUrl')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(sanitizedLimit),
+      Like.countDocuments({
+        user:      userId,
+        type:      { $in: ['like', 'superlike'] },
+        likedUser: { $nin: matchedUsers },
+      }),
+    ]);
 
     const profiles = await Promise.all(
       likes.map(async (like) => {
         if (!like.likedUser) return null;
-        const userObj = like.likedUser.toObject();
-        userObj.images = await mapImagesWithAccessUrls(userObj.images);
-        return {
-          ...userObj,
-          likeType: like.type,
-          likedAt: like.createdAt,
-        };
+        const userObj    = like.likedUser.toObject();
+        userObj.images   = await mapImagesWithAccessUrls(userObj.images);
+        userObj.likeType = like.type;
+        userObj.likedAt  = like.createdAt;
+        return userObj;
       })
     );
 
-    res.json({
+    return res.json({
       success: true,
       data: {
         profiles: profiles.filter(Boolean),
         pagination: {
-          page: sanitizedPage,
+          page:  sanitizedPage,
           limit: sanitizedLimit,
           total,
           pages: Math.ceil(total / sanitizedLimit),
@@ -424,44 +445,36 @@ const getYouLiked = async (req, res, next) => {
 // @access  Private
 const getPassed = async (req, res, next) => {
   try {
-    const userId = req.user._id;
-    const { page = 1, limit = 50 } = req.query;
-    const sanitizedPage = parseInt(page, 10) || 1;
-    const sanitizedLimit = Math.min(parseInt(limit, 10) || 50, 100);
-    const skip = (sanitizedPage - 1) * sanitizedLimit;
+    const userId         = req.user._id;
+    const sanitizedPage  = Math.max(parseInt(req.query.page  || 1,  10), 1);
+    const sanitizedLimit = Math.min(parseInt(req.query.limit || 50, 10), 100);
+    const skip           = (sanitizedPage - 1) * sanitizedLimit;
 
-    const likes = await Like.find({
-      user: userId,
-      type: 'pass',
-    })
-      .populate('likedUser', '-password -otp -otpExpiry')
-      .sort({ createdAt: -1 })
-      .limit(sanitizedLimit)
-      .skip(skip);
-
-    const total = await Like.countDocuments({
-      user: userId,
-      type: 'pass',
-    });
+    const [likes, total] = await Promise.all([
+      Like.find({ user: userId, type: 'pass' })
+        .populate('likedUser', '-password -otp -otpExpiry -verificationSelfieUrl')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(sanitizedLimit),
+      Like.countDocuments({ user: userId, type: 'pass' }),
+    ]);
 
     const profiles = await Promise.all(
       likes.map(async (like) => {
         if (!like.likedUser) return null;
-        const userObj = like.likedUser.toObject();
-        userObj.images = await mapImagesWithAccessUrls(userObj.images);
-        return {
-          ...userObj,
-          passedAt: like.createdAt,
-        };
+        const userObj    = like.likedUser.toObject();
+        userObj.images   = await mapImagesWithAccessUrls(userObj.images);
+        userObj.passedAt = like.createdAt;
+        return userObj;
       })
     );
 
-    res.json({
+    return res.json({
       success: true,
       data: {
         profiles: profiles.filter(Boolean),
         pagination: {
-          page: sanitizedPage,
+          page:  sanitizedPage,
           limit: sanitizedLimit,
           total,
           pages: Math.ceil(total / sanitizedLimit),

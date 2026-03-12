@@ -1,7 +1,9 @@
 const { Buffer } = require('buffer');
 const Message = require('../models/Message');
 const Match = require('../models/Match');
+const User = require('../models/User');
 const { getIO } = require('../socket');
+const { sendMessageNotification } = require('../utils/whatsappService');
 
 const encodeCursor = (message) => {
   if (!message?._id || !message?.createdAt) return null;
@@ -35,7 +37,6 @@ const getMessages = async (req, res, next) => {
     const { matchId } = req.params;
     const { page = 1, limit = 50, cursor } = req.query;
 
-    // Verify match exists and user is part of it
     const match = await Match.findById(matchId);
 
     if (!match) {
@@ -81,15 +82,8 @@ const getMessages = async (req, res, next) => {
 
     // Mark messages as read
     await Message.updateMany(
-      {
-        match: matchId,
-        receiver: userId,
-        read: false,
-      },
-      {
-        read: true,
-        readAt: new Date(),
-      }
+      { match: matchId, receiver: userId, read: false },
+      { read: true, readAt: new Date() }
     );
 
     if (match.user1.toString() === userId.toString()) {
@@ -113,7 +107,7 @@ const getMessages = async (req, res, next) => {
     res.json({
       success: true,
       data: {
-        messages: paginatedMessages.reverse(), // Return in chronological order
+        messages: paginatedMessages.reverse(),
         pagination: {
           page: parseInt(page, 10),
           limit: parsedLimit,
@@ -156,7 +150,6 @@ const sendMessage = async (req, res, next) => {
       });
     }
 
-    // Verify match exists and user is part of it
     const match = await Match.findById(matchId);
 
     if (!match) {
@@ -194,64 +187,87 @@ const sendMessage = async (req, res, next) => {
       deliveredAt: new Date(),
     });
 
-    // Update match last message time
+    // Update match
     match.lastMessageAt = new Date();
-
     if (match.user1.toString() === receiverId.toString()) {
       match.unreadCount.user1 = (match.unreadCount.user1 || 0) + 1;
     } else {
       match.unreadCount.user2 = (match.unreadCount.user2 || 0) + 1;
     }
-
     await match.save();
 
-    // Populate message
     await message.populate('sender', 'firstName lastName name images');
     await message.populate('receiver', 'firstName lastName name images');
 
     const messagePayload = message.toObject();
-
-    io.to(`match:${matchId}`).emit('message:new', {
-      matchId,
-      message: messagePayload,
-    });
-    io.to(`user:${String(receiverId)}`).emit('message:new', {
-      matchId,
-      message: messagePayload,
-    });
 
     const senderName =
       messagePayload?.sender?.name ||
       [messagePayload?.sender?.firstName, messagePayload?.sender?.lastName]
         .filter(Boolean)
         .join(' ') ||
-      'New message';
+      'Someone';
 
     const notificationBody =
-      type === 'image'
-        ? 'Sent you a photo'
-        : type === 'voice'
-          ? 'Sent you a voice note'
-          : normalizedContent || 'Sent you a message';
+      type === 'image' ? 'Sent you a photo'
+      : type === 'voice' ? 'Sent you a voice note'
+      : normalizedContent || 'Sent you a message';
 
+    // ── Socket emits ──────────────────────────────────────────────────────────
+    io.to(`match:${matchId}`).emit('message:new', { matchId, message: messagePayload });
+    io.to(`user:${String(receiverId)}`).emit('message:new', { matchId, message: messagePayload });
     io.to(`user:${String(receiverId)}`).emit('notification:new', {
-      id: String(message._id),
-      type: 'message',
-      matchId: String(matchId),
-      title: senderName,
-      body: notificationBody,
+      id:        String(message._id),
+      type:      'message',
+      matchId:   String(matchId),
+      title:     senderName,
+      body:      notificationBody,
       createdAt: new Date().toISOString(),
-      senderId: String(userId),
+      senderId:  String(userId),
     });
-
-    // Notify sender that message was delivered
     io.to(`user:${String(userId)}`).emit('message:delivered', {
       matchId,
-      messageId: String(message._id),
+      messageId:   String(message._id),
       deliveredAt: new Date().toISOString(),
     });
 
-    res.status(201).json({
+    // ── WhatsApp offline notification (fire-and-forget) ───────────────────────
+    // Only fires if receiver is offline AND has opted in to WhatsApp notifications
+    User.findById(receiverId)
+      .select('online lastActive phoneNumber countryCode whatsappOptIn firstName')
+      .lean()
+      .then((receiver) => {
+        if (!receiver) return;
+        if (!receiver.whatsappOptIn) return;
+        if (!receiver.phoneNumber) return;
+
+        // Treat user as offline if online flag is false OR last active > 3 mins ago
+        const threeMinutesAgo  = new Date(Date.now() - 3 * 60 * 1000);
+        const effectivelyOnline =
+          receiver.online === true &&
+          receiver.lastActive &&
+          new Date(receiver.lastActive) > threeMinutesAgo;
+
+        if (effectivelyOnline) return;
+
+        const countryCode = (receiver.countryCode || '').replace('+', '');
+        const phone       = receiver.phoneNumber.replace(/\D/g, '');
+        const fullPhone   = `+${countryCode}${phone}`;
+
+        sendMessageNotification({
+          toPhone:        fullPhone,
+          recipientName:  receiver.firstName || 'there',
+          senderName,
+          matchId:        String(matchId),
+          messagePreview: normalizedContent,
+          messageType:    type,
+        });
+      })
+      .catch((err) => {
+        console.error('[whatsapp] Offline check error:', err.message);
+      });
+
+    return res.status(201).json({
       success: true,
       message: 'Message sent successfully',
       data: { message: messagePayload },
@@ -278,7 +294,6 @@ const deleteMessage = async (req, res, next) => {
       });
     }
 
-    // Only sender can delete their message
     if (message.sender.toString() !== userId.toString()) {
       return res.status(403).json({
         success: false,

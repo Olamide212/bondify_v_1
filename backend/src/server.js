@@ -26,6 +26,7 @@ const notificationRoutes = require('./routes/notificationRoutes');
 const aiRoutes = require('./routes/aiRoutes');
 const mapRoutes = require('./routes/mapRoutes');
 const commentRoutes = require('./routes/commentRoutes');  
+const webhookRoutes = require('./routes/webhookRoutes');
 
 // Initialize express app
 const app = express();
@@ -77,7 +78,7 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/map', mapRoutes);
 app.use('/api/comments', commentRoutes);
-
+app.use('/api/webhooks', webhookRoutes);
 // 404 handler
 app.use('*', (req, res) => {
   res.status(404).json({

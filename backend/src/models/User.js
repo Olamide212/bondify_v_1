@@ -647,6 +647,9 @@ verificationSubmittedAt: { type: Date },
     // Push Token
     pushToken: { type: String },
 
+    // Whatsapp notification
+    whatsappOptIn: { type: Boolean, default: false },
+
     // Referral
     referralCode:  { type: String, unique: true, sparse: true },
     referredBy:    { type: mongoose.Schema.Types.ObjectId, ref: 'User' },

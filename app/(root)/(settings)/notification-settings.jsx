@@ -12,14 +12,15 @@ import {
   View,
 } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+import { ArrowLeft, MessageCircle } from "lucide-react-native";
+import { useDispatch, useSelector } from "react-redux";
 import SettingsService from "../../../services/settingsService";
 import { colors } from "../../../constant/colors";
 import { fonts } from "../../../constant/fonts";
-import { ArrowLeft } from "lucide-react-native";
 import GeneralHeader from "../../../components/headers/GeneralHeader";
+import profileService from "../../../services/profileService";
 
 // ─── Config ───────────────────────────────────────────────────────────────────
-// Keys mirror the `notificationSettings` subdocument in the User model
 
 const ACTIVITY_NOTIFICATIONS = [
   {
@@ -68,14 +69,14 @@ const CHANNEL_NOTIFICATIONS = [
 ];
 
 const DEFAULT_SETTINGS = {
-  newMatch: true,
-  newMessage: true,
-  newLike: true,
-  superLike: true,
-  eventReminder: true,
-  pushNotifications: true,
+  newMatch:           true,
+  newMessage:         true,
+  newLike:            true,
+  superLike:          true,
+  eventReminder:      true,
+  pushNotifications:  true,
   emailNotifications: true,
-  marketingEmails: false,
+  marketingEmails:    false,
 };
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
@@ -109,18 +110,29 @@ const ToggleRow = ({ setting, value, onChange, disabled, isLast }) => (
 // ─── Screen ───────────────────────────────────────────────────────────────────
 
 const NotificationSettings = ({ onBack }) => {
-  const [settings, setSettings] = useState(DEFAULT_SETTINGS);
-  const [isLoading, setIsLoading] = useState(true);
-  const [savingKey, setSavingKey] = useState(null);
+  const [settings,       setSettings]       = useState(DEFAULT_SETTINGS);
+  const [isLoading,      setIsLoading]      = useState(true);
+  const [savingKey,      setSavingKey]      = useState(null);
+  const [whatsappOptIn,  setWhatsappOptIn]  = useState(false);
+  const [savingWhatsapp, setSavingWhatsapp] = useState(false);
 
+  // Load notification settings + whatsapp opt-in on mount
   useEffect(() => {
     let mounted = true;
     (async () => {
       try {
-        const res = await SettingsService.getNotificationSettings();
-        // Response: { success: true, data: { newMatch, newMessage, ... } }
-        if (mounted && res?.data) {
-          setSettings((prev) => ({ ...prev, ...res.data }));
+        const [notifRes, profileRes] = await Promise.all([
+          SettingsService.getNotificationSettings(),
+          profileService.getMyProfile(),
+        ]);
+
+        if (mounted) {
+          if (notifRes?.data) {
+            setSettings((prev) => ({ ...prev, ...notifRes.data }));
+          }
+          if (profileRes?.data?.user) {
+            setWhatsappOptIn(Boolean(profileRes.data.user.whatsappOptIn));
+          }
         }
       } catch {
         // keep defaults silently on network error
@@ -128,9 +140,7 @@ const NotificationSettings = ({ onBack }) => {
         if (mounted) setIsLoading(false);
       }
     })();
-    return () => {
-      mounted = false;
-    };
+    return () => { mounted = false; };
   }, []);
 
   const persist = async (key, patch) => {
@@ -138,7 +148,6 @@ const NotificationSettings = ({ onBack }) => {
     const snapshot = settings[key];
     try {
       const res = await SettingsService.updateNotificationSettings(patch);
-      // Response: { success: true, data: { newMatch, newMessage, ... } }
       if (res?.data) {
         setSettings((prev) => ({ ...prev, ...res.data }));
       }
@@ -155,15 +164,27 @@ const NotificationSettings = ({ onBack }) => {
     persist(key, { [key]: value });
   };
 
-  // Master switch — turns all push notifications on/off at once
+  // Master switch — turns all activity notifications on/off at once
   const allPushEnabled = ACTIVITY_NOTIFICATIONS.every((s) => settings[s.key]);
   const handleMasterPush = (value) => {
     const patch = {};
-    ACTIVITY_NOTIFICATIONS.forEach((s) => {
-      patch[s.key] = value;
-    });
+    ACTIVITY_NOTIFICATIONS.forEach((s) => { patch[s.key] = value; });
     setSettings((prev) => ({ ...prev, ...patch }));
     persist("__master__", patch);
+  };
+
+  // WhatsApp opt-in toggle
+  const handleWhatsappToggle = async (value) => {
+    setWhatsappOptIn(value); // optimistic
+    setSavingWhatsapp(true);
+    try {
+      await profileService.updateProfile({ whatsappOptIn: value });
+    } catch (error) {
+      setWhatsappOptIn(!value); // revert on failure
+      Alert.alert("Couldn't save", error?.message || "Please try again.");
+    } finally {
+      setSavingWhatsapp(false);
+    }
   };
 
   if (isLoading) {
@@ -177,83 +198,121 @@ const NotificationSettings = ({ onBack }) => {
   }
 
   return (
-    <SafeAreaProvider className='flex-1 bg-white'>
-    <SafeAreaView style={styles.safe} edges={["top", "left", "right", "bottom"]}>
-      <StatusBar barStyle="dark-content" backgroundColor="#fff" />
+    <SafeAreaProvider className="flex-1 bg-white">
+      <SafeAreaView style={styles.safe} edges={["top", "left", "right", "bottom"]}>
+        <StatusBar barStyle="dark-content" backgroundColor="#fff" />
 
-      {/* Header */}
-  
-        <GeneralHeader onBack={onBack} title="Notification" leftIcon={<ArrowLeft />} className="bg-background" />
-        {/* <View style={styles.headerRight}>
-          {savingKey !== null && (
-            <ActivityIndicator size="small" color="#6366F1" />
-          )}
-        </View> */}
+        <GeneralHeader
+          onBack={onBack}
+          title="Notifications"
+          leftIcon={<ArrowLeft />}
+          className="bg-background"
+        />
 
-
-      <ScrollView
-        style={styles.scroll}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Master toggle */}
-        <View style={styles.masterCard}>
-          <View style={styles.masterTextBlock}>
-            <Text style={styles.masterLabel}>Activity alerts</Text>
-            <Text style={styles.masterDescription}>
-              {allPushEnabled ? "All activity alerts are on" : "Some alerts are turned off"}
-            </Text>
+        <ScrollView
+          style={styles.scroll}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Master toggle */}
+          <View style={styles.masterCard}>
+            <View style={styles.masterTextBlock}>
+              <Text style={styles.masterLabel}>Activity alerts</Text>
+              <Text style={styles.masterDescription}>
+                {allPushEnabled ? "All activity alerts are on" : "Some alerts are turned off"}
+              </Text>
+            </View>
+            <Switch
+              value={allPushEnabled}
+              onValueChange={handleMasterPush}
+              disabled={savingKey !== null}
+              trackColor={{ false: "#E5E7EB", true: colors.primary }}
+              thumbColor={
+                Platform.OS === "android"
+                  ? allPushEnabled ? "#fff" : "#f4f3f4"
+                  : undefined
+              }
+              ios_backgroundColor="#E5E7EB"
+            />
           </View>
-          <Switch
-            value={allPushEnabled}
-            onValueChange={handleMasterPush}
-            disabled={savingKey !== null}
-            trackColor={{ false: "#E5E7EB", true: colors.primary }}
-            thumbColor={
-              Platform.OS === "android"
-                ? allPushEnabled ? "#fff" : "#f4f3f4"
-                : undefined
-            }
-            ios_backgroundColor="#E5E7EB"
-          />
-        </View>
 
-        {/* Per-activity toggles */}
-        <SectionLabel>ACTIVITY</SectionLabel>
-        <View style={styles.card}>
-          {ACTIVITY_NOTIFICATIONS.map((setting, i) => (
-            <ToggleRow
-              key={setting.key}
-              setting={setting}
-              value={settings[setting.key]}
-              onChange={handleToggle}
-              disabled={savingKey === setting.key}
-              isLast={i === ACTIVITY_NOTIFICATIONS.length - 1}
-            />
-          ))}
-        </View>
+          {/* Per-activity toggles */}
+          <SectionLabel>ACTIVITY</SectionLabel>
+          <View style={styles.card}>
+            {ACTIVITY_NOTIFICATIONS.map((setting, i) => (
+              <ToggleRow
+                key={setting.key}
+                setting={setting}
+                value={settings[setting.key]}
+                onChange={handleToggle}
+                disabled={savingKey === setting.key}
+                isLast={i === ACTIVITY_NOTIFICATIONS.length - 1}
+              />
+            ))}
+          </View>
 
-        {/* Channels */}
-        <SectionLabel>CHANNELS</SectionLabel>
-        <View style={styles.card}>
-          {CHANNEL_NOTIFICATIONS.map((setting, i) => (
-            <ToggleRow
-              key={setting.key}
-              setting={setting}
-              value={settings[setting.key]}
-              onChange={handleToggle}
-              disabled={savingKey === setting.key}
-              isLast={i === CHANNEL_NOTIFICATIONS.length - 1}
-            />
-          ))}
-        </View>
+          {/* Channels */}
+          <SectionLabel>CHANNELS</SectionLabel>
+          <View style={styles.card}>
+            {CHANNEL_NOTIFICATIONS.map((setting, i) => (
+              <ToggleRow
+                key={setting.key}
+                setting={setting}
+                value={settings[setting.key]}
+                onChange={handleToggle}
+                disabled={savingKey === setting.key}
+                isLast={i === CHANNEL_NOTIFICATIONS.length - 1}
+              />
+            ))}
+          </View>
 
-        <Text style={styles.footerNote}>
-          You can also manage notifications in your device settings. Changes are saved
-          automatically.
-        </Text>
-      </ScrollView>
-    </SafeAreaView>
+          {/* WhatsApp opt-in */}
+          <SectionLabel>WHATSAPP</SectionLabel>
+          <View style={styles.card}>
+            <View style={styles.toggleRow}>
+              <View style={styles.whatsappIconWrap}>
+                <MessageCircle size={20} color="#25D366" />
+              </View>
+              <View style={styles.toggleTextBlock}>
+                <Text style={styles.toggleLabel}>WhatsApp notifications</Text>
+                <Text style={styles.toggleDescription}>
+                  Get notified on WhatsApp when you&apos;re offline
+                </Text>
+              </View>
+              {savingWhatsapp ? (
+                <ActivityIndicator size="small" color={colors.primary} />
+              ) : (
+                <Switch
+                  value={whatsappOptIn}
+                  onValueChange={handleWhatsappToggle}
+                  disabled={savingWhatsapp}
+                  trackColor={{ false: "#E5E7EB", true: "#25D366" }}
+                  thumbColor={
+                    Platform.OS === "android"
+                      ? whatsappOptIn ? "#fff" : "#f4f3f4"
+                      : undefined
+                  }
+                  ios_backgroundColor="#E5E7EB"
+                />
+              )}
+            </View>
+            {whatsappOptIn && (
+              <View style={styles.whatsappNote}>
+                <Text style={styles.whatsappNoteText}>
+                  🔒 We only send notifications when you&apos;re offline. Reply{" "}
+                  <Text style={{ fontFamily: fonts.PlusJakartaSansBold }}>STOP</Text>{" "}
+                  to any message to unsubscribe at any time.
+                </Text>
+              </View>
+            )}
+          </View>
+
+          <Text style={styles.footerNote}>
+            You can also manage notifications in your device settings. Changes are
+            saved automatically.
+          </Text>
+        </ScrollView>
+      </SafeAreaView>
     </SafeAreaProvider>
   );
 };
@@ -263,52 +322,13 @@ const NotificationSettings = ({ onBack }) => {
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   centered: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
   },
-
-  // Header
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    backgroundColor: colors.background,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: "#E5E7EB",
-  },
-  backBtn: {
-    width: 36,
-    height: 36,
-    alignItems: "center",
-    justifyContent: "center",
-    borderRadius: 18,
-    backgroundColor: "#F3F4F6",
-  },
-  backIcon: {
-    fontSize: 18,
-    color: "#111827",
-    lineHeight: 22,
-  },
-  headerTitle: {
-    fontSize: 17,
-    fontFamily: fonts.PlusJakartaSansBold,
-    color: "#111827",
-    letterSpacing: -0.3,
-  },
-  headerRight: {
-    width: 36,
-    height: 36,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
-  // Scroll
   scroll: { flex: 1, backgroundColor: colors.background },
   scrollContent: {
     paddingHorizontal: 16,
@@ -330,9 +350,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.activePrimary,
   },
-  masterTextBlock: {
-    flex: 1,
-  },
+  masterTextBlock: { flex: 1 },
   masterLabel: {
     fontSize: 15,
     fontFamily: fonts.PlusJakartaSansBold,
@@ -382,12 +400,10 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     gap: 12,
   },
-  toggleTextBlock: {
-    flex: 1,
-  },
+  toggleTextBlock: { flex: 1 },
   toggleLabel: {
     fontSize: 15,
-   fontFamily: fonts.PlusJakartaSansBold,
+    fontFamily: fonts.PlusJakartaSansBold,
     color: "#111827",
     marginBottom: 2,
   },
@@ -395,6 +411,29 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontFamily: fonts.PlusJakartaSansMedium,
     color: "#9CA3AF",
+    lineHeight: 18,
+  },
+
+  // WhatsApp
+  whatsappIconWrap: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    backgroundColor: "#F0FDF4",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  whatsappNote: {
+    backgroundColor: "#F0FDF4",
+    marginHorizontal: 16,
+    marginBottom: 14,
+    borderRadius: 10,
+    padding: 12,
+  },
+  whatsappNoteText: {
+    fontSize: 12,
+    fontFamily: fonts.PlusJakartaSansMedium,
+    color: "#166534",
     lineHeight: 18,
   },
 
