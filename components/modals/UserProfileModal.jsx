@@ -1,27 +1,24 @@
-import React, { useRef, useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
-  View,
-  Text,
-  ScrollView,
-  StyleSheet,
-  Pressable,
   Dimensions,
+  Pressable,
+  StyleSheet,
+  Text,
+  View
 } from "react-native";
 import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
   interpolate,
   runOnJS,
   useAnimatedScrollHandler,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
 } from "react-native-reanimated";
-import { Image } from "expo-image";
-import ProfileCard from "../homeScreen/ProfileCard";
-import ActionButtons from "../homeScreen/ActionButtons";
 import { useProfile } from "../../context/ProfileContext";
-import { Icons } from "../../constant/icons";
+import ActionButtons from "../homeScreen/ActionButtons";
+import ProfileCard from "../homeScreen/ProfileCard";
+import VerifiedIcon from "../ui/VerifiedIcon";
 import BaseModal from "./BaseModal";
-import { ChevronLeft, X } from "lucide-react-native";
 
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 
@@ -177,10 +174,7 @@ const UserProfileModal = ({ visible, onClose, profileId }) => {
                   {currentProfile.age}
                 </Text>
                 {currentProfile.verified && (
-                  <Image
-                    source={Icons.verified}
-                    style={{ width: 18, height: 18 }}
-                  />
+                  <VerifiedIcon style={{ width: 18, height: 18 }} />
                 )}
               </View>
             </View>

@@ -16,6 +16,7 @@ import Button from "../../../../components/ui/Button";
 import Info from "../../../../components/ui/Info";
 import { useLookupOptions } from "../../../../hooks/useLookupOptions";
 import { useProfileSetup } from "../../../../hooks/useProfileSetup";
+import { ScrollView } from "react-native-gesture-handler";
 
 const RelocationPreference = () => {
   const [relocationPreference, setRelocationPreference] = useState("");
@@ -39,6 +40,7 @@ const RelocationPreference = () => {
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View className="flex-1 px-2">
+            <ScrollView className="flex-1 mt-8" showsVerticalScrollIndicator={false}>
             <View className="flex-1 mt-8">
               <Text className="text-3xl font-PlusJakartaSansBold text-app mb-2">
                 Would you move for the right person?
@@ -54,6 +56,7 @@ const RelocationPreference = () => {
               </View>
               <Info title="You can change this details later from your profile" />
             </View>
+            </ScrollView>
 
             <View className="w-full items-end pb-6">
               <Button

@@ -641,7 +641,16 @@ const About = () => {
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View className="flex-1 px-3">
-            {/* Title */}
+          
+
+         
+
+            <ScrollView
+              className="flex-1"
+              showsVerticalScrollIndicator={false}
+              keyboardShouldPersistTaps="handled"
+            >
+                {/* Title */}
             <View className="mt-8 mb-6">
               <Text className="text-3xl font-PlusJakartaSansBold mb-2">
                 Tell us about yourself
@@ -650,8 +659,7 @@ const About = () => {
                 You can write, use AI, or record — or combine all three!
               </Text>
             </View>
-
-            {/* Tab selector */}
+                 {/* Tab selector */}
             <View className="flex-row gap-3 mb-6">
               <TouchableOpacity
                 onPress={() => setActiveTab("write")}
@@ -697,12 +705,6 @@ const About = () => {
                 </Text>
               </TouchableOpacity>
             </View>
-
-            <ScrollView
-              className="flex-1"
-              showsVerticalScrollIndicator={false}
-              keyboardShouldPersistTaps="handled"
-            >
               {/* Write Tab */}
               {activeTab === "write" && (
                 <View>
