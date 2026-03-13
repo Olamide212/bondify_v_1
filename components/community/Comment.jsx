@@ -1,13 +1,13 @@
-import React, { useState } from "react";
-import { View, Text, TouchableOpacity, Image } from "react-native";
 import {
-  Heart,
-  MessageCircle,
-  ChevronDown,
-  ChevronUp,
+    ChevronDown,
+    ChevronUp,
+    Heart,
+    MessageCircle,
 } from "lucide-react-native";
+import { useState } from "react";
+import { Image, Text, TouchableOpacity, View } from "react-native";
+import VerifiedIcon from "../ui/VerifiedIcon";
 import { styles } from "./styles/communityStyles";
-import {Icons} from "../../constant/icons"
 
 const Comment = ({ comment, onLike, onReply, onLikeReply }) => {
   const [expanded, setExpanded] = useState(true);
@@ -29,7 +29,7 @@ const Comment = ({ comment, onLike, onReply, onLikeReply }) => {
           <Text style={styles.commentTime}>{comment.time}</Text>
         </View>
         {comment.user.verified && (
-          <Image source={Icons.verified} style={styles.verifiedIconSmall} />
+          <VerifiedIcon style={styles.verifiedIconSmall} />
         )}
       </View>
 
@@ -90,10 +90,7 @@ const Comment = ({ comment, onLike, onReply, onLikeReply }) => {
                       <Text style={styles.replyTime}>{reply.time}</Text>
                     </View>
                     {reply.user.verified && (
-                      <Image
-                        source={Icons.verified}
-                        style={styles.verifiedIconSmall}
-                      />
+                      <VerifiedIcon style={styles.verifiedIconSmall} />
                     )}
                   </View>
 

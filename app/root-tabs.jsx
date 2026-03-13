@@ -1,22 +1,22 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { useState } from "react";
-import { Image, Platform, StyleSheet, View } from "react-native";
+import { useEffect, useState } from "react";
+import { Image, Platform, StyleSheet, Text, View } from "react-native";
+import { useSelector } from "react-redux";
 
 import IceBreakerModal from "../components/modals/IceBreakerModal";
 import { colors } from "../constant/colors";
 import { Icons } from "../constant/icons";
 import { images } from "../constant/images";
 import ChatScreen from "./(root)/(tab)/chats";
-import AIChatScreen from "./(root)/(tab)/discover";
 import HomeScreen from "./(root)/(tab)/home";
+import MapScreen from "./(root)/(tab)/map";
 import MatchesScreen from "./(root)/(tab)/matches";
 import ProfileScreen from "./(root)/(tab)/profile";
-import MapScreen from "./(root)/(tab)/map"
 
 const Tab = createBottomTabNavigator();
 
-// Custom Icon Component without label
-const TabIcon = ({ focused, customImage }) => {
+// Custom Icon Component with optional notification badge
+const TabIcon = ({ focused, customImage, badge }) => {
   return (
     <View style={styles.tabIconContainer}>
       <Image
@@ -26,12 +26,66 @@ const TabIcon = ({ focused, customImage }) => {
           focused ? styles.activeIconImage : styles.inactiveIconImage,
         ]}
       />
+      {badge > 0 && (
+        <View style={styles.notificationBadge}>
+          <Text style={styles.badgeText}>{badge > 99 ? "99+" : badge}</Text>
+        </View>
+      )}
     </View>
   );
 };
 
 const RootTabs = () => {
   const [showIceBreakerModal, setShowIceBreakerModal] = useState(false);
+  const [unreadMessages, setUnreadMessages] = useState(0);
+  const [newLikes, setNewLikes] = useState(0);
+  
+  // Get current user from Redux auth
+  const currentUserId = useSelector((state) => state.auth?.user?.id || state.auth?.user?._id);
+  
+  // Listen for socket events to update badge counts
+  useEffect(() => {
+    // Load initial counts from services
+    const initializeBadges = async () => {
+      try {
+        // Get matches with unread count
+        const { matchService } = require("../services/matchService");
+        const matches = await matchService.getCachedMatches();
+        const unreadCount = matches.reduce((sum, match) => sum + (match.unread || 0), 0);
+        setUnreadMessages(unreadCount);
+        
+        // Get likes count (from likedYou data)
+        const { profileService } = require("../services/profileService");
+        const likedYou = await profileService.getLikedYou().catch(() => []);
+        setNewLikes(likedYou.length);
+      } catch (err) {
+        console.warn("Failed to initialize badge counts:", err);
+      }
+    };
+    
+    initializeBadges();
+    
+    // Listen for socket events for real-time updates
+    const { socketService } = require("../services/socketService");
+    
+    // Update on new message
+    socketService.on("message:new", (data) => {
+      if (data?.from !== currentUserId) {
+        setUnreadMessages(prev => prev + 1);
+      }
+    });
+    
+    // Update on new like/match
+    socketService.on("match:new", () => {
+      setNewLikes(prev => prev + 1);
+    });
+    
+    return () => {
+      // Cleanup listeners
+      socketService.off("message:new");
+      socketService.off("match:new");
+    };
+  }, [currentUserId]);
 
   return (
     <View style={styles.container}>
@@ -52,12 +106,12 @@ const RootTabs = () => {
           }}
         />
 
-    <Tab.Screen
+        <Tab.Screen
           name="Likes"
           component={MatchesScreen}
           options={{
             tabBarIcon: ({ focused }) => (
-              <TabIcon focused={focused} customImage={Icons.heart} />
+              <TabIcon focused={focused} customImage={Icons.heart} badge={newLikes} />
             ),
          
           }}
@@ -78,7 +132,7 @@ const RootTabs = () => {
           component={ChatScreen}
           options={{
             tabBarIcon: ({ focused }) => (
-              <TabIcon focused={focused} customImage={Icons.message} />
+              <TabIcon focused={focused} customImage={Icons.message} badge={unreadMessages} />
             ),
           }}
         />
@@ -146,6 +200,26 @@ const styles = StyleSheet.create({
   },
   inactiveIconImage: {
     tintColor: colors.inactiveTab,
+  },
+  notificationBadge: {
+    position: "absolute",
+    top: -5,
+    right: -8,
+    backgroundColor: "#EF4444",
+    borderRadius: 10,
+    minWidth: 20,
+    height: 20,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 5,
+    borderWidth: 2,
+    borderColor: "#fff",
+  },
+  badgeText: {
+    color: "#fff",
+    fontSize: 11,
+    fontWeight: "bold",
+    textAlign: "center",
   },
   centerButtonWrapper: {
     top: -20,

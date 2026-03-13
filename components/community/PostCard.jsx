@@ -1,8 +1,8 @@
-import React from "react";
-import { View, Text, TouchableOpacity, Image } from "react-native";
-import { Heart, MessageCircle, Share } from "lucide-react-native";
-import { styles } from "./styles/communityStyles";
 import { useRouter } from "expo-router";
+import { Heart, MessageCircle, Share } from "lucide-react-native";
+import { Image, Text, TouchableOpacity, View } from "react-native";
+import VerifiedIcon from "../ui/VerifiedIcon";
+import { styles } from "./styles/communityStyles";
 
 const PostCard = ({ post, onLike }) => {
 const router = useRouter();
@@ -19,10 +19,7 @@ const router = useRouter();
           <Text style={styles.postTime}>{post.time}</Text>
         </View>
         {post.user.verified && (
-          <Image
-            source={require("../../assets/icons/verified-icon.png")}
-            style={styles.verifiedIcon}
-          />
+          <VerifiedIcon style={styles.verifiedIcon} />
         )}
       </View>
 

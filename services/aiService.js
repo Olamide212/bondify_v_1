@@ -23,7 +23,7 @@ const AIService = {
    */
   getIcebreakerSuggestions: async (matchId) => {
     const response = await apiClient.get(`/ai/icebreakers/${matchId}`);
-    return response.data;
+    return response.data?.data ?? response.data;
   },
 
   /**
@@ -34,7 +34,7 @@ const AIService = {
    */
   getCompatibilityScore: async (userId) => {
     const response = await apiClient.get(`/ai/compatibility/${userId}`);
-    return response.data;
+    return response.data?.data ?? response.data;
   },
 
   /**
@@ -45,7 +45,8 @@ const AIService = {
    */
   generateBio: async (data) => {
     const response = await apiClient.post("/ai/generate-bio", data);
-    return response.data;
+    // Handle nested response structure: { success: true, data: { bio } }
+    return response.data?.data ?? response.data;
   },
 
   /**
@@ -57,7 +58,7 @@ const AIService = {
    */
   getDateIdeas: async (matchId, params = {}) => {
     const response = await apiClient.get(`/ai/date-ideas/${matchId}`, { params });
-    return response.data;
+    return response.data?.data ?? response.data;
   },
 
   /**
@@ -68,7 +69,7 @@ const AIService = {
    */
   chat: async (messages) => {
     const response = await apiClient.post('/ai/chat', { messages });
-    return response.data;
+    return response.data?.data ?? response.data;
   },
 
   /**
@@ -85,7 +86,7 @@ const AIService = {
    */
   getMessageSuggestion: async (targetUserId) => {
     const response = await apiClient.post('/ai/suggest-message', { targetUserId });
-    return response.data;
+    return response.data?.data ?? response.data;
   },
 
   /**
@@ -106,7 +107,7 @@ const AIService = {
       targetUserId,
       imageIndex,
     });
-    return response.data;
+    return response.data?.data ?? response.data;
   },
 };
 

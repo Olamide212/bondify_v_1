@@ -1,22 +1,22 @@
-import React, { useState } from "react";
-import {
-  SafeAreaView,
-  Text,
-  View,
-  TouchableWithoutFeedback,
-  Keyboard,
-  TouchableOpacity,
-  Image,
-  Alert,
-} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
-import NextButton from "../../../../components/ui/NextButton";
-import Button from "../../../../components/ui/Button"
+import { Lightbulb } from 'lucide-react-native';
+import { useState } from "react";
+import {
+    Alert,
+    Image,
+    Keyboard,
+    SafeAreaView,
+    Text,
+    TouchableOpacity,
+    TouchableWithoutFeedback,
+    View,
+} from "react-native";
+import PhotoGuidelinesModal from "../../../../components/modals/PhotoGuidelinesModal";
+import Button from "../../../../components/ui/Button";
 import { useProfileSetup } from "../../../../hooks/useProfileSetup";
 import { profileService } from "../../../../services/profileService";
-import {  Lightbulb } from 'lucide-react-native'
 
 // Define colors object
 const colors = {
@@ -27,6 +27,7 @@ const UploadPhoto = () => {
   const router = useRouter();
   const [photos, setPhotos] = useState(Array(6).fill(null));
   const [uploading, setUploading] = useState(false);
+  const [showGuidelines, setShowGuidelines] = useState(false);
   const { updateProfileStep } = useProfileSetup({ isOnboarding: true });
 
   const pickImage = async (index) => {
@@ -80,9 +81,17 @@ const UploadPhoto = () => {
           <View className='flex-1'>
             {/* Title + Subtitle */}
             <View className="mb-6 mt-8">
-              <Text className="text-3xl font-PlusJakartaSansBold  mb-2">
-                Add your best photos
-              </Text>
+              <View className="flex-row items-center justify-between">
+                <Text className="text-3xl font-PlusJakartaSansBold  mb-2">
+                  Add your best photos
+                </Text>
+                <TouchableOpacity
+                  onPress={() => setShowGuidelines(true)}
+                  className="bg-primary/10 p-2 rounded-full"
+                >
+                  <Ionicons name="information-circle" size={24} color={colors.primary} />
+                </TouchableOpacity>
+              </View>
               <View className="flex-row items-start gap-2 mb-4 bg-primary/10 p-4 rounded-lg border border-primary/30">
               <View>
             
@@ -165,6 +174,7 @@ const UploadPhoto = () => {
           </View>
         </View>
       </TouchableWithoutFeedback>
+      <PhotoGuidelinesModal visible={showGuidelines} onClose={() => setShowGuidelines(false)} />
     </SafeAreaView>
   );
 };

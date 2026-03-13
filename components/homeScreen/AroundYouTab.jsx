@@ -55,7 +55,7 @@ const extractImageUri = (imageItem) => {
 const AroundYouTab = ({ profile, onViewProfile, actionMessage }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const fadeAnim = useRef(new Animated.Value(1)).current;
-  const router   = useRouter();
+  const router = useRouter();
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
 
   // Reset image carousel to first photo whenever the displayed profile changes
@@ -105,9 +105,9 @@ const AroundYouTab = ({ profile, onViewProfile, actionMessage }) => {
 
     fadeTransition(() => {
       if (isRightTap) {
-        setCurrentImageIndex((prev) => (prev < totalImages - 1 ? prev + 1 : prev));
+        setCurrentImageIndex((prev) => (prev < totalImages - 1 ? prev + 1 : 0));
       } else {
-        setCurrentImageIndex((prev) => (prev > 0 ? prev - 1 : prev));
+        setCurrentImageIndex((prev) => (prev > 0 ? prev - 1 : totalImages - 1));
       }
     });
   };
@@ -115,7 +115,6 @@ const AroundYouTab = ({ profile, onViewProfile, actionMessage }) => {
   const handleNavigateToProfile = () => {
     const id = profile._id || profile.id;
     if (id) router.push(`/user-profile/${id}`);
-    if (onViewProfile) onViewProfile();
   };
 
   return (
@@ -187,7 +186,7 @@ const AroundYouTab = ({ profile, onViewProfile, actionMessage }) => {
                 <TouchableOpacity
                   style={styles.profileButton}
                   onPress={handleNavigateToProfile}
-                  hitSlop={8}
+                  // hitSlop={8}
                 >
                   <Info size={22} color="#fff" />
                 </TouchableOpacity>
@@ -220,7 +219,7 @@ const styles = StyleSheet.create({
   // Pagination dots
   dotsContainer: {
     position:       "absolute",
-    top:            12,
+    top:            50,
     left:           16,
     right:          16,
     flexDirection:  "row",

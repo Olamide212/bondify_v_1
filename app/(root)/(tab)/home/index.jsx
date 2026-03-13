@@ -428,7 +428,7 @@ const Home = () => {
       <View style={styles.headerWrapper}>
         <View className="flex-row justify-end gap-4">
           <View className="flex-row gap-2">
-            <Pressable onPress={handleOpenNotifications}>
+            {/* <Pressable onPress={handleOpenNotifications}>
               <View className="justify-center items-center rounded-full bg-background w-14 h-14">
                 <Bell size={23} color={colors.primary} />
                 {unreadNotificationsCount > 0 && (
@@ -439,7 +439,7 @@ const Home = () => {
                   </View>
                 )}
               </View>
-            </Pressable>
+            </Pressable> */}
 
             <Pressable onPress={() => setShowFilterModal(true)}>
               <View className="justify-center items-center rounded-full bg-background w-14 h-14">

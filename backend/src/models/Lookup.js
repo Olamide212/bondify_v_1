@@ -30,6 +30,9 @@ const lookupSchema = new mongoose.Schema(
         'communication-style',
         'love-language',
         'financial-style',
+        // Added in Session 8 — new preference fields
+        'religion-practice',
+        'relocation-preference',
       ],
     },
     label: {
@@ -40,6 +43,10 @@ const lookupSchema = new mongoose.Schema(
     value: {
       type: String,
       required: true,
+      trim: true,
+    },
+    description: {
+      type: String,
       trim: true,
     },
     order: {

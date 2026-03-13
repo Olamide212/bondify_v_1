@@ -1,14 +1,14 @@
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
+    ActivityIndicator,
     Keyboard,
     KeyboardAvoidingView,
     Platform,
     SafeAreaView,
     Text,
     TouchableWithoutFeedback,
-    View,
-    ActivityIndicator
+    View
 } from "react-native";
 
 import RadioSelect from "../../../../components/inputs/RadioSelect";
@@ -17,17 +17,9 @@ import Info from "../../../../components/ui/Info";
 import { useLookupOptions } from "../../../../hooks/useLookupOptions";
 import { useProfileSetup } from "../../../../hooks/useProfileSetup";
 
-const religionImportanceMap = {
-  "not-matter": "It doesn't matter to me at all",
-  "very-important": "Is very important",
-  "not-important": "It doesn't matter to me at all",
-  "quite-important": "Is quite important",
-};
-
-
-const ReligionQuestions = () => {
-  const [religionImportance, setReligionImportance] = useState("");
-  const { options: sameBeliefsOptions, loading } = useLookupOptions("same-beliefs");
+const ReligionPractice = () => {
+  const [religionPractice, setReligionPractice] = useState("");
+  const { options: religionPracticeOptions, loading } = useLookupOptions("religion-practice");
 
   const router = useRouter();
   const { updateProfileStep } = useProfileSetup({ isOnboarding: true });
@@ -49,14 +41,14 @@ const ReligionQuestions = () => {
           <View className="flex-1 px-2">
             <View className="flex-1 mt-8">
               <Text className="text-3xl font-PlusJakartaSansBold text-app mb-2">
-                Dating someone with the same beliefs...
+                How well do you practice your religion?
               </Text>
 
               <View>
                 <RadioSelect
-                  value={religionImportance}
-                  onChange={setReligionImportance}
-                  options={sameBeliefsOptions}
+                  value={religionPractice}
+                  onChange={setReligionPractice}
+                  options={religionPracticeOptions}
                   className="mt-2"
                 />
               </View>
@@ -68,12 +60,8 @@ const ReligionQuestions = () => {
                 title="Continue"
                 variant="gradient"
                 onPress={async () => {
-                  const normalizedImportance =
-                    religionImportanceMap[religionImportance?.toLowerCase?.()] ||
-                    religionImportance;
-
-                  await updateProfileStep({ religionImportance: normalizedImportance });
-                  router.push("/religion-practice");
+                  await updateProfileStep({ religionPractice });
+                  router.push("/relocation-preference");
                 }}
               />
             </View>
@@ -84,4 +72,4 @@ const ReligionQuestions = () => {
   );
 };
 
-export default ReligionQuestions;
+export default ReligionPractice;

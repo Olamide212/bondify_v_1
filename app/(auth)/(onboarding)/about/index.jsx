@@ -22,6 +22,7 @@ import Button from "../../../../components/ui/Button";
 import { fonts } from "../../../../constant/fonts";
 import { useProfileSetup } from "../../../../hooks/useProfileSetup";
 import AIService, { BIO_TONES } from "../../../../services/aiService";
+import { profileService } from "../../../../services/profileService";
 
 // ─── AI Suggestion Card (using backend AI service) ─────────────────────────────
 
@@ -621,12 +622,14 @@ const VoicePromptSection = ({ onUseVoice }) => {
 const About = () => {
   const [aboutText, setAboutText] = useState("");
   const [voiceBioUri, setVoiceBioUri] = useState(null);
+  const [activeTab, setActiveTab] = useState("write"); // "write" or "record"
+  const [submitting, setSubmitting] = useState(false);
   const router = useRouter();
   const { updateProfileStep } = useProfileSetup({ isOnboarding: true });
 
   const handleUseVoice = (uri) => {
     setVoiceBioUri(uri);
-    Alert.alert("Voice bio added!", "Your voice bio is ready to submit.");
+    Alert.alert("✅ Voice bio added!", "Your recording is saved. Tap Continue to submit.");
   };
 
   return (
@@ -638,46 +641,118 @@ const About = () => {
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View className="flex-1 px-3">
+            {/* Title */}
+            <View className="mt-8 mb-6">
+              <Text className="text-3xl font-PlusJakartaSansBold mb-2">
+                Tell us about yourself
+              </Text>
+              <Text className="text-base font-PlusJakartaSans text-gray-600">
+                You can write, use AI, or record — or combine all three!
+              </Text>
+            </View>
+
+            {/* Tab selector */}
+            <View className="flex-row gap-3 mb-6">
+              <TouchableOpacity
+                onPress={() => setActiveTab("write")}
+                style={{
+                  flex: 1,
+                  paddingVertical: 12,
+                  paddingHorizontal: 16,
+                  borderRadius: 12,
+                  backgroundColor: activeTab === "write" ? "#E8651A" : "#f1f1f1",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Text style={{
+                  fontFamily: fonts.PlusJakartaSansBold,
+                  fontSize: 15,
+                  color: activeTab === "write" ? "#fff" : "#666",
+                }}
+                >
+                  📝 Write Bio
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={() => setActiveTab("record")}
+                style={{
+                  flex: 1,
+                  paddingVertical: 12,
+                  paddingHorizontal: 16,
+                  borderRadius: 12,
+                  backgroundColor: activeTab === "record" ? "#0284C7" : "#f1f1f1",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Text style={{
+                  fontFamily: fonts.PlusJakartaSansBold,
+                  fontSize: 15,
+                  color: activeTab === "record" ? "#fff" : "#666",
+                }}
+                >
+                  🎤 Record
+                </Text>
+              </TouchableOpacity>
+            </View>
+
             <ScrollView
-              className="flex-1 mt-8"
+              className="flex-1"
               showsVerticalScrollIndicator={false}
               keyboardShouldPersistTaps="handled"
             >
-              <Text className="text-3xl font-PlusJakartaSansBold mb-4">
-                Tell us a little about yourself
-              </Text>
+              {/* Write Tab */}
+              {activeTab === "write" && (
+                <View>
+                  {/* Manual bio input */}
+                  <TextInput
+                    placeholder="Write your bio here..."
+                    placeholderTextColor="#999"
+                    value={aboutText}
+                    onChangeText={setAboutText}
+                    multiline
+                    numberOfLines={6}
+                    style={{
+                      backgroundColor: "#f1f1f1",
+                      color: "#000",
+                      height: 120,
+                      padding: 16,
+                      borderRadius: 12,
+                      textAlignVertical: "top",
+                      fontSize: 16,
+                      fontFamily: fonts.PlusJakartaSansMedium,
+                      marginBottom: 20,
+                    }}
+                  />
 
-              <Text className="text-base font-PlusJakartaSans text-gray-600 mb-6">
-                Choose one of three ways: type your bio, let AI write one, or record your voice.
-              </Text>
+                  {/* ── AI suggestion card ── */}
+                  <AISuggestionCard onUseSuggestion={(text) => setAboutText(text)} />
+                </View>
+              )}
 
-              {/* Manual bio input */}
-              <TextInput
-                placeholder="Write your bio here..."
-                placeholderTextColor="#999"
-                value={aboutText}
-                onChangeText={setAboutText}
-                multiline
-                numberOfLines={6}
-                style={{
-                  backgroundColor: "#f1f1f1",
-                  color: "#000",
-                  height: 120,
-                  padding: 16,
-                  borderRadius: 12,
-                  textAlignVertical: "top",
-                  fontSize: 16,
-                  fontFamily: fonts.PlusJakartaSansMedium,
-                  marginBottom: 24,
-                }}
-              />
-
-              {/* ── AI suggestion card ── */}
-              <AISuggestionCard onUseSuggestion={(text) => setAboutText(text)} />
-
-              {/* ── Voice bio section ── */}
-              <VoicePromptSection onUseVoice={handleUseVoice} />
+              {/* Record Tab */}
+              {activeTab === "record" && (
+                <View>
+                  {/* ── Voice bio section ── */}
+                  <VoicePromptSection onUseVoice={handleUseVoice} />
+                </View>
+              )}
             </ScrollView>
+
+            {/* Summary of selections */}
+            <View className="mt-4 mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+              {aboutText && (
+                <Text className="text-sm font-PlusJakartaSansMedium text-blue-900 mb-2">✅ Text bio added</Text>
+              )}
+              {voiceBioUri && (
+                <Text className="text-sm font-PlusJakartaSansMedium text-blue-900">✅ Voice bio recorded</Text>
+              )}
+              {!aboutText && !voiceBioUri && (
+                <Text className="text-sm font-PlusJakartaSansMedium text-gray-600">Add text or voice bio to continue</Text>
+              )}
+            </View>
 
             <View className="w-full items-end pb-6">
               <Button
@@ -685,17 +760,49 @@ const About = () => {
                 variant="gradient"
                 onPress={async () => {
                   if (!aboutText && !voiceBioUri) {
-                    Alert.alert("Bio required", "Please add a text bio or record a voice bio.");
+                    Alert.alert("Bio required", "Please add a text bio, use AI, or record your voice.");
                     return;
                   }
 
-                  const bioData = {};
-                  if (aboutText) bioData.bio = aboutText;
-                  if (voiceBioUri) bioData.voiceBio = voiceBioUri;
+                  setSubmitting(true);
+                  try {
+                    const bioData = {};
+                    if (aboutText) {
+                      // Ensure bio isn't too long (backend limit is 500 chars)
+                      bioData.bio = aboutText.substring(0, 500);
+                    }
+                    
+                    if (voiceBioUri) {
+                      try {
+                        await profileService.uploadVoicePrompt(voiceBioUri);
+                        Alert.alert("✅ Voice bio submitted!", "Your recording has been saved successfully.");
+                      } catch (voiceErr) {
+                        console.error("Voice upload error:", voiceErr);
+                        const voiceErrorMsg = voiceErr?.response?.data?.message || "Could not save voice recording. Try text bio instead.";
+                        Alert.alert("Voice upload failed", voiceErrorMsg);
+                      }
+                    }
 
-                  await updateProfileStep(bioData);
-                  router.push("/profile-answers");
+                    // Only update profile with text bio - voice prompt has its own endpoint
+                    if (bioData.bio) {
+                      await updateProfileStep(bioData);
+                    } else if (!voiceBioUri) {
+                      // If no text bio and no voice, show error
+                      Alert.alert("Bio required", "Please add a text bio or record your voice.");
+                      setSubmitting(false);
+                      return;
+                    }
+                    
+                    router.push("/profile-answers");
+                  } catch (err) {
+                    console.error("Bio submission error:", err);
+                    const errorMsg = err?.response?.data?.errors?.[0]?.msg || err?.response?.data?.message || err?.message || "Failed to submit bio.";
+                    Alert.alert("Error", errorMsg);
+                  } finally {
+                    setSubmitting(false);
+                  }
                 }}
+                disabled={submitting}
               />
             </View>
           </View>

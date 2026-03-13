@@ -1,4 +1,3 @@
-import { Image } from "expo-image";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { ChevronLeft, Filter } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
@@ -23,8 +22,8 @@ import Animated, {
 import ActionButtons from "../../../../components/homeScreen/ActionButtons";
 import ProfileCard from "../../../../components/homeScreen/ProfileCard";
 import LogoLoader from "../../../../components/ui/LogoLoader";
+import VerifiedIcon from "../../../../components/ui/VerifiedIcon";
 import { colors } from "../../../../constant/colors";
-import { Icons } from "../../../../constant/icons";
 import { useProfile } from "../../../../context/ProfileContext";
 
 
@@ -296,10 +295,7 @@ const ProfileScreen = () => {
                 {currentProfile.age}
               </Text>
               {currentProfile.verified && (
-                <Image
-                  source={Icons.verified}
-                  style={{ width: 18, height: 18 }}
-                />
+                <VerifiedIcon style={{ width: 18, height: 18 }} />
               )}
             </View>
           </View>

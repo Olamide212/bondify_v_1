@@ -20,43 +20,43 @@ const lookupData = [
   { type: 'genders', value: 'Other',      label: 'Other',      order: 4 },
 
   // Gender preferences
-  { type: 'gender-preferences', value: 'Woman',    label: 'Woman',    order: 1 },
-  { type: 'gender-preferences', value: 'Man',      label: 'Man',      order: 2 },
-  { type: 'gender-preferences', value: 'Everyone', label: 'Everyone', order: 3 },
+  { type: 'gender-preferences', value: 'Woman',    label: 'Woman',    description: 'Interested in women',    order: 1 },
+  { type: 'gender-preferences', value: 'Man',      label: 'Man',      description: 'Interested in men',      order: 2 },
+  { type: 'gender-preferences', value: 'Everyone', label: 'Everyone', description: 'Open to all genders',   order: 3 },
 
   // Relationship status
-  { type: 'relationship-status', value: 'Never married', label: 'Never married', order: 1 },
-  { type: 'relationship-status', value: 'Divorced',      label: 'Divorced',      order: 2 },
-  { type: 'relationship-status', value: 'Separated',     label: 'Separated',     order: 3 },
-  { type: 'relationship-status', value: 'Annulled',      label: 'Annulled',      order: 4 },
-  { type: 'relationship-status', value: 'Widowed',       label: 'Widowed',       order: 5 },
+  { type: 'relationship-status', value: 'Never married', label: 'Never married', description: 'Looking to meet someone new',     order: 1 },
+  { type: 'relationship-status', value: 'Divorced',      label: 'Divorced',      description: 'Divorced or widowed',        order: 2 },
+  { type: 'relationship-status', value: 'Separated',     label: 'Separated',     description: 'In a complex situation',     order: 3 },
+  { type: 'relationship-status', value: 'Annulled',      label: 'Annulled',      description: 'Marriage was annulled',     order: 4 },
+  { type: 'relationship-status', value: 'Widowed',       label: 'Widowed',       description: 'No longer married',         order: 5 },
 
   // Looking for
-  { type: 'looking-for', value: 'Long term relationship',          label: 'Long term relationship',          order: 1 },
-  { type: 'looking-for', value: 'Something Casual',                label: 'Something Casual',                order: 2 },
-  { type: 'looking-for', value: 'Short term relationship',         label: 'Short term relationship',         order: 3 },
-  { type: 'looking-for', value: 'Meet business oriented people',   label: 'Meet business oriented people',   order: 4 },
-  { type: 'looking-for', value: 'I am not sure',                   label: 'I am not sure',                   order: 5 },
-  { type: 'looking-for', value: 'A Committed relationship',        label: 'A Committed relationship',        order: 6 },
-  { type: 'looking-for', value: 'Marriage',                        label: 'Marriage',                        order: 7 },
-  { type: 'looking-for', value: 'Friendship',                      label: 'Friendship',                      order: 8 },
-  { type: 'looking-for', value: 'Activity partner',                label: 'Activity partner',                order: 9 },
-  { type: 'looking-for', value: 'Just here for fun',               label: 'Just here for fun',               order: 10 },
-  { type: 'looking-for', value: 'Other',                           label: 'Other',                           order: 11 },
+  { type: 'looking-for', value: 'Long term relationship',          label: 'Long term relationship',          description: 'Looking for something serious and committed', order: 1 },
+  { type: 'looking-for', value: 'Something Casual',                label: 'Something Casual',                description: 'Keep it light and see where it goes',      order: 2 },
+  { type: 'looking-for', value: 'Short term relationship',         label: 'Short term relationship',         description: 'A relationship with defined timeframe',    order: 3 },
+  { type: 'looking-for', value: 'Meet business oriented people',   label: 'Meet business oriented people',   description: 'Connect with like-minded professionals',  order: 4 },
+  { type: 'looking-for', value: 'I am not sure',                   label: 'I am not sure',                   description: 'Still figuring out what I want',         order: 5 },
+  { type: 'looking-for', value: 'A Committed relationship',        label: 'A Committed relationship',        description: 'Looking for commitment',                   order: 6 },
+  { type: 'looking-for', value: 'Marriage',                        label: 'Marriage',                        description: 'Looking to get married',                  order: 7 },
+  { type: 'looking-for', value: 'Friendship',                      label: 'Friendship',                      description: 'Interested in meaningful connections',    order: 8 },
+  { type: 'looking-for', value: 'Activity partner',                label: 'Activity partner',                description: 'Find someone to enjoy activities with',   order: 9 },
+  { type: 'looking-for', value: 'Just here for fun',               label: 'Just here for fun',               description: 'Have fun and enjoy the experience',      order: 10 },
+  { type: 'looking-for', value: 'Other',                           label: 'Other',                           description: 'Something else not listed',              order: 11 },
 
   // Drinking habits
-  { type: 'drinking-habits', value: "No, I don't drink",   label: "No, I don't drink",   order: 1 },
-  { type: 'drinking-habits', value: 'Socially',            label: 'Socially',            order: 2 },
-  { type: 'drinking-habits', value: 'Rarely',              label: 'Rarely',              order: 3 },
-  { type: 'drinking-habits', value: 'Regularly',           label: 'Regularly',           order: 4 },
-  { type: 'drinking-habits', value: 'Prefer not to say',   label: 'Prefer not to say',   order: 5 },
+  { type: 'drinking-habits', value: "No, I don't drink",   label: "No, I don't drink",   description: "Don't drink alcohol",         order: 1 },
+  { type: 'drinking-habits', value: 'Socially',            label: 'Socially',            description: 'Only drink at social events', order: 2 },
+  { type: 'drinking-habits', value: 'Rarely',              label: 'Rarely',              description: 'Drink a few times a year',   order: 3 },
+  { type: 'drinking-habits', value: 'Regularly',           label: 'Regularly',           description: 'Drink several times a month',order: 4 },
+  { type: 'drinking-habits', value: 'Prefer not to say',   label: 'Prefer not to say',   description: 'Keep this private',         order: 5 },
 
   // Smoking habits
-  { type: 'smoking-habits', value: "No, I don't smoke", label: "No, I don't smoke", order: 1 },
-  { type: 'smoking-habits', value: 'Socially',          label: 'Socially',          order: 2 },
-  { type: 'smoking-habits', value: 'Occasionally',      label: 'Occasionally',      order: 3 },
-  { type: 'smoking-habits', value: 'Regularly',         label: 'Regularly',         order: 4 },
-  { type: 'smoking-habits', value: 'Prefer not to say', label: 'Prefer not to say', order: 5 },
+  { type: 'smoking-habits', value: "No, I don't smoke", label: "No, I don't smoke", description: "Don't smoke",                        order: 1 },
+  { type: 'smoking-habits', value: 'Socially',          label: 'Socially',          description: 'Smoke a few times a month',        order: 2 },
+  { type: 'smoking-habits', value: 'Occasionally',      label: 'Occasionally',      description: 'Smoke a few times a month',        order: 3 },
+  { type: 'smoking-habits', value: 'Regularly',         label: 'Regularly',         description: 'Smoke several times a week/daily', order: 4 },
+  { type: 'smoking-habits', value: 'Prefer not to say', label: 'Prefer not to say', description: 'Keep this private',               order: 5 },
 
   // ── NEW: Exercise habits ──────────────────────────────────────────────────
   { type: 'exercise-habits', value: 'Never',     label: 'Never',     order: 1 },
@@ -230,6 +230,87 @@ const lookupData = [
   { type: 'same-beliefs', value: 'Is very important',              label: 'Is very important',              order: 1 },
   { type: 'same-beliefs', value: 'Is quite important',             label: 'Is quite important',             order: 2 },
   { type: 'same-beliefs', value: "It doesn't matter to me at all", label: "It doesn't matter to me at all", order: 3 },
+
+  // ── NEW: Religion Practice ───────────────────────────────────────────────
+  {
+    type: 'religion-practice',
+    value: 'Very religious',
+    label: 'Very religious',
+    description: 'Faith is central to my life',
+    order: 1,
+  },
+  {
+    type: 'religion-practice',
+    value: 'Moderately religious',
+    label: 'Moderately religious',
+    description: 'I practice my faith regularly',
+    order: 2,
+  },
+  {
+    type: 'religion-practice',
+    value: 'Spiritual but not religious',
+    label: 'Spiritual but not religious',
+    description: "I'm spiritual but don't follow organized religion",
+    order: 3,
+  },
+  {
+    type: 'religion-practice',
+    value: 'Occasionally religious',
+    label: 'Occasionally religious',
+    description: 'I practice occasionally, not regularly',
+    order: 4,
+  },
+  {
+    type: 'religion-practice',
+    value: 'Non-religious',
+    label: 'Non-religious',
+    description: 'Religion is not part of my life',
+    order: 5,
+  },
+  {
+    type: 'religion-practice',
+    value: 'Prefer not to say',
+    label: 'Prefer not to say',
+    description: 'Keep this private',
+    order: 6,
+  },
+
+  // ── NEW: Relocation Preference ───────────────────────────────────────────
+  {
+    type: 'relocation-preference',
+    value: 'Yes, definitely',
+    label: 'Yes, definitely',
+    description: "I'm open to moving for the right person",
+    order: 1,
+  },
+  {
+    type: 'relocation-preference',
+    value: 'Maybe',
+    label: 'Maybe',
+    description: 'I\'d consider it depending on circumstances',
+    order: 2,
+  },
+  {
+    type: 'relocation-preference',
+    value: 'Probably not',
+    label: 'Probably not',
+    description: "I'm unlikely to move but haven't ruled it out",
+    order: 3,
+  },
+  {
+    type: 'relocation-preference',
+    value: 'No',
+    label: 'No',
+    description: 'My location is important, I won\'t relocate',
+    order: 4,
+  },
+  {
+    type: 'relocation-preference',
+    value: 'Prefer not to say',
+    label: 'Prefer not to say',
+    description: 'Keep this private',
+    order: 5,
+  },
 ];
 
 const nationalityData = [

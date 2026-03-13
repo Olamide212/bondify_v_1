@@ -1,11 +1,13 @@
-import { Image } from "react-native";
-import React from "react";
+import { ShieldCheck } from "lucide-react-native";
+import { colors } from "../../constant/colors";
 
 const VerifiedIcon = ({ style }) => {
   return (
-    <Image
-      source={require("../../assets/icons/verified-icon.png")}
-      style={[{ width: 23, height: 23, resizeMode: "contain" }, style]}
+    <ShieldCheck
+      size={23}
+      color={colors.primary}
+      strokeWidth={2}
+      style={style}
     />
   );
 };

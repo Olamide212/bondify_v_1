@@ -497,6 +497,10 @@ const userSchema = new mongoose.Schema(
       // Must match same-beliefs seed values exactly
       enum: ['Is very important', 'Is quite important', "It doesn't matter to me at all"],
     },
+    religionPractice: {
+      type: String,
+      enum: ['Very religious', 'Moderately religious', 'Spiritual but not religious', 'Occasionally religious', 'Non-religious', 'Prefer not to say'],
+    },
     zodiacSign: { type: String },
     languages:  [{ type: String }],
 
@@ -524,6 +528,10 @@ const userSchema = new mongoose.Schema(
       type: String,
       // Must match family-plans seed values exactly
       enum: ['I want kids', 'I have kids', "I don't want kids", 'I am open to kids', 'I prefer not to say'],
+    },
+    willRelocateForMarriage: {
+      type: String,
+      enum: ['Yes, definitely', 'Maybe', 'Probably not', 'No', 'Prefer not to say'],
     },
 
     // Relationship Preferences

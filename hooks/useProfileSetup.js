@@ -6,6 +6,7 @@ import { clearOnboardingToken } from "../slices/authSlice";
 import { tokenManager } from "../utils/tokenManager";
 
 const ONBOARDING_STEPS = [
+  "agreement",
   "age",
   // "height",
   "gender",
@@ -16,6 +17,8 @@ const ONBOARDING_STEPS = [
   "preference",
   "religion",
   "religion-question",
+  "religion-practice",
+  "relocation-preference",
   "education",
   "occupation",
   "smoke",

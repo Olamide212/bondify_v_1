@@ -32,12 +32,13 @@ if (__DEV__) {
 }
 
 // Create axios instance
+// Note: we avoid a default Content-Type header so multipart/form-data
+// requests (FormData uploads) aren’t accidentally sent as JSON.
 const apiClient = axios.create({
   baseURL: BASE_URL,
   // timeout: 30000,
-  headers: {
-    "Content-Type": "application/json",
-  },
+  // no default headers -> axios will set Content-Type automatically based
+  // on the request body (JSON for objects, multipart boundary for FormData)
 });
 
 

@@ -181,19 +181,38 @@ const completeOnboarding = async () => {
   }
 };
 
+const compressImage = async (uri) => {
+  try {
+    const { manipulate } = await import("expo-image-manipulator");
+    const result = await manipulate(
+      uri,
+      [{ resize: { width: 1200, height: 1600 } }],
+      { compress: 0.7, format: "jpeg" }
+    );
+    return result.uri;
+  } catch (err) {
+    console.warn("Image compression failed, using original:", err);
+    return uri;
+  }
+};
+
 const uploadPhotos = async (photoUris) => {
   try {
     const formData = new FormData();
-    photoUris.forEach((uri, index) => {
-      const filename = uri.split("/").pop();
+    
+    // Compress all images before uploading
+    for (let i = 0; i < photoUris.length; i++) {
+      const compressedUri = await compressImage(photoUris[i]);
+      const filename = compressedUri.split("/").pop() || `photo_${i}.jpg`;
       const match = /\.(\w+)$/.exec(filename);
       const type = match ? `image/${match[1]}` : "image/jpeg";
+      
       formData.append("photos", {
-        uri,
-        name: filename || `photo_${index}.jpg`,
+        uri: compressedUri,
+        name: filename,
         type,
       });
-    });
+    }
 
     const response = await apiClient.post("/upload/photos", formData, {
       headers: { "Content-Type": "multipart/form-data" },

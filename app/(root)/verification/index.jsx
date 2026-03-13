@@ -286,7 +286,8 @@ export default function VerificationScreen() {
       // Correct endpoint: verificationRoutes mounted at /api/verification
       await apiClient.post("/verification/verify", formData, {
         headers: {
-          // Do NOT set Content-Type for FormData — axios sets it with the correct boundary
+          // force multipart; our instance previously defaulted to application/json
+          "Content-Type": "multipart/form-data",
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
       });

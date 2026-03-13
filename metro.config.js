@@ -32,4 +32,28 @@ config.resolver = {
   sourceExts: [...config.resolver.sourceExts, "svg"],
 };
 
+// --- resolve workaround for react-async-hook package ---
+const path = require('path');
+
+// extraNodeModules ensures metro treats imports as pointing to a concrete file
+config.resolver.extraNodeModules = {
+  ...(config.resolver.extraNodeModules || {}),
+  'react-async-hook': path.resolve(__dirname, 'node_modules/react-async-hook/dist/index.js'),
+};
+
+// override resolveRequest to bypass the broken "module" field
+const originalResolve = config.resolver.resolveRequest;
+config.resolver.resolveRequest = (context, moduleName, platform) => {
+  if (moduleName === 'react-async-hook') {
+    return {
+      filePath: path.resolve(__dirname, 'node_modules/react-async-hook/dist/index.js'),
+      type: 'sourceFile',
+    };
+  }
+  if (originalResolve) {
+    return originalResolve(context, moduleName, platform);
+  }
+  return context.resolveRequest(context, moduleName, platform);
+};
+
 module.exports = withNativeWind(config, { input: "./global.css" });

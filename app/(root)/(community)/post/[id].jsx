@@ -1,28 +1,29 @@
-import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  FlatList,
-  SafeAreaView,
-  StatusBar,
-  Image,
-  TouchableOpacity,
-  TextInput,
-  KeyboardAvoidingView,
-  Platform,
-} from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import {
-  Heart,
-  MessageCircle,
-  Share,
-  ChevronLeft,
-  Send,
-  MoreHorizontal,
-  X
+    ChevronLeft,
+    Heart,
+    MessageCircle,
+    MoreHorizontal,
+    Send,
+    Share,
+    X
 } from "lucide-react-native";
+import { useEffect, useState } from "react";
+import {
+    FlatList,
+    Image,
+    KeyboardAvoidingView,
+    Platform,
+    SafeAreaView,
+    StatusBar,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
+} from "react-native";
 import Comment from "../../../../components/community/Comment";
 import { styles } from "../../../../components/community/styles/communityStyles";
+import VerifiedIcon from "../../../../components/ui/VerifiedIcon";
 
 const PostDetailScreen = () => {
   const { id } = useLocalSearchParams();
@@ -254,10 +255,7 @@ const PostDetailScreen = () => {
                   <Text style={styles.postTime}>{post.time}</Text>
                 </View>
                 {post.user.verified && (
-                  <Image
-                    source={require("../../../../assets/icons/verified-icon.png")}
-                    style={styles.verifiedIcon}
-                  />
+                  <VerifiedIcon style={styles.verifiedIcon} />
                 )}
               </View>
 
