@@ -1,5 +1,5 @@
 // components/Header.js
-import { ArrowLeft, MoreVertical, User } from "lucide-react-native";
+import { ArrowLeft, BadgeCheck, MoreVertical, User } from "lucide-react-native";
 import React from "react";
 import { ActivityIndicator, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { colors } from "../../constant/colors";
@@ -65,21 +65,31 @@ const ChatHeader = ({ matchedUser, onBack, onOpenProfile, onOpenActions }) => {
         </View>
         </TouchableOpacity>
         <View style={styles.userInfo}>
-          <Text style={styles.userName} className='capitalize'>{getFirstName(matchedUser.name)}</Text>
+          <View style={styles.nameRow}>
+            <Text style={styles.userName} className='capitalize'>{getFirstName(matchedUser.name)}</Text>
+            {matchedUser.isSystem && (
+              <BadgeCheck size={18} color="#1D9BF0" style={{ marginLeft: 4 }} />
+            )}
+          </View>
           <View style={styles.statusContainer}>
-            {matchedUser.isOnline && (
+            {matchedUser.isOnline && !matchedUser.isSystem && (
               <>
                 <Text style={styles.onlineText} className='uppercase text-primary'>Active Now</Text>
               </>
             )}
+            {matchedUser.isSystem && (
+              <Text style={styles.systemText}>Bondify Team</Text>
+            )}
           </View>
         </View>
       </View>
-      <View className="flex-row">
-        <TouchableOpacity onPress={onOpenActions}>
-          <MoreVertical color={colors.primary} />
-        </TouchableOpacity>
-      </View>
+      {!matchedUser.isSystem && onOpenActions && (
+        <View className="flex-row">
+          <TouchableOpacity onPress={onOpenActions}>
+            <MoreVertical color={colors.primary} />
+          </TouchableOpacity>
+        </View>
+      )}
     </View>
   );
 };
@@ -139,6 +149,10 @@ const styles = StyleSheet.create({
     flex: 1,
     marginLeft: 12,
   },
+  nameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   userName: {
     fontSize: 18,
 fontFamily: fonts.PlusJakartaSansMedium,
@@ -156,6 +170,11 @@ fontFamily: fonts.PlusJakartaSansMedium,
   offlineText: {
     color: "#9CA3AF",
     fontSize: 12,
+  },
+  systemText: {
+    color: "#1D9BF0",
+    fontSize: 12,
+    fontFamily: fonts.PlusJakartaSansMedium,
   },
 });
 

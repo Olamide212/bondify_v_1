@@ -4,10 +4,12 @@ const {
   getMessages,
   sendMessage,
   deleteMessage,
+  sendDirectMessage,
 } = require('../controllers/messageController');
 const { protect } = require('../middleware/auth');
 const { messageSendLimiter } = require('../middleware/rateLimiters');
 
+router.post('/direct/:userId', protect, messageSendLimiter, sendDirectMessage);
 router.get('/:matchId', protect, getMessages);
 router.post('/:matchId', protect, messageSendLimiter, sendMessage);
 router.delete('/:messageId', protect, deleteMessage);

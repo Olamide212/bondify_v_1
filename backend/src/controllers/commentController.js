@@ -1,15 +1,16 @@
 const Comment  = require('../models/Comment');
 const Match    = require('../models/Match');
 const User     = require('../models/User');
+const { getIO } = require('../socket');
 
 // Helper — send in-app socket notification to the target user if they're online.
-// Adjust the import path to wherever your socketService / io instance lives.
-let io;
-try { io = require('../socket').io; } catch { io = null; }
-
 const emitNotification = (userId, payload) => {
-  if (!io) return;
-  io.to(String(userId)).emit('notification:new', payload);
+  try {
+    const io = getIO();
+    io.to(`user:${String(userId)}`).emit('notification:new', payload);
+  } catch {
+    // Socket may not be initialized
+  }
 };
 
 // ─────────────────────────────────────────────────────────────────────────────

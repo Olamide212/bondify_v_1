@@ -35,7 +35,7 @@ export default function AuthLayout() {
     if (onboardingToken && !isOnboarding && !isPreAuthScreen) {
       const redirectToOnboarding = async () => {
         const lastStep = await SecureStore.getItemAsync("onboardingStep");
-        router.replace(lastStep ? `/(onboarding)/${lastStep}` : "/(onboarding)/age");
+        router.replace(lastStep ? `/(onboarding)/${lastStep}` : "/(onboarding)/agreement");
       };
 
       redirectToOnboarding();

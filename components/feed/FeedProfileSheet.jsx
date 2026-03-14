@@ -28,6 +28,8 @@ const displayName = (user) =>
 const FeedProfileSheet = ({ visible, user, onClose, onUpdate }) => {
   const [userName, setUserName] = useState(user?.userName ?? "");
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [localAvatarUri, setLocalAvatarUri] = useState(null);
   const [activeTab, setActiveTab] = useState("posts");
   const [savedPosts, setSavedPosts] = useState([]);
   const [userPosts, setUserPosts] = useState([]);
@@ -37,6 +39,7 @@ const FeedProfileSheet = ({ visible, user, onClose, onUpdate }) => {
   useEffect(() => {
     if (!visible || !user?._id) return;
     setUserName(user.userName ?? "");
+    setLocalAvatarUri(null);
     setLoadingData(true);
     Promise.all([
       feedService.getUserProfile(user._id).catch(() => null),
@@ -69,6 +72,8 @@ const FeedProfileSheet = ({ visible, user, onClose, onUpdate }) => {
     const fileName = uri.split("/").pop() || "photo.jpg";
     const mimeType = asset.mimeType || "image/jpeg";
 
+    setUploading(true);
+    setLocalAvatarUri(uri);
     try {
       const formData = new FormData();
       formData.append("profilePhoto", {
@@ -86,9 +91,13 @@ const FeedProfileSheet = ({ visible, user, onClose, onUpdate }) => {
         res.data?.data?.user?.profilePhoto ??
         uri;
 
+      setLocalAvatarUri(uploadedUrl);
       onUpdate?.({ profilePhoto: uploadedUrl });
     } catch (e) {
+      setLocalAvatarUri(null);
       Alert.alert("Error", e?.response?.data?.message ?? "Could not update photo.");
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -111,9 +120,9 @@ const FeedProfileSheet = ({ visible, user, onClose, onUpdate }) => {
     <BaseModal visible={visible} onClose={onClose}>
       {/* Profile header */}
       <View style={styles.profileHead}>
-        <TouchableOpacity onPress={handlePickPhoto} style={styles.avatarWrap}>
-          {avatarUrl(user) ? (
-            <Image source={{ uri: avatarUrl(user) }} style={styles.avatar} />
+        <TouchableOpacity onPress={handlePickPhoto} style={styles.avatarWrap} disabled={uploading}>
+          {(localAvatarUri || avatarUrl(user)) ? (
+            <Image source={{ uri: localAvatarUri || avatarUrl(user) }} style={styles.avatar} />
           ) : (
             <View style={[styles.avatar, styles.avatarFallback]}>
               <Text style={styles.avatarInitial}>
@@ -121,9 +130,15 @@ const FeedProfileSheet = ({ visible, user, onClose, onUpdate }) => {
               </Text>
             </View>
           )}
-          <View style={styles.cameraOverlay}>
-            <Plus size={14} color="#fff" />
-          </View>
+          {uploading ? (
+            <View style={styles.uploadingOverlay}>
+              <ActivityIndicator size="small" color="#fff" />
+            </View>
+          ) : (
+            <View style={styles.cameraOverlay}>
+              <Plus size={14} color="#fff" />
+            </View>
+          )}
         </TouchableOpacity>
 
         <View style={styles.profileInfo}>
@@ -246,6 +261,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderWidth: 2,
     borderColor: "#fff",
+  },
+  uploadingOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    borderRadius: 36,
+    backgroundColor: "rgba(0,0,0,0.45)",
+    justifyContent: "center",
+    alignItems: "center",
   },
   profileInfo: { flex: 1 },
   realName: {

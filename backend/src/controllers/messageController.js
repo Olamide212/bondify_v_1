@@ -312,8 +312,109 @@ const deleteMessage = async (req, res, next) => {
   }
 };
 
+// @desc    Send a direct message to any user (no match required)
+// @route   POST /api/messages/direct/:userId
+// @access  Private
+const sendDirectMessage = async (req, res, next) => {
+  try {
+    const io = getIO();
+    const senderId = req.user._id;
+    const { userId: receiverId } = req.params;
+    const { content, type = 'text' } = req.body;
+    const normalizedContent = typeof content === 'string' ? content.trim() : '';
+
+    if (!normalizedContent) {
+      return res.status(400).json({ success: false, message: 'Message content is required.' });
+    }
+
+    if (String(senderId) === String(receiverId)) {
+      return res.status(400).json({ success: false, message: 'Cannot send a message to yourself.' });
+    }
+
+    const receiver = await User.findById(receiverId).select('firstName lastName name online').lean();
+    if (!receiver) {
+      return res.status(404).json({ success: false, message: 'User not found.' });
+    }
+
+    // Find or create a pending conversation between the two users (order-stable key)
+    const [u1, u2] = [String(senderId), String(receiverId)].sort();
+    let match = await Match.findOneAndUpdate(
+      { user1: u1, user2: u2 },
+      {
+        $setOnInsert: {
+          user1:       u1,
+          user2:       u2,
+          status:      'pending',
+          initiatedBy: senderId,
+        },
+      },
+      { upsert: true, new: true }
+    );
+
+    // Update last activity
+    match.lastMessageAt = new Date();
+    const isUser1Sender = String(u1) === String(senderId);
+    if (isUser1Sender) {
+      match.unreadCount.user2 = (match.unreadCount.user2 || 0) + 1;
+    } else {
+      match.unreadCount.user1 = (match.unreadCount.user1 || 0) + 1;
+    }
+    await match.save();
+
+    const message = await Message.create({
+      match:     match._id,
+      sender:    senderId,
+      receiver:  receiverId,
+      content:   normalizedContent,
+      type,
+      delivered: true,
+      deliveredAt: new Date(),
+    });
+
+    await message.populate('sender', 'firstName lastName name images');
+    await message.populate('receiver', 'firstName lastName name images');
+
+    const messagePayload = message.toObject();
+    const senderName =
+      messagePayload.sender?.name ||
+      [messagePayload.sender?.firstName, messagePayload.sender?.lastName].filter(Boolean).join(' ') ||
+      'Someone';
+
+    // Emit to receiver's personal room
+    io.to(`user:${String(receiverId)}`).emit('message:new', {
+      matchId: String(match._id),
+      message: messagePayload,
+      isDirect: true,
+    });
+
+    // Emit a notification to the receiver with view-profile CTA
+    io.to(`user:${String(receiverId)}`).emit('notification:new', {
+      id:        String(message._id),
+      type:      'direct_message',
+      matchId:   String(match._id),
+      senderId:  String(senderId),
+      title:     senderName,
+      body:      normalizedContent,
+      createdAt: new Date().toISOString(),
+      cta:       'view_profile',
+    });
+
+    return res.status(201).json({
+      success: true,
+      message: 'Direct message sent successfully.',
+      data: {
+        matchId: String(match._id),
+        message: messagePayload,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getMessages,
   sendMessage,
   deleteMessage,
+  sendDirectMessage,
 };
