@@ -148,7 +148,7 @@ export default function TabsLayout() {
         <Tabs.Screen
           name="feed"
           options={{
-            title: "Feed",
+            title: "BonFeed",
             tabBarIcon: ({ focused }) => <FeedTabIcon focused={focused} />,
           }}
         />
