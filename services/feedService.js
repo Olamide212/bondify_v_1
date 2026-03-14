@@ -84,6 +84,12 @@ const feedService = {
     return res.data;
   },
 
+  /** Get the current user's own social profile (profilePhoto, userName, stats). */
+  getSocialProfile: async () => {
+    const res = await apiClient.get('/feed/social-profile');
+    return res.data;
+  },
+
   /** Toggle like on a comment. */
   toggleCommentLike: async (postId, commentId) => {
     const res = await apiClient.post(`/feed/${postId}/comments/${commentId}/like`);

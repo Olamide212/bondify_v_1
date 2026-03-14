@@ -1,5 +1,6 @@
 // components/ChatScreen.js
 
+import { Audio } from "expo-av";
 import { useRouter } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
@@ -29,6 +30,27 @@ import MessageBubble from "./MessageBubble";
 
 const MESSAGE_PAGE_SIZE = 20;
 const LOAD_OLDER_TRIGGER_PX = 140;
+
+// Play the message sent sound (fire-and-forget, errors are swallowed)
+const playSentSound = async () => {
+  let sound;
+  try {
+    const result = await Audio.Sound.createAsync(
+      require("../../assets/sounds/match.wav"),
+      { volume: 0.4 }
+    );
+    sound = result.sound;
+    await sound.playAsync();
+    sound.setOnPlaybackStatusUpdate((status) => {
+      if (status.didJustFinish) {
+        sound.unloadAsync().catch(() => {});
+      }
+    });
+  } catch {
+    // non-critical: ignore audio errors
+    if (sound) sound.unloadAsync().catch(() => {});
+  }
+};
 
 const ChatScreen = ({ matchedUser, onBack }) => {
   const [isTyping, setIsTyping] = useState(false);
@@ -365,6 +387,8 @@ const ChatScreen = ({ matchedUser, onBack }) => {
       setMessages((prev) =>
         prev.map((msg) => (msg.id === tempId ? normalizedMessage : msg))
       );
+      // Play sent sound (non-blocking)
+      playSentSound();
     } catch (error) {
       setMessages((prev) => prev.filter((msg) => msg.id !== tempId));
       console.error("Failed to send message:", {
@@ -482,6 +506,7 @@ const ChatScreen = ({ matchedUser, onBack }) => {
           onBack={() => onBack?.()}
           onOpenProfile={openProfile}
           onOpenActions={matchedUser?.isSystem ? undefined : () => setIsActionsModalVisible(true)}
+          onUnmatch={matchedUser?.isSystem ? undefined : () => router.push("/unmatched-users")}
         />
 
         <ScrollView

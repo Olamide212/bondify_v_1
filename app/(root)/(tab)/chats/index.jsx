@@ -195,6 +195,7 @@ export default function Chat() {
         profileImage: user.profileImage ?? "",
         isOnline:     String(user.isOnline ?? false),
         isSystem:     String(user.isSystem ?? false),
+        isVerified:   String(user.isVerified ?? false),
       },
     });
   };

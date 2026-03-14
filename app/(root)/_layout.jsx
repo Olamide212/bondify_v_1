@@ -61,6 +61,8 @@ export default function _layout() {
       <Stack.Screen name="(discover)" />
       <Stack.Screen name="user-profile"  />
       <Stack.Screen name="(settings)" />
+      <Stack.Screen name="feed-profile" />
+      <Stack.Screen name="unmatched-users" />
 
       <Stack.Screen
         name="filter"

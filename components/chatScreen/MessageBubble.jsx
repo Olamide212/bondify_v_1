@@ -2,8 +2,23 @@
 import { createAudioPlayer, setAudioModeAsync } from 'expo-audio';
 import { Check, CheckCheck, Mic, Pause, Play, User } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
-import { ActivityIndicator, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  ActivityIndicator,
+  Alert,
+  Clipboard,
+  Image,
+  Modal,
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text,
+  ToastAndroid,
+  TouchableOpacity,
+  View
+} from "react-native";
 import { colors } from "../../constant/colors";
+
+const EMOJI_REACTIONS = ["❤️", "😂", "😮", "😢", "👏", "🔥"];
 
 const formatMessageDateTime = (value) => {
   const date = value instanceof Date ? value : new Date(value);
@@ -17,10 +32,12 @@ const formatMessageDateTime = (value) => {
   });
 };
 
-const MessageBubble = ({ message }) => {
+const MessageBubble = ({ message, onReply }) => {
   const [isPlayingVoice, setIsPlayingVoice] = useState(false);
   const [isImageLoading, setIsImageLoading] = useState(Boolean(message.imageUrl));
   const [imageFailed, setImageFailed] = useState(!message.imageUrl);
+  const [menuVisible, setMenuVisible] = useState(false);
+  const [reaction, setReaction] = useState(null);
   const playerRef = useRef(null);
 
   useEffect(() => {
@@ -86,6 +103,25 @@ const MessageBubble = ({ message }) => {
     }
   };
 
+  const handleCopy = async () => {
+    if (!message.text) return;
+    Clipboard.setString(message.text);
+    setMenuVisible(false);
+    if (Platform.OS === "android") {
+      ToastAndroid.show("Copied!", ToastAndroid.SHORT);
+    }
+  };
+
+  const handleReply = () => {
+    setMenuVisible(false);
+    onReply?.(message);
+  };
+
+  const handleReaction = (emoji) => {
+    setReaction(emoji);
+    setMenuVisible(false);
+  };
+
   return (
     <View
       style={[
@@ -93,52 +129,66 @@ const MessageBubble = ({ message }) => {
         message.sender === "me" ? styles.myContainer : styles.theirContainer,
       ]}
     >
-      {message.type === "text" && (
-        <View
-          style={[
-            styles.bubble,
-            message.sender === "me" ? styles.myBubble : styles.theirBubble,
-          ]}
-        >
-          <Text
-            style={[
-              styles.text,
-              message.sender === "me" ? styles.myText : styles.theirText,
-            ]}
-          >
-            {message.text}
-          </Text>
+      {/* Reaction badge */}
+      {reaction && (
+        <View style={[
+          styles.reactionBadge,
+          message.sender === "me" ? styles.reactionBadgeLeft : styles.reactionBadgeRight,
+        ]}>
+          <Text style={styles.reactionEmoji}>{reaction}</Text>
         </View>
       )}
 
-      {message.type === "image" && (
-        <View style={styles.imageWrapper}>
-          {!imageFailed && message.imageUrl ? (
-            <Image
-              source={{ uri: message.imageUrl }}
-              style={styles.image}
-              onLoadStart={() => {
-                setIsImageLoading(true);
-                setImageFailed(false);
-              }}
-              onLoadEnd={() => setIsImageLoading(false)}
-              onError={() => {
-                setIsImageLoading(false);
-                setImageFailed(true);
-              }}
-            />
-          ) : (
-            <View style={[styles.image, styles.imagePlaceholder]}>
-              <User size={22} color="#94A3B8" />
-            </View>
-          )}
+      {message.type === "text" && (
+        <Pressable onLongPress={() => setMenuVisible(true)}>
+          <View
+            style={[
+              styles.bubble,
+              message.sender === "me" ? styles.myBubble : styles.theirBubble,
+            ]}
+          >
+            <Text
+              style={[
+                styles.text,
+                message.sender === "me" ? styles.myText : styles.theirText,
+              ]}
+            >
+              {message.text}
+            </Text>
+          </View>
+        </Pressable>
+      )}
 
-          {isImageLoading && (
-            <View style={styles.imageLoadingOverlay}>
-              <ActivityIndicator size="small" color={colors.primary} />
-            </View>
-          )}
-        </View>
+      {message.type === "image" && (
+        <Pressable onLongPress={() => setMenuVisible(true)}>
+          <View style={styles.imageWrapper}>
+            {!imageFailed && message.imageUrl ? (
+              <Image
+                source={{ uri: message.imageUrl }}
+                style={styles.image}
+                onLoadStart={() => {
+                  setIsImageLoading(true);
+                  setImageFailed(false);
+                }}
+                onLoadEnd={() => setIsImageLoading(false)}
+                onError={() => {
+                  setIsImageLoading(false);
+                  setImageFailed(true);
+                }}
+              />
+            ) : (
+              <View style={[styles.image, styles.imagePlaceholder]}>
+                <User size={22} color="#94A3B8" />
+              </View>
+            )}
+
+            {isImageLoading && (
+              <View style={styles.imageLoadingOverlay}>
+                <ActivityIndicator size="small" color={colors.primary} />
+              </View>
+            )}
+          </View>
+        </Pressable>
       )}
 
       {message.type === "voice" && (
@@ -148,6 +198,7 @@ const MessageBubble = ({ message }) => {
             message.sender === "me" ? styles.myVoice : styles.theirVoice,
           ]}
           onPress={handleVoicePress}
+          onLongPress={() => setMenuVisible(true)}
           activeOpacity={0.8}
         >
           {isPlayingVoice ? (
@@ -188,6 +239,46 @@ const MessageBubble = ({ message }) => {
         {/* <Text style={styles.time}>{formatMessageDateTime(message.timestamp)}</Text> */}
         {message.sender === "me" && getStatusIcon(message.status)}
       </View>
+
+      {/* Context menu modal */}
+      <Modal
+        visible={menuVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setMenuVisible(false)}
+      >
+        <Pressable style={styles.menuBackdrop} onPress={() => setMenuVisible(false)}>
+          <View style={styles.menuSheet}>
+            {/* Emoji reactions row */}
+            <View style={styles.reactionsRow}>
+              {EMOJI_REACTIONS.map((emoji) => (
+                <TouchableOpacity
+                  key={emoji}
+                  style={styles.emojiBtn}
+                  onPress={() => handleReaction(emoji)}
+                >
+                  <Text style={styles.emojiText}>{emoji}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+            <View style={styles.menuDivider} />
+            {/* Actions */}
+            {onReply && (
+              <TouchableOpacity style={styles.menuItem} onPress={handleReply}>
+                <Text style={styles.menuItemText}>↩ Reply</Text>
+              </TouchableOpacity>
+            )}
+            {message.type === "text" && (
+              <TouchableOpacity style={styles.menuItem} onPress={handleCopy}>
+                <Text style={styles.menuItemText}>📋 Copy</Text>
+              </TouchableOpacity>
+            )}
+            <TouchableOpacity style={styles.menuItem} onPress={() => setMenuVisible(false)}>
+              <Text style={[styles.menuItemText, { color: "#9CA3AF" }]}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </Pressable>
+      </Modal>
     </View>
   );
 };
@@ -294,6 +385,65 @@ const styles = StyleSheet.create({
     color: "#9CA3AF",
     fontSize: 12,
     marginRight: 4,
+  },
+  // Context menu
+  menuBackdrop: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.4)",
+    justifyContent: "flex-end",
+  },
+  menuSheet: {
+    backgroundColor: "#fff",
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingTop: 16,
+    paddingBottom: Platform.OS === "ios" ? 34 : 16,
+    paddingHorizontal: 16,
+  },
+  reactionsRow: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    paddingVertical: 12,
+  },
+  emojiBtn: {
+    padding: 6,
+  },
+  emojiText: {
+    fontSize: 28,
+  },
+  menuDivider: {
+    height: 1,
+    backgroundColor: "#F0F0F0",
+    marginVertical: 8,
+  },
+  menuItem: {
+    paddingVertical: 14,
+    paddingHorizontal: 4,
+  },
+  menuItemText: {
+    fontSize: 16,
+    color: "#111",
+    fontFamily: "PlusJakartaSans",
+  },
+  reactionBadge: {
+    position: "absolute",
+    bottom: -6,
+    zIndex: 10,
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    paddingHorizontal: 4,
+    paddingVertical: 2,
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+  },
+  reactionBadgeLeft: {
+    left: 20,
+  },
+  reactionBadgeRight: {
+    right: 20,
+  },
+  reactionEmoji: {
+    fontSize: 14,
   },
 });
 

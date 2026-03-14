@@ -15,6 +15,7 @@ const {
   toggleFollow,
   getSavedPosts,
   getUserPosts,
+  getSocialProfile,
   updateSocialProfile,
   uploadSocialPhoto,
 } = require('../controllers/feedController');
@@ -25,6 +26,7 @@ router.use(protect);
 router.get('/',                          getFeed);
 router.post('/',                         createPost);
 router.get('/saved',                     getSavedPosts);
+router.get('/social-profile',            getSocialProfile);
 router.patch('/social-profile',                        updateSocialProfile);
 router.post('/social-profile/photo', upload.single('profilePhoto'), uploadSocialPhoto);
 router.get('/profile/:userId',           getUserPosts);

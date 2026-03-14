@@ -225,6 +225,20 @@ const getUserPosts = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
+// ─── GET /api/feed/social-profile ── current user's social profile ───────────
+const getSocialProfile = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id)
+      .select(AUTHOR_SELECT)
+      .lean();
+    if (!user) return res.status(404).json({ success: false, message: 'User not found.' });
+    const followersCount = await Follow.countDocuments({ following: req.user._id });
+    const followingCount = await Follow.countDocuments({ follower: req.user._id });
+    const postsCount     = await Post.countDocuments({ author: req.user._id, isPublic: true });
+    res.json({ success: true, data: { ...user, followersCount, followingCount, postsCount } });
+  } catch (err) { next(err); }
+};
+
 // ─── PATCH /api/feed/social-profile ─── update userName ─────────────────────
 const updateSocialProfile = async (req, res, next) => {
   try {
@@ -296,6 +310,7 @@ module.exports = {
   toggleFollow,
   getSavedPosts,
   getUserPosts,
+  getSocialProfile,
   updateSocialProfile,
   uploadSocialPhoto,
 };

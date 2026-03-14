@@ -608,4 +608,42 @@ const getInteractionStatus = async (req, res, next) => {
 // The sorted upsert in performAction now guarantees user1 < user2 alphabetically,
 // so the existing unique index will correctly catch any remaining race conditions.
 
-module.exports = { getMatches, getMatch, unmatch, getInteractionStatus };
+// ── GET /api/matches/unmatched ── list of users the current user has unmatched ─
+const getUnmatchedUsers = async (req, res, next) => {
+  try {
+    const userId = req.user._id;
+
+    const unmatches = await Match.find({
+      $or: [{ user1: userId }, { user2: userId }],
+      status: 'unmatched',
+    })
+      .populate('user1', 'firstName lastName name images verified')
+      .populate('user2', 'firstName lastName name images verified')
+      .sort({ updatedAt: -1 })
+      .lean();
+
+    const formatted = unmatches.map((match) => {
+      const isUser1 = match.user1._id.toString() === userId.toString();
+      const other   = isUser1 ? match.user2 : match.user1;
+      const images  = Array.isArray(other.images)
+        ? other.images
+            .map((img) => (typeof img === 'string' ? img : img?.url || img?.secure_url))
+            .filter(Boolean)
+        : [];
+      return {
+        matchId:      match._id,
+        unmatchedAt:  match.updatedAt,
+        user: {
+          _id:        other._id,
+          name:       [other.firstName, other.lastName].filter(Boolean).join(' ') || other.name || 'User',
+          profileImage: images[0] || null,
+          verified:   other.verified,
+        },
+      };
+    });
+
+    res.json({ success: true, data: formatted });
+  } catch (error) { next(error); }
+};
+
+module.exports = { getMatches, getMatch, unmatch, getUnmatchedUsers, getInteractionStatus };

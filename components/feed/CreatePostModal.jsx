@@ -1,4 +1,5 @@
 import * as ImagePicker from "expo-image-picker";
+import { Audio } from "expo-av";
 import { ChevronLeft, ImagePlus, Sparkles, X } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import {
@@ -77,6 +78,21 @@ const CreatePostModal = ({ visible, onClose, onCreated }) => {
         }
       }
       const res = await feedService.createPost({ content: text.trim(), mediaUrls });
+      // Play success sound
+      let postSound;
+      try {
+        const result = await Audio.Sound.createAsync(
+          require("../../assets/sounds/match.wav"),
+          { volume: 0.6 }
+        );
+        postSound = result.sound;
+        await postSound.playAsync();
+        postSound.setOnPlaybackStatusUpdate((status) => {
+          if (status.didJustFinish) postSound.unloadAsync().catch(() => {});
+        });
+      } catch {
+        if (postSound) postSound.unloadAsync().catch(() => {});
+      }
       onCreated(res.data);
       setText("");
       setSuggestions([]);
