@@ -1,6 +1,6 @@
 import { Tabs } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { Bot, Send } from "lucide-react-native";
+import { Bot, LayoutGrid, Send } from "lucide-react-native";
 import { useState } from "react";
 import { Image, Platform, Pressable, StyleSheet, View } from "react-native";
 import IceBreakerModal from "../../../components/modals/IceBreakerModal";
@@ -26,6 +26,14 @@ const AIChatTabIcon = ({ focused }) => {
   return (
     <View style={styles.tabIconContainer}>
       <Bot size={24} color={focused ? colors.activePrimary : colors.inactiveTab} />
+    </View>
+  );
+};
+
+const FeedTabIcon = ({ focused }) => {
+  return (
+    <View style={styles.tabIconContainer}>
+      <LayoutGrid size={24} color={focused ? colors.activePrimary : colors.inactiveTab} />
     </View>
   );
 };
@@ -90,6 +98,13 @@ export default function TabsLayout() {
           }}
         />
         <Tabs.Screen
+          name="feed"
+          options={{
+            title: "Feed",
+            tabBarIcon: ({ focused }) => <FeedTabIcon focused={focused} />,
+          }}
+        />
+        <Tabs.Screen
           name="profile"
           options={{
             tabBarIcon: ({ focused }) => (
@@ -97,11 +112,14 @@ export default function TabsLayout() {
             ),
           }}
         />
+        {/* Map tab hidden — replaced by Feed */}
+        <Tabs.Screen
+          name="map"
+          options={{ href: null }}
+        />
         <Tabs.Screen
           name="community"
-          options={{
-            href: null,
-          }}
+          options={{ href: null }}
         />
       </Tabs>
 
