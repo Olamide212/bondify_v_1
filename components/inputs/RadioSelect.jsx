@@ -22,7 +22,7 @@ const RadioSelect = ({
         {options.map((option) => (
           <TouchableOpacity
             key={option.value}
-            className={`px-5 py-5 rounded-2xl border-2  ${className}
+            className={`px-5 py-5 rounded-2xl border-[1px]  ${className}
                ${value === option.value ? "border-primary bg-primary/10" : "border-[#dadada]"}`}
             onPress={() => onChange(option.value)}
             style={{ borderRadius: 10 }}

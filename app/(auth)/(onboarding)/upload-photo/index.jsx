@@ -85,12 +85,12 @@ const UploadPhoto = () => {
                 <Text className="text-3xl font-PlusJakartaSansBold  mb-2">
                   Add your best photos
                 </Text>
-                <TouchableOpacity
+                {/* <TouchableOpacity
                   onPress={() => setShowGuidelines(true)}
                   className="bg-primary/10 p-2 rounded-full"
                 >
                   <Ionicons name="information-circle" size={24} color={colors.primary} />
-                </TouchableOpacity>
+                </TouchableOpacity> */}
               </View>
               <View className="flex-row items-start gap-2 mb-4 bg-primary/10 p-4 rounded-lg border border-primary/30">
               <View>
@@ -105,7 +105,7 @@ const UploadPhoto = () => {
             {/* Photo grid */}
             <View className="flex-row flex-wrap justify-between gap-y-4">
               {photos.map((photo, index) => (
-                <View key={index} className="w-[30%] aspect-square relative">
+                <View key={index} className="w-[30%] h-[35%]  relative">
                   <TouchableOpacity
                     className="w-full h-full border-2 border-dashed border-gray-300 rounded-xl items-center justify-center bg-gray-50"
                     onPress={() => pickImage(index)}
@@ -136,7 +136,7 @@ const UploadPhoto = () => {
             </View>
 
             {/* Info text */}
-            <View className="mt-6 gap-2">
+            {/* <View className="mt-6 gap-2">
               <View className="flex-row items-start">
                 <Ionicons
                   name="information-circle-outline"
@@ -159,8 +159,8 @@ const UploadPhoto = () => {
                   Photos that don’t clearly show you will be removed.
                 </Text>
               </View>
-            </View>
-          </View>
+            </View>*/}
+          </View> 
 
           {/* Next button */}
           <View className="items-end">
