@@ -92,12 +92,12 @@ const UploadPhoto = () => {
                   <Ionicons name="information-circle" size={24} color={colors.primary} />
                 </TouchableOpacity> */}
               </View>
-              <View className="flex-row items-start gap-2 mb-4 bg-primary/10 p-4 rounded-lg border border-primary/30">
+              <View className="flex-row items-center gap-2 mb-4 bg-primary/5 p-4 rounded-lg border border-primary/30 mt-5">
               <View>
             
                 <Lightbulb size={20} color={colors.primary} style={{ marginTop: 2 }} />
               </View>
-                <Text className='text-gray-600 font-PlusJakartaSansMedium text-base' numberOfLines={2}>High-quality, clear photos help you get 3x better connections and higher engagement.</Text>
+                <Text className='text-black font-PlusJakartaSansMedium text-base' numberOfLines={2}>High-quality, clear photos help you get 3x better connections and higher engagement.</Text>
               </View>
              
             </View>

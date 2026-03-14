@@ -67,7 +67,7 @@ const Kids = () => {
                 variant="primary"
                 onPress={async () => {
                   await updateProfileStep({ children });
-                  router.push("/preference");
+                  router.push("/education");
                 }}
               />
             </View>

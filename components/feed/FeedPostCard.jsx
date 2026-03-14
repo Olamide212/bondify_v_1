@@ -1,3 +1,4 @@
+import { useRouter } from "expo-router";
 import {
     Bookmark,
     Heart,
@@ -45,6 +46,7 @@ const FeedPostCard = ({
   onOpenOptions,
   onShare,
 }) => {
+  const router = useRouter();
   const [likeAnim] = useState(new Animated.Value(1));
 
   const handleLike = () => {
@@ -55,10 +57,16 @@ const FeedPostCard = ({
     onLike(post._id);
   };
 
+  const handleNavigateToProfile = () => {
+    if (post.author?._id) {
+      router.push(`/user-feed-profile/${post.author._id}`);
+    }
+  };
+
   return (
     <TouchableOpacity style={styles.card} onPress={() => onPress(post)} activeOpacity={0.7}>
       {/* Author row */}
-      <View style={styles.authorRow}>
+      <TouchableOpacity style={styles.authorRow} onPress={handleNavigateToProfile} activeOpacity={0.7}>
         {avatarUrl(post.author) ? (
           <Image source={{ uri: avatarUrl(post.author) }} style={styles.authorAvatar} />
         ) : (
@@ -84,7 +92,7 @@ const FeedPostCard = ({
         >
           <MoreHorizontal size={20} color="#999" />
         </TouchableOpacity>
-      </View>
+      </TouchableOpacity>
 
       {/* Content */}
       <Text style={styles.content} numberOfLines={6}>{post.content}</Text>

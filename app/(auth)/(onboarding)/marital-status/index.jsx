@@ -75,7 +75,7 @@ const MaritalStatus = () => {
                     relationshipTypeMap[maritalStatus?.toLowerCase?.()] || maritalStatus;
 
                   await updateProfileStep({ relationshipType: normalizedRelationshipType });
-                  router.push("/kids");
+                  router.push("/meet");
                 }}
               />
             </View>

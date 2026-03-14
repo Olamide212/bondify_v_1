@@ -45,7 +45,7 @@ export default function FeedProfileScreen() {
   const [userName, setUserName] = useState(currentUser?.userName ?? "");
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [localAvatarUri, setLocalAvatarUri] = useState(null);
+  const [localAvatarUri, setLocalAvatarUri] = useState(() => avatarUrl(currentUser));
   const [activeTab, setActiveTab] = useState("posts");
   const [savedPosts, setSavedPosts] = useState([]);
   const [userPosts, setUserPosts] = useState([]);
@@ -63,7 +63,8 @@ export default function FeedProfileScreen() {
       .then(([socialRes, profileRes, savedRes]) => {
         if (socialRes?.data) {
           const socialPhoto = socialRes.data?.profilePhoto ?? null;
-          if (socialPhoto) setLocalAvatarUri(socialPhoto);
+          // Only update from API if not already set by local upload
+          setLocalAvatarUri((prev) => prev || socialPhoto);
           setUserName(socialRes.data?.userName ?? currentUser?.userName ?? "");
         }
         if (profileRes?.data) {
@@ -76,6 +77,7 @@ export default function FeedProfileScreen() {
         if (savedRes?.data) setSavedPosts(savedRes.data);
       })
       .finally(() => setLoadingData(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentUser?._id]);
 
   const handlePickPhoto = async () => {
@@ -92,8 +94,9 @@ export default function FeedProfileScreen() {
     const fileName = uri.split("/").pop() || "photo.jpg";
     const mimeType = asset.mimeType || "image/jpeg";
 
-    setUploading(true);
+    // Show local URI immediately for better UX
     setLocalAvatarUri(uri);
+    setUploading(true);
     try {
       const formData = new FormData();
       formData.append("profilePhoto", { uri, name: fileName, type: mimeType });
@@ -105,11 +108,15 @@ export default function FeedProfileScreen() {
       const uploadedUrl =
         res.data?.data?.profilePhoto ??
         res.data?.data?.user?.profilePhoto ??
+        res.data?.profilePhoto ??
         uri;
 
+      // Keep the uploaded URL
       setLocalAvatarUri(uploadedUrl);
+      // Update redux to persist across navigations
       dispatch(updateCurrentUser({ profilePhoto: uploadedUrl }));
     } catch (e) {
+      // Revert to original if upload fails
       setLocalAvatarUri(avatarUrl(currentUser));
       Alert.alert("Error", e?.response?.data?.message ?? "Could not update photo.");
     } finally {

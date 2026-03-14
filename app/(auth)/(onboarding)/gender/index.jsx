@@ -67,7 +67,7 @@ const Gender = () => {
                   const selected = genderOptions.find(opt => opt.value === gender);
                   const genderLabel = selected ? selected.label : gender;
                   await updateProfileStep({ gender: genderLabel });
-                  router.push("/ethnicity");
+                  router.push("/marital-status");
                 }}
               />
             </View>

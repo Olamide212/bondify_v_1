@@ -117,6 +117,42 @@ const feedService = {
     const res = await apiClient.post('/ai/suggest-post', { context });
     return res.data;
   },
+
+  /** Get a user's posts. */
+  getUserPosts: async (userId) => {
+    const res = await apiClient.get(`/feed/user/${userId}/posts`).catch(() => ({ data: [] }));
+    return res.data ? { data: Array.isArray(res.data) ? res.data : res.data.data || [] } : { data: [] };
+  },
+
+  /** Get a user's comments. */
+  getUserComments: async (userId) => {
+    const res = await apiClient.get(`/feed/user/${userId}/comments`).catch(() => ({ data: [] }));
+    return res.data ? { data: Array.isArray(res.data) ? res.data : res.data.data || [] } : { data: [] };
+  },
+
+  /** Get a user's liked posts. */
+  getUserLikes: async (userId) => {
+    const res = await apiClient.get(`/feed/user/${userId}/likes`).catch(() => ({ data: [] }));
+    return res.data ? { data: Array.isArray(res.data) ? res.data : res.data.data || [] } : { data: [] };
+  },
+
+  /** Check follow status with another user. */
+  checkFollowStatus: async (userId) => {
+    const res = await apiClient.get(`/feed/follow-status/${userId}`).catch(() => ({ data: { isFollowing: false } }));
+    return res.data;
+  },
+
+  /** Follow a user. */
+  followUser: async (userId) => {
+    const res = await apiClient.post(`/feed/follow/${userId}`);
+    return res.data;
+  },
+
+  /** Unfollow a user. */
+  unfollowUser: async (userId) => {
+    const res = await apiClient.delete(`/feed/follow/${userId}`);
+    return res.data;
+  },
 };
 
 export default feedService;

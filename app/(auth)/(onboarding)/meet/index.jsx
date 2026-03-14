@@ -67,7 +67,7 @@ const Meet = () => {
                     return opt ? opt.label : val;
                   });
                   await updateProfileStep({ discoveryPreferences: { genderPreference: preferenceLabels } });
-                  router.push("/marital-status");
+                  router.push("/preference");
                 }}
               />
             </View>

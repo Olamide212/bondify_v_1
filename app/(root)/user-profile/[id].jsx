@@ -2,21 +2,22 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { ChevronLeft } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
 import {
-  ActivityIndicator,
-  Dimensions,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
+    ActivityIndicator,
+    Dimensions,
+    Pressable,
+    StyleSheet,
+    Text,
+    View,
 } from "react-native";
 import Animated, {
-  interpolate,
-  runOnJS,
-  useAnimatedScrollHandler,
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
+    interpolate,
+    runOnJS,
+    useAnimatedScrollHandler,
+    useAnimatedStyle,
+    useSharedValue,
+    withTiming,
 } from "react-native-reanimated";
+import { useSelector } from "react-redux";
 import ActionButtons from "../../../components/homeScreen/ActionButtons";
 import ProfileCard from "../../../components/homeScreen/ProfileCard";
 import ComplimentModal from "../../../components/modals/ComplimentModal";
@@ -87,6 +88,7 @@ const UserProfile = () => {
   const { id, showActions } = useLocalSearchParams();
   const router = useRouter();
   const { handleHomeSwipe, handleHomeSuperLike, homeProfiles } = useProfile();
+  const { user: currentUser } = useSelector((state) => state.auth);
 
   const [flashMessage, setFlashMessage]       = useState(null);
   const [currentProfile, setCurrentProfile]   = useState(null);
@@ -404,6 +406,7 @@ const UserProfile = () => {
         visible={showComplimentModal}
         onClose={() => setShowComplimentModal(false)}
         targetUser={currentProfile}
+        currentUser={currentUser}
       />
 
       {/* Interaction banner — shown for all interactions */}

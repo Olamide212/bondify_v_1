@@ -3,8 +3,8 @@
  */
 
 import { LinearGradient } from 'expo-linear-gradient';
-import { useRouter }      from 'expo-router';
-import { Info, MapPin }   from 'lucide-react-native';
+import { useRouter } from 'expo-router';
+import { Info, MapPin, Briefcase, HandCoins } from 'lucide-react-native';
 import { useEffect, useRef, useState } from 'react';
 import {
   Animated,
@@ -16,9 +16,10 @@ import {
   useWindowDimensions,
   View,
 } from 'react-native';
-import { colors }            from '../../constant/colors';
-import VoicePromptButton     from '../ui/VoicepromptButton';
-import VerifiedIcon          from '../ui/VerifiedIcon';
+import { colors } from '../../constant/colors';
+import VerifiedIcon from '../ui/VerifiedIcon';
+import VoicePromptButton from '../ui/VoicepromptButton';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 
 const FALLBACK_IMAGE = 'https://via.placeholder.com/800x1200?text=No+Photo';
 
@@ -74,6 +75,9 @@ const AroundYouTab = ({ profile, onViewProfile, actionMessage }) => {
   const voicePromptUri = extractVoicePromptUri(profile.voicePrompt);
   const locationText   = formatLocation(profile.location);
   const nationalityText = profile.nationality ? String(profile.nationality).trim() : null;
+  const occupationText = profile.occupation ? String(profile.occupation).trim() : null;
+  const religionText = profile.religion ? String
+  (profile.religion).trim() : null;
 
   // Format distance like "641km away"
   const distanceText = (() => {
@@ -168,6 +172,14 @@ const AroundYouTab = ({ profile, onViewProfile, actionMessage }) => {
               </TouchableOpacity>
             </View>
 
+            {/* Active status indicator */}
+            {profile.isActive ? (
+              <View style={styles.activeStatusBadge}>
+                <View style={styles.activeDot} />
+                <Text style={styles.activeStatusText}>Active today</Text>
+              </View>
+            ) : null}
+
             {/* Voice prompt */}
             {voicePromptUri ? (
               <View style={{ marginBottom: 10, marginTop: 4 }}>
@@ -185,12 +197,33 @@ const AroundYouTab = ({ profile, onViewProfile, actionMessage }) => {
               </View>
             ) : null}
 
-            {/* Nationality */}
+            {/* Nationality
             {nationalityText ? (
               <View style={styles.nationalityRow}>
-                <Text style={styles.nationalityText}>🌍 {nationalityText}</Text>
+                <Text style={styles.nationalityText}>{nationalityText}</Text>
+              </View>
+            ) : null} */}
+
+            <View className='flex-row items-center gap-2 mt-3'>
+{/* Occupation */}
+            {occupationText ? (
+              <View className='px-6 py-2 flex-row items-center justify-center gap-1 bg-black/40 rounded-full'>
+                    <Briefcase size={16} color='#fff' />
+                <Text className='capitalize text-white font-PlusJakartaSansMedium'> {occupationText}</Text>
               </View>
             ) : null}
+
+            {/* Religion */}
+            {religionText ? (
+              <View className='px-6 py-2 flex-row items-center justify-center gap-1 bg-black/40 rounded-full'>
+              <MaterialCommunityIcons name="hands-pray" size={20} color="#fff" />
+                <Text className='capitalize text-white font-PlusJakartaSansMedium'> {religionText}</Text>
+              </View>
+            ) : null}
+            </View>
+            
+
+     
           </View>
         </Animated.View>
       </TouchableWithoutFeedback>
@@ -230,7 +263,11 @@ const styles = StyleSheet.create({
   nameText:   { color: '#fff', fontSize: 36, fontFamily: 'PlusJakartaSansBold', textTransform: 'capitalize' },
   ageText:    { color: '#fff', fontSize: 30, fontFamily: 'PlusJakartaSansMedium' },
 
-  locationRow:  { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 2 },
+  activeStatusBadge: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 8, marginTop: -2 },
+  activeDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#10B981' },
+  activeStatusText: { color: 'rgba(255,255,255,0.85)', fontSize: 13, fontFamily: 'PlusJakartaSansMedium' },
+
+  locationRow:  { flexDirection: 'row', alignItems: 'center', gap: 4 },
   locationText: { color: 'rgba(255,255,255,0.9)', fontSize: 15, fontFamily: 'PlusJakartaSansMedium', flex: 1 },
 
   nationalityRow:  { flexDirection: 'row', alignItems: 'center', marginTop: 4 },

@@ -30,41 +30,41 @@ import { useFocusEffect } from "expo-router";
 import { Bell, SlidersHorizontal } from "lucide-react-native";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
-  AppState,
-  Pressable,
-  RefreshControl,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
+    AppState,
+    Pressable,
+    RefreshControl,
+    ScrollView,
+    StyleSheet,
+    Text,
+    View,
 } from "react-native";
 import Animated, {
-  interpolate,
-  runOnJS,
-  useAnimatedStyle,
-  useSharedValue,
-  withSequence,
-  withTiming,
+    interpolate,
+    runOnJS,
+    useAnimatedStyle,
+    useSharedValue,
+    withSequence,
+    withTiming,
 } from "react-native-reanimated";
 import { useSelector } from "react-redux";
-import ActionButtons      from "../../../../components/homeScreen/ActionButtons";
-import ActionTipsOverlay  from "../../../../components/homeScreen/ActionTipsOverlay";
-import AroundYou          from "../../../../components/homeScreen/AroundYouTab";
-import EmptyDeckSlider    from "../../../../components/homeScreen/EmptyDeckSlider";
-import AIAssistantModal   from "../../../../components/modals/AIAssistantModal";
-import CardFeedbackModal  from "../../../../components/modals/CardFeedbackModal";
-import ComplimentModal    from "../../../../components/modals/ComplimentModal";
-import FilterModal        from "../../../../components/modals/FilterModal";
+import ActionButtons from "../../../../components/homeScreen/ActionButtons";
+import ActionTipsOverlay from "../../../../components/homeScreen/ActionTipsOverlay";
+import AroundYou from "../../../../components/homeScreen/AroundYouTab";
+import EmptyDeckSlider from "../../../../components/homeScreen/EmptyDeckSlider";
+import AIAssistantModal from "../../../../components/modals/AIAssistantModal";
+import CardFeedbackModal from "../../../../components/modals/CardFeedbackModal";
+import ComplimentModal from "../../../../components/modals/ComplimentModal";
+import FilterModal from "../../../../components/modals/FilterModal";
 import MatchCelebrationModal from "../../../../components/modals/MatchCelebrationModal";
 import NotificationsModal from "../../../../components/modals/NotificationsModal";
-import UserProfileModal   from "../../../../components/modals/UserProfileModal";
+import UserProfileModal from "../../../../components/modals/UserProfileModal";
+import LogoLoader from "../../../../components/ui/LogoLoader";
 import { NotificationBanner } from "../../../../components/ui/NotificationBanner";
-import LogoLoader         from "../../../../components/ui/LogoLoader";
-import { colors }         from "../../../../constant/colors";
-import { useProfile }     from "../../../../context/ProfileContext";
+import { colors } from "../../../../constant/colors";
+import { useProfile } from "../../../../context/ProfileContext";
 import { messageService } from "../../../../services/messageService";
-import SettingsService    from "../../../../services/settingsService";
-import { socketService }  from "../../../../services/socketService";
+import SettingsService from "../../../../services/settingsService";
+import { socketService } from "../../../../services/socketService";
 
 // ─── Swipe badge assets ───────────────────────────────────────────────────────
 const BOND_BADGE = require("../../../../assets/images/Bond_Badge_Right.png");
@@ -557,6 +557,7 @@ const Home = () => {
         visible={showComplimentModal}
         onClose={() => setShowComplimentModal(false)}
         targetUser={currentProfile}
+        currentUser={currentUser}
         onSent={() => triggerFeedback("compliment")}
       />
 

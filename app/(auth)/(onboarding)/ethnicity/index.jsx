@@ -75,7 +75,7 @@ const Ethnicity = () => {
                 onPress={async () => {
                   // Find the selected option's label
                await updateProfileStep({ ethnicity });
-                  router.push("/meet");
+                  router.push("/gender");
                 }}
               />
             </View>

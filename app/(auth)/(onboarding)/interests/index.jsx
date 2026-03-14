@@ -131,7 +131,7 @@ const Interests = () => {
                   variant="gradient"
                   onPress={async () => {
                     await updateProfileStep({ interests: selectedInterests });
-                    router.push("/upload-photo");
+                    router.push("/about");
                   }}
                   disabled={selectedInterests.length === 0}
                 />

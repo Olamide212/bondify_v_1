@@ -64,7 +64,7 @@ const RelocationPreference = () => {
                 variant="gradient"
                 onPress={async () => {
                   await updateProfileStep({ willRelocateForMarriage: relocationPreference });
-                  router.push("/education");
+                  router.push("/kids");
                 }}
               />
             </View>

@@ -63,7 +63,7 @@ const Drink = () => {
                 variant="gradient"
                 onPress={async () => {
                   await updateProfileStep({ drinking });
-                  router.push("/about");
+                  router.push("/interests");
                 }}
               />
             </View>

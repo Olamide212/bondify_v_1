@@ -26,10 +26,55 @@ import {
   View
 } from "react-native";
 import Button from "../../../../components/ui/Button";
+import { colors } from "../../../../constant/colors";
 import { fonts } from "../../../../constant/fonts";
 import { useProfileSetup } from "../../../../hooks/useProfileSetup";
 import AIService, { BIO_TONES } from "../../../../services/aiService";
 import { profileService } from "../../../../services/profileService";
+
+// ─── Voice Bio Benefits Component ─────────────────────────────
+
+const VoiceBioBenefits = () => {
+  const benefits = [
+    "Stand out from the crowd—most profiles are text-only!",
+    "Show your real personality with tone, energy, and humor",
+    "Make a stronger first impression and build instant connection",
+    "Increase your match potential with 2-3x more engagement",
+    "Express emotions and warmth that text can't capture",
+    "Save time on messaging with faster, deeper conversations",
+    "Boost confidence and have fun showcasing your best self"
+  ];
+
+  return (
+    <View style={{ marginBottom: 20 }}>
+      <Text style={{
+        fontFamily: fonts.PlusJakartaSansBold,
+        fontSize: 16,
+        color: colors.primary,
+        marginBottom: 12,
+        textAlign: 'center'
+      }}>
+        Why record a voice bio?
+      </Text>
+      <View style={{ gap: 8 }}>
+        {benefits.map((benefit, index) => (
+          <View key={index} style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8 }}>
+            <Text style={{ color: colors.primary, fontSize: 14, fontFamily: fonts.PlusJakartaSansBold }}>•</Text>
+            <Text style={{
+              fontFamily: fonts.PlusJakartaSans,
+              fontSize: 14,
+              color: '#374151',
+              flex: 1,
+              lineHeight: 20
+            }}>
+              {benefit}
+            </Text>
+          </View>
+        ))}
+      </View>
+    </View>
+  );
+};
 
 // ─── AI Suggestion Card (using backend AI service) ─────────────────────────────
 
@@ -398,10 +443,9 @@ const VoicePromptSection = ({ onUseVoice }) => {
   return (
     <View
       style={{
-        backgroundColor: "#F0F9FF",
         borderRadius: 20,
         borderWidth: 1.5,
-        borderColor: "#BAE6FD",
+        borderColor: colors.primaryBorder,
         padding: 18,
         marginBottom: 24,
         gap: 14,
@@ -414,7 +458,7 @@ const VoicePromptSection = ({ onUseVoice }) => {
             width: 34,
             height: 34,
             borderRadius: 17,
-            backgroundColor: "#0284C7",
+            backgroundColor: colors.primary,
             alignItems: "center",
             justifyContent: "center",
           }}
@@ -437,7 +481,7 @@ const VoicePromptSection = ({ onUseVoice }) => {
           onPress={startRecording}
           activeOpacity={0.85}
           style={{
-            backgroundColor: "#0284C7",
+            backgroundColor: colors.primary,
             borderRadius: 50,
             paddingVertical: 12,
             alignItems: "center",
@@ -500,7 +544,7 @@ const VoicePromptSection = ({ onUseVoice }) => {
             <View
               style={{
                 height: 4,
-                backgroundColor: "#E0F2FE",
+                backgroundColor: colors.primaryLight,
                 borderRadius: 2,
                 overflow: "hidden",
               }}
@@ -508,7 +552,7 @@ const VoicePromptSection = ({ onUseVoice }) => {
               <View
                 style={{
                   height: "100%",
-                  backgroundColor: "#0284C7",
+                  backgroundColor: colors.primary,
                   width: `${playDuration > 0 ? (playPos / playDuration) * 100 : 0}%`,
                 }}
               />
@@ -530,7 +574,7 @@ const VoicePromptSection = ({ onUseVoice }) => {
               activeOpacity={0.85}
               style={{
                 flex: 1,
-                backgroundColor: "#0284C7",
+                backgroundColor: colors.primary,
                 borderRadius: 50,
                 paddingVertical: 10,
                 alignItems: "center",
@@ -564,10 +608,10 @@ const VoicePromptSection = ({ onUseVoice }) => {
                 paddingVertical: 10,
                 borderRadius: 50,
                 borderWidth: 1.5,
-                borderColor: "#BAE6FD",
+                borderColor: colors.primaryBorder,
               }}
             >
-              <Trash2 size={14} color="#0284C7" strokeWidth={2.5} />
+              <Trash2 size={14} color={colors.primary} strokeWidth={2.5} />
             </TouchableOpacity>
           </View>
 
@@ -576,7 +620,7 @@ const VoicePromptSection = ({ onUseVoice }) => {
             onPress={handleUseVoice}
             activeOpacity={0.85}
             style={{
-              backgroundColor: "#E0F2FE",
+              backgroundColor: colors.primaryLight,
               borderRadius: 50,
               paddingVertical: 10,
               alignItems: "center",
@@ -585,8 +629,8 @@ const VoicePromptSection = ({ onUseVoice }) => {
               gap: 6,
             }}
           >
-            <Check size={15} color="#0284C7" strokeWidth={2.5} />
-            <Text style={{ color: "#0284C7", fontFamily: fonts.PlusJakartaSansBold, fontSize: 13 }}>
+            <Check size={15} color={colors.primary} strokeWidth={2.5} />
+            <Text style={{ color: colors.primary, fontFamily: fonts.PlusJakartaSansBold, fontSize: 13 }}>
               Use this voice bio
             </Text>
           </TouchableOpacity>
@@ -668,7 +712,7 @@ const About = () => {
                   paddingVertical: 12,
                   paddingHorizontal: 16,
                   borderRadius: 12,
-                  backgroundColor: activeTab === "record" ? "#0284C7" : "#f1f1f1",
+                  backgroundColor: activeTab === "record" ? colors.primary : "#f1f1f1",
                   alignItems: "center",
                   justifyContent: "center",
                 }}
@@ -715,24 +759,28 @@ const About = () => {
               {/* Record Tab */}
               {activeTab === "record" && (
                 <View>
-                  {/* ── Voice bio section ── */}
+                        {/* ── Voice bio section ── */}
                   <VoicePromptSection onUseVoice={handleUseVoice} />
+                  {/* ── Voice bio benefits ── */}
+                  <VoiceBioBenefits />
+
+            
                 </View>
               )}
             </ScrollView>
 
-            {/* Summary of selections */}
+            {/* Summary of selections
             <View className="mt-4 mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
               {aboutText && (
-                <Text className="text-sm font-PlusJakartaSansMedium text-blue-900 mb-2">✅ Text bio added</Text>
+                <Text className="text-sm font-PlusJakartaSansMedium text-blue-900 mb-2">Text bio added</Text>
               )}
               {voiceBioUri && (
-                <Text className="text-sm font-PlusJakartaSansMedium text-blue-900">✅ Voice bio recorded</Text>
+                <Text className="text-sm font-PlusJakartaSansMedium text-blue-900">Voice bio recorded</Text>
               )}
               {!aboutText && !voiceBioUri && (
                 <Text className="text-sm font-PlusJakartaSansMedium text-gray-600">Add text or voice bio to continue</Text>
               )}
-            </View>
+            </View> */}
 
             <View className="w-full items-end pb-6">
               <Button
