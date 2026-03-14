@@ -73,6 +73,32 @@ const AroundYouTab = ({ profile, onViewProfile, actionMessage }) => {
   const currentUri     = imageUris[safeIndex] || FALLBACK_IMAGE;
   const voicePromptUri = extractVoicePromptUri(profile.voicePrompt);
   const locationText   = formatLocation(profile.location);
+  const nationalityText = profile.nationality ? String(profile.nationality).trim() : null;
+
+  // Format distance like "641km away"
+  const distanceText = (() => {
+    if (!profile.distance) return null;
+    const d = profile.distance;
+    if (typeof d === 'number') return `${Math.round(d)}km away`;
+    if (typeof d === 'string') {
+      // Already formatted (e.g. "641km away" or "641 km")
+      if (/away/i.test(d)) return d;
+      const num = parseFloat(d);
+      if (!isNaN(num)) return `${Math.round(num)}km away`;
+      // Unknown format — show as-is only if it looks like a distance
+      if (/^\d/.test(d)) return `${d} away`;
+    }
+    return null;
+  })();
+
+  // City-only label from location
+  const cityLabel = (() => {
+    if (!profile.location) return null;
+    if (typeof profile.location === 'object') {
+      return profile.location.city || profile.location.state || null;
+    }
+    return null;
+  })();
   const displayName    = (() => {
     const parts = String(profile.name || '').trim().split(/\s+/).filter(Boolean);
     return parts.length === 0 ? 'Unknown' : parts[0];
@@ -149,13 +175,20 @@ const AroundYouTab = ({ profile, onViewProfile, actionMessage }) => {
               </View>
             ) : null}
 
-            {/* Location */}
-            {locationText ? (
+            {/* Location — "641km away · Lagos" */}
+            {(distanceText || cityLabel || locationText) ? (
               <View style={styles.locationRow}>
                 <MapPin size={16} color={colors.secondary || '#F59E0B'} />
                 <Text style={styles.locationText} numberOfLines={1}>
-                  {locationText}{profile.distance ? `  ·  ${profile.distance}` : ''}
+                  {[distanceText, cityLabel || locationText].filter(Boolean).join('  ·  ')}
                 </Text>
+              </View>
+            ) : null}
+
+            {/* Nationality */}
+            {nationalityText ? (
+              <View style={styles.nationalityRow}>
+                <Text style={styles.nationalityText}>🌍 {nationalityText}</Text>
               </View>
             ) : null}
           </View>
@@ -199,6 +232,9 @@ const styles = StyleSheet.create({
 
   locationRow:  { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 2 },
   locationText: { color: 'rgba(255,255,255,0.9)', fontSize: 15, fontFamily: 'PlusJakartaSansMedium', flex: 1 },
+
+  nationalityRow:  { flexDirection: 'row', alignItems: 'center', marginTop: 4 },
+  nationalityText: { color: 'rgba(255,255,255,0.75)', fontSize: 13, fontFamily: 'PlusJakartaSansMedium' },
 
   profileButton: {
     width: 48, height: 48, borderRadius: 24,

@@ -411,6 +411,62 @@ Reply with ONLY the comment text, nothing else.`;
 };
 
 // ─────────────────────────────────────────────
+//  AI POST SUGGESTION
+// ─────────────────────────────────────────────
+const suggestPost = async (req, res, next) => {
+  try {
+    if (!process.env.OPENAI_API_KEY) {
+      return res.status(503).json({ success: false, message: 'AI service not configured' });
+    }
+
+    const { context = '' } = req.body;
+    const user = req.user;
+
+    const interests = (user.interests || []).join(', ') || 'general lifestyle';
+    const occupation = user.occupation || '';
+    const bio = user.bio || '';
+
+    const prompt = `You are a creative social media assistant for a dating app called Bondify.
+Help a user write an engaging post for their social feed.
+
+User context:
+- Interests: ${interests}
+- Occupation: ${occupation ? occupation : 'not specified'}
+- Bio: ${bio ? bio : 'not provided'}
+${context ? `- Their idea/topic: ${context}` : ''}
+
+Generate 3 different post suggestions that are:
+1. Warm, genuine, and conversation-starting
+2. Between 1-3 sentences each
+3. Authentic to a dating app social feed
+4. Not too formal or too casual
+
+Return ONLY a JSON array of 3 strings, no other text.`;
+
+    const ai = getOpenAI();
+    const response = await ai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [{ role: 'user', content: prompt }],
+      max_tokens: 400,
+      temperature: 0.85,
+    });
+
+    let suggestions = [];
+    try {
+      const raw   = response.choices[0].message.content.trim();
+      const clean = raw.replace(/```json|```/g, '').trim();
+      suggestions = JSON.parse(clean);
+    } catch {
+      suggestions = [response.choices[0].message.content.trim()];
+    }
+
+    res.json({ success: true, data: { suggestions } });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// ─────────────────────────────────────────────
 //  EXPORTS — must be after ALL function definitions
 // ─────────────────────────────────────────────
 module.exports = {
@@ -421,4 +477,5 @@ module.exports = {
   chat,
   suggestMessage,
   suggestPhotoComment,
+  suggestPost,
 };

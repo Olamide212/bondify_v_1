@@ -48,9 +48,12 @@ import Animated, {
 } from "react-native-reanimated";
 import { useSelector } from "react-redux";
 import ActionButtons      from "../../../../components/homeScreen/ActionButtons";
+import ActionTipsOverlay  from "../../../../components/homeScreen/ActionTipsOverlay";
 import AroundYou          from "../../../../components/homeScreen/AroundYouTab";
 import EmptyDeckSlider    from "../../../../components/homeScreen/EmptyDeckSlider";
 import AIAssistantModal   from "../../../../components/modals/AIAssistantModal";
+import CardFeedbackModal  from "../../../../components/modals/CardFeedbackModal";
+import ComplimentModal    from "../../../../components/modals/ComplimentModal";
 import FilterModal        from "../../../../components/modals/FilterModal";
 import MatchCelebrationModal from "../../../../components/modals/MatchCelebrationModal";
 import NotificationsModal from "../../../../components/modals/NotificationsModal";
@@ -140,9 +143,25 @@ const Home = () => {
   const [showProfileModal,       setShowProfileModal]       = useState(false);
   const [showNotificationsModal, setShowNotificationsModal] = useState(false);
   const [showAIModal,            setShowAIModal]            = useState(false);
+  const [showComplimentModal,    setShowComplimentModal]    = useState(false);
   const [selectedProfileId,      setSelectedProfileId]      = useState(null);
   const [isRefreshing,           setIsRefreshing]           = useState(false);
   const [notifications,          setNotifications]          = useState([]);
+
+  // ─── First-time tips ──────────────────────────────────────────────────────
+  const [showActionTips, setShowActionTips] = useState(false);
+  useEffect(() => {
+    ActionTipsOverlay.shouldShow().then((yes) => { if (yes) setShowActionTips(true); });
+  }, []);
+
+  // ─── Card feedback ────────────────────────────────────────────────────────
+  const [feedbackAction, setFeedbackAction] = useState(null);
+  const [showFeedback,   setShowFeedback]   = useState(false);
+
+  const triggerFeedback = (action) => {
+    setFeedbackAction(action);
+    setShowFeedback(true);
+  };
 
   const unreadNotificationsCount = useMemo(
     () => notifications.filter((n) => !n.read).length,
@@ -241,12 +260,12 @@ const Home = () => {
     if (!currentProfile) return;
     showSwipeBadge(direction);
     handleHomeSwipe(direction, currentProfile);
+    triggerFeedback(direction === "right" ? "like" : "nope");
   };
 
-  const handleSuperLike = () => {
+  const handleComplimentPress = () => {
     if (!currentProfile) return;
-    showSwipeBadge("right");
-    handleHomeSuperLike(currentProfile);
+    setShowComplimentModal(true);
   };
 
   const handleViewProfile = () => {
@@ -422,10 +441,12 @@ const Home = () => {
   // revalidate) — the pull-to-refresh spinner handles background re-fetches.
   //
   // Empty-deck only shows when loading is fully done AND there are genuinely
-  // no profiles to show.
-  //
-  const showFullLoader = profilesLoading && !hasProfiles;
-  const showEmptyDeck  = hasEverLoaded.current && !profilesLoading && !hasProfiles;
+  // KEY FIX: Show LogoLoader only on true cold-start (never loaded AND loading).
+  // Once we've loaded at least once, if there are no profiles we show EmptyDeckSlider
+  // immediately — even if a background refresh is in flight. The pull-to-refresh
+  // spinner on EmptyDeckSlider handles the "looking…" feedback.
+  const showFullLoader = profilesLoading && !hasProfiles && !hasEverLoaded.current;
+  const showEmptyDeck  = hasEverLoaded.current && !hasProfiles;
 
   if (showFullLoader) {
     return <LogoLoader color={colors.primary} />;
@@ -518,13 +539,32 @@ const Home = () => {
         <View style={styles.actionButtonWrapper}>
           <ActionButtons
             onSwipe={handleSwipe}
-            onSuperLike={handleSuperLike}
+            onCompliment={handleComplimentPress}
             Redo={true}
           />
         </View>
       )}
 
+      {/* ── Action tips (first-time) ── */}
+      {showActionTips && (
+        <ActionTipsOverlay onDismiss={() => setShowActionTips(false)} />
+      )}
+
+      {/* ── Card feedback ── */}
+      <CardFeedbackModal
+        visible={showFeedback}
+        action={feedbackAction}
+        onDone={() => { setShowFeedback(false); setFeedbackAction(null); }}
+      />
+
       {/* ── Modals ── */}
+      <ComplimentModal
+        visible={showComplimentModal}
+        onClose={() => setShowComplimentModal(false)}
+        targetUser={currentProfile}
+        onSent={() => triggerFeedback("compliment")}
+      />
+
       <FilterModal
         visible={showFilterModal}
         onClose={() => setShowFilterModal(false)}

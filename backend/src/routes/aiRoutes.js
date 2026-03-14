@@ -7,7 +7,8 @@ const {
   getDateIdeas,
   chat,
   suggestMessage,
-  suggestPhotoComment
+  suggestPhotoComment,
+  suggestPost,
 } = require('../controllers/aiController');
 const { protect } = require('../middleware/auth');
 
@@ -20,5 +21,6 @@ router.get('/date-ideas/:matchId', getDateIdeas);
 router.post('/chat', chat);
 router.post('/suggest-message',       protect, suggestMessage);
 router.post('/suggest-photo-comment', protect, suggestPhotoComment);
+router.post('/suggest-post',          protect, suggestPost);
 
 module.exports = router;

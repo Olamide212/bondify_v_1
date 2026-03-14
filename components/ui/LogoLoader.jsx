@@ -1,212 +1,151 @@
 import React, { useEffect, useRef } from "react";
-import { View, StyleSheet, Animated, Easing, Dimensions, Image } from "react-native";
-import { Heart } from "lucide-react-native";
+import { View, StyleSheet, Animated, Easing, Text } from "react-native";
 
-const { width, height } = Dimensions.get("window");
+/**
+ * LogoLoader — a unique animated loader for Bondify.
+ *
+ * Three animated "bond" dots orbit a central wordmark, suggesting
+ * connection / pairing rather than a generic pulsing heart.
+ */
+const LogoLoader = ({ size = 100, color = "#EE5F2B" }) => {
+  // Three dots orbiting
+  const rot1 = useRef(new Animated.Value(0)).current;
+  const rot2 = useRef(new Animated.Value(0.33)).current;
+  const rot3 = useRef(new Animated.Value(0.66)).current;
 
-const LogoLoader = ({ size = 100, color = "#FF5864" }) => {
-  const scaleAnim = useRef(new Animated.Value(1)).current;
-  const opacityAnim = useRef(new Animated.Value(1)).current;
-  const pulseAnim = useRef(new Animated.Value(0)).current;
-  const rotateAnim = useRef(new Animated.Value(0)).current;
+  // Wordmark fade
+  const textOpacity = useRef(new Animated.Value(0.4)).current;
+
+  // Outer ring scale
+  const ringScale = useRef(new Animated.Value(0.9)).current;
 
   useEffect(() => {
-    // Pulse animation for the circle
-    const pulseAnimation = Animated.sequence([
-      Animated.timing(pulseAnim, {
-        toValue: 1,
-        duration: 1000,
-        easing: Easing.out(Easing.ease),
-        useNativeDriver: true,
-      }),
-      Animated.timing(pulseAnim, {
-        toValue: 0,
-        duration: 1000,
-        easing: Easing.in(Easing.ease),
-        useNativeDriver: true,
-      }),
-    ]);
+    const DURATION = 2000;
 
-    // Scale animation for the heart
-    const scaleAnimation = Animated.sequence([
-      Animated.timing(scaleAnim, {
-        toValue: 1.2,
-        duration: 500,
-        easing: Easing.out(Easing.ease),
-        useNativeDriver: true,
-      }),
-      Animated.timing(scaleAnim, {
-        toValue: 1,
-        duration: 500,
-        easing: Easing.in(Easing.ease),
-        useNativeDriver: true,
-      }),
-    ]);
+    const spin = (val, offset) =>
+      Animated.loop(
+        Animated.timing(val, {
+          toValue:        offset + 1,
+          duration:       DURATION,
+          easing:         Easing.linear,
+          useNativeDriver: true,
+        })
+      );
 
-    // Fade animation for the heart
-    const fadeAnimation = Animated.sequence([
-      Animated.timing(opacityAnim, {
-        toValue: 0.7,
-        duration: 500,
-        easing: Easing.out(Easing.ease),
-        useNativeDriver: true,
-      }),
-      Animated.timing(opacityAnim, {
-        toValue: 1,
-        duration: 500,
-        easing: Easing.in(Easing.ease),
-        useNativeDriver: true,
-      }),
-    ]);
-
-    // Rotation animation for the heart
-    const rotateAnimation = Animated.sequence([
-      Animated.timing(rotateAnim, {
-        toValue: 1,
-        duration: 1000,
-        easing: Easing.inOut(Easing.ease),
-        useNativeDriver: true,
-      }),
-      Animated.timing(rotateAnim, {
-        toValue: 0,
-        duration: 1000,
-        easing: Easing.inOut(Easing.ease),
-        useNativeDriver: true,
-      }),
-    ]);
-
-    // Loop all animations
-    Animated.loop(
-      Animated.parallel([
-        pulseAnimation,
-        Animated.sequence([scaleAnimation, fadeAnimation]),
-        rotateAnimation,
+    const pulse = Animated.loop(
+      Animated.sequence([
+        Animated.timing(textOpacity, { toValue: 1,   duration: 700, easing: Easing.out(Easing.ease), useNativeDriver: true }),
+        Animated.timing(textOpacity, { toValue: 0.4, duration: 700, easing: Easing.in(Easing.ease),  useNativeDriver: true }),
       ])
-    ).start();
-  }, [scaleAnim, opacityAnim, pulseAnim, rotateAnim]);
+    );
 
-  // Interpolate the pulse animation for the circle
-  const circleScale = pulseAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: [1, 1.5],
-  });
+    const ringPulse = Animated.loop(
+      Animated.sequence([
+        Animated.timing(ringScale, { toValue: 1.08, duration: 900, easing: Easing.inOut(Easing.ease), useNativeDriver: true }),
+        Animated.timing(ringScale, { toValue: 0.9,  duration: 900, easing: Easing.inOut(Easing.ease), useNativeDriver: true }),
+      ])
+    );
 
-  const circleOpacity = pulseAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0.7, 0],
-  });
+    spin(rot1, 0).start();
+    spin(rot2, 0.33).start();
+    spin(rot3, 0.66).start();
+    pulse.start();
+    ringPulse.start();
+  }, [rot1, rot2, rot3, textOpacity, ringScale]);
 
-  // Interpolate the rotation animation for the heart
-  const heartRotation = rotateAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: ["0deg", "10deg"],
-  });
+  const orbit = size * 0.56;
+  const dotSize = size * 0.14;
+
+  const makeDotStyle = (rotVal) => {
+    const rotate = rotVal.interpolate({ inputRange: [0, 1], outputRange: ["0deg", "360deg"] });
+    return {
+      position: "absolute",
+      width:    orbit * 2,
+      height:   orbit * 2,
+      top:      -(orbit - size / 2),
+      left:     -(orbit - size / 2),
+      transform: [{ rotate }],
+    };
+  };
 
   return (
     <View style={styles.container}>
-      {/* Outer circles */}
+      {/* Outer breathing ring */}
       <Animated.View
         style={[
-          styles.circle,
+          styles.ring,
           {
-            width: size * 2,
-            height: size * 2,
-            borderRadius: size,
-            borderWidth: 1,
+            width:       size * 1.5,
+            height:      size * 1.5,
+            borderRadius: size * 0.75,
             borderColor: color,
-            opacity: circleOpacity,
-            transform: [{ scale: circleScale }],
+            transform:   [{ scale: ringScale }],
           },
         ]}
       />
 
-      <Animated.View
-        style={[
-          styles.circle,
-          {
-            width: size * 1.6,
-            height: size * 1.6,
-            borderRadius: size * 7,
-            borderWidth: 1,
-            borderColor: color,
-            opacity: circleOpacity,
-            transform: [{ scale: circleScale }],
-          },
-        ]}
-      />
-
-      <Animated.View
-        style={[
-          styles.circle,
-          {
-            width: size * 1.2,
-            height: size * 1.2,
-            borderRadius: size * 0.6,
-            borderWidth: 1,
-            borderColor: color,
-            opacity: circleOpacity,
-            transform: [{ scale: circleScale }],
-          },
-        ]}
-      />
-
-      {/* Main circle with heart */}
+      {/* Centre wordmark */}
       <View
         style={[
-          styles.mainCircle,
-          {
-            width: size,
-            height: size,
-            borderRadius: size / 2,
-            backgroundColor: color,
-          },
+          styles.centre,
+          { width: size, height: size, borderRadius: size / 2, backgroundColor: "#FFF8F5" },
         ]}
       >
-        <Animated.View
-          style={{
-            transform: [{ scale: scaleAnim }, { rotate: heartRotation }],
-            opacity: opacityAnim,
-          }}
-        >
-          <Image
-            source={require("../../assets/images/bondify-icon-white.png")}
-            style={{width: 40, height: 40}}
-          />
-        </Animated.View>
+        <Animated.Text style={[styles.wordmark, { color, opacity: textOpacity, fontSize: size * 0.22 }]}>
+          bondify
+        </Animated.Text>
       </View>
+
+      {/* Orbiting dot 1 */}
+      <Animated.View style={makeDotStyle(rot1)} pointerEvents="none">
+        <View style={[styles.dot, { width: dotSize, height: dotSize, borderRadius: dotSize / 2, backgroundColor: color, marginLeft: -(dotSize / 2) }]} />
+      </Animated.View>
+
+      {/* Orbiting dot 2 — slightly transparent */}
+      <Animated.View style={makeDotStyle(rot2)} pointerEvents="none">
+        <View style={[styles.dot, { width: dotSize * 0.8, height: dotSize * 0.8, borderRadius: dotSize * 0.4, backgroundColor: color, opacity: 0.7, marginLeft: -(dotSize * 0.4) }]} />
+      </Animated.View>
+
+      {/* Orbiting dot 3 — more transparent */}
+      <Animated.View style={makeDotStyle(rot3)} pointerEvents="none">
+        <View style={[styles.dot, { width: dotSize * 0.6, height: dotSize * 0.6, borderRadius: dotSize * 0.3, backgroundColor: color, opacity: 0.45, marginLeft: -(dotSize * 0.3) }]} />
+      </Animated.View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: "rgba(255, 255, 255, 0.9)",
-    zIndex: 1000,
+    flex:            1,
+    justifyContent:  "center",
+    alignItems:      "center",
+    position:        "absolute",
+    top: 0, left: 0, right: 0, bottom: 0,
+    backgroundColor: "rgba(255, 255, 255, 0.92)",
+    zIndex:          1000,
   },
-  circle: {
-    position: "absolute",
-    justifyContent: "center",
-    alignItems: "center",
+  ring: {
+    position:    "absolute",
+    borderWidth: 1.5,
+    opacity:     0.25,
   },
-  mainCircle: {
+  centre: {
     justifyContent: "center",
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
+    alignItems:     "center",
+    shadowColor:    "#EE5F2B",
+    shadowOffset:   { width: 0, height: 3 },
+    shadowOpacity:  0.15,
+    shadowRadius:   8,
+    elevation:      4,
+  },
+  wordmark: {
+    fontFamily:  "PlusJakartaSansBold",
+    letterSpacing: 1,
+  },
+  dot: {
+    position: "absolute",
+    top:      0,
+    left:     "50%",
   },
 });
 
