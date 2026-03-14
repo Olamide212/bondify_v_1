@@ -16,6 +16,7 @@ import TextInput from "../../../components/inputs/TextInput";
 import Button from "../../../components/ui/Button";
 import { useToast } from "../../../context/ToastContext";
 import { clearError, login } from "../../../slices/authSlice";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 
 const EmailLogin = () => {
   const router = useRouter();
@@ -101,6 +102,7 @@ const EmailLogin = () => {
   }, [dispatch]);
 
   return (
+    <SafeAreaProvider className="flex-1 bg-white">
     <SafeAreaView className="flex-1 bg-white">
       <KeyboardAvoidingView
         className="flex-1"
@@ -155,6 +157,7 @@ const EmailLogin = () => {
         </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
     </SafeAreaView>
+    </SafeAreaProvider>
   );
 };
 

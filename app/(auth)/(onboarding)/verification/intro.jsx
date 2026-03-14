@@ -94,7 +94,7 @@ export default function VerificationIntroScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
       <View style={{ flex: 1 }}>
-        <IntroStep onSkip={handleSkip} />
+        <IntroStep onStart={handleStart} onSkip={handleSkip} />
         {/* Override button handler */}
         <View style={{ position: "absolute", bottom: 0, left: 0, right: 0 }} />
       </View>

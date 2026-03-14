@@ -19,10 +19,10 @@ const lookupData = [
   { type: 'genders', value: 'Non-binary', label: 'Non-binary', order: 3 },
   { type: 'genders', value: 'Other',      label: 'Other',      order: 4 },
 
-  // Gender preferences
-  { type: 'gender-preferences', value: 'Woman',    label: 'Woman',    description: 'Interested in women',    order: 1 },
-  { type: 'gender-preferences', value: 'Man',      label: 'Man',      description: 'Interested in men',      order: 2 },
-  { type: 'gender-preferences', value: 'Everyone', label: 'Everyone', description: 'Open to all genders',   order: 3 },
+  // Gender preferences — align stored value with actual user gender strings
+  { type: 'gender-preferences', value: 'Female',   label: 'Women',    description: 'Interested in women',    order: 1 },
+  { type: 'gender-preferences', value: 'Male',     label: 'Men',      description: 'Interested in men',      order: 2 },
+  { type: 'gender-preferences', value: 'Everyone', label: 'Everyone', description: 'Open to all genders',    order: 3 },
 
   // Relationship status
   { type: 'relationship-status', value: 'Never married', label: 'Never married', description: 'Looking to meet someone new',     order: 1 },
@@ -34,9 +34,9 @@ const lookupData = [
   // Looking for
   { type: 'looking-for', value: 'Long term relationship',          label: 'Long term relationship',          description: 'Looking for something serious and committed', order: 1 },
   { type: 'looking-for', value: 'Something Casual',                label: 'Something Casual',                description: 'Keep it light and see where it goes',      order: 2 },
-  { type: 'looking-for', value: 'Short term relationship',         label: 'Short term relationship',         description: 'A relationship with defined timeframe',    order: 3 },
-  { type: 'looking-for', value: 'Meet business oriented people',   label: 'Meet business oriented people',   description: 'Connect with like-minded professionals',  order: 4 },
-  { type: 'looking-for', value: 'I am not sure',                   label: 'I am not sure',                   description: 'Still figuring out what I want',         order: 5 },
+  // { type: 'looking-for', value: 'Short term relationship',         label: 'Short term relationship',         description: 'A relationship with defined timeframe',    order: 3 },
+  // { type: 'looking-for', value: 'Meet business oriented people',   label: 'Meet business oriented people',   description: 'Connect with like-minded professionals',  order: 4 },
+  // { type: 'looking-for', value: 'I am not sure',                   label: 'I am not sure',                   description: 'Still figuring out what I want',         order: 5 },
   { type: 'looking-for', value: 'A Committed relationship',        label: 'A Committed relationship',        description: 'Looking for commitment',                   order: 6 },
   { type: 'looking-for', value: 'Marriage',                        label: 'Marriage',                        description: 'Looking to get married',                  order: 7 },
   { type: 'looking-for', value: 'Friendship',                      label: 'Friendship',                      description: 'Interested in meaningful connections',    order: 8 },

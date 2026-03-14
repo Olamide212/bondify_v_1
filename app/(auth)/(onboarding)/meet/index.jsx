@@ -1,14 +1,14 @@
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
+    ActivityIndicator,
     Keyboard,
     KeyboardAvoidingView,
     Platform,
     SafeAreaView,
     Text,
     TouchableWithoutFeedback,
-    View,
-      ActivityIndicator
+    View
 } from "react-native";
 
 import CheckboxSelect from "../../../../components/inputs/CheckboxSelect";
@@ -61,12 +61,14 @@ const Meet = () => {
                 title="Continue"
                 variant="gradient"
                 onPress={async () => {
-                  // Map selected values to their labels
-                  const preferenceLabels = selectedOptions.map(val => {
-                    const opt = meetOptions.find(o => o.value === val);
-                    return opt ? opt.label : val;
+                  // Persist canonical values so matching logic aligns with profile genders
+                  const preferenceValues = selectedOptions.map((val) => {
+                    const opt = meetOptions.find((o) => o.value === val);
+                    return opt ? opt.value : val;
                   });
-                  await updateProfileStep({ discoveryPreferences: { genderPreference: preferenceLabels } });
+                  await updateProfileStep({
+                    discoveryPreferences: { genderPreference: preferenceValues },
+                  });
                   router.push("/preference");
                 }}
               />

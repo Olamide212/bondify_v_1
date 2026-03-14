@@ -51,6 +51,8 @@ export default function FeedProfileScreen() {
   const [loadingData, setLoadingData] = useState(false);
   const [displayNameText, setDisplayNameText] = useState(() => getDisplayName(currentUser));
 
+
+
   useEffect(() => {
     if (!currentUser?._id) return;
     setLoadingData(true);
@@ -83,6 +85,8 @@ export default function FeedProfileScreen() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentUser?._id]);
 
+  
+  // handle pick photo, upload, and update profile photo URL
   const handlePickPhoto = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,

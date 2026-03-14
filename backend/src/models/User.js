@@ -539,8 +539,8 @@ const userSchema = new mongoose.Schema(
       type: String,
       // Must match looking-for seed values exactly
       enum: [
-        'Long term relationship', 'Something Casual', 'Short term relationship',
-        'Meet business oriented people', 'I am not sure', 'A Committed relationship',
+        'Long term relationship', 'Something Casual',
+       'A Committed relationship',
         'Marriage', 'Friendship', 'Activity partner', 'Just here for fun', 'Other',
       ],
     },

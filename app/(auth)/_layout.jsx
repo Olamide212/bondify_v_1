@@ -20,7 +20,7 @@ export default function AuthLayout() {
   const isForgotPassword = segments.includes("forgot-password");
   const isResetPassword = segments.includes("reset-password");
 
-  // Pre-auth screens that users explicitly navigate to — these should
+  // Pre-auth screens that users explicitly navigate to 09021376474— these should
   // never be interrupted by the onboarding-token redirect.
   const isPreAuthScreen = isLogin || isRegister || isForgotPassword || isResetPassword;
 
@@ -59,7 +59,12 @@ export default function AuthLayout() {
     <SafeAreaView className={"flex-1 bg-white px-4"}>
       {!isOnboarding && <HeaderWithLogo showBackButton={!isLogin} />}
       <StatusBar style="dark" />
-      <Stack screenOptions={{ headerShown: false, gestureEnabled: false }}>
+      <Stack screenOptions={{
+    headerShown: false,
+    gestureEnabled: false,
+    contentStyle: { backgroundColor: "#fff" },
+    cardOverlayEnabled: false,
+  }}>
         <Stack.Screen name="login" />
         <Stack.Screen name="register" />
         <Stack.Screen name="reset-password" />
