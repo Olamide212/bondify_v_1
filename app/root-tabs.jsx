@@ -12,6 +12,7 @@ import HomeScreen from "./(root)/(tab)/home";
 import MapScreen from "./(root)/(tab)/map";
 import MatchesScreen from "./(root)/(tab)/matches";
 import ProfileScreen from "./(root)/(tab)/profile";
+import FeedScreen from "./(root)/(tab)/feed";
 
 const Tab = createBottomTabNavigator();
 
@@ -119,7 +120,7 @@ const RootTabs = () => {
 
         <Tab.Screen
           name="Map"
-          component={MapScreen}
+          component={FeedScreen}
           options={{
             tabBarIcon: ({ focused }) => (
               <TabIcon focused={focused} customImage={Icons.mapIcon} />

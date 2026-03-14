@@ -42,7 +42,7 @@ const LanguageSelection = ({ profile, onUpdateField }) => {
   }
 
   return (
-    <View style={s.container}>
+    <View style={s.container} className='mx-3 border border-gray-100'>
       {/* Display selected languages */}
       <View style={s.selectedContainer}>
         {selected.length > 0 ? (
