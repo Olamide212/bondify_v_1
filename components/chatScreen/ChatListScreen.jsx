@@ -1,22 +1,23 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useRouter } from "expo-router";
 import { User } from "lucide-react-native";
 import React, { useEffect, useRef } from "react";
 import {
-  ActivityIndicator,
-  Animated,
-  FlatList,
-  Image,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Animated,
+    FlatList,
+    Image,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { colors } from "../../constant/colors";
 import { images } from "../../constant/images";
-import GeneralHeader from "../headers/GeneralHeader";
 import { formatRelativeDate } from "../../utils/helper";
-import { useRouter } from "expo-router";
+import GeneralHeader from "../headers/GeneralHeader";
+import VerifiedIcon from "../ui/VerifiedIcon";
 
 // ─── Avatar URI cache (unchanged) ─────────────────────────────────────────────
 
@@ -383,11 +384,28 @@ const ChatListScreen = ({ users, onSelectUser, isLoading = false }) => {
             renderItem={({ item }) => (
               <TouchableOpacity style={styles.matchItem} onPress={() => onSelectUser(item)}>
                 <View style={styles.profileContainer}>
-                  <AvatarImage uri={item.profileImage} style={styles.profileImage} iconSize={20} isCacheReady={isAvatarCacheHydrated} />
-                  {item.isOnline && <View style={styles.onlineIndicator} />}
+                  {item.isSystem ? (
+                    <View style={[styles.profileImage, styles.avatarFallback, styles.systemAvatar]}>
+                      <Image
+                        source={images.bondiesMainicon}
+                        style={{ width: 36, height: 36 }}
+                        resizeMode="contain"
+                      />
+                    </View>
+                  ) : (
+                    <AvatarImage uri={item.profileImage} style={styles.profileImage} iconSize={20} isCacheReady={isAvatarCacheHydrated} />
+                  )}
+                  {item.isOnline && !item.isSystem && <View style={styles.onlineIndicator} />}
                 </View>
                 <View style={styles.matchInfo}>
-                  <Text style={styles.matchName}>{getFirstName(item.name)}</Text>
+                  <View style={styles.nameRow}>
+                    <Text style={styles.matchName}>
+                      {item.isSystem ? item.name : getFirstName(item.name)}
+                    </Text>
+                    {item.isVerified && (
+                      <VerifiedIcon style={styles.verifiedBadge} />
+                    )}
+                  </View>
                   <Text style={styles.matchMessage} numberOfLines={1}>
                     {item.lastMessage || 'No messages yet'}
                   </Text>
@@ -476,7 +494,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#10B981', borderWidth: 2, borderColor: '#fff',
   },
   matchInfo: { flex: 1, justifyContent: 'center' },
+  nameRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   matchName: { fontSize: 15, fontFamily: 'PlusJakartaSansBold', color: '#1F2937', textTransform: 'capitalize' },
+  verifiedBadge: { width: 15, height: 15 },
+  systemAvatar: { backgroundColor: '#F0F4FF', borderWidth: 1.5, borderColor: '#6366F1', justifyContent: 'center', alignItems: 'center' },
   matchMessage: { fontSize: 13, color: '#9CA3AF', marginTop: 3, fontFamily: 'PlusJakartaSans' },
   matchMeta: { alignItems: 'flex-end' },
   matchTime: { fontSize: 11, color: '#9CA3AF', fontFamily: 'PlusJakartaSans' },

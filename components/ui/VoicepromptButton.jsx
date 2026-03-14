@@ -1,12 +1,3 @@
-/**
- * VoicePromptButton.jsx
- *
- * Standalone component used in discovery cards for voice prompt playback.
- *
- * Uses createAudioPlayer for on-demand imperative control: create on tap,
- * release when done or on unmount.
- */
-
 import { createAudioPlayer, setAudioModeAsync } from 'expo-audio';
 import { Pause, Play } from 'lucide-react-native';
 import { useEffect, useRef, useState } from 'react';
@@ -14,73 +5,101 @@ import {
   ActivityIndicator,
   Animated,
   StyleSheet,
-  Text,
   TouchableOpacity,
   View,
 } from 'react-native';
 import { colors } from '../../constant/colors';
 
-// ─── Audio mode ───────────────────────────────────────────────────────────────
+// ─── Audio mode ─────────────────────────────────────────
 const ensureAudioMode = async () => {
   await setAudioModeAsync({
     playsInSilentMode: true,
     shouldPlayInBackground: false,
     interruptionMode: 'mixWithOthers',
-    allowsRecording: false,
-    allowsBackgroundRecording: false,
-    shouldDuckAndroid: false,
   });
 };
 
-// ─── Mini waveform ────────────────────────────────────────────────────────────
+// ─── Expanded waveform ──────────────────────────────────
 
 const MiniWaveform = ({ isActive }) => {
   const bars = useRef(
-    Array.from({ length: 5 }, () => new Animated.Value(0.35))
+    Array.from({ length: 32 }, () => new Animated.Value(0.35))
   ).current;
 
   useEffect(() => {
     let anims;
+
     if (isActive) {
       anims = bars.map((bar, i) =>
         Animated.loop(
           Animated.sequence([
-            Animated.timing(bar, { toValue: 0.3 + Math.random() * 0.7, duration: 170 + i * 55, useNativeDriver: true }),
-            Animated.timing(bar, { toValue: 0.25, duration: 170 + i * 55, useNativeDriver: true }),
+            Animated.timing(bar, {
+              toValue: 0.25 + Math.random() * 1,
+              duration: 150 + i * 15,
+              useNativeDriver: true,
+            }),
+            Animated.timing(bar, {
+              toValue: 0.25,
+              duration: 150 + i * 15,
+              useNativeDriver: true,
+            }),
           ])
         )
       );
+
       anims.forEach((a) => a.start());
     } else {
       bars.forEach((bar) =>
-        Animated.timing(bar, { toValue: 0.35, duration: 180, useNativeDriver: true }).start()
+        Animated.timing(bar, {
+          toValue: 0.35,
+          duration: 200,
+          useNativeDriver: true,
+        }).start()
       );
     }
+
     return () => anims?.forEach((a) => a.stop());
-  }, [isActive]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [isActive]);
 
   return (
     <View style={wv.row}>
       {bars.map((bar, i) => (
-        <Animated.View key={i} style={[wv.bar, { transform: [{ scaleY: bar }] }]} />
+        <Animated.View
+          key={i}
+          style={[
+            wv.bar,
+            {
+              transform: [{ scaleY: bar }],
+            },
+          ]}
+        />
       ))}
     </View>
   );
 };
 
 const wv = StyleSheet.create({
-  row: { flexDirection: 'row', alignItems: 'center', gap: 3, height: 22 },
-  bar: { width: 3, height: 18, borderRadius: 2, backgroundColor: '#fff' },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+    gap: 3,
+    height: 24,
+  },
+  bar: {
+    width: 3,
+    height: 18,
+    borderRadius: 2,
+    backgroundColor: '#fff',
+  },
 });
 
-// ─── VoicePromptButton ────────────────────────────────────────────────────────
+// ─── Voice Prompt Button ─────────────────────────────────
 
 const VoicePromptButton = ({ uri }) => {
-  // phase: 'idle' | 'loading' | 'playing' | 'paused'
   const [phase, setPhase] = useState('idle');
   const playerRef = useRef(null);
 
-  // Cleanup on unmount
   useEffect(() => {
     return () => {
       if (playerRef.current) {
@@ -94,22 +113,20 @@ const VoicePromptButton = ({ uri }) => {
   const handlePress = async () => {
     if (!uri) return;
 
-    // ── Pause ──────────────────────────────────────────────────────────────
     if (phase === 'playing') {
       playerRef.current?.pause();
       setPhase('paused');
       return;
     }
 
-    // ── Resume ─────────────────────────────────────────────────────────────
     if (phase === 'paused') {
       playerRef.current?.play();
       setPhase('playing');
       return;
     }
 
-    // ── Load + Play ────────────────────────────────────────────────────────
     setPhase('loading');
+
     try {
       await ensureAudioMode();
 
@@ -125,7 +142,6 @@ const VoicePromptButton = ({ uri }) => {
       player.addListener('playbackStatusUpdate', (status) => {
         if (status.didJustFinish) {
           setPhase('idle');
-          player.removeAllListeners('playbackStatusUpdate');
           player.seekTo(0);
         }
       });
@@ -141,48 +157,53 @@ const VoicePromptButton = ({ uri }) => {
   const isLoading = phase === 'loading';
 
   return (
-    <TouchableOpacity onPress={handlePress} activeOpacity={0.82} style={vp.pill}>
+    <TouchableOpacity
+      onPress={handlePress}
+      activeOpacity={0.85}
+      style={vp.container}
+    >
       <View style={vp.iconCircle}>
         {isLoading ? (
           <ActivityIndicator size="small" color={colors.primary} />
         ) : isPlaying ? (
-          <Pause size={14} color={colors.primary} strokeWidth={2.5} />
+          <Pause size={16} color={colors.primary} strokeWidth={2.5} />
         ) : (
-          <Play size={14} color={colors.primary} strokeWidth={2.5} />
+          <Play size={16} color={colors.primary} strokeWidth={2.5} />
         )}
       </View>
 
       <MiniWaveform isActive={isPlaying} />
-
-      <Text style={vp.label}>
-        {isPlaying ? 'Playing…' : phase === 'paused' ? 'Paused' : 'Voice prompt'}
-      </Text>
     </TouchableOpacity>
   );
 };
 
 const vp = StyleSheet.create({
-  pill: {
-    flexDirection:     'row',
-    alignItems:        'center',
-    gap:               8,
-    backgroundColor:   'rgba(0,0,0,0.52)',
-    borderWidth:       1,
-    borderColor:       'rgba(255,255,255,0.25)',
-    paddingHorizontal: 14,
-    paddingVertical:   9,
-    borderRadius:      99,
-    alignSelf:         'flex-start',
+  container: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 14,
+
+    width: '100%',
+
+    backgroundColor: 'rgba(0,0,0,0.55)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.25)',
+
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+
+    borderRadius: 40,
   },
+
   iconCircle: {
-    width:           28,
-    height:          28,
-    borderRadius:    14,
+    width: 34,
+    height: 34,
+    borderRadius: 20,
     backgroundColor: '#fff',
-    alignItems:      'center',
-    justifyContent:  'center',
+
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  label: { color: '#fff', fontSize: 13, fontFamily: 'PlusJakartaSansMedium' },
 });
 
 export default VoicePromptButton;

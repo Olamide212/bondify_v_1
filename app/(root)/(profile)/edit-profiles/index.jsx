@@ -14,21 +14,24 @@ import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { ArrowLeft } from 'lucide-react-native';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
-  ActivityIndicator,
-  Alert,
-  Animated,
-  Dimensions,
-  RefreshControl,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Alert,
+    Animated,
+    Dimensions,
+    RefreshControl,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import GeneralHeader from '../../../../components/headers/GeneralHeader';
+import OwnProfileCard from '../../../../components/homeScreen/OwnProfileCard';
 import AboutMe from '../../../../components/profileScreen/About';
 import BasicInfo from '../../../../components/profileScreen/BasicInfo';
+import InterestCard from '../../../../components/profileScreen/InterestCard';
+import LanguageSelection from '../../../../components/profileScreen/LanguageSelection';
 import Location from '../../../../components/profileScreen/Location';
 import MyInfo from '../../../../components/profileScreen/MyInfo';
 import Occupation from '../../../../components/profileScreen/Occupation';
@@ -42,10 +45,6 @@ import TextHeadingOne from '../../../../components/ui/TextHeadingOne';
 import { colors as C } from '../../../../constant/colors';
 import { useTheme } from '../../../../context/ThemeContext';
 import { profileService } from '../../../../services/profileService';
-import InterestCard from '../../../../components/profileScreen/InterestCard';
-import LifestyleCard from '../../../../components/profileScreen/Lifestyle';
-import LanguageSelection from '../../../../components/profileScreen/LanguageSelection';
-import ProfileCard from '../../../../components/homeScreen/ProfileCard';
 
 const { width: SW } = Dimensions.get('window');
 const TABS = ['Edit', 'View Profile'];
@@ -121,7 +120,7 @@ const tb = StyleSheet.create({
 // ─── View Profile tab ─────────────────────────────────────────────────────────
 
 const ViewProfileTab = ({ profile }) => {
-  // Normalise profile images so ProfileCard can render them
+  // Normalise profile images so OwnProfileCard can render them
   const normalizedProfile = {
     ...profile,
     images: Array.isArray(profile?.images)
@@ -132,7 +131,7 @@ const ViewProfileTab = ({ profile }) => {
 
   return (
     <View style={{ flex: 1 }}>
-      <ProfileCard profile={normalizedProfile} />
+      <OwnProfileCard profile={normalizedProfile} />
     </View>
   );
 };

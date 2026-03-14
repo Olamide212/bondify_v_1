@@ -1,6 +1,7 @@
 const Post   = require('../models/Post');
 const Follow = require('../models/Follow');
 const User   = require('../models/User');
+const { uploadToS3 } = require('../utils/imageHelper');
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
 const AUTHOR_SELECT = 'firstName lastName profilePhoto userName nationality images';
@@ -224,7 +225,7 @@ const getUserPosts = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
-// ─── PATCH /api/feed/social-profile ─── update username / profilePhoto ───────
+// ─── PATCH /api/feed/social-profile ─── update userName ─────────────────────
 const updateSocialProfile = async (req, res, next) => {
   try {
     const { userName, profilePhoto } = req.body;
@@ -235,6 +236,25 @@ const updateSocialProfile = async (req, res, next) => {
       .select(AUTHOR_SELECT)
       .lean();
     res.json({ success: true, data: user });
+  } catch (err) { next(err); }
+};
+
+// ─── POST /api/feed/social-profile/photo ── upload social avatar to S3 ───────
+const uploadSocialPhoto = async (req, res, next) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: 'No file uploaded.' });
+    }
+
+    const { url } = await uploadToS3(req.file, `social-avatars/${req.user._id}`);
+
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      { profilePhoto: url },
+      { new: true }
+    ).select(AUTHOR_SELECT).lean();
+
+    res.json({ success: true, data: { user, profilePhoto: url } });
   } catch (err) { next(err); }
 };
 
@@ -277,4 +297,5 @@ module.exports = {
   getSavedPosts,
   getUserPosts,
   updateSocialProfile,
+  uploadSocialPhoto,
 };

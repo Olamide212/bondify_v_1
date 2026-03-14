@@ -3,6 +3,7 @@ const { generateToken, generateOnboardingToken } = require('../config/jwt');
 const { generateOTP, calculateOTPExpiry } = require('../config/otp');
 const { generateReferralCode } = require('../utils/referral');
 const { sendOtpEmail, sendWelcomeEmail } = require('../utils/termiiService');
+const { sendWelcomeChat } = require('../utils/welcomeChat');
 
 // @desc    Register new user
 // @route   POST /api/auth/signup
@@ -143,6 +144,9 @@ const verifyOtp = async (req, res, next) => {
     await user.save();
 
     await sendWelcomeEmail({ email, firstName: user.firstName });
+
+    // Fire-and-forget welcome chat message from Bondies Team
+    sendWelcomeChat(user._id);
 
     const token           = generateToken(user._id);
     const onboardingToken = generateOnboardingToken(user._id);

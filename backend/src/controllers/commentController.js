@@ -1,4 +1,5 @@
 const Comment  = require('../models/Comment');
+const Match    = require('../models/Match');
 const User     = require('../models/User');
 
 // Helper — send in-app socket notification to the target user if they're online.
@@ -55,7 +56,49 @@ const sendComment = async (req, res, next) => {
       createdAt: comment.createdAt,
     });
 
-    return res.status(201).json({ success: true, data: comment });
+    // ── Auto-match on mutual compliment ───────────────────────
+    // If targetUser had already sent a compliment to fromUser → they both showed
+    // interest → automatically create a match between them.
+    let autoMatch = null;
+    try {
+      const reverseComment = await Comment.findOne({
+        fromUser: targetUserId,
+        toUser:   fromUserId,
+      }).lean();
+
+      if (reverseComment) {
+        const existingMatch = await Match.findOne({
+          $or: [
+            { user1: fromUserId,   user2: targetUserId },
+            { user1: targetUserId, user2: fromUserId   },
+          ],
+        });
+
+        if (!existingMatch) {
+          const now = new Date();
+          autoMatch = await Match.create({
+            user1:         fromUserId,
+            user2:         targetUserId,
+            status:        'matched',
+            initiatedBy:   targetUserId,
+            matchedAt:     now,
+            lastMessageAt: now,
+            unreadCount:   { user1: 1, user2: 0 },
+          });
+          // Notify both parties in real time
+          emitNotification(String(fromUserId),   { type: 'new_match', userId: String(targetUserId) });
+          emitNotification(String(targetUserId), { type: 'new_match', userId: String(fromUserId)   });
+        }
+      }
+    } catch (matchErr) {
+      console.error('[commentController] auto-match failed:', matchErr?.message);
+    }
+
+    return res.status(201).json({
+      success:   true,
+      data:      comment,
+      autoMatch: autoMatch ? { matched: true, matchId: autoMatch._id } : null,
+    });
   } catch (error) {
     next(error);
   }

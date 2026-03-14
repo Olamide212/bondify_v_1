@@ -1,16 +1,16 @@
 import * as ImagePicker from "expo-image-picker";
 import { Plus } from "lucide-react-native";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
-  ActivityIndicator,
-  Alert,
-  Image,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Alert,
+    Image,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { colors } from "../../constant/colors";
 import feedService from "../../services/feedService";
@@ -70,29 +70,25 @@ const FeedProfileSheet = ({ visible, user, onClose, onUpdate }) => {
     const mimeType = asset.mimeType || "image/jpeg";
 
     try {
-      // Upload the image via the upload endpoint
       const formData = new FormData();
-      formData.append("photos", {
+      formData.append("profilePhoto", {
         uri,
         name: fileName,
         type: mimeType,
       });
 
-      const uploadRes = await apiClient.post("/upload/photos", formData, {
+      const res = await apiClient.post("/feed/social-profile/photo", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
       const uploadedUrl =
-        uploadRes.data?.data?.images?.slice(-1)[0]?.url ??
-        uploadRes.data?.data?.urls?.[0] ??
-        uploadRes.data?.urls?.[0] ??
-        uploadRes.data?.data?.[0]?.url ??
+        res.data?.data?.profilePhoto ??
+        res.data?.data?.user?.profilePhoto ??
         uri;
 
-      await feedService.updateSocialProfile({ profilePhoto: uploadedUrl });
       onUpdate?.({ profilePhoto: uploadedUrl });
-    } catch {
-      Alert.alert("Error", "Could not update photo.");
+    } catch (e) {
+      Alert.alert("Error", e?.response?.data?.message ?? "Could not update photo.");
     }
   };
 

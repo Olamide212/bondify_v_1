@@ -1,7 +1,7 @@
 // app/(tabs)/chat/index.js  (or wherever your Chat tab lives)
 
 import { useFocusEffect, useRouter } from "expo-router";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { useSelector } from "react-redux";
 import ChatListScreen from "../../../../components/chatScreen/ChatListScreen";
@@ -50,16 +50,20 @@ const normalizeMatches = (matches) =>
     return {
       id:           match.user?._id ?? match.user?.id,
       matchId:      match.matchId ?? match.id,
-      name:         getFirstName(
-        match.user?.name ||
-          [match.user?.firstName, match.user?.lastName].filter(Boolean).join(" ") ||
-          "Unknown"
-      ),
+      name:         match.user?.isSystem
+        ? ([match.user?.firstName, match.user?.lastName].filter(Boolean).join(' ') || 'Bondies Team')
+        : getFirstName(
+            match.user?.name ||
+              [match.user?.firstName, match.user?.lastName].filter(Boolean).join(' ') ||
+              'Unknown'
+          ),
       profileImage,
       isOnline:     match.user?.online ?? false,
+      isSystem:     match.user?.isSystem ?? false,
+      isVerified:   match.user?.verificationStatus === 'approved' || !!match.user?.verified,
       matchedDate:  match.matchedAt ? new Date(match.matchedAt) : new Date(),
       activityAt:   getActivityTimestamp(match),
-      lastMessage:  latestMessage || (hasChatted ? "Tap to continue chatting" : "No messages yet"),
+      lastMessage:  latestMessage || (hasChatted ? 'Tap to continue chatting' : 'No messages yet'),
       unread:       Number(match.unread || 0),
       hasChatted,
     };

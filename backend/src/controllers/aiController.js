@@ -46,7 +46,7 @@ Their name: ${them.firstName}
 Their interests: ${(them.interests || []).join(', ') || 'Not specified'}
 Their occupation: ${them.occupation || 'Not specified'}
 
-Generate exactly 3 fun, genuine, non-cheesy conversation starters that reference shared interests or spark curiosity. Keep each under 30 words. Format as a JSON array of strings.`;
+Generate exactly 3 openers — mix of: a clever pick-up line, a witty question, and a warm genuine icebreaker that references shared interests. Keep each under 30 words. No boring "Hey!" openers. Format as a JSON array of strings.`;
 
     const ai = getOpenAI();
     const response = await ai.chat.completions.create({
@@ -340,10 +340,10 @@ const suggestMessage = async (req, res, next) => {
       occupation && `works as: ${occupation}`,
     ].filter(Boolean).join('; ');
 
-    const prompt = `You are helping someone send a first message on a dating app to ${name}.
+    const prompt = `You are a confident dating coach helping someone craft an irresistible opening message on a dating app to ${name}.
 ${contextBits ? `Their profile: ${contextBits}.` : ''}
-Write ONE short, genuine opening message (max 2 sentences, under 25 words).
-Be warm and specific to their profile if possible. Use 1 emoji max. No generic openers like "Hey how are you".
+Write ONE short opening — choose from: a clever pick-up line, a witty observation, or a warm specific comment about their profile (max 2 sentences, under 25 words).
+Be charming, bold, and specific. Use 1 emoji max. Avoid generic openers like "Hey how are you" or "You seem cool".
 Reply with ONLY the message text, nothing else.`;
 
     const completion = await openai.chat.completions.create({
@@ -390,11 +390,11 @@ const suggestPhotoComment = async (req, res, next) => {
       occupation && `works as: ${occupation}`,
     ].filter(Boolean).join('; ');
 
-    const prompt = `You are helping someone write a comment on photo #${imageIndex + 1} of ${name}'s dating profile.
+    const prompt = `You are a flirty dating coach helping someone send a charming compliment or pick-up line on a dating app to ${name}.
 ${contextBits ? `Their profile: ${contextBits}.` : ''}
-Write ONE short, genuine photo comment (max 1 sentence, under 20 words).
-Be warm, specific, and flattering. Use 1 emoji max. Avoid generic phrases like "nice pic" or "so beautiful".
-Reply with ONLY the comment text, nothing else.`;
+Write ONE short, flirty, clever message — it can be a smooth pick-up line, a witty icebreaker, or a specific compliment tied to their profile (max 1-2 sentences, under 25 words).
+Be playful, confident, and specific. Use 1 emoji max. Avoid clichés like "nice pic", "you're gorgeous", or "so beautiful".
+Reply with ONLY the message text, nothing else.`;
 
     const completion = await openai.chat.completions.create({
       model: 'gpt-4o-mini',
@@ -426,20 +426,20 @@ const suggestPost = async (req, res, next) => {
     const occupation = user.occupation || '';
     const bio = user.bio || '';
 
-    const prompt = `You are a creative social media assistant for a dating app called Bondify.
-Help a user write an engaging post for their social feed.
+    const prompt = `You are a creative assistant for Bondify, a dating app social feed. Help a user write an engaging post.
 
 User context:
 - Interests: ${interests}
 - Occupation: ${occupation ? occupation : 'not specified'}
 - Bio: ${bio ? bio : 'not provided'}
-${context ? `- Their idea/topic: ${context}` : ''}
+${context ? `- Topic hint: ${context}` : ''}
 
-Generate 3 different post suggestions that are:
-1. Warm, genuine, and conversation-starting
-2. Between 1-3 sentences each
-3. Authentic to a dating app social feed
-4. Not too formal or too casual
+Generate 3 different post ideas. Mix these styles:
+1. A vulnerable/honest dating confession or what they're genuinely looking for in a partner
+2. A playful, witty dating question or relationship green-flag post that sparks conversation
+3. A fun dating-themed prompt, date idea suggestion, or love-language related thought
+
+Each post should be 1-3 sentences, warm, and specific to a dating app audience.
 
 Return ONLY a JSON array of 3 strings, no other text.`;
 

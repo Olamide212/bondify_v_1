@@ -39,6 +39,7 @@ import PostDetailModal from "../../../../components/feed/PostDetailModal";
 import PostOptionsModal from "../../../../components/feed/PostOptionsModal";
 import { colors } from "../../../../constant/colors";
 import feedService from "../../../../services/feedService";
+import {images} from "../../../../constant/images"
 
 const BRAND = colors.primary;
 const TABS = ["For You", "New", "Following"];
@@ -322,7 +323,8 @@ export default function BonFeed() {
     <SafeAreaView style={fStyles.container} edges={["top"]}>
       {/* Header */}
       <View style={fStyles.header}>
-        <Text style={fStyles.brand}>BonFeed</Text>
+        <Image source={images.bonFeed} style={{width: 100, height: 40}} resizeMode="contain" />
+       
         <TouchableOpacity onPress={() => setShowProfile(true)}>
           {userAvatar ? (
             <Image source={{ uri: userAvatar }} style={fStyles.headerAvatar} />
@@ -468,7 +470,6 @@ const fStyles = StyleSheet.create({
     fontSize: 22,
     fontFamily: "PlusJakartaSansBold",
     color: BRAND,
-    letterSpacing: 0.5,
   },
   headerAvatar: { width: 38, height: 38, borderRadius: 19 },
   headerAvatarFallback: {

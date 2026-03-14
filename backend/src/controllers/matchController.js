@@ -460,8 +460,8 @@ const getMatches = async (req, res, next) => {
         $or: [{ user1: userId }, { user2: userId }],
         status: 'matched',
       })
-        .populate('user1', 'firstName lastName name age images bio location lastActive online verified')
-        .populate('user2', 'firstName lastName name age images bio location lastActive online verified')
+        .populate('user1', 'firstName lastName name age images bio location lastActive online verified isSystem')
+        .populate('user2', 'firstName lastName name age images bio location lastActive online verified isSystem')
         .sort({ lastMessageAt: -1, matchedAt: -1 })
         .skip(skip)
         .limit(sanitizedLimit),

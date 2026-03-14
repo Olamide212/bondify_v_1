@@ -1,6 +1,7 @@
 const express    = require('express');
 const router     = express.Router();
 const { protect } = require('../middleware/auth');
+const upload     = require('../middleware/upload');
 const {
   getFeed,
   createPost,
@@ -15,6 +16,7 @@ const {
   getSavedPosts,
   getUserPosts,
   updateSocialProfile,
+  uploadSocialPhoto,
 } = require('../controllers/feedController');
 
 router.use(protect);
@@ -23,7 +25,8 @@ router.use(protect);
 router.get('/',                          getFeed);
 router.post('/',                         createPost);
 router.get('/saved',                     getSavedPosts);
-router.patch('/social-profile',          updateSocialProfile);
+router.patch('/social-profile',                        updateSocialProfile);
+router.post('/social-profile/photo', upload.single('profilePhoto'), uploadSocialPhoto);
 router.get('/profile/:userId',           getUserPosts);
 router.get('/:postId',                   getPost);
 router.delete('/:postId',                deletePost);

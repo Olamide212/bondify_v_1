@@ -12,31 +12,32 @@
  *   onSent():      optional callback after successful send
  */
 
-import AIService   from "../../services/aiService";
-import { commentService } from "../../services/commentService";
 import { Sparkles, X } from "lucide-react-native";
 import { useRef, useState } from "react";
 import {
-  ActivityIndicator,
-  Animated,
-  Image,
-  KeyboardAvoidingView,
-  Modal,
-  Platform,
-  Pressable,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Animated,
+    Image,
+    KeyboardAvoidingView,
+    Modal,
+    Platform,
+    Pressable,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { colors } from "../../constant/colors";
+import AIService from "../../services/aiService";
+import { commentService } from "../../services/commentService";
 
 const ComplimentModal = ({ visible, onClose, targetUser, onSent }) => {
   const [text,          setText]         = useState("");
   const [loading,       setLoading]      = useState(false);
   const [aiLoading,     setAiLoading]    = useState(false);
   const [sent,          setSent]         = useState(false);
+  const [matched,       setMatched]      = useState(false);
   const [error,         setError]        = useState(null);
   const [aiSuggestions, setAiSuggestions] = useState([]);
 
@@ -45,6 +46,7 @@ const ComplimentModal = ({ visible, onClose, targetUser, onSent }) => {
   const handleClose = () => {
     setText("");
     setSent(false);
+    setMatched(false);
     setError(null);
     setAiSuggestions([]);
     onClose();
@@ -73,16 +75,18 @@ const ComplimentModal = ({ visible, onClose, targetUser, onSent }) => {
     setLoading(true);
     setError(null);
     try {
-      await commentService.sendPhotoComment({
+      const res = await commentService.sendPhotoComment({
         targetUserId: targetUser._id,
         imageIndex:   0,
         imageUrl:     null,
         content:      text.trim(),
       });
+      const isMatch = res?.data?.autoMatch?.matched === true;
+      setMatched(isMatch);
       setSent(true);
       // Animate checkmark
       Animated.spring(sentScale, { toValue: 1, useNativeDriver: true, bounciness: 10 }).start();
-      setTimeout(handleClose, 1800);
+      setTimeout(handleClose, isMatch ? 2600 : 1800);
       onSent?.();
     } catch (e) {
       setError(e?.response?.data?.message ?? "Failed to send. Please try again.");
@@ -134,10 +138,16 @@ const ComplimentModal = ({ visible, onClose, targetUser, onSent }) => {
             // ── Success state ─────────────────────────────────────────────
             <View style={styles.successBox}>
               <Animated.Text style={[styles.successEmoji, { transform: [{ scale: sentScale }] }]}>
-                💌
+                {matched ? '🎉' : '💌'}
               </Animated.Text>
-              <Text style={styles.successTitle}>Compliment sent!</Text>
-              <Text style={styles.successSub}>{firstName} will see it in their inbox.</Text>
+              <Text style={styles.successTitle}>
+                {matched ? "It's a match!" : 'Compliment sent!'}
+              </Text>
+              <Text style={styles.successSub}>
+                {matched
+                  ? `You and ${firstName} both showed interest — you're now matched! 🔥`
+                  : `${firstName} will see it in their inbox.`}
+              </Text>
             </View>
           ) : (
             <>
@@ -205,7 +215,7 @@ const ComplimentModal = ({ visible, onClose, targetUser, onSent }) => {
                   {loading ? (
                     <ActivityIndicator size="small" color="#fff" />
                   ) : (
-                    <Text style={styles.sendBtnText}>Send 💌</Text>
+                    <Text style={styles.sendBtnText}>Send</Text>
                   )}
                 </TouchableOpacity>
               </View>

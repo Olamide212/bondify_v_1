@@ -667,6 +667,7 @@ verificationSubmittedAt: { type: Date },
     // Account Status
     isActive:     { type: Boolean, default: true  },
     isDeleted:    { type: Boolean, default: false },
+    isSystem:     { type: Boolean, default: false },
     deactivatedAt:{ type: Date },
     deletedAt:    { type: Date },
   },

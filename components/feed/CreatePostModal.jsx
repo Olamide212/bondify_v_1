@@ -1,7 +1,10 @@
+import * as ImagePicker from "expo-image-picker";
+import { ChevronLeft, ImagePlus, Sparkles, X } from "lucide-react-native";
+import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Image,
-  KeyboardAvoidingView,
+  Keyboard,
   Platform,
   ScrollView,
   StyleSheet,
@@ -10,9 +13,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import * as ImagePicker from "expo-image-picker";
-import { ChevronLeft, ImagePlus, Sparkles, X } from "lucide-react-native";
-import React, { useState } from "react";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { colors } from "../../constant/colors";
 import feedService from "../../services/feedService";
 import BaseModal from "../modals/BaseModal";
@@ -23,10 +24,11 @@ const DEFAULT_MIME_TYPE = "image/jpeg";
 const MAX_MEDIA = 4;
 
 const CreatePostModal = ({ visible, onClose, onCreated }) => {
+  const insets = useSafeAreaInsets();
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
   const [text, setText] = useState("");
   const [loading, setLoading] = useState(false);
   const [aiLoading, setAiLoading] = useState(false);
-  const [aiContext, setAiContext] = useState("");
   const [suggestions, setSuggestions] = useState([]);
   const [error, setError] = useState(null);
   const [mediaAssets, setMediaAssets] = useState([]);
@@ -78,7 +80,6 @@ const CreatePostModal = ({ visible, onClose, onCreated }) => {
       onCreated(res.data);
       setText("");
       setSuggestions([]);
-      setAiContext("");
       setMediaAssets([]);
       onClose();
     } catch {
@@ -92,7 +93,8 @@ const CreatePostModal = ({ visible, onClose, onCreated }) => {
     setAiLoading(true);
     setError(null);
     try {
-      const res = await feedService.suggestPost(aiContext);
+      // Use current post text as the topic hint; backend falls back to profile context if empty
+      const res = await feedService.suggestPost(text.trim());
       setSuggestions(res.data?.suggestions ?? []);
     } catch {
       setError("AI suggestion failed. Try again.");
@@ -101,12 +103,24 @@ const CreatePostModal = ({ visible, onClose, onCreated }) => {
     }
   };
 
+  // Track keyboard height so the footer rides exactly above the keyboard
+  // (more reliable than KeyboardAvoidingView inside a Modal)
+  useEffect(() => {
+    const showEvent = Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow";
+    const hideEvent = Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide";
+    const onShow = (e) => setKeyboardHeight(e.endCoordinates.height);
+    const onHide = () => setKeyboardHeight(0);
+    const sub1 = Keyboard.addListener(showEvent, onShow);
+    const sub2 = Keyboard.addListener(hideEvent, onHide);
+    return () => { sub1.remove(); sub2.remove(); };
+  }, []);
+
+  // Bottom offset: when keyboard is up use its height; when down use safe-area bottom
+  const bottomOffset = keyboardHeight > 0 ? keyboardHeight : insets.bottom;
+
   return (
     <BaseModal visible={visible} onClose={onClose} fullScreen>
-      <KeyboardAvoidingView
-        style={{ flex: 1 }}
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
-      >
+      <View style={[styles.container, { marginBottom: bottomOffset }]}>
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={onClose} hitSlop={10}>
@@ -156,28 +170,6 @@ const CreatePostModal = ({ visible, onClose, onCreated }) => {
             </ScrollView>
           )}
 
-          {/* AI context input */}
-          <View style={styles.aiRow}>
-            <TextInput
-              style={styles.aiInput}
-              placeholder="AI topic hint (optional)…"
-              placeholderTextColor="#CCC"
-              value={aiContext}
-              onChangeText={setAiContext}
-              returnKeyType="done"
-            />
-            <TouchableOpacity style={styles.aiBtn} onPress={handleAI} disabled={aiLoading}>
-              {aiLoading ? (
-                <ActivityIndicator size="small" color={BRAND} />
-              ) : (
-                <>
-                  <Sparkles size={15} color={BRAND} />
-                  <Text style={styles.aiBtnText}> AI</Text>
-                </>
-              )}
-            </TouchableOpacity>
-          </View>
-
           {/* AI suggestions */}
           {suggestions.length > 0 && (
             <View style={styles.suggestions}>
@@ -192,27 +184,40 @@ const CreatePostModal = ({ visible, onClose, onCreated }) => {
           {!!error && <Text style={styles.error}>{error}</Text>}
         </ScrollView>
 
-        {/* Footer */}
+        {/* Footer — icon toolbar sits just above the keyboard */}
         <View style={styles.footer}>
-          <TouchableOpacity
-            style={styles.mediaPickerBtn}
-            onPress={handlePickImage}
-            disabled={mediaAssets.length >= MAX_MEDIA}
-          >
-            {uploadingMedia ? (
-              <ActivityIndicator size="small" color={BRAND} />
-            ) : (
-              <>
-                <ImagePlus size={20} color={mediaAssets.length >= MAX_MEDIA ? "#CCC" : BRAND} />
-                {mediaAssets.length > 0 && (
-                  <Text style={styles.mediaCount}>{mediaAssets.length}/4</Text>
-                )}
-              </>
-            )}
-          </TouchableOpacity>
+          <View style={styles.footerActions}>
+            {/* Image picker */}
+            <TouchableOpacity
+              style={styles.footerAction}
+              onPress={handlePickImage}
+              disabled={mediaAssets.length >= MAX_MEDIA}
+            >
+              {uploadingMedia ? (
+                <ActivityIndicator size="small" color={BRAND} />
+              ) : (
+                <>
+                  <ImagePlus size={22} color={mediaAssets.length >= MAX_MEDIA ? "#CCC" : BRAND} />
+                  {mediaAssets.length > 0 && (
+                    <Text style={styles.mediaCount}>{mediaAssets.length}/4</Text>
+                  )}
+                </>
+              )}
+            </TouchableOpacity>
+
+            {/* AI suggest icon */}
+            <TouchableOpacity style={styles.footerAction} onPress={handleAI} disabled={aiLoading}>
+              {aiLoading ? (
+                <ActivityIndicator size="small" color={BRAND} />
+              ) : (
+                <Sparkles size={22} color={BRAND} />
+              )}
+            </TouchableOpacity>
+          </View>
+
           <Text style={styles.charCount}>{text.length}/2000</Text>
         </View>
-      </KeyboardAvoidingView>
+      </View>
     </BaseModal>
   );
 };
@@ -220,6 +225,9 @@ const CreatePostModal = ({ visible, onClose, onCreated }) => {
 export default CreatePostModal;
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -259,38 +267,6 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     lineHeight: 24,
   },
-  aiRow: {
-    flexDirection: "row",
-    gap: 8,
-    alignItems: "center",
-    marginBottom: 10,
-  },
-  aiInput: {
-    flex: 1,
-    borderWidth: 1,
-    borderColor: "#E5E7EB",
-    borderRadius: 10,
-    padding: 9,
-    fontSize: 13,
-    fontFamily: "PlusJakartaSans",
-    color: "#333",
-  },
-  aiBtn: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-    paddingVertical: 9,
-    paddingHorizontal: 14,
-    borderRadius: 10,
-    borderWidth: 1.5,
-    borderColor: colors.primary,
-    backgroundColor: colors.primaryLight,
-  },
-  aiBtnText: {
-    fontSize: 13,
-    fontFamily: "PlusJakartaSansBold",
-    color: colors.primary,
-  },
   suggestions: { gap: 6, marginBottom: 10 },
   chip: {
     borderRadius: 12,
@@ -307,18 +283,23 @@ const styles = StyleSheet.create({
   error: { color: "red", fontSize: 13, marginBottom: 8 },
   footer: {
     paddingHorizontal: 16,
-    paddingVertical: 10,
+    paddingVertical: 0,
     borderTopWidth: 1,
     borderTopColor: "#F0F0F0",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
   },
-  mediaPickerBtn: {
+  footerActions: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 6,
-    padding: 4,
+    gap: 18,
+  },
+  footerAction: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    padding: 6,
   },
   mediaCount: {
     fontSize: 12,
