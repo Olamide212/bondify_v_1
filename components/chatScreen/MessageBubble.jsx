@@ -1,11 +1,11 @@
 // components/MessageBubble.js
-import * as Clipboard from "expo-clipboard";
 import { createAudioPlayer, setAudioModeAsync } from 'expo-audio';
 import { Check, CheckCheck, Mic, Pause, Play, User } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
+  Clipboard,
   Image,
   Modal,
   Platform,
@@ -105,7 +105,7 @@ const MessageBubble = ({ message, onReply }) => {
 
   const handleCopy = async () => {
     if (!message.text) return;
-    await Clipboard.setStringAsync(message.text);
+    Clipboard.setString(message.text);
     setMenuVisible(false);
     if (Platform.OS === "android") {
       ToastAndroid.show("Copied!", ToastAndroid.SHORT);
@@ -263,9 +263,11 @@ const MessageBubble = ({ message, onReply }) => {
             </View>
             <View style={styles.menuDivider} />
             {/* Actions */}
-            <TouchableOpacity style={styles.menuItem} onPress={handleReply}>
-              <Text style={styles.menuItemText}>↩ Reply</Text>
-            </TouchableOpacity>
+            {onReply && (
+              <TouchableOpacity style={styles.menuItem} onPress={handleReply}>
+                <Text style={styles.menuItemText}>↩ Reply</Text>
+              </TouchableOpacity>
+            )}
             {message.type === "text" && (
               <TouchableOpacity style={styles.menuItem} onPress={handleCopy}>
                 <Text style={styles.menuItemText}>📋 Copy</Text>

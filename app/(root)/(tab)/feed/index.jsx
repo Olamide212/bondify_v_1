@@ -8,7 +8,7 @@
  *  • Clickable posts → PostDetailModal (Twitter-like)
  *  • 3-dots menu → PostOptionsModal (Share, Save, Follow, Mute, Report, Block)
  *  • Create-post FAB → CreatePostModal (full-screen BaseModal)
- *  • FeedProfileSheet (social profile bottom-sheet)
+ *  • FeedProfileScreen (social profile full-screen, navigates to /feed-profile)
  */
 
 import { useRouter } from "expo-router";

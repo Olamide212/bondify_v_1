@@ -79,16 +79,20 @@ const CreatePostModal = ({ visible, onClose, onCreated }) => {
       }
       const res = await feedService.createPost({ content: text.trim(), mediaUrls });
       // Play success sound
+      let postSound;
       try {
-        const { sound } = await Audio.Sound.createAsync(
+        const result = await Audio.Sound.createAsync(
           require("../../assets/sounds/match.wav"),
           { volume: 0.6 }
         );
-        await sound.playAsync();
-        sound.setOnPlaybackStatusUpdate((status) => {
-          if (status.didJustFinish) sound.unloadAsync();
+        postSound = result.sound;
+        await postSound.playAsync();
+        postSound.setOnPlaybackStatusUpdate((status) => {
+          if (status.didJustFinish) postSound.unloadAsync().catch(() => {});
         });
-      } catch { /* non-critical */ }
+      } catch {
+        if (postSound) postSound.unloadAsync().catch(() => {});
+      }
       onCreated(res.data);
       setText("");
       setSuggestions([]);

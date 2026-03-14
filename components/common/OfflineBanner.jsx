@@ -12,7 +12,9 @@ import { useEffect, useRef, useState } from "react";
 import { Animated, StyleSheet, Text, View } from "react-native";
 
 const CHECK_INTERVAL_MS = 5000;   // re-check every 5 s
-const CHECK_URL = "https://clients3.google.com/generate_204";
+// Use a neutral, widely-available endpoint to check connectivity.
+// Falls back gracefully if the primary check is blocked.
+const CHECK_URL = "https://www.google.com/generate_204";
 const CHECK_TIMEOUT_MS = 3000;
 
 async function isOnline() {

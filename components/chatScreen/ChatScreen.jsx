@@ -33,17 +33,22 @@ const LOAD_OLDER_TRIGGER_PX = 140;
 
 // Play the message sent sound (fire-and-forget, errors are swallowed)
 const playSentSound = async () => {
+  let sound;
   try {
-    const { sound } = await Audio.Sound.createAsync(
+    const result = await Audio.Sound.createAsync(
       require("../../assets/sounds/match.wav"),
       { volume: 0.4 }
     );
+    sound = result.sound;
     await sound.playAsync();
     sound.setOnPlaybackStatusUpdate((status) => {
-      if (status.didJustFinish) sound.unloadAsync();
+      if (status.didJustFinish) {
+        sound.unloadAsync().catch(() => {});
+      }
     });
   } catch {
     // non-critical: ignore audio errors
+    if (sound) sound.unloadAsync().catch(() => {});
   }
 };
 
