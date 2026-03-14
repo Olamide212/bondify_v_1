@@ -228,7 +228,7 @@ const ProfileCard = ({ profile }) => {
             {profile.lookingFor && (
               <View className="bg-white p-5 mb-2 mx-2 rounded-2xl border border-gray-200">
                 <Text className="text-[18px] font-PlusJakartaSansSemiBold text-app mb-2">
-                  Looking for
+                  Looking for 
                 </Text>
                 <View className="self-start bg-gray-100 px-5 py-2 rounded-full">
                   <Text className="text-black text-[18px] font-PlusJakartaSans">

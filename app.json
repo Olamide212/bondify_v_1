@@ -55,7 +55,9 @@
         }
       ],
       ["expo-audio", {
-  "microphonePermission": "Allow Bondies to access your microphone for voice prompts."
+"microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone.",
+          "enableBackgroundPlayback": true,
+          "enableBackgroundRecording": false
 }],
       "expo-secure-store"
     ],

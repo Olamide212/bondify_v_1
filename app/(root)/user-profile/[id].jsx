@@ -1,5 +1,5 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { ChevronLeft, Heart, X } from "lucide-react-native";
+import { ChevronLeft } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
@@ -393,9 +393,9 @@ const UserProfile = () => {
       )}
 
       {/* Interaction banner — shown for all interactions */}
-      {interactionStatus !== 'none' && interactionStatus !== 'unknown' && (
+      {/* {interactionStatus !== 'none' && interactionStatus !== 'unknown' && (
         <InteractionBanner status={interactionStatus} />
-      )}
+      )} */}
     </View>
   );
 };

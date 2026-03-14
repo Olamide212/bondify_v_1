@@ -398,7 +398,7 @@ export default function ProfileDetails() {
         {/* ── EDIT TAB ── */}
         {activeTab === 0 && (
           <ScrollView
-            style={{ flex: 1, backgroundColor: '#f1f1f1' }}
+            style={{ flex: 1, backgroundColor: colors.background }}
             contentContainerStyle={{ paddingBottom: 40 }}
             refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
           >

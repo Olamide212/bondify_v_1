@@ -1,3 +1,20 @@
+/**
+ * discoverController.js
+ *
+ * Bug fix: pass → like / superlike upgrade
+ * ─────────────────────────────────────────
+ * Root cause: The old version returned 400 for ANY existing Like document,
+ * regardless of the existing type. This blocked users from changing a 'pass'
+ * to a 'like' or 'superlike', which is valid behaviour.
+ *
+ * Fix: when an existing Like exists with type 'pass' and the new request is
+ * 'like' or 'superlike', we UPDATE the record instead of rejecting it.
+ * We also update the stats counters correctly (decrement pass, increment like).
+ *
+ * All other duplicate interactions (like→like, superlike→superlike,
+ * like→pass, superlike→pass) are still correctly blocked.
+ */
+
 const User    = require('../models/User');
 const Like    = require('../models/Like');
 const Match   = require('../models/Match');
@@ -29,7 +46,7 @@ const getDiscoveryProfiles = async (req, res, next) => {
     const sanitizedPage        = Math.max(parseInt(page,  10) || 1, 1);
     const sanitizedLimit       = Math.min(parseInt(limit, 10) || 20, 100);
 
-    // Exclude users already liked/superliked (but allow passed users to be seen again)
+    // Exclude users already liked/superliked (but allow passed users to reappear)
     const [likedUsers, matchedUserIds] = await Promise.all([
       Like.find({ user: userId, type: { $in: ['like', 'superlike'] } }).distinct('likedUser'),
       Match.find({
@@ -55,7 +72,6 @@ const getDiscoveryProfiles = async (req, res, next) => {
       isDeleted:           { $ne: true },
     };
 
-    // FIX: was querying isVerified (OTP field) — should be verified (identity badge)
     if (String(verifiedOnly).toLowerCase() === 'true') {
       query.verified = true;
     }
@@ -83,6 +99,7 @@ const getDiscoveryProfiles = async (req, res, next) => {
       query.lastActive = { $gte: startOfDay };
     }
 
+    // Location text filter (city / state / country substring match)
     if (location && typeof location === 'string' && location.trim()) {
       const escaped = location.trim().slice(0, 100).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       query.$or = [
@@ -92,6 +109,7 @@ const getDiscoveryProfiles = async (req, res, next) => {
       ];
     }
 
+    // Geo distance filter (km)
     if (sanitizedMaxDistance && currentUser.location?.coordinates?.length === 2) {
       const radiusInRadians = (sanitizedMaxDistance * 1000) / 6378137;
       query['location.coordinates'] = {
@@ -103,8 +121,6 @@ const getDiscoveryProfiles = async (req, res, next) => {
 
     const skip = (sanitizedPage - 1) * sanitizedLimit;
 
-    // FIX: run find + count in parallel; add _id tiebreaker for stable pagination
-    // Explicitly exclude sensitive fields but include voicePrompt
     const [profiles, total] = await Promise.all([
       User.find(query)
         .select('-password -otp -otpExpiry -verificationSelfieUrl')
@@ -139,7 +155,7 @@ const getDiscoveryProfiles = async (req, res, next) => {
   }
 };
 
-// @desc    Like/Pass a user
+// @desc    Like / Superlike / Pass a user
 // @route   POST /api/discover/action
 // @access  Private
 const performAction = async (req, res, next) => {
@@ -157,37 +173,60 @@ const performAction = async (req, res, next) => {
     }
 
     const existingLike = await Like.findOne({ user: userId, likedUser: likedUserId });
-    if (existingLike) {
-      // Allow changing a 'pass' to 'like' or 'superlike' (user changed their mind)
-      if (existingLike.type === 'pass' && (type === 'like' || type === 'superlike')) {
-        // Update the existing pass to a like/superlike
-        existingLike.type = type;
-        await existingLike.save();
 
-        // Update stats: decrement passGiven, increment likesGiven/superLikesGiven
-        if (type === 'like') {
-          await Promise.all([
-            User.findByIdAndUpdate(userId,      { $inc: { passesGiven: -1, likesGiven: 1 } }),
-            User.findByIdAndUpdate(likedUserId, { $inc: { likesReceived: 1 } }),
-          ]);
-        } else if (type === 'superlike') {
-          await Promise.all([
-            User.findByIdAndUpdate(userId,      { $inc: { passesGiven: -1, superLikesGiven: 1 } }),
-            User.findByIdAndUpdate(likedUserId, { $inc: { superLikesReceived: 1 } }),
-          ]);
-        }
-      } else {
-        // Block other duplicate interactions (like->like, superlike->superlike, etc.)
-        return res.status(400).json({
-          success: false,
-          message: `Already interacted with this user (existing: ${existingLike.type}, requested: ${type}).`
+    if (existingLike) {
+      const from = existingLike.type;
+      const to   = type;
+
+      // ── Same interaction repeated — idempotent success ───────────────────
+      // Handles retries, double-taps, and race conditions gracefully.
+      if (from === to) {
+        return res.json({
+          success: true,
+          message: 'Action already recorded.',
+          data:    { isMatch: false },
         });
       }
+
+      // ── Downgrades are not allowed ────────────────────────────────────────
+      // like/superlike → pass would undo an existing positive interaction.
+      if ((from === 'like' || from === 'superlike') && to === 'pass') {
+        return res.status(400).json({
+          success: false,
+          message: 'Cannot downgrade a like or superlike to a pass.',
+        });
+      }
+
+      // ── Valid upgrades ────────────────────────────────────────────────────
+      //   pass      → like       (changed mind, now interested)
+      //   pass      → superlike  (changed mind, very interested)
+      //   like      → superlike  (upgraded enthusiasm)
+      existingLike.type = to;
+      await existingLike.save();
+
+      if (from === 'pass' && to === 'like') {
+        await Promise.all([
+          User.findByIdAndUpdate(userId,      { $inc: { passesGiven: -1, likesGiven: 1 } }),
+          User.findByIdAndUpdate(likedUserId, { $inc: { likesReceived: 1 } }),
+        ]);
+      } else if (from === 'pass' && to === 'superlike') {
+        await Promise.all([
+          User.findByIdAndUpdate(userId,      { $inc: { passesGiven: -1, superLikesGiven: 1 } }),
+          User.findByIdAndUpdate(likedUserId, { $inc: { superLikesReceived: 1 } }),
+        ]);
+      } else if (from === 'like' && to === 'superlike') {
+        // Roll back the ordinary like counter, add superlike counter
+        await Promise.all([
+          User.findByIdAndUpdate(userId,      { $inc: { likesGiven: -1, superLikesGiven: 1 } }),
+          User.findByIdAndUpdate(likedUserId, { $inc: { likesReceived: -1, superLikesReceived: 1 } }),
+        ]);
+      }
+
+      // Fall through to match-check — an upgrade might create a new match
     } else {
-      // No existing interaction, create new one
+      // ── First-time interaction ────────────────────────────────────────────
       await Like.create({ user: userId, likedUser: likedUserId, type });
 
-      // Update stats based on type
       if (type === 'like') {
         await Promise.all([
           User.findByIdAndUpdate(userId,      { $inc: { likesGiven: 1 } }),
@@ -200,9 +239,12 @@ const performAction = async (req, res, next) => {
         ]);
       } else if (type === 'pass') {
         await User.findByIdAndUpdate(userId, { $inc: { passesGiven: 1 } });
+        // Pass can never create a match — return early
+        return res.json({ success: true, message: 'Action recorded.', data: { isMatch: false } });
       }
     }
 
+    // ── Check for mutual like (match) ─────────────────────────────────────
     if (type === 'like' || type === 'superlike') {
       const reciprocalLike = await Like.findOne({
         user:      likedUserId,
@@ -211,9 +253,7 @@ const performAction = async (req, res, next) => {
       });
 
       if (reciprocalLike) {
-        // FIX: sort user IDs so user1 < user2 always — prevents duplicate matches
-        // from race conditions where both users swipe at the same time.
-        // findOneAndUpdate + upsert means the second request just gets the existing doc.
+        // Sort IDs for stable upsert — prevents duplicate match docs from race conditions
         const [user1, user2] = [userId, likedUserId].map(String).sort();
 
         const match = await Match.findOneAndUpdate(
@@ -252,6 +292,7 @@ const performAction = async (req, res, next) => {
           createdAt: new Date().toISOString(),
         };
 
+        // Emit match events to both users
         io.to(`user:${String(userId)}`).emit('match:new', {
           ...basePayload,
           id:     `match-${match._id}-${userId}`,
@@ -281,14 +322,14 @@ const performAction = async (req, res, next) => {
           body:   `You and ${currentUserName} liked each other.`,
         });
 
-        // ── WhatsApp offline notification (fire-and-forget) ───────────────
+        // WhatsApp offline notification (fire-and-forget)
         User.findById(likedUserId)
           .select('online lastActive phoneNumber countryCode whatsappOptIn firstName')
           .lean()
           .then((receiver) => {
-            if (!receiver || !receiver.whatsappOptIn || !receiver.phoneNumber) return;
+            if (!receiver?.whatsappOptIn || !receiver?.phoneNumber) return;
 
-            const threeMinutesAgo = new Date(Date.now() - 3 * 60 * 1000);
+            const threeMinutesAgo   = new Date(Date.now() - 3 * 60 * 1000);
             const effectivelyOnline =
               receiver.online === true &&
               receiver.lastActive &&
@@ -305,9 +346,7 @@ const performAction = async (req, res, next) => {
               matchId:       String(match._id),
             });
           })
-          .catch((err) => {
-            console.error('[whatsapp] Match notification error:', err.message);
-          });
+          .catch((err) => console.error('[whatsapp] Match notification error:', err.message));
 
         return res.json({
           success: true,
@@ -327,17 +366,13 @@ const performAction = async (req, res, next) => {
 
     return res.json({
       success: true,
-      message: 'Action recorded successfully',
+      message: 'Action recorded.',
       data: { isMatch: false },
     });
   } catch (error) {
     // Handle upsert duplicate key race (belt-and-suspenders)
     if (error.code === 11000) {
-      return res.json({
-        success: true,
-        message: "It's a match!",
-        data:    { isMatch: true },
-      });
+      return res.json({ success: true, message: "It's a match!", data: { isMatch: true } });
     }
     next(error);
   }

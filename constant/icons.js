@@ -15,6 +15,7 @@ import deepConversationIcon from "../assets/icons/deep.png"
 import messageIcon from "../assets/icons/mess.png"
 import verifyIcon from "../assets/icons/verify.png"
 import mapIcon from "../assets/icons/Map.png"
+import verifiedBatch from "../assets/icons/verifiedBatch.png"
 
 export const Icons = {
   arrowLeft,
@@ -33,4 +34,5 @@ export const Icons = {
   messageIcon,
   verifyIcon,
   mapIcon,
+  verifiedBatch,
 };

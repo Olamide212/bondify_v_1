@@ -22,12 +22,12 @@ const PreferencesSection = () => {
   const { theme } = useTheme();
 
   const items = [
-    {
-      title: "Theme",
-      // Shows e.g. "System" as a subtle hint in the row (if SettingCard supports it)
-      subtitle: THEME_LABELS[theme] ?? "System",
-      onPress: () => router.push("/theme-settings"),
-    },
+    // {
+    //   title: "Theme",
+    //   // Shows e.g. "System" as a subtle hint in the row (if SettingCard supports it)
+    //   subtitle: THEME_LABELS[theme] ?? "System",
+    //   onPress: () => router.push("/theme-settings"),
+    // },
     {
       title: "Notification Settings",
       onPress: () => router.push("/notification-settings"),

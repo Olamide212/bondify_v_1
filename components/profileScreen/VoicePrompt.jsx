@@ -1,13 +1,21 @@
 /**
- * VoicePrompt.js — expo-audio rewrite (SDK 53+)
+ * VoicePrompt.js — expo-audio SDK 53, createAudioPlayer edition
  *
- * Migration from expo-av:
- *  - Audio.Recording  → useAudioRecorder + useAudioRecorderState
- *  - Audio.Sound      → useAudioPlayer + useAudioPlayerStatus
- *  - Audio.setAudioModeAsync({ playsInSilentModeIOS }) → setAudioModeAsync({ playsInSilentMode })
- *  - AudioModule.requestRecordingPermissionsAsync() replaces Audio.requestPermissionsAsync()
- *  - expo-audio does NOT auto-reset position after finish — seekTo(0) before replay
- *  - No manual cleanup needed for hooks; useAudioPlayer/useAudioRecorder manage lifecycle
+ * Why createAudioPlayer instead of useAudioPlayer:
+ * ─────────────────────────────────────────────────
+ * useAudioPlayer(source) initialises the native player immediately. When
+ * `recordUri` is null (pre-recording) this crashes on Android. When
+ * `recordUri` changes (after a new recording is saved) the hook does NOT
+ * reinitialise with the new source — the user would have to re-mount the
+ * component to pick up the new file.
+ *
+ * createAudioPlayer() gives us explicit control:
+ *   - create on demand, only when the user taps Play
+ *   - pass the exact URI we have at that moment
+ *   - release cleanly when done / on unmount
+ *
+ * Recording still uses useAudioRecorder (hook is fine there — it doesn't
+ * need a source at init time).
  */
 
 import {
@@ -15,7 +23,6 @@ import {
   RecordingPresets,
   setAudioModeAsync,
   useAudioPlayer,
-  useAudioPlayerStatus,
   useAudioRecorder,
   useAudioRecorderState,
 } from 'expo-audio';
@@ -26,15 +33,13 @@ import {
   ActivityIndicator,
   Alert,
   Animated,
-  Dimensions,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from 'react-native';
 import { useTheme } from '../../context/ThemeContext';
 
-const { width: SW } = Dimensions.get('window');
 const MAX_DURATION_S = 60;
 const BAR_COUNT      = 28;
 
@@ -49,6 +54,20 @@ const PROMPT_QUESTIONS = [
 
 const fmt = (s) =>
   `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+
+// ─── Audio mode — set once, lazily ───────────────────────────────────────────
+const ensureAudioMode = async (allowsRecording = false) => {
+  const audioConfig = {
+    playsInSilentMode: true,
+    shouldPlayInBackground: false,
+    interruptionMode: 'mixWithOthers',
+    allowsRecording,
+    allowsBackgroundRecording: false,
+    shouldDuckAndroid: false,
+  };
+  console.log('[VoicePrompt] setAudioModeAsync', audioConfig);
+  await setAudioModeAsync(audioConfig);
+};
 
 // ─── Waveform ─────────────────────────────────────────────────────────────────
 
@@ -87,14 +106,11 @@ const Waveform = ({ isActive, progress = 0 }) => {
       {bars.map((bar, i) => (
         <Animated.View
           key={i}
-          style={[
-            wv.bar,
-            {
-              height:          bar.height,
-              backgroundColor: i < filledCount ? '#E8651A' : '#F5C4A8',
-              transform:       [{ scaleY: bar.anim }],
-            },
-          ]}
+          style={[wv.bar, {
+            height:          bar.height,
+            backgroundColor: i < filledCount ? '#E8651A' : '#F5C4A8',
+            transform:       [{ scaleY: bar.anim }],
+          }]}
         />
       ))}
     </View>
@@ -112,21 +128,24 @@ export default function VoicePrompt({ profile, onUpdateField }) {
   const { colors } = useTheme();
 
   // phase: 'idle' | 'recording' | 'recorded' | 'playing' | 'paused' | 'uploading'
-  const [phase,       setPhase]       = useState('idle');
-  const [recordUri,   setRecordUri]   = useState(null);
-  const [hasExisting, setHasExisting] = useState(false);
-  const [promptIndex] = useState(() => Math.floor(Math.random() * PROMPT_QUESTIONS.length));
+  const [phase,        setPhase]        = useState('idle');
+  const [recordUri,    setRecordUri]    = useState(null);
+  const [hasExisting,  setHasExisting]  = useState(false);
+  const [playPos,      setPlayPos]      = useState(0);
+  const [playDuration, setPlayDuration] = useState(0);
+  const [promptIndex]  = useState(() => Math.floor(Math.random() * PROMPT_QUESTIONS.length));
 
-  // ── expo-audio: recorder ──────────────────────────────────────────────────
-  const audioRecorder   = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
-  const recorderState   = useAudioRecorderState(audioRecorder);
+  // ── expo-audio: recorder (hook is fine here — no source needed at init) ───
+  const audioRecorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
+  const recorderState = useAudioRecorderState(audioRecorder);
+  const recDurationS  = Math.floor((recorderState.durationMillis ?? 0) / 1000);
 
-  // ── expo-audio: player ────────────────────────────────────────────────────
-  // useAudioPlayer accepts null — it will simply not load anything
-  const player       = useAudioPlayer(recordUri ? { uri: recordUri } : null);
-  const playerStatus = useAudioPlayerStatus(player);
+  // ── expo-audio: playback player ───────────────────────────────────────────
+  // Using useAudioPlayer with the recordUri when available
+  // The hook manages its own lifecycle, no manual cleanup needed
+  const playbackPlayer = useAudioPlayer(recordUri || undefined);
 
-  // Seed from existing profile voice prompt
+  // ── Seed from existing profile voice prompt ───────────────────────────────
   useEffect(() => {
     if (profile?.voicePrompt) {
       const uri =
@@ -141,19 +160,43 @@ export default function VoicePrompt({ profile, onUpdateField }) {
     }
   }, [profile?.voicePrompt]);
 
-  // Sync phase when player finishes
-  useEffect(() => {
-    if (playerStatus.didJustFinish) {
-      // expo-audio does not auto-reset — seek to 0 so replay works
-      player.seekTo(0);
-      setPhase('recorded');
-    }
-  }, [playerStatus.didJustFinish]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Request mic permission on mount
+  // ── Request mic permission on mount ──────────────────────────────────────
   useEffect(() => {
     AudioModule.requestRecordingPermissionsAsync().catch(() => {});
   }, []);
+
+  // useAudioPlayer manages its own lifecycle, no manual cleanup needed
+
+  // ── Monitor playback status continuously ──────────────────────────────────
+  useEffect(() => {
+    if (phase !== 'playing') return;
+    
+    const statusInterval = setInterval(() => {
+      console.log('[VoicePrompt] playback status:', {
+        currentTime: playbackPlayer.currentTime,
+        duration: playbackPlayer.duration,
+        isLoaded: playbackPlayer.isLoaded,
+        isBuffering: playbackPlayer.isBuffering,
+        playing: playbackPlayer.playing,
+      });
+      
+      if (playbackPlayer.currentTime !== undefined) {
+        setPlayPos(Math.round(playbackPlayer.currentTime));
+      }
+      if (playbackPlayer.duration !== undefined && !isNaN(playbackPlayer.duration)) {
+        setPlayDuration(Math.round(playbackPlayer.duration));
+      }
+    }, 100);
+    
+    return () => clearInterval(statusInterval);
+  }, [phase, playbackPlayer]);
+
+  // ── Auto-stop recording at max duration ───────────────────────────────────
+  useEffect(() => {
+    if (phase === 'recording' && recDurationS >= MAX_DURATION_S) {
+      stopRecording();
+    }
+  }, [recDurationS, phase]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Recording ─────────────────────────────────────────────────────────────
 
@@ -164,8 +207,7 @@ export default function VoicePrompt({ profile, onUpdateField }) {
         Alert.alert('Permission needed', 'Enable microphone access to record a voice prompt.');
         return;
       }
-
-      await setAudioModeAsync({ playsInSilentMode: true, allowsRecording: true });
+      await ensureAudioMode(true); // allowsRecording = true
       await audioRecorder.prepareToRecordAsync();
       audioRecorder.record();
       setPhase('recording');
@@ -180,13 +222,11 @@ export default function VoicePrompt({ profile, onUpdateField }) {
       await audioRecorder.stop();
       const tempUri = audioRecorder.uri;
 
-      // Switch mode back to playback
-      await setAudioModeAsync({ playsInSilentMode: true, allowsRecording: false });
+      await ensureAudioMode(false); // back to playback mode
 
       if (!tempUri) { setPhase('idle'); return; }
 
-      // Copy to permanent cache dir — the temp URI loses permissions after the
-      // recording session closes on iOS (AVAudioRecorder error -1102)
+      // Copy to permanent cache dir — temp URI loses read permissions on iOS
       const fileName = `voice_prompt_${Date.now()}.m4a`;
       const destFile = new File(Paths.cache, fileName);
       await new File(tempUri).copy(destFile);
@@ -204,24 +244,54 @@ export default function VoicePrompt({ profile, onUpdateField }) {
   // ── Playback ──────────────────────────────────────────────────────────────
 
   const startPlayback = async () => {
+    if (!recordUri) return;
     try {
-      await setAudioModeAsync({ playsInSilentMode: true, allowsRecording: false });
-      player.seekTo(0);
-      player.play();
+      console.log('[VoicePrompt] startPlayback entering with recordUri:', recordUri);
+      await ensureAudioMode(false);
+      
+      // CRITICAL: Use replace() to set the audio source on the player
+      // The hook was initialized with undefined, so we must explicitly set the source
+      console.log('[VoicePrompt] calling playbackPlayer.replace() with URI:', recordUri);
+      await playbackPlayer.replace(recordUri);
+      console.log('[VoicePrompt] replace() completed');
+      
+      // Wait a moment for the file to start loading
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      console.log('[VoicePrompt] currentStatus after replace():', {
+        isLoaded: playbackPlayer.isLoaded,
+        isBuffering: playbackPlayer.isBuffering,
+        duration: playbackPlayer.duration,
+        playing: playbackPlayer.playing,
+      });
+
+      console.log('[VoicePrompt] calling playbackPlayer.play()');
+      await playbackPlayer.play();
+      console.log('[VoicePrompt] playbackPlayer.play() completed');
+      
+      // Check status after play
+      console.log('[VoicePrompt] currentStatus after play():', {
+        isLoaded: playbackPlayer.isLoaded,
+        isBuffering: playbackPlayer.isBuffering,
+        duration: playbackPlayer.duration,
+        playing: playbackPlayer.playing,
+      });
+      
       setPhase('playing');
     } catch (err) {
       console.error('[VoicePrompt] startPlayback error:', err);
+      Alert.alert('Playback error', 'Could not play the recording. Please try again.');
       setPhase('recorded');
     }
   };
 
   const pausePlayback = () => {
-    player.pause();
+    try { playbackPlayer?.pause(); } catch {}
     setPhase('paused');
   };
 
   const resumePlayback = () => {
-    player.play();
+    try { playbackPlayer?.play(); } catch {}
     setPhase('playing');
   };
 
@@ -233,7 +303,6 @@ export default function VoicePrompt({ profile, onUpdateField }) {
       {
         text: 'Delete', style: 'destructive',
         onPress: () => {
-          player.pause();
           setRecordUri(null);
           setPhase('idle');
           setHasExisting(false);
@@ -243,10 +312,7 @@ export default function VoicePrompt({ profile, onUpdateField }) {
     ]);
   };
 
-  // ── Re-record ─────────────────────────────────────────────────────────────
-
   const handleReRecord = () => {
-    player.pause();
     setRecordUri(null);
     setPhase('idle');
     setHasExisting(false);
@@ -276,71 +342,45 @@ export default function VoicePrompt({ profile, onUpdateField }) {
   const isUploading  = phase === 'uploading';
   const hasRecording = !!recordUri && ['recorded', 'playing', 'paused', 'uploading'].includes(phase);
 
-  // Duration numbers for display
-  // recorderState.durationMillis is live during recording
-  // playerStatus.duration / currentTime are live during playback
-  const recDurationS  = Math.floor((recorderState.durationMillis ?? 0) / 1000);
-  const playDurationS = Math.round(playerStatus.duration ?? 0);
-  const playPosS      = Math.round(playerStatus.currentTime ?? 0);
-
   const totalSeconds = isRecording
     ? MAX_DURATION_S
-    : isPlaying || phase === 'paused'
-      ? (playDurationS || MAX_DURATION_S)
-      : (recDurationS || MAX_DURATION_S);
+    : (isPlaying || phase === 'paused') && playDuration > 0
+      ? playDuration
+      : MAX_DURATION_S;
 
-  const currentPos = isRecording
-    ? recDurationS
-    : isPlaying || phase === 'paused'
-      ? playPosS
-      : 0;
+  const currentPos = isRecording ? recDurationS
+    : (isPlaying || phase === 'paused') ? playPos
+    : 0;
 
   const progress  = totalSeconds > 0 ? Math.min(currentPos / totalSeconds, 1) : 0;
-  const leftTime  = fmt(currentPos);
-  const rightTime = fmt(totalSeconds);
-
-  // Auto-stop at max duration
-  useEffect(() => {
-    if (isRecording && recDurationS >= MAX_DURATION_S) {
-      stopRecording();
-    }
-  }, [recDurationS, isRecording]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Render ────────────────────────────────────────────────────────────────
 
   return (
     <View style={s.outer}>
-      {/* ── Main card ── */}
       <View style={[s.card, { backgroundColor: colors.surface }]}>
 
-        {/* Orange "VOICE PROMPT" label */}
         <View style={s.labelRow}>
           <Mic size={13} color="#E8651A" strokeWidth={2.5} />
           <Text style={s.labelText}>VOICE PROMPT</Text>
         </View>
 
-        {/* Prompt question */}
         <Text style={[s.promptText, { color: colors.textPrimary }]}>
           {PROMPT_QUESTIONS[promptIndex]}
         </Text>
 
-        {/* Waveform box */}
         <View style={s.waveBox}>
           <Waveform isActive={isRecording || isPlaying} progress={progress} />
-
           <View style={s.progressTrack}>
             <View style={[s.progressFill, { width: `${progress * 100}%` }]} />
           </View>
-
           <View style={s.timeRow}>
-            <Text style={s.timeLabel}>{leftTime}</Text>
-            <Text style={s.timeLabel}>{rightTime}</Text>
+            <Text style={s.timeLabel}>{fmt(currentPos)}</Text>
+            <Text style={s.timeLabel}>{fmt(totalSeconds)}</Text>
           </View>
         </View>
 
-        {/* Controls row */}
         <View style={s.controls}>
-
           {/* Trash */}
           <TouchableOpacity
             style={[s.iconBtn, { backgroundColor: hasRecording ? colors.background : 'transparent', opacity: hasRecording ? 1 : 0.3 }]}
@@ -350,19 +390,15 @@ export default function VoicePrompt({ profile, onUpdateField }) {
             <Trash2 size={19} color={hasRecording ? '#EF4444' : colors.textSecondary} strokeWidth={2} />
           </TouchableOpacity>
 
-          {/* Main play/stop button */}
+          {/* Main button */}
           <TouchableOpacity
-            style={[
-              s.mainBtn,
-              isRecording  && { backgroundColor: '#EF4444' },
-              isUploading  && { backgroundColor: '#F5A878' },
-            ]}
+            style={[s.mainBtn, isRecording && { backgroundColor: '#EF4444' }, isUploading && { backgroundColor: '#F5A878' }]}
             onPress={() => {
-              if (isRecording)        stopRecording();
-              else if (isPlaying)     pausePlayback();
+              if (isRecording)           stopRecording();
+              else if (isPlaying)        pausePlayback();
               else if (phase === 'paused') resumePlayback();
-              else if (hasRecording)  startPlayback();
-              else                    startRecording();
+              else if (hasRecording)     startPlayback();
+              else                       startRecording();
             }}
             disabled={isUploading}
             activeOpacity={0.86}
@@ -388,17 +424,11 @@ export default function VoicePrompt({ profile, onUpdateField }) {
           </TouchableOpacity>
         </View>
 
-        {/* Status text */}
-        {isRecording && (
-          <Text style={[s.statusText, { color: '#EF4444' }]}>● Recording…</Text>
-        )}
+        {isRecording && <Text style={[s.statusText, { color: '#EF4444' }]}>● Recording…</Text>}
         {!hasRecording && !isRecording && (
-          <Text style={[s.statusText, { color: colors.textSecondary }]}>
-            Tap the button to start recording
-          </Text>
+          <Text style={[s.statusText, { color: colors.textSecondary }]}>Tap the button to start recording</Text>
         )}
 
-        {/* Save button */}
         {hasRecording && !hasExisting && !isUploading && (
           <TouchableOpacity style={s.saveBtn} onPress={handleSave} activeOpacity={0.86}>
             <Upload size={15} color="#fff" strokeWidth={2} />
@@ -409,20 +439,16 @@ export default function VoicePrompt({ profile, onUpdateField }) {
         {isUploading && (
           <View style={s.uploadingRow}>
             <ActivityIndicator size="small" color="#E8651A" />
-            <Text style={[s.statusText, { color: colors.textSecondary, marginTop: 0 }]}>
-              Saving to your profile…
-            </Text>
+            <Text style={[s.statusText, { color: colors.textSecondary, marginTop: 0 }]}>Saving to your profile…</Text>
           </View>
         )}
       </View>
 
-      {/* ── "Add another one" teaser ── */}
+      {/* "Add another one" teaser */}
       <View style={[s.teaserCard, { backgroundColor: colors.surface }]}>
         <View style={{ flex: 1 }}>
           <Text style={[s.teaserLabel, { color: colors.textSecondary }]}>Add another one</Text>
-          <Text style={[s.teaserPrompt, { color: colors.textPrimary }]}>
-            &quot;My secret talent is…&quot;
-          </Text>
+          <Text style={[s.teaserPrompt, { color: colors.textPrimary }]}>&quot;My secret talent is…&quot;</Text>
         </View>
         <TouchableOpacity
           style={s.teaserBtn}
@@ -437,94 +463,27 @@ export default function VoicePrompt({ profile, onUpdateField }) {
   );
 }
 
-// ─── Styles ───────────────────────────────────────────────────────────────────
-
 const s = StyleSheet.create({
   outer: { paddingHorizontal: 16, gap: 12 },
-
-  card: {
-    borderRadius: 22,
-    padding: 20,
-    gap: 14,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 10,
-    elevation: 3,
-  },
-
-  labelRow:  { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  card: { borderRadius: 22, padding: 20, gap: 14, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 10, elevation: 3 },
+  labelRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   labelText: { fontSize: 11, fontFamily: 'PlusJakartaSansBold', color: '#E8651A', letterSpacing: 1.2 },
-
   promptText: { fontSize: 22, fontFamily: 'PlusJakartaSansBold', lineHeight: 30 },
-
-  waveBox: {
-    backgroundColor: '#FFF4EE',
-    borderRadius: 14,
-    paddingHorizontal: 14,
-    paddingTop: 16,
-    paddingBottom: 12,
-    gap: 10,
-  },
-
+  waveBox: { backgroundColor: '#FFF4EE', borderRadius: 14, paddingHorizontal: 14, paddingTop: 16, paddingBottom: 12, gap: 10 },
   progressTrack: { height: 3, backgroundColor: '#FDDCC8', borderRadius: 2, overflow: 'hidden' },
-  progressFill:  { height: 3, backgroundColor: '#E8651A', borderRadius: 2 },
-
-  timeRow:   { flexDirection: 'row', justifyContent: 'space-between' },
+  progressFill: { height: 3, backgroundColor: '#E8651A', borderRadius: 2 },
+  timeRow: { flexDirection: 'row', justifyContent: 'space-between' },
   timeLabel: { fontSize: 11, fontFamily: 'PlusJakartaSansMedium', color: '#9CA3AF' },
-
-  controls: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 28,
-    marginTop: 4,
-  },
-  iconBtn: {
-    width: 46, height: 46, borderRadius: 23,
-    alignItems: 'center', justifyContent: 'center',
-  },
-  mainBtn: {
-    width: 66, height: 66, borderRadius: 33,
-    alignItems: 'center', justifyContent: 'center',
-    backgroundColor: '#E8651A',
-    shadowColor: '#E8651A',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.38,
-    shadowRadius: 12,
-    elevation: 8,
-  },
-
+  controls: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 28, marginTop: 4 },
+  iconBtn: { width: 46, height: 46, borderRadius: 23, alignItems: 'center', justifyContent: 'center' },
+  mainBtn: { width: 66, height: 66, borderRadius: 33, alignItems: 'center', justifyContent: 'center', backgroundColor: '#E8651A', shadowColor: '#E8651A', shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.38, shadowRadius: 12, elevation: 8 },
   statusText: { fontSize: 12, fontFamily: 'PlusJakartaSans', textAlign: 'center', marginTop: -4 },
-
-  saveBtn: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
-    backgroundColor: '#22C55E',
-    borderRadius: 50,
-    paddingVertical: 13,
-    marginTop: 2,
-  },
+  saveBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: '#22C55E', borderRadius: 50, paddingVertical: 13, marginTop: 2 },
   saveBtnText: { color: '#fff', fontFamily: 'PlusJakartaSansBold', fontSize: 14 },
-
   uploadingRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
-
-  teaserCard: {
-    borderRadius: 18,
-    padding: 18,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 14,
-    borderWidth: 1.5,
-    borderColor: '#F3F4F6',
-    borderStyle: 'dashed',
-  },
-  teaserLabel:   { fontSize: 12, fontFamily: 'PlusJakartaSans', color: '#9CA3AF', marginBottom: 3 },
-  teaserPrompt:  { fontSize: 16, fontFamily: 'PlusJakartaSansBold' },
-  teaserBtn: {
-    flexDirection: 'row', alignItems: 'center', gap: 7,
-    backgroundColor: '#E8651A',
-    paddingHorizontal: 16, paddingVertical: 11,
-    borderRadius: 50,
-  },
+  teaserCard: { borderRadius: 18, padding: 18, flexDirection: 'row', alignItems: 'center', gap: 14, borderWidth: 1.5, borderColor: '#F3F4F6', borderStyle: 'dashed' },
+  teaserLabel: { fontSize: 12, fontFamily: 'PlusJakartaSans', color: '#9CA3AF', marginBottom: 3 },
+  teaserPrompt: { fontSize: 16, fontFamily: 'PlusJakartaSansBold' },
+  teaserBtn: { flexDirection: 'row', alignItems: 'center', gap: 7, backgroundColor: '#E8651A', paddingHorizontal: 16, paddingVertical: 11, borderRadius: 50 },
   teaserBtnText: { color: '#fff', fontFamily: 'PlusJakartaSansBold', fontSize: 13 },
 });
