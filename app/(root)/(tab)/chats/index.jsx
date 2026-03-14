@@ -194,6 +194,7 @@ export default function Chat() {
         name:         user.name,
         profileImage: user.profileImage ?? "",
         isOnline:     String(user.isOnline ?? false),
+        isSystem:     String(user.isSystem ?? false),
       },
     });
   };

@@ -481,7 +481,7 @@ const ChatScreen = ({ matchedUser, onBack }) => {
           matchedUser={matchedUser}
           onBack={() => onBack?.()}
           onOpenProfile={openProfile}
-          onOpenActions={() => setIsActionsModalVisible(true)}
+          onOpenActions={matchedUser?.isSystem ? undefined : () => setIsActionsModalVisible(true)}
         />
 
         <ScrollView
@@ -574,69 +574,75 @@ const ChatScreen = ({ matchedUser, onBack }) => {
           )}
         </ScrollView>
 
-        <InputToolbar
-          sendMessage={sendMessage}
-          onSendImage={handleSendImage}
-          onSendVoice={handleSendVoice}
-          matchId={matchedUser?.matchId}
-          currentUserId={currentUserId}
-        />
+        {!matchedUser?.isSystem && (
+          <InputToolbar
+            sendMessage={sendMessage}
+            onSendImage={handleSendImage}
+            onSendVoice={handleSendVoice}
+            matchId={matchedUser?.matchId}
+            currentUserId={currentUserId}
+          />
+        )}
 
-        {/* ── Actions sheet ── */}
-        <BaseModal
-          visible={isActionsModalVisible}
-          onClose={() => !isProcessingAction && setIsActionsModalVisible(false)}
-        >
-          <View style={styles.actionsModalContainer}>
-            <TouchableOpacity
-              style={styles.actionItem}
-              onPress={handleUnmatch}
-              disabled={isProcessingAction}
+        {/* ── Actions sheet — hidden for system/team chats ── */}
+        {!matchedUser?.isSystem && (
+          <>
+            <BaseModal
+              visible={isActionsModalVisible}
+              onClose={() => !isProcessingAction && setIsActionsModalVisible(false)}
             >
-              <Text style={styles.actionDangerText}>Unmatch</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.actionItem}
-              onPress={handleBlock}
-              disabled={isProcessingAction}
-            >
-              <Text style={styles.actionDangerText}>Block</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.actionItem}
-              onPress={handleReport}
-              disabled={isProcessingAction}
-            >
-              <Text style={styles.actionDangerText}>Report</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.actionItem}
-              onPress={() => setIsActionsModalVisible(false)}
-              disabled={isProcessingAction}
-            >
-              <Text style={styles.actionCancelText}>Cancel</Text>
-            </TouchableOpacity>
-          </View>
-        </BaseModal>
+              <View style={styles.actionsModalContainer}>
+                <TouchableOpacity
+                  style={styles.actionItem}
+                  onPress={handleUnmatch}
+                  disabled={isProcessingAction}
+                >
+                  <Text style={styles.actionDangerText}>Unmatch</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.actionItem}
+                  onPress={handleBlock}
+                  disabled={isProcessingAction}
+                >
+                  <Text style={styles.actionDangerText}>Block</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.actionItem}
+                  onPress={handleReport}
+                  disabled={isProcessingAction}
+                >
+                  <Text style={styles.actionDangerText}>Report</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.actionItem}
+                  onPress={() => setIsActionsModalVisible(false)}
+                  disabled={isProcessingAction}
+                >
+                  <Text style={styles.actionCancelText}>Cancel</Text>
+                </TouchableOpacity>
+              </View>
+            </BaseModal>
 
-        {/* ── Block / Report modal (shared component) ── */}
-        <BlockReportModal
-          visible={blockReportModal.visible}
-          mode={blockReportModal.mode}
-          profile={{
-            _id:       matchedUser.id,
-            name:      matchedUser.name,
-            images:    matchedUser.profileImage ? [matchedUser.profileImage] : [],
-          }}
-          onClose={() => setBlockReportModal((prev) => ({ ...prev, visible: false }))}
-          onSuccess={(mode) => {
-            setBlockReportModal((prev) => ({ ...prev, visible: false }));
-            if (mode === "block") {
-              // Navigate back and remove the match from the list
-              onBack?.({ unmatchedMatchId: matchedUser.matchId, blocked: true });
-            }
-          }}
-        />
+            {/* ── Block / Report modal (shared component) ── */}
+            <BlockReportModal
+              visible={blockReportModal.visible}
+              mode={blockReportModal.mode}
+              profile={{
+                _id:       matchedUser.id,
+                name:      matchedUser.name,
+                images:    matchedUser.profileImage ? [matchedUser.profileImage] : [],
+              }}
+              onClose={() => setBlockReportModal((prev) => ({ ...prev, visible: false }))}
+              onSuccess={(mode) => {
+                setBlockReportModal((prev) => ({ ...prev, visible: false }));
+                if (mode === "block") {
+                  // Navigate back and remove the match from the list
+                  onBack?.({ unmatchedMatchId: matchedUser.matchId, blocked: true });
+                }
+              }}
+            />
+          </>
+        )}
       </KeyboardAvoidingView>
     </SafeAreaView>
   );

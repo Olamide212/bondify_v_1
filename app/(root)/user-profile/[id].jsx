@@ -19,6 +19,7 @@ import Animated, {
 } from "react-native-reanimated";
 import ActionButtons from "../../../components/homeScreen/ActionButtons";
 import ProfileCard from "../../../components/homeScreen/ProfileCard";
+import ComplimentModal from "../../../components/modals/ComplimentModal";
 import BackArrow from "../../../components/ui/BackArrow";
 import VerifiedIcon from "../../../components/ui/VerifiedIcon";
 import { colors } from "../../../constant/colors";
@@ -91,6 +92,7 @@ const UserProfile = () => {
   const [currentProfile, setCurrentProfile]   = useState(null);
   const [loadingProfile, setLoadingProfile]   = useState(true);
   const [interactionStatus, setInteractionStatus] = useState('unknown');
+  const [showComplimentModal, setShowComplimentModal] = useState(false);
   // 'unknown' | 'none' | 'liked' | 'passed' | 'superliked' | 'matched'
 
   const animation  = useSharedValue(1);
@@ -277,6 +279,11 @@ const UserProfile = () => {
     }, 800);
   };
 
+  const handleCompliment = () => {
+    if (!currentProfile) return;
+    setShowComplimentModal(true);
+  };
+
   // ── Animated styles ─────────────────────────────────────────
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -388,9 +395,16 @@ const UserProfile = () => {
       {/* Action buttons — shown for non-blocking interactions (including passed) */}
       {shouldShowActions && (
         <View style={styles.actionButtonWrapper}>
-          <ActionButtons onSwipe={handleSwipe} onSuperLike={handleSuperLike} />
+          <ActionButtons onSwipe={handleSwipe} onCompliment={handleCompliment} />
         </View>
       )}
+
+      {/* Compliment modal */}
+      <ComplimentModal
+        visible={showComplimentModal}
+        onClose={() => setShowComplimentModal(false)}
+        targetUser={currentProfile}
+      />
 
       {/* Interaction banner — shown for all interactions */}
       {/* {interactionStatus !== 'none' && interactionStatus !== 'unknown' && (

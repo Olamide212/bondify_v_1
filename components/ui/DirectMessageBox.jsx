@@ -1,4 +1,4 @@
-import { Loader, SendHorizontal, Sparkles } from "lucide-react-native";
+import { SendHorizontal, Sparkles } from "lucide-react-native";
 import { useState } from "react";
 import {
   ActivityIndicator,
@@ -10,7 +10,6 @@ import {
   View,
 } from "react-native";
 import { colors } from "../../constant/colors";
-import { matchService } from "../../services/matchService";
 import { messageService } from "../../services/messageService";
 import AISuggestionModal from "../modals/AiSuggestionModal";
 
@@ -24,39 +23,17 @@ export default function DirectMessageBox({ profile }) {
     const trimmed = message.trim();
     if (!trimmed || sending || sent) return;
 
+    const profileId = String(profile?.id ?? profile?._id ?? "");
+    if (!profileId) {
+      Alert.alert("Error", "Could not identify this user.");
+      return;
+    }
+
     setSending(true);
     try {
-      // 1. Get the matchId for this profile
-      //    getMatches returns an array; find the one where the other user is this profile
-      const profileId = String(profile?.id ?? profile?._id ?? "");
-      const matches   = await matchService.getMatches();
-
-      // The API returns matches shaped as:
-      //   { matchId, user: { _id, ... }, lastMessage, ... }
-      // so we compare against match.user._id — not a match.users[] array.
-      const match = matches.find((m) => {
-        const matchedUserId = String(
-          m.user?._id ?? m.user?.id ??     // populated user object
-          m.userId ??                       // flat userId field
-          ""
-        );
-        return matchedUserId === profileId;
-      });
-
-      if (!match) {
-        Alert.alert(
-          "Not matched yet",
-          "You need to match with this person before sending a message."
-        );
-        return;
-      }
-
-      // 2. Send the message — matchId is the conversation ID
-      const conversationId = match.matchId ?? match._id ?? match.id;
-      await messageService.sendMessage(conversationId, {
-        content: trimmed,
-        type: "text",
-      });
+      // Send a direct message — no match required.
+      // The backend creates a pending conversation thread if none exists.
+      await messageService.sendDirectMessage(profileId, trimmed);
 
       setMessage("");
       setSent(true);
@@ -65,7 +42,7 @@ export default function DirectMessageBox({ profile }) {
       setTimeout(() => setSent(false), 3000);
     } catch (err) {
       console.error("DirectMessageBox send error:", err);
-      Alert.alert("Failed to send", "Something went wrong. Please try again.");
+      Alert.alert("Failed to send", err?.message || "Something went wrong. Please try again.");
     } finally {
       setSending(false);
     }

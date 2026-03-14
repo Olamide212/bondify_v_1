@@ -260,7 +260,10 @@ const Home = () => {
     if (!currentProfile) return;
     showSwipeBadge(direction);
     handleHomeSwipe(direction, currentProfile);
-    triggerFeedback(direction === "right" ? "like" : "nope");
+    // Only show CardFeedbackModal for "nope" (pass) — for "like" the Bond badge stamp is sufficient
+    if (direction !== "right") {
+      triggerFeedback("nope");
+    }
   };
 
   const handleComplimentPress = () => {
@@ -354,6 +357,8 @@ const Home = () => {
 
     const handleNotificationNew = (p) => {
       if (!notifSettingsRef.current.pushNotifications) return;
+      // Messages are handled in the chat tab only — do not add to the bell notifications
+      if (p?.type === 'message') return;
       pushNotification(p);
     };
     const handleMatchNew = (p) => {
@@ -363,27 +368,6 @@ const Home = () => {
         type:  "match",
         title: p?.matchedUser?.name || p?.profile?.name || "New Match!",
         body:  "You have a new match 🎉",
-      });
-    };
-    const handleMessageNew = ({ matchId, message }) => {
-      if (!message) return;
-      if (!notifSettingsRef.current.pushNotifications || !notifSettingsRef.current.newMessage) return;
-      const senderName =
-        message.sender?.name ||
-        [message.sender?.firstName, message.sender?.lastName].filter(Boolean).join(" ") ||
-        "New message";
-      const body =
-        message.type === "image" ? "Sent you a photo"
-        : message.type === "voice" ? "Sent you a voice note"
-        : message.content || "Sent you a message";
-      pushNotification({
-        id:        `${matchId || message._id}-${message._id || Date.now()}`,
-        type:      "message",
-        title:     senderName,
-        body,
-        createdAt: message.createdAt || new Date().toISOString(),
-        matchId,
-        userId:    message.sender?._id || message.sender?.id,
       });
     };
 
@@ -403,7 +387,6 @@ const Home = () => {
       if (!socket || !isMounted) return;
       socketService.on("notification:new", handleNotificationNew);
       socketService.on("match:new",        handleMatchNew);
-      socketService.on("message:new",      handleMessageNew);
       socketService.on("profile:visited",  handleProfileVisit);
     };
     connectSocket();
@@ -412,7 +395,6 @@ const Home = () => {
       isMounted = false;
       socketService.off("notification:new", handleNotificationNew);
       socketService.off("match:new",        handleMatchNew);
-      socketService.off("message:new",      handleMessageNew);
       socketService.off("profile:visited",  handleProfileVisit);
     };
   }, [enqueueBanner]);

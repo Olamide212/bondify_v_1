@@ -134,6 +134,25 @@ const getDiscoveryProfiles = async (req, res, next) => {
     const profilesWithImages = await Promise.all(
       profiles.map(async (profile) => {
         profile.images = await mapImagesWithAccessUrls(profile.images);
+
+        // Compute distance from current user's location to this profile
+        if (
+          currentUser.location?.coordinates?.length === 2 &&
+          profile.location?.coordinates?.length === 2
+        ) {
+          const [lon1, lat1] = currentUser.location.coordinates;
+          const [lon2, lat2] = profile.location.coordinates;
+          const R = 6371; // km
+          const dLat = (lat2 - lat1) * Math.PI / 180;
+          const dLon = (lon2 - lon1) * Math.PI / 180;
+          const a =
+            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+            Math.sin(dLon / 2) * Math.sin(dLon / 2);
+          const distanceKm = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+          profile.distance = Math.round(distanceKm);
+        }
+
         return profile;
       })
     );
