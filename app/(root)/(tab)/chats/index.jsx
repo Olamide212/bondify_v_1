@@ -7,6 +7,7 @@ import { useSelector } from "react-redux";
 import ChatListScreen from "../../../../components/chatScreen/ChatListScreen";
 import { matchService } from "../../../../services/matchService";
 import { socketService } from "../../../../services/socketService";
+import { ArrowLeft, BadgeCheck, MoreVertical, User, UserX } from "lucide-react-native";
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
 

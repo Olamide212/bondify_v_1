@@ -1,6 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
-import { User } from "lucide-react-native";
+import { User, UserX } from "lucide-react-native";
 import React, { useEffect, useRef } from "react";
 import {
     ActivityIndicator,
@@ -328,7 +328,7 @@ const ChatListScreen = ({ users, onSelectUser, isLoading = false }) => {
 
   return (
     <SafeAreaView style={styles.listContainer}>
-      <GeneralHeader title="Chats" className="text-black" />
+      <GeneralHeader title="Chats" className="text-black" icon={<UserX />} onPress={() => router.push('/unmatched-users')} />
 
       {/* ── New Matches ── */}
       <Text style={styles.sectionLabel}>New Matches</Text>

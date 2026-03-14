@@ -113,11 +113,11 @@ const ChatHeader = ({ matchedUser, onBack, onOpenProfile, onOpenActions, onUnmat
       </View>
       {!matchedUser.isSystem && (
         <View className="flex-row" style={{ gap: 8 }}>
-          {onUnmatch && (
+          {/* {onUnmatch && (
             <TouchableOpacity onPress={onUnmatch} hitSlop={8}>
               <UserX color="#EF4444" size={22} />
             </TouchableOpacity>
-          )}
+          )} */}
           {onOpenActions && (
             <TouchableOpacity onPress={onOpenActions}>
               <MoreVertical color={colors.primary} />

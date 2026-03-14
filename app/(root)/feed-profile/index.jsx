@@ -7,7 +7,7 @@
 
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
-import { ArrowLeft, Plus } from "lucide-react-native";
+import { ArrowLeft, Pencil, Plus } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -16,9 +16,8 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useDispatch, useSelector } from "react-redux";
@@ -32,9 +31,8 @@ const BRAND = colors.primary;
 const avatarUrl = (user) =>
   user?.profilePhoto || user?.images?.[0]?.url || user?.images?.[0] || null;
 
-const displayName = (user) =>
-  [user?.firstName, user?.lastName].filter(Boolean).join(" ") ||
-  user?.userName ||
+const getDisplayName = (user) =>
+  [user?.userName].filter(Boolean).join(" ") ||
   "User";
 
 export default function FeedProfileScreen() {
@@ -51,6 +49,7 @@ export default function FeedProfileScreen() {
   const [userPosts, setUserPosts] = useState([]);
   const [stats, setStats] = useState({ followersCount: 0, followingCount: 0 });
   const [loadingData, setLoadingData] = useState(false);
+  const [displayNameText, setDisplayNameText] = useState(() => getDisplayName(currentUser));
 
   useEffect(() => {
     if (!currentUser?._id) return;
@@ -66,6 +65,10 @@ export default function FeedProfileScreen() {
           // Only update from API if not already set by local upload
           setLocalAvatarUri((prev) => prev || socialPhoto);
           setUserName(socialRes.data?.userName ?? currentUser?.userName ?? "");
+          const apiDisplayName = socialRes.data?.displayName?.trim?.();
+          if (apiDisplayName) {
+            setDisplayNameText(apiDisplayName);
+          }
         }
         if (profileRes?.data) {
           setUserPosts(profileRes.data.posts ?? []);
@@ -147,8 +150,14 @@ export default function FeedProfileScreen() {
         <TouchableOpacity onPress={() => router.back()} hitSlop={10}>
           <ArrowLeft size={24} color="#111" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>My Feed Profile</Text>
-        <View style={{ width: 24 }} />
+        <Text style={styles.headerTitle}>Feed Profile</Text>
+        <TouchableOpacity
+          onPress={() => router.push("/edit-user-feed-profile")}
+          hitSlop={10}
+          style={styles.editButton}
+        >
+          <Pencil size={20} color="#111" />
+        </TouchableOpacity>
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }}>
@@ -159,8 +168,8 @@ export default function FeedProfileScreen() {
               <Image source={{ uri: displayAvatar }} style={styles.avatar} />
             ) : (
               <View style={[styles.avatar, styles.avatarFallback]}>
-                <Text style={styles.avatarInitial}>
-                  {displayName(currentUser)?.[0]?.toUpperCase()}
+                <Text style={styles.avatarInitial} className='capitalize'>
+                  {getDisplayName(currentUser)?.[0]?.toUpperCase()}
                 </Text>
               </View>
             )}
@@ -176,7 +185,7 @@ export default function FeedProfileScreen() {
           </TouchableOpacity>
 
           <View style={styles.profileInfo}>
-            <Text style={styles.realName}>{displayName(currentUser)}</Text>
+            <Text style={styles.realName}>{displayNameText}</Text>
             <View style={styles.statsRow}>
               <View style={styles.statItem}>
                 <Text style={styles.statNum}>{stats.followersCount}</Text>
@@ -195,7 +204,7 @@ export default function FeedProfileScreen() {
         </View>
 
         {/* Username setup */}
-        <View style={styles.usernameRow}>
+        {/* <View style={styles.usernameRow}>
           <TextInput
             style={styles.usernameInput}
             placeholder="@username"
@@ -217,7 +226,7 @@ export default function FeedProfileScreen() {
               <Text style={styles.saveBtnText}>Save</Text>
             )}
           </TouchableOpacity>
-        </View>
+        </View> */}
 
         {/* Tabs */}
         <View style={styles.tabRow}>
@@ -273,15 +282,23 @@ const styles = StyleSheet.create({
     fontFamily: "PlusJakartaSansBold",
     color: "#111",
   },
+  editButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    justifyContent: "center",
+    alignItems: "center",
+  },
   profileHead: {
-    flexDirection: "row",
+    flexDirection: "column",
     gap: 16,
     alignItems: "center",
+    justifyContent: "center",
     marginVertical: 20,
     paddingHorizontal: 20,
   },
   avatarWrap: { position: "relative" },
-  avatar: { width: 80, height: 80, borderRadius: 40 },
+  avatar: { width: 70, height: 70, borderRadius: 35 },
   avatarFallback: {
     backgroundColor: BRAND,
     justifyContent: "center",
@@ -319,11 +336,12 @@ const styles = StyleSheet.create({
     fontFamily: "PlusJakartaSansBold",
     color: "#111",
     marginBottom: 8,
+    textAlign: 'center'
   },
-  statsRow: { flexDirection: "row", gap: 20 },
+  statsRow: { flexDirection: "row", gap: 40, marginTop: 20 },
   statItem: { alignItems: "center" },
-  statNum: { fontSize: 16, fontFamily: "PlusJakartaSansBold", color: "#111" },
-  statLabel: { fontSize: 11, fontFamily: "PlusJakartaSans", color: "#888" },
+  statNum: { fontSize: 20, fontFamily: "PlusJakartaSansBold", color: "#111" },
+  statLabel: { fontSize: 12, fontFamily: "PlusJakartaSans", color: "#888" },
   usernameRow: {
     flexDirection: "row",
     gap: 10,

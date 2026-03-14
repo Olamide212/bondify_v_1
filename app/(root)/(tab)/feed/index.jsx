@@ -31,7 +31,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { useSelector } from "react-redux";
 import CreatePostModal from "../../../../components/feed/CreatePostModal";
 import FeedPostCard from "../../../../components/feed/FeedPostCard";
@@ -320,6 +320,7 @@ export default function BonFeed() {
   const userAvatar = avatar(currentUser);
 
   return (
+    <SafeAreaProvider>
     <SafeAreaView style={fStyles.container} edges={["top"]}>
       {/* Header */}
       <View style={fStyles.header}>
@@ -444,6 +445,7 @@ export default function BonFeed() {
         isOwnPost={String(optionsPost?.author?._id ?? optionsPost?.author) === String(currentUser?._id)}
       />
     </SafeAreaView>
+    </SafeAreaProvider>
   );
 }
 
@@ -464,7 +466,7 @@ const fStyles = StyleSheet.create({
     fontFamily: "PlusJakartaSansBold",
     color: BRAND,
   },
-  headerAvatar: { width: 38, height: 38, borderRadius: 19 },
+  headerAvatar: { width: 40, height: 40, borderRadius: 40, borderWidth: 1, borderColor: '#dadada' },
   headerAvatarFallback: {
     backgroundColor: "#D1D5DB",
     justifyContent: "center",
@@ -521,7 +523,7 @@ const fStyles = StyleSheet.create({
 
   fab: {
     position: "absolute",
-    bottom: 100,
+    bottom: 50,
     right: 20,
     width: 56,
     height: 56,

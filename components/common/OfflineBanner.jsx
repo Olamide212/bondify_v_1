@@ -1,19 +1,16 @@
 /**
  * OfflineBanner.jsx
  *
- * Displays a non-dismissable banner at the top of the screen when the device
- * has no internet connectivity. Uses periodic fetch-based checks since
- * @react-native-community/netinfo is not in this project's dependencies.
+ * Shows a toast notification once when the device goes offline,
+ * and again once when it comes back online.
  *
  * Usage: Mount once near the root of your app (e.g. inside app/_layout.jsx).
  */
 
-import { useEffect, useRef, useState } from "react";
-import { Animated, StyleSheet, Text, View } from "react-native";
+import { useEffect, useRef } from "react";
+import { useToast } from "../../context/ToastContext";
 
-const CHECK_INTERVAL_MS = 5000;   // re-check every 5 s
-// Use a neutral, widely-available endpoint to check connectivity.
-// Falls back gracefully if the primary check is blocked.
+const CHECK_INTERVAL_MS = 5000; // re-check every 5 s
 const CHECK_URL = "https://www.google.com/generate_204";
 const CHECK_TIMEOUT_MS = 3000;
 
@@ -30,24 +27,8 @@ async function isOnline() {
 }
 
 const OfflineBanner = () => {
-  const [offline, setOffline] = useState(false);
-  const slideAnim = useRef(new Animated.Value(-60)).current;
-
-  const showBanner = () => {
-    Animated.timing(slideAnim, {
-      toValue: 0,
-      duration: 300,
-      useNativeDriver: true,
-    }).start();
-  };
-
-  const hideBanner = () => {
-    Animated.timing(slideAnim, {
-      toValue: -60,
-      duration: 300,
-      useNativeDriver: true,
-    }).start();
-  };
+  const { showToast } = useToast();
+  const prevOffline = useRef(null); // null = status not yet known
 
   useEffect(() => {
     let isMounted = true;
@@ -55,54 +36,32 @@ const OfflineBanner = () => {
     const check = async () => {
       const online = await isOnline();
       if (!isMounted) return;
-      setOffline(!online);
-      if (!online) {
-        showBanner();
-      } else {
-        hideBanner();
+
+      const isOffline = !online;
+
+      // Only trigger a toast when the status changes (not on every interval tick)
+      if (prevOffline.current !== isOffline) {
+        prevOffline.current = isOffline;
+
+        if (isOffline) {
+          showToast({ message: "Network unstable", variant: "error" });
+        } else if (prevOffline.current !== null) {
+          // Only show "back online" if we previously knew we were offline
+          showToast({ message: "You are back online", variant: "success" });
+        }
       }
     };
 
-    // Initial check
     check();
-
     const interval = setInterval(check, CHECK_INTERVAL_MS);
 
     return () => {
       isMounted = false;
       clearInterval(interval);
     };
-  }, []);
+  }, [showToast]);
 
-  if (!offline) return null;
-
-  return (
-    <Animated.View
-      style={[styles.banner, { transform: [{ translateY: slideAnim }] }]}
-      pointerEvents="none"
-    >
-      <Text style={styles.text}>📶 No internet connection</Text>
-    </Animated.View>
-  );
+  return null; // This component renders nothing — it only triggers toasts
 };
-
-const styles = StyleSheet.create({
-  banner: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: "#1F2937",
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    alignItems: "center",
-    zIndex: 9999,
-  },
-  text: {
-    color: "#fff",
-    fontSize: 13,
-    fontWeight: "600",
-  },
-});
 
 export default OfflineBanner;

@@ -118,7 +118,7 @@ const styles = StyleSheet.create({
     left: 0,
     height,
     width,
-    backgroundColor: "rgba(0,0,0,0.2)",
+    backgroundColor: "rgba(0,0,0,0.1)",
     justifyContent: "flex-start",
     paddingTop: 60,
     zIndex: 999,

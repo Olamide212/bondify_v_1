@@ -207,15 +207,13 @@ export default function UserFeedProfile() {
             <Text style={styles.statNumber}>{profile.followersCount ?? 0}</Text>
             <Text style={styles.statLabel}>Followers</Text>
           </View>
-          <View style={{ width: 1, backgroundColor: "#DDD" }} />
           <View style={styles.statItem}>
             <Text style={styles.statNumber}>{profile.followingCount ?? 0}</Text>
             <Text style={styles.statLabel}>Following</Text>
           </View>
-          <View style={{ width: 1, backgroundColor: "#DDD" }} />
           <View style={styles.statItem}>
-            <Text style={styles.statNumber}>{profile.nationality ?? "-"}</Text>
-            <Text style={styles.statLabel}>Nationality</Text>
+            <Text style={styles.statNumber}>{profile.likesCount ?? 0}</Text>
+            <Text style={styles.statLabel}>Likes</Text>
           </View>
         </View>
 
@@ -247,13 +245,13 @@ export default function UserFeedProfile() {
               )}
             </TouchableOpacity>
 
-            <TouchableOpacity
+            {/* <TouchableOpacity
               style={styles.messageButton}
               onPress={handleMessage}
             >
               <MessageCircle size={18} color="#fff" />
               <Text style={styles.actionButtonText}>Message</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
           </View>
         )}
 
@@ -333,12 +331,14 @@ const styles = StyleSheet.create({
   profileBanner: {
     paddingHorizontal: 16,
     paddingVertical: 20,
-    flexDirection: "row",
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
     gap: 16,
   },
   profileAvatar: {
-    width: 100,
-    height: 100,
+    width: 70,
+    height: 70,
     borderRadius: 50,
     backgroundColor: "#f0f0f0",
   },
@@ -348,7 +348,7 @@ const styles = StyleSheet.create({
     backgroundColor: BRAND,
   },
   avatarInitial: {
-    fontSize: 40,
+    fontSize: 20,
     fontFamily: "PlusJakartaSansBold",
     color: "#fff",
   },
@@ -375,9 +375,6 @@ const styles = StyleSheet.create({
   // Stats
   statsRow: {
     flexDirection: "row",
-    borderTopWidth: 1,
-    borderBottomWidth: 1,
-    borderColor: "#f0f0f0",
     marginHorizontal: 16,
   },
   statItem: {
@@ -423,7 +420,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     gap: 8,
     backgroundColor: BRAND,
-    borderRadius: 8,
+    borderRadius: 20,
     paddingVertical: 12,
   },
   followingButton: {
@@ -436,7 +433,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     gap: 8,
     backgroundColor: BRAND,
-    borderRadius: 8,
+    borderRadius: 20,
     paddingVertical: 12,
   },
   actionButtonText: {
