@@ -20,10 +20,9 @@ import {
   View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { colors } from "../../../constant/colors";
 import feedService from "../../../services/feedService";
-import { updateCurrentUser } from "../../../slices/authSlice";
 import apiClient from "../../../utils/axiosInstance";
 
 const BRAND = colors.primary;
@@ -32,18 +31,19 @@ const avatarUrl = (user) =>
   user?.profilePhoto || user?.images?.[0]?.url || user?.images?.[0] || null;
 
 const getDisplayName = (user) =>
-  [user?.userName].filter(Boolean).join(" ") ||
+  user?.displayName ||
+  [user?.firstName, user?.lastName].filter(Boolean).join(" ") ||
+  user?.userName ||
   "User";
 
 export default function FeedProfileScreen() {
   const router = useRouter();
-  const dispatch = useDispatch();
   const { user: currentUser } = useSelector((s) => s.auth);
 
   const [userName, setUserName] = useState(currentUser?.userName ?? "");
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [localAvatarUri, setLocalAvatarUri] = useState(() => avatarUrl(currentUser));
+  const [localAvatarUri, setLocalAvatarUri] = useState(() => currentUser?.images?.[0]?.url || null);
   const [activeTab, setActiveTab] = useState("posts");
   const [savedPosts, setSavedPosts] = useState([]);
   const [userPosts, setUserPosts] = useState([]);
@@ -62,8 +62,8 @@ export default function FeedProfileScreen() {
       .then(([socialRes, profileRes, savedRes]) => {
         if (socialRes?.data) {
           const socialPhoto = socialRes.data?.profilePhoto ?? null;
-          // Only update from API if not already set by local upload
-          setLocalAvatarUri((prev) => prev || socialPhoto);
+          // Social profile photo takes priority; fall back to dating profile image
+          setLocalAvatarUri(socialPhoto || currentUser?.images?.[0]?.url || null);
           setUserName(socialRes.data?.userName ?? currentUser?.userName ?? "");
           const apiDisplayName = socialRes.data?.displayName?.trim?.();
           if (apiDisplayName) {
@@ -116,8 +116,6 @@ export default function FeedProfileScreen() {
 
       // Keep the uploaded URL
       setLocalAvatarUri(uploadedUrl);
-      // Update redux to persist across navigations
-      dispatch(updateCurrentUser({ profilePhoto: uploadedUrl }));
     } catch (e) {
       // Revert to original if upload fails
       setLocalAvatarUri(avatarUrl(currentUser));
@@ -132,7 +130,6 @@ export default function FeedProfileScreen() {
     setSaving(true);
     try {
       await feedService.updateSocialProfile({ userName: userName.trim() });
-      dispatch(updateCurrentUser({ userName: userName.trim() }));
     } catch (e) {
       Alert.alert("Error", e?.response?.data?.message ?? "Could not save username.");
     } finally {

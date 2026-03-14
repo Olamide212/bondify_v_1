@@ -1,6 +1,6 @@
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
-import { ArrowLeft, Save } from "lucide-react-native";
+import { ArrowLeft } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import {
     ActivityIndicator,
@@ -14,10 +14,9 @@ import {
     View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { colors } from "../../../constant/colors";
 import feedService from "../../../services/feedService";
-import { updateCurrentUser } from "../../../slices/authSlice";
 import apiClient from "../../../utils/axiosInstance";
 
 const BRAND = colors.primary;
@@ -32,7 +31,6 @@ const fallbackDisplayName = (user) =>
 
 export default function EditFeedProfileScreen() {
   const router = useRouter();
-  const dispatch = useDispatch();
   const { user: currentUser } = useSelector((s) => s.auth);
 
   const [displayNameInput, setDisplayNameInput] = useState(() => fallbackDisplayName(currentUser));
@@ -99,7 +97,6 @@ export default function EditFeedProfileScreen() {
         uri;
 
       setLocalAvatarUri(uploadedUrl);
-      dispatch(updateCurrentUser({ profilePhoto: uploadedUrl }));
     } catch (error) {
       setLocalAvatarUri(avatarUrl(currentUser));
       Alert.alert("Error", error?.response?.data?.message ?? "Could not update photo.");
@@ -127,10 +124,6 @@ export default function EditFeedProfileScreen() {
         displayName: trimmedDisplayName,
         userName: trimmedUserName,
       });
-      dispatch(updateCurrentUser({
-        displayName: trimmedDisplayName,
-        userName: trimmedUserName,
-      }));
       Alert.alert("Saved", "Feed profile updated successfully", [
         { text: "OK", onPress: () => router.back() },
       ]);

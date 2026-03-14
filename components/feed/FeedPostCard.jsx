@@ -35,7 +35,10 @@ const avatarUrl = (user) =>
   user?.profilePhoto || user?.images?.[0]?.url || user?.images?.[0] || null;
 
 const displayName = (user) =>
-  [user?.firstName, user?.lastName].filter(Boolean).join(" ") || user?.userName || "User";
+  user?.displayName ||
+  [user?.firstName, user?.lastName].filter(Boolean).join(" ") ||
+  user?.userName ||
+  "User";
 
 const FeedPostCard = ({
   post,

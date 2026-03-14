@@ -1,10 +1,12 @@
-const Post   = require('../models/Post');
-const Follow = require('../models/Follow');
-const User   = require('../models/User');
+const Post          = require('../models/Post');
+const Follow        = require('../models/Follow');
+const User          = require('../models/User');
+const SocialProfile = require('../models/SocialProfile');
 const { uploadToS3 } = require('../utils/imageHelper');
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
-const AUTHOR_SELECT = 'firstName lastName profilePhoto userName nationality images';
+// profilePhoto lives on SocialProfile, not User — do not include it here
+const AUTHOR_SELECT = 'firstName lastName userName nationality images';
 
 const formatPost = (post, currentUserId) => {
   const id = String(currentUserId);
@@ -16,6 +18,48 @@ const formatPost = (post, currentUserId) => {
     isLiked:       (post.likes || []).some((u) => String(u) === id || String(u?._id) === id),
     isSaved:       (post.saves || []).some((u) => String(u) === id || String(u?._id) === id),
   };
+};
+
+// Batch-fetch SocialProfile docs and overlay profilePhoto / displayName onto
+// each post.author (and comment authors) in-place.  Works on lean objects.
+const attachSocialProfiles = async (posts) => {
+  if (!posts.length) return posts;
+
+  // Collect unique author IDs from post authors and comment authors
+  const idSet = new Set();
+  posts.forEach((p) => {
+    if (p.author?._id) idSet.add(String(p.author._id));
+    (p.comments || []).forEach((c) => {
+      if (c.author?._id) idSet.add(String(c.author._id));
+    });
+  });
+
+  if (!idSet.size) return posts;
+
+  const socialProfiles = await SocialProfile.find({ user: { $in: [...idSet] } }).lean();
+  const spMap = {};
+  socialProfiles.forEach((sp) => { spMap[String(sp.user)] = sp; });
+
+  posts.forEach((post) => {
+    if (post.author?._id) {
+      const sp = spMap[String(post.author._id)];
+      if (sp) {
+        post.author.profilePhoto = sp.profilePhoto ?? null;
+        post.author.displayName  = sp.displayName  ?? null;
+      }
+    }
+    (post.comments || []).forEach((comment) => {
+      if (comment.author?._id) {
+        const sp = spMap[String(comment.author._id)];
+        if (sp) {
+          comment.author.profilePhoto = sp.profilePhoto ?? null;
+          comment.author.displayName  = sp.displayName  ?? null;
+        }
+      }
+    });
+  });
+
+  return posts;
 };
 
 // ─── GET /api/feed  ── paginated feed ─────────────────────────────────────────
@@ -52,6 +96,8 @@ const getFeed = async (req, res, next) => {
 
     const total = await Post.countDocuments(filter);
 
+    await attachSocialProfiles(posts);
+
     res.json({
       success: true,
       data:    posts.map((p) => formatPost(p, req.user._id)),
@@ -74,7 +120,9 @@ const createPost = async (req, res, next) => {
     });
 
     const populated = await post.populate('author', AUTHOR_SELECT);
-    res.status(201).json({ success: true, data: formatPost(populated.toObject(), req.user._id) });
+    const postObj = populated.toObject();
+    await attachSocialProfiles([postObj]);
+    res.status(201).json({ success: true, data: formatPost(postObj, req.user._id) });
   } catch (err) { next(err); }
 };
 
@@ -87,6 +135,7 @@ const getPost = async (req, res, next) => {
       .lean();
     if (!post) return res.status(404).json({ success: false, message: 'Post not found.' });
     await Post.findByIdAndUpdate(req.params.postId, { $inc: { views: 1 } });
+    await attachSocialProfiles([post]);
     res.json({ success: true, data: formatPost(post, req.user._id) });
   } catch (err) { next(err); }
 };
@@ -147,7 +196,14 @@ const addComment = async (req, res, next) => {
       { new: true }
     ).populate('comments.author', AUTHOR_SELECT);
     if (!post) return res.status(404).json({ success: false, message: 'Post not found.' });
-    const newComment = post.comments[post.comments.length - 1];
+    const newComment = post.comments[post.comments.length - 1]?.toObject();
+    if (!newComment) return res.status(500).json({ success: false, message: 'Comment could not be created.' });
+    // Overlay social profile data on the comment author
+    const sp = await SocialProfile.findOne({ user: req.user._id }).lean();
+    if (sp && newComment.author) {
+      newComment.author.profilePhoto = sp.profilePhoto ?? null;
+      newComment.author.displayName  = sp.displayName  ?? null;
+    }
     res.status(201).json({ success: true, data: newComment });
   } catch (err) { next(err); }
 };
@@ -193,6 +249,7 @@ const getSavedPosts = async (req, res, next) => {
       .populate('author', AUTHOR_SELECT)
       .populate('comments.author', AUTHOR_SELECT)
       .lean();
+    await attachSocialProfiles(posts);
     res.json({ success: true, data: posts.map((p) => formatPost(p, req.user._id)) });
   } catch (err) { next(err); }
 };
@@ -208,17 +265,20 @@ const getUserPosts = async (req, res, next) => {
       .limit(Number(limit))
       .populate('author', AUTHOR_SELECT)
       .lean();
-    const total         = await Post.countDocuments({ author: req.params.userId, isPublic: true });
+    await attachSocialProfiles(posts);
+    const total          = await Post.countDocuments({ author: req.params.userId, isPublic: true });
     const followersCount = await Follow.countDocuments({ following: req.params.userId });
     const followingCount = await Follow.countDocuments({ follower:  req.params.userId });
     const isFollowing    = !!(await Follow.findOne({ follower: req.user._id, following: req.params.userId }));
+    const targetSocialProfile = await SocialProfile.findOne({ user: req.params.userId }).lean();
     res.json({
       success: true,
       data: {
-        posts:    posts.map((p) => formatPost(p, req.user._id)),
+        posts:         posts.map((p) => formatPost(p, req.user._id)),
         followersCount,
         followingCount,
         isFollowing,
+        socialProfile: targetSocialProfile || null,
         pagination: { page: Number(page), limit: Number(limit), total },
       },
     });
@@ -229,27 +289,50 @@ const getUserPosts = async (req, res, next) => {
 const getSocialProfile = async (req, res, next) => {
   try {
     const user = await User.findById(req.user._id)
-      .select(AUTHOR_SELECT)
+      .select('firstName lastName userName nationality images')
       .lean();
     if (!user) return res.status(404).json({ success: false, message: 'User not found.' });
+
+    let socialProfile = await SocialProfile.findOne({ user: req.user._id }).lean();
+    if (!socialProfile) {
+      // Auto-seed from existing user data on first access
+      socialProfile = await SocialProfile.create({ user: req.user._id, userName: user.userName });
+    }
+
     const followersCount = await Follow.countDocuments({ following: req.user._id });
     const followingCount = await Follow.countDocuments({ follower: req.user._id });
     const postsCount     = await Post.countDocuments({ author: req.user._id, isPublic: true });
-    res.json({ success: true, data: { ...user, followersCount, followingCount, postsCount } });
+    res.json({
+      success: true,
+      data: {
+        ...user,
+        displayName:  socialProfile.displayName  ?? null,
+        profilePhoto: socialProfile.profilePhoto  ?? null,
+        bio:          socialProfile.bio           ?? null,
+        followersCount,
+        followingCount,
+        postsCount,
+      },
+    });
   } catch (err) { next(err); }
 };
 
-// ─── PATCH /api/feed/social-profile ─── update userName ─────────────────────
+// ─── PATCH /api/feed/social-profile ─── update social profile fields ─────────
 const updateSocialProfile = async (req, res, next) => {
   try {
-    const { userName, profilePhoto } = req.body;
+    const { userName, displayName, profilePhoto, bio } = req.body;
     const updates = {};
-    if (userName?.trim()) updates.userName = userName.trim().toLowerCase();
-    if (profilePhoto)     updates.profilePhoto = profilePhoto;
-    const user = await User.findByIdAndUpdate(req.user._id, updates, { new: true })
-      .select(AUTHOR_SELECT)
-      .lean();
-    res.json({ success: true, data: user });
+    if (userName     !== undefined) updates.userName     = String(userName).trim().toLowerCase();
+    if (displayName  !== undefined) updates.displayName  = String(displayName).trim();
+    if (profilePhoto !== undefined) updates.profilePhoto = profilePhoto;
+    if (bio          !== undefined) updates.bio          = String(bio).trim();
+
+    const socialProfile = await SocialProfile.findOneAndUpdate(
+      { user: req.user._id },
+      updates,
+      { new: true, upsert: true }
+    ).lean();
+    res.json({ success: true, data: socialProfile });
   } catch (err) { next(err); }
 };
 
@@ -260,15 +343,15 @@ const uploadSocialPhoto = async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'No file uploaded.' });
     }
 
-    const { url } = await uploadToS3(req.file, `social-avatars/${req.user._id}`);
+    const { url, publicId } = await uploadToS3(req.file, `social-avatars/${req.user._id}`);
 
-    const user = await User.findByIdAndUpdate(
-      req.user._id,
-      { profilePhoto: url },
-      { new: true }
-    ).select(AUTHOR_SELECT).lean();
+    const socialProfile = await SocialProfile.findOneAndUpdate(
+      { user: req.user._id },
+      { profilePhoto: url, profilePhotoKey: publicId },
+      { new: true, upsert: true }
+    ).lean();
 
-    res.json({ success: true, data: { user, profilePhoto: url } });
+    res.json({ success: true, data: { profilePhoto: url, socialProfile } });
   } catch (err) { next(err); }
 };
 
