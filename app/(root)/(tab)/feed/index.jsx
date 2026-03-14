@@ -250,7 +250,7 @@ export default function BonFeed() {
 
     switch (key) {
       case "share":
-        // Share functionality placeholder
+        // TODO: integrate native share sheet (e.g. react-native Share API)
         Alert.alert("Share", "Sharing feature coming soon!");
         break;
       case "save":

@@ -5,7 +5,6 @@ import {
   ActivityIndicator,
   Alert,
   Image,
-  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -74,7 +73,7 @@ const FeedProfileSheet = ({ visible, user, onClose, onUpdate }) => {
       // Upload the image via the upload endpoint
       const formData = new FormData();
       formData.append("photos", {
-        uri: Platform.OS === "ios" ? uri.replace("file://", "") : uri,
+        uri,
         name: fileName,
         type: mimeType,
       });

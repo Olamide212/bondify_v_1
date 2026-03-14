@@ -8,10 +8,7 @@ import {
 } from "lucide-react-native";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { colors } from "../../constant/colors";
 import BaseModal from "../modals/BaseModal";
-
-const BRAND = colors.primary;
 
 const OPTIONS = [
   { key: "share",  label: "Share",     icon: Share2,    color: "#333" },
