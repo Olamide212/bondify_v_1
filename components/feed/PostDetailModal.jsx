@@ -129,6 +129,9 @@ const PostDetailModal = ({
       case "block":
         Alert.alert("Block", "This user has been blocked.");
         break;
+      case "delete":
+        onOpenOptions?.({ ...post, _deleteFromDetail: true });
+        break;
     }
   };
 
@@ -398,6 +401,7 @@ const PostDetailModal = ({
         onSelect={handleOptionSelect}
         isFollowing={isFollowing}
         isSaved={post.isSaved}
+        isOwnPost={isOwnPost}
       />
     </BaseModal>
   );

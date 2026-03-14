@@ -1,3 +1,4 @@
+import { Audio } from "expo-av";
 import { MessageCircle, Sparkles, X } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -27,6 +28,7 @@ const MatchCelebrationModal = ({
   const scaleAnim   = useRef(new Animated.Value(0.85)).current;
   const fadeAnim    = useRef(new Animated.Value(0)).current;
   const badgeScale  = useRef(new Animated.Value(0)).current;
+  const soundRef    = useRef(null);
 
   const [selectedIceBreaker, setSelectedIceBreaker] = useState("");
 
@@ -36,6 +38,21 @@ const MatchCelebrationModal = ({
       scaleAnim.setValue(0.85);
       fadeAnim.setValue(0);
       badgeScale.setValue(0);
+
+      // Play match sound
+      const playMatchSound = async () => {
+        try {
+          await Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
+          const { sound } = await Audio.Sound.createAsync(
+            require("../../assets/sounds/match.wav"),
+            { shouldPlay: true, volume: 1.0 }
+          );
+          soundRef.current = sound;
+        } catch (e) {
+          if (__DEV__) console.warn("[MatchCelebrationModal] audio playback failed:", e);
+        }
+      };
+      playMatchSound();
 
       Animated.parallel([
         Animated.spring(scaleAnim, {
@@ -58,6 +75,12 @@ const MatchCelebrationModal = ({
         }),
       ]).start();
     }
+    return () => {
+      soundRef.current?.unloadAsync().catch((e) => {
+        if (__DEV__) console.warn("[MatchCelebrationModal] audio cleanup failed:", e);
+      });
+      soundRef.current = null;
+    };
   }, [visible]);
 
   const handleSendMessage = () => {

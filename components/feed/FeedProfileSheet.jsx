@@ -83,6 +83,7 @@ const FeedProfileSheet = ({ visible, user, onClose, onUpdate }) => {
       });
 
       const uploadedUrl =
+        uploadRes.data?.data?.images?.slice(-1)[0]?.url ??
         uploadRes.data?.data?.urls?.[0] ??
         uploadRes.data?.urls?.[0] ??
         uploadRes.data?.data?.[0]?.url ??

@@ -1,5 +1,6 @@
 import {
   ActivityIndicator,
+  Image,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -9,13 +10,17 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { ChevronLeft, Sparkles } from "lucide-react-native";
+import * as ImagePicker from "expo-image-picker";
+import { ChevronLeft, ImagePlus, Sparkles, X } from "lucide-react-native";
 import React, { useState } from "react";
 import { colors } from "../../constant/colors";
 import feedService from "../../services/feedService";
 import BaseModal from "../modals/BaseModal";
 
 const BRAND = colors.primary;
+const DEFAULT_FILENAME = "photo.jpg";
+const DEFAULT_MIME_TYPE = "image/jpeg";
+const MAX_MEDIA = 4;
 
 const CreatePostModal = ({ visible, onClose, onCreated }) => {
   const [text, setText] = useState("");
@@ -24,20 +29,60 @@ const CreatePostModal = ({ visible, onClose, onCreated }) => {
   const [aiContext, setAiContext] = useState("");
   const [suggestions, setSuggestions] = useState([]);
   const [error, setError] = useState(null);
+  const [mediaAssets, setMediaAssets] = useState([]);
+  const [uploadingMedia, setUploadingMedia] = useState(false);
+
+  const handlePickImage = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsMultipleSelection: true,
+      quality: 0.8,
+      selectionLimit: MAX_MEDIA,
+    });
+    if (result.canceled) return;
+    setMediaAssets((prev) => {
+      const combined = [...prev, ...result.assets];
+      return combined.slice(0, MAX_MEDIA);
+    });
+  };
+
+  const handleRemoveMedia = (index) => {
+    setMediaAssets((prev) => prev.filter((_, i) => i !== index));
+  };
 
   const handleCreate = async () => {
-    if (!text.trim()) return;
+    if (!text.trim() && mediaAssets.length === 0) return;
     setLoading(true);
     setError(null);
     try {
-      const res = await feedService.createPost({ content: text.trim() });
+      let mediaUrls = [];
+      if (mediaAssets.length > 0) {
+        setUploadingMedia(true);
+        try {
+          const uploadRes = await feedService.uploadPostMedia(
+            mediaAssets.map((a) => ({
+              uri: a.uri,
+              fileName: a.uri.split("/").pop() || DEFAULT_FILENAME,
+              type: a.mimeType || DEFAULT_MIME_TYPE,
+            }))
+          );
+          mediaUrls = (uploadRes?.data ?? uploadRes ?? []).map((u) => u.url ?? u);
+        } catch {
+          setError("Photo upload failed. Please try again.");
+          return;
+        } finally {
+          setUploadingMedia(false);
+        }
+      }
+      const res = await feedService.createPost({ content: text.trim(), mediaUrls });
       onCreated(res.data);
       setText("");
       setSuggestions([]);
       setAiContext("");
+      setMediaAssets([]);
       onClose();
     } catch {
-      setError("Failed to post. Please try again.");
+      setError("Failed to create post. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -69,9 +114,9 @@ const CreatePostModal = ({ visible, onClose, onCreated }) => {
           </TouchableOpacity>
           <Text style={styles.title}>Create Post</Text>
           <TouchableOpacity
-            style={[styles.postBtn, (!text.trim() || loading) && styles.postBtnDisabled]}
+            style={[styles.postBtn, ((!text.trim() && mediaAssets.length === 0) || loading) && styles.postBtnDisabled]}
             onPress={handleCreate}
-            disabled={!text.trim() || loading}
+            disabled={(!text.trim() && mediaAssets.length === 0) || loading}
           >
             {loading ? (
               <ActivityIndicator size="small" color="#fff" />
@@ -96,6 +141,20 @@ const CreatePostModal = ({ visible, onClose, onCreated }) => {
             maxLength={2000}
             autoFocus
           />
+
+          {/* Selected media preview */}
+          {mediaAssets.length > 0 && (
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.mediaPreviewRow}>
+              {mediaAssets.map((asset, i) => (
+                <View key={i} style={styles.mediaThumbWrap}>
+                  <Image source={{ uri: asset.uri }} style={styles.mediaThumb} />
+                  <TouchableOpacity style={styles.mediaRemoveBtn} onPress={() => handleRemoveMedia(i)}>
+                    <X size={12} color="#fff" />
+                  </TouchableOpacity>
+                </View>
+              ))}
+            </ScrollView>
+          )}
 
           {/* AI context input */}
           <View style={styles.aiRow}>
@@ -135,6 +194,22 @@ const CreatePostModal = ({ visible, onClose, onCreated }) => {
 
         {/* Footer */}
         <View style={styles.footer}>
+          <TouchableOpacity
+            style={styles.mediaPickerBtn}
+            onPress={handlePickImage}
+            disabled={mediaAssets.length >= MAX_MEDIA}
+          >
+            {uploadingMedia ? (
+              <ActivityIndicator size="small" color={BRAND} />
+            ) : (
+              <>
+                <ImagePlus size={20} color={mediaAssets.length >= MAX_MEDIA ? "#CCC" : BRAND} />
+                {mediaAssets.length > 0 && (
+                  <Text style={styles.mediaCount}>{mediaAssets.length}/4</Text>
+                )}
+              </>
+            )}
+          </TouchableOpacity>
           <Text style={styles.charCount}>{text.length}/2000</Text>
         </View>
       </KeyboardAvoidingView>
@@ -235,6 +310,43 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderTopWidth: 1,
     borderTopColor: "#F0F0F0",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  mediaPickerBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    padding: 4,
+  },
+  mediaCount: {
+    fontSize: 12,
+    fontFamily: "PlusJakartaSansBold",
+    color: colors.primary,
+  },
+  mediaPreviewRow: {
+    marginBottom: 12,
+  },
+  mediaThumbWrap: {
+    marginRight: 8,
+    position: "relative",
+  },
+  mediaThumb: {
+    width: 80,
+    height: 80,
+    borderRadius: 10,
+  },
+  mediaRemoveBtn: {
+    position: "absolute",
+    top: 4,
+    right: 4,
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: "rgba(0,0,0,0.55)",
+    alignItems: "center",
+    justifyContent: "center",
   },
   charCount: {
     fontSize: 12,
