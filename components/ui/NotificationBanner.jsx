@@ -24,11 +24,12 @@ const AUTO_DISMISS_MS = 4000;
 const SWIPE_UP_THRESHOLD = -30;
 
 const TYPE_META = {
-  match:        { icon: "💜", label: "New Match" },
-  message:      { icon: "💬", label: "Message" },
-  like:         { icon: "❤️",  label: "New Like" },
-  superLike:    { icon: "⭐", label: "Super Like" },
-  notification: { icon: "🔔", label: "Notification" },
+  match:         { icon: "💜", label: "New Match" },
+  message:       { icon: "💬", label: "Message" },
+  like:          { icon: "❤️",  label: "New Like" },
+  superLike:     { icon: "⭐", label: "Super Like" },
+  profile_visit: { icon: "👀", label: "Profile Visit" },
+  notification:  { icon: "🔔", label: "Notification" },
 };
 
 const getMeta = (type) => TYPE_META[type] ?? TYPE_META.notification;
@@ -147,6 +148,9 @@ const NotificationBanner = ({ notification, onDismiss, onPress }) => {
             <Text style={styles.body} numberOfLines={1}>
               {notification.body}
             </Text>
+            {notification.type === "profile_visit" && (
+              <Text style={styles.ctaText}>Tap to view profile →</Text>
+            )}
           </View>
 
           {/* Close */}
@@ -227,6 +231,13 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: "rgba(255,255,255,0.45)",
     fontWeight: "600",
+  },
+  ctaText: {
+    fontSize: 12,
+    color: colors.primary,
+    fontWeight: "700",
+    fontFamily: "PlusJakartaSansBold",
+    marginTop: 3,
   },
 });
 

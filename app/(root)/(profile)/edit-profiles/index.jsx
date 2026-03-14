@@ -45,6 +45,7 @@ import { useTheme } from '../../../../context/ThemeContext';
 import { profileService } from '../../../../services/profileService';
 import InterestCard from '../../../../components/profileScreen/InterestCard';
 import LifestyleCard from '../../../../components/profileScreen/Lifestyle';
+import LanguageSelection from '../../../../components/profileScreen/LanguageSelection';
 
 const { width: SW } = Dimensions.get('window');
 const TABS = ['Edit', 'View Profile'];
@@ -468,6 +469,11 @@ export default function ProfileDetails() {
 <View>
 <InterestCard profile={profile} onUpdateField={handleUpdateField} />
 </View>
+
+              <View>
+                <TextHeadingOne name="Languages" />
+                <LanguageSelection profile={profile} onUpdateField={handleUpdateField} />
+              </View>
 
               <View>
                 <TextHeadingOne name="About Me" />

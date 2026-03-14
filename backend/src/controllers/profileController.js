@@ -5,6 +5,9 @@ const {
 const s3 = require('../config/s3');
 const User = require('../models/User');
 const Match = require('../models/Match');
+const ProfileView = require('../models/ProfileView');
+const Notification = require('../models/Notification');
+const { getIO } = require('../socket');
 const { mapImagesWithAccessUrls } = require('../utils/imageHelper');
 
 const PROFILE_CACHE_TTL_MS = Number(process.env.PROFILE_CACHE_TTL_MS || 30000);
@@ -298,10 +301,18 @@ const completeOnboarding = async (req, res, next) => {
 const getProfile = async (req, res, next) => {
   try {
     const { id }   = req.params;
+    const viewerId = req.user._id;
+    const viewerInfo = { firstName: req.user.firstName, lastName: req.user.lastName, images: req.user.images };
     const cacheKey = `id:${String(id)}`;
 
     const cached = getCachedProfile(cacheKey);
-    if (cached) return res.json({ success: true, data: { profile: cached } });
+    if (cached) {
+      // Fire-and-forget: record the visit even for cached responses
+      if (String(viewerId) !== String(id)) {
+        recordProfileVisit(viewerId, id, viewerInfo);
+      }
+      return res.json({ success: true, data: { profile: cached } });
+    }
 
     const user = await User.findById(id);
     if (!user) return res.status(404).json({ success: false, message: 'User not found' });
@@ -311,6 +322,13 @@ const getProfile = async (req, res, next) => {
     profile.images = await mapImagesWithAccessUrls(profile.images);
 
     setCachedProfile(cacheKey, profile);
+
+    // Fire-and-forget: record the visit & increment profileViews counter
+    if (String(viewerId) !== String(id)) {
+      recordProfileVisit(viewerId, id, viewerInfo);
+      User.findByIdAndUpdate(id, { $inc: { profileViews: 1 } }).exec();
+    }
+
     res.json({ success: true, data: { profile } });
   } catch (error) {
     next(error);
@@ -384,17 +402,98 @@ const getProfileStats = async (req, res, next) => {
 };
 
 // ─── Profile view tracker ─────────────────────────────────────────────────────
-// Call this whenever someone views another user's profile.
-// Already wired to GET /api/profile/:id  — add the increment there.
-//
-// Inside your existing getProfile controller, after fetching the profile user,
-// add this line (don't await it — fire-and-forget so it doesn't slow the response):
-//
-//   User.findByIdAndUpdate(profileUserId, { $inc: { profileViews: 1 } }).exec();
-//
-// Also add  profileViews: { type: Number, default: 0 }  to your User schema if
-// it doesn't exist yet.
-// ─────────────────────────────────────────────────────────────────────────────
+// Records a profile visit and emits a real-time socket notification to the
+// viewed user if they are online.
+// viewerInfo: { firstName, lastName, images } — passed from the calling context
+//   to avoid a separate DB lookup for the viewer.
+const recordProfileVisit = async (viewerId, viewedId, viewerInfo = {}) => {
+  try {
+    await ProfileView.findOneAndUpdate(
+      { viewer: viewerId, viewed: viewedId },
+      { viewer: viewerId, viewed: viewedId },
+      { upsert: true, new: true, setDefaultsOnInsert: true }
+    );
+
+    const viewerName = [viewerInfo.firstName, viewerInfo.lastName].filter(Boolean).join(' ') || 'Someone';
+    const viewerImage = viewerInfo.images?.[0]?.url || viewerInfo.images?.[0] || null;
+
+    // Emit socket event so the viewed user sees it in real-time
+    try {
+      const io = getIO();
+      io.to(`user:${String(viewedId)}`).emit('profile:visited', {
+        type:      'profile_visit',
+        title:     `${viewerName} visited you`,
+        body:      `${viewerName} just viewed your profile`,
+        userId:    String(viewerId),
+        userName:  viewerName,
+        userImage: viewerImage,
+        createdAt: new Date().toISOString(),
+      });
+    } catch (_socketErr) {
+      // Socket may not be initialized in test environments
+    }
+
+    // Persist a notification record
+    await Notification.create({
+      recipient: viewedId,
+      sender:    viewerId,
+      type:      'profile_visit',
+      title:     `${viewerName} visited you`,
+      body:      `${viewerName} just viewed your profile`,
+      data:      { viewerId: String(viewerId) },
+    });
+  } catch (err) {
+    // Fire-and-forget — don't let tracking errors affect the main response
+    console.error('recordProfileVisit error:', err?.message);
+  }
+};
+
+// @desc    Get users who visited the current user's profile
+// @route   GET /api/profile/visitors
+// @access  Private
+const getProfileVisitors = async (req, res, next) => {
+  try {
+    const userId        = req.user._id;
+    const sanitizedPage = Math.max(parseInt(req.query.page  || 1,  10), 1);
+    const sanitizedLimit= Math.min(Math.max(parseInt(req.query.limit || 20, 10), 1), 100);
+    const skip          = (sanitizedPage - 1) * sanitizedLimit;
+
+    const [views, total] = await Promise.all([
+      ProfileView.find({ viewed: userId })
+        .sort({ updatedAt: -1 })
+        .skip(skip)
+        .limit(sanitizedLimit)
+        .populate('viewer', '-password -otp -otpExpiry')
+        .lean(),
+      ProfileView.countDocuments({ viewed: userId }),
+    ]);
+
+    const profiles = await Promise.all(
+      views.map(async (view) => {
+        if (!view.viewer) return null;
+        const userObj   = { ...view.viewer };
+        userObj.images  = await mapImagesWithAccessUrls(userObj.images);
+        userObj.visitedAt = view.updatedAt;
+        return userObj;
+      })
+    );
+
+    return res.json({
+      success: true,
+      data: {
+        profiles: profiles.filter(Boolean),
+        pagination: {
+          page:  sanitizedPage,
+          limit: sanitizedLimit,
+          total,
+          pages: Math.ceil(total / sanitizedLimit),
+        },
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 
 module.exports = {
   updateProfile,
@@ -403,5 +502,6 @@ module.exports = {
   getMyProfile,
   uploadVoicePrompt,
   deleteVoicePrompt,
-  getProfileStats
+  getProfileStats,
+  getProfileVisitors,
 };

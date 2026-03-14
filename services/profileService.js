@@ -343,6 +343,18 @@ const getPassed = async (params = {}) => {
   }
 };
 
+const getProfileVisitors = async (params = {}) => {
+  try {
+    const response = await apiClient.get("/profile/visitors", { params });
+    const payload = response.data?.data ?? response.data;
+    return payload?.profiles ?? [];
+  } catch (err) {
+    const message =
+      err.response?.data?.message || err.message || "Failed to fetch visitors";
+    throw new Error(message);
+  }
+};
+
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  ADD THESE TWO METHODS TO YOUR EXISTING profileService.js
@@ -425,6 +437,7 @@ export const profileService = {
   getLikedYou,
   getYouLiked,
   getPassed,
+  getProfileVisitors,
   uploadVoicePrompt,
   deleteVoicePrompt,
 };

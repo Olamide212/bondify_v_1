@@ -18,6 +18,7 @@ const notificationSchema = new mongoose.Schema(
         'new_message',
         'new_like',
         'super_like',
+        'profile_visit',
         'event_invite',
         'event_reminder',
         'premium_expiry',

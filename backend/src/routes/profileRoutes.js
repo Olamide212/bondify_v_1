@@ -8,6 +8,7 @@ const {
   getProfile,
   getMyProfile,
   getProfileStats,
+  getProfileVisitors,
   uploadVoicePrompt,
   deleteVoicePrompt,
 } = require('../controllers/profileController');
@@ -23,6 +24,7 @@ router.get('/',    protect, getMyProfile);
 router.patch('/',  protect, updateProfileValidation, updateProfile);
 router.post('/complete-onboarding', protect, completeOnboarding);
 router.get('/stats', protect, getProfileStats);   // GET /api/profile/stats
+router.get('/visitors', protect, getProfileVisitors); // GET /api/profile/visitors
 
 // ── Voice prompt — must come BEFORE /:id so Express doesn't treat
 //    "voice-prompt" as a dynamic :id param ──────────────────────────────────

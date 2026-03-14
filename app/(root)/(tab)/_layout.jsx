@@ -1,14 +1,15 @@
 import { Tabs } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { Bot, LayoutGrid, Send } from "lucide-react-native";
-import { useState } from "react";
-import { Image, Platform, Pressable, StyleSheet, View } from "react-native";
+import { useEffect, useState } from "react";
+import { Image, Platform, Pressable, StyleSheet, Text, View } from "react-native";
+import { useSelector } from "react-redux";
 import IceBreakerModal from "../../../components/modals/IceBreakerModal";
 import { colors } from "../../../constant/colors";
 import { Icons } from "../../../constant/icons";
 import { images } from "../../../constant/images";
 
-const TabIcon = ({ focused, customImage }) => {
+const TabIcon = ({ focused, customImage, badge }) => {
   return (
     <View style={styles.tabIconContainer}>
       <Image
@@ -18,6 +19,11 @@ const TabIcon = ({ focused, customImage }) => {
           focused ? styles.activeIconImage : styles.inactiveIconImage,
         ]}
       />
+      {badge > 0 && (
+        <View style={styles.notificationBadge}>
+          <Text style={styles.badgeText}>{badge > 99 ? "99+" : badge}</Text>
+        </View>
+      )}
     </View>
   );
 };
@@ -50,6 +56,48 @@ const CenterIceBreakerButton = ({ onPress }) => {
 
 export default function TabsLayout() {
   const [showIceBreakerModal, setShowIceBreakerModal] = useState(false);
+  const [unreadMessages, setUnreadMessages] = useState(0);
+  const [newLikes, setNewLikes] = useState(0);
+
+  // Get current user from Redux auth
+  const currentUserId = useSelector((state) => state.auth?.user?.id || state.auth?.user?._id);
+
+  // Listen for socket events to update badge counts
+  useEffect(() => {
+    const initializeBadges = async () => {
+      try {
+        const { matchService } = require("../../../services/matchService");
+        const matches = await matchService.getCachedMatches();
+        const unreadCount = matches.reduce((sum, match) => sum + (match.unread || 0), 0);
+        setUnreadMessages(unreadCount);
+
+        const { profileService } = require("../../../services/profileService");
+        const likedYou = await profileService.getLikedYou().catch(() => []);
+        setNewLikes(likedYou.length);
+      } catch (err) {
+        console.warn("Failed to initialize badge counts:", err);
+      }
+    };
+
+    initializeBadges();
+
+    const { socketService } = require("../../../services/socketService");
+
+    socketService.on("message:new", (data) => {
+      if (data?.from !== currentUserId) {
+        setUnreadMessages(prev => prev + 1);
+      }
+    });
+
+    socketService.on("match:new", () => {
+      setNewLikes(prev => prev + 1);
+    });
+
+    return () => {
+      socketService.off("message:new");
+      socketService.off("match:new");
+    };
+  }, [currentUserId]);
 
   return (
     <View className="bg-app flex-1">
@@ -80,7 +128,7 @@ export default function TabsLayout() {
           name="matches"
           options={{
             tabBarIcon: ({ focused }) => (
-              <TabIcon focused={focused} customImage={Icons.heart} />
+              <TabIcon focused={focused} customImage={Icons.heart} badge={newLikes} />
             ),
             tabBarButton: (props) => (
               <CenterIceBreakerButton
@@ -93,7 +141,7 @@ export default function TabsLayout() {
           name="chats"
           options={{
             tabBarIcon: ({ focused }) => (
-              <TabIcon focused={focused} customImage={Icons.message} />
+              <TabIcon focused={focused} customImage={Icons.message} badge={unreadMessages} />
             ),
           }}
         />
@@ -171,6 +219,26 @@ const styles = StyleSheet.create({
   },
   inactiveIconImage: {
     tintColor: colors.inactiveTab,
+  },
+  notificationBadge: {
+    position: "absolute",
+    top: -5,
+    right: -8,
+    backgroundColor: "#EF4444",
+    borderRadius: 10,
+    minWidth: 20,
+    height: 20,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 5,
+    borderWidth: 2,
+    borderColor: "#fff",
+  },
+  badgeText: {
+    color: "#fff",
+    fontSize: 11,
+    fontWeight: "bold",
+    textAlign: "center",
   },
   centerButtonWrapper: {
     top: -20,

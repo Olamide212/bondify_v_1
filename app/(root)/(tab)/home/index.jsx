@@ -387,12 +387,24 @@ const Home = () => {
       });
     };
 
+    const handleProfileVisit = (p) => {
+      if (!notifSettingsRef.current.pushNotifications) return;
+      pushNotification({
+        ...p,
+        id:    `profile-visit-${p.userId}-${Math.random().toString(36).slice(2)}`,
+        type:  'profile_visit',
+        title: p?.userName || p?.title || 'Profile Visit',
+        body:  p?.body || 'Someone visited your profile',
+      });
+    };
+
     const connectSocket = async () => {
       const socket = await socketService.connect();
       if (!socket || !isMounted) return;
       socketService.on("notification:new", handleNotificationNew);
       socketService.on("match:new",        handleMatchNew);
       socketService.on("message:new",      handleMessageNew);
+      socketService.on("profile:visited",  handleProfileVisit);
     };
     connectSocket();
 
@@ -401,6 +413,7 @@ const Home = () => {
       socketService.off("notification:new", handleNotificationNew);
       socketService.off("match:new",        handleMatchNew);
       socketService.off("message:new",      handleMessageNew);
+      socketService.off("profile:visited",  handleProfileVisit);
     };
   }, [enqueueBanner]);
 
@@ -419,7 +432,7 @@ const Home = () => {
   const handleBannerPress = (notification) => {
     if (!notification) return;
     markNotificationAsRead(notification.id);
-    if ((notification.type === "match" || notification.type === "message") && notification.userId) {
+    if ((notification.type === "match" || notification.type === "message" || notification.type === "profile_visit") && notification.userId) {
       setSelectedProfileId(notification.userId);
       setShowProfileModal(true);
     }
