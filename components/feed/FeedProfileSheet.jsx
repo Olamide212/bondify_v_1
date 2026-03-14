@@ -12,10 +12,8 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
-import { useDispatch } from "react-redux";
 import { colors } from "../../constant/colors";
 import feedService from "../../services/feedService";
-import { updateCurrentUser } from "../../slices/authSlice";
 import apiClient from "../../utils/axiosInstance";
 import BaseModal from "../modals/BaseModal";
 
@@ -28,7 +26,6 @@ const displayName = (user) =>
   [user?.firstName, user?.lastName].filter(Boolean).join(" ") || user?.userName || "User";
 
 const FeedProfileSheet = ({ visible, user, onClose, onUpdate }) => {
-  const dispatch = useDispatch();
   const [userName, setUserName] = useState(user?.userName ?? "");
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -102,7 +99,6 @@ const FeedProfileSheet = ({ visible, user, onClose, onUpdate }) => {
         uri;
 
       setLocalAvatarUri(uploadedUrl);
-      dispatch(updateCurrentUser({ profilePhoto: uploadedUrl }));
       onUpdate?.({ profilePhoto: uploadedUrl });
     } catch (e) {
       setLocalAvatarUri(null);
