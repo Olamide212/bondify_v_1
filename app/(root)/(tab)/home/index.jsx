@@ -391,7 +391,7 @@ const Home = () => {
       if (!notifSettingsRef.current.pushNotifications) return;
       pushNotification({
         ...p,
-        id:    `profile-visit-${p.userId}-${Date.now()}`,
+        id:    `profile-visit-${p.userId}-${Math.random().toString(36).slice(2)}`,
         type:  'profile_visit',
         title: p?.userName || p?.title || 'Profile Visit',
         body:  p?.body || 'Someone visited your profile',

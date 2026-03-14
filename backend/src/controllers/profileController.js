@@ -302,13 +302,14 @@ const getProfile = async (req, res, next) => {
   try {
     const { id }   = req.params;
     const viewerId = req.user._id;
+    const viewerInfo = { firstName: req.user.firstName, lastName: req.user.lastName, images: req.user.images };
     const cacheKey = `id:${String(id)}`;
 
     const cached = getCachedProfile(cacheKey);
     if (cached) {
       // Fire-and-forget: record the visit even for cached responses
       if (String(viewerId) !== String(id)) {
-        recordProfileVisit(viewerId, id);
+        recordProfileVisit(viewerId, id, viewerInfo);
       }
       return res.json({ success: true, data: { profile: cached } });
     }
@@ -324,7 +325,7 @@ const getProfile = async (req, res, next) => {
 
     // Fire-and-forget: record the visit & increment profileViews counter
     if (String(viewerId) !== String(id)) {
-      recordProfileVisit(viewerId, id);
+      recordProfileVisit(viewerId, id, viewerInfo);
       User.findByIdAndUpdate(id, { $inc: { profileViews: 1 } }).exec();
     }
 
@@ -403,7 +404,9 @@ const getProfileStats = async (req, res, next) => {
 // ─── Profile view tracker ─────────────────────────────────────────────────────
 // Records a profile visit and emits a real-time socket notification to the
 // viewed user if they are online.
-const recordProfileVisit = async (viewerId, viewedId) => {
+// viewerInfo: { firstName, lastName, images } — passed from the calling context
+//   to avoid a separate DB lookup for the viewer.
+const recordProfileVisit = async (viewerId, viewedId, viewerInfo = {}) => {
   try {
     await ProfileView.findOneAndUpdate(
       { viewer: viewerId, viewed: viewedId },
@@ -411,10 +414,8 @@ const recordProfileVisit = async (viewerId, viewedId) => {
       { upsert: true, new: true, setDefaultsOnInsert: true }
     );
 
-    // Look up viewer name for the notification
-    const viewer = await User.findById(viewerId).select('firstName lastName images').lean();
-    const viewerName = [viewer?.firstName, viewer?.lastName].filter(Boolean).join(' ') || 'Someone';
-    const viewerImage = viewer?.images?.[0]?.url || viewer?.images?.[0] || null;
+    const viewerName = [viewerInfo.firstName, viewerInfo.lastName].filter(Boolean).join(' ') || 'Someone';
+    const viewerImage = viewerInfo.images?.[0]?.url || viewerInfo.images?.[0] || null;
 
     // Emit socket event so the viewed user sees it in real-time
     try {
