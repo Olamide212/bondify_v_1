@@ -11,6 +11,7 @@
  *  • FeedProfileSheet (social profile bottom-sheet)
  */
 
+import { useRouter } from "expo-router";
 import { Plus, User } from "lucide-react-native";
 import {
   useCallback,
@@ -34,7 +35,6 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useSelector } from "react-redux";
 import CreatePostModal from "../../../../components/feed/CreatePostModal";
 import FeedPostCard from "../../../../components/feed/FeedPostCard";
-import FeedProfileSheet from "../../../../components/feed/FeedProfileSheet";
 import PostDetailModal from "../../../../components/feed/PostDetailModal";
 import PostOptionsModal from "../../../../components/feed/PostOptionsModal";
 import { colors } from "../../../../constant/colors";
@@ -54,6 +54,7 @@ const displayName = (user) =>
 
 // ─── BonFeed Screen ─────────────────────────────────────────────────────────────
 export default function BonFeed() {
+  const router = useRouter();
   const { user: currentUser } = useSelector((s) => s.auth);
 
   const [activeTab, setActiveTab] = useState(0);
@@ -63,7 +64,6 @@ export default function BonFeed() {
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
-  const [showProfile, setShowProfile] = useState(false);
 
   // Post detail modal
   const [detailPost, setDetailPost] = useState(null);
@@ -325,7 +325,7 @@ export default function BonFeed() {
       <View style={fStyles.header}>
         <Image source={images.bonFeed} style={{width: 100, height: 40}} resizeMode="contain" />
        
-        <TouchableOpacity onPress={() => setShowProfile(true)}>
+        <TouchableOpacity onPress={() => router.push("/feed-profile")}>
           {userAvatar ? (
             <Image source={{ uri: userAvatar }} style={fStyles.headerAvatar} />
           ) : (
@@ -442,13 +442,6 @@ export default function BonFeed() {
         isFollowing={optionsPost?._isFollowing}
         isSaved={optionsPost?.isSaved}
         isOwnPost={String(optionsPost?.author?._id ?? optionsPost?.author) === String(currentUser?._id)}
-      />
-
-      <FeedProfileSheet
-        visible={showProfile}
-        user={currentUser}
-        onClose={() => setShowProfile(false)}
-        onUpdate={() => {}}
       />
     </SafeAreaView>
   );

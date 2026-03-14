@@ -12,8 +12,10 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
+import { useDispatch } from "react-redux";
 import { colors } from "../../constant/colors";
 import feedService from "../../services/feedService";
+import { updateCurrentUser } from "../../slices/authSlice";
 import apiClient from "../../utils/axiosInstance";
 import BaseModal from "../modals/BaseModal";
 
@@ -26,6 +28,7 @@ const displayName = (user) =>
   [user?.firstName, user?.lastName].filter(Boolean).join(" ") || user?.userName || "User";
 
 const FeedProfileSheet = ({ visible, user, onClose, onUpdate }) => {
+  const dispatch = useDispatch();
   const [userName, setUserName] = useState(user?.userName ?? "");
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -42,10 +45,17 @@ const FeedProfileSheet = ({ visible, user, onClose, onUpdate }) => {
     setLocalAvatarUri(null);
     setLoadingData(true);
     Promise.all([
+      feedService.getSocialProfile().catch(() => null),
       feedService.getUserProfile(user._id).catch(() => null),
       feedService.getSavedPosts().catch(() => null),
     ])
-      .then(([profileRes, savedRes]) => {
+      .then(([socialRes, profileRes, savedRes]) => {
+        if (socialRes?.data) {
+          // Use social profile photo (from feed/social-profile endpoint)
+          const socialPhoto = socialRes.data?.profilePhoto ?? null;
+          if (socialPhoto) setLocalAvatarUri(socialPhoto);
+          setUserName(socialRes.data?.userName ?? user.userName ?? "");
+        }
         if (profileRes?.data) {
           setUserPosts(profileRes.data.posts ?? []);
           setStats({
@@ -92,6 +102,7 @@ const FeedProfileSheet = ({ visible, user, onClose, onUpdate }) => {
         uri;
 
       setLocalAvatarUri(uploadedUrl);
+      dispatch(updateCurrentUser({ profilePhoto: uploadedUrl }));
       onUpdate?.({ profilePhoto: uploadedUrl });
     } catch (e) {
       setLocalAvatarUri(null);

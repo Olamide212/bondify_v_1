@@ -1,0 +1,150 @@
+/**
+ * Unmatched Users Screen  —  app/(root)/unmatched-users/index.jsx
+ *
+ * Lists all users the current user has unmatched with.
+ * Accessible from the chat header's UserX (unmatch) icon.
+ */
+
+import { useRouter } from "expo-router";
+import { ArrowLeft, User } from "lucide-react-native";
+import { useEffect, useState } from "react";
+import {
+  ActivityIndicator,
+  FlatList,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { colors } from "../../../constant/colors";
+import { matchService } from "../../../services/matchService";
+
+export default function UnmatchedUsersScreen() {
+  const router = useRouter();
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      const data = await matchService.getUnmatchedUsers();
+      if (mounted) {
+        setUsers(data);
+        setLoading(false);
+      }
+    })();
+    return () => { mounted = false; };
+  }, []);
+
+  const renderItem = ({ item }) => (
+    <View style={styles.row}>
+      {item.user?.profileImage ? (
+        <Image source={{ uri: item.user.profileImage }} style={styles.avatar} />
+      ) : (
+        <View style={[styles.avatar, styles.avatarFallback]}>
+          <User size={20} color="#94A3B8" />
+        </View>
+      )}
+      <View style={styles.info}>
+        <Text style={styles.name}>{item.user?.name ?? "Unknown"}</Text>
+        {item.unmatchedAt && (
+          <Text style={styles.date}>
+            Unmatched {new Date(item.unmatchedAt).toLocaleDateString()}
+          </Text>
+        )}
+      </View>
+    </View>
+  );
+
+  return (
+    <SafeAreaView style={styles.container} edges={["top"]}>
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => router.back()} hitSlop={10}>
+          <ArrowLeft size={24} color="#111" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Unmatched Users</Text>
+        <View style={{ width: 24 }} />
+      </View>
+
+      {loading ? (
+        <View style={styles.center}>
+          <ActivityIndicator size="large" color={colors.primary} />
+        </View>
+      ) : users.length === 0 ? (
+        <View style={styles.center}>
+          <Text style={styles.emptyText}>No unmatched users yet.</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={users}
+          keyExtractor={(item) => String(item.matchId)}
+          renderItem={renderItem}
+          contentContainerStyle={{ paddingVertical: 10 }}
+        />
+      )}
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: "#fff" },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: "#F0F0F0",
+  },
+  headerTitle: {
+    fontSize: 17,
+    fontFamily: "PlusJakartaSansBold",
+    color: "#111",
+  },
+  center: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  emptyText: {
+    fontSize: 15,
+    color: "#9CA3AF",
+    fontFamily: "PlusJakartaSans",
+  },
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: "#F5F5F5",
+    gap: 12,
+  },
+  avatar: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+  },
+  avatarFallback: {
+    backgroundColor: "#F8FAFC",
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+  },
+  info: { flex: 1 },
+  name: {
+    fontSize: 15,
+    fontFamily: "PlusJakartaSansMedium",
+    color: "#111",
+  },
+  date: {
+    fontSize: 12,
+    fontFamily: "PlusJakartaSans",
+    color: "#9CA3AF",
+    marginTop: 2,
+  },
+});

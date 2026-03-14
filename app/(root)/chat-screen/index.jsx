@@ -48,6 +48,7 @@ export default function UsersChatScreen() {
     profileImage: params.profileImage || null,
     isOnline:     params.isOnline === "true",
     isSystem:     params.isSystem === "true",
+    isVerified:   params.isVerified === "true",
   };
 
   // ── Back handler — called by ChatScreen's back button ────────────────────

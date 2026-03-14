@@ -127,9 +127,21 @@ const getInteractionStatus = async (targetUserId) => {
   }
 };
 
+// @desc  Get the list of users that the current user has unmatched with.
+const getUnmatchedUsers = async () => {
+  try {
+    const response = await apiClient.get('/matches/unmatched');
+    return response.data?.data ?? [];
+  } catch (error) {
+    console.warn("getUnmatchedUsers error:", error?.message);
+    return [];
+  }
+};
+
 export const matchService = {
   getCachedMatches,
   getMatches,
   unmatch,
+  getUnmatchedUsers,
   getInteractionStatus,
 };

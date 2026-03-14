@@ -7,6 +7,7 @@ import {
   ArrowLeft,
 } from "lucide-react-native";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useRouter } from "expo-router";
 import {
   ActivityIndicator,
   Alert,
@@ -211,7 +212,8 @@ const UserBubble = ({ message }) => (
 );
 
 // ─── Main Screen ──────────────────────────────────────────────
-const AIChatScreen = ({ navigation }) => {
+const AIChatScreen = () => {
+  const router = useRouter();
   const [messages, setMessages] = useState([
     {
       id: 1,
@@ -270,7 +272,7 @@ const AIChatScreen = ({ navigation }) => {
       try {
         const history  = buildHistory([...messages, userMsg]);
         const response = await AIService.chat(history);
-        const reply    = response?.data?.message ?? "Sorry, I didn't catch that.";
+        const reply    = response?.message ?? response?.data?.message ?? "Sorry, I didn't catch that.";
 
         setMessages((prev) => [
           ...prev,
@@ -326,7 +328,7 @@ const AIChatScreen = ({ navigation }) => {
       {/* ── Header ─────────────────────────────────────────── */}
       <View style={styles.header}>
         <Pressable
-          onPress={() => navigation?.goBack()}
+          onPress={() => router.back()}
           style={styles.backBtn}
           hitSlop={8}
         >
