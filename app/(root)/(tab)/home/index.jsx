@@ -261,9 +261,9 @@ const Home = () => {
     showSwipeBadge(direction);
     handleHomeSwipe(direction, currentProfile);
     // Only show CardFeedbackModal for "nope" (pass) — for "like" the Bond badge stamp is sufficient
-    if (direction !== "right") {
-      triggerFeedback("nope");
-    }
+    // if (direction !== "right") {
+    //   triggerFeedback("nope");
+    // }
   };
 
   const handleComplimentPress = () => {
