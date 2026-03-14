@@ -3,7 +3,7 @@ const Follow = require('../models/Follow');
 const User   = require('../models/User');
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
-const AUTHOR_SELECT = 'firstName lastName profilePhoto userName nationality';
+const AUTHOR_SELECT = 'firstName lastName profilePhoto userName nationality images';
 
 const formatPost = (post, currentUserId) => {
   const id = String(currentUserId);
@@ -46,6 +46,7 @@ const getFeed = async (req, res, next) => {
       .skip(skip)
       .limit(Number(limit))
       .populate('author', AUTHOR_SELECT)
+      .populate('comments.author', AUTHOR_SELECT)
       .lean();
 
     const total = await Post.countDocuments(filter);
@@ -135,11 +136,13 @@ const toggleSave = async (req, res, next) => {
 // ─── POST /api/feed/:postId/comments ──────────────────────────────────────────
 const addComment = async (req, res, next) => {
   try {
-    const { content } = req.body;
+    const { content, parentId = null } = req.body;
     if (!content?.trim()) return res.status(400).json({ success: false, message: 'Comment cannot be empty.' });
+    const newEntry = { author: req.user._id, content: content.trim() };
+    if (parentId) newEntry.parentId = parentId;
     const post = await Post.findByIdAndUpdate(
       req.params.postId,
-      { $push: { comments: { author: req.user._id, content: content.trim() } } },
+      { $push: { comments: newEntry } },
       { new: true }
     ).populate('comments.author', AUTHOR_SELECT);
     if (!post) return res.status(404).json({ success: false, message: 'Post not found.' });
@@ -187,6 +190,7 @@ const getSavedPosts = async (req, res, next) => {
     const posts = await Post.find({ saves: req.user._id })
       .sort({ createdAt: -1 })
       .populate('author', AUTHOR_SELECT)
+      .populate('comments.author', AUTHOR_SELECT)
       .lean();
     res.json({ success: true, data: posts.map((p) => formatPost(p, req.user._id)) });
   } catch (err) { next(err); }
@@ -234,6 +238,31 @@ const updateSocialProfile = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
+// ─── POST /api/feed/:postId/comments/:commentId/like ─── toggle comment like ─
+const toggleCommentLike = async (req, res, next) => {
+  try {
+    const post = await Post.findById(req.params.postId);
+    if (!post) return res.status(404).json({ success: false, message: 'Post not found' });
+    const comment = post.comments.id(req.params.commentId);
+    if (!comment) return res.status(404).json({ success: false, message: 'Comment not found' });
+    const uid = String(req.user._id);
+    const idx = (comment.likes || []).findIndex((l) => String(l) === uid);
+    if (idx > -1) {
+      comment.likes.splice(idx, 1);
+    } else {
+      comment.likes.push(req.user._id);
+    }
+    await post.save();
+    res.json({
+      success: true,
+      data: {
+        isLiked: idx === -1,
+        likesCount: comment.likes.length,
+      },
+    });
+  } catch (err) { next(err); }
+};
+
 module.exports = {
   getFeed,
   createPost,
@@ -243,6 +272,7 @@ module.exports = {
   toggleSave,
   addComment,
   deleteComment,
+  toggleCommentLike,
   toggleFollow,
   getSavedPosts,
   getUserPosts,

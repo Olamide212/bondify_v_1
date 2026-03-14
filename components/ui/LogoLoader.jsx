@@ -92,7 +92,7 @@ const LogoLoader = ({ size = 100, color = "#EE5F2B" }) => {
         ]}
       >
         <Animated.Text style={[styles.wordmark, { color, opacity: textOpacity, fontSize: size * 0.22 }]}>
-          bondify
+          bondies
         </Animated.Text>
       </View>
 

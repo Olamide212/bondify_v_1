@@ -21,11 +21,10 @@ import {
 import {
   ActivityIndicator,
   Alert,
-  Animated,
-  Dimensions,
   FlatList,
   Image,
   RefreshControl,
+  Share,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -41,7 +40,6 @@ import PostOptionsModal from "../../../../components/feed/PostOptionsModal";
 import { colors } from "../../../../constant/colors";
 import feedService from "../../../../services/feedService";
 
-const { width: SW } = Dimensions.get("window");
 const BRAND = colors.primary;
 const TABS = ["For You", "New", "Following"];
 const TAB_KEYS = ["foryou", "new", "following"];
@@ -166,34 +164,67 @@ export default function BonFeed() {
     const prevFollowing = followCache.current[authorId] ?? false;
     const nextFollowing = !prevFollowing;
     followCache.current[authorId] = nextFollowing;
-    setPosts((all) =>
-      all.map((p) =>
-        String(p.author?._id) === String(authorId) ? { ...p, _isFollowing: nextFollowing } : p
-      )
-    );
+    const updateFollowState = (following) => {
+      setPosts((all) =>
+        all.map((p) =>
+          String(p.author?._id) === String(authorId) ? { ...p, _isFollowing: following } : p
+        )
+      );
+      setDetailPost((d) =>
+        d && String(d.author?._id) === String(authorId) ? { ...d, _isFollowing: following } : d
+      );
+    };
+    updateFollowState(nextFollowing);
     try {
       const res = await feedService.toggleFollow(authorId);
       const confirmed = res.data?.following ?? nextFollowing;
       followCache.current[authorId] = confirmed;
-      setPosts((all) =>
-        all.map((p) =>
-          String(p.author?._id) === String(authorId) ? { ...p, _isFollowing: confirmed } : p
-        )
-      );
+      updateFollowState(confirmed);
     } catch {
       followCache.current[authorId] = prevFollowing;
-      setPosts((all) =>
-        all.map((p) =>
-          String(p.author?._id) === String(authorId) ? { ...p, _isFollowing: prevFollowing } : p
-        )
-      );
+      updateFollowState(prevFollowing);
     }
   };
 
-  // ── Comment ─────────────────────────────────────────────────────────────────
-  const handleSubmitComment = async (postId, content) => {
+  // ── Share ───────────────────────────────────────────────────────────────────
+  const handleShare = async (postId) => {
+    const post = posts.find((p) => p._id === postId) || detailPost;
+    if (!post) return;
     try {
-      const res = await feedService.addComment(postId, content);
+      const content = post.content?.substring(0, 100) + (post.content?.length > 100 ? "…" : "");
+      await Share.share({
+        message: `Check out this post by ${displayName(post.author)} on BonFeed:\n\n"${content}"`,
+      });
+    } catch {}
+  };
+
+  // ── Comment Like ────────────────────────────────────────────────────────────
+  const handleCommentLike = async (postId, commentId) => {
+    try {
+      await feedService.toggleCommentLike(postId, commentId);
+      // Optimistically toggle the comment like in detail modal
+      setDetailPost((d) => {
+        if (!d || d._id !== postId) return d;
+        return {
+          ...d,
+          comments: (d.comments ?? []).map((c) =>
+            c._id === commentId
+              ? {
+                  ...c,
+                  isLiked: !c.isLiked,
+                  likesCount: c.isLiked ? (c.likesCount ?? 1) - 1 : (c.likesCount ?? 0) + 1,
+                }
+              : c
+          ),
+        };
+      });
+    } catch {}
+  };
+
+  // ── Comment ─────────────────────────────────────────────────────────────────
+  const handleSubmitComment = async (postId, content, parentId = null) => {
+    try {
+      const res = await feedService.addComment(postId, content, parentId);
       const updater = (p) =>
         p._id === postId
           ? {
@@ -250,8 +281,7 @@ export default function BonFeed() {
 
     switch (key) {
       case "share":
-        // TODO: integrate native share sheet (e.g. react-native Share API)
-        Alert.alert("Share", "Sharing feature coming soon!");
+        handleShare(post._id);
         break;
       case "save":
         handleSave(post._id);
@@ -271,11 +301,8 @@ export default function BonFeed() {
     }
   };
 
-  // ── Tab indicator anim ──────────────────────────────────────────────────────
-  const indicatorX = useRef(new Animated.Value(0)).current;
-  const tabW = (SW - 24) / TABS.length;
+  // ── Tab press ───────────────────────────────────────────────────────────────
   const handleTabPress = (i) => {
-    Animated.spring(indicatorX, { toValue: i * tabW, useNativeDriver: true, bounciness: 4 }).start();
     setActiveTab(i);
   };
 
@@ -300,16 +327,23 @@ export default function BonFeed() {
 
       {/* Tab bar */}
       <View style={fStyles.tabBar}>
-        <Animated.View
-          style={[fStyles.tabIndicator, { width: tabW - 16, transform: [{ translateX: indicatorX }] }]}
-        />
         {TABS.map((t, i) => (
           <TouchableOpacity
             key={t}
-            style={[fStyles.tabItem, { width: tabW }]}
+            style={[
+              fStyles.tabItem,
+              activeTab === i ? fStyles.tabItemActive : fStyles.tabItemInactive,
+            ]}
             onPress={() => handleTabPress(i)}
           >
-            <Text style={[fStyles.tabLabel, activeTab === i && fStyles.tabLabelActive]}>{t}</Text>
+            <Text
+              style={[
+                fStyles.tabLabel,
+                activeTab === i ? fStyles.tabLabelActive : fStyles.tabLabelInactive,
+              ]}
+            >
+              {t}
+            </Text>
           </TouchableOpacity>
         ))}
       </View>
@@ -326,6 +360,7 @@ export default function BonFeed() {
             onSave={handleSave}
             onPress={handlePostPress}
             onOpenOptions={handleOpenOptions}
+            onShare={handleShare}
           />
         )}
         contentContainerStyle={{ paddingTop: 10, paddingBottom: 100 }}
@@ -383,6 +418,10 @@ export default function BonFeed() {
         onSave={handleSave}
         onSubmitComment={handleSubmitComment}
         onOpenOptions={handleOpenOptions}
+        onFollow={handleFollow}
+        isFollowing={detailPost?._isFollowing}
+        onShare={handleShare}
+        onCommentLike={handleCommentLike}
       />
 
       <PostOptionsModal
@@ -404,7 +443,7 @@ export default function BonFeed() {
 }
 
 const fStyles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#F7F7FB" },
+  container: { flex: 1, backgroundColor: "#fff" },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -432,21 +471,32 @@ const fStyles = StyleSheet.create({
     flexDirection: "row",
     backgroundColor: "#fff",
     paddingHorizontal: 12,
-    paddingTop: 8,
+    paddingVertical: 8,
+    gap: 8,
     borderBottomWidth: 1,
     borderBottomColor: "#F0F0F0",
-    position: "relative",
   },
-  tabItem: { paddingVertical: 10, alignItems: "center" },
-  tabLabel: { fontSize: 14, fontFamily: "PlusJakartaSans", color: "#AAA" },
-  tabLabelActive: { fontFamily: "PlusJakartaSansBold", color: BRAND },
-  tabIndicator: {
-    position: "absolute",
-    bottom: 0,
-    left: 20,
-    height: 2.5,
-    borderRadius: 2,
-    backgroundColor: BRAND,
+  tabItem: {
+    flex: 1,
+    paddingVertical: 10,
+    alignItems: "center",
+    borderRadius: 99,
+  },
+  tabItemActive: {
+    backgroundColor: "#111",
+  },
+  tabItemInactive: {
+    backgroundColor: "#F0F0F0",
+  },
+  tabLabel: {
+    fontSize: 14,
+    fontFamily: "PlusJakartaSansBold",
+  },
+  tabLabelActive: {
+    color: "#fff",
+  },
+  tabLabelInactive: {
+    color: "#333",
   },
 
   emptyState: { alignItems: "center", paddingTop: 80, paddingHorizontal: 40 },

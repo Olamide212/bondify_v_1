@@ -1,19 +1,20 @@
 import {
-  Bookmark,
-  Heart,
-  MessageCircle,
-  MoreHorizontal,
+    Bookmark,
+    Heart,
+    MessageCircle,
+    MoreHorizontal,
+    Share2,
 } from "lucide-react-native";
-import React, { useState } from "react";
+import { useState } from "react";
 import {
-  Animated,
-  Dimensions,
-  Image,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    Animated,
+    Dimensions,
+    Image,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { colors } from "../../constant/colors";
 
@@ -42,6 +43,7 @@ const FeedPostCard = ({
   onSave,
   onPress,
   onOpenOptions,
+  onShare,
 }) => {
   const [likeAnim] = useState(new Animated.Value(1));
 
@@ -129,6 +131,10 @@ const FeedPostCard = ({
             color={post.isSaved ? BRAND : "#888"}
             fill={post.isSaved ? BRAND : "transparent"}
           />
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.actionBtn} onPress={() => onShare?.(post._id)}>
+          <Share2 size={20} color="#888" />
         </TouchableOpacity>
       </View>
     </TouchableOpacity>

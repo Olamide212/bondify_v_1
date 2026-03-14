@@ -16,6 +16,7 @@ import messageIcon from "../assets/icons/mess.png"
 import verifyIcon from "../assets/icons/verify.png"
 import mapIcon from "../assets/icons/Map.png"
 import verifiedBatch from "../assets/icons/verifiedBatch.png"
+import feedIcon from "../assets/icons/feed-icon.png"
 
 export const Icons = {
   arrowLeft,
@@ -35,4 +36,5 @@ export const Icons = {
   verifyIcon,
   mapIcon,
   verifiedBatch,
+  feedIcon
 };

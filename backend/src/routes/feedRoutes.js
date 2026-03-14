@@ -10,6 +10,7 @@ const {
   toggleSave,
   addComment,
   deleteComment,
+  toggleCommentLike,
   toggleFollow,
   getSavedPosts,
   getUserPosts,
@@ -30,6 +31,7 @@ router.post('/:postId/like',             toggleLike);
 router.post('/:postId/save',             toggleSave);
 router.post('/:postId/comments',         addComment);
 router.delete('/:postId/comments/:commentId', deleteComment);
+router.post('/:postId/comments/:commentId/like', toggleCommentLike);
 router.post('/follow/:userId',           toggleFollow);
 
 module.exports = router;

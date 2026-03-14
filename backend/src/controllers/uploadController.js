@@ -228,8 +228,68 @@ const uploadChatMedia = async (req, res, next) => {
   }
 };
 
+// @desc    Upload post media (images/videos)
+// @route   POST /api/upload/post-media
+// @access  Private
+const getPostObjectKey = (userId, originalname) => {
+  const extension = originalname?.includes('.')
+    ? originalname.split('.').pop().toLowerCase()
+    : 'jpg';
+  const safeExtension = /^[a-z0-9]+$/.test(extension) ? extension : 'jpg';
+  return `bondify/posts/${userId}/${Date.now()}-${Math.round(
+    Math.random() * 1e9
+  )}.${safeExtension}`;
+};
+
+const uploadPostMedia = async (req, res, next) => {
+  try {
+    const userId = req.user._id;
+    const bucket = process.env.AWS_S3_BUCKET;
+
+    if (!bucket) {
+      return res.status(500).json({
+        success: false,
+        message: 'Missing AWS_S3_BUCKET configuration',
+      });
+    }
+
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'No files uploaded',
+      });
+    }
+
+    const uploaded = [];
+    for (const file of req.files) {
+      const objectKey = getPostObjectKey(userId, file.originalname);
+      await s3.send(
+        new PutObjectCommand({
+          Bucket: bucket,
+          Key: objectKey,
+          Body: file.buffer,
+          ContentType: getContentType(file),
+        })
+      );
+      uploaded.push({
+        url: getPublicUrl(bucket, objectKey),
+        publicId: objectKey,
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'Post media uploaded successfully',
+      data: uploaded,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   uploadPhotos,
   deletePhoto,
   uploadChatMedia,
+  uploadPostMedia,
 };

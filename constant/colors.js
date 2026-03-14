@@ -4,7 +4,7 @@ export const colors = {
   secondary: "#FAE83C",
   gray: "#64748B",
   activePrimary: "#EE5F2B",
-  inactiveTab: "#94A3B8",
+  inactiveTab: "#9CA3AF",
   primaryLight: "#FFF0EA",
   primaryBorder: "#F5C4AC",
 };

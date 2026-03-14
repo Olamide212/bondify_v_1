@@ -119,11 +119,11 @@ const RootTabs = () => {
         />
 
         <Tab.Screen
-          name="Map"
+          name="Feed"
           component={FeedScreen}
           options={{
             tabBarIcon: ({ focused }) => (
-              <TabIcon focused={focused} customImage={Icons.mapIcon} />
+              <TabIcon focused={focused} customImage={Icons.feedIcon} />
             ),
           }}
         />

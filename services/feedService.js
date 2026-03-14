@@ -49,8 +49,8 @@ const feedService = {
   },
 
   /** Add a comment to a post. */
-  addComment: async (postId, content) => {
-    const res = await apiClient.post(`/feed/${postId}/comments`, { content });
+  addComment: async (postId, content, parentId = null) => {
+    const res = await apiClient.post(`/feed/${postId}/comments`, { content, parentId });
     return res.data;
   },
 
@@ -81,6 +81,28 @@ const feedService = {
   /** Update social-profile fields (userName, profilePhoto). */
   updateSocialProfile: async (data) => {
     const res = await apiClient.patch('/feed/social-profile', data);
+    return res.data;
+  },
+
+  /** Toggle like on a comment. */
+  toggleCommentLike: async (postId, commentId) => {
+    const res = await apiClient.post(`/feed/${postId}/comments/${commentId}/like`);
+    return res.data;
+  },
+
+  /** Upload post media (images). Returns array of { url, publicId }. */
+  uploadPostMedia: async (files) => {
+    const formData = new FormData();
+    files.forEach((file) => {
+      formData.append('media', {
+        uri: file.uri,
+        name: file.fileName || `photo_${Date.now()}.jpg`,
+        type: file.type || 'image/jpeg',
+      });
+    });
+    const res = await apiClient.post('/upload/post-media', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
     return res.data;
   },
 

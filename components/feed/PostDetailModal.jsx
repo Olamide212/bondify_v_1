@@ -1,14 +1,19 @@
 import {
   Bookmark,
   ChevronLeft,
+  CornerDownRight,
   Heart,
   MessageCircle,
   MoreHorizontal,
   Send,
+  Share2,
+  UserMinus,
+  UserPlus,
 } from "lucide-react-native";
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   Animated,
   Dimensions,
   FlatList,
@@ -16,14 +21,17 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Share,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { colors } from "../../constant/colors";
 import BaseModal from "../modals/BaseModal";
+import PostOptionsModal from "./PostOptionsModal";
 
 const BRAND = colors.primary;
 const { width: SW } = Dimensions.get("window");
@@ -52,12 +60,21 @@ const PostDetailModal = ({
   onSave,
   onSubmitComment,
   onOpenOptions,
+  onFollow,
+  onCommentLike,
+  onShare,
+  isFollowing = false,
 }) => {
   const [text, setText] = useState("");
   const [loading, setLoading] = useState(false);
   const [likeAnim] = useState(new Animated.Value(1));
+  const [replyTo, setReplyTo] = useState(null);
+  const [showOptions, setShowOptions] = useState(false);
+  const insets = useSafeAreaInsets();
 
   if (!post) return null;
+
+  const isOwnPost = String(post.author?._id) === String(currentUserId);
 
   const handleLike = () => {
     Animated.sequence([
@@ -70,31 +87,134 @@ const PostDetailModal = ({
   const handleSubmit = async () => {
     if (!text.trim()) return;
     setLoading(true);
-    await onSubmitComment(post._id, text.trim());
+    await onSubmitComment(post._id, text.trim(), replyTo?._id ?? null);
     setText("");
+    setReplyTo(null);
     setLoading(false);
+  };
+
+  const handleShare = async () => {
+    try {
+      const content = post.content?.substring(0, 100) + (post.content?.length > 100 ? "…" : "");
+      const result = await Share.share({
+        message: `Check out this post by ${displayName(post.author)} on BonFeed:\n\n"${content}"`,
+        title: "Share Post",
+      });
+      if (result.action === Share.sharedAction) {
+        onShare?.(post._id);
+      }
+    } catch {
+      // user cancelled or error
+    }
+  };
+
+  const handleOptionSelect = (key) => {
+    const authorId = post.author?._id ?? post.author;
+    switch (key) {
+      case "share":
+        handleShare();
+        break;
+      case "save":
+        onSave(post._id);
+        break;
+      case "follow":
+        onFollow?.(authorId);
+        break;
+      case "mute":
+        Alert.alert("Muted", "You won't see posts from this user.");
+        break;
+      case "report":
+        Alert.alert("Report", "This post has been reported.");
+        break;
+      case "block":
+        Alert.alert("Block", "This user has been blocked.");
+        break;
+    }
   };
 
   const comments = post.comments ?? [];
 
-  const renderComment = ({ item }) => (
-    <View style={styles.commentRow}>
-      {avatarUrl(item.author) ? (
-        <Image source={{ uri: avatarUrl(item.author) }} style={styles.commentAvatar} />
-      ) : (
-        <View style={[styles.commentAvatar, styles.commentAvatarFallback]}>
-          <Text style={styles.commentAvatarInitial}>
-            {displayName(item.author)?.[0]?.toUpperCase()}
-          </Text>
+  // ── Build a flat list: each top-level comment is followed by its replies ──────
+  const topLevel = comments.filter((c) => !c.parentId);
+  const repliesMap = {};
+  comments
+    .filter((c) => c.parentId)
+    .forEach((r) => {
+      const key = String(r.parentId);
+      if (!repliesMap[key]) repliesMap[key] = [];
+      repliesMap[key].push(r);
+    });
+
+  const flatComments = [];
+  topLevel.forEach((c) => {
+    flatComments.push({ _type: "comment", ...c });
+    (repliesMap[String(c._id)] ?? []).forEach((r) =>
+      flatComments.push({ _type: "reply", ...r })
+    );
+  });
+
+  const renderComment = ({ item }) => {
+    const isReply = item._type === "reply";
+    return (
+      <View style={[styles.commentRow, isReply && styles.replyRow]}>
+        {isReply && (
+          <View style={styles.replyIconCol}>
+            <CornerDownRight size={14} color="#D1D5DB" />
+          </View>
+        )}
+        {avatarUrl(item.author) ? (
+          <Image
+            source={{ uri: avatarUrl(item.author) }}
+            style={[styles.commentAvatar, isReply && styles.replyAvatar]}
+          />
+        ) : (
+          <View
+            style={[
+              styles.commentAvatar,
+              styles.commentAvatarFallback,
+              isReply && styles.replyAvatar,
+            ]}
+          >
+            <Text style={styles.commentAvatarInitial}>
+              {displayName(item.author)?.[0]?.toUpperCase()}
+            </Text>
+          </View>
+        )}
+        <View style={styles.commentBody}>
+          <Text style={styles.commentAuthor}>{displayName(item.author)}</Text>
+          <Text style={styles.commentText}>{item.content}</Text>
+          <View style={styles.commentActions}>
+            <Text style={styles.commentTime}>{timeAgo(item.createdAt)}</Text>
+            <TouchableOpacity
+              style={styles.commentActionBtn}
+              onPress={() => onCommentLike?.(post._id, item._id)}
+            >
+              <Heart
+                size={14}
+                color={item.isLiked ? "#FB3857" : "#BBB"}
+                fill={item.isLiked ? "#FB3857" : "transparent"}
+              />
+              {(item.likes?.length ?? 0) > 0 && (
+                <Text style={[styles.commentActionText, item.isLiked && { color: "#FB3857" }]}>
+                  {item.likes.length}
+                </Text>
+              )}
+            </TouchableOpacity>
+            {/* Only top-level comments can be replied to */}
+            {!isReply && (
+              <TouchableOpacity
+                style={styles.commentActionBtn}
+                onPress={() => setReplyTo(item)}
+              >
+                <MessageCircle size={14} color="#BBB" />
+                <Text style={styles.commentActionText}>Reply</Text>
+              </TouchableOpacity>
+            )}
+          </View>
         </View>
-      )}
-      <View style={styles.commentBody}>
-        <Text style={styles.commentAuthor}>{displayName(item.author)}</Text>
-        <Text style={styles.commentText}>{item.content}</Text>
-        <Text style={styles.commentTime}>{timeAgo(item.createdAt)}</Text>
       </View>
-    </View>
-  );
+    );
+  };
 
   const PostHeader = () => (
     <View style={styles.postContainer}>
@@ -110,7 +230,32 @@ const PostDetailModal = ({
           </View>
         )}
         <View style={{ flex: 1, marginLeft: 10 }}>
-          <Text style={styles.authorName}>{displayName(post.author)}</Text>
+          <View style={styles.nameFollowRow}>
+            <Text style={styles.authorName}>{displayName(post.author)}</Text>
+            {!isOwnPost && (
+              <TouchableOpacity
+                style={[
+                  styles.followBtn,
+                  isFollowing && styles.followBtnActive,
+                ]}
+                onPress={() => onFollow?.(post.author?._id)}
+              >
+                {isFollowing ? (
+                  <UserMinus size={12} color={BRAND} />
+                ) : (
+                  <UserPlus size={12} color="#fff" />
+                )}
+                <Text
+                  style={[
+                    styles.followBtnText,
+                    isFollowing && styles.followBtnTextActive,
+                  ]}
+                >
+                  {isFollowing ? "Following" : "Follow"}
+                </Text>
+              </TouchableOpacity>
+            )}
+          </View>
           {post.author?.userName && (
             <Text style={styles.authorHandle}>@{post.author.userName}</Text>
           )}
@@ -157,6 +302,11 @@ const PostDetailModal = ({
           <Text style={styles.actionLabel}>{post.commentsCount ?? 0}</Text>
         </TouchableOpacity>
 
+        <TouchableOpacity style={styles.actionBtn} onPress={handleShare}>
+          <Share2 size={22} color="#888" />
+          <Text style={styles.actionLabel}>Share</Text>
+        </TouchableOpacity>
+
         <TouchableOpacity style={styles.actionBtn} onPress={() => onSave(post._id)}>
           <Bookmark
             size={22}
@@ -185,18 +335,18 @@ const PostDetailModal = ({
           <ChevronLeft size={24} color="#333" />
         </TouchableOpacity>
         <Text style={styles.topTitle}>Post</Text>
-        <TouchableOpacity onPress={() => onOpenOptions?.(post)} hitSlop={10}>
+        <TouchableOpacity onPress={() => setShowOptions(true)} hitSlop={10}>
           <MoreHorizontal size={24} color="#333" />
         </TouchableOpacity>
       </View>
 
       <KeyboardAvoidingView
         style={{ flex: 1 }}
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
-        keyboardVerticalOffset={0}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={Platform.OS === "ios" ? insets.top + 10 : 0}
       >
         <FlatList
-          data={comments}
+          data={flatComments}
           keyExtractor={(item, index) => item._id ?? String(index)}
           renderItem={renderComment}
           ListHeaderComponent={PostHeader}
@@ -204,11 +354,23 @@ const PostDetailModal = ({
           showsVerticalScrollIndicator={false}
         />
 
+        {/* Reply indicator */}
+        {replyTo && (
+          <View style={styles.replyIndicator}>
+            <Text style={styles.replyText}>
+              Replying to <Text style={{ fontFamily: "PlusJakartaSansBold" }}>{displayName(replyTo.author)}</Text>
+            </Text>
+            <TouchableOpacity onPress={() => setReplyTo(null)}>
+              <Text style={styles.replyCancelText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
         {/* Comment input */}
-        <View style={styles.inputRow}>
+        <View style={[styles.inputRow, { paddingBottom: Math.max(insets.bottom, 10) }]}>
           <TextInput
             style={styles.input}
-            placeholder="Add a comment…"
+            placeholder={replyTo ? `Reply to ${displayName(replyTo.author)}…` : "Add a comment…"}
             placeholderTextColor="#BBB"
             value={text}
             onChangeText={setText}
@@ -228,6 +390,15 @@ const PostDetailModal = ({
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
+
+      {/* Post options modal (rendered inside PostDetailModal) */}
+      <PostOptionsModal
+        visible={showOptions}
+        onClose={() => setShowOptions(false)}
+        onSelect={handleOptionSelect}
+        isFollowing={isFollowing}
+        isSaved={post.isSaved}
+      />
     </BaseModal>
   );
 };
@@ -268,10 +439,37 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontFamily: "PlusJakartaSansBold",
   },
+  nameFollowRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
   authorName: {
     fontSize: 15,
     fontFamily: "PlusJakartaSansBold",
     color: "#111",
+  },
+  followBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    backgroundColor: BRAND,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 99,
+  },
+  followBtnActive: {
+    backgroundColor: "transparent",
+    borderWidth: 1,
+    borderColor: BRAND,
+  },
+  followBtnText: {
+    fontSize: 11,
+    fontFamily: "PlusJakartaSansBold",
+    color: "#fff",
+  },
+  followBtnTextActive: {
+    color: BRAND,
   },
   authorHandle: {
     fontSize: 13,
@@ -371,11 +569,60 @@ const styles = StyleSheet.create({
     marginTop: 2,
     lineHeight: 20,
   },
+  commentActions: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 16,
+    marginTop: 6,
+  },
   commentTime: {
     fontSize: 11,
     fontFamily: "PlusJakartaSans",
     color: "#BBB",
-    marginTop: 4,
+  },
+  commentActionBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+  },
+  commentActionText: {
+    fontSize: 11,
+    fontFamily: "PlusJakartaSans",
+    color: "#BBB",
+  },
+  replyIndicator: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    backgroundColor: "#F7F7FB",
+    borderTopWidth: 1,
+    borderTopColor: "#F0F0F0",
+  },
+  replyText: {
+    fontSize: 13,
+    fontFamily: "PlusJakartaSans",
+    color: "#888",
+  },
+  replyCancelText: {
+    fontSize: 13,
+    fontFamily: "PlusJakartaSansBold",
+    color: BRAND,
+  },
+  replyRow: {
+    paddingLeft: 38,
+    backgroundColor: "#FAFAFA",
+  },
+  replyIconCol: {
+    position: "absolute",
+    left: 18,
+    top: 12,
+  },
+  replyAvatar: {
+    width: 26,
+    height: 26,
+    borderRadius: 13,
   },
   inputRow: {
     flexDirection: "row",

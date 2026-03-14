@@ -12,6 +12,7 @@ import bondifyMainLogo from "../assets/images/Bondify-colored-main2.png"
 import bondiesMainicon from "../assets/images/Bondies-main-icon.png"
 import BOT_AVARTAR from "../assets/images/BOT_AVATAR.png"
 import onboardingImage from "../assets/images/onboarding-img.jpg"
+import feedIcon from "../assets/icons/feed-icon.png"
 
 
 export const images = {
@@ -28,5 +29,6 @@ export const images = {
   bondifyMainLogo,
   bondiesMainicon,
   BOT_AVARTAR,
-  onboardingImage
+  onboardingImage,
+    feedIcon
 };
