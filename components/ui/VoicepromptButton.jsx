@@ -2,14 +2,12 @@
  * VoicePromptButton.jsx
  *
  * Standalone component used in discovery cards for voice prompt playback.
- * 
- * Uses useAudioPlayer hook with the URI passed as a prop. The hook handles
- * lifecycle automatically, so no manual cleanup is needed. Since we always
- * have a valid URI before rendering this component, the Android SDK 53
- * null-crash doesn't occur.
+ *
+ * Uses createAudioPlayer for on-demand imperative control: create on tap,
+ * release when done or on unmount.
  */
 
-import { setAudioModeAsync, useAudioPlayer } from 'expo-audio';
+import { createAudioPlayer, setAudioModeAsync } from 'expo-audio';
 import { Pause, Play } from 'lucide-react-native';
 import { useEffect, useRef, useState } from 'react';
 import {
@@ -22,18 +20,16 @@ import {
 } from 'react-native';
 import { colors } from '../../constant/colors';
 
-// ─── Audio mode — set once per app session ────────────────────────────────────
+// ─── Audio mode ───────────────────────────────────────────────────────────────
 const ensureAudioMode = async () => {
-  const audioConfig = {
+  await setAudioModeAsync({
     playsInSilentMode: true,
     shouldPlayInBackground: false,
     interruptionMode: 'mixWithOthers',
     allowsRecording: false,
     allowsBackgroundRecording: false,
     shouldDuckAndroid: false,
-  };
-  console.log('[VoicePromptButton] setAudioModeAsync', audioConfig);
-  await setAudioModeAsync(audioConfig);
+  });
 };
 
 // ─── Mini waveform ────────────────────────────────────────────────────────────
@@ -82,97 +78,67 @@ const wv = StyleSheet.create({
 const VoicePromptButton = ({ uri }) => {
   // phase: 'idle' | 'loading' | 'playing' | 'paused'
   const [phase, setPhase] = useState('idle');
+  const playerRef = useRef(null);
 
-  // Create player using the hook with the passed URI
-  const playbackPlayer = useAudioPlayer(uri);
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (playerRef.current) {
+        playerRef.current.removeAllListeners('playbackStatusUpdate');
+        playerRef.current.remove();
+        playerRef.current = null;
+      }
+    };
+  }, []);
 
   const handlePress = async () => {
-    console.log('[VoicePromptButton] handlePress called, phase:', phase, 'uri:', uri);
     if (!uri) return;
 
     // ── Pause ──────────────────────────────────────────────────────────────
     if (phase === 'playing') {
-      try {
-        playbackPlayer?.pause();
-        setPhase('paused');
-      } catch { setPhase('idle'); }
+      playerRef.current?.pause();
+      setPhase('paused');
       return;
     }
 
     // ── Resume ─────────────────────────────────────────────────────────────
     if (phase === 'paused') {
-      try {
-        playbackPlayer?.play();
-        setPhase('playing');
-      } catch { setPhase('idle'); }
+      playerRef.current?.play();
+      setPhase('playing');
       return;
     }
 
     // ── Load + Play ────────────────────────────────────────────────────────
     setPhase('loading');
     try {
-      // Ensure silent-mode is enabled BEFORE playing
       await ensureAudioMode();
 
-      // Ensure the source is set on the player
-      console.log('[VoicePromptButton] calling playbackPlayer.replace() with uri:', uri);
-      await playbackPlayer.replace(uri);
-      console.log('[VoicePromptButton] replace() completed');
-      
-      // Wait a moment for the file to start loading
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
-      console.log('[VoicePromptButton] currentStatus after replace():', {
-        isLoaded: playbackPlayer.isLoaded,
-        isBuffering: playbackPlayer.isBuffering,
-        duration: playbackPlayer.duration,
-        playing: playbackPlayer.playing,
+      if (playerRef.current) {
+        playerRef.current.removeAllListeners('playbackStatusUpdate');
+        playerRef.current.remove();
+        playerRef.current = null;
+      }
+
+      const player = createAudioPlayer({ uri });
+      playerRef.current = player;
+
+      player.addListener('playbackStatusUpdate', (status) => {
+        if (status.didJustFinish) {
+          setPhase('idle');
+          player.removeAllListeners('playbackStatusUpdate');
+          player.seekTo(0);
+        }
       });
 
-      console.log('[VoicePromptButton] calling playbackPlayer.play()');
-      await playbackPlayer.play();
-      console.log('[VoicePromptButton] playbackPlayer.play() completed');
-      
-      console.log('[VoicePromptButton] currentStatus after play():', {
-        isLoaded: playbackPlayer.isLoaded,
-        isBuffering: playbackPlayer.isBuffering,
-        duration: playbackPlayer.duration,
-        playing: playbackPlayer.playing,
-      });
-      
+      player.play();
       setPhase('playing');
-    } catch (err) {
-      console.warn('[VoicePromptButton] play error:', err?.message);
+    } catch {
       setPhase('idle');
     }
   };
 
   const isPlaying = phase === 'playing';
   const isLoading = phase === 'loading';
-
-  // ── Monitor playback status ───────────────────────────────────────────────
-  useEffect(() => {
-    if (phase !== 'playing') return;
-    
-    const statusInterval = setInterval(() => {
-      console.log('[VoicePromptButton] playback status:', {
-        currentTime: playbackPlayer.currentTime,
-        duration: playbackPlayer.duration,
-        isLoaded: playbackPlayer.isLoaded,
-        isBuffering: playbackPlayer.isBuffering,
-        playing: playbackPlayer.playing,
-      });
-      
-      // Auto-stop when finished
-      if (playbackPlayer.currentTime >= playbackPlayer.duration && playbackPlayer.duration > 0) {
-        console.log('[VoicePromptButton] playback finished');
-        setPhase('idle');
-        try { playbackPlayer.seekTo(0); } catch {}
-      }
-    }, 100);
-    
-    return () => clearInterval(statusInterval);
-  }, [phase, playbackPlayer]);
 
   return (
     <TouchableOpacity onPress={handlePress} activeOpacity={0.82} style={vp.pill}>

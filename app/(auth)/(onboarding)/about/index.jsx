@@ -1,4 +1,11 @@
-import { Audio } from "expo-av";
+import {
+  AudioModule,
+  RecordingPresets,
+  createAudioPlayer,
+  setAudioModeAsync,
+  useAudioRecorder,
+  useAudioRecorderState,
+} from "expo-audio";
 import { File, Paths } from "expo-file-system/next";
 import { useRouter } from "expo-router";
 import { Check, Mic, Pause, Play, RefreshCw, Sparkles, Square, Trash2 } from "lucide-react-native";
@@ -243,54 +250,48 @@ const AISuggestionCard = ({ onUseSuggestion, onVoicePermissionRequest }) => {
 
 const VoicePromptSection = ({ onUseVoice }) => {
   const [phase, setPhase] = useState("idle"); // idle | recording | recorded | playing
-  const [duration, setDuration] = useState(0);
   const [playPos, setPlayPos] = useState(0);
   const [playDuration, setPlayDuration] = useState(0);
   const [recordUri, setRecordUri] = useState(null);
 
-  const recordingRef = useRef(null);
-  const soundRef = useRef(null);
-  const timerRef = useRef(null);
+  const audioRecorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
+  const recorderState = useAudioRecorderState(audioRecorder);
+  const recDurationS  = Math.floor((recorderState.durationMillis ?? 0) / 1000);
+
+  const playerRef = useRef(null);
 
   useEffect(() => {
     return () => {
-      clearInterval(timerRef.current);
-      recordingRef.current?.stopAndUnloadAsync().catch(() => {});
-      soundRef.current?.unloadAsync().catch(() => {});
+      if (playerRef.current) {
+        playerRef.current.removeAllListeners("playbackStatusUpdate");
+        playerRef.current.remove();
+        playerRef.current = null;
+      }
     };
   }, []);
 
+  // Auto-stop recording at 60 s
+  useEffect(() => {
+    if (phase === "recording" && recDurationS >= 60) {
+      stopRecording();
+    }
+  }, [recDurationS, phase]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const startRecording = async () => {
     try {
-      const { status } = await Audio.requestPermissionsAsync();
-      if (status !== "granted") {
+      const { granted } = await AudioModule.requestRecordingPermissionsAsync();
+      if (!granted) {
         Alert.alert("Permission needed", "Enable microphone access to record your bio.");
         return;
       }
 
-      await Audio.setAudioModeAsync({
-        allowsRecordingIOS: true,
-        playsInSilentModeIOS: true,
-      });
+      await setAudioModeAsync({ allowsRecording: true, playsInSilentMode: true });
 
-      const { recording } = await Audio.Recording.createAsync(
-        Audio.RecordingOptionsPresets.HIGH_QUALITY
-      );
-      recordingRef.current = recording;
+      await audioRecorder.prepareToRecordAsync();
+      audioRecorder.record();
       setPhase("recording");
-      setDuration(0);
       setPlayPos(0);
       setPlayDuration(0);
-
-      timerRef.current = setInterval(() => {
-        setDuration((d) => {
-          if (d + 1 >= 60) {
-            stopRecording();
-            return 60;
-          }
-          return d + 1;
-        });
-      }, 1000);
     } catch (err) {
       console.error("Start recording error:", err);
       Alert.alert("Error", "Could not start recording.");
@@ -299,20 +300,10 @@ const VoicePromptSection = ({ onUseVoice }) => {
 
   const stopRecording = async () => {
     try {
-      clearInterval(timerRef.current);
+      await audioRecorder.stop();
+      const tempUri = audioRecorder.uri;
 
-      const rec = recordingRef.current;
-      if (!rec) return;
-
-      await rec.stopAndUnloadAsync();
-      const tempUri = rec.getURI();
-      recordingRef.current = null;
-
-      await Audio.setAudioModeAsync({
-        allowsRecordingIOS: false,
-        playsInSilentModeIOS: true,
-        staysActiveInBackground: false,
-      });
+      await setAudioModeAsync({ allowsRecording: false, playsInSilentMode: true });
 
       if (!tempUri) return;
 
@@ -330,49 +321,35 @@ const VoicePromptSection = ({ onUseVoice }) => {
   };
 
   const startPlayback = async () => {
+    if (!recordUri) return;
     try {
-      if (!recordUri) return;
+      await setAudioModeAsync({ allowsRecording: false, playsInSilentMode: true });
 
-      await Audio.setAudioModeAsync({
-        allowsRecordingIOS: false,
-        playsInSilentModeIOS: true,
-        staysActiveInBackground: false,
-      });
-
-      if (soundRef.current) {
-        await soundRef.current.unloadAsync();
-        soundRef.current = null;
+      if (playerRef.current) {
+        playerRef.current.removeAllListeners("playbackStatusUpdate");
+        playerRef.current.remove();
+        playerRef.current = null;
       }
 
-      const { sound, status } = await Audio.Sound.createAsync(
-        { uri: recordUri },
-        { shouldPlay: true, progressUpdateIntervalMillis: 100 }
-      );
-
-      soundRef.current = sound;
+      const player = createAudioPlayer({ uri: recordUri });
+      playerRef.current = player;
       setPhase("playing");
       setPlayPos(0);
 
-      if (status?.durationMillis) {
-        setPlayDuration(Math.floor(status.durationMillis / 1000));
-      }
-
-      sound.setOnPlaybackStatusUpdate((s) => {
-        if (!s.isLoaded) return;
-
-        if (s.durationMillis && s.durationMillis > 0) {
-          setPlayDuration(Math.floor(s.durationMillis / 1000));
-        }
-
-        setPlayPos(Math.floor((s.positionMillis ?? 0) / 1000));
-
-        if (s.didJustFinish) {
+      player.addListener("playbackStatusUpdate", (status) => {
+        if (!status.isLoaded) return;
+        if (status.currentTime !== undefined) setPlayPos(Math.round(status.currentTime));
+        if (status.duration !== undefined && !isNaN(status.duration)) setPlayDuration(Math.round(status.duration));
+        if (status.didJustFinish) {
           setPhase("recorded");
           setPlayPos(0);
-          sound.unloadAsync().catch(() => {});
-          soundRef.current = null;
+          player.removeAllListeners("playbackStatusUpdate");
+          player.remove();
+          playerRef.current = null;
         }
       });
+
+      player.play();
     } catch (err) {
       console.error("Playback error:", err);
       Alert.alert("Error", "Could not play the recording.");
@@ -380,9 +357,9 @@ const VoicePromptSection = ({ onUseVoice }) => {
     }
   };
 
-  const pausePlayback = async () => {
+  const pausePlayback = () => {
     try {
-      await soundRef.current?.pauseAsync();
+      playerRef.current?.pause();
       setPhase("recorded");
     } catch (err) {
       console.error("Pause error:", err);
@@ -397,12 +374,14 @@ const VoicePromptSection = ({ onUseVoice }) => {
       {
         text: "Delete",
         style: "destructive",
-        onPress: async () => {
-          await soundRef.current?.unloadAsync().catch(() => {});
-          soundRef.current = null;
+        onPress: () => {
+          if (playerRef.current) {
+            playerRef.current.removeAllListeners("playbackStatusUpdate");
+            playerRef.current.remove();
+            playerRef.current = null;
+          }
           setRecordUri(null);
           setPhase("idle");
-          setDuration(0);
           setPlayPos(0);
           setPlayDuration(0);
         },
@@ -479,7 +458,7 @@ const VoicePromptSection = ({ onUseVoice }) => {
         <View style={{ gap: 12 }}>
           <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
             <Text style={{ fontFamily: fonts.PlusJakartaSansMedium, fontSize: 14, color: "#1a1a1a" }}>
-              Recording... {formatTime(duration)}
+              Recording... {formatTime(recDurationS)}
             </Text>
             <View
               style={{
