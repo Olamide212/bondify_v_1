@@ -271,6 +271,12 @@ export default function BonFeed() {
 
   // ── 3-dots menu options ─────────────────────────────────────────────────────
   const handleOpenOptions = (post) => {
+    // If the delete comes from the detail modal, close it first
+    if (post?._deleteFromDetail) {
+      setDetailPost(null);
+      handleDelete(post._id);
+      return;
+    }
     setOptionsPost(post);
   };
 
@@ -297,6 +303,9 @@ export default function BonFeed() {
         break;
       case "block":
         Alert.alert("Block", "This user has been blocked.");
+        break;
+      case "delete":
+        handleDelete(post._id);
         break;
     }
   };
@@ -430,6 +439,7 @@ export default function BonFeed() {
         onSelect={handleOptionSelect}
         isFollowing={optionsPost?._isFollowing}
         isSaved={optionsPost?.isSaved}
+        isOwnPost={String(optionsPost?.author?._id ?? optionsPost?.author) === String(currentUser?._id)}
       />
 
       <FeedProfileSheet

@@ -2,6 +2,7 @@ import {
   Bookmark,
   Flag,
   Share2,
+  Trash2,
   UserMinus,
   UserPlus,
   VolumeX,
@@ -19,8 +20,14 @@ const OPTIONS = [
   { key: "block",  label: "Block",     icon: UserMinus, color: "#E53935" },
 ];
 
-const PostOptionsModal = ({ visible, onClose, onSelect, isFollowing, isSaved }) => {
-  const options = OPTIONS.map((opt) => {
+const OWN_POST_OPTIONS = [
+  { key: "share",  label: "Share",     icon: Share2,    color: "#333" },
+  { key: "delete", label: "Delete",    icon: Trash2,    color: "#E53935" },
+];
+
+const PostOptionsModal = ({ visible, onClose, onSelect, isFollowing, isSaved, isOwnPost }) => {
+  const baseOptions = isOwnPost ? OWN_POST_OPTIONS : OPTIONS;
+  const options = baseOptions.map((opt) => {
     if (opt.key === "follow" && isFollowing) {
       return { ...opt, label: "Unfollow", icon: UserMinus };
     }
