@@ -21,8 +21,8 @@
 import {
   AudioModule,
   RecordingPresets,
+  createAudioPlayer,
   setAudioModeAsync,
-  useAudioPlayer,
   useAudioRecorder,
   useAudioRecorderState,
 } from 'expo-audio';
@@ -57,16 +57,14 @@ const fmt = (s) =>
 
 // ─── Audio mode — set once, lazily ───────────────────────────────────────────
 const ensureAudioMode = async (allowsRecording = false) => {
-  const audioConfig = {
+  await setAudioModeAsync({
     playsInSilentMode: true,
     shouldPlayInBackground: false,
     interruptionMode: 'mixWithOthers',
     allowsRecording,
     allowsBackgroundRecording: false,
     shouldDuckAndroid: false,
-  };
-  console.log('[VoicePrompt] setAudioModeAsync', audioConfig);
-  await setAudioModeAsync(audioConfig);
+  });
 };
 
 // ─── Waveform ─────────────────────────────────────────────────────────────────
@@ -140,10 +138,8 @@ export default function VoicePrompt({ profile, onUpdateField }) {
   const recorderState = useAudioRecorderState(audioRecorder);
   const recDurationS  = Math.floor((recorderState.durationMillis ?? 0) / 1000);
 
-  // ── expo-audio: playback player ───────────────────────────────────────────
-  // Using useAudioPlayer with the recordUri when available
-  // The hook manages its own lifecycle, no manual cleanup needed
-  const playbackPlayer = useAudioPlayer(recordUri || undefined);
+  // ── expo-audio: playback player (imperative, on-demand) ───────────────────
+  const playerRef = useRef(null);
 
   // ── Seed from existing profile voice prompt ───────────────────────────────
   useEffect(() => {
@@ -165,31 +161,16 @@ export default function VoicePrompt({ profile, onUpdateField }) {
     AudioModule.requestRecordingPermissionsAsync().catch(() => {});
   }, []);
 
-  // useAudioPlayer manages its own lifecycle, no manual cleanup needed
-
-  // ── Monitor playback status continuously ──────────────────────────────────
+  // ── Cleanup player on unmount ─────────────────────────────────────────────
   useEffect(() => {
-    if (phase !== 'playing') return;
-    
-    const statusInterval = setInterval(() => {
-      console.log('[VoicePrompt] playback status:', {
-        currentTime: playbackPlayer.currentTime,
-        duration: playbackPlayer.duration,
-        isLoaded: playbackPlayer.isLoaded,
-        isBuffering: playbackPlayer.isBuffering,
-        playing: playbackPlayer.playing,
-      });
-      
-      if (playbackPlayer.currentTime !== undefined) {
-        setPlayPos(Math.round(playbackPlayer.currentTime));
+    return () => {
+      if (playerRef.current) {
+        playerRef.current.removeAllListeners('playbackStatusUpdate');
+        playerRef.current.remove();
+        playerRef.current = null;
       }
-      if (playbackPlayer.duration !== undefined && !isNaN(playbackPlayer.duration)) {
-        setPlayDuration(Math.round(playbackPlayer.duration));
-      }
-    }, 100);
-    
-    return () => clearInterval(statusInterval);
-  }, [phase, playbackPlayer]);
+    };
+  }, []);
 
   // ── Auto-stop recording at max duration ───────────────────────────────────
   useEffect(() => {
@@ -246,52 +227,46 @@ export default function VoicePrompt({ profile, onUpdateField }) {
   const startPlayback = async () => {
     if (!recordUri) return;
     try {
-      console.log('[VoicePrompt] startPlayback entering with recordUri:', recordUri);
       await ensureAudioMode(false);
-      
-      // CRITICAL: Use replace() to set the audio source on the player
-      // The hook was initialized with undefined, so we must explicitly set the source
-      console.log('[VoicePrompt] calling playbackPlayer.replace() with URI:', recordUri);
-      await playbackPlayer.replace(recordUri);
-      console.log('[VoicePrompt] replace() completed');
-      
-      // Wait a moment for the file to start loading
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
-      console.log('[VoicePrompt] currentStatus after replace():', {
-        isLoaded: playbackPlayer.isLoaded,
-        isBuffering: playbackPlayer.isBuffering,
-        duration: playbackPlayer.duration,
-        playing: playbackPlayer.playing,
+
+      if (playerRef.current) {
+        playerRef.current.removeAllListeners('playbackStatusUpdate');
+        playerRef.current.remove();
+        playerRef.current = null;
+      }
+
+      const player = createAudioPlayer({ uri: recordUri });
+      playerRef.current = player;
+
+      player.addListener('playbackStatusUpdate', (status) => {
+        if (!status.isLoaded) return;
+        if (status.currentTime !== undefined) setPlayPos(Math.round(status.currentTime));
+        if (status.duration !== undefined && !isNaN(status.duration)) setPlayDuration(Math.round(status.duration));
+        if (status.didJustFinish) {
+          setPhase('recorded');
+          setPlayPos(0);
+          player.removeAllListeners('playbackStatusUpdate');
+          player.seekTo(0);
+          player.remove();
+          playerRef.current = null;
+        }
       });
 
-      console.log('[VoicePrompt] calling playbackPlayer.play()');
-      await playbackPlayer.play();
-      console.log('[VoicePrompt] playbackPlayer.play() completed');
-      
-      // Check status after play
-      console.log('[VoicePrompt] currentStatus after play():', {
-        isLoaded: playbackPlayer.isLoaded,
-        isBuffering: playbackPlayer.isBuffering,
-        duration: playbackPlayer.duration,
-        playing: playbackPlayer.playing,
-      });
-      
+      player.play();
       setPhase('playing');
     } catch (err) {
       console.error('[VoicePrompt] startPlayback error:', err);
-      Alert.alert('Playback error', 'Could not play the recording. Please try again.');
       setPhase('recorded');
     }
   };
 
   const pausePlayback = () => {
-    try { playbackPlayer?.pause(); } catch {}
+    playerRef.current?.pause();
     setPhase('paused');
   };
 
   const resumePlayback = () => {
-    try { playbackPlayer?.play(); } catch {}
+    playerRef.current?.play();
     setPhase('playing');
   };
 
@@ -303,6 +278,11 @@ export default function VoicePrompt({ profile, onUpdateField }) {
       {
         text: 'Delete', style: 'destructive',
         onPress: () => {
+          if (playerRef.current) {
+            playerRef.current.removeAllListeners('playbackStatusUpdate');
+            playerRef.current.remove();
+            playerRef.current = null;
+          }
           setRecordUri(null);
           setPhase('idle');
           setHasExisting(false);
@@ -313,6 +293,11 @@ export default function VoicePrompt({ profile, onUpdateField }) {
   };
 
   const handleReRecord = () => {
+    if (playerRef.current) {
+      playerRef.current.removeAllListeners('playbackStatusUpdate');
+      playerRef.current.remove();
+      playerRef.current = null;
+    }
     setRecordUri(null);
     setPhase('idle');
     setHasExisting(false);

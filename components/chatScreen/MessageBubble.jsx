@@ -1,5 +1,5 @@
 // components/MessageBubble.js
-import { Audio } from "expo-av";
+import { createAudioPlayer, setAudioModeAsync } from 'expo-audio';
 import { Check, CheckCheck, Mic, Pause, Play, User } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
 import { ActivityIndicator, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
@@ -21,13 +21,14 @@ const MessageBubble = ({ message }) => {
   const [isPlayingVoice, setIsPlayingVoice] = useState(false);
   const [isImageLoading, setIsImageLoading] = useState(Boolean(message.imageUrl));
   const [imageFailed, setImageFailed] = useState(!message.imageUrl);
-  const soundRef = useRef(null);
+  const playerRef = useRef(null);
 
   useEffect(() => {
     return () => {
-      if (soundRef.current) {
-        soundRef.current.unloadAsync().catch(() => {});
-        soundRef.current = null;
+      if (playerRef.current) {
+        playerRef.current.removeAllListeners('playbackStatusUpdate');
+        playerRef.current.remove();
+        playerRef.current = null;
       }
     };
   }, []);
@@ -36,36 +37,40 @@ const MessageBubble = ({ message }) => {
     const voiceUrl = message.mediaUrl || message.imageUrl;
     if (!voiceUrl) return;
 
-    if (soundRef.current) {
+    // Toggle pause/resume if player already exists
+    if (playerRef.current) {
       if (isPlayingVoice) {
-        await soundRef.current.pauseAsync();
+        playerRef.current.pause();
         setIsPlayingVoice(false);
       } else {
-        await soundRef.current.playAsync();
+        playerRef.current.play();
         setIsPlayingVoice(true);
       }
       return;
     }
 
-    const { sound } = await Audio.Sound.createAsync(
-      { uri: voiceUrl },
-      { shouldPlay: true }
-    );
+    // Fresh load + play
+    try {
+      await setAudioModeAsync({ playsInSilentMode: true, allowsRecording: false });
+      const player = createAudioPlayer({ uri: voiceUrl });
+      playerRef.current = player;
+      setIsPlayingVoice(true);
 
-    soundRef.current = sound;
-    setIsPlayingVoice(true);
+      player.addListener('playbackStatusUpdate', (status) => {
+        if (!status.isLoaded) return;
+        setIsPlayingVoice(status.isPlaying ?? false);
+        if (status.didJustFinish) {
+          player.removeAllListeners('playbackStatusUpdate');
+          player.remove();
+          playerRef.current = null;
+          setIsPlayingVoice(false);
+        }
+      });
 
-    sound.setOnPlaybackStatusUpdate((status) => {
-      if (!status?.isLoaded) return;
-
-      setIsPlayingVoice(status.isPlaying);
-
-      if (status.didJustFinish) {
-        sound.unloadAsync().catch(() => {});
-        soundRef.current = null;
-        setIsPlayingVoice(false);
-      }
-    });
+      player.play();
+    } catch {
+      setIsPlayingVoice(false);
+    }
   };
 
   const getStatusIcon = (status) => {
