@@ -55,18 +55,21 @@ export default function ExploreTabComponents() {
   const [likedYouData, setLikedYouData] = useState([]);
   const [youLikedData, setYouLikedData] = useState([]);
   const [passedData, setPassedData] = useState([]);
+  const [visitedYouData, setVisitedYouData] = useState([]);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const [likedYou, youLiked, passed] = await Promise.all([
+      const [likedYou, youLiked, passed, visitors] = await Promise.all([
         profileService.getLikedYou().catch((err) => { console.warn('Failed to fetch liked-you:', err?.message); return []; }),
         profileService.getYouLiked().catch((err) => { console.warn('Failed to fetch you-liked:', err?.message); return []; }),
         profileService.getPassed().catch((err) => { console.warn('Failed to fetch passed:', err?.message); return []; }),
+        profileService.getProfileVisitors().catch((err) => { console.warn('Failed to fetch visitors:', err?.message); return []; }),
       ]);
       setLikedYouData(likedYou.map(normalizeProfile));
       setYouLikedData(youLiked.map(normalizeProfile));
       setPassedData(passed.map(normalizeProfile));
+      setVisitedYouData(visitors.map(normalizeProfile));
     } catch (_error) {
       // Keep existing data on error
     } finally {
@@ -100,7 +103,7 @@ export default function ExploreTabComponents() {
     switch (activeTab) {
       case "visitedYou":
         return (
-          <VisitedYou data={[]} onUserPress={handleUserPress} />
+          <VisitedYou data={visitedYouData} onUserPress={handleUserPress} />
         );
       case "likedYou":
         return (
@@ -134,7 +137,7 @@ export default function ExploreTabComponents() {
           <TabNavigation
             activeTab={activeTab}
             setActiveTab={setActiveTab}
-            visitedCount={0}
+            visitedCount={visitedYouData.length}
             likedCount={likedYouData.length}
             youLikedCount={youLikedData.length}
             passedCount={passedData.length}
