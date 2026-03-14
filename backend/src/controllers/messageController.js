@@ -312,17 +312,10 @@ const deleteMessage = async (req, res, next) => {
   }
 };
 
-module.exports = {
-  getMessages,
-  sendMessage,
-  deleteMessage,
-  sendDirectMessage,
-};
-
 // @desc    Send a direct message to any user (no match required)
 // @route   POST /api/messages/direct/:userId
 // @access  Private
-async function sendDirectMessage(req, res, next) {
+const sendDirectMessage = async (req, res, next) => {
   try {
     const io = getIO();
     const senderId = req.user._id;
@@ -417,4 +410,11 @@ async function sendDirectMessage(req, res, next) {
   } catch (error) {
     next(error);
   }
-}
+};
+
+module.exports = {
+  getMessages,
+  sendMessage,
+  deleteMessage,
+  sendDirectMessage,
+};

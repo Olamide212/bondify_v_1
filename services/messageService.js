@@ -233,15 +233,6 @@ const deleteMessage = async (messageId) => {
   }
 };
 
-export const messageService = {
-  getCachedMessages,
-  getMessages,
-  sendMessage,
-  sendDirectMessage,
-  uploadChatMedia,
-  deleteMessage,
-};
-
 /**
  * Send a direct message to any user (no prior match required).
  * Creates a pending conversation thread if one does not exist.
@@ -250,7 +241,7 @@ export const messageService = {
  * @param {string} content - message text
  * @returns {{ matchId: string, message: object }}
  */
-async function sendDirectMessage(userId, content) {
+const sendDirectMessage = async (userId, content) => {
   try {
     const response = await apiClient.post(`/messages/direct/${userId}`, { content });
     return response.data?.data ?? response.data;
@@ -261,4 +252,13 @@ async function sendDirectMessage(userId, content) {
       "Failed to send direct message";
     throw new Error(message);
   }
-}
+};
+
+export const messageService = {
+  getCachedMessages,
+  getMessages,
+  sendMessage,
+  sendDirectMessage,
+  uploadChatMedia,
+  deleteMessage,
+};
