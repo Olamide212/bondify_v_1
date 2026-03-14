@@ -136,6 +136,7 @@ const UserProfile = () => {
       name:               profile?.name || [profile?.firstName, profile?.lastName].filter(Boolean).join(" ") || "Unknown",
       age:                profile?.age ?? null,
       gender:             profile?.gender,
+      voicePrompt:       profile?.voicePrompt,
       zodiac:             profile?.zodiacSign ?? profile?.zodiac,
       location:           formatLocation(profile?.location) || profile?.location,
       distance:           formatDistance(profile),
@@ -305,9 +306,10 @@ const UserProfile = () => {
 
   // Show action buttons only when:
   //  1. showActions param is not "false"
-  //  2. interaction status is fully resolved as 'none'
-  const hasInteracted = ['liked', 'passed', 'superliked', 'matched'].includes(interactionStatus);
-  const shouldShowActions = showActions !== "false" && !hasInteracted && interactionStatus !== 'unknown';
+  //  2. No blocking interaction (matched profiles can't be changed)
+  //  3. Allow changing passes to likes
+  const hasBlockingInteraction = ['liked', 'superliked', 'matched'].includes(interactionStatus);
+  const shouldShowActions = showActions !== "false" && !hasBlockingInteraction && interactionStatus !== 'unknown';
 
   // ── Loading / error ─────────────────────────────────────────
 
@@ -375,7 +377,7 @@ const UserProfile = () => {
         ref={scrollRef}
         onScroll={scrollHandler}
         scrollEventThrottle={16}
-        contentContainerStyle={{ flexGrow: 1, paddingBottom: hasInteracted ? 90 : 0 }}
+        contentContainerStyle={{ flexGrow: 1, paddingBottom: interactionStatus !== 'none' && interactionStatus !== 'unknown' ? 180 : shouldShowActions ? 120 : 0 }}
         showsVerticalScrollIndicator={false}
       >
         <Animated.View style={{ flex: 1 }}>
@@ -383,15 +385,15 @@ const UserProfile = () => {
         </Animated.View>
       </Animated.ScrollView>
 
-      {/* Action buttons — only if no prior interaction */}
+      {/* Action buttons — shown for non-blocking interactions (including passed) */}
       {shouldShowActions && (
         <View style={styles.actionButtonWrapper}>
           <ActionButtons onSwipe={handleSwipe} onSuperLike={handleSuperLike} />
         </View>
       )}
 
-      {/* Interaction banner — shown instead of action buttons */}
-      {hasInteracted && (
+      {/* Interaction banner — shown for all interactions */}
+      {interactionStatus !== 'none' && interactionStatus !== 'unknown' && (
         <InteractionBanner status={interactionStatus} />
       )}
     </View>

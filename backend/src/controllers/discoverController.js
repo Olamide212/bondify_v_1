@@ -29,9 +29,9 @@ const getDiscoveryProfiles = async (req, res, next) => {
     const sanitizedPage        = Math.max(parseInt(page,  10) || 1, 1);
     const sanitizedLimit       = Math.min(parseInt(limit, 10) || 20, 100);
 
-    // Exclude users already interacted with AND already matched with
-    const [interactedUsers, matchedUserIds] = await Promise.all([
-      Like.find({ user: userId }).distinct('likedUser'),
+    // Exclude users already liked/superliked (but allow passed users to be seen again)
+    const [likedUsers, matchedUserIds] = await Promise.all([
+      Like.find({ user: userId, type: { $in: ['like', 'superlike'] } }).distinct('likedUser'),
       Match.find({
         $or: [{ user1: userId }, { user2: userId }],
         status: 'matched',
@@ -44,7 +44,7 @@ const getDiscoveryProfiles = async (req, res, next) => {
 
     const excludedIds = [
       userId,
-      ...interactedUsers.map(String),
+      ...likedUsers.map(String),
       ...matchedUserIds.map(String),
     ];
 
@@ -158,22 +158,49 @@ const performAction = async (req, res, next) => {
 
     const existingLike = await Like.findOne({ user: userId, likedUser: likedUserId });
     if (existingLike) {
-      return res.status(400).json({ success: false, message: 'Already interacted with this user.' });
-    }
+      // Allow changing a 'pass' to 'like' or 'superlike' (user changed their mind)
+      if (existingLike.type === 'pass' && (type === 'like' || type === 'superlike')) {
+        // Update the existing pass to a like/superlike
+        existingLike.type = type;
+        await existingLike.save();
 
-    await Like.create({ user: userId, likedUser: likedUserId, type });
+        // Update stats: decrement passGiven, increment likesGiven/superLikesGiven
+        if (type === 'like') {
+          await Promise.all([
+            User.findByIdAndUpdate(userId,      { $inc: { passesGiven: -1, likesGiven: 1 } }),
+            User.findByIdAndUpdate(likedUserId, { $inc: { likesReceived: 1 } }),
+          ]);
+        } else if (type === 'superlike') {
+          await Promise.all([
+            User.findByIdAndUpdate(userId,      { $inc: { passesGiven: -1, superLikesGiven: 1 } }),
+            User.findByIdAndUpdate(likedUserId, { $inc: { superLikesReceived: 1 } }),
+          ]);
+        }
+      } else {
+        // Block other duplicate interactions (like->like, superlike->superlike, etc.)
+        return res.status(400).json({
+          success: false,
+          message: `Already interacted with this user (existing: ${existingLike.type}, requested: ${type}).`
+        });
+      }
+    } else {
+      // No existing interaction, create new one
+      await Like.create({ user: userId, likedUser: likedUserId, type });
 
-    // FIX: use atomic $inc instead of read-modify-save (avoids race conditions on stats)
-    if (type === 'like') {
-      await Promise.all([
-        User.findByIdAndUpdate(userId,      { $inc: { likesGiven:         1 } }),
-        User.findByIdAndUpdate(likedUserId, { $inc: { likesReceived:      1 } }),
-      ]);
-    } else if (type === 'superlike') {
-      await Promise.all([
-        User.findByIdAndUpdate(userId,      { $inc: { superLikesGiven:    1 } }),
-        User.findByIdAndUpdate(likedUserId, { $inc: { superLikesReceived: 1 } }),
-      ]);
+      // Update stats based on type
+      if (type === 'like') {
+        await Promise.all([
+          User.findByIdAndUpdate(userId,      { $inc: { likesGiven: 1 } }),
+          User.findByIdAndUpdate(likedUserId, { $inc: { likesReceived: 1 } }),
+        ]);
+      } else if (type === 'superlike') {
+        await Promise.all([
+          User.findByIdAndUpdate(userId,      { $inc: { superLikesGiven: 1 } }),
+          User.findByIdAndUpdate(likedUserId, { $inc: { superLikesReceived: 1 } }),
+        ]);
+      } else if (type === 'pass') {
+        await User.findByIdAndUpdate(userId, { $inc: { passesGiven: 1 } });
+      }
     }
 
     if (type === 'like' || type === 'superlike') {

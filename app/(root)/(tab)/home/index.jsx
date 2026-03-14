@@ -1,3 +1,30 @@
+/**
+ * Home.js
+ *
+ * White-screen fixes
+ * ──────────────────
+ * Problem 1 – blank flash on first mount:
+ *   `showFullLoader` was `profilesLoading && !hasEverLoaded.current`.
+ *   But `hasEverLoaded` flips true as soon as loading finishes once, so any
+ *   subsequent fetch while the deck is empty produced `null` in the render
+ *   tree → white screen.
+ *
+ * Problem 2 – blank flash on focus/AppState refresh:
+ *   `refreshProfiles()` clears homeProfiles to [], then re-populates.
+ *   During that window `hasProfiles` is false and `profilesLoading` is true,
+ *   but the old guard only showed the loader on the very first load.
+ *
+ * Fix: Show LogoLoader whenever we have no renderable content AND any load
+ * is in-flight, regardless of whether we've loaded before:
+ *
+ *   showFullLoader = profilesLoading && !hasProfiles
+ *
+ * This covers both first-mount AND subsequent refreshes where the deck
+ * momentarily empties. Once we have profiles in hand we always render them
+ * (stale-while-revalidate), so the card never disappears during background
+ * refreshes when the deck is non-empty.
+ */
+
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "expo-router";
 import { Bell, SlidersHorizontal } from "lucide-react-native";
@@ -20,21 +47,21 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { useSelector } from "react-redux";
-import ActionButtons from "../../../../components/homeScreen/ActionButtons";
-import AroundYou from "../../../../components/homeScreen/AroundYouTab";
-import EmptyDeckSlider from "../../../../components/homeScreen/EmptyDeckSlider";
-import AIAssistantModal from "../../../../components/modals/AIAssistantModal";
-import FilterModal from "../../../../components/modals/FilterModal";
+import ActionButtons      from "../../../../components/homeScreen/ActionButtons";
+import AroundYou          from "../../../../components/homeScreen/AroundYouTab";
+import EmptyDeckSlider    from "../../../../components/homeScreen/EmptyDeckSlider";
+import AIAssistantModal   from "../../../../components/modals/AIAssistantModal";
+import FilterModal        from "../../../../components/modals/FilterModal";
 import MatchCelebrationModal from "../../../../components/modals/MatchCelebrationModal";
 import NotificationsModal from "../../../../components/modals/NotificationsModal";
-import UserProfileModal from "../../../../components/modals/UserProfileModal";
+import UserProfileModal   from "../../../../components/modals/UserProfileModal";
 import { NotificationBanner } from "../../../../components/ui/NotificationBanner";
-import LogoLoader from "../../../../components/ui/LogoLoader";
-import { colors } from "../../../../constant/colors";
-import { useProfile } from "../../../../context/ProfileContext";
+import LogoLoader         from "../../../../components/ui/LogoLoader";
+import { colors }         from "../../../../constant/colors";
+import { useProfile }     from "../../../../context/ProfileContext";
 import { messageService } from "../../../../services/messageService";
-import SettingsService from "../../../../services/settingsService";
-import { socketService } from "../../../../services/socketService";
+import SettingsService    from "../../../../services/settingsService";
+import { socketService }  from "../../../../services/socketService";
 
 // ─── Swipe badge assets ───────────────────────────────────────────────────────
 const BOND_BADGE = require("../../../../assets/images/Bond_Badge_Right.png");
@@ -60,6 +87,8 @@ const safeParse = (value) => {
   catch { return null; }
 };
 
+// ─────────────────────────────────────────────────────────────────────────────
+
 const Home = () => {
   const {
     homeCurrentProfileIndex,
@@ -76,19 +105,21 @@ const Home = () => {
 
   const { user: currentUser } = useSelector((state) => state.auth);
 
-  // ─── hasEverLoaded: prevents false empty-state on initial mount ───────────
-  // Flips to true once profilesLoading transitions false for the first time.
-  // Without this, the screen flashes "No users" immediately on mount because
-  // homeProfiles is [] while the first fetch is still in-flight.
+  // ─── Derived deck state ───────────────────────────────────────────────────
+  const hasProfiles    = Array.isArray(homeProfiles) && homeProfiles.length > 0;
+  const currentProfile = hasProfiles
+    ? homeProfiles[homeCurrentProfileIndex % homeProfiles.length]
+    : null;
+
+  // ─── hasEverLoaded: used only to decide empty-deck vs "still loading" ─────
+  // We still track it so we never show EmptyDeckSlider before the first fetch
+  // has completed (avoids false "no users" flash on cold start).
   const hasEverLoaded = useRef(false);
   useEffect(() => {
-    if (!profilesLoading) {
-      hasEverLoaded.current = true;
-    }
+    if (!profilesLoading) hasEverLoaded.current = true;
   }, [profilesLoading]);
 
   // ─── Auto-refresh on tab focus ────────────────────────────────────────────
-  // Fires every time the Home tab gains focus (user navigates back to it).
   useFocusEffect(
     useCallback(() => {
       refreshProfiles();
@@ -97,19 +128,14 @@ const Home = () => {
 
   // ─── Auto-refresh when app returns from background ────────────────────────
   useEffect(() => {
-    const subscription = AppState.addEventListener("change", (nextState) => {
-      if (nextState === "active") {
-        refreshProfiles();
-      }
+    const sub = AppState.addEventListener("change", (nextState) => {
+      if (nextState === "active") refreshProfiles();
     });
-    return () => subscription.remove();
+    return () => sub.remove();
   }, [refreshProfiles]);
 
-  // ─── Swipe badge ──────────────────────────────────────────────────────────
-  const [swipeBadgeDirection, setSwipeBadgeDirection] = useState(null);
-  const badgeOpacity = useSharedValue(0);
-  const badgeScale   = useSharedValue(0.6);
-
+  // ─── UI state ─────────────────────────────────────────────────────────────
+  const [swipeBadgeDirection,    setSwipeBadgeDirection]    = useState(null);
   const [showFilterModal,        setShowFilterModal]        = useState(false);
   const [showProfileModal,       setShowProfileModal]       = useState(false);
   const [showNotificationsModal, setShowNotificationsModal] = useState(false);
@@ -119,18 +145,18 @@ const Home = () => {
   const [notifications,          setNotifications]          = useState([]);
 
   const unreadNotificationsCount = useMemo(
-    () => notifications.filter((item) => !item.read).length,
+    () => notifications.filter((n) => !n.read).length,
     [notifications]
   );
 
   // ─── Banner queue ─────────────────────────────────────────────────────────
-  const [activeBanner, setActiveBanner] = useState(null);
-  const bannerQueueRef = useRef([]);
-  const bannerBusyRef  = useRef(false);
+  const [activeBanner,    setActiveBanner] = useState(null);
+  const bannerQueueRef    = useRef([]);
+  const bannerBusyRef     = useRef(false);
+  const showNotifsModalRef = useRef(false);
 
-  const showNotificationsModalRef = useRef(false);
   useEffect(() => {
-    showNotificationsModalRef.current = showNotificationsModal;
+    showNotifsModalRef.current = showNotificationsModal;
   }, [showNotificationsModal]);
 
   const advanceBannerQueue = useCallback(() => {
@@ -145,7 +171,7 @@ const Home = () => {
   }, []);
 
   const enqueueBanner = useCallback((notification) => {
-    if (showNotificationsModalRef.current) return;
+    if (showNotifsModalRef.current) return;
     if (bannerBusyRef.current) {
       bannerQueueRef.current.push(notification);
     } else {
@@ -157,21 +183,19 @@ const Home = () => {
   // ─── Notification settings ────────────────────────────────────────────────
   const [notifSettings, setNotifSettings] = useState(DEFAULT_NOTIF_SETTINGS);
   const notifSettingsRef = useRef(DEFAULT_NOTIF_SETTINGS);
-  useEffect(() => {
-    notifSettingsRef.current = notifSettings;
-  }, [notifSettings]);
+  useEffect(() => { notifSettingsRef.current = notifSettings; }, [notifSettings]);
 
   useEffect(() => {
     let mounted = true;
     const load = async () => {
       try {
         const cached = safeParse(await AsyncStorage.getItem(NOTIF_SETTINGS_STORAGE_KEY));
-        if (mounted && cached) setNotifSettings((prev) => ({ ...prev, ...cached }));
+        if (mounted && cached) setNotifSettings((p) => ({ ...p, ...cached }));
       } catch {}
       try {
         const res = await SettingsService.getNotificationSettings();
         if (mounted && res?.data) {
-          setNotifSettings((prev) => ({ ...prev, ...res.data }));
+          setNotifSettings((p) => ({ ...p, ...res.data }));
           await AsyncStorage.setItem(NOTIF_SETTINGS_STORAGE_KEY, JSON.stringify(res.data)).catch(() => {});
         }
       } catch {}
@@ -180,32 +204,28 @@ const Home = () => {
     return () => { mounted = false; };
   }, []);
 
-  // ─── Profile card animation ───────────────────────────────────────────────
+  // ─── Profile card entrance animation ─────────────────────────────────────
   const animation = useSharedValue(1);
-
-  const hasProfiles  = Array.isArray(homeProfiles) && homeProfiles.length > 0;
-  const currentProfile = hasProfiles
-    ? homeProfiles[homeCurrentProfileIndex % homeProfiles.length]
-    : null;
-
   useEffect(() => {
     animation.value = 0;
     animation.value = withTiming(1, { duration: 600 });
   }, [homeCurrentProfileIndex, animation]);
 
-  // ─── Swipe badge stamp animation ─────────────────────────────────────────
+  // ─── Swipe badge stamp ────────────────────────────────────────────────────
+  const badgeOpacity = useSharedValue(0);
+  const badgeScale   = useSharedValue(0.6);
+
   const showSwipeBadge = (direction) => {
     setSwipeBadgeDirection(direction);
     badgeScale.value   = 0.5;
     badgeOpacity.value = 0;
-
-    badgeScale.value = withTiming(1.08, { duration: 160 }, () => {
+    badgeScale.value   = withTiming(1.08, { duration: 160 }, () => {
       badgeScale.value = withTiming(1, { duration: 100 });
     });
     badgeOpacity.value = withSequence(
-      withTiming(1,  { duration: 80  }),
-      withTiming(1,  { duration: 580 }),
-      withTiming(0,  { duration: 220 }, () => {
+      withTiming(1, { duration: 80  }),
+      withTiming(1, { duration: 580 }),
+      withTiming(0, { duration: 220 }, () => {
         runOnJS(setSwipeBadgeDirection)(null);
       })
     );
@@ -216,6 +236,7 @@ const Home = () => {
     transform: [{ scale: badgeScale.value }],
   }));
 
+  // ─── Swipe handlers ───────────────────────────────────────────────────────
   const handleSwipe = (direction) => {
     if (!currentProfile) return;
     showSwipeBadge(direction);
@@ -229,17 +250,18 @@ const Home = () => {
   };
 
   const handleViewProfile = () => {
-    if (currentProfile) {
-      setSelectedProfileId(currentProfile._id || currentProfile.id);
-      setShowProfileModal(true);
-    }
+    if (!currentProfile) return;
+    setSelectedProfileId(currentProfile._id || currentProfile.id);
+    setShowProfileModal(true);
   };
 
-  const animatedStyle = useAnimatedStyle(() => {
-    const translateY = interpolate(animation.value, [0, 1], [60, 0]);
-    const scale      = interpolate(animation.value, [0, 1], [0.9, 1]);
-    return { transform: [{ translateY }, { scale }], opacity: animation.value };
-  });
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [
+      { translateY: interpolate(animation.value, [0, 1], [60, 0]) },
+      { scale:      interpolate(animation.value, [0, 1], [0.9, 1]) },
+    ],
+    opacity: animation.value,
+  }));
 
   // Stop pull-to-refresh spinner once loading settles
   useEffect(() => {
@@ -255,7 +277,7 @@ const Home = () => {
         if (!isMounted || !Array.isArray(parsed)) return;
         setNotifications(
           parsed.filter(Boolean)
-            .map((item) => ({ ...item, read: Boolean(item?.read) }))
+            .map((n) => ({ ...n, read: Boolean(n?.read) }))
             .slice(0, MAX_NOTIFICATIONS)
         );
       })
@@ -273,83 +295,70 @@ const Home = () => {
   const markNotificationAsRead = useCallback((notificationId) => {
     if (!notificationId) return;
     setNotifications((prev) =>
-      prev.map((item) =>
-        String(item.id) === String(notificationId) ? { ...item, read: true } : item
+      prev.map((n) =>
+        String(n.id) === String(notificationId) ? { ...n, read: true } : n
       )
     );
   }, []);
 
   const markAllNotificationsAsRead = useCallback(() => {
-    setNotifications((prev) => prev.map((item) => ({ ...item, read: true })));
+    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
   }, []);
 
   // ─── Socket listeners ─────────────────────────────────────────────────────
   useEffect(() => {
     let isMounted = true;
 
-    const mapPayload = (payload = {}) => ({
-      id:
-        payload.id ||
-        `${payload.type || "notification"}-${payload.matchId || Date.now()}-${Math.random()}`,
-      type:      payload.type      || "notification",
-      title:     payload.title     || "Notification",
-      body:      payload.body      || "You have a new update.",
-      createdAt: payload.createdAt || new Date().toISOString(),
-      matchId:   payload.matchId,
-      userId:    payload.userId,
-      read:      Boolean(payload.read),
+    const mapPayload = (p = {}) => ({
+      id:        p.id || `${p.type || "notif"}-${p.matchId || Date.now()}-${Math.random()}`,
+      type:      p.type      || "notification",
+      title:     p.title     || "Notification",
+      body:      p.body      || "You have a new update.",
+      createdAt: p.createdAt || new Date().toISOString(),
+      matchId:   p.matchId,
+      userId:    p.userId,
+      read:      Boolean(p.read),
     });
 
     const pushNotification = (payload) => {
-      const normalized = mapPayload(payload);
+      const n = mapPayload(payload);
       setNotifications((prev) => {
-        const existing = prev.find((item) => String(item.id) === String(normalized.id));
+        const existing = prev.find((x) => String(x.id) === String(n.id));
         const next = {
-          ...normalized,
-          read:
-            normalized.read ||
-            Boolean(existing?.read) ||
-            showNotificationsModalRef.current,
+          ...n,
+          read: n.read || Boolean(existing?.read) || showNotifsModalRef.current,
         };
-        const deduped = prev.filter((item) => String(item.id) !== String(next.id));
-        return [next, ...deduped].slice(0, MAX_NOTIFICATIONS);
+        return [next, ...prev.filter((x) => String(x.id) !== String(next.id))].slice(0, MAX_NOTIFICATIONS);
       });
-      enqueueBanner(normalized);
+      enqueueBanner(n);
     };
 
-    const handleNotificationNew = (payload) => {
+    const handleNotificationNew = (p) => {
       if (!notifSettingsRef.current.pushNotifications) return;
-      pushNotification(payload);
+      pushNotification(p);
     };
-
-    const handleMatchNew = (payload) => {
-      if (!notifSettingsRef.current.pushNotifications) return;
-      if (!notifSettingsRef.current.newMatch) return;
+    const handleMatchNew = (p) => {
+      if (!notifSettingsRef.current.pushNotifications || !notifSettingsRef.current.newMatch) return;
       pushNotification({
-        ...payload,
+        ...p,
         type:  "match",
-        title: payload?.matchedUser?.name || payload?.profile?.name || "New Match!",
+        title: p?.matchedUser?.name || p?.profile?.name || "New Match!",
         body:  "You have a new match 🎉",
       });
     };
-
     const handleMessageNew = ({ matchId, message }) => {
       if (!message) return;
-      if (!notifSettingsRef.current.pushNotifications) return;
-      if (!notifSettingsRef.current.newMessage) return;
-
+      if (!notifSettingsRef.current.pushNotifications || !notifSettingsRef.current.newMessage) return;
       const senderName =
         message.sender?.name ||
         [message.sender?.firstName, message.sender?.lastName].filter(Boolean).join(" ") ||
         "New message";
-
       const body =
         message.type === "image" ? "Sent you a photo"
         : message.type === "voice" ? "Sent you a voice note"
         : message.content || "Sent you a message";
-
       pushNotification({
-        id: `${matchId || message._id || message.id}-${message._id || message.id || Date.now()}`,
+        id:        `${matchId || message._id}-${message._id || Date.now()}`,
         type:      "message",
         title:     senderName,
         body,
@@ -366,7 +375,6 @@ const Home = () => {
       socketService.on("match:new",        handleMatchNew);
       socketService.on("message:new",      handleMessageNew);
     };
-
     connectSocket();
 
     return () => {
@@ -392,10 +400,7 @@ const Home = () => {
   const handleBannerPress = (notification) => {
     if (!notification) return;
     markNotificationAsRead(notification.id);
-    if (
-      (notification.type === "match" || notification.type === "message") &&
-      notification.userId
-    ) {
+    if ((notification.type === "match" || notification.type === "message") && notification.userId) {
       setSelectedProfileId(notification.userId);
       setShowProfileModal(true);
     }
@@ -407,14 +412,24 @@ const Home = () => {
   };
 
   // ─── Render guards ────────────────────────────────────────────────────────
-  // Show full-screen loader only on the very first load (before we've ever
-  // received data). After that we let the UI render stale data + spinner.
-  const showFullLoader = profilesLoading && !hasEverLoaded.current;
-
-  // Show empty-deck only once we know the first load finished with no profiles.
+  //
+  // KEY FIX: Show LogoLoader any time we have NO profiles AND loading is true.
+  // This covers:
+  //   (a) Cold start — first ever fetch
+  //   (b) Re-fetch after deck empties (focus / AppState / EmptyDeckSlider CTA)
+  //
+  // When we DO have profiles, we always render them immediately (stale-while-
+  // revalidate) — the pull-to-refresh spinner handles background re-fetches.
+  //
+  // Empty-deck only shows when loading is fully done AND there are genuinely
+  // no profiles to show.
+  //
+  const showFullLoader = profilesLoading && !hasProfiles;
   const showEmptyDeck  = hasEverLoaded.current && !profilesLoading && !hasProfiles;
 
-  if (showFullLoader) return <LogoLoader color={colors.primary} />;
+  if (showFullLoader) {
+    return <LogoLoader color={colors.primary} />;
+  }
 
   return (
     <View style={styles.container}>
@@ -425,10 +440,11 @@ const Home = () => {
         onPress={handleBannerPress}
       />
 
+      {/* ── Header ── */}
       <View style={styles.headerWrapper}>
         <View className="flex-row justify-end gap-4">
           <View className="flex-row gap-2">
-            {/* <Pressable onPress={handleOpenNotifications}>
+            <Pressable onPress={handleOpenNotifications}>
               <View className="justify-center items-center rounded-full bg-background w-14 h-14">
                 <Bell size={23} color={colors.primary} />
                 {unreadNotificationsCount > 0 && (
@@ -439,7 +455,7 @@ const Home = () => {
                   </View>
                 )}
               </View>
-            </Pressable> */}
+            </Pressable>
 
             <Pressable onPress={() => setShowFilterModal(true)}>
               <View className="justify-center items-center rounded-full bg-background w-14 h-14">
@@ -477,6 +493,7 @@ const Home = () => {
         }
       >
         {hasProfiles && currentProfile ? (
+          // ── Stale-while-revalidate: always show the card we have ────────
           <Animated.View style={[animatedStyle, { flex: 1 }]}>
             <AroundYou
               profile={currentProfile}
@@ -484,16 +501,17 @@ const Home = () => {
             />
           </Animated.View>
         ) : showEmptyDeck ? (
-          // ── Animated multi-line slider shown when deck is genuinely empty ──
-        <EmptyDeckSlider
-  onRefresh={(km) => {
-    setHomeFilters(prev => ({ ...prev, maxDistance: km }));
-    refreshProfiles();
-  }}
-  loading={profilesLoading}
-  currentDistance={homeFilters?.maxDistance ?? 50}
-/>
-        ) : null /* still loading first batch — full loader handles it above */}
+          // ── Deck genuinely empty after load finished ─────────────────────
+          <EmptyDeckSlider
+            onRefresh={(km) => {
+              setHomeFilters((prev) => ({ ...prev, maxDistance: km }));
+              refreshProfiles();
+            }}
+            loading={isRefreshing || profilesLoading}
+            currentDistance={homeFilters?.maxDistance ?? 50}
+          />
+        ) : null}
+        {/* null only when showFullLoader — handled above, never reaches here */}
       </ScrollView>
 
       {hasProfiles && currentProfile && (
@@ -506,6 +524,7 @@ const Home = () => {
         </View>
       )}
 
+      {/* ── Modals ── */}
       <FilterModal
         visible={showFilterModal}
         onClose={() => setShowFilterModal(false)}
@@ -576,13 +595,7 @@ const styles = StyleSheet.create({
     zIndex:   10,
   },
 
-  // ── BOND / NOPE stamp badges ─────────────────────────────────────────────
-  swipeBadge: {
-    position: "absolute",
-    width:    200,
-    height:   100,
-    zIndex:   200,
-  },
+  swipeBadge:      { position: "absolute", width: 200, height: 100, zIndex: 200 },
   swipeBadgeRight: { top: "30%", left:  "5%" },
   swipeBadgeLeft:  { top: "30%", right: "5%" },
 

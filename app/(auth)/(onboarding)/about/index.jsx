@@ -643,7 +643,6 @@ const About = () => {
           <View className="flex-1 px-3">
           
 
-         
 
             <ScrollView
               className="flex-1"

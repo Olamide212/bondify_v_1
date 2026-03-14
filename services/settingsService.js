@@ -177,7 +177,7 @@ const SettingsService = {
    * @returns {{ referralCode: string, referralCount: number, referralLink: string }}
    */
   getReferralCode: async () => {
-    const response = await apiClient.get("/settings/referral-code");
+    const response = await apiClient.get("/settings/referral");
     return response.data;
   },
 

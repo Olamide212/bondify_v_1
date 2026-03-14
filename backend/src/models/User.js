@@ -618,6 +618,7 @@ verificationSubmittedAt: { type: Date },
     likesReceived:     { type: Number, default: 0 },
     superLikesGiven:   { type: Number, default: 0 },
     superLikesReceived:{ type: Number, default: 0 },
+    passesGiven:       { type: Number, default: 0 },
     // Incremented fire-and-forget each time another user views this profile
     profileViews:      { type: Number, default: 0 },
 

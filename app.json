@@ -54,6 +54,9 @@
           "locationPermission": "Allow $(PRODUCT_NAME) to use your location"
         }
       ],
+      ["expo-audio", {
+  "microphonePermission": "Allow Bondies to access your microphone for voice prompts."
+}],
       "expo-secure-store"
     ],
     "experiments": {

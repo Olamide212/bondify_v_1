@@ -1,21 +1,24 @@
 /**
- * VoicePrompt.js
+ * VoicePrompt.js — expo-audio rewrite (SDK 53+)
  *
- * Redesigned to match the reference UI:
- *  - Orange "VOICE PROMPT" label with mic icon
- *  - Bold italic prompt question
- *  - Waveform bars in a warm tinted box
- *  - Progress bar + timestamps
- *  - Icon-only controls: trash | big orange play/pause | re-record
- *  - "Add another one" teaser card (second prompt slot, future feature)
- *
- * Playback fix:
- *  - Audio.setAudioModeAsync called BEFORE creating the sound (not after)
- *  - durationMillis tracked from onPlaybackStatusUpdate
- *  - Recording URI passed correctly with { uri } wrapper
+ * Migration from expo-av:
+ *  - Audio.Recording  → useAudioRecorder + useAudioRecorderState
+ *  - Audio.Sound      → useAudioPlayer + useAudioPlayerStatus
+ *  - Audio.setAudioModeAsync({ playsInSilentModeIOS }) → setAudioModeAsync({ playsInSilentMode })
+ *  - AudioModule.requestRecordingPermissionsAsync() replaces Audio.requestPermissionsAsync()
+ *  - expo-audio does NOT auto-reset position after finish — seekTo(0) before replay
+ *  - No manual cleanup needed for hooks; useAudioPlayer/useAudioRecorder manage lifecycle
  */
 
-import { Audio } from 'expo-av';
+import {
+  AudioModule,
+  RecordingPresets,
+  setAudioModeAsync,
+  useAudioPlayer,
+  useAudioPlayerStatus,
+  useAudioRecorder,
+  useAudioRecorderState,
+} from 'expo-audio';
 import { File, Paths } from 'expo-file-system/next';
 import { Mic, Pause, Play, RefreshCw, Square, Trash2, Upload } from 'lucide-react-native';
 import { useEffect, useRef, useState } from 'react';
@@ -33,7 +36,7 @@ import { useTheme } from '../../context/ThemeContext';
 
 const { width: SW } = Dimensions.get('window');
 const MAX_DURATION_S = 60;
-const BAR_COUNT = 28;
+const BAR_COUNT      = 28;
 
 const PROMPT_QUESTIONS = [
   '"A song I can\'t stop listening to lately…"',
@@ -51,9 +54,9 @@ const fmt = (s) =>
 
 const Waveform = ({ isActive, progress = 0 }) => {
   const bars = useRef(
-    Array.from({ length: BAR_COUNT }, (_, i) => ({
+    Array.from({ length: BAR_COUNT }, () => ({
       anim:   new Animated.Value(0.15 + Math.random() * 0.5),
-      height: 8 + Math.random() * 36, // static bar heights for "fingerprint" look
+      height: 8 + Math.random() * 36,
     }))
   ).current;
 
@@ -63,64 +66,43 @@ const Waveform = ({ isActive, progress = 0 }) => {
       anims = bars.map((bar, i) =>
         Animated.loop(
           Animated.sequence([
-            Animated.timing(bar.anim, {
-              toValue: 0.3 + Math.random() * 0.7,
-              duration: 150 + i * 20,
-              useNativeDriver: true,
-            }),
-            Animated.timing(bar.anim, {
-              toValue: 0.15,
-              duration: 150 + i * 20,
-              useNativeDriver: true,
-            }),
+            Animated.timing(bar.anim, { toValue: 0.3 + Math.random() * 0.7, duration: 150 + i * 20, useNativeDriver: true }),
+            Animated.timing(bar.anim, { toValue: 0.15, duration: 150 + i * 20, useNativeDriver: true }),
           ])
         )
       );
       anims.forEach((a) => a.start());
     } else {
       bars.forEach((bar) =>
-        Animated.spring(bar.anim, {
-          toValue: 1,
-          useNativeDriver: true,
-          bounciness: 2,
-        }).start()
+        Animated.spring(bar.anim, { toValue: 1, useNativeDriver: true, bounciness: 2 }).start()
       );
     }
     return () => anims?.forEach((a) => a.stop());
-  }, [isActive]);
+  }, [isActive]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const filledCount = Math.round(progress * BAR_COUNT);
 
   return (
     <View style={wv.row}>
-      {bars.map((bar, i) => {
-        const filled = i < filledCount;
-        return (
-          <Animated.View
-            key={i}
-            style={[
-              wv.bar,
-              {
-                height: bar.height,
-                backgroundColor: filled ? '#E8651A' : '#F5C4A8',
-                transform: [{ scaleY: bar.anim }],
-              },
-            ]}
-          />
-        );
-      })}
+      {bars.map((bar, i) => (
+        <Animated.View
+          key={i}
+          style={[
+            wv.bar,
+            {
+              height:          bar.height,
+              backgroundColor: i < filledCount ? '#E8651A' : '#F5C4A8',
+              transform:       [{ scaleY: bar.anim }],
+            },
+          ]}
+        />
+      ))}
     </View>
   );
 };
 
 const wv = StyleSheet.create({
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 2.5,
-    height: 52,
-    justifyContent: 'center',
-  },
+  row: { flexDirection: 'row', alignItems: 'center', gap: 2.5, height: 52, justifyContent: 'center' },
   bar: { width: 3.5, borderRadius: 3 },
 });
 
@@ -129,207 +111,131 @@ const wv = StyleSheet.create({
 export default function VoicePrompt({ profile, onUpdateField }) {
   const { colors } = useTheme();
 
-  const [phase, setPhase]           = useState('idle'); // idle | recording | recorded | playing | uploading
-  const [duration, setDuration]     = useState(0);
-  const [playPos, setPlayPos]       = useState(0);
-  const [playDuration, setPlayDuration] = useState(0); // actual audio duration from AV
-  const [recordUri, setRecordUri]   = useState(null);
+  // phase: 'idle' | 'recording' | 'recorded' | 'playing' | 'paused' | 'uploading'
+  const [phase,       setPhase]       = useState('idle');
+  const [recordUri,   setRecordUri]   = useState(null);
   const [hasExisting, setHasExisting] = useState(false);
-  const [promptIndex]               = useState(() => Math.floor(Math.random() * PROMPT_QUESTIONS.length));
+  const [promptIndex] = useState(() => Math.floor(Math.random() * PROMPT_QUESTIONS.length));
 
-  const recordingRef = useRef(null);
-  const soundRef     = useRef(null);
-  const timerRef     = useRef(null);
+  // ── expo-audio: recorder ──────────────────────────────────────────────────
+  const audioRecorder   = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
+  const recorderState   = useAudioRecorderState(audioRecorder);
 
-  // seed existing voice prompt
+  // ── expo-audio: player ────────────────────────────────────────────────────
+  // useAudioPlayer accepts null — it will simply not load anything
+  const player       = useAudioPlayer(recordUri ? { uri: recordUri } : null);
+  const playerStatus = useAudioPlayerStatus(player);
+
+  // Seed from existing profile voice prompt
   useEffect(() => {
     if (profile?.voicePrompt) {
-      setHasExisting(true);
-      setRecordUri(profile.voicePrompt);
-      setPhase('recorded');
+      const uri =
+        typeof profile.voicePrompt === 'string'
+          ? profile.voicePrompt
+          : profile.voicePrompt?.url || profile.voicePrompt?.uri || null;
+      if (uri) {
+        setRecordUri(uri);
+        setHasExisting(true);
+        setPhase('recorded');
+      }
     }
   }, [profile?.voicePrompt]);
 
+  // Sync phase when player finishes
   useEffect(() => {
-    return () => {
-      clearInterval(timerRef.current);
-      recordingRef.current?.stopAndUnloadAsync().catch(() => {});
-      soundRef.current?.unloadAsync().catch(() => {});
-    };
+    if (playerStatus.didJustFinish) {
+      // expo-audio does not auto-reset — seek to 0 so replay works
+      player.seekTo(0);
+      setPhase('recorded');
+    }
+  }, [playerStatus.didJustFinish]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Request mic permission on mount
+  useEffect(() => {
+    AudioModule.requestRecordingPermissionsAsync().catch(() => {});
   }, []);
 
-  // ── Recording ──────────────────────────────────────────────
+  // ── Recording ─────────────────────────────────────────────────────────────
 
   const startRecording = async () => {
     try {
-      const { status } = await Audio.requestPermissionsAsync();
-      if (status !== 'granted') {
+      const { granted } = await AudioModule.requestRecordingPermissionsAsync();
+      if (!granted) {
         Alert.alert('Permission needed', 'Enable microphone access to record a voice prompt.');
         return;
       }
 
-      // Must set BEFORE creating recording
-      await Audio.setAudioModeAsync({
-        allowsRecordingIOS: true,
-        playsInSilentModeIOS: true,
-      });
-
-      const { recording } = await Audio.Recording.createAsync(
-        Audio.RecordingOptionsPresets.HIGH_QUALITY
-      );
-      recordingRef.current = recording;
+      await setAudioModeAsync({ playsInSilentMode: true, allowsRecording: true });
+      await audioRecorder.prepareToRecordAsync();
+      audioRecorder.record();
       setPhase('recording');
-      setDuration(0);
-      setPlayPos(0);
-      setPlayDuration(0);
-
-      timerRef.current = setInterval(() => {
-        setDuration((d) => {
-          if (d + 1 >= MAX_DURATION_S) {
-            stopRecording();
-            return MAX_DURATION_S;
-          }
-          return d + 1;
-        });
-      }, 1000);
     } catch (err) {
-      console.error('Start recording error:', err);
+      console.error('[VoicePrompt] startRecording error:', err);
       Alert.alert('Error', 'Could not start recording.');
     }
   };
 
   const stopRecording = async () => {
     try {
-      clearInterval(timerRef.current);
+      await audioRecorder.stop();
+      const tempUri = audioRecorder.uri;
 
-      const rec = recordingRef.current;
-      if (!rec) return;
+      // Switch mode back to playback
+      await setAudioModeAsync({ playsInSilentMode: true, allowsRecording: false });
 
-      await rec.stopAndUnloadAsync();
-      const tempUri = rec.getURI();
-      recordingRef.current = null;
+      if (!tempUri) { setPhase('idle'); return; }
 
-      // Switch audio mode back to playback BEFORE anything else
-      await Audio.setAudioModeAsync({
-        allowsRecordingIOS: false,
-        playsInSilentModeIOS: true,
-        staysActiveInBackground: false,
-      });
-
-      if (!tempUri) return;
-
-      // ── Key fix: copy from AVAudioRecorder's temp location to the app's
-      //    permanent cache dir. iOS error -1102 happens because the original
-      //    temp URI loses read permissions once the recording session closes.
+      // Copy to permanent cache dir — the temp URI loses permissions after the
+      // recording session closes on iOS (AVAudioRecorder error -1102)
       const fileName = `voice_prompt_${Date.now()}.m4a`;
       const destFile = new File(Paths.cache, fileName);
-
-      const srcFile = new File(tempUri);
-      await srcFile.copy(destFile);
+      await new File(tempUri).copy(destFile);
 
       setRecordUri(destFile.uri);
       setHasExisting(false);
       setPhase('recorded');
     } catch (err) {
-      console.error('Stop recording error:', err);
+      console.error('[VoicePrompt] stopRecording error:', err);
       Alert.alert('Error', 'Could not save recording. Please try again.');
+      setPhase('idle');
     }
   };
 
-  // ── Playback (FIXED) ────────────────────────────────────────
+  // ── Playback ──────────────────────────────────────────────────────────────
 
   const startPlayback = async () => {
     try {
-      if (!recordUri) return;
-
-      // For local recordings: verify the file actually exists before loading
-      // (skipped for remote S3 URLs which start with http)
-      if (!recordUri.startsWith('http')) {
-        const file = new File(recordUri);
-        if (!file.exists) {
-          Alert.alert(
-            'File not found',
-            'The recording could not be found. Please record again.'
-          );
-          setPhase('idle');
-          setRecordUri(null);
-          return;
-        }
-      }
-
-      // Always set playback audio mode BEFORE creating the sound object
-      await Audio.setAudioModeAsync({
-        allowsRecordingIOS: false,
-        playsInSilentModeIOS: true,
-        staysActiveInBackground: false,
-      });
-
-      // Unload any stale sound object
-      if (soundRef.current) {
-        await soundRef.current.unloadAsync();
-        soundRef.current = null;
-      }
-
-      const { sound, status } = await Audio.Sound.createAsync(
-        { uri: recordUri },
-        { shouldPlay: true, progressUpdateIntervalMillis: 100 }
-      );
-
-      soundRef.current = sound;
+      await setAudioModeAsync({ playsInSilentMode: true, allowsRecording: false });
+      player.seekTo(0);
+      player.play();
       setPhase('playing');
-      setPlayPos(0);
-
-      if (status?.durationMillis) {
-        setPlayDuration(Math.floor(status.durationMillis / 1000));
-      }
-
-      sound.setOnPlaybackStatusUpdate((s) => {
-        if (!s.isLoaded) return;
-
-        if (s.durationMillis && s.durationMillis > 0) {
-          setPlayDuration(Math.floor(s.durationMillis / 1000));
-        }
-
-        setPlayPos(Math.floor((s.positionMillis ?? 0) / 1000));
-
-        if (s.didJustFinish) {
-          setPhase('recorded');
-          setPlayPos(0);
-          sound.unloadAsync().catch(() => {});
-          soundRef.current = null;
-        }
-      });
     } catch (err) {
-      console.error('Playback error:', err);
-      Alert.alert('Playback error', 'Could not play the recording. Please try recording again.');
+      console.error('[VoicePrompt] startPlayback error:', err);
       setPhase('recorded');
     }
   };
 
-  const pausePlayback = async () => {
-    try {
-      await soundRef.current?.pauseAsync();
-      setPhase('recorded');
-    } catch (err) {
-      console.error('Pause error:', err);
-    }
+  const pausePlayback = () => {
+    player.pause();
+    setPhase('paused');
   };
 
-  // ── Delete ──────────────────────────────────────────────────
+  const resumePlayback = () => {
+    player.play();
+    setPhase('playing');
+  };
+
+  // ── Delete ────────────────────────────────────────────────────────────────
 
   const handleDelete = () => {
     Alert.alert('Delete voice prompt', 'Remove your voice prompt from your profile?', [
       { text: 'Cancel', style: 'cancel' },
       {
         text: 'Delete', style: 'destructive',
-        onPress: async () => {
-          await soundRef.current?.unloadAsync().catch(() => {});
-          soundRef.current = null;
+        onPress: () => {
+          player.pause();
           setRecordUri(null);
           setPhase('idle');
-          setDuration(0);
-          setPlayPos(0);
-          setPlayDuration(0);
           setHasExisting(false);
           onUpdateField?.('voicePrompt', null);
         },
@@ -337,7 +243,16 @@ export default function VoicePrompt({ profile, onUpdateField }) {
     ]);
   };
 
-  // ── Save / Upload ───────────────────────────────────────────
+  // ── Re-record ─────────────────────────────────────────────────────────────
+
+  const handleReRecord = () => {
+    player.pause();
+    setRecordUri(null);
+    setPhase('idle');
+    setHasExisting(false);
+  };
+
+  // ── Save / Upload ─────────────────────────────────────────────────────────
 
   const handleSave = async () => {
     if (!recordUri) return;
@@ -348,30 +263,50 @@ export default function VoicePrompt({ profile, onUpdateField }) {
       setPhase('recorded');
       Alert.alert('Saved! 🎉', 'Your voice prompt has been added to your profile.');
     } catch (err) {
-      console.error('Voice upload error:', err);
+      console.error('[VoicePrompt] upload error:', err);
       Alert.alert('Error', 'Failed to save voice prompt. Please try again.');
       setPhase('recorded');
     }
   };
 
-  // ── Derived state ───────────────────────────────────────────
+  // ── Derived state ─────────────────────────────────────────────────────────
 
   const isRecording  = phase === 'recording';
   const isPlaying    = phase === 'playing';
   const isUploading  = phase === 'uploading';
-  const hasRecording = !!recordUri && ['recorded', 'playing', 'uploading'].includes(phase);
+  const hasRecording = !!recordUri && ['recorded', 'playing', 'paused', 'uploading'].includes(phase);
 
-  // Progress 0–1 for the waveform fill and bar
-  const totalSeconds = isPlaying
-    ? (playDuration || duration || MAX_DURATION_S)
-    : (duration || MAX_DURATION_S);
-  const currentPos   = isPlaying ? playPos : (isRecording ? duration : 0);
-  const progress     = totalSeconds > 0 ? Math.min(currentPos / totalSeconds, 1) : 0;
+  // Duration numbers for display
+  // recorderState.durationMillis is live during recording
+  // playerStatus.duration / currentTime are live during playback
+  const recDurationS  = Math.floor((recorderState.durationMillis ?? 0) / 1000);
+  const playDurationS = Math.round(playerStatus.duration ?? 0);
+  const playPosS      = Math.round(playerStatus.currentTime ?? 0);
 
+  const totalSeconds = isRecording
+    ? MAX_DURATION_S
+    : isPlaying || phase === 'paused'
+      ? (playDurationS || MAX_DURATION_S)
+      : (recDurationS || MAX_DURATION_S);
+
+  const currentPos = isRecording
+    ? recDurationS
+    : isPlaying || phase === 'paused'
+      ? playPosS
+      : 0;
+
+  const progress  = totalSeconds > 0 ? Math.min(currentPos / totalSeconds, 1) : 0;
   const leftTime  = fmt(currentPos);
   const rightTime = fmt(totalSeconds);
 
-  // ── Render ──────────────────────────────────────────────────
+  // Auto-stop at max duration
+  useEffect(() => {
+    if (isRecording && recDurationS >= MAX_DURATION_S) {
+      stopRecording();
+    }
+  }, [recDurationS, isRecording]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ── Render ────────────────────────────────────────────────────────────────
 
   return (
     <View style={s.outer}>
@@ -393,12 +328,10 @@ export default function VoicePrompt({ profile, onUpdateField }) {
         <View style={s.waveBox}>
           <Waveform isActive={isRecording || isPlaying} progress={progress} />
 
-          {/* Progress bar */}
           <View style={s.progressTrack}>
             <View style={[s.progressFill, { width: `${progress * 100}%` }]} />
           </View>
 
-          {/* Timestamps */}
           <View style={s.timeRow}>
             <Text style={s.timeLabel}>{leftTime}</Text>
             <Text style={s.timeLabel}>{rightTime}</Text>
@@ -407,30 +340,29 @@ export default function VoicePrompt({ profile, onUpdateField }) {
 
         {/* Controls row */}
         <View style={s.controls}>
-          {/* Trash — only when there's a recording */}
+
+          {/* Trash */}
           <TouchableOpacity
-            style={[
-              s.iconBtn,
-              { backgroundColor: hasRecording ? colors.background : 'transparent', opacity: hasRecording ? 1 : 0.3 },
-            ]}
+            style={[s.iconBtn, { backgroundColor: hasRecording ? colors.background : 'transparent', opacity: hasRecording ? 1 : 0.3 }]}
             onPress={hasRecording ? handleDelete : undefined}
             disabled={!hasRecording || isUploading}
           >
             <Trash2 size={19} color={hasRecording ? '#EF4444' : colors.textSecondary} strokeWidth={2} />
           </TouchableOpacity>
 
-          {/* Main centre button */}
+          {/* Main play/stop button */}
           <TouchableOpacity
             style={[
               s.mainBtn,
-              isRecording && { backgroundColor: '#EF4444' },
-              isUploading && { backgroundColor: '#F5A878' },
+              isRecording  && { backgroundColor: '#EF4444' },
+              isUploading  && { backgroundColor: '#F5A878' },
             ]}
             onPress={() => {
-              if (isRecording)       stopRecording();
-              else if (isPlaying)    pausePlayback();
-              else if (hasRecording) startPlayback();
-              else                   startRecording();
+              if (isRecording)        stopRecording();
+              else if (isPlaying)     pausePlayback();
+              else if (phase === 'paused') resumePlayback();
+              else if (hasRecording)  startPlayback();
+              else                    startRecording();
             }}
             disabled={isUploading}
             activeOpacity={0.86}
@@ -446,22 +378,10 @@ export default function VoicePrompt({ profile, onUpdateField }) {
             )}
           </TouchableOpacity>
 
-          {/* Re-record / rotate — visible when recording exists */}
+          {/* Re-record */}
           <TouchableOpacity
-            style={[
-              s.iconBtn,
-              { backgroundColor: hasRecording ? colors.background : 'transparent', opacity: hasRecording ? 1 : 0.3 },
-            ]}
-            onPress={hasRecording ? () => {
-              soundRef.current?.unloadAsync().catch(() => {});
-              soundRef.current = null;
-              setRecordUri(null);
-              setPhase('idle');
-              setDuration(0);
-              setPlayPos(0);
-              setPlayDuration(0);
-              setHasExisting(false);
-            } : undefined}
+            style={[s.iconBtn, { backgroundColor: hasRecording ? colors.background : 'transparent', opacity: hasRecording ? 1 : 0.3 }]}
+            onPress={hasRecording ? handleReRecord : undefined}
             disabled={!hasRecording || isUploading}
           >
             <RefreshCw size={19} color={colors.textSecondary} strokeWidth={2} />
@@ -478,7 +398,7 @@ export default function VoicePrompt({ profile, onUpdateField }) {
           </Text>
         )}
 
-        {/* Save button — unsaved local recording only */}
+        {/* Save button */}
         {hasRecording && !hasExisting && !isUploading && (
           <TouchableOpacity style={s.saveBtn} onPress={handleSave} activeOpacity={0.86}>
             <Upload size={15} color="#fff" strokeWidth={2} />
@@ -489,12 +409,14 @@ export default function VoicePrompt({ profile, onUpdateField }) {
         {isUploading && (
           <View style={s.uploadingRow}>
             <ActivityIndicator size="small" color="#E8651A" />
-            <Text style={[s.statusText, { color: colors.textSecondary, marginTop: 0 }]}>Saving to your profile…</Text>
+            <Text style={[s.statusText, { color: colors.textSecondary, marginTop: 0 }]}>
+              Saving to your profile…
+            </Text>
           </View>
         )}
       </View>
 
-      {/* ── "Add another one" teaser (disabled — future feature) ── */}
+      {/* ── "Add another one" teaser ── */}
       <View style={[s.teaserCard, { backgroundColor: colors.surface }]}>
         <View style={{ flex: 1 }}>
           <Text style={[s.teaserLabel, { color: colors.textSecondary }]}>Add another one</Text>
@@ -515,6 +437,8 @@ export default function VoicePrompt({ profile, onUpdateField }) {
   );
 }
 
+// ─── Styles ───────────────────────────────────────────────────────────────────
+
 const s = StyleSheet.create({
   outer: { paddingHorizontal: 16, gap: 12 },
 
@@ -529,14 +453,11 @@ const s = StyleSheet.create({
     elevation: 3,
   },
 
-  // Label
   labelRow:  { flexDirection: 'row', alignItems: 'center', gap: 6 },
   labelText: { fontSize: 11, fontFamily: 'PlusJakartaSansBold', color: '#E8651A', letterSpacing: 1.2 },
 
-  // Prompt text
   promptText: { fontSize: 22, fontFamily: 'PlusJakartaSansBold', lineHeight: 30 },
 
-  // Waveform box
   waveBox: {
     backgroundColor: '#FFF4EE',
     borderRadius: 14,
@@ -546,25 +467,12 @@ const s = StyleSheet.create({
     gap: 10,
   },
 
-  // Progress
-  progressTrack: {
-    height: 3,
-    backgroundColor: '#FDDCC8',
-    borderRadius: 2,
-    overflow: 'hidden',
-  },
-  progressFill: {
-    height: 3,
-    backgroundColor: '#E8651A',
-    borderRadius: 2,
-  },
-  timeRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
+  progressTrack: { height: 3, backgroundColor: '#FDDCC8', borderRadius: 2, overflow: 'hidden' },
+  progressFill:  { height: 3, backgroundColor: '#E8651A', borderRadius: 2 },
+
+  timeRow:   { flexDirection: 'row', justifyContent: 'space-between' },
   timeLabel: { fontSize: 11, fontFamily: 'PlusJakartaSansMedium', color: '#9CA3AF' },
 
-  // Controls
   controls: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -587,12 +495,7 @@ const s = StyleSheet.create({
     elevation: 8,
   },
 
-  statusText: {
-    fontSize: 12,
-    fontFamily: 'PlusJakartaSans',
-    textAlign: 'center',
-    marginTop: -4,
-  },
+  statusText: { fontSize: 12, fontFamily: 'PlusJakartaSans', textAlign: 'center', marginTop: -4 },
 
   saveBtn: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
@@ -605,7 +508,6 @@ const s = StyleSheet.create({
 
   uploadingRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
 
-  // Teaser card
   teaserCard: {
     borderRadius: 18,
     padding: 18,
