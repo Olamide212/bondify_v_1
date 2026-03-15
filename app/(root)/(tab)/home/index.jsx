@@ -441,7 +441,7 @@ const Home = () => {
   // immediately — even if a background refresh is in flight. The pull-to-refresh
   // spinner on EmptyDeckSlider handles the "looking…" feedback.
   const showFullLoader = profilesLoading && !hasProfiles && !hasEverLoaded.current;
-  const showEmptyDeck  = hasEverLoaded.current && !hasProfiles;
+  const showEmptyDeck  = !profilesLoading && hasEverLoaded.current && !hasProfiles;
 
   if (showFullLoader) {
     return <LogoLoader color={colors.primary} />;
@@ -526,8 +526,12 @@ const Home = () => {
             loading={isRefreshing || profilesLoading}
             currentDistance={homeFilters?.maxDistance ?? 50}
           />
+        ) : profilesLoading ? (
+          // ── Loading state (not first load) — show inline loader ──────────
+          <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+            <LogoLoader color={colors.primary} />
+          </View>
         ) : null}
-        {/* null only when showFullLoader — handled above, never reaches here */}
       </ScrollView>
 
       {hasProfiles && currentProfile && (

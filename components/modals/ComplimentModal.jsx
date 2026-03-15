@@ -1,13 +1,13 @@
 /**
  * ComplimentModal.jsx
  *
- * A modal that lets the current user send a compliment to the profile
- * they're viewing. The compliment is delivered to the target user's
- * inbox (POST /api/comments) which may create a possible match.
+ * A centered, animated modal that lets the current user send a compliment
+ * to the profile they're viewing. The compliment is delivered to the target
+ * user's inbox (POST /api/comments) which may create a possible match.
  */
 
 import { Sparkles, X } from "lucide-react-native";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Animated,
@@ -26,6 +26,19 @@ import { colors } from "../../constant/colors";
 import AIService from "../../services/aiService";
 import { commentService } from "../../services/commentService";
 
+/** Resolve _id or id from a user/profile object */
+const resolveId = (obj) => obj?._id ?? obj?.id ?? null;
+
+/** Get the first image URL from a profile's images array */
+const getProfileImage = (user) => {
+  if (user?.profilePhoto) return user.profilePhoto;
+  const imgs = user?.images;
+  if (!Array.isArray(imgs) || imgs.length === 0) return null;
+  const first = imgs[0];
+  if (typeof first === "string") return first;
+  return first?.url ?? first?.uri ?? null;
+};
+
 const ComplimentModal = ({ visible, onClose, targetUser, currentUser, onSent }) => {
   const [text, setText] = useState("");
   const [loading, setLoading] = useState(false);
@@ -35,45 +48,87 @@ const ComplimentModal = ({ visible, onClose, targetUser, currentUser, onSent }) 
   const [error, setError] = useState(null);
   const [aiSuggestions, setAiSuggestions] = useState([]);
 
+  // Animations
+  const scaleAnim = useRef(new Animated.Value(0)).current;
+  const opacityAnim = useRef(new Animated.Value(0)).current;
   const sentScale = useRef(new Animated.Value(0)).current;
 
-  const handleClose = () => {
-    setText("");
-    setSent(false);
-    setMatched(false);
-    setError(null);
-    setAiSuggestions([]);
-    onClose();
+  // Animate in when visible changes
+  useEffect(() => {
+    if (visible) {
+      scaleAnim.setValue(0.85);
+      opacityAnim.setValue(0);
+      Animated.parallel([
+        Animated.spring(scaleAnim, {
+          toValue: 1,
+          useNativeDriver: true,
+          friction: 7,
+          tension: 80,
+        }),
+        Animated.timing(opacityAnim, {
+          toValue: 1,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }
+  }, [visible, scaleAnim, opacityAnim]);
+
+  const animateOut = (cb) => {
+    Animated.parallel([
+      Animated.timing(scaleAnim, {
+        toValue: 0.85,
+        duration: 150,
+        useNativeDriver: true,
+      }),
+      Animated.timing(opacityAnim, {
+        toValue: 0,
+        duration: 150,
+        useNativeDriver: true,
+      }),
+    ]).start(() => cb?.());
   };
 
+  const handleClose = () => {
+    animateOut(() => {
+      setText("");
+      setSent(false);
+      setMatched(false);
+      setError(null);
+      setAiSuggestions([]);
+      onClose();
+    });
+  };
+
+  const targetId = resolveId(targetUser);
+  const currentId = resolveId(currentUser);
+
   const handleAISuggest = async () => {
-    if (!targetUser?._id) {
+    if (!targetId) {
       setError("Target user information not available");
       return;
     }
 
-    if (!currentUser?._id) {
+    if (!currentId) {
       setError("User information not available");
       return;
     }
-    
+
     setAiLoading(true);
     setError(null);
-    
+
     try {
-      const data = await AIService.getPhotoCommentSuggestion(targetUser._id, 0);
-      console.log("AI suggestion response:", data); // Debug log
-      
-      // Better handling of different response formats
+      const data = await AIService.getPhotoCommentSuggestion(targetId, 0);
+
       let suggestion = null;
       if (data?.suggestion) {
         suggestion = data.suggestion;
-      } else if (typeof data === 'string') {
+      } else if (typeof data === "string") {
         suggestion = data;
       } else if (data?.data?.suggestion) {
         suggestion = data.data.suggestion;
       }
-      
+
       if (suggestion && typeof suggestion === "string" && suggestion.trim()) {
         setAiSuggestions([suggestion.trim()]);
       } else {
@@ -88,118 +143,108 @@ const ComplimentModal = ({ visible, onClose, targetUser, currentUser, onSent }) 
   };
 
   const handleSend = async () => {
-    // Validate inputs
     if (!text.trim()) {
       setError("Please enter a message");
       return;
     }
-    
-    if (!targetUser?._id) {
+
+    if (!targetId) {
       setError("Target user information missing");
       return;
     }
 
-    if (!currentUser?._id) {
+    if (!currentId) {
       setError("Your user information missing. Please log in again.");
       return;
     }
 
     setLoading(true);
     setError(null);
-    
+
     try {
-      console.log("Sending comment with:", {
-        currentUserId: currentUser._id,
-        targetUserId: targetUser._id,
-        content: text.trim(),
-        imageIndex: 0
-      });
-
       const res = await commentService.sendPhotoComment({
-        targetUserId: targetUser._id,
+        targetUserId: targetId,
         imageIndex: 0,
-        imageUrl: targetUser?.profilePhoto || null,
+        imageUrl: getProfileImage(targetUser),
         content: text.trim(),
       });
 
-      console.log("Send response:", res); // Debug log
-
-      // Check for match in different possible response structures
-      const isMatch = res?.autoMatch?.matched === true || 
-                      res?.data?.autoMatch?.matched === true ||
-                      res?.matched === true;
+      const isMatch =
+        res?.autoMatch?.matched === true ||
+        res?.data?.autoMatch?.matched === true ||
+        res?.matched === true;
 
       setMatched(isMatch);
       setSent(true);
-      
-      // Animate checkmark
+
       Animated.spring(sentScale, {
         toValue: 1,
         useNativeDriver: true,
         bounciness: 10,
-        friction: 5
+        friction: 5,
       }).start();
 
-      // Call onSent callback if provided
-      if (onSent) {
-        onSent(res);
-      }
+      if (onSent) onSent(res);
 
-      // Auto close after delay
       setTimeout(() => {
         handleClose();
       }, isMatch ? 2600 : 1800);
-
     } catch (e) {
       console.error("Send error:", e);
-      
-      // Better error message extraction
-      const errorMessage = 
-        e?.response?.data?.message || 
-        e?.message || 
+      const errorMessage =
+        e?.response?.data?.message ||
+        e?.message ||
         "Failed to send. Please try again.";
-      
       setError(errorMessage);
     } finally {
       setLoading(false);
     }
   };
 
-  // Handle AI suggestion click
   const handleSuggestionPress = (suggestion) => {
     setText(suggestion);
-    // Optional: Auto-send after selecting suggestion? 
-    // Uncomment next line if you want auto-send
-    // setTimeout(() => handleSend(), 100);
   };
 
-  const firstName = targetUser?.firstName ?? "them";
+  const firstName =
+    targetUser?.firstName ??
+    (typeof targetUser?.name === "string"
+      ? targetUser.name.split(" ")[0]
+      : "them");
+
+  const avatarUri = getProfileImage(targetUser);
 
   return (
     <Modal
       visible={visible}
       transparent
-      animationType="slide"
+      animationType="none"
       onRequestClose={handleClose}
     >
-      <Pressable style={styles.backdrop} onPress={handleClose} />
-
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={styles.sheetWrapper}
+        style={styles.centeredWrapper}
       >
-        <View style={styles.sheet}>
-          {/* Handle */}
-          <View style={styles.handle} />
+        <Pressable style={styles.backdrop} onPress={handleClose} />
 
+        <Animated.View
+          style={[
+            styles.card,
+            {
+              opacity: opacityAnim,
+              transform: [{ scale: scaleAnim }],
+            },
+          ]}
+        >
           {/* Header */}
           <View style={styles.header}>
             <View style={styles.headerLeft}>
-              {targetUser?.profilePhoto ? (
-                <Image source={{ uri: targetUser.profilePhoto }} style={styles.avatar} />
+              {avatarUri ? (
+                <Image source={{ uri: avatarUri }} style={styles.avatar} />
               ) : (
                 <View style={[styles.avatar, styles.avatarFallback]}>
-                  <Text style={styles.avatarInitial}>{firstName[0]?.toUpperCase()}</Text>
+                  <Text style={styles.avatarInitial}>
+                    {firstName[0]?.toUpperCase()}
+                  </Text>
                 </View>
               )}
               <View>
@@ -213,13 +258,17 @@ const ComplimentModal = ({ visible, onClose, targetUser, currentUser, onSent }) 
           </View>
 
           {sent ? (
-            // ── Success state ─────────────────────────────────────────────
             <View style={styles.successBox}>
-              <Animated.Text style={[styles.successEmoji, { transform: [{ scale: sentScale }] }]}>
-                {matched ? '🎉' : '💌'}
+              <Animated.Text
+                style={[
+                  styles.successEmoji,
+                  { transform: [{ scale: sentScale }] },
+                ]}
+              >
+                {matched ? "🎉" : "💌"}
               </Animated.Text>
               <Text style={styles.successTitle}>
-                {matched ? "It's a match!" : 'Compliment sent!'}
+                {matched ? "It's a match!" : "Compliment sent!"}
               </Text>
               <Text style={styles.successSub}>
                 {matched
@@ -229,7 +278,6 @@ const ComplimentModal = ({ visible, onClose, targetUser, currentUser, onSent }) 
             </View>
           ) : (
             <>
-              {/* Text input */}
               <TextInput
                 style={styles.input}
                 placeholder={`Say something kind to ${firstName}…`}
@@ -243,10 +291,8 @@ const ComplimentModal = ({ visible, onClose, targetUser, currentUser, onSent }) 
                 editable={!loading}
               />
 
-              {/* Char count */}
               <Text style={styles.charCount}>{text.length}/300</Text>
 
-              {/* AI suggestion chips */}
               {aiSuggestions.length > 0 && (
                 <View style={styles.suggestionsRow}>
                   {aiSuggestions.map((s, i) => (
@@ -263,16 +309,13 @@ const ComplimentModal = ({ visible, onClose, targetUser, currentUser, onSent }) 
                 </View>
               )}
 
-              {/* Error */}
               {!!error && (
                 <View style={styles.errorContainer}>
                   <Text style={styles.errorText}>{error}</Text>
                 </View>
               )}
 
-              {/* Action row */}
               <View style={styles.actions}>
-                {/* AI button */}
                 <TouchableOpacity
                   style={styles.aiBtn}
                   onPress={handleAISuggest}
@@ -289,16 +332,12 @@ const ComplimentModal = ({ visible, onClose, targetUser, currentUser, onSent }) 
                   )}
                 </TouchableOpacity>
 
-                {/* Send button */}
                 <TouchableOpacity
                   style={[
                     styles.sendBtn,
-                    (!text.trim() || loading) && styles.sendBtnDisabled
+                    (!text.trim() || loading) && styles.sendBtnDisabled,
                   ]}
-                  onPress={() => {
-                    console.log("Send button pressed with text:", text);
-                    handleSend();
-                  }}
+                  onPress={handleSend}
                   disabled={!text.trim() || loading}
                   activeOpacity={0.85}
                 >
@@ -311,44 +350,35 @@ const ComplimentModal = ({ visible, onClose, targetUser, currentUser, onSent }) 
               </View>
             </>
           )}
-        </View>
+        </Animated.View>
       </KeyboardAvoidingView>
     </Modal>
   );
 };
 
 const styles = StyleSheet.create({
+  centeredWrapper: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
   backdrop: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(0,0,0,0.45)",
+    backgroundColor: "rgba(0,0,0,0.5)",
   },
-  sheetWrapper: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    justifyContent: "flex-end",
-  },
-  sheet: {
+  card: {
+    width: "88%",
+    maxWidth: 400,
     backgroundColor: "#fff",
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
+    borderRadius: 24,
     paddingHorizontal: 20,
-    paddingBottom: Platform.OS === "ios" ? 40 : 24,
-    paddingTop: 12,
+    paddingBottom: 24,
+    paddingTop: 20,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: -3 },
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 12,
-  },
-  handle: {
-    alignSelf: "center",
-    width: 40,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: "#E0E0E0",
-    marginBottom: 16,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.15,
+    shadowRadius: 24,
+    elevation: 16,
   },
   header: {
     flexDirection: "row",
@@ -356,10 +386,10 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: 16,
   },
-  headerLeft: { 
-    flexDirection: "row", 
-    alignItems: "center", 
-    gap: 10 
+  headerLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
   },
   avatar: {
     width: 44,
@@ -371,21 +401,21 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  avatarInitial: { 
-    color: "#fff", 
-    fontSize: 18, 
-    fontFamily: "PlusJakartaSansBold" 
+  avatarInitial: {
+    color: "#fff",
+    fontSize: 18,
+    fontFamily: "PlusJakartaSansBold",
   },
-  headerTitle: { 
-    fontSize: 16, 
-    fontFamily: "PlusJakartaSansBold", 
-    color: "#111" 
+  headerTitle: {
+    fontSize: 16,
+    fontFamily: "PlusJakartaSansBold",
+    color: "#111",
   },
-  headerSub: { 
-    fontSize: 13, 
-    fontFamily: "PlusJakartaSans", 
-    color: "#888", 
-    marginTop: 1 
+  headerSub: {
+    fontSize: 13,
+    fontFamily: "PlusJakartaSans",
+    color: "#888",
+    marginTop: 1,
   },
   input: {
     minHeight: 100,
@@ -400,15 +430,15 @@ const styles = StyleSheet.create({
     backgroundColor: "#FAFAFA",
     textAlignVertical: "top",
   },
-  charCount: { 
-    textAlign: "right", 
-    fontSize: 11, 
-    color: "#CCC", 
-    marginTop: 4, 
-    marginBottom: 8 
+  charCount: {
+    textAlign: "right",
+    fontSize: 11,
+    color: "#CCC",
+    marginTop: 4,
+    marginBottom: 8,
   },
-  suggestionsRow: { 
-    marginBottom: 8 
+  suggestionsRow: {
+    marginBottom: 8,
   },
   suggestionChip: {
     backgroundColor: "#FFF0EA",
@@ -418,10 +448,10 @@ const styles = StyleSheet.create({
     padding: 10,
     marginBottom: 6,
   },
-  suggestionText: { 
-    fontSize: 14, 
-    fontFamily: "PlusJakartaSans", 
-    color: "#333" 
+  suggestionText: {
+    fontSize: 14,
+    fontFamily: "PlusJakartaSans",
+    color: "#333",
   },
   errorContainer: {
     backgroundColor: "#FFEBEE",
@@ -429,8 +459,8 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginBottom: 8,
   },
-  errorText: { 
-    color: "#D32F2F", 
+  errorText: {
+    color: "#D32F2F",
     fontSize: 13,
     textAlign: "center",
   },
@@ -452,10 +482,10 @@ const styles = StyleSheet.create({
     borderColor: colors.primary,
     backgroundColor: "#FFF8F5",
   },
-  aiBtnText: { 
-    fontSize: 14, 
-    fontFamily: "PlusJakartaSansBold", 
-    color: colors.primary 
+  aiBtnText: {
+    fontSize: 14,
+    fontFamily: "PlusJakartaSansBold",
+    color: colors.primary,
   },
   sendBtn: {
     flex: 1,
@@ -464,31 +494,30 @@ const styles = StyleSheet.create({
     paddingVertical: 13,
     alignItems: "center",
   },
-  sendBtnDisabled: { 
-    opacity: 0.45 
+  sendBtnDisabled: {
+    opacity: 0.45,
   },
-  sendBtnText: { 
-    color: "#fff", 
-    fontSize: 15, 
-    fontFamily: "PlusJakartaSansBold" 
+  sendBtnText: {
+    color: "#fff",
+    fontSize: 15,
+    fontFamily: "PlusJakartaSansBold",
   },
-  // Success
   successBox: {
     alignItems: "center",
     paddingVertical: 30,
     gap: 8,
   },
-  successEmoji: { 
-    fontSize: 52 
+  successEmoji: {
+    fontSize: 52,
   },
-  successTitle: { 
-    fontSize: 20, 
-    fontFamily: "PlusJakartaSansBold", 
-    color: "#111" 
+  successTitle: {
+    fontSize: 20,
+    fontFamily: "PlusJakartaSansBold",
+    color: "#111",
   },
-  successSub: { 
-    fontSize: 14, 
-    fontFamily: "PlusJakartaSans", 
+  successSub: {
+    fontSize: 14,
+    fontFamily: "PlusJakartaSans",
     color: "#888",
     textAlign: "center",
     paddingHorizontal: 20,
