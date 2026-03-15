@@ -58,13 +58,13 @@ const Onboarding = () => {
 
             {/* Tagline */}
             <Text style={styles.tagline}>
-              Discover Love where{"\n"}your story begins.
+             Find meaningful connections 
             </Text>
 
             {/* African identity line */}
             <View style={styles.identityRow}>
               <View style={styles.identityLine} />
-              <Text style={styles.identityText}>Made for Africans </Text>
+              <Text style={styles.identityText}>Powered by AI </Text>
               <View style={styles.identityLine} />
             </View>
 
@@ -91,6 +91,12 @@ const Onboarding = () => {
               By joining, you agree to our{" "}
            
                 <Text style={styles.termsLink}>Terms & Conditions</Text>
+     
+            </Text>
+            <Text style={styles.terms}>
+       Built for Africans by Africans
+           
+       
      
             </Text>
           </View>
@@ -129,7 +135,7 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   tagline: {
-    fontSize:    28,
+    fontSize:    35,
     fontFamily:  "PlusJakartaSansBold",
     color:       "#fff",
     textAlign:   "center",
@@ -157,7 +163,6 @@ const styles = StyleSheet.create({
     fontSize:   15,
     fontFamily: "PlusJakartaSansSemiBold",
     color:      "rgba(255,255,255,0.9)",
-    letterSpacing: 0.5,
   },
 
   // Buttons

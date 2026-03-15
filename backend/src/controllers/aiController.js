@@ -411,8 +411,99 @@ Reply with ONLY the message text, nothing else.`;
 };
 
 // ─────────────────────────────────────────────
-//  AI POST SUGGESTION
+//  AI BIO GENERATOR FROM CUSTOM PROMPT
 // ─────────────────────────────────────────────
+const generateBioFromPrompt = async (req, res, next) => {
+  try {
+    if (!process.env.OPENAI_API_KEY) {
+      return res.status(503).json({ success: false, message: 'AI service not configured' });
+    }
+
+    const { prompt } = req.body;
+
+    if (!prompt || typeof prompt !== 'string' || prompt.trim().length === 0) {
+      return res.status(400).json({ success: false, message: 'A valid prompt is required' });
+    }
+
+    const user = await User.findById(req.user._id).select(
+      'firstName interests occupation loveLanguage lookingFor personalities'
+    );
+
+    const enhancedPrompt = `Write a short, authentic dating profile bio (max 150 words) for someone who describes themselves as: "${prompt.trim()}"
+
+Additional context about the person:
+Name: ${user.firstName}
+Occupation: ${user.occupation || 'Not specified'}
+Interests: ${(user.interests || []).join(', ') || 'Not specified'}
+Personalities: ${(user.personalities || []).join(', ') || 'Not specified'}
+Looking for: ${user.lookingFor || 'Not specified'}
+Love language: ${user.loveLanguage || 'Not specified'}
+
+Write ONLY the bio text, no labels or extra commentary. Make it warm, engaging, and true to their self-description.`;
+
+    const ai = getOpenAI();
+    const response = await ai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [{ role: 'user', content: enhancedPrompt }],
+      max_tokens: 200,
+      temperature: 0.9,
+    });
+
+    const bio = response.choices[0].message.content.trim();
+    res.json({ success: true, data: { bio } });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// ─────────────────────────────────────────────
+//  AI PROMPT SUGGESTIONS GENERATOR
+// ─────────────────────────────────────────────
+const generatePrompts = async (req, res, next) => {
+  try {
+    if (!process.env.OPENAI_API_KEY) {
+      return res.status(503).json({ success: false, message: 'AI service not configured' });
+    }
+
+    const user = await User.findById(req.user._id).select(
+      'firstName interests personalities occupation'
+    );
+
+    const prompt = `Generate 6 creative and diverse 3-word self-descriptions for a dating profile bio. Each should be positive, authentic, and help someone express their personality.
+
+User context:
+- Name: ${user.firstName}
+- Interests: ${(user.interests || []).join(', ') || 'Not specified'}
+- Personalities: ${(user.personalities || []).join(', ') || 'Not specified'}
+- Occupation: ${user.occupation || 'Not specified'}
+
+Mix different personality types: adventurous, creative, caring, ambitious, funny, thoughtful, etc. Each prompt should be exactly 3 words, separated by commas.
+
+Return ONLY a JSON array of 6 strings, like: ["Adventurous, Funny, Kind", "Creative, Ambitious, Caring", ...]`;
+
+    const ai = getOpenAI();
+    const response = await ai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [{ role: 'user', content: prompt }],
+      max_tokens: 150,
+      temperature: 0.8,
+    });
+
+    let prompts = [];
+    try {
+      const raw = response.choices[0].message.content.trim();
+      const clean = raw.replace(/```json|```/g, '').trim();
+      prompts = JSON.parse(clean);
+    } catch {
+      // Fallback: split by newlines and clean up
+      prompts = raw.split('\n').map(p => p.trim()).filter(p => p.length > 0).slice(0, 6);
+    }
+
+    res.json({ success: true, data: { prompts } });
+  } catch (error) {
+    next(error);
+  }
+};
 const suggestPost = async (req, res, next) => {
   try {
     if (!process.env.OPENAI_API_KEY) {
@@ -473,6 +564,8 @@ module.exports = {
   getIcebreakerSuggestions,
   getCompatibilityScore,
   generateBio,
+  generateBioFromPrompt,
+  generatePrompts,
   getDateIdeas,
   chat,
   suggestMessage,

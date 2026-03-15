@@ -4,6 +4,8 @@ const {
   getIcebreakerSuggestions,
   getCompatibilityScore,
   generateBio,
+  generateBioFromPrompt,
+  generatePrompts,
   getDateIdeas,
   chat,
   suggestMessage,
@@ -17,6 +19,8 @@ router.use(protect);
 router.get('/icebreakers/:matchId', getIcebreakerSuggestions);
 router.get('/compatibility/:userId', getCompatibilityScore);
 router.post('/generate-bio', generateBio);
+router.post('/generate-bio-from-prompt', generateBioFromPrompt);
+router.get('/generate-prompts', generatePrompts);
 router.get('/date-ideas/:matchId', getDateIdeas);
 router.post('/chat', chat);
 router.post('/suggest-message',       protect, suggestMessage);

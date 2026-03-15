@@ -90,23 +90,23 @@ const AIService = {
   },
 
   /**
-   * Generate a suggested comment for a specific photo on another user's profile.
-   * The backend uses the target user's profile context to write something
-   * warm and photo-specific.
+   * Generate a profile bio based on a custom prompt.
    *
-   * @param {string} targetUserId  – _id of the user whose photo is being commented on
-   * @param {number} imageIndex    – which photo (0-based index)
-   * @returns {{ suggestion: string }}
-   *
-   * @example
-   *   const { data } = await AIService.getPhotoCommentSuggestion('64user...', 1);
-   *   // data.suggestion = "That backdrop looks incredible — where was this? 🌄"
+   * @param {{ prompt: string }} data
+   * @returns {{ bio: string }}
    */
-  getPhotoCommentSuggestion: async (targetUserId, imageIndex = 0) => {
-    const response = await apiClient.post('/ai/suggest-photo-comment', {
-      targetUserId,
-      imageIndex,
-    });
+  generateBioFromPrompt: async (data) => {
+    const response = await apiClient.post("/ai/generate-bio-from-prompt", data);
+    return response.data?.data ?? response.data;
+  },
+
+  /**
+   * Generate prompt suggestions for bio creation.
+   *
+   * @returns {{ prompts: string[] }}
+   */
+  generatePrompts: async () => {
+    const response = await apiClient.get("/ai/generate-prompts");
     return response.data?.data ?? response.data;
   },
 };

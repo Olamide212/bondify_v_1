@@ -169,7 +169,11 @@ const Register = () => {
                       Login
                     </Text>
                   </Pressable>
+                 
                 </View>
+                 <Pressable className='mt-5 text-center px-3 py-4 bg-black text-white rounded'  onPress={() => router.push("/about")}>
+                    <Text className='text-white text-center'>Go to About</Text>
+                  </Pressable>
               </View>
             </ScrollView>
 
