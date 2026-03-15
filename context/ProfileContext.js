@@ -187,6 +187,10 @@ export const ProfileProvider = ({ children }) => {
   const isFirstRender = useRef(true);
 
   const refreshProfiles = useCallback(() => {
+    setHomeSwipedProfiles([]);
+    setDiscoverSwipedProfiles([]);
+    setHomeCurrentIndex(0);
+    setDiscoverCurrentIndex(0);
     setProfilesRefreshNonce((prev) => prev + 1);
   }, []);
 

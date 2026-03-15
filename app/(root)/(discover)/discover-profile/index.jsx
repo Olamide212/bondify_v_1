@@ -24,25 +24,27 @@ const DiscoverProfilesScreen = () => {
   const [filteredProfiles, setFilteredProfiles] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const { discoverProfiles } = useProfile();
+  const { discoverProfiles, profilesLoading } = useProfile();
 
   // Filter profiles based on the preference
   useEffect(() => {
-    if (preference && discoverProfiles) {
+    if (profilesLoading) {
       setIsLoading(true);
-
-      // Simulate loading delay
-      setTimeout(() => {
-        const filtered = discoverProfiles.filter(
-          (profile) =>
-            String(profile.lookingFor || "").toLowerCase() ===
-            String(preference || "").toLowerCase()
-        );
-        setFilteredProfiles(filtered);
-        setIsLoading(false);
-      }, 2000);
+      return;
     }
-  }, [preference, discoverProfiles]);
+
+    if (preference) {
+      const filtered = discoverProfiles.filter(
+        (profile) =>
+          String(profile.lookingFor || "").toLowerCase() ===
+          String(preference || "").toLowerCase()
+      );
+      setFilteredProfiles(filtered);
+    } else {
+      setFilteredProfiles([]);
+    }
+    setIsLoading(false);
+  }, [preference, discoverProfiles, profilesLoading]);
 
   const navigateToProfile = (profileId) => {
     router.push({
