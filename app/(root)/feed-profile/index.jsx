@@ -124,8 +124,11 @@ export default function FeedProfileScreen() {
 
       // Keep the uploaded URL
       setLocalAvatarUri(uploadedUrl);
+      // Allow future data loads to update the avatar again
+      justPickedPhotoRef.current = false;
     } catch (e) {
       // Revert to original if upload fails
+      justPickedPhotoRef.current = false;
       setLocalAvatarUri(avatarUrl(currentUser));
       Alert.alert("Error", e?.response?.data?.message ?? "Could not update photo.");
     } finally {

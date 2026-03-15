@@ -23,7 +23,7 @@ export const ProfileProvider = ({ children }) => {
   const userGenderPref = (() => {
     const prefs = authUser?.discoveryPreferences?.genderPreference;
     if (Array.isArray(prefs) && prefs.length > 0) {
-      const lower = prefs.map((p) => String(p).toLowerCase());
+      const lower = prefs.filter(Boolean).map((p) => String(p).toLowerCase());
       if (lower.includes("male") && !lower.includes("female")) return "men";
       if (lower.includes("female") && !lower.includes("male")) return "women";
     }
@@ -271,10 +271,7 @@ export const ProfileProvider = ({ children }) => {
         }
       } catch (error) {
         // Don't clear existing profiles on error — stale-while-revalidate.
-        // Only set empty if we never had data.
-        if (isMounted) {
-          setProfilesData((prev) => (prev.length > 0 ? prev : []));
-        }
+        // Keep whatever data we had before.
       } finally {
         if (isMounted) {
           setProfilesLoading(false);

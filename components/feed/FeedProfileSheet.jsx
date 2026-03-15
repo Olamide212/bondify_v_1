@@ -103,6 +103,7 @@ const FeedProfileSheet = ({ visible, user, onClose, onUpdate }) => {
 
       setLocalAvatarUri(uploadedUrl);
       onUpdate?.({ profilePhoto: uploadedUrl });
+      justPickedPhotoRef.current = false;
     } catch (e) {
       justPickedPhotoRef.current = false;
       setLocalAvatarUri(avatarUrl(user));
