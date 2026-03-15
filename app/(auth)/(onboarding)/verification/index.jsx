@@ -32,10 +32,11 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { colors } from "../../../../constant/colors";
 import apiClient from "../../../../utils/axiosInstance";
 import { tokenManager } from "../../../../utils/tokenManager";
+import { profileService } from "../../../../services/profileService"; // Add this import
 
 const PRIMARY = colors.primary;
 
-// ─── Steps ────────────────────────────────────────────────────────────────────
+// ─── Steps ─────────────────────────────────────────────────────────────────��──
 const STEP = { INTRO: "intro", CAMERA: "camera", PREVIEW: "preview", DONE: "done" };
 
 // ─── Intro Step ───────────────────────────────────────────────────────────────
@@ -307,6 +308,21 @@ export default function VerificationScreen() {
     router.push("/(onboarding)/location-access");
   };
 
+  // Add this new handler for the DONE step
+  const handleDoneContinue = async () => {
+    try {
+      // Mark onboarding as complete after verification
+      await profileService.completeOnboarding();
+      
+      // Then navigate to location access
+      router.push("/(onboarding)/location-access");
+    } catch (error) {
+      console.error("Failed to complete onboarding:", error);
+      // Still navigate even if the call fails, to avoid blocking the user
+      router.push("/(onboarding)/location-access");
+    }
+  };
+
   return (
     <SafeAreaView style={sc.safe} edges={["top"]}>
       {/* ── Header (hidden on camera/done steps) ── */}
@@ -348,7 +364,7 @@ export default function VerificationScreen() {
             submitting={submitting}
           />
         )}
-        {step === STEP.DONE && <DoneStep onContinue={handleSkip} />}
+        {step === STEP.DONE && <DoneStep onContinue={handleDoneContinue} />}
       </View>
     </SafeAreaView>
   );

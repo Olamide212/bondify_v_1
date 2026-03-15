@@ -66,7 +66,7 @@ const [fontsLoaded] = useFonts({
                       <Stack.Screen name="(auth)" />
                       <Stack.Screen name="root-tabs" />
                     </Stack>
-                    {/* <OfflineBanner /> */}
+                    <OfflineBanner />
                   </View>
                 </ToastProvider>
               </DiscoveryProfilesProvider>

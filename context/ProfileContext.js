@@ -231,6 +231,9 @@ export const ProfileProvider = ({ children }) => {
     };
 
     const loadProfiles = async () => {
+
+
+      
       if (isMounted) setProfilesLoading(true);
 
       try {
@@ -252,6 +255,11 @@ export const ProfileProvider = ({ children }) => {
             { includePagination: true }
           );
 
+
+          console.log("API Response:", response);
+console.log("Normalized Profiles:", allProfiles);
+console.log("Home Profiles After Filtering:", homeProfiles);
+
           const pageProfiles = Array.isArray(response?.profiles)
             ? response.profiles
             : [];
@@ -269,6 +277,8 @@ export const ProfileProvider = ({ children }) => {
           setProfilesData(normalizedProfiles);
           if (!isFirstRender.current) setHomeCurrentIndex(0);
         }
+
+        
       } catch (error) {
         // Don't clear existing profiles on error — stale-while-revalidate.
         // Keep whatever data we had before.
