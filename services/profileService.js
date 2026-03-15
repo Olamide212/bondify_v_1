@@ -8,7 +8,6 @@ const PROFILE_CACHE_MS = 60000;
 const PERSISTED_PROFILE_KEY = "@bondify/cache/profile";
 const PERSISTED_PROFILE_BY_ID_PREFIX = "@bondify/cache/profileById/";
 const PERSISTED_LOOKUPS_PREFIX = "@bondify/cache/lookups/";
-const PERSISTED_DISCOVERY_PREFIX = "@bondify/cache/discovery/";
 
 const safeParse = (value) => {
   try {
@@ -16,22 +15,6 @@ const safeParse = (value) => {
   } catch {
     return null;
   }
-};
-
-const stableStringify = (value) => {
-  if (value === null || typeof value !== "object") {
-    return JSON.stringify(value);
-  }
-
-  if (Array.isArray(value)) {
-    return `[${value.map(stableStringify).join(",")}]`;
-  }
-
-  const sortedKeys = Object.keys(value).sort();
-  const pairs = sortedKeys.map(
-    (key) => `${JSON.stringify(key)}:${stableStringify(value[key])}`
-  );
-  return `{${pairs.join(",")}}`;
 };
 
 const writePersistedCache = async (key, value) => {
@@ -259,12 +242,10 @@ const getLookups = async (type) => {
 
 const getDiscoveryProfiles = async (params = {}, config = {}) => {
   const { includePagination = false } = config;
-  const cacheKey = `${PERSISTED_DISCOVERY_PREFIX}${stableStringify(params || {})}`;
   try {
     const response = await apiClient.get("/discover", { params });
     const payload = response.data?.data ?? response.data;
     const profiles = payload?.profiles ?? [];
-    await writePersistedCache(cacheKey, profiles);
     if (includePagination) {
       return {
         profiles,
@@ -273,17 +254,6 @@ const getDiscoveryProfiles = async (params = {}, config = {}) => {
     }
     return profiles;
   } catch (err) {
-    const persistedProfiles = await readPersistedCache(cacheKey);
-    if (Array.isArray(persistedProfiles) && persistedProfiles.length > 0) {
-      if (includePagination) {
-        return {
-          profiles: persistedProfiles,
-          pagination: null,
-        };
-      }
-      return persistedProfiles;
-    }
-
     const message =
       err.response?.data?.message ||
       err.message ||
