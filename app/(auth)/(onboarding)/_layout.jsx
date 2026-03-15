@@ -8,6 +8,8 @@ import { useProfileSetup } from "../../../hooks/useProfileSetup";
 export default function OnboardingLayout() {
   const segments = useSegments();
   const currentStepSegment = segments[segments.length - 1];
+  const isVerificationFlow = segments.includes("verification");
+  const logicalStep = isVerificationFlow ? "verification" : currentStepSegment;
 
   const { steps, progress, resumeStep, setCurrentStep } = useProfileSetup({
     isOnboarding: true,
@@ -19,10 +21,12 @@ export default function OnboardingLayout() {
   }, [resumeStep]);
 
   useEffect(() => {
-    if (steps.includes(currentStepSegment)) {
-      setCurrentStep(currentStepSegment);
+    // When inside the verification stack, normalize all subroutes to a single logical step
+    const stepToPersist = steps.includes(logicalStep) ? logicalStep : steps[0];
+    if (stepToPersist) {
+      setCurrentStep(stepToPersist);
     }
-  }, [currentStepSegment, setCurrentStep, steps]);
+  }, [logicalStep, setCurrentStep, steps]);
 
   const isAgreement = currentStepSegment === "agreement";
 
