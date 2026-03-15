@@ -5,6 +5,7 @@ import { ActivityIndicator, Image, StyleSheet, Text, TouchableOpacity, View } fr
 import { colors } from "../../constant/colors";
 import { fonts } from "../../constant/fonts";
 import { images } from "../../constant/images";
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 const ChatHeader = ({ matchedUser, onBack, onOpenProfile, onOpenActions, onUnmatch }) => {
   const [isImageLoading, setIsImageLoading] = React.useState(Boolean(matchedUser?.profileImage));
@@ -95,19 +96,24 @@ const ChatHeader = ({ matchedUser, onBack, onOpenProfile, onOpenActions, onUnmat
         <View style={styles.userInfo}>
           <View style={styles.nameRow}>
             <Text style={styles.userName} className='capitalize'>{getFirstName(matchedUser.name)}</Text>
-            {(matchedUser.isSystem || matchedUser.isVerified) && (
+            {( matchedUser.isVerified) && (
               <BadgeCheck size={18} color="#1D9BF0" style={{ marginLeft: 4 }} />
             )}
+            {(matchedUser.isSystem) && (
+              <MaterialIcons name="verified" size={20} color={"blue"} style={{ marginLeft: 4 }} />
+            )}
           </View>
+
+          
           <View style={styles.statusContainer}>
             {matchedUser.isOnline && !matchedUser.isSystem && (
               <>
-                <Text style={styles.onlineText} className='uppercase text-primary'>Active Now</Text>
+                <Text style={styles.onlineText} className='uppercase text-primary text-sm'>Active Now</Text>
               </>
             )}
-            {matchedUser.isSystem && (
+            {/* {matchedUser.isSystem && (
               <Text style={styles.systemText}>Bondify Team</Text>
-            )}
+            )} */}
           </View>
         </View>
       </View>
@@ -190,7 +196,7 @@ const styles = StyleSheet.create({
   },
   userName: {
     fontSize: 18,
-fontFamily: fonts.PlusJakartaSansMedium,
+fontFamily: fonts.PlusJakartaSansSemiBold,
     color: "#1F2937",
   },
   statusContainer: {
@@ -200,11 +206,13 @@ fontFamily: fonts.PlusJakartaSansMedium,
   },
   onlineText: {
     fontSize: 12,
+    fontFamily: fonts.PlusJakartaSansSemiBold,
     marginLeft: 4,
   },
   offlineText: {
     color: "#9CA3AF",
     fontSize: 12,
+    fontFamily: fonts.PlusJakartaSansSemiBold,
   },
   systemText: {
     color: "#1D9BF0",

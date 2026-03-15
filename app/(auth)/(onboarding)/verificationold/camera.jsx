@@ -3,9 +3,10 @@
  * Camera capture screen for selfie verification
  */
 
-import { CameraView } from "expo-camera";
+import { useIsFocused } from "@react-navigation/core";
+import { CameraView, useCameraPermissions } from "expo-camera";
 import { useRouter } from "expo-router";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
     ActivityIndicator,
     Alert,
@@ -20,9 +21,23 @@ const PRIMARY = colors.primary;
 
 export default function CameraScreen() {
   const router = useRouter();
+  const isFocused = useIsFocused();
   const cameraRef = useRef(null);
   const [ready, setReady] = useState(false);
   const [taking, setTaking] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const [permission] = useCameraPermissions();
+
+  // Delay camera mount slightly so the native view initialises after navigation completes
+  useEffect(() => {
+    if (!isFocused) {
+      setMounted(false);
+      setReady(false);
+      return;
+    }
+    const timer = setTimeout(() => setMounted(true), 300);
+    return () => clearTimeout(timer);
+  }, [isFocused]);
 
   const handleCapture = async () => {
     if (!ready || taking || !cameraRef.current) return;
@@ -43,14 +58,40 @@ export default function CameraScreen() {
     }
   };
 
+  // If permission was somehow revoked, go back
+  if (!permission?.granted) {
+    return (
+      <View style={[styles.container, { alignItems: "center", justifyContent: "center" }]}>
+        <Text style={{ color: "#fff", fontFamily: "PlusJakartaSansMedium", fontSize: 15, textAlign: "center", paddingHorizontal: 32 }}>
+          Camera permission is required. Please allow camera access in your device settings.
+        </Text>
+        <TouchableOpacity style={[styles.shutter, { marginTop: 24, width: 48, height: 48 }]} onPress={() => router.back()}>
+          <Text style={{ fontFamily: "PlusJakartaSansBold", color: PRIMARY }}>Back</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
-      <CameraView
-        ref={cameraRef}
-        style={StyleSheet.absoluteFill}
-        facing="front"
-        onCameraReady={() => setReady(true)}
-      />
+      {mounted && isFocused ? (
+        <CameraView
+          ref={cameraRef}
+          style={StyleSheet.absoluteFill}
+          facing="front"
+          onCameraReady={() => setReady(true)}
+          onMountError={(e) => {
+            console.warn("Camera mount error:", e);
+            Alert.alert("Camera Error", "Could not start camera. Please try again.", [
+              { text: "Go Back", onPress: () => router.back() },
+            ]);
+          }}
+        />
+      ) : (
+        <View style={[StyleSheet.absoluteFill, { alignItems: "center", justifyContent: "center" }]}>
+          <ActivityIndicator size="large" color="#fff" />
+        </View>
+      )}
 
       {/* Oval face guide */}
       <View style={styles.overlay}>

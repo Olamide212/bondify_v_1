@@ -21,7 +21,7 @@ const BOT_LASTNAME  = 'Team';
 const BOT_AVATAR    = 'https://bondify-assets.s3.amazonaws.com/system/bondies-team-avatar.png';
 
 const WELCOME_MESSAGES = [
-  `Hey there! 👋 Welcome to Bondify — we're so glad you're here.\n\nThis is a safe space to meet genuine people who are looking for real connections. Take your time, fill out your profile, and let's help you find your bond. 💛\n\nIf you ever need help, just reach out — we've got you! 🙌`,
+  `Hey there! 👋 Welcome to Bondies — we're so glad you're here.\n\nThis is a safe space to meet genuine people who are looking for real connections. Take your time, fill out your profile, and let's help you find your bond. 💛\n\nIf you ever need help, just reach out — we've got you! 🙌`,
 ];
 
 /**

@@ -72,6 +72,7 @@ const ProfileAnswers = () => {
               <Button
                 title="Continue"
                 variant="gradient"
+                disabled={Object.values(answers).filter((a) => a.trim() !== "").length === 0}
                 onPress={async () => {
                   const questions = Object.entries(answers)
                     .filter(([, answer]) => answer.trim() !== "")
