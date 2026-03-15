@@ -1,15 +1,15 @@
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
-    Keyboard,
-    KeyboardAvoidingView,
-    Platform,
-    SafeAreaView,
-    ScrollView,
-    Text,
-    TouchableWithoutFeedback,
-    View,
-      ActivityIndicator
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  SafeAreaView,
+  ScrollView,
+  Text,
+  TouchableWithoutFeedback,
+  View,
+  ActivityIndicator
 } from "react-native";
 
 import RadioSelect from "../../../../components/inputs/RadioSelect";
@@ -17,6 +17,7 @@ import Button from "../../../../components/ui/Button";
 import Info from "../../../../components/ui/Info";
 import { useLookupOptions } from "../../../../hooks/useLookupOptions";
 import { useProfileSetup } from "../../../../hooks/useProfileSetup";
+import ActivityLoader from "../../../../components/ui/ActivityLoader";
 
 
 
@@ -29,7 +30,7 @@ const Preference = () => {
 
   if (loading) {
     return (
-      <ActivityIndicator size="large" color="#E8651A" style={{ flex: 1, justifyContent: "center", alignItems: "center" }} />
+      <ActivityLoader />
     );
   }
 

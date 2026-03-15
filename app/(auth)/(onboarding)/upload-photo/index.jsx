@@ -4,14 +4,14 @@ import { useRouter } from "expo-router";
 import { Lightbulb } from 'lucide-react-native';
 import { useState } from "react";
 import {
-    Alert,
-    Image,
-    Keyboard,
-    SafeAreaView,
-    Text,
-    TouchableOpacity,
-    TouchableWithoutFeedback,
-    View,
+  Alert,
+  Image,
+  Keyboard,
+  SafeAreaView,
+  Text,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
 } from "react-native";
 import PhotoGuidelinesModal from "../../../../components/modals/PhotoGuidelinesModal";
 import Button from "../../../../components/ui/Button";
@@ -39,7 +39,9 @@ const UploadPhoto = () => {
 
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      quality: 0.7,
+      allowsEditing: true, // allow user to crop the photo before selecting
+      aspect: [4, 5], // portrait-friendly crop keeps focus on face
+      quality: 0.85,
     });
 
     if (!result.canceled) {
@@ -104,10 +106,12 @@ const UploadPhoto = () => {
 
             {/* Photo grid */}
             <View className="flex-row flex-wrap justify-between gap-y-4">
-              {photos.map((photo, index) => (
+              {photos.map((photo, index) => {
+                const isMain = index === 0;
+                return (
                 <View key={index} className="w-[30%] h-[35%]  relative">
                   <TouchableOpacity
-                    className="w-full h-full border-2 border-dashed border-gray-300 rounded-xl items-center justify-center bg-gray-50"
+                    className={`w-full h-full rounded-xl items-center justify-center bg-gray-50 border-2 ${isMain ? 'border-primary' : 'border-dashed border-gray-300'}`}
                     onPress={() => pickImage(index)}
                     activeOpacity={0.7}
                   >
@@ -122,6 +126,12 @@ const UploadPhoto = () => {
                     )}
                   </TouchableOpacity>
 
+                  {isMain && (
+                    <View className="absolute top-2 left-2 bg-primary/90 px-2 py-1 rounded-full">
+                      <Text className="text-white text-[10px] font-PlusJakartaSansBold tracking-wide uppercase">Main photo</Text>
+                    </View>
+                  )}
+
                   {/* Remove button */}
                   {photo && (
                     <TouchableOpacity
@@ -132,7 +142,7 @@ const UploadPhoto = () => {
                     </TouchableOpacity>
                   )}
                 </View>
-              ))}
+              );})}
             </View>
 
             {/* Info text */}

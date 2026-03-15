@@ -15,6 +15,7 @@ import { useRouter } from "expo-router";
 import Button from "../../../../components/ui/Button";
 import { useProfileSetup } from "../../../../hooks/useProfileSetup";
 import { useLookupOptions } from "../../../../hooks/useLookupOptions";
+import ActivityLoader from "../../../../components/ui/ActivityLoader";
 
 const Occupation = () => {
   const router = useRouter();
@@ -28,7 +29,7 @@ const Occupation = () => {
 
   if (loading) {
     return (
-      <ActivityIndicator size="large" color="#E8651A" style={{ flex: 1, justifyContent: "center", alignItems: "center" }} />
+      <ActivityLoader />
     );
   }
 

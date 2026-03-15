@@ -17,6 +17,7 @@ import Info from "../../../../components/ui/Info";
 import { useLookupOptions } from "../../../../hooks/useLookupOptions";
 import { useProfileSetup } from "../../../../hooks/useProfileSetup";
 import { ScrollView } from "react-native-gesture-handler";
+import ActivityLoader from "../../../../components/ui/ActivityLoader";
 
 const ReligionPractice = () => {
   const [religionPractice, setReligionPractice] = useState("");
@@ -25,9 +26,9 @@ const ReligionPractice = () => {
   const router = useRouter();
   const { updateProfileStep } = useProfileSetup({ isOnboarding: true });
 
-  if (loading) {
+ if (loading) {
     return (
-      <ActivityIndicator size="large" color="#E8651A" style={{ flex: 1, justifyContent: "center", alignItems: "center" }} />
+      <ActivityLoader />
     );
   }
 
