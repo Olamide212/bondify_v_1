@@ -8,7 +8,7 @@
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
 import { ArrowLeft, Pencil, Plus } from "lucide-react-native";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -51,7 +51,8 @@ export default function FeedProfileScreen() {
   const [loadingData, setLoadingData] = useState(false);
   const [displayNameText, setDisplayNameText] = useState(() => getDisplayName(currentUser));
 
-
+  // Track whether a photo was recently picked to avoid the useEffect overwriting it
+  const justPickedPhotoRef = useRef(false);
 
   useEffect(() => {
     if (!currentUser?._id) return;
@@ -63,9 +64,11 @@ export default function FeedProfileScreen() {
     ])
       .then(([socialRes, profileRes, savedRes]) => {
         if (socialRes?.data) {
-          const socialPhoto = socialRes.data?.profilePhoto ?? null;
-          // Social profile photo takes priority; fall back to dating profile image
-          setLocalAvatarUri(socialPhoto || currentUser?.images?.[0]?.url || null);
+          // Only update the avatar if the user didn't just pick a photo
+          if (!justPickedPhotoRef.current) {
+            const socialPhoto = socialRes.data?.profilePhoto ?? null;
+            setLocalAvatarUri(socialPhoto || currentUser?.images?.[0]?.url || null);
+          }
           setUserName(socialRes.data?.userName ?? currentUser?.userName ?? "");
           const apiDisplayName = socialRes.data?.displayName?.trim?.();
           if (apiDisplayName) {
@@ -101,7 +104,8 @@ export default function FeedProfileScreen() {
     const fileName = uri.split("/").pop() || "photo.jpg";
     const mimeType = asset.mimeType || "image/jpeg";
 
-    // Show local URI immediately for better UX
+    // Show local URI immediately for better UX and prevent useEffect overwrite
+    justPickedPhotoRef.current = true;
     setLocalAvatarUri(uri);
     setUploading(true);
     try {
@@ -120,8 +124,11 @@ export default function FeedProfileScreen() {
 
       // Keep the uploaded URL
       setLocalAvatarUri(uploadedUrl);
+      // Allow future data loads to update the avatar again
+      justPickedPhotoRef.current = false;
     } catch (e) {
       // Revert to original if upload fails
+      justPickedPhotoRef.current = false;
       setLocalAvatarUri(avatarUrl(currentUser));
       Alert.alert("Error", e?.response?.data?.message ?? "Could not update photo.");
     } finally {

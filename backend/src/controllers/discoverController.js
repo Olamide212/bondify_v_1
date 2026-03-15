@@ -83,6 +83,25 @@ const getDiscoveryProfiles = async (req, res, next) => {
     }
 
     if (gender)    query.gender    = gender;
+    else {
+      // Apply user's saved gender preference when no explicit filter is provided
+      const genderPref = currentUser?.discoveryPreferences?.genderPreference;
+      if (Array.isArray(genderPref) && genderPref.length > 0) {
+        const validPrefs = genderPref.filter(Boolean);
+        const hasMale   = validPrefs.some((g) => /^male$/i.test(g));
+        const hasFemale = validPrefs.some((g) => /^female$/i.test(g));
+        // Only filter if the preference is specific (not "everyone"/all genders)
+        if (hasMale && !hasFemale) {
+          query.gender = 'Male';
+        } else if (hasFemale && !hasMale) {
+          query.gender = 'Female';
+        } else if (validPrefs.length === 1) {
+          // Single non-binary or other preference
+          query.gender = validPrefs[0];
+        }
+        // If both male & female or multiple mixed prefs, don't filter (show everyone)
+      }
+    }
     if (religion)  query.religion  = religion;
     if (ethnicity) query.ethnicity = ethnicity;
     if (drinking)  query.drinking  = drinking;

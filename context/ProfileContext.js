@@ -15,8 +15,23 @@ export const useProfile = () => {
 };
 
 export const ProfileProvider = ({ children }) => {
+  // ✅ Watch the auth state so we know when the user is fully logged in
+  const authUser = useSelector((state) => state.auth.user);
+  const currentUserId = authUser?.id ?? authUser?._id ?? null;
+
+  // Derive default showMe filter from the user's saved gender preference
+  const userGenderPref = (() => {
+    const prefs = authUser?.discoveryPreferences?.genderPreference;
+    if (Array.isArray(prefs) && prefs.length > 0) {
+      const lower = prefs.filter(Boolean).map((p) => String(p).toLowerCase());
+      if (lower.includes("male") && !lower.includes("female")) return "men";
+      if (lower.includes("female") && !lower.includes("male")) return "women";
+    }
+    return "everyone";
+  })();
+
   const DEFAULT_HOME_FILTERS = {
-    showMe: "everyone",
+    showMe: userGenderPref,
     ageRange: [18, 90],
     maxDistance: 1000,
     interests: [],
@@ -37,9 +52,14 @@ export const ProfileProvider = ({ children }) => {
   const [discoverCurrentIndex, setDiscoverCurrentIndex] = useState(0);
   const [matchCelebration, setMatchCelebration] = useState(null);
 
-  // ✅ Watch the auth state so we know when the user is fully logged in
-  const authUser = useSelector((state) => state.auth.user);
-  const currentUserId = authUser?.id ?? authUser?._id ?? null;
+  // Update showMe filter when user preference changes (e.g. after login)
+  const prevGenderPref = useRef(userGenderPref);
+  useEffect(() => {
+    if (prevGenderPref.current !== userGenderPref) {
+      prevGenderPref.current = userGenderPref;
+      setHomeFilters((prev) => ({ ...prev, showMe: userGenderPref }));
+    }
+  }, [userGenderPref]);
 
   const normalizeProfileRef = useRef(null);
 
@@ -78,7 +98,9 @@ export const ProfileProvider = ({ children }) => {
 
     return {
       id: profile?._id ?? profile?.id,
+      _id: profile?._id ?? profile?.id,
       name: normalizedName,
+      firstName: profile?.firstName,
       age: profile?.age ?? null,
       gender: profile?.gender,
       zodiac: profile?.zodiacSign ?? profile?.zodiac,
@@ -248,7 +270,8 @@ export const ProfileProvider = ({ children }) => {
           if (!isFirstRender.current) setHomeCurrentIndex(0);
         }
       } catch (error) {
-        if (isMounted) setProfilesData([]);
+        // Don't clear existing profiles on error — stale-while-revalidate.
+        // Keep whatever data we had before.
       } finally {
         if (isMounted) {
           setProfilesLoading(false);

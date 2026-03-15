@@ -137,6 +137,8 @@ const UserProfile = () => {
     const normalizedImages = normalizeImages(profile?.images);
     return {
       id:                 profile?._id ?? profile?.id,
+      _id:                profile?._id ?? profile?.id,
+      firstName:          profile?.firstName,
       name:               profile?.name || [profile?.firstName, profile?.lastName].filter(Boolean).join(" ") || "Unknown",
       age:                profile?.age ?? null,
       gender:             profile?.gender,

@@ -1,6 +1,6 @@
 import * as ImagePicker from "expo-image-picker";
 import { Plus } from "lucide-react-native";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
     ActivityIndicator,
     Alert,
@@ -35,11 +35,14 @@ const FeedProfileSheet = ({ visible, user, onClose, onUpdate }) => {
   const [userPosts, setUserPosts] = useState([]);
   const [stats, setStats] = useState({ followersCount: 0, followingCount: 0 });
   const [loadingData, setLoadingData] = useState(false);
+  const justPickedPhotoRef = useRef(false);
 
   useEffect(() => {
     if (!visible || !user?._id) return;
     setUserName(user.userName ?? "");
-    setLocalAvatarUri(null);
+    if (!justPickedPhotoRef.current) {
+      setLocalAvatarUri(null);
+    }
     setLoadingData(true);
     Promise.all([
       feedService.getSocialProfile().catch(() => null),
@@ -48,9 +51,8 @@ const FeedProfileSheet = ({ visible, user, onClose, onUpdate }) => {
     ])
       .then(([socialRes, profileRes, savedRes]) => {
         if (socialRes?.data) {
-          // Use social profile photo (from feed/social-profile endpoint)
           const socialPhoto = socialRes.data?.profilePhoto ?? null;
-          if (socialPhoto) setLocalAvatarUri(socialPhoto);
+          if (!justPickedPhotoRef.current && socialPhoto) setLocalAvatarUri(socialPhoto);
           setUserName(socialRes.data?.userName ?? user.userName ?? "");
         }
         if (profileRes?.data) {
@@ -79,6 +81,7 @@ const FeedProfileSheet = ({ visible, user, onClose, onUpdate }) => {
     const fileName = uri.split("/").pop() || "photo.jpg";
     const mimeType = asset.mimeType || "image/jpeg";
 
+    justPickedPhotoRef.current = true;
     setUploading(true);
     setLocalAvatarUri(uri);
     try {
@@ -100,8 +103,10 @@ const FeedProfileSheet = ({ visible, user, onClose, onUpdate }) => {
 
       setLocalAvatarUri(uploadedUrl);
       onUpdate?.({ profilePhoto: uploadedUrl });
+      justPickedPhotoRef.current = false;
     } catch (e) {
-      setLocalAvatarUri(null);
+      justPickedPhotoRef.current = false;
+      setLocalAvatarUri(avatarUrl(user));
       Alert.alert("Error", e?.response?.data?.message ?? "Could not update photo.");
     } finally {
       setUploading(false);
