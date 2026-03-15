@@ -490,8 +490,9 @@ Return ONLY a JSON array of 6 strings, like: ["Adventurous, Funny, Kind", "Creat
     });
 
     let prompts = [];
+    let raw = '';
     try {
-      const raw = response.choices[0].message.content.trim();
+      raw = response.choices[0].message.content.trim();
       const clean = raw.replace(/```json|```/g, '').trim();
       prompts = JSON.parse(clean);
     } catch {
@@ -541,8 +542,9 @@ Generate 8 diverse prompts that would work well on a dating profile. Make them f
     });
 
     let prompts = [];
+    let raw = '';
     try {
-      const raw = response.choices[0].message.content.trim();
+      raw = response.choices[0].message.content.trim();
       const clean = raw.replace(/```json|```/g, '').trim();
       prompts = JSON.parse(clean);
     } catch {
