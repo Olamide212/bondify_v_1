@@ -9,7 +9,7 @@ import { Icons } from "../constant/icons";
 import { images } from "../constant/images";
 import ChatScreen from "./(root)/(tab)/chats";
 import HomeScreen from "./(root)/(tab)/home";
-import MapScreen from "./(root)/(tab)/map";
+// import MapScreen from "./(root)/(tab)/map";
 import MatchesScreen from "./(root)/(tab)/matches";
 import ProfileScreen from "./(root)/(tab)/profile";
 import FeedScreen from "./(root)/(tab)/feed";

@@ -160,11 +160,11 @@ export default function TabsLayout() {
             ),
           }}
         />
-        {/* Map tab hidden — replaced by Feed */}
+        {/* Map tab hidden — replaced by Feed
         <Tabs.Screen
           name="map"
           options={{ href: null }}
-        />
+        /> */}
         <Tabs.Screen
           name="community"
           options={{ href: null }}
