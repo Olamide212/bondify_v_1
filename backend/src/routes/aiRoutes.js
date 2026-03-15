@@ -6,6 +6,7 @@ const {
   generateBio,
   generateBioFromPrompt,
   generatePrompts,
+  generateConversationPrompts,
   getDateIdeas,
   chat,
   suggestMessage,
@@ -21,6 +22,7 @@ router.get('/compatibility/:userId', getCompatibilityScore);
 router.post('/generate-bio', generateBio);
 router.post('/generate-bio-from-prompt', generateBioFromPrompt);
 router.get('/generate-prompts', generatePrompts);
+router.get('/generate-conversation-prompts', generateConversationPrompts);
 router.get('/date-ideas/:matchId', getDateIdeas);
 router.post('/chat', chat);
 router.post('/suggest-message',       protect, suggestMessage);

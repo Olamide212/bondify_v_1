@@ -109,6 +109,16 @@ const AIService = {
     const response = await apiClient.get("/ai/generate-prompts");
     return response.data?.data ?? response.data;
   },
+
+  /**
+   * Generate conversation starter prompts for profiles.
+   *
+   * @returns {{ prompts: string[] }}
+   */
+  generateConversationPrompts: async () => {
+    const response = await apiClient.get("/ai/generate-conversation-prompts");
+    return response.data?.data ?? response.data;
+  },
 };
 
 export default AIService;

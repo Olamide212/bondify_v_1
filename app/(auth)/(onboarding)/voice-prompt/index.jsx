@@ -8,7 +8,7 @@ import {
 } from "expo-audio";
 import { File, Paths } from "expo-file-system/next";
 import { useRouter } from "expo-router";
-import { Check, Mic, Pause, Play, Square, Trash2 } from "lucide-react-native";
+import { Check, Info, Mic, Pause, Play, Square, Trash2 } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
 import {
     Alert,
@@ -22,6 +22,7 @@ import {
     TouchableWithoutFeedback,
     View
 } from "react-native";
+import BaseModal from "../../../../components/modals/BaseModal";
 import Button from "../../../../components/ui/Button";
 import { colors } from "../../../../constant/colors";
 import { fonts } from "../../../../constant/fonts";
@@ -41,11 +42,11 @@ const VoiceBioBenefits = () => {
   ];
 
   return (
-    <View style={{ marginBottom: 20 }}>
+    <View style={{ marginBottom: 20, paddingHorizontal: 20 }}>
       <Text style={{
         fontFamily: fonts.PlusJakartaSansBold,
-        fontSize: 16,
-        color: colors.primary,
+        fontSize: 18,
+        color: "#000",
         marginBottom: 12,
         textAlign: 'center'
       }}>
@@ -54,10 +55,10 @@ const VoiceBioBenefits = () => {
       <View style={{ gap: 8 }}>
         {benefits.map((benefit, index) => (
           <View key={index} style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8 }}>
-            <Text style={{ color: colors.primary, fontSize: 14, fontFamily: fonts.PlusJakartaSansBold }}>•</Text>
+            <Text style={{ color: "#000", fontSize: 14, fontFamily: fonts.PlusJakartaSansBold }}>•</Text>
             <Text style={{
-              fontFamily: fonts.PlusJakartaSans,
-              fontSize: 14,
+              fontFamily: fonts.PlusJakartaSansMedium,
+              fontSize: 15,
               color: '#374151',
               flex: 1,
               lineHeight: 20
@@ -424,6 +425,7 @@ const VoicePromptSection = ({ onUseVoice }) => {
 const VoicePrompt = () => {
   const [voiceBioUri, setVoiceBioUri] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const [showBenefitsModal, setShowBenefitsModal] = useState(false);
   const router = useRouter();
 
   const handleUseVoice = (uri) => {
@@ -447,10 +449,18 @@ const VoicePrompt = () => {
             >
               {/* Title */}
               <View className="mt-8 mb-6">
-                <Text className="text-3xl font-PlusJakartaSansBold mb-2">
-                  Add a voice bio
-                </Text>
-                <Text className="text-base font-PlusJakartaSans text-gray-600">
+                <View className="flex-row items-center justify-between mb-2">
+                  <Text className="text-3xl font-PlusJakartaSansBold">
+                    Add a voice bio
+                  </Text>
+                  <TouchableOpacity
+                    onPress={() => setShowBenefitsModal(true)}
+                    className="ml-2"
+                  >
+                    <Info size={20} color={"#000"} />
+                  </TouchableOpacity>
+                </View>
+                <Text className="text-base font-PlusJakartaSansMedium">
                   Record yourself introducing yourself to make your profile stand out.
                 </Text>
               </View>
@@ -458,8 +468,6 @@ const VoicePrompt = () => {
               {/* Voice bio section */}
               <VoicePromptSection onUseVoice={handleUseVoice} />
 
-              {/* Voice bio benefits */}
-              <VoiceBioBenefits />
             </ScrollView>
 
             <View className="w-full items-end pb-6">
@@ -473,7 +481,7 @@ const VoicePrompt = () => {
                       await profileService.uploadVoicePrompt(voiceBioUri);
                       Alert.alert("✅ Voice bio submitted!", "Your recording has been saved successfully.");
                     }
-                    router.push("/profile-answers");
+                    router.push("/profile-prompts");
                   } catch (err) {
                     console.error("Voice upload error:", err);
                     const errorMsg = err?.response?.data?.message || "Could not save voice recording.";
@@ -488,6 +496,14 @@ const VoicePrompt = () => {
           </View>
         </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
+
+      {/* Benefits Modal */}
+      <BaseModal
+        visible={showBenefitsModal}
+        onClose={() => setShowBenefitsModal(false)}
+      >
+        <VoiceBioBenefits />
+      </BaseModal>
     </SafeAreaView>
   );
 };

@@ -199,6 +199,9 @@
 //       question: String,
 //       answer: String,
 //     }],
+//     profilePrompts: [{
+//       type: String,
+//     }],
 
 //     // Voice Prompt
 //     voicePrompt:    { type: String, default: null }, // S3 public URL
@@ -570,6 +573,7 @@ const userSchema = new mongoose.Schema(
 
     // Profile Questions & Answers
     questions: [{ question: String, answer: String }],
+    profilePrompts: [{ type: String }],
 
     // Voice Prompt
     voicePrompt:    { type: String, default: null }, // S3 public URL

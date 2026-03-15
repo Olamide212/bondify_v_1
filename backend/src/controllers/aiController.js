@@ -504,6 +504,57 @@ Return ONLY a JSON array of 6 strings, like: ["Adventurous, Funny, Kind", "Creat
     next(error);
   }
 };
+
+const generateConversationPrompts = async (req, res, next) => {
+  try {
+    if (!process.env.OPENAI_API_KEY) {
+      return res.status(503).json({ success: false, message: 'AI service not configured' });
+    }
+
+    const user = await User.findById(req.user._id).select(
+      'firstName interests personalities occupation'
+    );
+
+    const prompt = `Generate 8 creative and engaging conversation starter prompts for a dating profile. Each prompt should be a question or incomplete statement that encourages fun, meaningful responses.
+
+Examples of good prompts:
+- "Dating me is like..."
+- "My ideal Sunday..."
+- "The fastest way to my heart..."
+- "You know you're my type if..."
+- "My hidden talent is..."
+
+User context:
+- Name: ${user.firstName}
+- Interests: ${(user.interests || []).join(', ') || 'Not specified'}
+- Personalities: ${(user.personalities || []).join(', ') || 'Not specified'}
+- Occupation: ${user.occupation || 'Not specified'}
+
+Generate 8 diverse prompts that would work well on a dating profile. Make them fun, revealing, and spark conversation. Return ONLY a JSON array of strings.`;
+
+    const ai = getOpenAI();
+    const response = await ai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [{ role: 'user', content: prompt }],
+      max_tokens: 300,
+      temperature: 0.9,
+    });
+
+    let prompts = [];
+    try {
+      const raw = response.choices[0].message.content.trim();
+      const clean = raw.replace(/```json|```/g, '').trim();
+      prompts = JSON.parse(clean);
+    } catch {
+      // Fallback: split by newlines and clean up
+      prompts = raw.split('\n').map(p => p.trim()).filter(p => p.length > 0).slice(0, 8);
+    }
+
+    res.json({ success: true, data: { prompts } });
+  } catch (error) {
+    next(error);
+  }
+};
 const suggestPost = async (req, res, next) => {
   try {
     if (!process.env.OPENAI_API_KEY) {
@@ -566,6 +617,7 @@ module.exports = {
   generateBio,
   generateBioFromPrompt,
   generatePrompts,
+  generateConversationPrompts,
   getDateIdeas,
   chat,
   suggestMessage,

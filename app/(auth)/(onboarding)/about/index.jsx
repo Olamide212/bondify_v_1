@@ -76,67 +76,67 @@ const PromptSuggestions = ({ onSelectPrompt }) => {
 
 // ─── AI Generate Prompts ─────────────────────────────
 
-const AIGeneratePrompts = ({ onUsePrompt }) => {
-  const [loading, setLoading] = useState(false);
-  const [generatedPrompts, setGeneratedPrompts] = useState([]);
+// const AIGeneratePrompts = ({ onUsePrompt }) => {
+//   const [loading, setLoading] = useState(false);
+//   const [generatedPrompts, setGeneratedPrompts] = useState([]);
 
-  const generatePrompts = async () => {
-    setLoading(true);
-    try {
-      // Assuming AIService has a method to generate prompts
-      const response = await AIService.generatePrompts(); // Need to implement this
-      setGeneratedPrompts(response.prompts || []);
-    } catch (err) {
-      console.error("AI prompts error:", err);
-      Alert.alert("Error", "Couldn't generate prompts. Try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
+//   const generatePrompts = async () => {
+//     setLoading(true);
+//     try {
+//       // Assuming AIService has a method to generate prompts
+//       const response = await AIService.generatePrompts(); // Need to implement this
+//       setGeneratedPrompts(response.prompts || []);
+//     } catch (err) {
+//       console.error("AI prompts error:", err);
+//       Alert.alert("Error", "Couldn't generate prompts. Try again.");
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
 
-  return (
-    <View style={{ marginBottom: 20 }}>
-      <TouchableOpacity
-        onPress={generatePrompts}
-        disabled={loading}
-        style={{
-          backgroundColor: loading ? '#F5A878' : colors.primary,
-          borderRadius: 50,
-          paddingVertical: 12,
-          alignItems: 'center',
-          flexDirection: 'row',
-          justifyContent: 'center',
-          gap: 8,
-        }}
-      >
-        {loading ? (
-          <ActivityIndicator size="small" color="#fff" />
-        ) : (
-          <Sparkles size={16} color="#fff" strokeWidth={2} />
-        )}
-        <Text style={{ color: "#fff", fontFamily: fonts.PlusJakartaSansBold, fontSize: 14 }}>
-          {loading ? "Generating..." : "Generate prompts with AI"}
-        </Text>
-      </TouchableOpacity>
-      {generatedPrompts.map((prompt, index) => (
-        <TouchableOpacity
-          key={index}
-          onPress={() => onUsePrompt(prompt)}
-          style={{
-            backgroundColor: '#f1f1f1',
-            borderRadius: 12,
-            padding: 12,
-            marginTop: 8,
-          }}
-        >
-          <Text style={{ fontFamily: fonts.PlusJakartaSans, fontSize: 14, color: '#1a1a1a' }}>
-            {prompt}
-          </Text>
-        </TouchableOpacity>
-      ))}
-    </View>
-  );
-};
+//   return (
+//     <View style={{ marginBottom: 20 }}>
+//       <TouchableOpacity
+//         onPress={generatePrompts}
+//         disabled={loading}
+//         style={{
+//           backgroundColor: loading ? '#F5A878' : colors.primary,
+//           borderRadius: 50,
+//           paddingVertical: 12,
+//           alignItems: 'center',
+//           flexDirection: 'row',
+//           justifyContent: 'center',
+//           gap: 8,
+//         }}
+//       >
+//         {loading ? (
+//           <ActivityIndicator size="small" color="#fff" />
+//         ) : (
+//           <Sparkles size={16} color="#fff" strokeWidth={2} />
+//         )}
+//         <Text style={{ color: "#fff", fontFamily: fonts.PlusJakartaSansBold, fontSize: 14 }}>
+//           {loading ? "Generating..." : "Generate prompts with AI"}
+//         </Text>
+//       </TouchableOpacity>
+//       {generatedPrompts.map((prompt, index) => (
+//         <TouchableOpacity
+//           key={index}
+//           onPress={() => onUsePrompt(prompt)}
+//           style={{
+//             backgroundColor: '#f1f1f1',
+//             borderRadius: 12,
+//             padding: 12,
+//             marginTop: 8,
+//           }}
+//         >
+//           <Text style={{ fontFamily: fonts.PlusJakartaSans, fontSize: 14, color: '#1a1a1a' }}>
+//             {prompt}
+//           </Text>
+//         </TouchableOpacity>
+//       ))}
+//     </View>
+//   );
+// };
 
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -219,14 +219,14 @@ const About = () => {
 
               {/* Prompt Input */}
               <View className="mb-6">
-                <Text style={{
+                {/* <Text style={{
                   fontFamily: fonts.PlusJakartaSansBold,
                   fontSize: 16,
                   color: '#1a1a1a',
                   marginBottom: 8
                 }}>
                   Describe yourself in 3 words
-                </Text>
+                </Text> */}
                 <TextInput
                   placeholder="e.g. Adventurous, Funny, Kind"
                   placeholderTextColor="#999"
@@ -245,14 +245,14 @@ const About = () => {
 
               {/* Suggestions */}
               <PromptSuggestions onSelectPrompt={handleSelectPrompt} />
-              <AIGeneratePrompts onUsePrompt={handleSelectPrompt} />
+              {/* <AIGeneratePrompts onUsePrompt={handleSelectPrompt} /> */}
 
               {/* Generate Button */}
               <TouchableOpacity
                 onPress={handleGenerateBio}
                 disabled={loading || !promptWords.trim()}
                 style={{
-                  backgroundColor: loading || !promptWords.trim() ? '#F5A878' : colors.primary,
+                  backgroundColor: loading || !promptWords.trim() ? '#dadada' : '#000',
                   borderRadius: 50,
                   paddingVertical: 14,
                   alignItems: 'center',
@@ -334,7 +334,7 @@ const About = () => {
 
             <View className="w-full items-end pb-6">
               <Button
-                title="Continue to Voice Bio"
+                title="Continue"
                 variant="gradient"
                 onPress={handleContinue}
                 disabled={!generatedBio.trim()}
