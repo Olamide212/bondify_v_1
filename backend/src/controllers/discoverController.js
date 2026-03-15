@@ -95,11 +95,11 @@ const getDiscoveryProfiles = async (req, res, next) => {
           query.gender = 'Male';
         } else if (hasFemale && !hasMale) {
           query.gender = 'Female';
-        } else if (validPrefs.length === 1) {
-          // Single non-binary or other preference
+        } else if (validPrefs.length === 1 && !/^everyone$/i.test(validPrefs[0])) {
+          // Single non-binary or other preference (excluding 'Everyone' which means no filter)
           query.gender = validPrefs[0];
         }
-        // If both male & female or multiple mixed prefs, don't filter (show everyone)
+        // If both male & female, 'Everyone', or multiple mixed prefs, don't filter (show everyone)
       }
     }
     if (religion)  query.religion  = religion;
