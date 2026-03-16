@@ -65,7 +65,6 @@ import { useProfile } from "../../../../context/ProfileContext";
 import { messageService } from "../../../../services/messageService";
 import SettingsService from "../../../../services/settingsService";
 import { socketService } from "../../../../services/socketService";
-import ProfileCard from "../../../../components/homeScreen/ProfileCard";
 
 // ─── Swipe badge assets ───────────────────────────────────────────────────────
 const BOND_BADGE = require("../../../../assets/images/Bond_Badge_Right.png");
@@ -564,6 +563,10 @@ const Home = () => {
         targetUser={currentProfile}
         currentUser={currentUser}
         onSent={() => triggerFeedback("compliment")}
+        onViewNextProfile={() => {
+          setShowComplimentModal(false);
+          handleSwipe("right");
+        }}
       />
 
       <FilterModal

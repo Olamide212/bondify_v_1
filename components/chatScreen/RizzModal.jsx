@@ -1,14 +1,16 @@
 import { MaterialIcons } from "@expo/vector-icons";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
+  Animated,
+  Image,
+  Modal,
   StyleSheet,
   Text,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   View,
-  Image,
 } from "react-native";
-import BaseModal from "../modals/BaseModal";
 import { colors } from "../../constant/colors";
 import { Icons } from "../../constant/icons";
 import AIService from "../../services/aiService";
@@ -35,6 +37,43 @@ const RizzModal = ({ visible, onClose, onSend, matchId }) => {
   const [currentIdx, setCurrentIdx]   = useState(0);
   const [loading, setLoading]         = useState(false);
   const [error, setError]             = useState(null);
+  const [showModal, setShowModal]     = useState(false);
+
+  const fadeAnim  = useRef(new Animated.Value(0)).current;
+  const scaleAnim = useRef(new Animated.Value(0.85)).current;
+
+  // ── Animate in / out ──────────────────────────────────────────
+  useEffect(() => {
+    if (visible) {
+      setShowModal(true);
+      Animated.parallel([
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 250,
+          useNativeDriver: true,
+        }),
+        Animated.spring(scaleAnim, {
+          toValue: 1,
+          friction: 8,
+          tension: 65,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    } else {
+      Animated.parallel([
+        Animated.timing(fadeAnim, {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(scaleAnim, {
+          toValue: 0.85,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+      ]).start(() => setShowModal(false));
+    }
+  }, [visible]);
 
   // ── Fetch AI icebreakers whenever the modal opens ─────────────
   useEffect(() => {
@@ -74,12 +113,37 @@ const RizzModal = ({ visible, onClose, onSend, matchId }) => {
 
   const currentSuggestion = suggestions[currentIdx] ?? "";
 
+  if (!showModal) return null;
+
   return (
-    <BaseModal visible={visible} onClose={onClose} fullScreen={false}>
-      <View style={styles.container}>
+    <Modal
+      visible={showModal}
+      transparent
+      animationType="none"
+      onRequestClose={onClose}
+      statusBarTranslucent
+    >
+      {/* Overlay */}
+      <TouchableWithoutFeedback onPress={onClose}>
+        <Animated.View style={[styles.overlay, { opacity: fadeAnim }]} />
+      </TouchableWithoutFeedback>
+
+      {/* Centered card */}
+      <View style={styles.centerWrapper} pointerEvents="box-none">
+        <Animated.View
+          style={[
+            styles.card,
+            {
+              opacity: fadeAnim,
+              transform: [{ scale: scaleAnim }],
+            },
+          ]}
+        >
+          <View style={styles.container}>
 
         {/* Bot icon header */}
         <View style={styles.header}>
+
           <Image source={Icons.BotIcon} style={{ width: 70, height: 70 }} />
         </View>
 
@@ -137,7 +201,7 @@ const RizzModal = ({ visible, onClose, onSend, matchId }) => {
             <MaterialIcons
               name="autorenew"
               size={26}
-              color={loading ? "#ccc" : colors.activePrimary}
+              color={loading ? "#fff" : colors.secondary}
             />
           </TouchableOpacity>
 
@@ -162,11 +226,29 @@ const RizzModal = ({ visible, onClose, onSend, matchId }) => {
         </View>
 
       </View>
-    </BaseModal>
+        </Animated.View>
+      </View>
+    </Modal>
   );
 };
 
 const styles = StyleSheet.create({
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0,0,0,0.5)",
+  },
+  centerWrapper: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 24,
+  },
+  card: {
+    backgroundColor: "#fff",
+    borderRadius: 20,
+    width: "100%",
+    maxWidth: 380,
+  },
   container: {
     padding: 24,
     alignItems: "center",
@@ -227,14 +309,14 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   iconBtn: {
-    backgroundColor: "#FFF8F5",
+    backgroundColor: colors.primary,
     borderRadius: 50,
     padding: 15,
     alignItems: "center",
     justifyContent: "center",
   },
   primaryBtn: {
-    backgroundColor: colors.activePrimary,
+    backgroundColor: colors.secondary,
     borderRadius: 8,
     paddingVertical: 15,
     paddingHorizontal: 18,
@@ -242,10 +324,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   primaryBtnDisabled: {
-    backgroundColor: "#F9A88A",
+    backgroundColor: colors.secondary,
+    opacity: 0.6,
   },
   primaryBtnText: {
-    color: "#fff",
+    color: colors.primary,
     fontWeight: "bold",
     fontSize: 16,
   },

@@ -1,0 +1,23 @@
+// data/favoriteVideosData.js
+export const favoriteVideosData = [
+  { value: 'Documentaries', label: 'Documentaries' },
+  { value: 'Comedy Shows', label: 'Comedy Shows' },
+  { value: 'Action Movies', label: 'Action Movies' },
+  { value: 'Reality TV', label: 'Reality TV' },
+  { value: 'Anime', label: 'Anime' },
+  { value: 'Cooking Shows', label: 'Cooking Shows' },
+  { value: 'Travel Vlogs', label: 'Travel Vlogs' },
+  { value: 'Music Videos', label: 'Music Videos' },
+  { value: 'Drama Series', label: 'Drama Series' },
+  { value: 'Horror Movies', label: 'Horror Movies' },
+  { value: 'Romance Movies', label: 'Romance Movies' },
+  { value: 'Sci-Fi', label: 'Sci-Fi' },
+  { value: 'Fantasy', label: 'Fantasy' },
+  { value: 'Thrillers', label: 'Thrillers' },
+  { value: 'Mystery', label: 'Mystery' },
+  { value: 'Stand-up Comedy', label: 'Stand-up Comedy' },
+  { value: 'Sports Highlights', label: 'Sports Highlights' },
+  { value: 'News', label: 'News' },
+  { value: 'Educational', label: 'Educational' },
+  { value: 'Podcasts', label: 'Podcasts' },
+];

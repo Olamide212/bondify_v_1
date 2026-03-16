@@ -1,24 +1,64 @@
-import React, { useState } from "react";
-import {
-  SafeAreaView,
-  Text,
-  View,
-  KeyboardAvoidingView,
-  Platform,
-  TouchableWithoutFeedback,
-  Keyboard,
-  TouchableOpacity,
-  Pressable,
-} from "react-native";
-import GlobalPhoneInput from "../../../components/inputs/PhoneInput";
-import NextButton from "../../../components/ui/NextButton";
 import { useRouter } from "expo-router";
+import { ChevronLeft } from "lucide-react-native";
+import { useState } from "react";
+import {
+    Keyboard,
+    KeyboardAvoidingView,
+    Platform,
+    Pressable,
+    SafeAreaView,
+    Text,
+    TouchableWithoutFeedback,
+    View,
+} from "react-native";
 import TextInput from "../../../components/inputs/TextInput";
 import Button from "../../../components/ui/Button";
+import { useToast } from "../../../context/ToastContext";
+import { authAPI } from "../../../services/authService";
 
 const ForgotPassword = () => {
-  const [useEmail, setUseEmail] = useState(false);
+  const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { showToast } = useToast();
+
+  const handleSubmit = async () => {
+    if (!email.trim()) {
+      showToast({ message: "Please enter your email address", variant: "error" });
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.trim())) {
+      showToast({ message: "Please enter a valid email address", variant: "error" });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await authAPI.forgotPassword({
+        email: email.trim().toLowerCase(),
+      });
+
+      showToast({
+        message: response.data?.message || "OTP sent to your email",
+        variant: "success",
+      });
+
+      router.push({
+        pathname: "/forgot-password-otp",
+        params: { email: email.trim().toLowerCase() },
+      });
+    } catch (err) {
+      showToast({
+        message:
+          err.response?.data?.message || "Failed to send OTP. Please try again.",
+        variant: "error",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-white">
@@ -29,26 +69,51 @@ const ForgotPassword = () => {
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View className="flex-1 px-2">
-            <View className="flex-1 mt-8">
-              <Text className="text-3xl font-PlusJakartaSansSemiBold text-black ">
-                Forgot password
+            {/* Back */}
+            <Pressable
+              onPress={() => router.back()}
+              className="mt-4 mb-2 w-10 h-10 items-center justify-center"
+            >
+              <ChevronLeft size={24} color="#111" />
+            </Pressable>
+
+            <View className="flex-1 mt-4">
+              <Text className="text-3xl font-PlusJakartaSansSemiBold text-black">
+                Forgot password?
               </Text>
               <Text className="mb-5 text-black text-lg font-PlusJakartaSans">
-          Input your email address to reset your password
+                Enter the email address associated with your account and
+                we&apos;ll send you a verification code to reset your password.
               </Text>
 
-            
-
-              <TextInput placeholder="Enter your email address"  />
-            
+              <TextInput
+                placeholder="Enter your email address"
+                value={email}
+                onChangeText={setEmail}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                autoCorrect={false}
+              />
             </View>
 
             <View className="w-full items-end pb-6">
               <Button
-                title="Submit"
-                variant="gradient"
-                onPress={() => router.push("/validation")}
+                title="Send Verification Code"
+                variant="primary"
+                onPress={handleSubmit}
+                loading={loading}
               />
+
+              <View className="flex-row justify-center items-center gap-1 mt-4 w-full">
+                <Text className="text-lg font-PlusJakartaSansMedium">
+                  Remember your password?
+                </Text>
+                <Pressable onPress={() => router.back()}>
+                  <Text className="text-lg font-PlusJakartaSansMedium text-primary">
+                    Login
+                  </Text>
+                </Pressable>
+              </View>
             </View>
           </View>
         </TouchableWithoutFeedback>

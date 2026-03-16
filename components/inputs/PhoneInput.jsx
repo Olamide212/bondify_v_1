@@ -56,7 +56,7 @@ const GlobalPhoneInput = ({
 
       <TextInput
         style={styles.input}
-        placeholder="8012345678"
+        placeholder="WhatsApp number"
         placeholderTextColor="#929292"
         keyboardType="number-pad"
         value={phoneNumber}

@@ -1,8 +1,13 @@
 import { useRouter } from "expo-router";
 import {
   Baby, BookOpen, ChevronRight, Cigarette, Dumbbell,
-  Flag, Globe, Heart, HeartHandshake, MessageCircleHeart,
-  PawPrint, Plus, Ruler, Sparkles, Users, Wallet, Wine, X,
+  Flag,
+  Gamepad2,
+  Globe, Heart, HeartHandshake, MessageCircleHeart,
+  Music,
+  PawPrint,
+  Play,
+  Ruler, Sparkles, Users, Wallet, Wine, X
 } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import {
@@ -12,7 +17,7 @@ import {
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import NationalityModal from "../../components/modals/NationalityModal";
 import { colors } from "../../constant/colors";
-import {useLookupOptions} from "../../hooks/useLookupOptions";
+import { useLookupOptions } from "../../hooks/useLookupOptions";
 import BaseModal from "../modals/BaseModal";
 import ProfileEthnicityModal from "../modals/ProfileEthnicityModal";
 import ProfileReligionModal from "../modals/ProfileReligionModal";
@@ -266,6 +271,90 @@ const MyInfo = ({ profile, onUpdateField }) => {
             onPress={() => openModal(key, title, options)}
           />
         ))}
+      </Card>
+
+      {/* ── INTERESTS & HOBBIES ──────────────────────────────────────────── */}
+      <SectionTitle label="Interests & Hobbies" />
+      <Card>
+        <View style={s.interestsGrid}>
+          {/* Favorite Music */}
+          {Array.isArray(profileData?.favoriteMusic) && profileData.favoriteMusic.length > 0 && (
+            <View style={s.interestCategory}>
+              <View style={s.categoryHeader}>
+                <Music size={16} color={colors.primary} />
+                <Text style={s.categoryTitle}>Music</Text>
+              </View>
+              <View style={s.chipsRow}>
+                {profileData.favoriteMusic.slice(0, 3).map((item, idx) => (
+                  <View key={idx} style={s.interestChip}>
+                    <Text style={s.interestChipText}>{item}</Text>
+                  </View>
+                ))}
+                {profileData.favoriteMusic.length > 3 && (
+                  <View style={s.moreChip}>
+                    <Text style={s.moreChipText}>+{profileData.favoriteMusic.length - 3}</Text>
+                  </View>
+                )}
+              </View>
+            </View>
+          )}
+
+          {/* Favorite Videos */}
+          {Array.isArray(profileData?.favoriteVideos) && profileData.favoriteVideos.length > 0 && (
+            <View style={s.interestCategory}>
+              <View style={s.categoryHeader}>
+                <Play size={16} color={colors.primary} />
+                <Text style={s.categoryTitle}>Videos</Text>
+              </View>
+              <View style={s.chipsRow}>
+                {profileData.favoriteVideos.slice(0, 3).map((item, idx) => (
+                  <View key={idx} style={s.interestChip}>
+                    <Text style={s.interestChipText}>{item}</Text>
+                  </View>
+                ))}
+                {profileData.favoriteVideos.length > 3 && (
+                  <View style={s.moreChip}>
+                    <Text style={s.moreChipText}>+{profileData.favoriteVideos.length - 3}</Text>
+                  </View>
+                )}
+              </View>
+            </View>
+          )}
+
+          {/* Fun Activities */}
+          {Array.isArray(profileData?.funActivities) && profileData.funActivities.length > 0 && (
+            <View style={s.interestCategory}>
+              <View style={s.categoryHeader}>
+                <Gamepad2 size={16} color={colors.primary} />
+                <Text style={s.categoryTitle}>Activities</Text>
+              </View>
+              <View style={s.chipsRow}>
+                {profileData.funActivities.slice(0, 3).map((item, idx) => (
+                  <View key={idx} style={s.interestChip}>
+                    <Text style={s.interestChipText}>{item}</Text>
+                  </View>
+                ))}
+                {profileData.funActivities.length > 3 && (
+                  <View style={s.moreChip}>
+                    <Text style={s.moreChipText}>+{profileData.funActivities.length - 3}</Text>
+                  </View>
+                )}
+              </View>
+            </View>
+          )}
+
+          {/* Empty state */}
+          {(!Array.isArray(profileData?.favoriteMusic) || profileData.favoriteMusic.length === 0) &&
+           (!Array.isArray(profileData?.favoriteVideos) || profileData.favoriteVideos.length === 0) &&
+           (!Array.isArray(profileData?.funActivities) || profileData.funActivities.length === 0) && (
+            <TouchableOpacity
+              style={s.emptyState}
+              onPress={() => router.push('/profile-edit')}
+            >
+              <Text style={s.emptyText}>Add your interests and hobbies</Text>
+            </TouchableOpacity>
+          )}
+        </View>
       </Card>
 
       {/* ── OPTION PICKER MODAL ──────────────────────────────────────────── */}

@@ -1,0 +1,23 @@
+// data/funActivitiesData.js
+export const funActivitiesData = [
+  { value: 'Hiking', label: 'Hiking' },
+  { value: 'Cooking', label: 'Cooking' },
+  { value: 'Reading', label: 'Reading' },
+  { value: 'Gaming', label: 'Gaming' },
+  { value: 'Photography', label: 'Photography' },
+  { value: 'Dancing', label: 'Dancing' },
+  { value: 'Traveling', label: 'Traveling' },
+  { value: 'Painting', label: 'Painting' },
+  { value: 'Writing', label: 'Writing' },
+  { value: 'Yoga', label: 'Yoga' },
+  { value: 'Fitness', label: 'Fitness' },
+  { value: 'Music', label: 'Music' },
+  { value: 'Movies', label: 'Movies' },
+  { value: 'Sports', label: 'Sports' },
+  { value: 'Board Games', label: 'Board Games' },
+  { value: 'Volunteering', label: 'Volunteering' },
+  { value: 'Gardening', label: 'Gardening' },
+  { value: 'Shopping', label: 'Shopping' },
+  { value: 'Concerts', label: 'Concerts' },
+  { value: 'Beach', label: 'Beach' },
+];

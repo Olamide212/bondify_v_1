@@ -1,35 +1,36 @@
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { Image } from "expo-image";
 import {
-  Baby,
-  Ban,
-  Briefcase,
-  Cigarette,
-  Dog,
-  Dumbbell,
-  Flag,
-  GraduationCap,
-  Heart,
-  MapPin,
-  Ruler,
-  Share2,
-  Wallet,
-  Wine,
+    Baby,
+    Ban,
+    Briefcase,
+    Cigarette,
+    Dog,
+    Dumbbell,
+    Flag,
+    GraduationCap,
+    Heart,
+    MapPin,
+    Ruler,
+    Share2,
+    Wallet,
+    Wine,
 } from "lucide-react-native";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Share } from "react-native";
-import BlockReportModal from "../modals/Blockreportmodal";
 import {
-  Animated,
-  Dimensions,
-  findNodeHandle,
-  Text,
-  TouchableOpacity,
-  UIManager,
-  View,
+    Animated,
+    Dimensions,
+    findNodeHandle, Share, Text,
+    TouchableOpacity,
+    UIManager,
+    View
 } from "react-native";
+import { useSelector } from "react-redux";
 import { Icons } from "../../constant/icons";
 import { usePersistentUriCache } from "../../hooks/usePersistentUriCache";
+import AIService from "../../services/aiService";
+import AiMatchSuggestionModal from "../modals/AiMatchSuggestionModal";
+import BlockReportModal from "../modals/Blockreportmodal";
 import CommentBox from "../ui/CommentBox";
 import DirectMessageBox from "../ui/DirectMessageBox";
 import ProfileHeroSection from "./profileCard/ProfileHeroSection";
@@ -73,10 +74,47 @@ const ProfileCard = ({ profile }) => {
   const [visibleCommentBoxIndex, setVisibleCommentBoxIndex] = useState(null);
   const [scrollOffset, setScrollOffset] = useState(0);
   const [blockReportModal, setBlockReportModal] = useState({ visible: false, mode: "block" });
+  const [compatibilityScore, setCompatibilityScore] = useState(null);
+  const [loadingScore, setLoadingScore] = useState(false);
+  const [aiMatchModalVisible, setAiMatchModalVisible] = useState(false);
+
+  const { user: currentUser } = useSelector((state) => state.auth);
 
   const openBlock  = () => setBlockReportModal({ visible: true, mode: "block" });
   const openReport = () => setBlockReportModal({ visible: true, mode: "report" });
   const closeModal = () => setBlockReportModal((prev) => ({ ...prev, visible: false }));
+
+  // Fetch compatibility score
+  useEffect(() => {
+    const fetchCompatibilityScore = async () => {
+      if (!profile?._id && !profile?.id) return;
+      
+      setLoadingScore(true);
+      try {
+        const userId = profile._id || profile.id;
+        const scoreData = await AIService.getCompatibilityScore(userId);
+        setCompatibilityScore(scoreData.score);
+      } catch (error) {
+        console.error('Failed to fetch compatibility score:', error);
+        setCompatibilityScore(null);
+      } finally {
+        setLoadingScore(false);
+      }
+    };
+
+    fetchCompatibilityScore();
+  }, [profile?._id, profile?.id]);
+
+  // Show AI match suggestion modal after profile loads
+  useEffect(() => {
+    if (profile && compatibilityScore !== null && !aiMatchModalVisible) {
+      // Small delay to let the profile render first
+      const timer = setTimeout(() => {
+        setAiMatchModalVisible(true);
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [profile, compatibilityScore, aiMatchModalVisible]);
 
   const handleShare = async () => {
     const name = profile?.name || profile?.firstName || "someone";
@@ -197,6 +235,8 @@ const ProfileCard = ({ profile }) => {
             isImageCacheHydrated={isImageCacheHydrated}
             isUriCached={isUriCached}
             onMarkUriLoaded={touchUri}
+            compatibilityScore={compatibilityScore}
+            loadingScore={loadingScore}
           />
 
           <View className="py-3">
@@ -586,6 +626,13 @@ const ProfileCard = ({ profile }) => {
                 closeModal();
                 // Parent can handle navigation away after block if needed
               }}
+            />
+
+            <AiMatchSuggestionModal
+              visible={aiMatchModalVisible}
+              onClose={() => setAiMatchModalVisible(false)}
+              profile={profile}
+              currentUser={currentUser}
             />
 
           </View>

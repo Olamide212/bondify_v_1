@@ -171,9 +171,9 @@ const Register = () => {
                   </Pressable>
                  
                 </View>
-                 <Pressable className='mt-5 text-center px-3 py-4 bg-black text-white rounded'  onPress={() => router.push("/voice-prompt")}>
+                 {/* <Pressable className='mt-5 text-center px-3 py-4 bg-black text-white rounded'  onPress={() => router.push("/favorite-videos")}>
                     <Text className='text-white text-center'>Go to About</Text>
-                  </Pressable>
+                  </Pressable> */}
               </View>
             </ScrollView>
 

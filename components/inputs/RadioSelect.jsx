@@ -6,11 +6,35 @@ const RadioSelect = ({
   label,
   options = [],
   value,
+  values = [], // For multiple selections
   onChange,
+  onMultiChange, // For multiple selections
   error,
   horizontal = false,
+  multiSelect = false, // New prop to enable multiple selections
   className = "",
 }) => {
+  const handlePress = (optionValue) => {
+    if (multiSelect && onMultiChange) {
+      if (values.includes(optionValue)) {
+        // Remove if already selected
+        onMultiChange(values.filter(v => v !== optionValue));
+      } else {
+        // Add if not selected
+        onMultiChange([...values, optionValue]);
+      }
+    } else if (onChange) {
+      onChange(optionValue);
+    }
+  };
+
+  const isSelected = (optionValue) => {
+    if (multiSelect) {
+      return values.includes(optionValue);
+    }
+    return value === optionValue;
+  };
+
   return (
     <View className={`mb-4 w-full ${className}`}>
       {label && (
@@ -23,15 +47,15 @@ const RadioSelect = ({
           <TouchableOpacity
             key={option.value}
             className={`px-5 py-5 rounded-2xl border-[1px]  ${className}
-               ${value === option.value ? "border-primary bg-primary/10" : "border-[#dadada]"}`}
-            onPress={() => onChange(option.value)}
+               ${isSelected(option.value) ? "border-primary bg-primary/10" : "border-[#dadada]"}`}
+            onPress={() => handlePress(option.value)}
             style={{ borderRadius: 10 }}
           >
             <View className="flex-row justify-between items-center">
               <View className="flex-1 pr-4">
                 <Text
                   className={`text-app text-[16px] font-PlusJakartaSansBold 
-                  ${value === option.value ? "text-black" : ""} `}
+                  ${isSelected(option.value) ? "text-black" : ""} `}
                   style={{ flexWrap: "wrap" }}
                 >
                   {option.label}
@@ -44,12 +68,12 @@ const RadioSelect = ({
               </View>
               <Ionicons
                 name={
-                  value === option.value
-                    ? "radio-button-on"
-                    : "radio-button-off"
+                  isSelected(option.value)
+                    ? (multiSelect ? "checkbox" : "radio-button-on")
+                    : (multiSelect ? "square-outline" : "radio-button-off")
                 }
                 size={20}
-                color={value === option.value ? "#EE5F2B" : "#A4A4A4"}
+                color={isSelected(option.value) ? "#EE5F2B" : "#A4A4A4"}
               />
             </View>
           </TouchableOpacity>

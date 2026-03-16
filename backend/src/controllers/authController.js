@@ -295,4 +295,128 @@ const getMe = async (req, res, next) => {
   }
 };
 
-module.exports = { signup, verifyOtp, resendOtp, login, getMe };
+// @desc    Forgot password – send OTP to email
+// @route   POST /api/auth/forgot-password
+// @access  Public
+const forgotPassword = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ success: false, message: 'Email is required.' });
+    }
+
+    const user = await User.findOne({ email: email.toLowerCase() });
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'No account found with this email.' });
+    }
+
+    const otp       = generateOTP();
+    const otpExpiry = calculateOTPExpiry();
+
+    user.resetPasswordOtp       = otp;
+    user.resetPasswordOtpExpiry = otpExpiry;
+    user.resetPasswordToken     = undefined; // clear any previous token
+    await user.save();
+
+    await sendOtpEmail({ email: user.email, firstName: user.firstName, otp });
+
+    return res.json({
+      success: true,
+      message: 'Password reset OTP sent to your email.',
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Verify forgot-password OTP
+// @route   POST /api/auth/verify-forgot-password-otp
+// @access  Public
+const verifyForgotPasswordOtp = async (req, res, next) => {
+  try {
+    const { email, otp } = req.body;
+
+    if (!email || !otp) {
+      return res.status(400).json({ success: false, message: 'Email and OTP are required.' });
+    }
+
+    const user = await User.findOne({ email: email.toLowerCase() })
+      .select('+resetPasswordOtp +resetPasswordOtpExpiry');
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found.' });
+    }
+
+    if (!user.resetPasswordOtp) {
+      return res.status(400).json({ success: false, message: 'No password reset requested. Please request a new OTP.' });
+    }
+
+    if (user.resetPasswordOtp !== otp) {
+      return res.status(400).json({ success: false, message: 'Invalid OTP.' });
+    }
+
+    if (user.resetPasswordOtpExpiry < new Date()) {
+      return res.status(400).json({ success: false, message: 'OTP has expired. Please request a new one.' });
+    }
+
+    // Generate a short-lived reset token
+    const crypto = require('crypto');
+    const resetToken = crypto.randomBytes(32).toString('hex');
+
+    user.resetPasswordOtp       = undefined;
+    user.resetPasswordOtpExpiry = undefined;
+    user.resetPasswordToken     = resetToken;
+    await user.save();
+
+    return res.json({
+      success: true,
+      message: 'OTP verified. You can now reset your password.',
+      data: { resetToken },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Reset password with token
+// @route   POST /api/auth/reset-password
+// @access  Public
+const resetPassword = async (req, res, next) => {
+  try {
+    const { email, resetToken, newPassword } = req.body;
+
+    if (!email || !resetToken || !newPassword) {
+      return res.status(400).json({ success: false, message: 'Email, reset token, and new password are required.' });
+    }
+
+    if (newPassword.length < 8) {
+      return res.status(400).json({ success: false, message: 'Password must be at least 8 characters.' });
+    }
+
+    const user = await User.findOne({ email: email.toLowerCase() })
+      .select('+resetPasswordToken');
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found.' });
+    }
+
+    if (!user.resetPasswordToken || user.resetPasswordToken !== resetToken) {
+      return res.status(400).json({ success: false, message: 'Invalid or expired reset token. Please start over.' });
+    }
+
+    user.password            = newPassword; // pre-save hook will hash
+    user.resetPasswordToken  = undefined;
+    await user.save();
+
+    return res.json({
+      success: true,
+      message: 'Password reset successfully. You can now login with your new password.',
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = { signup, verifyOtp, resendOtp, login, getMe, forgotPassword, verifyForgotPasswordOtp, resetPassword };

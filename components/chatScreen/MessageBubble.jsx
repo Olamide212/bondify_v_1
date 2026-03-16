@@ -17,6 +17,7 @@ import {
   View
 } from "react-native";
 import { colors } from "../../constant/colors";
+import {fonts} from "../../constant/fonts"; 
 
 const EMOJI_REACTIONS = ["❤️", "😂", "😮", "😢", "👏", "🔥"];
 
@@ -311,13 +312,16 @@ const styles = StyleSheet.create({
     borderColor: "#E5E7EB",
   },
   text: {
-    fontSize: 16,
+    fontSize: 14,
+    fontFamily: fonts.PlusJakartaSans
   },
   myText: {
     color: "#fff",
+    fontFamily: fonts.PlusJakartaSans
   },
   theirText: {
     color: "#1F2937",
+        fontFamily: fonts.PlusJakartaSans
   },
   image: {
     width: 200,

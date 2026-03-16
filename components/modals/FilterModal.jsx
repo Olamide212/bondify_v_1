@@ -294,7 +294,7 @@ const FilterModal = ({ visible, onClose, initialFilters, onApply }) => {
             {/* ── Show Me ── */}
             <View className="flex-col w-full">
               <Text className="text-xl font-PlusJakartaSansBold mt-6 mb-2">Show Me</Text>
-              <View className="w-full flex-col items-center mb-2 bg-[#F1F5F9] px-5 py-2 rounded-xl">
+              <View className="w-full flex-col items-center mb-2 bg-[#F1F5F9] px-2 py-2 rounded-xl">
                 <View className="flex-row flex-wrap justify-between gap-10">
                   {[
                     { label: "Men",      value: "men"      },

@@ -32,7 +32,7 @@ const AccordionItem = ({ question, children }) => {
         onPress={toggleOpen}
         className="flex-row justify-between items-center"
       >
-        <Text className="text-app w-[300px] font-PlusJakartaSansMedium text-base">
+        <Text className="text-black w-[300px] font-PlusJakartaSansMedium text-lg">
           {question}
         </Text>
         <Feather
@@ -41,7 +41,7 @@ const AccordionItem = ({ question, children }) => {
           color={"#000"}
         />
       </TouchableOpacity>
-      {open && <View className="mt-2 text-app">{children}</View>}
+      {open && <View className="mt-2 text-black">{children}</View>}
     </View>
   );
 };

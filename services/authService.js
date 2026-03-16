@@ -76,6 +76,9 @@ export const authAPI = {
     return response;
   },
   resendOtp: (data) => apiClient.post("/auth/resend-otp", data, { skipAuth: true }),
+  forgotPassword: (data) => apiClient.post("/auth/forgot-password", data, { skipAuth: true }),
+  verifyForgotPasswordOtp: (data) => apiClient.post("/auth/verify-forgot-password-otp", data, { skipAuth: true }),
+  resetPassword: (data) => apiClient.post("/auth/reset-password", data, { skipAuth: true }),
   getMe: async () => {
     try {
       const response = await apiClient.get("/auth/me");

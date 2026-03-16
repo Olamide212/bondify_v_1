@@ -141,6 +141,88 @@ Analyze compatibility and respond ONLY with a JSON object like:
 };
 
 // ─────────────────────────────────────────────
+//  AI MATCH SUGGESTION
+// ─────────────────────────────────────────────
+const getMatchSuggestion = async (req, res, next) => {
+  try {
+    if (!process.env.OPENAI_API_KEY) {
+      return res.status(503).json({ success: false, message: 'AI service not configured' });
+    }
+
+    const { userId } = req.params;
+
+    const [me, them] = await Promise.all([
+      User.findById(req.user._id).select(
+        'firstName interests personalities religion lookingFor loveLanguage communicationStyle occupation age location'
+      ),
+      User.findById(userId).select(
+        'firstName interests personalities religion lookingFor loveLanguage communicationStyle occupation age location'
+      ),
+    ]);
+
+    if (!them) return res.status(404).json({ success: false, message: 'User not found' });
+
+    const prompt = `You are a dating app matchmaker AI. Analyze if these two people would be a good match and provide a suggestion.
+
+Person A (Current User):
+- Name: ${me.firstName}
+- Age: ${me.age}
+- Interests: ${(me.interests || []).join(', ') || 'N/A'}
+- Personalities: ${(me.personalities || []).join(', ') || 'N/A'}
+- Looking for: ${me.lookingFor || 'N/A'}
+- Love language: ${me.loveLanguage || 'N/A'}
+- Communication style: ${me.communicationStyle || 'N/A'}
+- Occupation: ${me.occupation || 'N/A'}
+- Location: ${me.location?.city || 'N/A'}
+
+Person B (Profile Viewed):
+- Name: ${them.firstName}
+- Age: ${them.age}
+- Interests: ${(them.interests || []).join(', ') || 'N/A'}
+- Personalities: ${(them.personalities || []).join(', ') || 'N/A'}
+- Looking for: ${them.lookingFor || 'N/A'}
+- Love language: ${them.loveLanguage || 'N/A'}
+- Communication style: ${them.communicationStyle || 'N/A'}
+- Occupation: ${them.occupation || 'N/A'}
+- Location: ${them.location?.city || 'N/A'}
+
+Based on compatibility analysis, respond with a JSON object containing:
+- isGoodMatch: boolean (true if they seem compatible, false otherwise)
+- confidence: number 1-10 (how confident you are in this suggestion)
+- reason: string (2-3 sentence explanation of why this is/isn't a good match)
+- suggestion: string (personalized suggestion for the current user about approaching this person)
+
+Only respond with valid JSON, no additional text.`;
+
+    const ai = getOpenAI();
+    const response = await ai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [{ role: 'user', content: prompt }],
+      max_tokens: 300,
+      temperature: 0.7,
+    });
+
+    let result;
+    try {
+      const raw = response.choices[0].message.content.trim();
+      const clean = raw.replace(/```json|```/g, '').trim();
+      result = JSON.parse(clean);
+    } catch {
+      result = {
+        isGoodMatch: true,
+        confidence: 7,
+        reason: "Based on shared interests and compatible personalities, this could be a promising match.",
+        suggestion: response.choices[0].message.content
+      };
+    }
+
+    res.json({ success: true, data: result });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// ─────────────────────────────────────────────
 //  AI PROFILE BIO GENERATOR
 // ─────────────────────────────────────────────
 const generateBio = async (req, res, next) => {
@@ -557,6 +639,191 @@ Generate 8 diverse prompts that would work well on a dating profile. Make them f
     next(error);
   }
 };
+
+const generateProfileQuestions = async (req, res, next) => {
+  try {
+    if (!process.env.OPENAI_API_KEY) {
+      return res.status(503).json({ success: false, message: 'AI service not configured' });
+    }
+
+    const user = await User.findById(req.user._id).select(
+      'firstName interests personalities occupation'
+    );
+
+    const prompt = `Generate 8 thoughtful and engaging profile questions for a dating app. Each question should help users express their personality, values, and what they're looking for in relationships.
+
+Examples of good questions:
+- "Describe your ideal partner in one sentence."
+- "What makes you happiest in a relationship?"
+- "What kind of energy do you bring to a relationship?"
+- "What's your love language?"
+- "What's the most important quality in a partner?"
+
+User context:
+- Name: ${user.firstName}
+- Interests: ${(user.interests || []).join(', ') || 'Not specified'}
+- Personalities: ${(user.personalities || []).join(', ') || 'Not specified'}
+- Occupation: ${user.occupation || 'Not specified'}
+
+Generate 8 diverse questions that would help someone get to know the user better. Make them fun, revealing, and relationship-focused. Return ONLY a JSON array of strings.`;
+
+    const ai = getOpenAI();
+    const response = await ai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [{ role: 'user', content: prompt }],
+      max_tokens: 400,
+      temperature: 0.9,
+    });
+
+    let questions = [];
+    let raw = '';
+    try {
+      raw = response.choices[0].message.content.trim();
+      const clean = raw.replace(/```json|```/g, '').trim();
+      questions = JSON.parse(clean);
+    } catch {
+      // Fallback: split by newlines and clean up
+      questions = raw.split('\n').map(q => q.trim()).filter(q => q.length > 0).slice(0, 8);
+    }
+
+    res.json({ success: true, data: { questions } });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const generateMusicSuggestions = async (req, res, next) => {
+  try {
+    if (!process.env.OPENAI_API_KEY) {
+      return res.status(503).json({ success: false, message: 'AI service not configured' });
+    }
+
+    const user = await User.findById(req.user._id).select(
+      'firstName interests personalities occupation'
+    );
+
+    const prompt = `Generate 8 diverse music genres and artists that would appeal to someone with this profile. Consider their interests, personality, and occupation to make personalized recommendations.
+
+User context:
+- Name: ${user.firstName}
+- Interests: ${(user.interests || []).join(', ') || 'Not specified'}
+- Personalities: ${(user.personalities || []).join(', ') || 'Not specified'}
+- Occupation: ${user.occupation || 'Not specified'}
+
+Generate 8 music suggestions that could include genres, artists, or specific songs/albums. Make them varied and personalized. Return ONLY a JSON array of strings.`;
+
+    const ai = getOpenAI();
+    const response = await ai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [{ role: 'user', content: prompt }],
+      max_tokens: 300,
+      temperature: 0.9,
+    });
+
+    let genres = [];
+    let raw = '';
+    try {
+      raw = response.choices[0].message.content.trim();
+      const clean = raw.replace(/```json|```/g, '').trim();
+      genres = JSON.parse(clean);
+    } catch {
+      genres = raw.split('\n').map(g => g.trim()).filter(g => g.length > 0).slice(0, 8);
+    }
+
+    res.json({ success: true, data: { genres } });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const generateVideoSuggestions = async (req, res, next) => {
+  try {
+    if (!process.env.OPENAI_API_KEY) {
+      return res.status(503).json({ success: false, message: 'AI service not configured' });
+    }
+
+    const user = await User.findById(req.user._id).select(
+      'firstName interests personalities occupation'
+    );
+
+    const prompt = `Generate 8 video content suggestions (shows, movies, YouTube channels, documentaries, etc.) that would appeal to someone with this profile.
+
+User context:
+- Name: ${user.firstName}
+- Interests: ${(user.interests || []).join(', ') || 'Not specified'}
+- Personalities: ${(user.personalities || []).join(', ') || 'Not specified'}
+- Occupation: ${user.occupation || 'Not specified'}
+
+Generate 8 diverse video content suggestions. Include a mix of movies, TV shows, YouTube channels, documentaries, or other video content. Make them personalized and varied. Return ONLY a JSON array of strings.`;
+
+    const ai = getOpenAI();
+    const response = await ai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [{ role: 'user', content: prompt }],
+      max_tokens: 300,
+      temperature: 0.9,
+    });
+
+    let videos = [];
+    let raw = '';
+    try {
+      raw = response.choices[0].message.content.trim();
+      const clean = raw.replace(/```json|```/g, '').trim();
+      videos = JSON.parse(clean);
+    } catch {
+      videos = raw.split('\n').map(v => v.trim()).filter(v => v.length > 0).slice(0, 8);
+    }
+
+    res.json({ success: true, data: { videos } });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const generateActivitySuggestions = async (req, res, next) => {
+  try {
+    if (!process.env.OPENAI_API_KEY) {
+      return res.status(503).json({ success: false, message: 'AI service not configured' });
+    }
+
+    const user = await User.findById(req.user._id).select(
+      'firstName interests personalities occupation'
+    );
+
+    const prompt = `Generate 8 fun and engaging activity suggestions for someone with this profile. These should be hobbies, pastimes, or recreational activities they might enjoy.
+
+User context:
+- Name: ${user.firstName}
+- Interests: ${(user.interests || []).join(', ') || 'Not specified'}
+- Personalities: ${(user.personalities || []).join(', ') || 'Not specified'}
+- Occupation: ${user.occupation || 'Not specified'}
+
+Generate 8 diverse and creative activity suggestions. Consider both indoor and outdoor activities, creative pursuits, sports, social activities, etc. Make them personalized to their profile. Return ONLY a JSON array of strings.`;
+
+    const ai = getOpenAI();
+    const response = await ai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [{ role: 'user', content: prompt }],
+      max_tokens: 300,
+      temperature: 0.9,
+    });
+
+    let activities = [];
+    let raw = '';
+    try {
+      raw = response.choices[0].message.content.trim();
+      const clean = raw.replace(/```json|```/g, '').trim();
+      activities = JSON.parse(clean);
+    } catch {
+      activities = raw.split('\n').map(a => a.trim()).filter(a => a.length > 0).slice(0, 8);
+    }
+
+    res.json({ success: true, data: { activities } });
+  } catch (error) {
+    next(error);
+  }
+};
+
 const suggestPost = async (req, res, next) => {
   try {
     if (!process.env.OPENAI_API_KEY) {
@@ -616,10 +883,15 @@ Return ONLY a JSON array of 3 strings, no other text.`;
 module.exports = {
   getIcebreakerSuggestions,
   getCompatibilityScore,
+  getMatchSuggestion,
   generateBio,
   generateBioFromPrompt,
   generatePrompts,
   generateConversationPrompts,
+  generateProfileQuestions,
+  generateMusicSuggestions,
+  generateVideoSuggestions,
+  generateActivitySuggestions,
   getDateIdeas,
   chat,
   suggestMessage,

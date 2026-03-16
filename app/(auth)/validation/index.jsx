@@ -1,94 +1,60 @@
 import { useRouter } from "expo-router";
-import { useState } from "react";
-import {
-    Keyboard,
-    KeyboardAvoidingView,
-    Platform,
-    SafeAreaView,
-    Text,
-    TouchableWithoutFeedback,
-    View,
-} from "react-native";
 import { useDispatch, useSelector } from "react-redux";
-import GlobalOtpInput from "../../../components/inputs/OtpInput";
-import Button from "../../../components/ui/Button";
+import OtpVerificationScreen from "../../../components/common/OtpVerificationScreen";
 import { useToast } from "../../../context/ToastContext";
 import { resendOtp, verifyOtp } from "../../../slices/authSlice";
 import { tokenManager } from "../../../utils/tokenManager";
 
 const Validation = () => {
-  const [code, setCode] = useState("");
-  const [touched, setTouched] = useState(false);
-  const [error, setError] = useState("");
-
-
   const dispatch = useDispatch();
   const router = useRouter();
   const { showToast } = useToast();
 
-  // Pull required auth state
   const { loading, pendingEmail, onboardingToken } = useSelector(
     (state) => state.auth
   );
 
-  
-const handleSubmit = async () => {
-  setTouched(true);
+  const handleSubmit = async (code) => {
+    if (!pendingEmail) {
+      showToast({
+        message: "Email not found. Please restart signup.",
+        variant: "error",
+      });
+      return;
+    }
 
-  if (!code || code.length < 4) {
-    setError("Please enter the 4-digit code");
-    return;
-  }
+    try {
+      const response = await dispatch(
+        verifyOtp({
+          email: pendingEmail,
+          otp: code,
+        })
+      ).unwrap();
 
-  if (!pendingEmail) {
-    showToast({
-      message: "Email not found. Please restart signup.",
-      variant: "error",
-    });
-    return;
-  }
+      console.log("✅ OTP Verification COMPLETE");
 
-  try {
-    const response = await dispatch(
-      verifyOtp({
-        email: pendingEmail,
-        otp: code,
-      })
-    ).unwrap();
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      await tokenManager.debugAllStoredValues();
 
-    console.log("✅ OTP Verification COMPLETE");
-    console.log("Response tokens:", {
-      token: response?.token ? "EXISTS" : "MISSING",
-      onboardingToken: response?.onboardingToken ? "EXISTS" : "MISSING",
-    });
+      showToast({
+        message: "OTP verified successfully",
+        variant: "success",
+      });
 
-    // Wait a moment for tokens to be stored
-    await new Promise((resolve) => setTimeout(resolve, 100));
+      await import("expo-secure-store").then((SecureStore) =>
+        SecureStore.setItemAsync("onboardingStep", "agreement")
+      );
 
-    // Verify tokens were stored
-    await tokenManager.debugAllStoredValues();
-
-    showToast({
-      message: "OTP verified successfully",
-      variant: "success",
-    });
-
-    // Set onboarding step to agreement so onboarding redirect logic resumes here
-    await import("expo-secure-store").then(SecureStore =>
-      SecureStore.setItemAsync("onboardingStep", "agreement")
-    );
-
-    console.log("🚀 Navigating to agreement...");
-    router.replace("/(onboarding)/agreement");
-  } catch (err) {
-    console.error("❌ OTP Verification failed:", err);
-    showToast({
-      message: err || "Invalid verification code",
-      variant: "error",
-    });
-  }
-};
-
+      console.log("🚀 Navigating to agreement...");
+      router.replace("/(onboarding)/agreement");
+    } catch (err) {
+      console.error("❌ OTP Verification failed:", err);
+      showToast({
+        message: err || "Invalid verification code",
+        variant: "error",
+      });
+    }
+  };
 
   const handleResend = async () => {
     if (!pendingEmail) {
@@ -101,10 +67,7 @@ const handleSubmit = async () => {
 
     try {
       await dispatch(resendOtp({ email: pendingEmail })).unwrap();
-      showToast({
-        message: "OTP resent successfully",
-        variant: "info",
-      });
+      showToast({ message: "OTP resent successfully", variant: "info" });
     } catch (err) {
       showToast({
         message: err || "Failed to resend OTP",
@@ -114,43 +77,15 @@ const handleSubmit = async () => {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
-      <KeyboardAvoidingView
-        className="flex-1"
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 0}
-      >
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <View className="flex-1 px-2 mt-8">
-            <Text className="text-3xl font-PlusJakartaSansSemiBold text-black">
-              Enter verification code
-            </Text>
-
-            <Text className="mb-7 text-black text-xl font-PlusJakartaSans">
-              Please enter the verification code sent to{" "}
-              <Text className="font-PlusJakartaSansSemiBold">{pendingEmail}</Text>
-            </Text>
-
-            <GlobalOtpInput
-              onTextChange={setCode}
-              onFocus={() => setTouched(true)}
-              touched={touched}
-              errors={error}
-              onResend={handleResend}
-            />
-
-            <View className="w-full items-end mt-8">
-              <Button
-                title="Continue"
-                variant="primary"
-                onPress={handleSubmit}
-                loading={loading}
-              />
-            </View>
-          </View>
-        </TouchableWithoutFeedback>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+    <OtpVerificationScreen
+      title="Enter verification code"
+      subtitle="Please enter the verification code sent to"
+      email={pendingEmail}
+      loading={loading}
+      onSubmit={handleSubmit}
+      onResend={handleResend}
+      submitLabel="Continue"
+    />
   );
 };
 

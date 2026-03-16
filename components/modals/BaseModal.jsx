@@ -129,5 +129,6 @@ const styles = StyleSheet.create({
   fullScreenContent: {
     flex: 1,
     backgroundColor: "#fff",
+    paddingHorizontal: 10,
   },
 });

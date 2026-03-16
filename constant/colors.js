@@ -1,10 +1,12 @@
 export const colors = {
-  primary: "#EE5F2B",
-       background: "#FFF8F5",
-  secondary: "#FAE83C",
+  primary: "#371F7D",
+       background: "#F1ECFF",
+  secondary: "#D7FF81",
+      tertiary: "#BC96FE",
   gray: "#64748B",
-  activePrimary: "#EE5F2B",
+  activePrimary: "#371F7D",
   inactiveTab: "#9CA3AF",
   primaryLight: "#FFF0EA",
   primaryBorder: "#F5C4AC",
+      pinkColor: "#ff4365",
 };

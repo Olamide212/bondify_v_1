@@ -1,0 +1,23 @@
+// data/favoriteMusicData.js
+export const favoriteMusicData = [
+  { value: 'Pop', label: 'Pop' },
+  { value: 'Rock', label: 'Rock' },
+  { value: 'Jazz', label: 'Jazz' },
+  { value: 'Classical', label: 'Classical' },
+  { value: 'Hip Hop', label: 'Hip Hop' },
+  { value: 'Electronic', label: 'Electronic' },
+  { value: 'Country', label: 'Country' },
+  { value: 'R&B', label: 'R&B' },
+  { value: 'Reggae', label: 'Reggae' },
+  { value: 'Blues', label: 'Blues' },
+  { value: 'Folk', label: 'Folk' },
+  { value: 'Indie', label: 'Indie' },
+  { value: 'Alternative', label: 'Alternative' },
+  { value: 'Metal', label: 'Metal' },
+  { value: 'Punk', label: 'Punk' },
+  { value: 'Soul', label: 'Soul' },
+  { value: 'Funk', label: 'Funk' },
+  { value: 'Disco', label: 'Disco' },
+  { value: 'Gospel', label: 'Gospel' },
+  { value: 'World Music', label: 'World Music' },
+];

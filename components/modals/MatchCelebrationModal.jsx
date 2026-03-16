@@ -17,6 +17,15 @@ import BaseModal from "./BaseModal";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
+// Helper function to extract image URI
+const extractImageUri = (item) => {
+  if (!item) return null;
+  if (typeof item === 'string' && item.length > 0) return item;
+  if (typeof item === 'object')
+    return item.url || item.uri || item.secure_url || item.imageUrl || item.image || item.src || null;
+  return null;
+};
+
 const MatchCelebrationModal = ({
   visible,
   onClose,
@@ -94,8 +103,8 @@ const MatchCelebrationModal = ({
     onClose?.();
   };
 
-  const matchedUserImage = matchedUser?.images?.[0];
-  const currentUserImage = currentUser?.images?.[0];
+  const matchedUserImage = extractImageUri(matchedUser?.images?.[0]);
+  const currentUserImage = extractImageUri(currentUser?.images?.[0]);
   const matchedName      = matchedUser?.name || matchedUser?.firstName || "someone special";
 
   return (
@@ -214,7 +223,7 @@ const MatchCelebrationModal = ({
               onPress={handleSendMessage}
               disabled={!selectedIceBreaker}
             >
-              <MessageCircle size={20} color="#fff" />
+              <MessageCircle size={20} color={colors.primary} />
               <Text style={styles.sendBtnText}>Send a Message</Text>
             </Pressable>
 
@@ -231,9 +240,9 @@ const MatchCelebrationModal = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FDF5EE", // warm cream — matches the design
+    backgroundColor: colors.primary, 
     alignItems: "center",
-    paddingTop: 52,
+    paddingTop: 30,
     paddingHorizontal: 24,
     paddingBottom: 36,
   },
@@ -241,19 +250,24 @@ const styles = StyleSheet.create({
   // ── Header ──────────────────────────────────────────────────────────────────
   closeBtn: {
     position:        "absolute",
-    top:             52,
+    top:             30,
     left:            20,
-    width:           36,
-    height:          36,
-    borderRadius:    18,
-    backgroundColor: "#EFEFEF",
+    width:           40,
+    height:          40,
+    borderRadius:    20,
+    backgroundColor: "rgba(255,255,255,0.9)",
     alignItems:      "center",
     justifyContent:  "center",
+    shadowColor:     "#000",
+    shadowOffset:    { width: 0, height: 2 },
+    shadowOpacity:   0.1,
+    shadowRadius:    4,
+    elevation:       3,
   },
   brandName: {
-    fontSize:    17,
+    fontSize:    20,
     fontFamily:  "PlusJakartaSansBold",
-    color:       "#222",
+    color:       "#fff",
     marginBottom: 28,
   },
 
@@ -266,18 +280,18 @@ const styles = StyleSheet.create({
 
   // ── Title ────────────────────────────────────────────────────────────────────
   matchTitle: {
-    fontSize:    38,
+    fontSize:    42,
     fontFamily:  "PlusJakartaSansBold",
-    color:       colors.primary,  // orange
+    color:       "#fff",  // white
     textAlign:   "center",
-    marginBottom: 6,
+    marginBottom: 8,
   },
   matchSubtitle: {
-    fontSize:    15,
-    fontFamily:  "PlusJakartaSans",
-    color:       "#666",
+    fontSize:    16,
+    fontFamily:  "PlusJakartaSansMedium",
+    color:       "#fff",
     textAlign:   "center",
-    marginBottom: 32,
+    marginBottom: 24,
   },
 
   // ── Profile images ───────────────────────────────────────────────────────────
@@ -294,14 +308,14 @@ const styles = StyleSheet.create({
     alignItems:     "center",
     justifyContent: "center",
   },
-  doodle1: { position: "absolute", left:  "10%", top:    "10%", fontSize: 22, opacity: 0.35 },
+  doodle1: { position: "absolute", left:  "10%", top:    "10%", fontSize: 22, opacity: 0.10 },
   doodle2: { position: "absolute", left:  "40%", top:    "5%",  fontSize: 20, opacity: 0.35 },
   doodle3: { position: "absolute", right: "8%",  bottom: "15%", fontSize: 24, opacity: 0.35 },
 
   avatarWrapper: {
-    width:        120,
-    height:       120,
-    borderRadius: 60,
+    width:        140,
+    height:       140,
+    borderRadius: 100,
     borderWidth:  3,
     borderColor:  "#fff",
     overflow:     "hidden",
@@ -354,23 +368,24 @@ const styles = StyleSheet.create({
 
   // ── Body text ─────────────────────────────────────────────────────────────────
   bodyText: {
-    fontSize:    15,
-    fontFamily:  "PlusJakartaSans",
-    color:       "#333",
+    fontSize:    16,
+    fontFamily:  "PlusJakartaSansMedium",
+    color:       "#fff",
     textAlign:   "center",
-    lineHeight:  22,
-    marginBottom: 8,
-    paddingHorizontal: 12,
+    lineHeight:  24,
+    marginBottom: 12,
+    paddingHorizontal: 16,
   },
   bodyNameBold: {
     fontFamily: "PlusJakartaSansBold",
-    color:      "#222",
+    color:      colors.secondary,
   },
   ctaLine: {
-    fontSize:    12,
+    fontSize:    14,
     fontFamily:  "PlusJakartaSansBold",
-    color:       colors.primary,
-    letterSpacing: 1.2,
+    color:       colors.secondary,
+    letterSpacing: 1.5,
+    textTransform: "uppercase",
     marginBottom: 28,
   },
 
@@ -400,8 +415,8 @@ const styles = StyleSheet.create({
     maxWidth:        SCREEN_WIDTH - 80,
   },
   chipSelected: {
-    backgroundColor: colors.primary,
-    borderColor:     colors.primary,
+    backgroundColor: colors.secondary,
+    borderColor:     colors.secondary,
   },
   chipUnselected: {
     backgroundColor: "#fff",
@@ -413,7 +428,7 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   chipTextSelected: {
-    color: "#fff",
+    color: colors.primary,
   },
   chipTextUnselected: {
     color: colors.primary,
@@ -429,10 +444,10 @@ const styles = StyleSheet.create({
     alignItems:     "center",
     justifyContent: "center",
     gap:            10,
-    backgroundColor: colors.primary,
+    backgroundColor: colors.secondary,
     paddingVertical: 17,
     borderRadius:   30,
-    shadowColor:    colors.primary,
+    shadowColor:    colors.secondary,
     shadowOffset:   { width: 0, height: 4 },
     shadowOpacity:  0.3,
     shadowRadius:   8,
@@ -442,7 +457,7 @@ const styles = StyleSheet.create({
     opacity: 0.45,
   },
   sendBtnText: {
-    color:      "#fff",
+    color:      colors.primary,
     fontSize:   17,
     fontFamily: "PlusJakartaSansSemiBold",
   },
@@ -452,11 +467,11 @@ const styles = StyleSheet.create({
     paddingVertical: 17,
     borderRadius:    30,
     borderWidth:     1.5,
-    borderColor:     colors.primary,
+    borderColor:     colors.secondary,
     backgroundColor: "transparent",
   },
   keepSwipingText: {
-    color:      colors.primary,
+    color:      colors.secondary,
     fontSize:   17,
     fontFamily: "PlusJakartaSansMedium",
   },

@@ -1,11 +1,12 @@
-import { LinearGradient } from "expo-linear-gradient";
 import { Image } from "expo-image";
-import { StatusBar } from "expo-status-bar";
+import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { StatusBar } from "expo-status-bar";
+import { StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Button from "../../../components/ui/Button";
-import {images} from "../../../constant/images";
+import { colors } from "../../../constant/colors";
+import { images } from "../../../constant/images";
 
 // ── Swap this for your own local asset once you have the photo ──────────────
 // e.g. require("../../../assets/images/african-couple.jpg")
@@ -28,9 +29,9 @@ const Onboarding = () => {
       {/* ── Primary orange overlay (semi-transparent) ── */}
       <LinearGradient
         colors={[
-          "rgba(238, 95, 43, 0.55)",   // top — lighter tint
-          "rgba(238, 95, 43, 0.70)",   // mid
-          "rgba(238, 95, 43, 0.92)",   // bottom — almost solid for text legibility
+          "rgba(55, 31, 125, 0.55)",   // top — lighter tint
+          "rgba(55, 31, 125, 0.70)",   // mid
+          "rgba(55, 31, 125, 0.92)",   // bottom — almost solid for text legibility
         ]}
         start={{ x: 0, y: 0 }}
         end={{ x: 0, y: 1 }}
@@ -82,7 +83,7 @@ const Onboarding = () => {
                 onPress={() => router.push("/register")}
                 style={styles.outlineBtn}
                 textClassName="font-PlusJakartaSansMedium"
-                variant="black"
+                variant="secondary"
               />
             </View>
 
@@ -109,7 +110,7 @@ const Onboarding = () => {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: "#EE5F2B",
+    backgroundColor: colors.primary,
   },
   safeArea: {
     flex: 1,

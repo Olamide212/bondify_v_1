@@ -3,20 +3,19 @@
  */
 
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import { Image }   from 'expo-image';
-import { Briefcase, MapPin } from 'lucide-react-native';
+import { Image } from 'expo-image';
+import { Briefcase, Heart, MapPin } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
 import {
-  ActivityIndicator,
-  Pressable,
-  StyleSheet,
-  Text,
-  TouchableWithoutFeedback,
-  View,
+    ActivityIndicator,
+    Pressable,
+    Text,
+    TouchableWithoutFeedback,
+    View
 } from 'react-native';
-import { colors }        from '../../../constant/colors';
+import { colors } from '../../../constant/colors';
+import VerifiedIcon from '../../ui/VerifiedIcon';
 import VoicePromptButton from '../../ui/VoicepromptButton';
-import VerifiedIcon      from '../../ui/VerifiedIcon';
 
 const extractVoicePromptUri = (voicePrompt) => {
   if (!voicePrompt) return null;
@@ -35,6 +34,8 @@ const ProfileHeroSection = ({
   isImageCacheHydrated,
   isUriCached,
   onMarkUriLoaded,
+  compatibilityScore,
+  loadingScore,
 }) => {
   const [mainImageLoading, setMainImageLoading] = useState(false);
 
@@ -87,7 +88,7 @@ const ProfileHeroSection = ({
             )}
 
             <View className="absolute bottom-64 left-6 right-6">
-              {/* Name + age */}
+              {/* Name + age + compatibility score */}
               <View className="flex-row items-center mb-3">
                 <Text className="text-white text-4xl font-PlusJakartaSansBold mr-2 capitalize" numberOfLines={1}>
                   {displayName}
@@ -95,6 +96,16 @@ const ProfileHeroSection = ({
                 <View className="flex-row items-center gap-2">
                   <Text className="text-white text-4xl font-PlusJakartaSans">{profile.age}</Text>
                   {(profile.verified || profile.isVerified) && <VerifiedIcon />}
+                  
+                  {/* Compatibility Score */}
+                  {compatibilityScore !== null && !loadingScore && (
+                    <View className="flex-row items-center bg-pink-500/85 px-3 py-1 rounded-full">
+                      <Heart size={14} color="#fff" fill="#fff" />
+                      <Text className="text-white text-sm font-PlusJakartaSansBold ml-1">
+                        {compatibilityScore}%
+                      </Text>
+                    </View>
+                  )}
                 </View>
               </View>
 

@@ -2,9 +2,10 @@
  * AroundYouTab.jsx
  */
 
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import { Info, MapPin, Briefcase, HandCoins } from 'lucide-react-native';
+import { Briefcase, Heart, Info, MapPin } from 'lucide-react-native';
 import { useEffect, useRef, useState } from 'react';
 import {
   Animated,
@@ -17,9 +18,9 @@ import {
   View,
 } from 'react-native';
 import { colors } from '../../constant/colors';
+import AIService from '../../services/aiService';
 import VerifiedIcon from '../ui/VerifiedIcon';
 import VoicePromptButton from '../ui/VoicepromptButton';
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 
 const FALLBACK_IMAGE = 'https://via.placeholder.com/800x1200?text=No+Photo';
 
@@ -57,12 +58,34 @@ const extractVoicePromptUri = (voicePrompt) => {
 
 const AroundYouTab = ({ profile, onViewProfile, actionMessage }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [compatibilityScore, setCompatibilityScore] = useState(null);
+  const [loadingScore, setLoadingScore] = useState(false);
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const router   = useRouter();
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
 
   useEffect(() => {
     setCurrentImageIndex(0);
+  }, [profile?._id, profile?.id]);
+
+  useEffect(() => {
+    const fetchCompatibilityScore = async () => {
+      if (!profile?._id && !profile?.id) return;
+      
+      setLoadingScore(true);
+      try {
+        const userId = profile._id || profile.id;
+        const scoreData = await AIService.getCompatibilityScore(userId);
+        setCompatibilityScore(scoreData.score);
+      } catch (error) {
+        console.error('Failed to fetch compatibility score:', error);
+        setCompatibilityScore(null);
+      } finally {
+        setLoadingScore(false);
+      }
+    };
+
+    fetchCompatibilityScore();
   }, [profile?._id, profile?.id]);
 
   if (!profile) return null;
@@ -156,7 +179,7 @@ const AroundYouTab = ({ profile, onViewProfile, actionMessage }) => {
           <LinearGradient colors={['transparent', 'rgba(0,0,0,0.88)']} style={styles.bottomGradient} />
 
           <View style={styles.profileInfo}>
-            {/* Name + age + verified */}
+            {/* Name + age + verified + compatibility score */}
             <View style={styles.nameRow}>
               <View style={styles.nameLeft}>
                 <View style={styles.nameAgeRow}>
@@ -167,6 +190,15 @@ const AroundYouTab = ({ profile, onViewProfile, actionMessage }) => {
                   <View style={{ marginLeft: 6 }}><VerifiedIcon /></View>
                 ) : null}
               </View>
+              
+              {/* Compatibility Score */}
+              {compatibilityScore !== null && !loadingScore && (
+                <View style={styles.compatibilityScore}>
+                  <Heart size={14} color="#fff" fill="#fff" />
+                  <Text style={styles.compatibilityText}>{compatibilityScore}%</Text>
+                </View>
+              )}
+              
               <TouchableOpacity style={styles.profileButton} onPress={handleNavigateToProfile}>
                 <Info size={22} color="#fff" />
               </TouchableOpacity>
@@ -277,6 +309,22 @@ const styles = StyleSheet.create({
     width: 48, height: 48, borderRadius: 24,
     justifyContent: 'center', alignItems: 'center',
     backgroundColor: 'rgba(255,255,255,0.20)',
+  },
+
+  compatibilityScore: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 0, 102, 0.85)',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 14,
+    marginRight: 8,
+  },
+  compatibilityText: {
+    color: '#fff',
+    fontSize: 12,
+    fontFamily: 'PlusJakartaSansBold',
+    marginLeft: 4,
   },
 });
 

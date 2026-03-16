@@ -50,7 +50,7 @@ const InterestsModal = ({
         >
           {INTEREST_CATEGORIES.map((category) => (
             <View key={category.title} className="mb-6">
-              <Text className="text-app font-PlusJakartaSansBold text-lg mb-3">
+              <Text className="text-black font-PlusJakartaSansBold text-lg mb-3">
                 {category.title}
               </Text>
               <View className="flex-row flex-wrap gap-2">
@@ -61,16 +61,16 @@ const InterestsModal = ({
                   );
 
                   const chipClassName = selected
-                    ? "bg-primary border-primary"
+                    ? "bg-secondary border-secondary"
                     : isHighlighted
-                      ? "bg-primary border-primary"
+                      ? "bg-secondary border-secondary"
                       : "bg-white border-[#D1D1D1]";
 
                   const textClassName = selected
-                    ? "text-white"
+                    ? "text-primary"
                     : isHighlighted
-                      ? "text-white"
-                      : "text-app";
+                      ? "text-primary"
+                      : "text-black";
 
                   return (
                     <TouchableOpacity

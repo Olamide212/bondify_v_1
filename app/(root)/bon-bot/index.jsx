@@ -32,7 +32,7 @@ import { images } from "../../../constant/images";
 
 // ─── Constants ────────────────────────────────────────────────
 const PRIMARY       = colors.primary;   // your orange e.g. '#E8521A'
-const PRIMARY_LIGHT = colors.primaryLight
+const PRIMARY_LIGHT = colors.tertiary
 const PRIMARY_BORDER = colors.primaryBorder
 
 // Replace with your real bot avatar asset path
@@ -495,7 +495,7 @@ const styles = StyleSheet.create({
     height: 36,
     borderRadius: 18,
     borderWidth: 1.5,
-    borderColor: PRIMARY_BORDER,
+    borderColor: colors.tertiary,
     marginTop: 2,
   },
   aiBubbleWrapper: { flex: 1, gap: 8 },
@@ -519,7 +519,7 @@ const styles = StyleSheet.create({
   // Suggestion card
   suggestionCard: {
     borderWidth: 1.5,
-    borderColor: PRIMARY_BORDER,
+    borderColor: colors.tertiary,
     borderRadius: 16,
     padding: 14,
     backgroundColor: "#fff",
@@ -747,7 +747,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  sendBtnDisabled: { backgroundColor: "#f0a07a" },
+  sendBtnDisabled: { backgroundColor: colors.primary, opacity: 0.6 },
 });
 
 export default AIChatScreen;

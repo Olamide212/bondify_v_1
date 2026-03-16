@@ -292,7 +292,7 @@ const styles = StyleSheet.create({
 
   // CTA
   btn: {
-    backgroundColor: BRAND,
+    backgroundColor: colors.secondary,
     borderRadius:    99,
     paddingVertical: 14,
     alignItems:      "center",
@@ -303,7 +303,7 @@ const styles = StyleSheet.create({
   btnText: {
     fontSize:   15,
     fontFamily: "PlusJakartaSansBold",
-    color:      "#fff",
+    color:      colors.primary,
   },
 
   // Loader overlay

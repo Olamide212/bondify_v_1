@@ -21,11 +21,13 @@ import { useSelector } from "react-redux";
 import ActionButtons from "../../../components/homeScreen/ActionButtons";
 import ProfileCard from "../../../components/homeScreen/ProfileCard";
 import ComplimentModal from "../../../components/modals/ComplimentModal";
+import MatchCelebrationModal from "../../../components/modals/MatchCelebrationModal";
 import BackArrow from "../../../components/ui/BackArrow";
 import VerifiedIcon from "../../../components/ui/VerifiedIcon";
 import { colors } from "../../../constant/colors";
 import { useProfile } from "../../../context/ProfileContext";
 import { matchService } from "../../../services/matchService";
+import { messageService } from "../../../services/messageService";
 import { profileService } from "../../../services/profileService";
 
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
@@ -87,7 +89,7 @@ const ib = StyleSheet.create({
 const UserProfile = () => {
   const { id, showActions } = useLocalSearchParams();
   const router = useRouter();
-  const { handleHomeSwipe, handleHomeSuperLike, homeProfiles } = useProfile();
+  const { handleHomeSwipe, handleHomeSuperLike, homeProfiles, matchCelebration, setMatchCelebration } = useProfile();
   const { user: currentUser } = useSelector((state) => state.auth);
 
   const [flashMessage, setFlashMessage]       = useState(null);
@@ -409,6 +411,29 @@ const UserProfile = () => {
         onClose={() => setShowComplimentModal(false)}
         targetUser={currentProfile}
         currentUser={currentUser}
+        onViewNextProfile={() => setShowComplimentModal(false)}
+      />
+
+      {/* Match celebration modal */}
+      <MatchCelebrationModal
+        visible={!!matchCelebration}
+        onClose={() => setMatchCelebration(null)}
+        matchedUser={matchCelebration}
+        currentUser={currentUser}
+        onSendMessage={async (matchedProfile, selectedIceBreaker) => {
+          if (matchedProfile?.matchId && selectedIceBreaker) {
+            try {
+              await messageService.sendMessage(matchedProfile.matchId, {
+                content: selectedIceBreaker,
+                type:    "text",
+              });
+            } catch (error) {
+              console.error("Failed to send ice breaker:", error);
+            }
+          }
+          setMatchCelebration(null);
+        }}
+        onContinueSwiping={() => setMatchCelebration(null)}
       />
 
       {/* Interaction banner — shown for all interactions */}

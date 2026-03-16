@@ -461,6 +461,11 @@ const userSchema = new mongoose.Schema(
     otpExpiry:  { type: Date,   select: false },
     isVerified: { type: Boolean, default: false },
 
+    // Password Reset
+    resetPasswordOtp:       { type: String, select: false },
+    resetPasswordOtpExpiry: { type: Date,   select: false },
+    resetPasswordToken:     { type: String, select: false },
+
     // Onboarding Status
     onboardingCompleted: { type: Boolean, default: false },
     onboardingStep:      { type: Number,  default: 0 },
@@ -574,6 +579,9 @@ const userSchema = new mongoose.Schema(
     // Profile Questions & Answers
     questions: [{ question: String, answer: String }],
     profilePrompts: [{ type: String }],
+    favoriteMusic: [{ type: String }],
+    favoriteVideos: [{ type: String }],
+    funActivities: [{ type: String }],
 
     // Voice Prompt
     voicePrompt:    { type: String, default: null }, // S3 public URL

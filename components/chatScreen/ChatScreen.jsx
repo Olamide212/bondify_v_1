@@ -27,6 +27,7 @@ import BaseModal from "../modals/BaseModal";
 import BlockReportModal from "../modals/Blockreportmodal";
 import InputToolbar from "./InputToolbar";
 import MessageBubble from "./MessageBubble";
+import {fonts} from "../../constant/fonts";
 
 const MESSAGE_PAGE_SIZE = 20;
 const LOAD_OLDER_TRIGGER_PX = 140;
@@ -694,15 +695,15 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   dateSeparatorPill: {
-    backgroundColor: colors.background,
     paddingHorizontal: 12,
     paddingVertical: 5,
     borderRadius: 999,
   },
   dateSeparatorText: {
     fontSize: 12,
-    color: "#6B7280",
-    fontWeight: "600",
+    fontFamily: fonts.PlusJakartaSansBold,
+    color: "#000",
+
   },
   loadingOlderContainer: {
     alignItems: "center",
@@ -718,6 +719,7 @@ const styles = StyleSheet.create({
   bannerText: {
     color: colors.primary,
     fontSize: 12,
+    fontFamily: fonts.PlusJakartaSansSemiBold,  
   },
   emptyStateContainer: {
     marginTop: 80,

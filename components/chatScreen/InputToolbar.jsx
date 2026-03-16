@@ -147,7 +147,8 @@ const InputToolbar = ({ sendMessage, onSendImage, onSendVoice, matchId, currentU
           style={styles.iconButton}
           onPress={() => setShowRizzModal(true)}
         >
-          <Image source={Icons.AiIcon} style={{width: 30, height: 30}} />
+          <Sparkle color={colors.primary} size={30} />
+          {/* <Image source={Icons.AiIcon} style={{width: 30, height: 30}} /> */}
        
         </TouchableOpacity>
 

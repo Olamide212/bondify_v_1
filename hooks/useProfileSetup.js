@@ -28,8 +28,11 @@ const ONBOARDING_STEPS = [
   "interests",
   "about",
   "voice-prompt",
-  "profile-prompts",
+  // "profile-prompts",
   "profile-answers",
+  // "favorite-music",
+  // "favorite-videos",
+  // "fun-activities",
   "upload-photo",
   "verification",
   "location-access"

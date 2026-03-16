@@ -27,10 +27,11 @@ module.exports = {
       },
       colors: {
         app: "#111111",
-        primary: "#EE5F2B",
+        primary: "#371F7D",
+        tertiary: "#BC96FE",
         background: "#F8F6F6",
         grayColor: "#64748B",
-        secondary: "#FAE83C",
+        secondary: "#D7FF81",
         otherColor: "#bc96ff",
         pinkColor: "#ff4365",
         ash: "#888",

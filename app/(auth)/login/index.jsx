@@ -1,22 +1,22 @@
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
-  Keyboard,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  SafeAreaView,
-  Text,
-  TouchableWithoutFeedback,
-  View,
+    Keyboard,
+    KeyboardAvoidingView,
+    Platform,
+    Pressable,
+    SafeAreaView,
+    Text,
+    TouchableWithoutFeedback,
+    View,
 } from "react-native";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 import { useDispatch, useSelector } from "react-redux";
 import GlobalPhoneInput from "../../../components/inputs/PhoneInput";
 import TextInput from "../../../components/inputs/TextInput";
 import Button from "../../../components/ui/Button";
 import { useToast } from "../../../context/ToastContext";
 import { clearError, login } from "../../../slices/authSlice";
-import { SafeAreaProvider } from "react-native-safe-area-context";
 
 const EmailLogin = () => {
   const router = useRouter();
@@ -132,6 +132,16 @@ const EmailLogin = () => {
                 onChangeText={(text) => handleChange("password", text)}
                 secureTextEntry
               />
+
+              {/* Forgot Password */}
+              <Pressable
+                onPress={() => router.push("/forgot-password")}
+                className="self-end mt-1 mb-2"
+              >
+                <Text className="text-base font-PlusJakartaSansMedium text-primary">
+                  Forgot password?
+                </Text>
+              </Pressable>
             </View>
 
             <View className="w-full items-end pb-6">

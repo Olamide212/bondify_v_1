@@ -1,11 +1,12 @@
 import { useRouter } from "expo-router";
-import { Plus, Sparkles, X } from "lucide-react-native";
+import { Plus, X } from "lucide-react-native";
 import { useState } from "react";
 import {
     ActivityIndicator,
     Alert,
     Keyboard,
     KeyboardAvoidingView,
+    Modal,
     Platform,
     SafeAreaView,
     ScrollView,
@@ -19,365 +20,492 @@ import Button from "../../../../components/ui/Button";
 import { colors } from "../../../../constant/colors";
 import { fonts } from "../../../../constant/fonts";
 import { useProfileSetup } from "../../../../hooks/useProfileSetup";
-import AIService from "../../../../services/aiService";
 
-// ─── Example Prompts ─────────────────────────────
+// ─── Prompt Selection Modal ─────────────────────────────
 
-const ExamplePrompts = ({ onSelectPrompt }) => {
-  const examples = [
+const PromptModal = ({ visible, onClose, onSaveAnswer }) => {
+  const [selectedPrompt, setSelectedPrompt] = useState("");
+  const [answer, setAnswer] = useState("");
+  const [aiSuggestions, setAiSuggestions] = useState([]);
+  const [loadingSuggestions, setLoadingSuggestions] = useState(false);
+
+  const prompts = [
     "Dating me is like…",
     "My ideal Sunday…",
     "The fastest way to my heart…",
     "You know you're my type if…",
     "My hidden talent is…",
     "The best advice I ever got…",
+    "My go-to comfort food is…",
+    "If I could travel anywhere right now…",
+    "My favorite way to unwind…",
+    "What I'm passionate about…",
+    "My dream date would be…",
+    "Something I'm really good at…",
+    "My favorite childhood memory…",
+    "What makes me laugh…",
+    "My perfect day looks like…",
   ];
 
-  return (
-    <View style={{ marginBottom: 20 }}>
-      <Text style={{
-        fontFamily: fonts.PlusJakartaSansBold,
-        fontSize: 16,
-        color: colors.primary,
-        marginBottom: 12,
-        textAlign: 'center'
-      }}>
-        Try these popular prompts
-      </Text>
-      <View style={{ gap: 8 }}>
-        {examples.map((example, index) => (
-          <TouchableOpacity
-            key={index}
-            onPress={() => onSelectPrompt(example)}
-            style={{
-              backgroundColor: '#FFF8F3',
-              borderRadius: 12,
-              borderWidth: 1,
-              borderColor: '#FDD9C0',
-              paddingVertical: 12,
-              paddingHorizontal: 16,
-            }}
-          >
-            <Text style={{
-              fontFamily: fonts.PlusJakartaSansMedium,
-              fontSize: 15,
-              color: '#1a1a1a',
-            }}>
-              {example}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-    </View>
-  );
-};
+  const generateAISuggestions = async (prompt) => {
+    if (!prompt) return;
 
-// ─── AI Generated Prompts ─────────────────────────────
-
-const AIGeneratedPrompts = ({ onSelectPrompt }) => {
-  const [loading, setLoading] = useState(false);
-  const [generatedPrompts, setGeneratedPrompts] = useState([]);
-
-  const generatePrompts = async () => {
-    setLoading(true);
+    setLoadingSuggestions(true);
     try {
-      const response = await AIService.generateConversationPrompts();
-      setGeneratedPrompts(response.prompts || []);
-    } catch (err) {
-      console.error("AI prompts error:", err);
-      Alert.alert("Error", "Couldn't generate prompts. Try again.");
+      // This would need a new AI service method for generating answers to prompts
+      // For now, we'll use a placeholder
+      const suggestions = [
+        `For "${prompt}", you could say something personal and engaging...`,
+        `A great answer might highlight your unique personality...`,
+        `Consider sharing a specific example that shows your character...`,
+      ];
+      setAiSuggestions(suggestions);
+    } catch (error) {
+      console.error("AI suggestions error:", error);
     } finally {
-      setLoading(false);
+      setLoadingSuggestions(false);
     }
   };
 
-  return (
-    <View style={{ marginBottom: 20 }}>
-      <TouchableOpacity
-        onPress={generatePrompts}
-        disabled={loading}
-        style={{
-          backgroundColor: loading ? '#f3f4f6' : colors.primary,
-          borderRadius: 12,
-          paddingVertical: 12,
-          paddingHorizontal: 16,
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: 8,
-        }}
-      >
-        {loading ? (
-          <ActivityIndicator size="small" color={colors.primary} />
-        ) : (
-          <Sparkles size={18} color="white" />
-        )}
-        <Text style={{
-          fontFamily: fonts.PlusJakartaSansBold,
-          fontSize: 15,
-          color: loading ? colors.primary : 'white',
-        }}>
-          ✨ Generate prompt ideas
-        </Text>
-      </TouchableOpacity>
+  const handleSelectPrompt = (prompt) => {
+    setSelectedPrompt(prompt);
+    setAnswer("");
+    setAiSuggestions([]);
+    generateAISuggestions(prompt);
+  };
 
-      {generatedPrompts.length > 0 && (
-        <View style={{ marginTop: 12, gap: 8 }}>
-          <Text style={{
-            fontFamily: fonts.PlusJakartaSansBold,
-            fontSize: 14,
-            color: colors.primary,
-            textAlign: 'center'
+  const handleSave = () => {
+    if (!selectedPrompt || !answer.trim()) {
+      Alert.alert("Incomplete", "Please select a prompt and provide an answer.");
+      return;
+    }
+
+    onSaveAnswer({
+      prompt: selectedPrompt,
+      answer: answer.trim()
+    });
+
+    // Reset modal
+    setSelectedPrompt("");
+    setAnswer("");
+    setAiSuggestions([]);
+    onClose();
+  };
+
+  const handleClose = () => {
+    setSelectedPrompt("");
+    setAnswer("");
+    setAiSuggestions([]);
+    onClose();
+  };
+
+  return (
+    <Modal
+      visible={visible}
+      transparent={true}
+      animationType="slide"
+      onRequestClose={handleClose}
+    >
+      <View style={{
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        justifyContent: 'flex-end',
+      }}>
+        <View style={{
+          backgroundColor: 'white',
+          borderTopLeftRadius: 20,
+          borderTopRightRadius: 20,
+          maxHeight: '90%',
+          paddingTop: 20,
+        }}>
+          {/* Header */}
+          <View style={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            paddingHorizontal: 20,
+            marginBottom: 20,
           }}>
-            AI suggestions for you
-          </Text>
-          {generatedPrompts.map((prompt, index) => (
+            <Text style={{
+              fontFamily: fonts.PlusJakartaSansBold,
+              fontSize: 20,
+              color: colors.primary,
+            }}>
+              Choose a prompt & answer
+            </Text>
+            <TouchableOpacity onPress={handleClose}>
+              <X size={24} color="#666" />
+            </TouchableOpacity>
+          </View>
+
+          <ScrollView
+            style={{ maxHeight: 500 }}
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+          >
+            {/* Prompt Selection */}
+            <View style={{ paddingHorizontal: 20, marginBottom: 20 }}>
+              <Text style={{
+                fontFamily: fonts.PlusJakartaSansBold,
+                fontSize: 16,
+                color: '#333',
+                marginBottom: 12,
+              }}>
+                Select a prompt
+              </Text>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ gap: 8, paddingBottom: 8 }}
+              >
+                {prompts.map((prompt, index) => (
+                  <TouchableOpacity
+                    key={index}
+                    onPress={() => handleSelectPrompt(prompt)}
+                    style={{
+                      backgroundColor: selectedPrompt === prompt ? colors.primary : '#f8f9fa',
+                      borderRadius: 20,
+                      paddingVertical: 8,
+                      paddingHorizontal: 16,
+                      borderWidth: selectedPrompt === prompt ? 0 : 1,
+                      borderColor: '#e1e5e9',
+                    }}
+                  >
+                    <Text style={{
+                      fontFamily: fonts.PlusJakartaSansMedium,
+                      fontSize: 14,
+                      color: selectedPrompt === prompt ? 'white' : '#333',
+                    }}>
+                      {prompt}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            </View>
+
+            {/* Answer Input */}
+            {selectedPrompt && (
+              <View style={{ paddingHorizontal: 20, marginBottom: 20 }}>
+                <Text style={{
+                  fontFamily: fonts.PlusJakartaSansBold,
+                  fontSize: 16,
+                  color: '#333',
+                  marginBottom: 8,
+                }}>
+                  Your answer
+                </Text>
+                <Text style={{
+                  fontFamily: fonts.PlusJakartaSansMedium,
+                  fontSize: 14,
+                  color: colors.primary,
+                  marginBottom: 12,
+                }}>
+                  {selectedPrompt}
+                </Text>
+                <TextInput
+                  value={answer}
+                  onChangeText={setAnswer}
+                  placeholder="Share your answer..."
+                  multiline
+                  numberOfLines={3}
+                  style={{
+                    borderWidth: 1,
+                    borderColor: '#e1e5e9',
+                    borderRadius: 12,
+                    paddingVertical: 12,
+                    paddingHorizontal: 16,
+                    fontFamily: fonts.PlusJakartaSans,
+                    fontSize: 15,
+                    minHeight: 80,
+                    textAlignVertical: 'top',
+                  }}
+                />
+
+                {/* AI Suggestions */}
+                {loadingSuggestions && (
+                  <View style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    marginTop: 12,
+                    gap: 8,
+                  }}>
+                    <ActivityIndicator size="small" color={colors.primary} />
+                    <Text style={{
+                      fontFamily: fonts.PlusJakartaSansMedium,
+                      fontSize: 14,
+                      color: '#666',
+                    }}>
+                      Getting AI suggestions...
+                    </Text>
+                  </View>
+                )}
+
+                {aiSuggestions.length > 0 && (
+                  <View style={{ marginTop: 12 }}>
+                    <Text style={{
+                      fontFamily: fonts.PlusJakartaSansBold,
+                      fontSize: 14,
+                      color: colors.primary,
+                      marginBottom: 8,
+                    }}>
+                      💡 AI Suggestions
+                    </Text>
+                    {aiSuggestions.map((suggestion, index) => (
+                      <TouchableOpacity
+                        key={index}
+                        onPress={() => setAnswer(suggestion)}
+                        style={{
+                          backgroundColor: '#f0f9ff',
+                          borderRadius: 8,
+                          paddingVertical: 8,
+                          paddingHorizontal: 12,
+                          marginBottom: 6,
+                          borderWidth: 1,
+                          borderColor: '#bae6fd',
+                        }}
+                      >
+                        <Text style={{
+                          fontFamily: fonts.PlusJakartaSans,
+                          fontSize: 13,
+                          color: '#0369a1',
+                          lineHeight: 18,
+                        }}>
+                          {suggestion}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                )}
+              </View>
+            )}
+          </ScrollView>
+
+          {/* Save Button */}
+          <View style={{
+            paddingHorizontal: 20,
+            paddingBottom: 30,
+            paddingTop: 20,
+            borderTopWidth: 1,
+            borderTopColor: '#f0f0f0',
+          }}>
             <TouchableOpacity
-              key={index}
-              onPress={() => onSelectPrompt(prompt)}
+              onPress={handleSave}
+              disabled={!selectedPrompt || !answer.trim()}
               style={{
-                backgroundColor: '#F0F9FF',
+                backgroundColor: (selectedPrompt && answer.trim()) ? colors.primary : '#f3f4f6',
                 borderRadius: 12,
-                borderWidth: 1,
-                borderColor: '#BAE6FD',
-                paddingVertical: 12,
-                paddingHorizontal: 16,
+                paddingVertical: 14,
+                alignItems: 'center',
               }}
             >
               <Text style={{
-                fontFamily: fonts.PlusJakartaSansMedium,
-                fontSize: 15,
-                color: '#1a1a1a',
+                fontFamily: fonts.PlusJakartaSansBold,
+                fontSize: 16,
+                color: (selectedPrompt && answer.trim()) ? 'white' : '#9ca3af',
               }}>
-                {prompt}
+                Save Answer
               </Text>
             </TouchableOpacity>
-          ))}
-        </View>
-      )}
-    </View>
-  );
-};
-
-// ─── Selected Prompts List ─────────────────────────────
-
-const SelectedPrompts = ({ prompts, onRemovePrompt }) => {
-  if (prompts.length === 0) return null;
-
-  return (
-    <View style={{ marginBottom: 20 }}>
-      <Text style={{
-        fontFamily: fonts.PlusJakartaSansBold,
-        fontSize: 16,
-        color: colors.primary,
-        marginBottom: 12,
-        textAlign: 'center'
-      }}>
-        Your selected prompts ({prompts.length}/6)
-      </Text>
-      <View style={{ gap: 8 }}>
-        {prompts.map((prompt, index) => (
-          <View
-            key={index}
-            style={{
-              backgroundColor: '#F0FDF4',
-              borderRadius: 12,
-              borderWidth: 1,
-              borderColor: '#BBF7D0',
-              paddingVertical: 12,
-              paddingHorizontal: 16,
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-            }}
-          >
-            <Text style={{
-              fontFamily: fonts.PlusJakartaSansMedium,
-              fontSize: 15,
-              color: '#1a1a1a',
-              flex: 1,
-            }}>
-              {prompt}
-            </Text>
-            <TouchableOpacity
-              onPress={() => onRemovePrompt(index)}
-              style={{
-                marginLeft: 8,
-                padding: 4,
-              }}
-            >
-              <X size={16} color={colors.primary} />
-            </TouchableOpacity>
           </View>
-        ))}
+        </View>
       </View>
-    </View>
+    </Modal>
   );
 };
 
-// ─── Main Component ─────────────────────────────────────────────────────
+// ─── Main Component ─────────────────────────────
 
-const ProfilePrompts = () => {
-  const [selectedPrompts, setSelectedPrompts] = useState([]);
-  const [customPrompt, setCustomPrompt] = useState("");
-  const [submitting, setSubmitting] = useState(false);
+export default function ProfilePromptsScreen() {
   const router = useRouter();
-  const { updateProfileStep } = useProfileSetup({ isOnboarding: true });
+  const { profileData, updateProfileData } = useProfileSetup();
+  const [modalVisible, setModalVisible] = useState(false);
+  const [savedAnswers, setSavedAnswers] = useState(profileData?.profilePrompts || []);
 
-  const handleSelectPrompt = (prompt) => {
-    if (selectedPrompts.length >= 6) {
-      Alert.alert("Maximum reached", "You can select up to 6 prompts.");
-      return;
-    }
-    if (!selectedPrompts.includes(prompt)) {
-      setSelectedPrompts([...selectedPrompts, prompt]);
-    }
+  const handleSaveAnswer = (newAnswer) => {
+    const updatedAnswers = [...savedAnswers, newAnswer];
+    setSavedAnswers(updatedAnswers);
+    updateProfileData({ profilePrompts: updatedAnswers });
   };
 
-  const handleRemovePrompt = (index) => {
-    const newPrompts = [...selectedPrompts];
-    newPrompts.splice(index, 1);
-    setSelectedPrompts(newPrompts);
+  const handleRemoveAnswer = (index) => {
+    const updatedAnswers = savedAnswers.filter((_, i) => i !== index);
+    setSavedAnswers(updatedAnswers);
+    updateProfileData({ profilePrompts: updatedAnswers });
   };
 
-  const handleAddCustomPrompt = () => {
-    if (!customPrompt.trim()) return;
-
-    if (selectedPrompts.length >= 6) {
-      Alert.alert("Maximum reached", "You can select up to 6 prompts.");
+  const handleContinue = () => {
+    if (savedAnswers.length === 0) {
+      Alert.alert(
+        "Add at least one prompt",
+        "Share something about yourself to help others get to know you better."
+      );
       return;
     }
-
-    handleSelectPrompt(customPrompt.trim());
-    setCustomPrompt("");
-  };
-
-  const handleContinue = async () => {
-    if (selectedPrompts.length === 0) {
-      Alert.alert("Select prompts", "Please select at least one prompt to continue.");
-      return;
-    }
-
-    setSubmitting(true);
-    try {
-      // Save the selected prompts to the user's profile
-      await updateProfileStep({ profilePrompts: selectedPrompts });
-      router.push("/profile-answers");
-    } catch (err) {
-      console.error("Save prompts error:", err);
-      Alert.alert("Error", "Could not save your prompts. Please try again.");
-    } finally {
-      setSubmitting(false);
-    }
+    router.push("/(auth)/(onboarding)/profile-answers");
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "white" }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
       <KeyboardAvoidingView
-        style={{ flex: 1 }}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 20 : 0}
+        style={{ flex: 1 }}
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <View style={{ flex: 1, paddingHorizontal: 16 }}>
-            <ScrollView
-              style={{ flex: 1 }}
-              showsVerticalScrollIndicator={false}
-              keyboardShouldPersistTaps="handled"
+          <ScrollView
+            style={{ flex: 1 }}
+            contentContainerStyle={{ padding: 20 }}
+            showsVerticalScrollIndicator={false}
+          >
+            {/* Header */}
+            <View style={{ marginBottom: 30 }}>
+              <Text style={{
+                fontFamily: fonts.PlusJakartaSansBold,
+                fontSize: 28,
+                color: '#1a1a1a',
+                textAlign: 'center',
+                marginBottom: 8,
+              }}>
+                Share your story
+              </Text>
+              <Text style={{
+                fontFamily: fonts.PlusJakartaSans,
+                fontSize: 16,
+                color: '#666',
+                textAlign: 'center',
+                lineHeight: 24,
+              }}>
+                Pick prompts and share your answers to help others get to know the real you.
+              </Text>
+            </View>
+
+            {/* Add Prompt Button */}
+            <TouchableOpacity
+              onPress={() => setModalVisible(true)}
+              style={{
+                backgroundColor: colors.primary,
+                borderRadius: 16,
+                paddingVertical: 16,
+                paddingHorizontal: 20,
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 8,
+                marginBottom: 24,
+              }}
             >
-              {/* Title */}
-              <View style={{ marginTop: 32, marginBottom: 24 }}>
+              <Plus size={20} color="white" />
+              <Text style={{
+                fontFamily: fonts.PlusJakartaSansBold,
+                fontSize: 16,
+                color: 'white',
+              }}>
+                Add a prompt & answer
+              </Text>
+            </TouchableOpacity>
+
+            {/* Saved Answers */}
+            {savedAnswers.length > 0 && (
+              <View style={{ marginBottom: 24 }}>
                 <Text style={{
                   fontFamily: fonts.PlusJakartaSansBold,
-                  fontSize: 28,
+                  fontSize: 18,
                   color: colors.primary,
+                  marginBottom: 16,
                   textAlign: 'center',
-                  marginBottom: 8
                 }}>
-                  Create conversation starters
+                  Your answers ({savedAnswers.length}/6)
                 </Text>
-                <Text style={{
-                  fontFamily: fonts.PlusJakartaSans,
-                  fontSize: 16,
-                  color: '#6b7280',
-                  textAlign: 'center',
-                  lineHeight: 24
-                }}>
-                  Choose prompts that will appear on your profile for others to answer and start conversations with you.
-                </Text>
-              </View>
-
-              {/* Selected Prompts */}
-              <SelectedPrompts
-                prompts={selectedPrompts}
-                onRemovePrompt={handleRemovePrompt}
-              />
-
-              {/* Custom Prompt Input */}
-              <View style={{ marginBottom: 20 }}>
-                <Text style={{
-                  fontFamily: fonts.PlusJakartaSansBold,
-                  fontSize: 16,
-                  color: colors.primary,
-                  marginBottom: 12,
-                  textAlign: 'center'
-                }}>
-                  Or create your own
-                </Text>
-                <View style={{ flexDirection: 'row', gap: 8 }}>
-                  <TextInput
-                    value={customPrompt}
-                    onChangeText={setCustomPrompt}
-                    placeholder="Enter your custom prompt..."
-                    style={{
-                      flex: 1,
-                      borderWidth: 1,
-                      borderColor: '#d1d5db',
-                      borderRadius: 12,
-                      paddingVertical: 12,
-                      paddingHorizontal: 16,
-                      fontFamily: fonts.PlusJakartaSans,
-                      fontSize: 15,
-                    }}
-                  />
-                  <TouchableOpacity
-                    onPress={handleAddCustomPrompt}
-                    disabled={!customPrompt.trim()}
-                    style={{
-                      backgroundColor: customPrompt.trim() ? colors.primary : '#f3f4f6',
-                      borderRadius: 12,
-                      paddingVertical: 12,
-                      paddingHorizontal: 16,
-                      justifyContent: 'center',
-                    }}
-                  >
-                    <Plus size={20} color={customPrompt.trim() ? 'white' : '#9ca3af'} />
-                  </TouchableOpacity>
+                <View style={{ gap: 12 }}>
+                  {savedAnswers.map((item, index) => (
+                    <View
+                      key={index}
+                      style={{
+                        backgroundColor: '#f8f9fa',
+                        borderRadius: 12,
+                        paddingVertical: 16,
+                        paddingHorizontal: 16,
+                        borderWidth: 1,
+                        borderColor: '#e9ecef',
+                      }}
+                    >
+                      <View style={{
+                        flexDirection: 'row',
+                        justifyContent: 'space-between',
+                        alignItems: 'flex-start',
+                        marginBottom: 8,
+                      }}>
+                        <Text style={{
+                          fontFamily: fonts.PlusJakartaSansBold,
+                          fontSize: 15,
+                          color: colors.primary,
+                          flex: 1,
+                          marginRight: 8,
+                        }}>
+                          {item.prompt}
+                        </Text>
+                        <TouchableOpacity
+                          onPress={() => handleRemoveAnswer(index)}
+                          style={{
+                            padding: 4,
+                          }}
+                        >
+                          <X size={16} color="#666" />
+                        </TouchableOpacity>
+                      </View>
+                      <Text style={{
+                        fontFamily: fonts.PlusJakartaSans,
+                        fontSize: 15,
+                        color: '#333',
+                        lineHeight: 22,
+                      }}>
+                        {item.answer}
+                      </Text>
+                    </View>
+                  ))}
                 </View>
               </View>
+            )}
 
-              {/* AI Generated Prompts */}
-              <AIGeneratedPrompts onSelectPrompt={handleSelectPrompt} />
-
-              {/* Example Prompts */}
-              <ExamplePrompts onSelectPrompt={handleSelectPrompt} />
-
-            </ScrollView>
+            {/* Empty State */}
+            {savedAnswers.length === 0 && (
+              <View style={{
+                alignItems: 'center',
+                paddingVertical: 40,
+                paddingHorizontal: 20,
+              }}>
+                <Text style={{
+                  fontFamily: fonts.PlusJakartaSansMedium,
+                  fontSize: 16,
+                  color: '#666',
+                  textAlign: 'center',
+                  lineHeight: 24,
+                }}>
+                  No prompts added yet. Tap the button above to start sharing about yourself!
+                </Text>
+              </View>
+            )}
 
             {/* Continue Button */}
-            <View style={{ paddingBottom: 24, paddingTop: 16 }}>
+            <View style={{ marginTop: 20 }}>
               <Button
                 title="Continue"
-                variant="gradient"
                 onPress={handleContinue}
-                disabled={submitting || selectedPrompts.length === 0}
+                disabled={savedAnswers.length === 0}
+                style={{
+                  opacity: savedAnswers.length === 0 ? 0.5 : 1,
+                }}
               />
             </View>
-          </View>
+          </ScrollView>
         </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
+
+      {/* Prompt Modal */}
+      <PromptModal
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        onSaveAnswer={handleSaveAnswer}
+      />
     </SafeAreaView>
   );
-};
-
-export default ProfilePrompts;
+}

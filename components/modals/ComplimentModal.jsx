@@ -1,21 +1,24 @@
 /**
  * ComplimentModal.jsx
  *
- * A centered, animated modal that lets the current user send a compliment
- * to the profile they're viewing. The compliment is delivered to the target
- * user's inbox (POST /api/comments) which may create a possible match.
+ * Full-screen modal with the target user's photo as background,
+ * a tertiary-colour bottom overlay, and a compliment input area.
+ * After sending, plays a sound and shows a "View Other Profiles" button.
  */
 
-import { Sparkles, X } from "lucide-react-native";
+import { Audio } from "expo-av";
+import { LinearGradient } from "expo-linear-gradient";
+import { ChevronLeft, Send, Sparkles } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Animated,
+  Dimensions,
   Image,
   KeyboardAvoidingView,
   Modal,
   Platform,
-  Pressable,
+  StatusBar,
   StyleSheet,
   Text,
   TextInput,
@@ -25,6 +28,8 @@ import {
 import { colors } from "../../constant/colors";
 import AIService from "../../services/aiService";
 import { commentService } from "../../services/commentService";
+
+const { width: SCREEN_W, height: SCREEN_H } = Dimensions.get("window");
 
 /** Resolve _id or id from a user/profile object */
 const resolveId = (obj) => obj?._id ?? obj?.id ?? null;
@@ -39,7 +44,32 @@ const getProfileImage = (user) => {
   return first?.url ?? first?.uri ?? null;
 };
 
-const ComplimentModal = ({ visible, onClose, targetUser, currentUser, onSent }) => {
+/** Play a short celebratory sound */
+const playSentSound = async () => {
+  let sound;
+  try {
+    const result = await Audio.Sound.createAsync(
+      require("../../assets/sounds/match.wav"),
+      { volume: 0.5 }
+    );
+    sound = result.sound;
+    await sound.playAsync();
+    sound.setOnPlaybackStatusUpdate((status) => {
+      if (status.didJustFinish) sound.unloadAsync().catch(() => {});
+    });
+  } catch {
+    if (sound) sound.unloadAsync().catch(() => {});
+  }
+};
+
+const ComplimentModal = ({
+  visible,
+  onClose,
+  targetUser,
+  currentUser,
+  onSent,
+  onViewNextProfile,
+}) => {
   const [text, setText] = useState("");
   const [loading, setLoading] = useState(false);
   const [aiLoading, setAiLoading] = useState(false);
@@ -49,53 +79,73 @@ const ComplimentModal = ({ visible, onClose, targetUser, currentUser, onSent }) 
   const [aiSuggestions, setAiSuggestions] = useState([]);
 
   // Animations
-  const scaleAnim = useRef(new Animated.Value(0)).current;
-  const opacityAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(SCREEN_H)).current;
+  const overlayAnim = useRef(new Animated.Value(0)).current;
   const sentScale = useRef(new Animated.Value(0)).current;
+  const successOpacity = useRef(new Animated.Value(0)).current;
 
-  // Animate in when visible changes
+  const [showModal, setShowModal] = useState(false);
+
+  // Animate in / out
   useEffect(() => {
     if (visible) {
-      scaleAnim.setValue(0.85);
-      opacityAnim.setValue(0);
+      setShowModal(true);
+      slideAnim.setValue(SCREEN_H);
+      overlayAnim.setValue(0);
       Animated.parallel([
-        Animated.spring(scaleAnim, {
-          toValue: 1,
+        Animated.spring(slideAnim, {
+          toValue: 0,
           useNativeDriver: true,
-          friction: 7,
-          tension: 80,
+          friction: 9,
+          tension: 55,
         }),
-        Animated.timing(opacityAnim, {
+        Animated.timing(overlayAnim, {
           toValue: 1,
-          duration: 200,
+          duration: 300,
           useNativeDriver: true,
         }),
       ]).start();
+    } else if (showModal) {
+      Animated.parallel([
+        Animated.timing(slideAnim, {
+          toValue: SCREEN_H,
+          duration: 250,
+          useNativeDriver: true,
+        }),
+        Animated.timing(overlayAnim, {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+      ]).start(() => setShowModal(false));
     }
-  }, [visible, scaleAnim, opacityAnim]);
+  }, [visible]);
 
-  const animateOut = (cb) => {
-    Animated.parallel([
-      Animated.timing(scaleAnim, {
-        toValue: 0.85,
-        duration: 150,
-        useNativeDriver: true,
-      }),
-      Animated.timing(opacityAnim, {
-        toValue: 0,
-        duration: 150,
-        useNativeDriver: true,
-      }),
-    ]).start(() => cb?.());
+  const resetState = () => {
+    setText("");
+    setSent(false);
+    setMatched(false);
+    setError(null);
+    setAiSuggestions([]);
+    sentScale.setValue(0);
+    successOpacity.setValue(0);
   };
 
   const handleClose = () => {
-    animateOut(() => {
-      setText("");
-      setSent(false);
-      setMatched(false);
-      setError(null);
-      setAiSuggestions([]);
+    Animated.parallel([
+      Animated.timing(slideAnim, {
+        toValue: SCREEN_H,
+        duration: 250,
+        useNativeDriver: true,
+      }),
+      Animated.timing(overlayAnim, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+    ]).start(() => {
+      resetState();
+      setShowModal(false);
       onClose();
     });
   };
@@ -108,7 +158,6 @@ const ComplimentModal = ({ visible, onClose, targetUser, currentUser, onSent }) 
       setError("Target user information not available");
       return;
     }
-
     if (!currentId) {
       setError("User information not available");
       return;
@@ -121,13 +170,9 @@ const ComplimentModal = ({ visible, onClose, targetUser, currentUser, onSent }) 
       const data = await AIService.getPhotoCommentSuggestion(targetId, 0);
 
       let suggestion = null;
-      if (data?.suggestion) {
-        suggestion = data.suggestion;
-      } else if (typeof data === "string") {
-        suggestion = data;
-      } else if (data?.data?.suggestion) {
-        suggestion = data.data.suggestion;
-      }
+      if (data?.suggestion) suggestion = data.suggestion;
+      else if (typeof data === "string") suggestion = data;
+      else if (data?.data?.suggestion) suggestion = data.data.suggestion;
 
       if (suggestion && typeof suggestion === "string" && suggestion.trim()) {
         setAiSuggestions([suggestion.trim()]);
@@ -147,12 +192,10 @@ const ComplimentModal = ({ visible, onClose, targetUser, currentUser, onSent }) 
       setError("Please enter a message");
       return;
     }
-
     if (!targetId) {
       setError("Target user information missing");
       return;
     }
-
     if (!currentId) {
       setError("Your user information missing. Please log in again.");
       return;
@@ -177,18 +220,25 @@ const ComplimentModal = ({ visible, onClose, targetUser, currentUser, onSent }) 
       setMatched(isMatch);
       setSent(true);
 
-      Animated.spring(sentScale, {
-        toValue: 1,
-        useNativeDriver: true,
-        bounciness: 10,
-        friction: 5,
-      }).start();
+      // Play success sound
+      playSentSound();
+
+      // Animate success view
+      Animated.parallel([
+        Animated.spring(sentScale, {
+          toValue: 1,
+          useNativeDriver: true,
+          bounciness: 10,
+          friction: 5,
+        }),
+        Animated.timing(successOpacity, {
+          toValue: 1,
+          duration: 400,
+          useNativeDriver: true,
+        }),
+      ]).start();
 
       if (onSent) onSent(res);
-
-      setTimeout(() => {
-        handleClose();
-      }, isMatch ? 2600 : 1800);
     } catch (e) {
       console.error("Send error:", e);
       const errorMessage =
@@ -205,6 +255,14 @@ const ComplimentModal = ({ visible, onClose, targetUser, currentUser, onSent }) 
     setText(suggestion);
   };
 
+  const handleViewNextProfile = () => {
+    resetState();
+    if (onViewNextProfile) {
+      onViewNextProfile();
+    }
+    handleClose();
+  };
+
   const firstName =
     targetUser?.firstName ??
     (typeof targetUser?.name === "string"
@@ -213,314 +271,372 @@ const ComplimentModal = ({ visible, onClose, targetUser, currentUser, onSent }) 
 
   const avatarUri = getProfileImage(targetUser);
 
+  if (!showModal) return null;
+
   return (
     <Modal
-      visible={visible}
-      transparent
+      visible={showModal}
+      transparent={false}
       animationType="none"
       onRequestClose={handleClose}
+      statusBarTranslucent
     >
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={styles.centeredWrapper}
-      >
-        <Pressable style={styles.backdrop} onPress={handleClose} />
+      <StatusBar barStyle="light-content" />
+      <View style={styles.fullScreen}>
+        {/* ─── Background: user photo ─── */}
+        {avatarUri ? (
+          <Image
+            source={{ uri: avatarUri }}
+            style={styles.bgImage}
+            resizeMode="cover"
+          />
+        ) : (
+          <View style={[styles.bgImage, { backgroundColor: colors.primary }]} />
+        )}
 
+        {/* ─── Animated slide-up content ─── */}
         <Animated.View
           style={[
-            styles.card,
-            {
-              opacity: opacityAnim,
-              transform: [{ scale: scaleAnim }],
-            },
+            styles.fullScreen,
+            { transform: [{ translateY: slideAnim }] },
           ]}
         >
-          {/* Header */}
-          <View style={styles.header}>
-            <View style={styles.headerLeft}>
-              {avatarUri ? (
-                <Image source={{ uri: avatarUri }} style={styles.avatar} />
+          {/* Top gradient overlay for readability */}
+          <LinearGradient
+            colors={["rgba(0,0,0,0.5)", "transparent"]}
+            style={styles.topGradient}
+          />
+
+          {/* Back / close button */}
+          <View style={styles.topBar}>
+            <TouchableOpacity
+              onPress={handleClose}
+              style={styles.backBtn}
+              hitSlop={12}
+            >
+              <ChevronLeft size={26} color="#fff" />
+            </TouchableOpacity>
+            <Text style={styles.topTitle} className="font-PlusJakartaSansBold">
+              Send Compliment
+            </Text>
+            <View style={{ width: 40 }} />
+          </View>
+
+          {/* Spacer to push bottom panel down */}
+          <View style={{ flex: 1 }} />
+
+          {/* ─── Bottom overlay panel ─── */}
+          <KeyboardAvoidingView
+            behavior={Platform.OS === "ios" ? "padding" : undefined}
+            keyboardVerticalOffset={Platform.OS === "ios" ? 10 : 0}
+          >
+            <LinearGradient
+              colors={[
+                "transparent",
+                "rgba(55, 31, 125, 0.7)",
+                "rgba(55, 31, 125, 0.92)",
+                colors.primary,
+              ]}
+              locations={[0, 0.25, 0.55, 1]}
+              style={styles.bottomOverlay}
+            >
+              {sent ? (
+                /* ─── Success state ─── */
+                <Animated.View
+                  style={[styles.successContainer, { opacity: successOpacity }]}
+                >
+                  <Animated.Text
+                    style={[
+                      styles.successEmoji,
+                      { transform: [{ scale: sentScale }] },
+                    ]}
+                  >
+                    {matched ? "🎉" : "💌"}
+                  </Animated.Text>
+                  <Text
+                    style={styles.successTitle}
+                    className="font-PlusJakartaSansBold"
+                  >
+                    {matched ? "It's a match!" : "Compliment sent!"}
+                  </Text>
+                  <Text
+                    style={styles.successSub}
+                    className="font-PlusJakartaSans"
+                  >
+                    {matched
+                      ? `You and ${firstName} both showed interest — you're now matched! 🔥`
+                      : `${firstName} will see it in their inbox.`}
+                  </Text>
+
+                  <TouchableOpacity
+                    style={styles.viewNextBtn}
+                    onPress={handleViewNextProfile}
+                    activeOpacity={0.85}
+                  >
+                    <Text
+                      style={styles.viewNextBtnText}
+                      className="font-PlusJakartaSansBold"
+                    >
+                      View Other Profiles
+                    </Text>
+                  </TouchableOpacity>
+                </Animated.View>
               ) : (
-                <View style={[styles.avatar, styles.avatarFallback]}>
-                  <Text style={styles.avatarInitial}>
-                    {firstName[0]?.toUpperCase()}
+                /* ─── Compose state ─── */
+                <View style={styles.composeContainer}>
+                  {/* Name label */}
+                  <Text
+                    style={styles.composeLabel}
+                    className="font-PlusJakartaSansBold"
+                  >
+                    Send a compliment to {firstName}
+                  </Text>
+
+                  {/* AI suggestion chips */}
+                  {aiSuggestions.length > 0 && (
+                    <View style={styles.suggestionsRow}>
+                      {aiSuggestions.map((s, i) => (
+                        <TouchableOpacity
+                          key={i}
+                          style={styles.suggestionChip}
+                          onPress={() => handleSuggestionPress(s)}
+                          activeOpacity={0.75}
+                          disabled={loading}
+                        >
+                          <Text
+                            style={styles.suggestionText}
+                            className="font-PlusJakartaSans"
+                          >
+                            {s}
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                  )}
+
+                  {/* Error notice */}
+                  {!!error && (
+                    <View style={styles.errorContainer}>
+                      <Text
+                        style={styles.errorText}
+                        className="font-PlusJakartaSans"
+                      >
+                        {error}
+                      </Text>
+                    </View>
+                  )}
+
+                  {/* Input row */}
+                  <View style={styles.inputRow}>
+                    {/* AI Suggest button */}
+                    <TouchableOpacity
+                      style={styles.aiIconBtn}
+                      onPress={handleAISuggest}
+                      disabled={aiLoading || loading}
+                      activeOpacity={0.8}
+                    >
+                      {aiLoading ? (
+                        <ActivityIndicator size="small" color={colors.secondary} />
+                      ) : (
+                        <Sparkles size={20} color={colors.secondary} />
+                      )}
+                    </TouchableOpacity>
+
+                    {/* Text input */}
+                    <TextInput
+                      style={styles.input}
+                      placeholder={`Say something kind…`}
+                      placeholderTextColor="rgba(255,255,255,0.5)"
+                      value={text}
+                      onChangeText={setText}
+                      multiline
+                      maxLength={300}
+                      returnKeyType="default"
+                      editable={!loading}
+                    />
+
+                    {/* Send button */}
+                    <TouchableOpacity
+                      style={[
+                        styles.sendIconBtn,
+                        (!text.trim() || loading) && styles.sendIconBtnDisabled,
+                      ]}
+                      onPress={handleSend}
+                      disabled={!text.trim() || loading}
+                      activeOpacity={0.85}
+                    >
+                      {loading ? (
+                        <ActivityIndicator size="small" color={colors.primary} />
+                      ) : (
+                        <Send size={20} color={colors.primary} />
+                      )}
+                    </TouchableOpacity>
+                  </View>
+
+                  <Text style={styles.charCount} className="font-PlusJakartaSans">
+                    {text.length}/300
                   </Text>
                 </View>
               )}
-              <View>
-                <Text style={styles.headerTitle}>Send a Compliment</Text>
-                <Text style={styles.headerSub}>to {firstName}</Text>
-              </View>
-            </View>
-            <TouchableOpacity onPress={handleClose} hitSlop={12}>
-              <X size={22} color="#999" />
-            </TouchableOpacity>
-          </View>
-
-          {sent ? (
-            <View style={styles.successBox}>
-              <Animated.Text
-                style={[
-                  styles.successEmoji,
-                  { transform: [{ scale: sentScale }] },
-                ]}
-              >
-                {matched ? "🎉" : "💌"}
-              </Animated.Text>
-              <Text style={styles.successTitle}>
-                {matched ? "It's a match!" : "Compliment sent!"}
-              </Text>
-              <Text style={styles.successSub}>
-                {matched
-                  ? `You and ${firstName} both showed interest — you're now matched! 🔥`
-                  : `${firstName} will see it in their inbox.`}
-              </Text>
-            </View>
-          ) : (
-            <>
-              <TextInput
-                style={styles.input}
-                placeholder={`Say something kind to ${firstName}…`}
-                placeholderTextColor="#BBB"
-                value={text}
-                onChangeText={setText}
-                multiline
-                maxLength={300}
-                returnKeyType="default"
-                autoFocus={visible}
-                editable={!loading}
-              />
-
-              <Text style={styles.charCount}>{text.length}/300</Text>
-
-              {aiSuggestions.length > 0 && (
-                <View style={styles.suggestionsRow}>
-                  {aiSuggestions.map((s, i) => (
-                    <TouchableOpacity
-                      key={i}
-                      style={styles.suggestionChip}
-                      onPress={() => handleSuggestionPress(s)}
-                      activeOpacity={0.75}
-                      disabled={loading}
-                    >
-                      <Text style={styles.suggestionText}>{s}</Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              )}
-
-              {!!error && (
-                <View style={styles.errorContainer}>
-                  <Text style={styles.errorText}>{error}</Text>
-                </View>
-              )}
-
-              <View style={styles.actions}>
-                <TouchableOpacity
-                  style={styles.aiBtn}
-                  onPress={handleAISuggest}
-                  disabled={aiLoading || loading}
-                  activeOpacity={0.8}
-                >
-                  {aiLoading ? (
-                    <ActivityIndicator size="small" color={colors.primary} />
-                  ) : (
-                    <>
-                      <Sparkles size={16} color={colors.primary} />
-                      <Text style={styles.aiBtnText}>AI Suggest</Text>
-                    </>
-                  )}
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={[
-                    styles.sendBtn,
-                    (!text.trim() || loading) && styles.sendBtnDisabled,
-                  ]}
-                  onPress={handleSend}
-                  disabled={!text.trim() || loading}
-                  activeOpacity={0.85}
-                >
-                  {loading ? (
-                    <ActivityIndicator size="small" color="#fff" />
-                  ) : (
-                    <Text style={styles.sendBtnText}>Send</Text>
-                  )}
-                </TouchableOpacity>
-              </View>
-            </>
-          )}
+            </LinearGradient>
+          </KeyboardAvoidingView>
         </Animated.View>
-      </KeyboardAvoidingView>
+      </View>
     </Modal>
   );
 };
 
 const styles = StyleSheet.create({
-  centeredWrapper: {
+  fullScreen: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    width: SCREEN_W,
+    height: SCREEN_H,
   },
-  backdrop: {
+  bgImage: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(0,0,0,0.5)",
+    width: SCREEN_W,
+    height: SCREEN_H,
   },
-  card: {
-    width: "88%",
-    maxWidth: 400,
-    backgroundColor: "#fff",
-    borderRadius: 24,
-    paddingHorizontal: 20,
-    paddingBottom: 24,
-    paddingTop: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.15,
-    shadowRadius: 24,
-    elevation: 16,
+  topGradient: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 120,
+    zIndex: 2,
   },
-  header: {
+  topBar: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 16,
+    paddingTop: Platform.OS === "ios" ? 56 : 44,
+    paddingHorizontal: 16,
+    zIndex: 3,
   },
-  headerLeft: {
-    flexDirection: "row",
+  backBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "rgba(0,0,0,0.3)",
     alignItems: "center",
+    justifyContent: "center",
+  },
+  topTitle: {
+    fontSize: 17,
+    color: "#fff",
+  },
+  bottomOverlay: {
+    paddingHorizontal: 20,
+    paddingBottom: Platform.OS === "ios" ? 40 : 28,
+    paddingTop: 60,
+  },
+  // ── Compose state ──
+  composeContainer: {
     gap: 10,
   },
-  avatar: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-  },
-  avatarFallback: {
-    backgroundColor: colors.primary,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  avatarInitial: {
-    color: "#fff",
+  composeLabel: {
     fontSize: 18,
-    fontFamily: "PlusJakartaSansBold",
+    color: "#fff",
+    marginBottom: 4,
   },
-  headerTitle: {
-    fontSize: 16,
-    fontFamily: "PlusJakartaSansBold",
-    color: "#111",
+  inputRow: {
+    flexDirection: "row",
+    alignItems: "flex-end",
+    gap: 10,
+    backgroundColor: "rgba(255,255,255,0.12)",
+    borderRadius: 16,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
   },
-  headerSub: {
-    fontSize: 13,
-    fontFamily: "PlusJakartaSans",
-    color: "#888",
-    marginTop: 1,
+  aiIconBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "rgba(255,255,255,0.15)",
+    alignItems: "center",
+    justifyContent: "center",
   },
   input: {
-    minHeight: 100,
-    maxHeight: 160,
-    borderWidth: 1.5,
-    borderColor: "#F0F0F0",
-    borderRadius: 14,
-    padding: 14,
+    flex: 1,
+    minHeight: 40,
+    maxHeight: 100,
     fontSize: 15,
     fontFamily: "PlusJakartaSans",
-    color: "#111",
-    backgroundColor: "#FAFAFA",
+    color: "#fff",
+    paddingVertical: 8,
     textAlignVertical: "top",
+  },
+  sendIconBtn: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: colors.secondary,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  sendIconBtnDisabled: {
+    opacity: 0.4,
   },
   charCount: {
     textAlign: "right",
     fontSize: 11,
-    color: "#CCC",
-    marginTop: 4,
-    marginBottom: 8,
+    color: "rgba(255,255,255,0.4)",
   },
   suggestionsRow: {
-    marginBottom: 8,
+    gap: 6,
   },
   suggestionChip: {
-    backgroundColor: "#FFF0EA",
+    backgroundColor: "rgba(255,255,255,0.15)",
     borderWidth: 1,
-    borderColor: colors.primaryBorder ?? "#F5C4AC",
+    borderColor: "rgba(255,255,255,0.25)",
     borderRadius: 12,
     padding: 10,
-    marginBottom: 6,
   },
   suggestionText: {
     fontSize: 14,
-    fontFamily: "PlusJakartaSans",
-    color: "#333",
+    color: "#fff",
   },
   errorContainer: {
-    backgroundColor: "#FFEBEE",
+    backgroundColor: "rgba(211,47,47,0.2)",
     padding: 10,
     borderRadius: 8,
-    marginBottom: 8,
   },
   errorText: {
-    color: "#D32F2F",
+    color: "#FFCDD2",
     fontSize: 13,
     textAlign: "center",
   },
-  actions: {
-    flexDirection: "row",
+  // ── Success state ──
+  successContainer: {
     alignItems: "center",
-    justifyContent: "space-between",
-    marginTop: 4,
+    paddingVertical: 20,
     gap: 10,
   },
-  aiBtn: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    borderRadius: 99,
-    borderWidth: 1.5,
-    borderColor: colors.primary,
-    backgroundColor: "#FFF8F5",
-  },
-  aiBtnText: {
-    fontSize: 14,
-    fontFamily: "PlusJakartaSansBold",
-    color: colors.primary,
-  },
-  sendBtn: {
-    flex: 1,
-    backgroundColor: colors.primary,
-    borderRadius: 99,
-    paddingVertical: 13,
-    alignItems: "center",
-  },
-  sendBtnDisabled: {
-    opacity: 0.45,
-  },
-  sendBtnText: {
-    color: "#fff",
-    fontSize: 15,
-    fontFamily: "PlusJakartaSansBold",
-  },
-  successBox: {
-    alignItems: "center",
-    paddingVertical: 30,
-    gap: 8,
-  },
   successEmoji: {
-    fontSize: 52,
+    fontSize: 56,
   },
   successTitle: {
-    fontSize: 20,
-    fontFamily: "PlusJakartaSansBold",
-    color: "#111",
+    fontSize: 24,
+    color: "#fff",
   },
   successSub: {
-    fontSize: 14,
-    fontFamily: "PlusJakartaSans",
-    color: "#888",
+    fontSize: 15,
+    color: "rgba(255,255,255,0.75)",
     textAlign: "center",
     paddingHorizontal: 20,
+    lineHeight: 22,
+  },
+  viewNextBtn: {
+    marginTop: 20,
+    backgroundColor: colors.secondary,
+    borderRadius: 99,
+    paddingVertical: 15,
+    paddingHorizontal: 36,
+    alignItems: "center",
+  },
+  viewNextBtnText: {
+    color: colors.primary,
+    fontSize: 16,
   },
 });
 

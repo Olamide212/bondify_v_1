@@ -38,6 +38,17 @@ const AIService = {
   },
 
   /**
+   * Get an AI match suggestion for a potential match.
+   *
+   * @param {string} userId
+   * @returns {{ isGoodMatch: boolean, confidence: number, reason: string, suggestion: string }}
+   */
+  getMatchSuggestion: async (userId) => {
+    const response = await apiClient.get(`/ai/match-suggestion/${userId}`);
+    return response.data?.data ?? response.data;
+  },
+
+  /**
    * Generate a profile bio for the current user.
    *
    * @param {{ tone: 'sincere'|'funny'|'adventurous'|'professional' }} data
@@ -117,6 +128,46 @@ const AIService = {
    */
   generateConversationPrompts: async () => {
     const response = await apiClient.get("/ai/generate-conversation-prompts");
+    return response.data?.data ?? response.data;
+  },
+
+  /**
+   * Generate profile questions for users to answer.
+   *
+   * @returns {{ questions: string[] }}
+   */
+  generateProfileQuestions: async () => {
+    const response = await apiClient.get("/ai/generate-profile-questions");
+    return response.data?.data ?? response.data;
+  },
+
+  /**
+   * Generate music genre suggestions.
+   *
+   * @returns {{ genres: string[] }}
+   */
+  generateMusicSuggestions: async () => {
+    const response = await apiClient.get("/ai/generate-music-suggestions");
+    return response.data?.data ?? response.data;
+  },
+
+  /**
+   * Generate video content suggestions.
+   *
+   * @returns {{ videos: string[] }}
+   */
+  generateVideoSuggestions: async () => {
+    const response = await apiClient.get("/ai/generate-video-suggestions");
+    return response.data?.data ?? response.data;
+  },
+
+  /**
+   * Generate fun activity suggestions.
+   *
+   * @returns {{ activities: string[] }}
+   */
+  generateActivitySuggestions: async () => {
+    const response = await apiClient.get("/ai/generate-activity-suggestions");
     return response.data?.data ?? response.data;
   },
 };

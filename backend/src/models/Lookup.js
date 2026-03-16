@@ -33,6 +33,10 @@ const lookupSchema = new mongoose.Schema(
         // Added in Session 8 — new preference fields
         'religion-practice',
         'relocation-preference',
+        // Added for music, videos, and activities
+        'favorite-music',
+        'favorite-videos',
+        'fun-activities',
       ],
     },
     label: {
