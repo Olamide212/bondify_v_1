@@ -12,8 +12,9 @@ import * as Progress from "react-native-progress";
 import { getProfileAge } from "../../utils/ageHelper";
 import apiClient from "../../utils/axiosInstance";
 import VerifiedIcon from "../ui/VerifiedIcon";
+import {colors} from "../../constant/colors";
 
-const PRIMARY        = "#E8651A";
+const PRIMARY = colors.secondary;   // your orange e.g. '#E8521A' --- IGNORE ---
 const PHOTO_SIZE     = 130;
 const RING_THICKNESS = 5;
 const RING_GAP       = 4;

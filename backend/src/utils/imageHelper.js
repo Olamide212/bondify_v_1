@@ -81,5 +81,5 @@ const deleteFromS3 = async (publicId) => {
   await s3.send(new DeleteObjectCommand({ Bucket: bucket, Key: publicId }));
 };
 
-module.exports = { mapImagesWithAccessUrls, uploadToS3, deleteFromS3 };
+module.exports = { mapImagesWithAccessUrls, mapUserImages, uploadToS3, deleteFromS3 };
 

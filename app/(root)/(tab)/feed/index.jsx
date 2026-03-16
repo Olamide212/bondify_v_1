@@ -65,7 +65,11 @@ export default function BonFeed() {
     setPlansLoading(true);
     try {
       const res = await planService.getPlans({ status: TAB_STATUS[activeTab] });
-      setPlans(res.data ?? []);
+      // Deduplicate by _id in case API returns duplicates
+      const unique = (res.data ?? []).filter(
+        (p, i, arr) => arr.findIndex((x) => x._id === p._id) === i
+      );
+      setPlans(unique);
     } catch {
       // silent
     } finally {
@@ -166,7 +170,10 @@ export default function BonFeed() {
   const handlePlanCreated = (newPlan) => {
     // Only add to current list if the plan status matches the active tab
     if (newPlan.status === TAB_STATUS[activeTab]) {
-      setPlans((prev) => [newPlan, ...prev]);
+      setPlans((prev) => {
+        if (prev.some((p) => p._id === newPlan._id)) return prev;
+        return [newPlan, ...prev];
+      });
     }
   };
 
@@ -297,7 +304,7 @@ export default function BonFeed() {
       {/* ── Plans Feed ───────────────────────────────────────────────────── */}
       <FlatList
         data={plans}
-        keyExtractor={(item) => item._id}
+        keyExtractor={(item, index) => item._id ?? `plan-${index}`}
         renderItem={({ item }) => (
           <PlanCard
             plan={item}
@@ -435,10 +442,10 @@ const fStyles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: "#10B981",
+    backgroundColor: colors.primary,
     justifyContent: "center",
     alignItems: "center",
-    shadowColor: "#10B981",
+    shadowColor: colors.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.4,
     shadowRadius: 8,
