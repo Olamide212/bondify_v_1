@@ -132,8 +132,7 @@ export default function ExploreTabComponents() {
       <SafeAreaView style={{ flex: 1 }} className="bg-white">
              <GeneralHeader title="Discover" />
     
-        <View className='bg-background
-    '>
+        <View>
           <TabNavigation
             activeTab={activeTab}
             setActiveTab={setActiveTab}

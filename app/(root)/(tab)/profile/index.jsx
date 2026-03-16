@@ -1,24 +1,32 @@
 import { useFocusEffect, useRouter } from "expo-router";
-import { Bell, Settings } from "lucide-react-native";
+import { Settings } from "lucide-react-native";
 import { useCallback, useRef, useState } from "react";
-import { ActivityIndicator, RefreshControl } from "react-native";
+import {
+    ActivityIndicator,
+    RefreshControl,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+} from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import GeneralHeader from "../../../../components/headers/GeneralHeader";
-import Perks from "../../../../components/profileScreen/BoostAndChat";
 import InfoSection from "../../../../components/profileScreen/InfoSection";
 import ProfileSection from "../../../../components/profileScreen/ProfileSection";
+import SocialProfileTab from "../../../../components/profileScreen/SocialProfileTab";
 import SubscriptionBannerSlider from "../../../../components/profileScreen/SubscriptionBannerSlider";
-import { profileService } from "../../../../services/profileService";
 import { colors } from "../../../../constant/colors";
+import { profileService } from "../../../../services/profileService";
 
-
+const PROFILE_TABS = ["Dating Profile", "Social Profile"];
 
 const ProfileScreen = () => {
   const router = useRouter();
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [activeTab, setActiveTab] = useState(0);
   const lastFetchRef = useRef(0);
 
 
@@ -65,6 +73,30 @@ const ProfileScreen = () => {
            />}
            onPress={() => router.push("/settings")}
         />
+
+        {/* ── Tab Switcher ─────────────────────────────────────────────── */}
+        <View style={tabStyles.tabBar}>
+          {PROFILE_TABS.map((label, i) => (
+            <TouchableOpacity
+              key={label}
+              style={[
+                tabStyles.tab,
+                activeTab === i && tabStyles.tabActive,
+              ]}
+              onPress={() => setActiveTab(i)}
+              activeOpacity={0.7}
+            >
+              <Text
+                style={[
+                  tabStyles.tabLabel,
+                  activeTab === i ? tabStyles.tabLabelActive : tabStyles.tabLabelInactive,
+                ]}
+              >
+                {label}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
      
         <ScrollView
           refreshControl={
@@ -72,21 +104,23 @@ const ProfileScreen = () => {
           }
           contentContainerStyle={{
             paddingBottom: 80,
-            // backgroundColor: colors.background,
           }}
         >
-          {loading ? (
-            <ActivityIndicator size="large" color={colors.primary} style={{ marginTop: 24 }} />
-          ) : (
+          {activeTab === 0 ? (
+            /* ── Dating Profile ──────────────────────────────────────────── */
             <>
-              <ProfileSection profile={profile || {}} />
-          
+              {loading ? (
+                <ActivityIndicator size="large" color={colors.primary} style={{ marginTop: 24 }} />
+              ) : (
+                <ProfileSection profile={profile || {}} />
+              )}
+              <InfoSection />
+              <SubscriptionBannerSlider />
             </>
+          ) : (
+            /* ── Social Profile ──────────────────────────────────────────── */
+            <SocialProfileTab />
           )}
-
-          <InfoSection />
-          {/* <Perks /> */}
-          <SubscriptionBannerSlider />
         </ScrollView>
     
       </SafeAreaView>
@@ -95,3 +129,31 @@ const ProfileScreen = () => {
 }
 
 export default ProfileScreen
+
+const tabStyles = StyleSheet.create({
+  tabBar: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    borderBottomWidth: 1,
+    borderBottomColor: "#F0F0F0",
+  },
+  tab: {
+    flex: 1,
+    alignItems: "center",
+    paddingVertical: 12,
+  },
+  tabActive: {
+    borderBottomWidth: 2,
+    borderBottomColor: "#111",
+  },
+  tabLabel: {
+    fontSize: 15,
+    fontFamily: "PlusJakartaSansBold",
+  },
+  tabLabelActive: {
+    color: "#111",
+  },
+  tabLabelInactive: {
+    color: "#9CA3AF",
+  },
+});

@@ -1,11 +1,13 @@
 import { RotateCcw, Sparkles } from "lucide-react-native";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
+  Animated,
   Modal,
   StyleSheet,
   Text,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   View,
 } from "react-native";
 import { colors } from "../../constant/colors";
@@ -27,6 +29,49 @@ const AISuggestionModal = ({
   const [loading, setLoading]           = useState(false);
   const [error, setError]               = useState(null);
   const [hasGenerated, setHasGenerated] = useState(false);
+  const [showModal, setShowModal]       = useState(false);
+
+  const fadeAnim  = useRef(new Animated.Value(0)).current;
+  const scaleAnim = useRef(new Animated.Value(0.85)).current;
+
+  // Animate in / out
+  useEffect(() => {
+    if (visible) {
+      setShowModal(true);
+      fadeAnim.setValue(0);
+      scaleAnim.setValue(0.85);
+      Animated.parallel([
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 250,
+          useNativeDriver: true,
+        }),
+        Animated.spring(scaleAnim, {
+          toValue: 1,
+          friction: 8,
+          tension: 65,
+          useNativeDriver: true,
+        }),
+      ]).start();
+
+      // Auto-generate on first open
+      if (!hasGenerated) generate();
+    } else if (showModal) {
+      Animated.parallel([
+        Animated.timing(fadeAnim, {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(scaleAnim, {
+          toValue: 0.85,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+      ]).start(() => setShowModal(false));
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [visible]);
 
   const targetUserId = profile?._id ?? profile?.id;
 
@@ -62,90 +107,108 @@ const AISuggestionModal = ({
     }
   };
 
-  // Auto-generate on first open
-  const handleOpen  = () => { if (!hasGenerated) generate(); };
   const handleUse   = () => { if (suggestion) { onSelectSuggestion(suggestion); onClose(); } };
   const handleClose = () => onClose();
 
+  if (!showModal) return null;
+
   return (
     <Modal
-      visible={visible}
+      visible={showModal}
       transparent
-      animationType="slide"
+      animationType="none"
       onRequestClose={handleClose}
-      onShow={handleOpen}
+      statusBarTranslucent
     >
-      <TouchableOpacity style={styles.backdrop} activeOpacity={1} onPress={handleClose} />
+      {/* Overlay */}
+      <TouchableWithoutFeedback onPress={handleClose}>
+        <Animated.View style={[styles.overlay, { opacity: fadeAnim }]} />
+      </TouchableWithoutFeedback>
 
-      <View style={styles.sheet}>
-        <View style={styles.handle} />
-
-        {/* Header */}
-        <View style={styles.header}>
-          <View style={styles.headerLeft}>
-            <View style={styles.sparkleCircle}>
-              <Sparkles size={16} color={colors.primary} />
-            </View>
-            <Text style={styles.headerTitle}>
-              {context === 'photo' ? 'AI Photo Comment' : 'AI Suggestion'}
-            </Text>
-          </View>
-          <TouchableOpacity onPress={handleClose}>
-            <Text style={styles.closeText}>Close</Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Content */}
-        <View style={styles.body}>
-          {loading ? (
-            <View style={styles.loadingWrap}>
-              <ActivityIndicator size="small" color={colors.primary} />
-              <Text style={styles.loadingText}>
-                {context === 'photo' ? 'Crafting a comment…' : 'Writing something great…'}
+      {/* Centered card */}
+      <View style={styles.centerWrapper} pointerEvents="box-none">
+        <Animated.View
+          style={[
+            styles.card,
+            {
+              opacity: fadeAnim,
+              transform: [{ scale: scaleAnim }],
+            },
+          ]}
+        >
+          {/* Header */}
+          <View style={styles.header}>
+            <View style={styles.headerLeft}>
+              <View style={styles.sparkleCircle}>
+                <Sparkles size={16} color={colors.primary} />
+              </View>
+              <Text style={styles.headerTitle}>
+                {context === 'photo' ? 'AI Photo Comment' : 'AI Suggestion'}
               </Text>
             </View>
-          ) : error ? (
-            <Text style={styles.errorText}>{error}</Text>
-          ) : suggestion ? (
-            <Text style={styles.suggestionText}>&quot;{suggestion}&quot;</Text>
-          ) : null}
-        </View>
+            <TouchableOpacity onPress={handleClose}>
+              <Text style={styles.closeText}>Close</Text>
+            </TouchableOpacity>
+          </View>
 
-        {/* Actions */}
-        <View style={styles.actions}>
-          <TouchableOpacity
-            style={styles.regenBtn}
-            onPress={generate}
-            disabled={loading}
-          >
-            <RotateCcw size={18} color={colors.primary} />
-            <Text style={styles.regenText}>Try again</Text>
-          </TouchableOpacity>
+          {/* Content */}
+          <View style={styles.body}>
+            {loading ? (
+              <View style={styles.loadingWrap}>
+                <ActivityIndicator size="small" color={colors.primary} />
+                <Text style={styles.loadingText}>
+                  {context === 'photo' ? 'Crafting a comment…' : 'Writing something great…'}
+                </Text>
+              </View>
+            ) : error ? (
+              <Text style={styles.errorText}>{error}</Text>
+            ) : suggestion ? (
+              <Text style={styles.suggestionText}>&quot;{suggestion}&quot;</Text>
+            ) : null}
+          </View>
 
-          <TouchableOpacity
-            style={[styles.useBtn, (!suggestion || loading) && styles.useBtnDisabled]}
-            onPress={handleUse}
-            disabled={!suggestion || loading}
-          >
-            <Text style={styles.useBtnText}>Use this ✓</Text>
-          </TouchableOpacity>
-        </View>
+          {/* Actions */}
+          <View style={styles.actions}>
+            <TouchableOpacity
+              style={styles.regenBtn}
+              onPress={generate}
+              disabled={loading}
+            >
+              <RotateCcw size={18} color={colors.primary} />
+              <Text style={styles.regenText}>Try again</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.useBtn, (!suggestion || loading) && styles.useBtnDisabled]}
+              onPress={handleUse}
+              disabled={!suggestion || loading}
+            >
+              <Text style={styles.useBtnText}>Use this ✓</Text>
+            </TouchableOpacity>
+          </View>
+        </Animated.View>
       </View>
     </Modal>
   );
 };
 
 const styles = StyleSheet.create({
-  backdrop:      { flex: 1, backgroundColor: "rgba(0,0,0,0.35)" },
-  sheet: {
-    position: "absolute", bottom: 0, left: 0, right: 0,
-    backgroundColor: "#fff",
-    borderTopLeftRadius: 24, borderTopRightRadius: 24,
-    paddingBottom: 36,
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0,0,0,0.5)",
   },
-  handle: {
-    width: 36, height: 4, borderRadius: 2, backgroundColor: "#E5E7EB",
-    alignSelf: "center", marginTop: 12, marginBottom: 4,
+  centerWrapper: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 24,
+  },
+  card: {
+    width: "100%",
+    maxWidth: 400,
+    backgroundColor: "#fff",
+    borderRadius: 24,
+    paddingBottom: 24,
   },
   header: {
     flexDirection: "row", alignItems: "center", justifyContent: "space-between",

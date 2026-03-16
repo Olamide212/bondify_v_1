@@ -2,20 +2,20 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { ChevronLeft } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
 import {
-    ActivityIndicator,
-    Dimensions,
-    Pressable,
-    StyleSheet,
-    Text,
-    View,
+  ActivityIndicator,
+  Dimensions,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
 } from "react-native";
 import Animated, {
-    interpolate,
-    runOnJS,
-    useAnimatedScrollHandler,
-    useAnimatedStyle,
-    useSharedValue,
-    withTiming,
+  interpolate,
+  runOnJS,
+  useAnimatedScrollHandler,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
 } from "react-native-reanimated";
 import { useSelector } from "react-redux";
 import ActionButtons from "../../../components/homeScreen/ActionButtons";
@@ -394,7 +394,7 @@ const UserProfile = () => {
         showsVerticalScrollIndicator={false}
       >
         <Animated.View style={{ flex: 1 }}>
-          <ProfileCard profile={currentProfile} />
+          <ProfileCard profile={currentProfile} hideAiSuggestion={interactionStatus === 'matched'} />
         </Animated.View>
       </Animated.ScrollView>
 

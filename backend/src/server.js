@@ -27,6 +27,8 @@ const aiRoutes = require('./routes/aiRoutes');
 const mapRoutes = require('./routes/mapRoutes');
 const commentRoutes = require('./routes/commentRoutes');  
 const feedRoutes    = require('./routes/feedRoutes');
+const planRoutes    = require('./routes/planRoutes');
+const planChatRoutes = require('./routes/planChatRoutes');
 const webhookRoutes = require('./routes/webhookRoutes');
 
 // Initialize express app
@@ -80,6 +82,8 @@ app.use('/api/ai', aiRoutes);
 app.use('/api/map', mapRoutes);
 app.use('/api/comments', commentRoutes);
 app.use('/api/feed',     feedRoutes);
+app.use('/api/plans',    planRoutes);
+app.use('/api/plan-chats', planChatRoutes);
 app.use('/api/webhooks', webhookRoutes);
 // 404 handler
 app.use('*', (req, res) => {

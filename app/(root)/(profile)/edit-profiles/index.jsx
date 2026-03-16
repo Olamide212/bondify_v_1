@@ -12,12 +12,10 @@
 import * as ImagePicker from 'expo-image-picker';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { ArrowLeft } from 'lucide-react-native';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
     ActivityIndicator,
     Alert,
-    Animated,
-    Dimensions,
     RefreshControl,
     ScrollView,
     StyleSheet,
@@ -46,40 +44,24 @@ import { colors as C } from '../../../../constant/colors';
 import { useTheme } from '../../../../context/ThemeContext';
 import { profileService } from '../../../../services/profileService';
 
-const { width: SW } = Dimensions.get('window');
 const TABS = ['Edit', 'View Profile'];
 
 // ─── Tab bar ──────────────────────────────────────────────────────────────────
 
-const TabBar = ({ activeIndex, onChange, colors }) => {
-  const indicatorX = useRef(new Animated.Value(0)).current;
-  const tabW = (SW - 32) / 2;
-
-  useEffect(() => {
-    Animated.spring(indicatorX, {
-      toValue: activeIndex * tabW,
-      useNativeDriver: true,
-      bounciness: 4,
-    }).start();
-  }, [activeIndex]);
-
+const TabBar = ({ activeIndex, onChange }) => {
   return (
-    <View style={[tb.wrap, { backgroundColor: colors.surface,  }]}>
-      {/* sliding pill */}
-      <Animated.View
-        style={[tb.pill, { width: tabW - 6, transform: [{ translateX: indicatorX }] }]}
-      />
+    <View style={tb.tabBar}>
       {TABS.map((label, i) => (
         <TouchableOpacity
           key={label}
-          style={[tb.tab, { width: tabW }]}
+          style={[tb.tabItem, activeIndex === i && tb.tabItemActive]}
           onPress={() => onChange(i)}
           activeOpacity={0.8}
         >
           <Text
             style={[
               tb.label,
-              { color: activeIndex === i ? '#fff' : colors.textSecondary },
+              activeIndex === i ? tb.labelActive : tb.labelInactive,
             ]}
           >
             {label}
@@ -91,30 +73,24 @@ const TabBar = ({ activeIndex, onChange, colors }) => {
 };
 
 const tb = StyleSheet.create({
-  wrap: {
+  tabBar: {
     flexDirection: 'row',
-    marginHorizontal: 16,
-    marginVertical: 15,
-  
-    padding: 3,
-    position: 'relative',
-    overflow: 'hidden',
+    justifyContent: 'space-between',
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F0F0',
   },
-  pill: {
-    position: 'absolute',
-    top: 3,
-    left: 3,
-    bottom: 3,
-    borderRadius: 99,
-    backgroundColor: '#E8651A',
-    zIndex: 0,
-  },
-  tab: {
+  tabItem: {
+    flex: 1,
     alignItems: 'center',
-    paddingVertical: 10,
-    zIndex: 1,
+    paddingVertical: 12,
   },
-  label: { fontFamily: 'PlusJakartaSansBold', fontSize: 14 },
+  tabItemActive: {
+    borderBottomWidth: 2,
+    borderBottomColor: '#111',
+  },
+  label: { fontFamily: 'PlusJakartaSansBold', fontSize: 15 },
+  labelActive: { color: '#111' },
+  labelInactive: { color: '#9CA3AF' },
 });
 
 // ─── View Profile tab ─────────────────────────────────────────────────────────
@@ -269,7 +245,7 @@ export default function ProfileDetails() {
         />
 
         {/* Tab bar */}
-        <TabBar activeIndex={activeTab} onChange={setActiveTab} colors={colors} />
+        <TabBar activeIndex={activeTab} onChange={setActiveTab} />
 
         {/* ── EDIT TAB ── */}
         {activeTab === 0 && (

@@ -6,8 +6,10 @@ import { StyleSheet, View } from "react-native";
 import { useSelector } from "react-redux";
 import ChatListScreen from "../../../../components/chatScreen/ChatListScreen";
 import { matchService } from "../../../../services/matchService";
+import planService from "../../../../services/planService";
 import { socketService } from "../../../../services/socketService";
-import { ArrowLeft, BadgeCheck, MoreVertical, User, UserX } from "lucide-react-native";
+
+const CHAT_TABS = ["Dating", "Social"];
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
 
@@ -70,17 +72,52 @@ const normalizeMatches = (matches) =>
     };
   });
 
+// Helper: extract avatar url
+const planAvatar = (user) =>
+  user?.profilePhoto || user?.images?.[0]?.url || user?.images?.[0] || null;
+
+// Normalize plan group chats into chatlist-compatible items
+const normalizePlanChats = (plans, currentUserId) =>
+  plans
+    .filter((p) => (p.participants?.length || 0) >= 1)
+    .map((p) => {
+      const participantCount = p.participants?.length || 0;
+      const authorName = [p.author?.firstName, p.author?.lastName].filter(Boolean).join(" ") || "User";
+      const isOwner = String(p.author?._id || p.author) === String(currentUserId);
+      return {
+        id: p._id,
+        matchId: p.groupChatId || `plan_${p._id}`,
+        name: p.activity || (p.status === "free" ? "I\u2019m Free" : "Join Me"),
+        profileImage: planAvatar(p.author),
+        isOnline: false,
+        isSystem: false,
+        isVerified: false,
+        matchedDate: p.createdAt ? new Date(p.createdAt) : new Date(),
+        activityAt: new Date(p.updatedAt || p.createdAt).getTime(),
+        lastMessage: `${participantCount} joined \u2022 by ${isOwner ? "You" : authorName}`,
+        unread: 0,
+        hasChatted: false,
+        isPlanChat: true,
+        planId: p._id,
+        planStatus: p.status,
+      };
+    })
+    .sort((a, b) => b.activityAt - a.activityAt);
+
 // ─────────────────────────────────────────────────────────────────────────────
 
 export default function Chat() {
   const router         = useRouter();
+  const [activeTab, setActiveTab] = useState(0);
   const [matchUsers, setMatchUsers]       = useState([]);
+  const [planChats, setPlanChats]         = useState([]);
   const [isLoadingMatches, setIsLoadingMatches] = useState(true);
+  const [isLoadingPlans, setIsLoadingPlans]     = useState(true);
   const currentUserId  = useSelector(
     (state) => state.auth.user?.id || state.auth.user?._id
   );
 
-  // ── Load matches ────────────────────────────────────────────────────────────
+  // ── Load matches (dating chats) ────────────────────────────────────────────
 
   const loadMatches = useCallback(async (mounted = { current: true }) => {
     setIsLoadingMatches(true);
@@ -98,19 +135,37 @@ export default function Chat() {
     }
   }, []);
 
+  // ── Load plan group chats (social chats) ───────────────────────────────────
+
+  const loadPlanChats = useCallback(async (mounted = { current: true }) => {
+    setIsLoadingPlans(true);
+    try {
+      const res = await planService.getMyPlans();
+      if (mounted.current) {
+        setPlanChats(normalizePlanChats(res.data ?? [], currentUserId));
+      }
+    } catch {
+      // silent
+    } finally {
+      if (mounted.current) setIsLoadingPlans(false);
+    }
+  }, [currentUserId]);
+
   useEffect(() => {
     const mounted = { current: true };
     loadMatches(mounted);
+    loadPlanChats(mounted);
     return () => { mounted.current = false; };
-  }, [loadMatches]);
+  }, [loadMatches, loadPlanChats]);
 
   // Refresh list when coming back from chat (e.g. unread counts reset)
   useFocusEffect(
     useCallback(() => {
       const mounted = { current: true };
       loadMatches(mounted);
+      loadPlanChats(mounted);
       return () => { mounted.current = false; };
-    }, [loadMatches])
+    }, [loadMatches, loadPlanChats])
   );
 
   // ── Socket updates ──────────────────────────────────────────────────────────
@@ -180,6 +235,21 @@ export default function Chat() {
   // ── Navigation ──────────────────────────────────────────────────────────────
 
   const handleSelectUser = (user) => {
+    if (user.isPlanChat) {
+      // Navigate to plan group chat
+      router.push({
+        pathname: "/chat-screen",
+        params: {
+          matchId: user.matchId,
+          name: user.name,
+          profileImage: user.profileImage ?? "",
+          isGroupChat: "true",
+          planId: user.planId,
+        },
+      });
+      return;
+    }
+
     // Optimistically clear unread badge before navigating
     setMatchUsers((prev) =>
       prev.map((u) =>
@@ -203,12 +273,18 @@ export default function Chat() {
 
   // ── Render ──────────────────────────────────────────────────────────────────
 
+  const isDating = activeTab === 0;
+
   return (
     <View style={styles.container}>
       <ChatListScreen
-        users={matchUsers}
+        users={isDating ? matchUsers : planChats}
         onSelectUser={handleSelectUser}
-        isLoading={isLoadingMatches}
+        isLoading={isDating ? isLoadingMatches : isLoadingPlans}
+        chatType={isDating ? "dating" : "social"}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        tabs={CHAT_TABS}
       />
     </View>
   );

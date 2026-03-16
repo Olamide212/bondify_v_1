@@ -97,7 +97,7 @@ export default function DirectMessageBox({ profile }) {
             <Text style={styles.sendBtnText}>Sent ✓</Text>
           ) : (
             <View style={styles.sendBtnInner}>
-              <Text style={styles.sendBtnText}>Send a Bondo</Text>
+              <Text style={styles.sendBtnText}>Send a BonSpark</Text>
               <SendHorizontal size={18} color="#fff" strokeWidth={2.5} />
             </View>
           )}

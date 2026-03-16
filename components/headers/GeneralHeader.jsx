@@ -13,7 +13,7 @@ const GeneralHeader = ({ title, icon, onPress, leftIcon, style, textStyle }) => 
         styles.container,
         {
           backgroundColor: colors.surface,
-          borderBottomColor: colors.border,
+        
         },
         style,
       ]}
@@ -48,7 +48,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingHorizontal: 16,
     paddingVertical: 14,
-    borderBottomWidth: StyleSheet.hairlineWidth,
+  
   },
   title: {
     fontSize: 20,

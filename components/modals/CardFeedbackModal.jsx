@@ -12,11 +12,10 @@
 
 import { useEffect, useRef } from "react";
 import {
-  Animated,
-  Dimensions,
-  StyleSheet,
-  Text,
-  View,
+    Animated,
+    Dimensions,
+    StyleSheet,
+    Text
 } from "react-native";
 import { colors } from "../../constant/colors";
 
@@ -26,7 +25,7 @@ const ACTIONS = {
   like: {
     emoji:    "❤️",
     label:    "Liked!",
-    bg:       "#FFF0EA",
+    bg:       colors.primaryLight,
     border:   colors.primary,
     text:     colors.primary,
   },

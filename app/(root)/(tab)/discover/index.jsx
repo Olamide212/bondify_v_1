@@ -1,34 +1,34 @@
 import {
-  MoreVertical,
-  Paperclip,
-  RefreshCw,
-  Send,
-  Sparkles,
+    MoreVertical,
+    Paperclip,
+    RefreshCw,
+    Send,
+    Sparkles,
 } from "lucide-react-native";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
-  ActivityIndicator,
-  Alert,
-  Animated,
-  Clipboard,
-  Image,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  ToastAndroid,
-  View,
+    ActivityIndicator,
+    Alert,
+    Animated,
+    Clipboard,
+    Image,
+    KeyboardAvoidingView,
+    Platform,
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    ToastAndroid,
+    View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { colors } from "../../../../constant/colors";
-import AIService from "../../../../services/aiService";
 import { images } from "../../../../constant/images";
+import AIService from "../../../../services/aiService";
 
 // ─── Constants ────────────────────────────────────────────────
-const PRIMARY       = colors.primary;   // your orange e.g. '#E8521A'
+const PRIMARY       = colors.primary;
 const PRIMARY_LIGHT = colors.primaryLight
 const PRIMARY_BORDER = colors.primaryBorder
 

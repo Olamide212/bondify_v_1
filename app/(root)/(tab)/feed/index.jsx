@@ -1,22 +1,19 @@
 /**
  * BonFeed Screen  —  app/(root)/(tab)/feed/index.jsx
  *
- * Features:
- *  • Header with app brand + profile avatar placeholder (opens profile sheet)
- *  • Tab bar: "For You" | "New" | "Following"
- *  • Infinite-scrolling post list
- *  • Clickable posts → PostDetailModal (Twitter-like)
- *  • 3-dots menu → PostOptionsModal (Share, Save, Follow, Mute, Report, Block)
- *  • Create-post FAB → CreatePostModal (full-screen BaseModal)
- *  • FeedProfileScreen (social profile full-screen, navigates to /feed-profile)
+ * Plans-only feed with two tabs:
+ *  • "I'm Free"  — plans with status === 'free'
+ *  • "Join Me"   — plans with status === 'join_me'
+ *  • Create-plan FAB → CreatePlanModal
+ *  • Clickable plans → PlanDetailModal
+ *  • Real-time socket updates
  */
 
 import { useRouter } from "expo-router";
-import { Plus, User } from "lucide-react-native";
+import { CalendarHeart, User } from "lucide-react-native";
 import {
   useCallback,
   useEffect,
-  useRef,
   useState,
 } from "react";
 import {
@@ -25,7 +22,6 @@ import {
   FlatList,
   Image,
   RefreshControl,
-  Share,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -33,24 +29,22 @@ import {
 } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { useSelector } from "react-redux";
-import CreatePostModal from "../../../../components/feed/CreatePostModal";
-import FeedPostCard from "../../../../components/feed/FeedPostCard";
-import PostDetailModal from "../../../../components/feed/PostDetailModal";
-import PostOptionsModal from "../../../../components/feed/PostOptionsModal";
+import CreatePlanModal from "../../../../components/feed/CreatePlanModal";
+import PlanCard from "../../../../components/feed/PlanCard";
+import PlanDetailModal from "../../../../components/feed/PlanDetailModal";
 import { colors } from "../../../../constant/colors";
-import feedService from "../../../../services/feedService";
-import {images} from "../../../../constant/images"
+import { images } from "../../../../constant/images";
+import planChatService from "../../../../services/planChatService";
+import planService from "../../../../services/planService";
+import { socketService } from "../../../../services/socketService";
 
 const BRAND = colors.primary;
-const TABS = ["For You", "New", "Following"];
-const TAB_KEYS = ["foryou", "new", "following"];
+const TABS = ["I\u2019m Free", "Join Me"];
+const TAB_STATUS = ["free", "join_me"];
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
 const avatar = (user) =>
   user?.profilePhoto || user?.images?.[0]?.url || user?.images?.[0] || null;
-
-const displayName = (user) =>
-  [user?.firstName, user?.lastName].filter(Boolean).join(" ") || user?.userName || "User";
 
 // ─── BonFeed Screen ─────────────────────────────────────────────────────────────
 export default function BonFeed() {
@@ -58,273 +52,213 @@ export default function BonFeed() {
   const { user: currentUser } = useSelector((s) => s.auth);
 
   const [activeTab, setActiveTab] = useState(0);
-  const [posts, setPosts] = useState([]);
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
-  const [loading, setLoading] = useState(false);
-  const [refreshing, setRefreshing] = useState(false);
-  const [showCreate, setShowCreate] = useState(false);
 
-  // Post detail modal
-  const [detailPost, setDetailPost] = useState(null);
+  // ── Plans state ─────────────────────────────────────────────────────────────
+  const [plans, setPlans] = useState([]);
+  const [plansLoading, setPlansLoading] = useState(false);
+  const [plansRefreshing, setPlansRefreshing] = useState(false);
+  const [showCreatePlan, setShowCreatePlan] = useState(false);
+  const [detailPlan, setDetailPlan] = useState(null);
 
-  // Post options modal
-  const [optionsPost, setOptionsPost] = useState(null);
-
-  // ── Follow cache (authorId -> isFollowing) shared across cards ──────────
-  const followCache = useRef({});
-  const requestIdRef = useRef(0);
-
-  // ── Load posts ──────────────────────────────────────────────────────────────
-  const loadPosts = useCallback(
-    async (tabIndex = activeTab, pg = 1, append = false) => {
-      const requestId = ++requestIdRef.current;
-      setLoading(true);
-      try {
-        const res = await feedService.getFeed({ tab: TAB_KEYS[tabIndex], page: pg, limit: 20 });
-        if (requestId !== requestIdRef.current) return;
-        const newPosts = (res.data ?? []).map((p) => ({
-          ...p,
-          _isFollowing: followCache.current[p.author?._id] ?? false,
-        }));
-        setPosts((prev) => (append ? [...prev, ...newPosts] : newPosts));
-        setHasMore(res.pagination?.hasMore ?? false);
-        setPage(pg);
-      } catch {
-        // silent fail — network errors are expected on mobile
-      } finally {
-        if (requestId === requestIdRef.current) setLoading(false);
-      }
-    },
-    [activeTab]
-  );
-
-  useEffect(() => {
-    loadPosts(activeTab, 1, false);
+  // ── Load plans (filtered by active tab status) ──────────────────────────────
+  const loadPlans = useCallback(async () => {
+    setPlansLoading(true);
+    try {
+      const res = await planService.getPlans({ status: TAB_STATUS[activeTab] });
+      setPlans(res.data ?? []);
+    } catch {
+      // silent
+    } finally {
+      setPlansLoading(false);
+    }
   }, [activeTab]);
 
+  useEffect(() => {
+    loadPlans();
+  }, [loadPlans]);
+
   const onRefresh = async () => {
-    setRefreshing(true);
-    await loadPosts(activeTab, 1, false);
-    setRefreshing(false);
+    setPlansRefreshing(true);
+    await loadPlans();
+    setPlansRefreshing(false);
   };
 
-  const onEndReached = () => {
-    if (!loading && hasMore) loadPosts(activeTab, page + 1, true);
+  // ── Plans actions ───────────────────────────────────────────────────────────
+  const handleJoinPlan = async (planId) => {
+    setPlans((prev) =>
+      prev.map((p) =>
+        p._id === planId
+          ? { ...p, hasJoined: true, participants: [...(p.participants || []), { user: currentUser }] }
+          : p
+      )
+    );
+    setDetailPlan((d) =>
+      d?._id === planId
+        ? { ...d, hasJoined: true, participants: [...(d.participants || []), { user: currentUser }] }
+        : d
+    );
+    try {
+      const res = await planService.joinPlan(planId);
+      if (res.success) {
+        setPlans((prev) => prev.map((p) => (p._id === planId ? res.data : p)));
+        setDetailPlan((d) => (d?._id === planId ? res.data : d));
+      }
+    } catch {
+      loadPlans();
+    }
   };
 
-  // ── Like ────────────────────────────────────────────────────────────────────
-  const handleLike = async (postId) => {
-    const prev = posts.find((p) => p._id === postId);
-    const update = (all) =>
-      all.map((p) =>
-        p._id === postId
+  const handleLeavePlan = async (planId) => {
+    setPlans((prev) =>
+      prev.map((p) =>
+        p._id === planId
           ? {
               ...p,
-              isLiked: !p.isLiked,
-              likesCount: p.isLiked ? (p.likesCount ?? 1) - 1 : (p.likesCount ?? 0) + 1,
+              hasJoined: false,
+              participants: (p.participants || []).filter(
+                (pt) => String(pt.user?._id || pt.user) !== String(currentUser?._id)
+              ),
             }
           : p
-      );
-    setPosts(update);
-    // Also update detail modal if open
-    setDetailPost((d) => (d?._id === postId ? update([d])[0] : d));
+      )
+    );
+    setDetailPlan((d) =>
+      d?._id === planId
+        ? {
+            ...d,
+            hasJoined: false,
+            participants: (d.participants || []).filter(
+              (pt) => String(pt.user?._id || pt.user) !== String(currentUser?._id)
+            ),
+          }
+        : d
+    );
     try {
-      await feedService.toggleLike(postId);
-    } catch {
-      if (prev) {
-        setPosts((all) => all.map((p) => (p._id === postId ? prev : p)));
-        setDetailPost((d) => (d?._id === postId ? prev : d));
+      const res = await planService.leavePlan(planId);
+      if (res.success) {
+        setPlans((prev) => prev.map((p) => (p._id === planId ? res.data : p)));
+        setDetailPlan((d) => (d?._id === planId ? res.data : d));
       }
-    }
-  };
-
-  // ── Save ────────────────────────────────────────────────────────────────────
-  const handleSave = async (postId) => {
-    const prev = posts.find((p) => p._id === postId);
-    const update = (all) =>
-      all.map((p) =>
-        p._id === postId
-          ? { ...p, isSaved: !p.isSaved, savesCount: p.isSaved ? (p.savesCount ?? 1) - 1 : (p.savesCount ?? 0) + 1 }
-          : p
-      );
-    setPosts(update);
-    setDetailPost((d) => (d?._id === postId ? update([d])[0] : d));
-    try {
-      await feedService.toggleSave(postId);
     } catch {
-      if (prev) {
-        setPosts((all) => all.map((p) => (p._id === postId ? prev : p)));
-        setDetailPost((d) => (d?._id === postId ? prev : d));
-      }
+      loadPlans();
     }
   };
 
-  // ── Follow ──────────────────────────────────────────────────────────────────
-  const handleFollow = async (authorId) => {
-    const prevFollowing = followCache.current[authorId] ?? false;
-    const nextFollowing = !prevFollowing;
-    followCache.current[authorId] = nextFollowing;
-    const updateFollowState = (following) => {
-      setPosts((all) =>
-        all.map((p) =>
-          String(p.author?._id) === String(authorId) ? { ...p, _isFollowing: following } : p
-        )
-      );
-      setDetailPost((d) =>
-        d && String(d.author?._id) === String(authorId) ? { ...d, _isFollowing: following } : d
-      );
-    };
-    updateFollowState(nextFollowing);
-    try {
-      const res = await feedService.toggleFollow(authorId);
-      const confirmed = res.data?.following ?? nextFollowing;
-      followCache.current[authorId] = confirmed;
-      updateFollowState(confirmed);
-    } catch {
-      followCache.current[authorId] = prevFollowing;
-      updateFollowState(prevFollowing);
-    }
-  };
-
-  // ── Share ───────────────────────────────────────────────────────────────────
-  const handleShare = async (postId) => {
-    const post = posts.find((p) => p._id === postId) || detailPost;
-    if (!post) return;
-    try {
-      const content = post.content?.substring(0, 100) + (post.content?.length > 100 ? "…" : "");
-      await Share.share({
-        message: `Check out this post by ${displayName(post.author)} on BonFeed:\n\n"${content}"`,
-      });
-    } catch {}
-  };
-
-  // ── Comment Like ────────────────────────────────────────────────────────────
-  const handleCommentLike = async (postId, commentId) => {
-    try {
-      await feedService.toggleCommentLike(postId, commentId);
-      // Optimistically toggle the comment like in detail modal
-      setDetailPost((d) => {
-        if (!d || d._id !== postId) return d;
-        return {
-          ...d,
-          comments: (d.comments ?? []).map((c) =>
-            c._id === commentId
-              ? {
-                  ...c,
-                  isLiked: !c.isLiked,
-                  likesCount: c.isLiked ? (c.likesCount ?? 1) - 1 : (c.likesCount ?? 0) + 1,
-                }
-              : c
-          ),
-        };
-      });
-    } catch {}
-  };
-
-  // ── Comment ─────────────────────────────────────────────────────────────────
-  const handleSubmitComment = async (postId, content, parentId = null) => {
-    try {
-      const res = await feedService.addComment(postId, content, parentId);
-      const updater = (p) =>
-        p._id === postId
-          ? {
-              ...p,
-              comments: [...(p.comments ?? []), res.data],
-              commentsCount: (p.commentsCount ?? 0) + 1,
-            }
-          : p;
-      setPosts((prev) => prev.map(updater));
-      setDetailPost((d) => (d?._id === postId ? updater(d) : d));
-    } catch {}
-  };
-
-  // ── Delete ──────────────────────────────────────────────────────────────────
-  const handleDelete = (postId) => {
-    Alert.alert("Delete Post", "Are you sure?", [
+  const handleDeletePlan = (planId) => {
+    Alert.alert("Remove Plan", "Are you sure you want to remove this plan?", [
       { text: "Cancel", style: "cancel" },
       {
-        text: "Delete",
+        text: "Remove",
         style: "destructive",
         onPress: async () => {
-          setPosts((prev) => prev.filter((p) => p._id !== postId));
-          setDetailPost((d) => (d?._id === postId ? null : d));
+          setPlans((prev) => prev.filter((p) => p._id !== planId));
+          setDetailPlan((d) => (d?._id === planId ? null : d));
           try {
-            await feedService.deletePost(postId);
-          } catch {}
+            await planService.deletePlan(planId);
+          } catch {
+            // silent
+          }
         },
       },
     ]);
   };
 
-  // ── Post created ────────────────────────────────────────────────────────────
-  const handlePostCreated = (newPost) => {
-    setPosts((prev) => [
-      { ...newPost, isLiked: false, isSaved: false, _isFollowing: false },
-      ...prev,
-    ]);
+  const handlePlanCreated = (newPlan) => {
+    // Only add to current list if the plan status matches the active tab
+    if (newPlan.status === TAB_STATUS[activeTab]) {
+      setPlans((prev) => [newPlan, ...prev]);
+    }
   };
 
-  // ── Post card press (open detail) ───────────────────────────────────────────
-  const handlePostPress = (post) => {
-    setDetailPost(post);
+  const handlePlanPress = (plan) => {
+    setDetailPlan(plan);
   };
 
-  // ── 3-dots menu options ─────────────────────────────────────────────────────
-  const handleOpenOptions = (post) => {
-    // If the delete comes from the detail modal, close it first
-    if (post?._deleteFromDetail) {
-      setDetailPost(null);
-      handleDelete(post._id);
+  const handleStartChat = async (plan) => {
+    if (plan.participants?.length < 1) {
+      Alert.alert(
+        "Group Chat",
+        "Wait for others to join your plan first!",
+        [{ text: "OK" }]
+      );
       return;
     }
-    setOptionsPost(post);
-  };
 
-  const handleOptionSelect = (key) => {
-    if (!optionsPost) return;
-    const post = optionsPost;
-    const authorId = post.author?._id ?? post.author;
-
-    switch (key) {
-      case "share":
-        handleShare(post._id);
-        break;
-      case "save":
-        handleSave(post._id);
-        break;
-      case "follow":
-        handleFollow(authorId);
-        break;
-      case "mute":
-        Alert.alert("Muted", "You won't see posts from this user.");
-        break;
-      case "report":
-        Alert.alert("Report", "This post has been reported.");
-        break;
-      case "block":
-        Alert.alert("Block", "This user has been blocked.");
-        break;
-      case "delete":
-        handleDelete(post._id);
-        break;
+    try {
+      // Start (or get existing) group chat
+      const res = await planChatService.startGroupChat(plan._id);
+      if (res.success && res.data?._id) {
+        const chatId = res.data._id;
+        // Update local plan with groupChatId
+        setPlans((prev) =>
+          prev.map((p) =>
+            p._id === plan._id ? { ...p, groupChatId: chatId } : p
+          )
+        );
+        setDetailPlan(null);
+        router.push({
+          pathname: "/chat-screen",
+          params: {
+            matchId: chatId,
+            name: plan.activity || (plan.status === "free" ? "I\u2019m Free" : "Join Me"),
+            isGroupChat: "true",
+            planId: plan._id,
+          },
+        });
+      }
+    } catch {
+      Alert.alert("Error", "Could not start group chat. Try again.", [{ text: "OK" }]);
     }
   };
+
+  // ── Socket: real-time plan updates ──────────────────────────────────────────
+  useEffect(() => {
+    const currentStatus = TAB_STATUS[activeTab];
+
+    const handleNewPlan = (plan) => {
+      if (plan.status !== currentStatus) return;
+      setPlans((prev) => {
+        if (prev.some((p) => p._id === plan._id)) return prev;
+        return [plan, ...prev];
+      });
+    };
+    const handleUpdatedPlan = (plan) => {
+      setPlans((prev) => prev.map((p) => (p._id === plan._id ? plan : p)));
+      setDetailPlan((d) => (d?._id === plan._id ? plan : d));
+    };
+    const handleRemovedPlan = ({ planId }) => {
+      setPlans((prev) => prev.filter((p) => p._id !== planId));
+      setDetailPlan((d) => (d?._id === planId ? null : d));
+    };
+
+    socketService.on("plans:new", handleNewPlan);
+    socketService.on("plans:updated", handleUpdatedPlan);
+    socketService.on("plans:removed", handleRemovedPlan);
+
+    return () => {
+      socketService.off("plans:new", handleNewPlan);
+      socketService.off("plans:updated", handleUpdatedPlan);
+      socketService.off("plans:removed", handleRemovedPlan);
+    };
+  }, [activeTab]);
 
   // ── Tab press ───────────────────────────────────────────────────────────────
   const handleTabPress = (i) => {
-    setActiveTab(i);
+    if (i !== activeTab) {
+      setActiveTab(i);
+    }
   };
 
   // ── Render ──────────────────────────────────────────────────────────────────
   const userAvatar = avatar(currentUser);
+  const emptyLabel = activeTab === 0 ? "free" : "looking for company";
 
   return (
     <SafeAreaProvider>
     <SafeAreaView style={fStyles.container} edges={["top"]}>
       {/* Header */}
       <View style={fStyles.header}>
-        <Image source={images.bonFeed} style={{width: 100, height: 40}} resizeMode="contain" />
+        <Image source={images.bonFeed} style={{width: 120, height: 40}} resizeMode="cover" />
        
         <TouchableOpacity onPress={() => router.push("/feed-profile")}>
           {userAvatar ? (
@@ -344,7 +278,7 @@ export default function BonFeed() {
             key={t}
             style={[
               fStyles.tabItem,
-              activeTab === i ? fStyles.tabItemActive : fStyles.tabItemInactive,
+              activeTab === i && fStyles.tabItemActive,
             ]}
             onPress={() => handleTabPress(i)}
           >
@@ -360,47 +294,42 @@ export default function BonFeed() {
         ))}
       </View>
 
-      {/* Post list */}
+      {/* ── Plans Feed ───────────────────────────────────────────────────── */}
       <FlatList
-        data={posts}
+        data={plans}
         keyExtractor={(item) => item._id}
         renderItem={({ item }) => (
-          <FeedPostCard
-            post={item}
+          <PlanCard
+            plan={item}
             currentUserId={currentUser?._id}
-            onLike={handleLike}
-            onSave={handleSave}
-            onPress={handlePostPress}
-            onOpenOptions={handleOpenOptions}
-            onShare={handleShare}
+            onJoin={handleJoinPlan}
+            onLeave={handleLeavePlan}
+            onDelete={handleDeletePlan}
+            onPress={handlePlanPress}
           />
         )}
         contentContainerStyle={{ paddingTop: 10, paddingBottom: 100 }}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
-            refreshing={refreshing}
+            refreshing={plansRefreshing}
             onRefresh={onRefresh}
             colors={[BRAND]}
             tintColor={BRAND}
           />
         }
-        onEndReached={onEndReached}
-        onEndReachedThreshold={0.4}
         ListFooterComponent={
-          loading && posts.length > 0 ? (
+          plansLoading && plans.length > 0 ? (
             <ActivityIndicator size="small" color={BRAND} style={{ marginVertical: 16 }} />
           ) : null
         }
         ListEmptyComponent={
-          !loading ? (
+          !plansLoading ? (
             <View style={fStyles.emptyState}>
-              <Text style={fStyles.emptyEmoji}>✨</Text>
-              <Text style={fStyles.emptyTitle}>Nothing here yet</Text>
+              <Text style={fStyles.emptyEmoji}>📅</Text>
+              <Text style={fStyles.emptyTitle}>No plans yet</Text>
               <Text style={fStyles.emptySub}>
-                {activeTab === 2
-                  ? "Follow people to see their posts here."
-                  : "Be the first to post something!"}
+                Be the first to let people know you&apos;re {emptyLabel}!
               </Text>
             </View>
           ) : (
@@ -409,40 +338,30 @@ export default function BonFeed() {
         }
       />
 
-      {/* Create FAB */}
-      <TouchableOpacity style={fStyles.fab} onPress={() => setShowCreate(true)}>
-        <Plus size={26} color="#fff" />
+      {/* Create Plan FAB */}
+      <TouchableOpacity
+        style={fStyles.fab}
+        onPress={() => setShowCreatePlan(true)}
+      >
+        <CalendarHeart size={24} color="#fff" />
       </TouchableOpacity>
 
       {/* ── Modals ──────────────────────────────────────────────────────────── */}
-      <CreatePostModal
-        visible={showCreate}
-        onClose={() => setShowCreate(false)}
-        onCreated={handlePostCreated}
+      <CreatePlanModal
+        visible={showCreatePlan}
+        onClose={() => setShowCreatePlan(false)}
+        onCreated={handlePlanCreated}
       />
 
-      <PostDetailModal
-        visible={!!detailPost}
-        post={detailPost}
+      <PlanDetailModal
+        visible={!!detailPlan}
+        plan={detailPlan}
         currentUserId={currentUser?._id}
-        onClose={() => setDetailPost(null)}
-        onLike={handleLike}
-        onSave={handleSave}
-        onSubmitComment={handleSubmitComment}
-        onOpenOptions={handleOpenOptions}
-        onFollow={handleFollow}
-        isFollowing={detailPost?._isFollowing}
-        onShare={handleShare}
-        onCommentLike={handleCommentLike}
-      />
-
-      <PostOptionsModal
-        visible={!!optionsPost}
-        onClose={() => setOptionsPost(null)}
-        onSelect={handleOptionSelect}
-        isFollowing={optionsPost?._isFollowing}
-        isSaved={optionsPost?.isSaved}
-        isOwnPost={String(optionsPost?.author?._id ?? optionsPost?.author) === String(currentUser?._id)}
+        onClose={() => setDetailPlan(null)}
+        onJoin={handleJoinPlan}
+        onLeave={handleLeavePlan}
+        onDelete={handleDeletePlan}
+        onStartChat={handleStartChat}
       />
     </SafeAreaView>
     </SafeAreaProvider>
@@ -458,13 +377,7 @@ const fStyles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     backgroundColor: "#fff",
-    borderBottomWidth: 1,
-    borderBottomColor: "#F0F0F0",
-  },
-  brand: {
-    fontSize: 22,
-    fontFamily: "PlusJakartaSansBold",
-    color: BRAND,
+
   },
   headerAvatar: { width: 40, height: 40, borderRadius: 40, borderWidth: 1, borderColor: '#dadada' },
   headerAvatarFallback: {
@@ -475,34 +388,28 @@ const fStyles = StyleSheet.create({
 
   tabBar: {
     flexDirection: "row",
-    backgroundColor: "#fff",
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    gap: 8,
+    justifyContent: "space-between",
     borderBottomWidth: 1,
     borderBottomColor: "#F0F0F0",
   },
   tabItem: {
     flex: 1,
-    paddingVertical: 10,
     alignItems: "center",
-    borderRadius: 99,
+    paddingVertical: 12,
   },
   tabItemActive: {
-    backgroundColor: "#111",
-  },
-  tabItemInactive: {
-    backgroundColor: "#F0F0F0",
+    borderBottomWidth: 2,
+    borderBottomColor: "#111",
   },
   tabLabel: {
-    fontSize: 14,
+    fontSize: 15,
     fontFamily: "PlusJakartaSansBold",
   },
   tabLabelActive: {
-    color: "#fff",
+    color: "#111",
   },
   tabLabelInactive: {
-    color: "#333",
+    color: "#9CA3AF",
   },
 
   emptyState: { alignItems: "center", paddingTop: 80, paddingHorizontal: 40 },
@@ -528,10 +435,10 @@ const fStyles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: BRAND,
+    backgroundColor: "#10B981",
     justifyContent: "center",
     alignItems: "center",
-    shadowColor: BRAND,
+    shadowColor: "#10B981",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.4,
     shadowRadius: 8,

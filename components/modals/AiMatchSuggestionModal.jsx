@@ -3,7 +3,7 @@ import { Heart, Sparkles, X } from "lucide-react-native";
 import { useCallback, useEffect, useState } from "react";
 import {
     ActivityIndicator,
-    Modal,
+    ScrollView,
     StyleSheet,
     Text,
     TouchableOpacity,
@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import { colors } from "../../constant/colors";
 import AIService from "../../services/aiService";
+import BaseModal from "./BaseModal";
 
 const FALLBACK_IMAGE = 'https://via.placeholder.com/800x1200?text=No+Photo';
 
@@ -70,122 +71,101 @@ const AiMatchSuggestionModal = ({
   const profileImage = profile?.images?.[0] ? extractImageUri(profile.images[0]) : FALLBACK_IMAGE;
 
   return (
-    <Modal
-      visible={visible}
-      transparent={true}
-      animationType="fade"
-      onRequestClose={handleClose}
-    >
-      <View style={styles.overlay}>
-        <View style={styles.modalContainer}>
-          {/* Header */}
-          <View style={styles.header}>
-            <View style={styles.headerLeft}>
-              <Sparkles size={24} color={colors.primary} />
-              <Text style={styles.headerTitle}>AI Match Suggestion</Text>
-            </View>
-            <TouchableOpacity onPress={handleClose} style={styles.closeButton}>
-              <X size={24} color="#666" />
-            </TouchableOpacity>
+    <BaseModal visible={visible} onClose={handleClose} fullScreen={false} contentBackground={colors.tertiary}>
+      <ScrollView bounces={false} showsVerticalScrollIndicator={false}>
+        {/* Header
+        <View style={styles.header}>
+          <View style={styles.headerLeft}>
+            <Sparkles size={24} color={colors.secondary} />
+            <Text style={styles.headerTitle}>Match Suggestion</Text>
+          </View>
+          <TouchableOpacity onPress={handleClose} style={styles.closeButton}>
+            <X size={24} color="#666" />
+          </TouchableOpacity>
+        </View> */}
+
+        {/* Profile Images
+        <View style={styles.imagesContainer}>
+          <View style={styles.imageWrapper}>
+            <Image
+              source={{ uri: currentUserImage }}
+              style={styles.profileImage}
+              contentFit="cover"
+            />
+            <Text style={styles.imageLabel}>You</Text>
           </View>
 
-          {/* Profile Images */}
-          <View style={styles.imagesContainer}>
-            <View style={styles.imageWrapper}>
-              <Image
-                source={{ uri: currentUserImage }}
-                style={styles.profileImage}
-                contentFit="cover"
-              />
-              <Text style={styles.imageLabel}>You</Text>
-            </View>
-
-            <View style={styles.heartContainer}>
-              <Heart
-                size={32}
-                color={suggestion?.isGoodMatch ? "#FF1493" : "#666"}
-                fill={suggestion?.isGoodMatch ? "#FF1493" : "transparent"}
-              />
-            </View>
-
-            <View style={styles.imageWrapper}>
-              <Image
-                source={{ uri: profileImage }}
-                style={styles.profileImage}
-                contentFit="cover"
-              />
-              <Text style={styles.imageLabel}>{profile?.name || profile?.firstName || 'Them'}</Text>
-            </View>
+          <View style={styles.heartContainer}>
+            <Heart
+              size={32}
+              color={suggestion?.isGoodMatch ? "#FF1493" : "#666"}
+              fill={suggestion?.isGoodMatch ? "#FF1493" : "transparent"}
+            />
           </View>
 
-          {/* Content */}
-          <View style={styles.content}>
-            {loading && (
-              <View style={styles.loadingContainer}>
-                <ActivityIndicator size="large" color={colors.primary} />
-                <Text style={styles.loadingText}>Analyzing compatibility...</Text>
+          <View style={styles.imageWrapper}>
+            <Image
+              source={{ uri: profileImage }}
+              style={styles.profileImage}
+              contentFit="cover"
+            />
+            <Text style={styles.imageLabel}>{profile?.name || profile?.firstName || 'Them'}</Text>
+          </View>
+        </View> */}
+
+        {/* Content */}
+        <View style={styles.content}>
+          {loading && (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="large" color={colors.primary} />
+              <Text style={styles.loadingText}>Analyzing compatibility...</Text>
+            </View>
+          )}
+
+          {error && (
+            <View style={styles.errorContainer}>
+              <Text style={styles.errorText}>{error}</Text>
+              <TouchableOpacity onPress={generateSuggestion} style={styles.retryButton}>
+                <Text style={styles.retryText}>Try Again</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+
+          {suggestion && !loading && !error && (
+            <View style={styles.suggestionContainer}>
+              <View style={styles.matchIndicator}>
+                <Text style={[
+                  styles.matchText,
+                  { color: suggestion.isGoodMatch ? colors.secondary : "#EF4444" }
+                ]}>
+                  {suggestion.isGoodMatch ? "Great Match Potential!" : "Maybe Not the Best Match"}
+                </Text>
+                <Text style={styles.confidenceText}>
+                  Confidence: {suggestion.confidence}/10
+                </Text>
               </View>
-            )}
 
-            {error && (
-              <View style={styles.errorContainer}>
-                <Text style={styles.errorText}>{error}</Text>
-                <TouchableOpacity onPress={generateSuggestion} style={styles.retryButton}>
-                  <Text style={styles.retryText}>Try Again</Text>
-                </TouchableOpacity>
-              </View>
-            )}
+              <Text style={styles.reasonTitle}>Why?</Text>
+              <Text style={styles.reasonText}>{suggestion.reason}</Text>
 
-            {suggestion && !loading && !error && (
-              <View style={styles.suggestionContainer}>
-                <View style={styles.matchIndicator}>
-                  <Text style={[
-                    styles.matchText,
-                    { color: suggestion.isGoodMatch ? "#10B981" : "#EF4444" }
-                  ]}>
-                    {suggestion.isGoodMatch ? "Great Match Potential!" : "Maybe Not the Best Match"}
-                  </Text>
-                  <Text style={styles.confidenceText}>
-                    Confidence: {suggestion.confidence}/10
-                  </Text>
-                </View>
-
-                <Text style={styles.reasonTitle}>Why?</Text>
-                <Text style={styles.reasonText}>{suggestion.reason}</Text>
-
-                <Text style={styles.suggestionTitle}>Suggestion:</Text>
-                <Text style={styles.suggestionText}>{suggestion.suggestion}</Text>
-              </View>
-            )}
-          </View>
-
-          {/* Footer */}
-          <View style={styles.footer}>
-            <TouchableOpacity onPress={handleClose} style={styles.closeModalButton}>
-              <Text style={styles.closeModalText}>Got it!</Text>
-            </TouchableOpacity>
-          </View>
+              <Text style={styles.suggestionTitle}>Suggestion:</Text>
+              <Text style={styles.suggestionText}>{suggestion.suggestion}</Text>
+            </View>
+          )}
         </View>
-      </View>
-    </Modal>
+
+        {/* Footer */}
+        <View style={styles.footer}>
+          <TouchableOpacity onPress={handleClose} style={styles.closeModalButton}>
+            <Text style={styles.closeModalText}>Got it!</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+    </BaseModal>
   );
 };
 
 const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.7)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalContainer: {
-    backgroundColor: '#fff',
-    borderRadius: 20,
-    margin: 20,
-    maxWidth: 400,
-    width: '90%',
-    maxHeight: '80%',
-  },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -202,7 +182,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontFamily: 'PlusJakartaSansBold',
-    color: '#111',
+    color: colors.secondary,
   },
   closeButton: {
     padding: 5,
@@ -248,7 +228,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
     fontSize: 16,
     fontFamily: 'PlusJakartaSansMedium',
-    color: '#666',
+    color: '#fff',
   },
   errorContainer: {
     alignItems: 'center',
@@ -287,45 +267,44 @@ const styles = StyleSheet.create({
   confidenceText: {
     fontSize: 14,
     fontFamily: 'PlusJakartaSansMedium',
-    color: '#666',
+    color: 'rgba(255,255,255,0.8)',
     marginTop: 5,
   },
   reasonTitle: {
     fontSize: 16,
     fontFamily: 'PlusJakartaSansBold',
-    color: '#111',
+    color: '#fff',
   },
   reasonText: {
     fontSize: 14,
     fontFamily: 'PlusJakartaSansMedium',
-    color: '#374151',
+    color: 'rgba(255,255,255,0.9)',
     lineHeight: 20,
   },
   suggestionTitle: {
     fontSize: 16,
     fontFamily: 'PlusJakartaSansBold',
-    color: '#111',
+    color: '#fff',
   },
   suggestionText: {
     fontSize: 14,
     fontFamily: 'PlusJakartaSansMedium',
-    color: '#374151',
+    color: 'rgba(255,255,255,0.9)',
     lineHeight: 20,
     fontStyle: 'italic',
   },
   footer: {
     padding: 20,
-    borderTopWidth: 1,
-    borderTopColor: '#E5E7EB',
+  
   },
   closeModalButton: {
-    backgroundColor: colors.primary,
-    paddingVertical: 12,
-    borderRadius: 25,
+    backgroundColor: colors.secondary,
+    paddingVertical: 20,
+    borderRadius: 50,
     alignItems: 'center',
   },
   closeModalText: {
-    color: '#fff',
+    color: colors.primary,
     fontSize: 16,
     fontFamily: 'PlusJakartaSansBold',
   },

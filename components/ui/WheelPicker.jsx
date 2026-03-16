@@ -3,7 +3,7 @@
  *
  * A drum-roll scroll picker that matches the Bondies onboarding design.
  * Shows 2 items above and below the selected value; the selected item
- * is large, bold and in the primary orange colour.
+ * is large, bold and in the primary colour.
  *
  * Props:
  *   items        — array of { label: string, value: any }
@@ -15,7 +15,7 @@
  */
 
 import { useCallback, useEffect, useRef } from "react";
-import { Animated, FlatList, StyleSheet, Text, View } from "react-native";
+import { Animated, StyleSheet, Text, View } from "react-native";
 
 const PRIMARY   = "#E8651A";
 const ITEM_H    = 56;

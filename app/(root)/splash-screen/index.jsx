@@ -3,11 +3,12 @@ import { useRouter } from "expo-router";
 import { useEffect, useRef } from "react";
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
+    useAnimatedStyle,
+    useSharedValue,
+    withTiming,
 } from "react-native-reanimated";
 import { useDispatch, useSelector } from "react-redux";
+import { colors } from "../../../constant/colors";
 import { useAuthRestore } from "../../../hooks/useAuthRestore";
 import { logout } from "../../../slices/authSlice";
 import { persistor } from "../../../store/store";
@@ -157,7 +158,7 @@ const SplashScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex:            1,
-    backgroundColor: "#EE5F2B", // primary orange
+    backgroundColor: colors.primary,
     alignItems:      "center",
     justifyContent:  "center",
   },

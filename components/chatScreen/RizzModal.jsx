@@ -144,12 +144,12 @@ const RizzModal = ({ visible, onClose, onSend, matchId }) => {
         {/* Bot icon header */}
         <View style={styles.header}>
 
-          <Image source={Icons.BotIcon} style={{ width: 70, height: 70 }} />
+          <Image source={Icons.BotIcon} style={{ width: 40, height: 40 }} />
         </View>
 
         {/* Title */}
         <Text style={styles.title} className="font-PlusJakartaSansBold">
-       BonBot Icebreaker
+       BonSpark
         </Text>
         <Text style={styles.subtitle} className="font-PlusJakartaSans">
           {matchId
@@ -257,7 +257,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   title: {
-    fontSize: 20,
+    fontSize: 24,
     color: "#1F2937",
     marginBottom: 4,
   },

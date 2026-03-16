@@ -31,7 +31,7 @@ module.exports = {
         tertiary: "#BC96FE",
         background: "#F8F6F6",
         grayColor: "#64748B",
-        secondary: "#D7FF81",
+        secondary: "#67DFB5",
         otherColor: "#bc96ff",
         pinkColor: "#ff4365",
         ash: "#888",

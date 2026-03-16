@@ -26,7 +26,7 @@ const Onboarding = () => {
         contentFit="cover"
       />
 
-      {/* ── Primary orange overlay (semi-transparent) ── */}
+      {/* ── Primary overlay (semi-transparent) ── */}
       <LinearGradient
         colors={[
           "rgba(55, 31, 125, 0.55)",   // top — lighter tint

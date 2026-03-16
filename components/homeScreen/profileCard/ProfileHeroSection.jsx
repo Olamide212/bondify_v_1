@@ -88,6 +88,20 @@ const ProfileHeroSection = ({
             )}
 
             <View className="absolute bottom-64 left-6 right-6">
+              <View className="flex-row items-center gap-2 mb-3">
+{/* Compatibility Score */}
+                  {compatibilityScore !== null && !loadingScore && (
+                    <View className="flex-row items-center bg-pinkColor px-3 py-1 rounded-full">
+                      <Heart size={14} color="#fff" fill="#fff" />
+                      <Text className="text-white text-sm font-PlusJakartaSansBold ml-1">
+                        {compatibilityScore}%
+                      </Text>
+                    </View>
+                  )}
+              </View>
+  
+
+
               {/* Name + age + compatibility score */}
               <View className="flex-row items-center mb-3">
                 <Text className="text-white text-4xl font-PlusJakartaSansBold mr-2 capitalize" numberOfLines={1}>
@@ -97,15 +111,7 @@ const ProfileHeroSection = ({
                   <Text className="text-white text-4xl font-PlusJakartaSans">{profile.age}</Text>
                   {(profile.verified || profile.isVerified) && <VerifiedIcon />}
                   
-                  {/* Compatibility Score */}
-                  {compatibilityScore !== null && !loadingScore && (
-                    <View className="flex-row items-center bg-pink-500/85 px-3 py-1 rounded-full">
-                      <Heart size={14} color="#fff" fill="#fff" />
-                      <Text className="text-white text-sm font-PlusJakartaSansBold ml-1">
-                        {compatibilityScore}%
-                      </Text>
-                    </View>
-                  )}
+                
                 </View>
               </View>
 
@@ -128,8 +134,8 @@ const ProfileHeroSection = ({
                 )}
                 {profile.religion && (
                   <View className="flex-row items-center bg-secondary px-4 py-2 rounded-full">
-                    <MaterialCommunityIcons name="hands-pray" size={20} color="#000" />
-                    <Text className="text-black font-PlusJakartaSansSemiBold ml-2 capitalize">
+                    <MaterialCommunityIcons name="hands-pray" size={20} color="#fff" />
+                    <Text className="text-white font-PlusJakartaSansSemiBold ml-2 capitalize">
                       {profile.religion}
                     </Text>
                   </View>

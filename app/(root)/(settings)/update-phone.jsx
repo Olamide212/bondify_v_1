@@ -3,20 +3,21 @@
  * Dedicated screen for updating phone number with OTP verification.
  */
 
-import { useState } from "react";
-import {
-  ActivityIndicator,
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { useState } from "react";
+import {
+    ActivityIndicator,
+    Alert,
+    KeyboardAvoidingView,
+    Platform,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { colors } from "../../../constant/colors";
 import SettingsService from "../../../services/settingsService";
 
 const UpdatePhoneScreen = () => {
@@ -123,7 +124,7 @@ const UpdatePhoneScreen = () => {
                 className="bg-primary rounded-2xl py-4 items-center"
                 onPress={handleSendOtp}
                 disabled={loading}
-                style={{ backgroundColor: "#E8521A" }}
+                style={{ backgroundColor: colors.primary }}
               >
                 {loading ? (
                   <ActivityIndicator color="#fff" />
@@ -162,7 +163,7 @@ const UpdatePhoneScreen = () => {
                 className="rounded-2xl py-4 items-center mb-4"
                 onPress={handleVerifyOtp}
                 disabled={loading}
-                style={{ backgroundColor: "#E8521A" }}
+                style={{ backgroundColor: colors.primary }}
               >
                 {loading ? (
                   <ActivityIndicator color="#fff" />
@@ -182,7 +183,7 @@ const UpdatePhoneScreen = () => {
               >
                 <Text
                   className="text-base font-PlusJakartaSansMedium"
-                  style={{ color: "#E8521A" }}
+                  style={{ color: colors.primary }}
                 >
                   ← Change number
                 </Text>
@@ -198,7 +199,7 @@ const UpdatePhoneScreen = () => {
                   Didn&apos;t receive it?{" "}
                   <Text
                     className="font-PlusJakartaSansMedium"
-                    style={{ color: "#E8521A" }}
+                    style={{ color: colors.primary }}
                   >
                     Resend
                   </Text>

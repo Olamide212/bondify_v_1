@@ -24,7 +24,7 @@ import { colors } from "../../constant/colors";
 import LogoLoader from "../ui/LogoLoader";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
-const BRAND = colors.primary || "#EE5F2B";
+const BRAND = colors.secondary || "#EE5F2B";
 
 const PRESETS = [5,10, 25, 50, 100, 250, 500];
 
@@ -303,7 +303,7 @@ const styles = StyleSheet.create({
   btnText: {
     fontSize:   15,
     fontFamily: "PlusJakartaSansBold",
-    color:      colors.primary,
+    color:      "#fff",
   },
 
   // Loader overlay

@@ -8,14 +8,14 @@ import { useRouter } from 'expo-router';
 import { Briefcase, Heart, Info, MapPin } from 'lucide-react-native';
 import { useEffect, useRef, useState } from 'react';
 import {
-  Animated,
-  Image,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
-  useWindowDimensions,
-  View,
+    Animated,
+    Image,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    TouchableWithoutFeedback,
+    useWindowDimensions,
+    View,
 } from 'react-native';
 import { colors } from '../../constant/colors';
 import AIService from '../../services/aiService';

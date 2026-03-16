@@ -3,14 +3,14 @@ import { useRouter } from "expo-router";
 import { User, UserX } from "lucide-react-native";
 import React, { useEffect, useRef } from "react";
 import {
-    ActivityIndicator,
-    Animated,
-    FlatList,
-    Image,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Animated,
+  FlatList,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { colors } from "../../constant/colors";
@@ -260,14 +260,23 @@ const bb = StyleSheet.create({
 
 // ─── ChatListScreen ───────────────────────────────────────────────────────────
 
-const ChatListScreen = ({ users, onSelectUser, isLoading = false }) => {
+const ChatListScreen = ({
+  users,
+  onSelectUser,
+  isLoading = false,
+  chatType = "dating",
+  activeTab = 0,
+  onTabChange,
+  tabs = ["Dating", "Social"],
+}) => {
   const router = useRouter();
+  const isSocial = chatType === "social";
 
   const [isAvatarCacheHydrated, setIsAvatarCacheHydrated] = React.useState(
     loadedAvatarUris.size > 0
   );
 
-  const newMatches = users.filter((user) => !user.hasChatted);
+  const newMatches = isSocial ? [] : users.filter((user) => !user.hasChatted);
   const placeholderSlots = Array.from({ length: 5 }, (_, i) => ({ id: `placeholder-${i}` }));
 
   React.useEffect(() => {
@@ -327,55 +336,92 @@ const ChatListScreen = ({ users, onSelectUser, isLoading = false }) => {
   };
 
   return (
-    <SafeAreaView style={styles.listContainer}>
+    <SafeAreaView style={styles.listContainer} edges={['top']}>
       <GeneralHeader title="Chats" className="text-black" icon={<UserX />} onPress={() => router.push('/unmatched-users')} />
 
-      {/* ── New Matches ── */}
-      <Text style={styles.sectionLabel}>New Matches</Text>
-      <View style={styles.newMatchesWrapper}>
-        <FlatList
-          data={placeholderSlots}
-          horizontal
-          keyExtractor={(item) => item.id}
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ paddingLeft: 16, paddingRight: 8 }}
-          renderItem={({ index }) => {
-            const match = newMatches[index];
-            if (match) {
-              return (
-                <TouchableOpacity style={styles.newMatchItem} onPress={() => onSelectUser(match)}>
-                  <AvatarImage uri={match.profileImage} style={styles.newMatchImage} iconSize={22} isCacheReady={isAvatarCacheHydrated} />
-                  <Text style={styles.newMatchName} numberOfLines={1}>{getFirstName(match.name)}</Text>
-                </TouchableOpacity>
-              );
-            }
-            return (
-              <View style={styles.newMatchItem}>
-                <View style={styles.placeholderCircle} />
-                <Text style={styles.placeholderLabel}>Waiting</Text>
-              </View>
-            );
-          }}
-        />
+      {/* ── Tabs ── */}
+      <View style={styles.tabBar}>
+        {tabs.map((t, i) => (
+          <TouchableOpacity
+            key={t}
+            style={[
+              styles.tabItem,
+              activeTab === i && styles.tabItemActive,
+            ]}
+            onPress={() => onTabChange?.(i)}
+          >
+            <Text
+              style={[
+                styles.tabLabel,
+                activeTab === i ? styles.tabLabelActive : styles.tabLabelInactive,
+              ]}
+            >
+              {t}
+            </Text>
+          </TouchableOpacity>
+        ))}
       </View>
+
+      {/* ── New Matches (dating only) ── */}
+      {!isSocial && (
+        <>
+          <Text style={styles.sectionLabel}>New Matches</Text>
+          <View style={styles.newMatchesWrapper}>
+            <FlatList
+              data={placeholderSlots}
+              horizontal
+              keyExtractor={(item) => item.id}
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{ paddingLeft: 16, paddingRight: 8 }}
+              renderItem={({ index }) => {
+                const match = newMatches[index];
+                if (match) {
+                  return (
+                    <TouchableOpacity style={styles.newMatchItem} onPress={() => onSelectUser(match)}>
+                      <AvatarImage uri={match.profileImage} style={styles.newMatchImage} iconSize={22} isCacheReady={isAvatarCacheHydrated} />
+                      <Text style={styles.newMatchName} numberOfLines={1}>{getFirstName(match.name)}</Text>
+                    </TouchableOpacity>
+                  );
+                }
+                return (
+                  <View style={styles.newMatchItem}>
+                    <View style={styles.placeholderCircle} />
+                    <Text style={styles.placeholderLabel}>Waiting</Text>
+                  </View>
+                );
+              }}
+            />
+          </View>
+        </>
+      )}
 
       {/* ── Active Chats panel ── */}
       <View style={styles.chatsPanel}>
-        <Text style={styles.sectionLabelDark}>Active chats</Text>
+        <Text style={styles.sectionLabelDark}>
+          {isSocial ? "Plan Chats" : "Active chats"}
+        </Text>
 
-        {/* ── Bon Bot Card ── */}
-        <BonBotCard onPress={() => router.push('/bon-bot')} />
+        {/* ── Bon Bot Card (dating only) ── */}
+        {!isSocial && <BonBotCard onPress={() => router.push('/bon-bot')} />}
 
         {/* ── Conversation list ── */}
         {isLoading && users.length === 0 ? (
           <View style={styles.emptyStateContainer}>
             <ActivityIndicator size="small" color={colors.primary} />
-            <Text style={styles.loadingLabel}>Loading conversations...</Text>
+            <Text style={styles.loadingLabel}>
+              {isSocial ? "Loading plan chats..." : "Loading conversations..."}
+            </Text>
           </View>
         ) : users.length === 0 ? (
           <View style={styles.emptyStateContainer}>
-            <Text style={styles.emptyStateTitle}>No conversations yet</Text>
-            <Text style={styles.emptyStateSubtitle}>Your matches and chats will appear here.</Text>
+            <Text style={styles.emptyStateTitle}>
+              {isSocial ? "No plan chats yet" : "No conversations yet"}
+            </Text>
+            <Text style={styles.emptyStateSubtitle}>
+              {isSocial
+                ? "Join or create plans to start group chats."
+                : "Your matches and chats will appear here."}
+            </Text>
           </View>
         ) : (
           <FlatList
@@ -431,6 +477,32 @@ const ChatListScreen = ({ users, onSelectUser, isLoading = false }) => {
 
 const styles = StyleSheet.create({
   listContainer: { flex: 1, backgroundColor: '#fff' },
+
+  tabBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F0F0',
+  },
+  tabItem: {
+    flex: 1,
+    alignItems: 'center',
+    paddingVertical: 12,
+  },
+  tabItemActive: {
+    borderBottomWidth: 2,
+    borderBottomColor: '#111',
+  },
+  tabLabel: {
+    fontSize: 15,
+    fontFamily: 'PlusJakartaSansBold',
+  },
+  tabLabelActive: {
+    color: '#111',
+  },
+  tabLabelInactive: {
+    color: '#9CA3AF',
+  },
 
   sectionLabel: {
     fontFamily: 'PlusJakartaSansBold',

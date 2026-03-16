@@ -1,29 +1,30 @@
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Image } from "expo-image";
 import {
-    Baby,
-    Ban,
-    Briefcase,
-    Cigarette,
-    Dog,
-    Dumbbell,
-    Flag,
-    GraduationCap,
-    Heart,
-    MapPin,
-    Ruler,
-    Share2,
-    Wallet,
-    Wine,
+  Baby,
+  Ban,
+  Briefcase,
+  Cigarette,
+  Dog,
+  Dumbbell,
+  Flag,
+  GraduationCap,
+  Heart,
+  MapPin,
+  Ruler,
+  Share2,
+  Wallet,
+  Wine,
 } from "lucide-react-native";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
-    Animated,
-    Dimensions,
-    findNodeHandle, Share, Text,
-    TouchableOpacity,
-    UIManager,
-    View
+  Animated,
+  Dimensions,
+  findNodeHandle, Share, Text,
+  TouchableOpacity,
+  UIManager,
+  View
 } from "react-native";
 import { useSelector } from "react-redux";
 import { Icons } from "../../constant/icons";
@@ -65,7 +66,9 @@ const InterestChip = ({ label, isMutual }) => (
 
 // ─────────────────────────────────────────────────────────────────────────────
 
-const ProfileCard = ({ profile }) => {
+const AI_MODAL_SEEN_KEY = 'ai_match_modal_seen_ids';
+
+const ProfileCard = ({ profile, hideAiSuggestion = false }) => {
   const [showFullBio, setShowFullBio] = useState(false);
   const currentImageIndex = 0;
   const [modalVisible, setModalVisible] = useState(false);
@@ -105,16 +108,41 @@ const ProfileCard = ({ profile }) => {
     fetchCompatibilityScore();
   }, [profile?._id, profile?.id]);
 
-  // Show AI match suggestion modal after profile loads
+  // Show AI match suggestion modal once per profile (persisted across sessions)
   useEffect(() => {
-    if (profile && compatibilityScore !== null && !aiMatchModalVisible) {
-      // Small delay to let the profile render first
-      const timer = setTimeout(() => {
-        setAiMatchModalVisible(true);
-      }, 1500);
-      return () => clearTimeout(timer);
-    }
-  }, [profile, compatibilityScore, aiMatchModalVisible]);
+    if (hideAiSuggestion) return;
+
+    const pid = profile?._id || profile?.id;
+    if (!pid || compatibilityScore === null) return;
+
+    let cancelled = false;
+
+    const checkAndShow = async () => {
+      try {
+        const raw = await AsyncStorage.getItem(AI_MODAL_SEEN_KEY);
+        const seenIds = raw ? JSON.parse(raw) : [];
+        if (seenIds.includes(pid)) return; // already shown before
+
+        if (!cancelled) {
+          // Persist immediately so even if the user kills the app it won't re-show
+          await AsyncStorage.setItem(
+            AI_MODAL_SEEN_KEY,
+            JSON.stringify([...seenIds, pid])
+          );
+          setAiMatchModalVisible(true);
+        }
+      } catch (e) {
+        // storage error — silently skip
+      }
+    };
+
+    const timer = setTimeout(checkAndShow, 1500);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profile?._id, profile?.id, compatibilityScore, hideAiSuggestion]);
 
   const handleShare = async () => {
     const name = profile?.name || profile?.firstName || "someone";

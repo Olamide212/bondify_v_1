@@ -3,20 +3,21 @@
  * Dedicated screen for updating email address with OTP verification.
  */
 
-import { useState } from "react";
-import {
-  ActivityIndicator,
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { useState } from "react";
+import {
+    ActivityIndicator,
+    Alert,
+    KeyboardAvoidingView,
+    Platform,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { colors } from "../../../constant/colors";
 import SettingsService from "../../../services/settingsService";
 
 const UpdateEmailScreen = () => {
@@ -115,7 +116,7 @@ const UpdateEmailScreen = () => {
                 className="rounded-2xl py-4 items-center"
                 onPress={handleSendCode}
                 disabled={loading}
-                style={{ backgroundColor: "#E8521A" }}
+                style={{ backgroundColor: colors.primary }}
               >
                 {loading ? (
                   <ActivityIndicator color="#fff" />
@@ -153,7 +154,7 @@ const UpdateEmailScreen = () => {
                 className="rounded-2xl py-4 items-center mb-4"
                 onPress={handleVerifyOtp}
                 disabled={loading}
-                style={{ backgroundColor: "#E8521A" }}
+                style={{ backgroundColor: colors.primary }}
               >
                 {loading ? (
                   <ActivityIndicator color="#fff" />
@@ -173,7 +174,7 @@ const UpdateEmailScreen = () => {
               >
                 <Text
                   className="text-base font-PlusJakartaSansMedium"
-                  style={{ color: "#E8521A" }}
+                  style={{ color: colors.primary }}
                 >
                   ← Change email
                 </Text>
@@ -189,7 +190,7 @@ const UpdateEmailScreen = () => {
                   Didn&apos;t receive it?{" "}
                   <Text
                     className="font-PlusJakartaSansMedium"
-                    style={{ color: "#E8521A" }}
+                    style={{ color: colors.primary }}
                   >
                     Resend
                   </Text>
