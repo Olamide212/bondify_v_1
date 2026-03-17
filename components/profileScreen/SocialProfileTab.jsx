@@ -2,13 +2,10 @@
  * SocialProfileTab.jsx
  *
  * Content for the "Social Profile" tab on the main profile screen.
- * Shows the user's social avatar, stats, and a vertical menu list:
- *  • Edit Profile  →  EditSocialProfileModal
- *  • Saved Posts   →  /feed-profile (saved tab)
- *  • Settings      →  /settings
- *  • Help & Support →  /support-center
- *  • Invite Friends →  /invite
- *  • Groups        →  (placeholder)
+ * This is also the Bondup social profile — shows:
+ *  • Social avatar, stats, bio
+ *  • My Bondups section (recent active Bondups)
+ *  • Menu: Edit Profile, Saved Posts, Settings, Help, Invite Friends
  */
 
 import * as ImagePicker from "expo-image-picker";
@@ -36,10 +33,16 @@ import {
 import { useSelector } from "react-redux";
 import { colors } from "../../constant/colors";
 import feedService from "../../services/feedService";
+import bondupService from "../../services/bondupService";
 import apiClient from "../../utils/axiosInstance";
 import EditSocialProfileModal from "./EditSocialProfileModal";
 
 const BRAND = colors.primary;
+
+const ACTIVITY_EMOJI = {
+  coffee: '☕', food: '🍔', drinks: '🍹', gym: '💪',
+  walk: '🚶', movie: '🎬', other: '✨',
+};
 
 const avatarUrl = (user) =>
   user?.profilePhoto || user?.images?.[0]?.url || user?.images?.[0] || null;
@@ -62,6 +65,8 @@ export default function SocialProfileTab() {
   const [stats, setStats] = useState({ followersCount: 0, followingCount: 0, postsCount: 0 });
   const [loadingData, setLoadingData] = useState(true);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [myBondups, setMyBondups] = useState([]);
+  const [bondupStats, setBondupStats] = useState({ created: 0, joined: 0 });
   const justPickedPhotoRef = useRef(false);
 
   // ── Load social profile data ─────────────────────────────────────────────
@@ -71,8 +76,9 @@ export default function SocialProfileTab() {
     Promise.all([
       feedService.getSocialProfile().catch(() => null),
       feedService.getUserProfile(currentUser._id).catch(() => null),
+      bondupService.getMyBondups().catch(() => null),
     ])
-      .then(([socialRes, profileRes]) => {
+      .then(([socialRes, profileRes, bondupRes]) => {
         if (socialRes?.data) {
           if (!justPickedPhotoRef.current) {
             const socialPhoto = socialRes.data?.profilePhoto ?? null;
@@ -88,6 +94,14 @@ export default function SocialProfileTab() {
             followersCount: profileRes.data.followersCount ?? 0,
             followingCount: profileRes.data.followingCount ?? 0,
             postsCount: profileRes.data.posts?.length ?? 0,
+          });
+        }
+        if (bondupRes?.data) {
+          const allBondups = bondupRes.data;
+          setMyBondups(allBondups.slice(0, 3));
+          setBondupStats({
+            created: allBondups.filter((b) => b.isOwner).length,
+            joined: allBondups.filter((b) => b.hasJoined && !b.isOwner).length,
           });
         }
       })
@@ -234,6 +248,50 @@ export default function SocialProfileTab() {
               </View>
             ))}
           </View>
+        )}
+      </View>
+
+      {/* ── Bondup Activity Section ──────────────────────────────────── */}
+      <View style={s.bondupSection}>
+        <View style={s.bondupSectionHeader}>
+          <Text style={s.bondupSectionTitle}>🎉 My Bondups</Text>
+          <View style={s.bondupStatsBadges}>
+            <View style={s.bondupStatBadge}>
+              <Text style={s.bondupStatBadgeNum}>{bondupStats.created}</Text>
+              <Text style={s.bondupStatBadgeLabel}>Created</Text>
+            </View>
+            <View style={s.bondupStatBadge}>
+              <Text style={s.bondupStatBadgeNum}>{bondupStats.joined}</Text>
+              <Text style={s.bondupStatBadgeLabel}>Joined</Text>
+            </View>
+          </View>
+        </View>
+        {loadingData ? (
+          <ActivityIndicator size="small" color={BRAND} style={{ marginTop: 8 }} />
+        ) : myBondups.length === 0 ? (
+          <Text style={s.bondupEmptyText}>No active Bondups. Create one in the feed!</Text>
+        ) : (
+          myBondups.map((bondup) => (
+            <View key={bondup._id} style={s.bondupItem}>
+              <Text style={s.bondupItemEmoji}>
+                {ACTIVITY_EMOJI[bondup.activityType] || '✨'}
+              </Text>
+              <View style={{ flex: 1 }}>
+                <Text style={s.bondupItemTitle} numberOfLines={1}>{bondup.title}</Text>
+                <Text style={s.bondupItemSub}>
+                  {new Date(bondup.dateTime).toLocaleDateString(undefined, {
+                    weekday: 'short', month: 'short', day: 'numeric',
+                  })}
+                  {bondup.isOwner ? ' • Created by you' : ' • You joined'}
+                </Text>
+              </View>
+              <View style={[s.bondupVisibilityBadge, bondup.visibility === 'circle' && s.bondupVisibilityCircle]}>
+                <Text style={s.bondupVisibilityText}>
+                  {bondup.visibility === 'circle' ? '🔒' : '🌍'}
+                </Text>
+              </View>
+            </View>
+          ))
         )}
       </View>
 
@@ -395,5 +453,91 @@ const s = StyleSheet.create({
     fontFamily: "PlusJakartaSans",
     color: "#999",
     marginTop: 2,
+  },
+
+  // Bondup Section
+  bondupSection: {
+    backgroundColor: "#fff",
+    marginHorizontal: 16,
+    marginBottom: 16,
+    borderRadius: 16,
+    padding: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  bondupSectionHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 14,
+  },
+  bondupSectionTitle: {
+    fontSize: 16,
+    fontFamily: "PlusJakartaSansBold",
+    color: "#111",
+  },
+  bondupStatsBadges: {
+    flexDirection: "row",
+    gap: 10,
+  },
+  bondupStatBadge: {
+    alignItems: "center",
+    backgroundColor: colors.primaryLight,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 10,
+  },
+  bondupStatBadgeNum: {
+    fontSize: 16,
+    fontFamily: "PlusJakartaSansBold",
+    color: BRAND,
+  },
+  bondupStatBadgeLabel: {
+    fontSize: 10,
+    fontFamily: "PlusJakartaSans",
+    color: BRAND,
+  },
+  bondupEmptyText: {
+    fontSize: 13,
+    fontFamily: "PlusJakartaSans",
+    color: "#999",
+    textAlign: "center",
+    paddingVertical: 12,
+  },
+  bondupItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#F3F4F6",
+    gap: 10,
+  },
+  bondupItemEmoji: {
+    fontSize: 24,
+  },
+  bondupItemTitle: {
+    fontSize: 14,
+    fontFamily: "PlusJakartaSansBold",
+    color: "#111",
+  },
+  bondupItemSub: {
+    fontSize: 12,
+    fontFamily: "PlusJakartaSans",
+    color: "#888",
+    marginTop: 2,
+  },
+  bondupVisibilityBadge: {
+    backgroundColor: "#F0FDF4",
+    borderRadius: 8,
+    padding: 4,
+  },
+  bondupVisibilityCircle: {
+    backgroundColor: colors.primaryLight,
+  },
+  bondupVisibilityText: {
+    fontSize: 14,
   },
 });
