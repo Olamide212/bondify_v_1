@@ -2,6 +2,7 @@ const Plan = require('../models/Plan');
 const PlanChat = require('../models/PlanChat');
 const PlanMessage = require('../models/PlanMessage');
 const { getIO } = require('../socket');
+const { mapUserImages } = require('../utils/imageHelper');
 
 // ─────────────────────────────────────────────────────────────────────────────
 // POST /api/plan-chats/:planId/start — Create (or return existing) group chat
@@ -59,6 +60,11 @@ const startGroupChat = async (req, res, next) => {
       .populate('members', 'firstName lastName images profilePhoto userName')
       .lean();
 
+    // Enrich member images with signed URLs
+    if (populated.members) {
+      populated.members = await Promise.all(populated.members.map(mapUserImages));
+    }
+
     res.json({ success: true, data: populated });
   } catch (err) {
     next(err);
@@ -92,9 +98,19 @@ const getMessages = async (req, res, next) => {
       PlanMessage.countDocuments({ planChat: chatId }),
     ]);
 
+    // Enrich sender images
+    const enrichedMessages = await Promise.all(
+      messages.map(async (msg) => {
+        if (msg.sender && typeof msg.sender === 'object') {
+          return { ...msg, sender: await mapUserImages(msg.sender) };
+        }
+        return msg;
+      })
+    );
+
     res.json({
       success: true,
-      data: messages.reverse(), // oldest first for chat UI
+      data: enrichedMessages.reverse(), // oldest first for chat UI
       pagination: {
         page: Number(page),
         limit: Number(limit),
@@ -147,6 +163,11 @@ const sendMessage = async (req, res, next) => {
       .populate('sender', 'firstName lastName images profilePhoto userName')
       .lean();
 
+    // Enrich sender images
+    if (populated.sender && typeof populated.sender === 'object') {
+      populated.sender = await mapUserImages(populated.sender);
+    }
+
     // Emit to all members via socket
     const io = getIO();
     if (io) {
@@ -172,6 +193,11 @@ const getChatDetails = async (req, res, next) => {
       .lean();
 
     if (!chat) return res.status(404).json({ success: false, message: 'Chat not found.' });
+
+    // Enrich member images
+    if (chat.members) {
+      chat.members = await Promise.all(chat.members.map(mapUserImages));
+    }
 
     if (!chat.members.some((m) => String(m._id) === String(req.user._id))) {
       return res.status(403).json({ success: false, message: 'Not a member of this chat.' });

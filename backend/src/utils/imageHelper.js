@@ -71,6 +71,17 @@ const uploadToS3 = async (file, folder = 'misc') => {
 };
 
 /**
+ * Process a populated user object (or lean doc) so its `images[].url`
+ * fields point to accessible URLs (signed or via public base URL).
+ * Returns a new object — does NOT mutate the original.
+ */
+const mapUserImages = async (user) => {
+  if (!user || !Array.isArray(user.images) || user.images.length === 0) return user;
+  const mappedImages = await mapImagesWithAccessUrls(user.images);
+  return { ...user, images: mappedImages };
+};
+
+/**
  * Delete an object from S3 by its key/publicId
  * @param {string} publicId - S3 object key
  */

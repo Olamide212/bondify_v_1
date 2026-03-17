@@ -1,7 +1,28 @@
 const Plan = require('../models/Plan');
+const { mapUserImages } = require('../utils/imageHelper');
 
 // ─── Default expiry hours ────────────────────────────────────────────────────
 const DEFAULT_EXPIRY_HOURS = 6;
+
+/**
+ * Process a populated plan so author + participant images have accessible URLs.
+ */
+const enrichPlanImages = async (plan) => {
+  if (!plan) return plan;
+  const p = { ...plan };
+  if (p.author) p.author = await mapUserImages(p.author);
+  if (Array.isArray(p.participants)) {
+    p.participants = await Promise.all(
+      p.participants.map(async (pt) => {
+        if (pt.user && typeof pt.user === 'object') {
+          return { ...pt, user: await mapUserImages(pt.user) };
+        }
+        return pt;
+      })
+    );
+  }
+  return p;
+};
 
 // ─────────────────────────────────────────────────────────────────────────────
 // GET  /api/plans   — list active plans (newest first, optional nearby filter)
@@ -41,11 +62,16 @@ const getPlans = async (req, res, next) => {
 
     // Annotate each plan for the requesting user
     const userId = String(req.user._id);
-    const data = plans.map((p) => ({
-      ...p,
-      hasJoined: p.participants.some((pt) => String(pt.user?._id || pt.user) === userId),
-      isOwner: String(p.author._id) === userId,
-    }));
+    const data = await Promise.all(
+      plans.map(async (p) => {
+        const enriched = await enrichPlanImages(p);
+        return {
+          ...enriched,
+          hasJoined: p.participants.some((pt) => String(pt.user?._id || pt.user) === userId),
+          isOwner: String(p.author._id) === userId,
+        };
+      })
+    );
 
     res.json({
       success: true,
@@ -85,7 +111,7 @@ const createPlan = async (req, res, next) => {
       .populate('author', 'firstName lastName images profilePhoto userName')
       .lean();
 
-    const data = { ...populated, hasJoined: false, isOwner: true };
+    const data = await enrichPlanImages({ ...populated, hasJoined: false, isOwner: true });
 
     // Emit via socket so other users see the plan in real time
     try {
@@ -143,11 +169,11 @@ const joinPlan = async (req, res, next) => {
       .populate('participants.user', 'firstName lastName images profilePhoto userName')
       .lean();
 
-    const data = {
+    const data = await enrichPlanImages({
       ...populated,
       hasJoined: true,
       isOwner: String(populated.author._id) === userId,
-    };
+    });
 
     // Real-time: notify plan author + all participants
     try {
@@ -185,11 +211,11 @@ const leavePlan = async (req, res, next) => {
       .populate('participants.user', 'firstName lastName images profilePhoto userName')
       .lean();
 
-    const data = {
+    const data = await enrichPlanImages({
       ...populated,
       hasJoined: false,
       isOwner: String(populated.author._id) === userId,
-    };
+    });
 
     try {
       const { getIO } = require('../socket');
@@ -249,11 +275,16 @@ const getMyPlans = async (req, res, next) => {
       .populate('participants.user', 'firstName lastName images profilePhoto userName')
       .lean();
 
-    const data = plans.map((p) => ({
-      ...p,
-      hasJoined: p.participants.some((pt) => String(pt.user?._id || pt.user) === String(userId)),
-      isOwner: String(p.author._id) === String(userId),
-    }));
+    const data = await Promise.all(
+      plans.map(async (p) => {
+        const enriched = await enrichPlanImages(p);
+        return {
+          ...enriched,
+          hasJoined: p.participants.some((pt) => String(pt.user?._id || pt.user) === String(userId)),
+          isOwner: String(p.author._id) === String(userId),
+        };
+      })
+    );
 
     res.json({ success: true, data });
   } catch (err) {

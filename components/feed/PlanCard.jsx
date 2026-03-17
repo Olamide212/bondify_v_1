@@ -117,12 +117,13 @@ export default function PlanCard({
       onPress={() => onPress?.(plan)}
       activeOpacity={0.8}
     >
-      {/* Status badge */}
+     
+      {/* Author row */}
+      <View>
+         {/* Status badge */}
       <View style={[styles.statusBadge, { backgroundColor: cfg.bg }]}>
         <Text style={[styles.statusText, { color: cfg.color }]}>{cfg.label}</Text>
       </View>
-
-      {/* Author row */}
       <TouchableOpacity
         style={styles.authorRow}
         onPress={handleNavigateToProfile}
@@ -137,10 +138,7 @@ export default function PlanCard({
             </Text>
           </View>
         )}
-        <View style={{ flex: 1, marginLeft: 10 }}>
-          <Text style={styles.authorName}>{displayName(plan.author)}</Text>
-          <Text style={styles.timeAgoText}>{timeAgo(plan.createdAt)}</Text>
-        </View>
+      
 
         {isOwner && (
           <TouchableOpacity
@@ -152,6 +150,14 @@ export default function PlanCard({
           </TouchableOpacity>
         )}
       </TouchableOpacity>
+      </View>
+
+      <View>
+
+  <View style={{ flex: 1, marginLeft: 10 }}>
+          <Text style={styles.authorName}>{displayName(plan.author)}</Text>
+          <Text style={styles.timeAgoText}>{timeAgo(plan.createdAt)}</Text>
+        </View>
 
       {/* Note */}
       {!!plan.note && <Text style={styles.note}>{plan.note}</Text>}
@@ -239,6 +245,7 @@ export default function PlanCard({
             </Text>
           </TouchableOpacity>
         )}
+        </View>
       </View>
     </TouchableOpacity>
   );
@@ -248,6 +255,9 @@ export default function PlanCard({
 const styles = StyleSheet.create({
   card: {
     backgroundColor: "#fff",
+    flex: "row",
+    gap: 2,
+    alighItems: "center",
     marginHorizontal: 12,
     marginBottom: 10,
     borderRadius: 16,
