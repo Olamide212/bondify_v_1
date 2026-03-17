@@ -1,17 +1,19 @@
 /**
- * Bondup Screen  —  app/(root)/(tab)/feed/index.jsx
+ * Bondup Feed Screen  —  app/(root)/(tab)/feed/index.jsx
  *
- * Modern day-based feed:
- *  • Horizontal scrollable day chips (Yesterday, Today, Tomorrow, …)
- *  • Plans grouped into "I'm Free" & "Join Me" sections under each day
- *  • FAB → CreateBondupModal
- *  • Clickable cards → PlanDetailModal
+ * Spontaneous meetup posts feed:
+ *  • Bonfeed logo in header
+ *  • Filter tabs: All, Today, Public, Circle
+ *  • Activity filter chips
+ *  • List of Bondup cards
+ *  • FAB to create a new Bondup
  *  • Real-time socket updates
+ *  • Joined / Full / Empty states
  */
 
-import { useRouter } from "expo-router";
-import { CalendarHeart, Sparkles, User } from "lucide-react-native";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from 'expo-router';
+import { Plus, User } from 'lucide-react-native';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -22,176 +24,138 @@ import {
   Text,
   TouchableOpacity,
   View,
-} from "react-native";
-import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-import { useSelector } from "react-redux";
-import CreatePlanModal from "../../../../components/feed/CreatePlanModal";
-import PlanCard from "../../../../components/feed/PlanCard";
-import PlanDetailModal from "../../../../components/feed/PlanDetailModal";
-import { colors } from "../../../../constant/colors";
-import { images } from "../../../../constant/images";
-import planChatService from "../../../../services/planChatService";
-import planService from "../../../../services/planService";
-import { socketService } from "../../../../services/socketService";
+} from 'react-native';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import { useSelector } from 'react-redux';
+import BondupCard from '../../../../components/bondup/BondupCard';
+import BondupDetailModal from '../../../../components/bondup/BondupDetailModal';
+import CreateBondupModal from '../../../../components/bondup/CreateBondupModal';
+import { colors } from '../../../../constant/colors';
+import { images } from '../../../../constant/images';
+import bondupChatService from '../../../../services/bondupChatService';
+import bondupService from '../../../../services/bondupService';
+import { socketService } from '../../../../services/socketService';
 
 const BRAND = colors.primary;
 
-// ─── Day helpers ────────────────────────────────────────────────────────────
-const DAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-const FULL_DAY_NAMES = [
-  "Sunday",
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
+// ─── Filter config ──────────────────────────────────────────────────────────
+const FEED_TABS = ['All', 'Today', 'Public', 'Circle'];
+
+const ACTIVITY_FILTERS = [
+  { key: '', label: 'All' },
+  { key: 'coffee', emoji: '☕', label: 'Coffee' },
+  { key: 'food',   emoji: '🍔', label: 'Food' },
+  { key: 'drinks', emoji: '🍹', label: 'Drinks' },
+  { key: 'gym',    emoji: '💪', label: 'Gym' },
+  { key: 'walk',   emoji: '🚶', label: 'Walk' },
+  { key: 'movie',  emoji: '🎬', label: 'Movie' },
+  { key: 'other',  emoji: '✨', label: 'Other' },
 ];
-
-/**
- * Build an array of 7 day objects starting from yesterday.
- * Each has: { key: "Mon", label: "Today" | "Tomorrow" | "Wednesday" etc., date }
- */
-function buildDayChips() {
-  const chips = [];
-  const now = new Date();
-
-  for (let offset = -1; offset <= 5; offset++) {
-    const d = new Date(now);
-    d.setDate(d.getDate() + offset);
-    const dayKey = DAY_NAMES[d.getDay()];
-
-    let label;
-    if (offset === -1) label = "Yesterday";
-    else if (offset === 0) label = "Today";
-    else if (offset === 1) label = "Tomorrow";
-    else label = FULL_DAY_NAMES[d.getDay()];
-
-    chips.push({ key: dayKey, label, offset, date: d });
-  }
-  return chips;
-}
 
 // ─── avatar helper ──────────────────────────────────────────────────────────
 const avatar = (user) =>
   user?.profilePhoto || user?.images?.[0]?.url || user?.images?.[0] || null;
 
-// ─── Bondup Screen ──────────────────────────────────────────────────────────
-export default function BondupScreen() {
+// ─── BondupFeedScreen ────────────────────────────────────────────────────────
+export default function BondupFeedScreen() {
   const router = useRouter();
   const { user: currentUser } = useSelector((s) => s.auth);
 
-  const dayChips = useMemo(() => buildDayChips(), []);
-  const [selectedDay, setSelectedDay] = useState(1); // index => "Today"
-  const dayScrollRef = useRef(null);
+  // ── State ────────────────────────────────────────────────────────────────
+  const [bondups, setBondups] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [activeTab, setActiveTab] = useState(0); // 0=All, 1=Today, 2=Public, 3=Circle
+  const [activityFilter, setActivityFilter] = useState('');
+  const [detailBondup, setDetailBondup] = useState(null);
+  const [showCreate, setShowCreate] = useState(false);
+  const [joinLoading, setJoinLoading] = useState(false);
+  const tabScrollRef = useRef(null);
 
-  // ── Plans state ─────────────────────────────────────────────────────────────
-  const [allPlans, setAllPlans] = useState([]);
-  const [plansLoading, setPlansLoading] = useState(false);
-  const [plansRefreshing, setPlansRefreshing] = useState(false);
-  const [showCreatePlan, setShowCreatePlan] = useState(false);
-  const [detailPlan, setDetailPlan] = useState(null);
-
-  // ── Load all active plans (both statuses) ───────────────────────────────────
-  const loadPlans = useCallback(async () => {
-    setPlansLoading(true);
+  // ── Load bondups based on active tab ────────────────────────────────────
+  const loadBondups = useCallback(async () => {
+    setLoading(true);
     try {
-      const [freeRes, joinRes] = await Promise.all([
-        planService.getPlans({ status: "free" }),
-        planService.getPlans({ status: "join_me" }),
-      ]);
-      const combined = [
-        ...(freeRes.data ?? []),
-        ...(joinRes.data ?? []),
-      ];
-      // Deduplicate
-      const unique = combined.filter(
-        (p, i, arr) => arr.findIndex((x) => x._id === p._id) === i
-      );
-      setAllPlans(unique);
+      const params = {};
+      if (activityFilter) params.activityType = activityFilter;
+      if (activeTab === 1) {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        params.date = today.toISOString();
+      }
+
+      let res;
+      if (activeTab === 3) {
+        res = await bondupService.getCircleBondups(params);
+      } else {
+        res = await bondupService.getPublicBondups(params);
+      }
+
+      setBondups(res.data ?? []);
     } catch {
-      // silent
+      // silent fail
     } finally {
-      setPlansLoading(false);
+      setLoading(false);
     }
-  }, []);
+  }, [activeTab, activityFilter]);
 
   useEffect(() => {
-    loadPlans();
-  }, [loadPlans]);
+    loadBondups();
+  }, [loadBondups]);
 
   const onRefresh = async () => {
-    setPlansRefreshing(true);
-    await loadPlans();
-    setPlansRefreshing(false);
+    setRefreshing(true);
+    await loadBondups();
+    setRefreshing(false);
   };
 
-  // ── Filter by selected day ──────────────────────────────────────────────────
-  const selectedDayKey = dayChips[selectedDay]?.key;
+  // ── Bondup actions ──────────────────────────────────────────────────────
 
-  const freePlans = useMemo(
-    () =>
-      allPlans.filter(
-        (p) =>
-          p.status === "free" &&
-          (p.days?.includes(selectedDayKey) || (!p.days?.length && selectedDay <= 1))
-      ),
-    [allPlans, selectedDayKey, selectedDay]
-  );
-
-  const joinMePlans = useMemo(
-    () =>
-      allPlans.filter(
-        (p) =>
-          p.status === "join_me" &&
-          (p.days?.includes(selectedDayKey) || (!p.days?.length && selectedDay <= 1))
-      ),
-    [allPlans, selectedDayKey, selectedDay]
-  );
-
-  const hasPlans = freePlans.length > 0 || joinMePlans.length > 0;
-
-  // ── Plans actions ───────────────────────────────────────────────────────────
-  const handleJoinPlan = async (planId) => {
-    setAllPlans((prev) =>
-      prev.map((p) =>
-        p._id === planId
-          ? { ...p, hasJoined: true, participants: [...(p.participants || []), { user: currentUser }] }
-          : p
+  const handleJoin = async (bondupId) => {
+    setJoinLoading(true);
+    setBondups((prev) =>
+      prev.map((b) =>
+        b._id === bondupId
+          ? { ...b, hasJoined: true, participants: [...(b.participants || []), { user: currentUser }] }
+          : b
       )
     );
-    setDetailPlan((d) =>
-      d?._id === planId
+    setDetailBondup((d) =>
+      d?._id === bondupId
         ? { ...d, hasJoined: true, participants: [...(d.participants || []), { user: currentUser }] }
         : d
     );
     try {
-      const res = await planService.joinPlan(planId);
+      const res = await bondupService.joinBondup(bondupId);
       if (res.success) {
-        setAllPlans((prev) => prev.map((p) => (p._id === planId ? res.data : p)));
-        setDetailPlan((d) => (d?._id === planId ? res.data : d));
+        setBondups((prev) => prev.map((b) => (b._id === bondupId ? res.data : b)));
+        setDetailBondup((d) => (d?._id === bondupId ? res.data : d));
       }
-    } catch {
-      loadPlans();
+    } catch (err) {
+      const msg = err?.response?.data?.message || 'Could not join. Try again.';
+      Alert.alert('Error', msg);
+      loadBondups();
+    } finally {
+      setJoinLoading(false);
     }
   };
 
-  const handleLeavePlan = async (planId) => {
-    setAllPlans((prev) =>
-      prev.map((p) =>
-        p._id === planId
+  const handleLeave = async (bondupId) => {
+    setBondups((prev) =>
+      prev.map((b) =>
+        b._id === bondupId
           ? {
-              ...p,
+              ...b,
               hasJoined: false,
-              participants: (p.participants || []).filter(
+              participants: (b.participants || []).filter(
                 (pt) => String(pt.user?._id || pt.user) !== String(currentUser?._id)
               ),
             }
-          : p
+          : b
       )
     );
-    setDetailPlan((d) =>
-      d?._id === planId
+    setDetailBondup((d) =>
+      d?._id === bondupId
         ? {
             ...d,
             hasJoined: false,
@@ -202,155 +166,112 @@ export default function BondupScreen() {
         : d
     );
     try {
-      const res = await planService.leavePlan(planId);
+      const res = await bondupService.leaveBondup(bondupId);
       if (res.success) {
-        setAllPlans((prev) => prev.map((p) => (p._id === planId ? res.data : p)));
-        setDetailPlan((d) => (d?._id === planId ? res.data : d));
+        setBondups((prev) => prev.map((b) => (b._id === bondupId ? res.data : b)));
+        setDetailBondup((d) => (d?._id === bondupId ? res.data : d));
       }
     } catch {
-      loadPlans();
+      loadBondups();
     }
   };
 
-  const handleDeletePlan = (planId) => {
-    Alert.alert("Remove Bondup", "Are you sure you want to remove this bondup?", [
-      { text: "Cancel", style: "cancel" },
+  const handleDelete = (bondupId) => {
+    Alert.alert('Remove Bondup', 'Are you sure you want to remove this Bondup?', [
+      { text: 'Cancel', style: 'cancel' },
       {
-        text: "Remove",
-        style: "destructive",
+        text: 'Remove',
+        style: 'destructive',
         onPress: async () => {
-          setAllPlans((prev) => prev.filter((p) => p._id !== planId));
-          setDetailPlan((d) => (d?._id === planId ? null : d));
+          setBondups((prev) => prev.filter((b) => b._id !== bondupId));
+          setDetailBondup((d) => (d?._id === bondupId ? null : d));
           try {
-            await planService.deletePlan(planId);
+            await bondupService.deleteBondup(bondupId);
           } catch {
-            // silent
+            loadBondups();
           }
         },
       },
     ]);
   };
 
-  const handlePlanCreated = (newPlan) => {
-    setAllPlans((prev) => {
-      if (prev.some((p) => p._id === newPlan._id)) return prev;
-      return [newPlan, ...prev];
+  const handleCreated = (newBondup) => {
+    setBondups((prev) => {
+      if (prev.some((b) => b._id === newBondup._id)) return prev;
+      return [newBondup, ...prev];
     });
   };
 
-  const handlePlanPress = (plan) => {
-    setDetailPlan(plan);
-  };
-
-  const handleStartChat = async (plan) => {
-    if (plan.participants?.length < 1) {
-      Alert.alert(
-        "Group Chat",
-        "Wait for others to join your bondup first!",
-        [{ text: "OK" }]
-      );
-      return;
-    }
-
+  const handleStartChat = async (bondup) => {
     try {
-      const res = await planChatService.startGroupChat(plan._id);
+      const res = await bondupChatService.startChat(bondup._id);
       if (res.success && res.data?._id) {
         const chatId = res.data._id;
-        setAllPlans((prev) =>
-          prev.map((p) =>
-            p._id === plan._id ? { ...p, groupChatId: chatId } : p
-          )
+        setBondups((prev) =>
+          prev.map((b) => (b._id === bondup._id ? { ...b, chatId } : b))
         );
-        setDetailPlan(null);
+        setDetailBondup(null);
         router.push({
-          pathname: "/chat-screen",
+          pathname: '/chat-screen',
           params: {
             matchId: chatId,
-            name: plan.activity || (plan.status === "free" ? "I\u2019m Free" : "Join Me"),
-            isGroupChat: "true",
-            planId: plan._id,
+            name: bondup.title,
+            isGroupChat: 'true',
+            bondupId: bondup._id,
           },
         });
       }
     } catch {
-      Alert.alert("Error", "Could not start group chat. Try again.", [{ text: "OK" }]);
+      Alert.alert('Error', 'Could not start chat. Try again.', [{ text: 'OK' }]);
     }
   };
 
-  // ── Socket: real-time plan updates ──────────────────────────────────────────
+  // ── Socket: real-time updates ────────────────────────────────────────────
   useEffect(() => {
-    const handleNewPlan = (plan) => {
-      setAllPlans((prev) => {
-        if (prev.some((p) => p._id === plan._id)) return prev;
-        return [plan, ...prev];
+    const handleNew = (b) => {
+      setBondups((prev) => {
+        if (prev.some((x) => x._id === b._id)) return prev;
+        return [b, ...prev];
       });
     };
-    const handleUpdatedPlan = (plan) => {
-      setAllPlans((prev) => prev.map((p) => (p._id === plan._id ? plan : p)));
-      setDetailPlan((d) => (d?._id === plan._id ? plan : d));
+    const handleUpdated = (b) => {
+      setBondups((prev) => prev.map((x) => (x._id === b._id ? b : x)));
+      setDetailBondup((d) => (d?._id === b._id ? b : d));
     };
-    const handleRemovedPlan = ({ planId }) => {
-      setAllPlans((prev) => prev.filter((p) => p._id !== planId));
-      setDetailPlan((d) => (d?._id === planId ? null : d));
+    const handleRemoved = ({ bondupId }) => {
+      setBondups((prev) => prev.filter((x) => x._id !== bondupId));
+      setDetailBondup((d) => (d?._id === bondupId ? null : d));
     };
 
-    socketService.on("plans:new", handleNewPlan);
-    socketService.on("plans:updated", handleUpdatedPlan);
-    socketService.on("plans:removed", handleRemovedPlan);
+    socketService.on('bondup:new', handleNew);
+    socketService.on('bondup:updated', handleUpdated);
+    socketService.on('bondup:removed', handleRemoved);
 
     return () => {
-      socketService.off("plans:new", handleNewPlan);
-      socketService.off("plans:updated", handleUpdatedPlan);
-      socketService.off("plans:removed", handleRemovedPlan);
+      socketService.off('bondup:new', handleNew);
+      socketService.off('bondup:updated', handleUpdated);
+      socketService.off('bondup:removed', handleRemoved);
     };
   }, []);
 
-  // ── Day chip press ──────────────────────────────────────────────────────────
-  const handleDayPress = (index) => {
-    setSelectedDay(index);
-  };
-
-  // ── Render helpers ──────────────────────────────────────────────────────────
+  // ── Helpers ──────────────────────────────────────────────────────────────
   const userAvatar = avatar(currentUser);
+  const hasBondups = bondups.length > 0;
 
-  const renderSection = (title, emoji, plans) => {
-    if (plans.length === 0) return null;
-    return (
-      <View style={fStyles.section}>
-        <View style={fStyles.sectionHeader}>
-          <Text style={fStyles.sectionEmoji}>{emoji}</Text>
-          <Text style={fStyles.sectionTitle}>{title}</Text>
-          <View style={fStyles.sectionCount}>
-            <Text style={fStyles.sectionCountText}>{plans.length}</Text>
-          </View>
-        </View>
-        {plans.map((plan) => (
-          <PlanCard
-            key={plan._id}
-            plan={plan}
-            currentUserId={currentUser?._id}
-            onJoin={handleJoinPlan}
-            onLeave={handleLeavePlan}
-            onDelete={handleDeletePlan}
-            onPress={handlePlanPress}
-          />
-        ))}
-      </View>
-    );
-  };
+  const renderSkeleton = () =>
+    [1, 2, 3].map((i) => <View key={i} style={sk.skeletonCard} />);
 
   return (
     <SafeAreaProvider>
-      <SafeAreaView style={fStyles.container} edges={["top"]}>
-        {/* Header */}
+      <SafeAreaView style={fStyles.container} edges={['top']}>
+        {/* ── Header ──────────────────────────────────────────────────────── */}
         <View style={fStyles.header}>
-          <View style={fStyles.headerLeft}>
-            <View style={fStyles.logoContainer}>
-              <Sparkles size={20} color={colors.tertiary} />
-              <Text style={fStyles.logoText}>Bondup</Text>
-            </View>
-          </View>
-          <TouchableOpacity onPress={() => router.push("/feed-profile")}>
+          <Image
+            source={images.bonFeed}
+            style={fStyles.headerLogo}
+            resizeMode="contain"
+          />
+          <TouchableOpacity onPress={() => router.push('/feed-profile')}>
             {userAvatar ? (
               <Image source={{ uri: userAvatar }} style={fStyles.headerAvatar} />
             ) : (
@@ -361,321 +282,310 @@ export default function BondupScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Subtitle */}
-        <View style={fStyles.subtitleContainer}>
-          <Text style={fStyles.subtitle}>
-            Meetups happening soon \u2014 pick a day \u2728
-          </Text>
-        </View>
-
-        {/* Horizontal day scroller */}
+        {/* ── Tab bar ─────────────────────────────────────────────────────── */}
         <ScrollView
-          ref={dayScrollRef}
+          ref={tabScrollRef}
           horizontal
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={fStyles.dayScroller}
+          contentContainerStyle={fStyles.tabScroller}
         >
-          {dayChips.map((chip, i) => {
-            const isActive = i === selectedDay;
-            return (
-              <TouchableOpacity
-                key={chip.key + chip.offset}
-                style={[
-                  fStyles.dayChip,
-                  isActive && fStyles.dayChipActive,
-                ]}
-                onPress={() => handleDayPress(i)}
-                activeOpacity={0.7}
-              >
-                <Text
-                  style={[
-                    fStyles.dayChipLabel,
-                    isActive && fStyles.dayChipLabelActive,
-                  ]}
-                >
-                  {chip.label}
-                </Text>
-                <Text
-                  style={[
-                    fStyles.dayChipSub,
-                    isActive && fStyles.dayChipSubActive,
-                  ]}
-                >
-                  {chip.key}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
+          {FEED_TABS.map((tab, i) => (
+            <TouchableOpacity
+              key={tab}
+              style={[fStyles.tabChip, i === activeTab && fStyles.tabChipActive]}
+              onPress={() => setActiveTab(i)}
+              activeOpacity={0.7}
+            >
+              <Text style={[fStyles.tabChipText, i === activeTab && fStyles.tabChipTextActive]}>
+                {tab}
+              </Text>
+            </TouchableOpacity>
+          ))}
         </ScrollView>
 
-        {/* Feed */}
+        {/* ── Activity filter ──────────────────────────────────────────────── */}
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={fStyles.activityScroller}
+        >
+          {ACTIVITY_FILTERS.map((a) => (
+            <TouchableOpacity
+              key={a.key}
+              style={[
+                fStyles.activityChip,
+                activityFilter === a.key && fStyles.activityChipActive,
+              ]}
+              onPress={() => setActivityFilter(a.key)}
+              activeOpacity={0.7}
+            >
+              {a.emoji && <Text style={fStyles.activityChipEmoji}>{a.emoji}</Text>}
+              <Text
+                style={[
+                  fStyles.activityChipText,
+                  activityFilter === a.key && fStyles.activityChipTextActive,
+                ]}
+              >
+                {a.label}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+
+        {/* ── Feed list ────────────────────────────────────────────────────── */}
         <ScrollView
           style={{ flex: 1 }}
-          contentContainerStyle={{ paddingBottom: 100 }}
+          contentContainerStyle={{ paddingBottom: 110, paddingTop: 12 }}
           showsVerticalScrollIndicator={false}
           refreshControl={
             <RefreshControl
-              refreshing={plansRefreshing}
+              refreshing={refreshing}
               onRefresh={onRefresh}
               colors={[BRAND]}
               tintColor={BRAND}
             />
           }
         >
-          {plansLoading && allPlans.length === 0 ? (
-            <ActivityIndicator
-              size="large"
-              color={BRAND}
-              style={{ marginTop: 60 }}
-            />
-          ) : !hasPlans ? (
+          {loading && !hasBondups ? (
+            renderSkeleton()
+          ) : !hasBondups ? (
             <View style={fStyles.emptyState}>
-              <Text style={fStyles.emptyEmoji}>{String.fromCodePoint(0x1F91D)}</Text>
-              <Text style={fStyles.emptyTitle}>
-                No bondups for {dayChips[selectedDay]?.label}
-              </Text>
+              <Text style={fStyles.emptyEmoji}>🤝</Text>
+              <Text style={fStyles.emptyTitle}>No plans yet!</Text>
               <Text style={fStyles.emptySub}>
-                Be the first to share what you're up to!
+                {activeTab === 3
+                  ? 'No Bondups from your circle yet.\nFollow more people to see their plans!'
+                  : 'Be the first to start a Bondup\nin your city!'}
               </Text>
               <TouchableOpacity
                 style={fStyles.emptyBtn}
-                onPress={() => setShowCreatePlan(true)}
+                onPress={() => setShowCreate(true)}
               >
-                <Sparkles size={16} color="#fff" />
+                <Plus size={16} color="#fff" />
                 <Text style={fStyles.emptyBtnText}>Create a Bondup</Text>
               </TouchableOpacity>
             </View>
           ) : (
-            <>
-              {renderSection("I\u2019m Free", "\ud83d\ude4c", freePlans)}
-              {renderSection("Join Me", "\ud83c\udf89", joinMePlans)}
-            </>
+            bondups.map((bondup) => (
+              <BondupCard
+                key={bondup._id}
+                bondup={bondup}
+                currentUserId={currentUser?._id}
+                onJoin={handleJoin}
+                onLeave={handleLeave}
+                onDelete={handleDelete}
+                onPress={setDetailBondup}
+              />
+            ))
           )}
 
-          {plansLoading && allPlans.length > 0 && (
-            <ActivityIndicator
-              size="small"
-              color={BRAND}
-              style={{ marginVertical: 16 }}
-            />
+          {loading && hasBondups && (
+            <ActivityIndicator size="small" color={BRAND} style={{ marginVertical: 16 }} />
           )}
         </ScrollView>
 
-        {/* FAB */}
+        {/* ── FAB ─────────────────────────────────────────────────────────── */}
         <TouchableOpacity
           style={fStyles.fab}
-          onPress={() => setShowCreatePlan(true)}
+          onPress={() => setShowCreate(true)}
+          activeOpacity={0.85}
         >
-          <CalendarHeart size={24} color="#fff" />
+          <Plus size={26} color="#fff" />
         </TouchableOpacity>
 
-        {/* Modals */}
-        <CreatePlanModal
-          visible={showCreatePlan}
-          onClose={() => setShowCreatePlan(false)}
-          onCreated={handlePlanCreated}
+        {/* ── Modals ──────────────────────────────────────────────────────── */}
+        <CreateBondupModal
+          visible={showCreate}
+          onClose={() => setShowCreate(false)}
+          onCreated={handleCreated}
         />
 
-        <PlanDetailModal
-          visible={!!detailPlan}
-          plan={detailPlan}
+        <BondupDetailModal
+          visible={!!detailBondup}
+          bondup={detailBondup}
           currentUserId={currentUser?._id}
-          onClose={() => setDetailPlan(null)}
-          onJoin={handleJoinPlan}
-          onLeave={handleLeavePlan}
-          onDelete={handleDeletePlan}
+          onClose={() => setDetailBondup(null)}
+          onJoin={handleJoin}
+          onLeave={handleLeave}
+          onDelete={handleDelete}
           onStartChat={handleStartChat}
+          joinLoading={joinLoading}
         />
       </SafeAreaView>
     </SafeAreaProvider>
   );
 }
 
-// ─── Styles ──────────────────────────────────────────────────────────────────
+// ─── Feed styles ──────────────────────────────────────────────────────────────
 const fStyles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FAFAFA",
+    backgroundColor: '#F5F5F7',
   },
 
-  /* Header */
+  // Header
   header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: "#fff",
+    paddingVertical: 10,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F0F0',
   },
-  headerLeft: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  logoContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-  },
-  logoText: {
-    fontSize: 24,
-    fontFamily: "PlusJakartaSansBold",
-    color: BRAND,
-    letterSpacing: -0.5,
+  headerLogo: {
+    height: 32,
+    width: 120,
   },
   headerAvatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 40,
-    borderWidth: 1,
-    borderColor: "#dadada",
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    borderWidth: 1.5,
+    borderColor: '#E0E0E0',
   },
   headerAvatarFallback: {
-    backgroundColor: "#D1D5DB",
-    justifyContent: "center",
-    alignItems: "center",
+    backgroundColor: '#D1D5DB',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 
-  /* Subtitle */
-  subtitleContainer: {
+  // Tabs
+  tabScroller: {
     paddingHorizontal: 16,
-    paddingBottom: 8,
-    backgroundColor: "#fff",
-  },
-  subtitle: {
-    fontSize: 13,
-    fontFamily: "PlusJakartaSansMedium",
-    color: "#888",
-  },
-
-  /* Day Scroller */
-  dayScroller: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    gap: 10,
-    backgroundColor: "#fff",
-    borderBottomWidth: 1,
-    borderBottomColor: "#F0F0F0",
-  },
-  dayChip: {
-    paddingHorizontal: 18,
     paddingVertical: 10,
-    borderRadius: 16,
-    backgroundColor: "#F3F4F6",
-    alignItems: "center",
-    minWidth: 72,
+    gap: 8,
+    backgroundColor: '#fff',
   },
-  dayChipActive: {
+  tabChip: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: '#F3F4F6',
+  },
+  tabChipActive: {
     backgroundColor: BRAND,
+  },
+  tabChipText: {
+    fontSize: 14,
+    fontFamily: 'PlusJakartaSansMedium',
+    color: '#666',
+  },
+  tabChipTextActive: {
+    color: '#fff',
+    fontFamily: 'PlusJakartaSansBold',
+  },
+
+  // Activity filter
+  activityScroller: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    gap: 8,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F0F0',
+  },
+  activityChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    backgroundColor: '#F3F4F6',
+    borderWidth: 1.5,
+    borderColor: 'transparent',
+  },
+  activityChipActive: {
+    borderColor: BRAND,
+    backgroundColor: colors.primaryLight,
+  },
+  activityChipEmoji: {
+    fontSize: 14,
+  },
+  activityChipText: {
+    fontSize: 13,
+    fontFamily: 'PlusJakartaSansMedium',
+    color: '#666',
+  },
+  activityChipTextActive: {
+    color: BRAND,
+    fontFamily: 'PlusJakartaSansBold',
+  },
+
+  // Empty state
+  emptyState: {
+    alignItems: 'center',
+    paddingTop: 80,
+    paddingHorizontal: 40,
+  },
+  emptyEmoji: {
+    fontSize: 56,
+    marginBottom: 16,
+  },
+  emptyTitle: {
+    fontSize: 20,
+    fontFamily: 'PlusJakartaSansBold',
+    color: '#111',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  emptySub: {
+    fontSize: 14,
+    fontFamily: 'PlusJakartaSans',
+    color: '#888',
+    textAlign: 'center',
+    lineHeight: 22,
+    marginBottom: 24,
+  },
+  emptyBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: BRAND,
+    paddingHorizontal: 24,
+    paddingVertical: 13,
+    borderRadius: 16,
     shadowColor: BRAND,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 4,
   },
-  dayChipLabel: {
-    fontSize: 13,
-    fontFamily: "PlusJakartaSansBold",
-    color: "#555",
-  },
-  dayChipLabelActive: {
-    color: "#fff",
-  },
-  dayChipSub: {
-    fontSize: 11,
-    fontFamily: "PlusJakartaSansMedium",
-    color: "#999",
-    marginTop: 2,
-  },
-  dayChipSubActive: {
-    color: "rgba(255,255,255,0.7)",
-  },
-
-  /* Sections */
-  section: {
-    marginTop: 16,
-  },
-  sectionHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 16,
-    marginBottom: 8,
-    gap: 6,
-  },
-  sectionEmoji: {
-    fontSize: 18,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontFamily: "PlusJakartaSansBold",
-    color: "#111",
-  },
-  sectionCount: {
-    backgroundColor: colors.primaryLight,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 10,
-  },
-  sectionCountText: {
-    fontSize: 11,
-    fontFamily: "PlusJakartaSansBold",
-    color: BRAND,
-  },
-
-  /* Empty state */
-  emptyState: {
-    alignItems: "center",
-    paddingTop: 80,
-    paddingHorizontal: 40,
-  },
-  emptyEmoji: {
-    fontSize: 48,
-    marginBottom: 12,
-  },
-  emptyTitle: {
-    fontSize: 18,
-    fontFamily: "PlusJakartaSansBold",
-    color: "#111",
-    marginBottom: 6,
-    textAlign: "center",
-  },
-  emptySub: {
-    fontSize: 14,
-    fontFamily: "PlusJakartaSans",
-    color: "#888",
-    textAlign: "center",
-    lineHeight: 20,
-    marginBottom: 20,
-  },
-  emptyBtn: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    backgroundColor: BRAND,
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 14,
-  },
   emptyBtnText: {
-    color: "#fff",
-    fontSize: 14,
-    fontFamily: "PlusJakartaSansBold",
+    color: '#fff',
+    fontSize: 15,
+    fontFamily: 'PlusJakartaSansBold',
   },
 
-  /* FAB */
+  // FAB
   fab: {
-    position: "absolute",
+    position: 'absolute',
     bottom: 50,
     right: 20,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+    width: 58,
+    height: 58,
+    borderRadius: 29,
     backgroundColor: BRAND,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     shadowColor: BRAND,
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.4,
-    shadowRadius: 8,
-    elevation: 8,
+    shadowRadius: 10,
+    elevation: 10,
+  },
+});
+
+// ─── Skeleton styles ──────────────────────────────────────────────────────────
+const sk = StyleSheet.create({
+  skeletonCard: {
+    backgroundColor: '#E5E7EB',
+    marginHorizontal: 16,
+    marginBottom: 14,
+    borderRadius: 20,
+    height: 160,
+    opacity: 0.5,
   },
 });

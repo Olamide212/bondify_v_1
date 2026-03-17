@@ -29,6 +29,8 @@ const commentRoutes = require('./routes/commentRoutes');
 const feedRoutes    = require('./routes/feedRoutes');
 const planRoutes    = require('./routes/planRoutes');
 const planChatRoutes = require('./routes/planChatRoutes');
+const bondupRoutes   = require('./routes/bondupRoutes');
+const bondupChatRoutes = require('./routes/bondupChatRoutes');
 const webhookRoutes = require('./routes/webhookRoutes');
 
 // Initialize express app
@@ -84,6 +86,8 @@ app.use('/api/comments', commentRoutes);
 app.use('/api/feed',     feedRoutes);
 app.use('/api/plans',    planRoutes);
 app.use('/api/plan-chats', planChatRoutes);
+app.use('/api/bondup',   bondupRoutes);
+app.use('/api/bondup-chats', bondupChatRoutes);
 app.use('/api/webhooks', webhookRoutes);
 // 404 handler
 app.use('*', (req, res) => {

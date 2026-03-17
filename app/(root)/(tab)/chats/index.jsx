@@ -6,10 +6,10 @@ import { StyleSheet, View } from "react-native";
 import { useSelector } from "react-redux";
 import ChatListScreen from "../../../../components/chatScreen/ChatListScreen";
 import { matchService } from "../../../../services/matchService";
-import planService from "../../../../services/planService";
+import bondupService from "../../../../services/bondupService";
 import { socketService } from "../../../../services/socketService";
 
-const CHAT_TABS = ["Dating", "Social"];
+const CHAT_TABS = ["Chats", "Plans"];
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
 
@@ -73,33 +73,37 @@ const normalizeMatches = (matches) =>
   });
 
 // Helper: extract avatar url
-const planAvatar = (user) =>
+const bondupAvatar = (user) =>
   user?.profilePhoto || user?.images?.[0]?.url || user?.images?.[0] || null;
 
-// Normalize plan group chats into chatlist-compatible items
-const normalizePlanChats = (plans, currentUserId) =>
-  plans
-    .filter((p) => (p.participants?.length || 0) >= 1)
-    .map((p) => {
-      const participantCount = p.participants?.length || 0;
-      const authorName = [p.author?.firstName, p.author?.lastName].filter(Boolean).join(" ") || "User";
-      const isOwner = String(p.author?._id || p.author) === String(currentUserId);
+// Normalize bondup group chats into chatlist-compatible items
+const normalizeBondupChats = (bondups, currentUserId) =>
+  bondups
+    .filter((b) => b.chatId != null || (b.participants?.length || 0) >= 1)
+    .map((b) => {
+      const participantCount = b.participants?.length || 0;
+      const creatorName = [b.createdBy?.firstName, b.createdBy?.lastName].filter(Boolean).join(" ") || "User";
+      const isOwner = String(b.createdBy?._id || b.createdBy) === String(currentUserId);
+      const activityEmoji = {
+        coffee: '☕', food: '🍔', drinks: '🍹', gym: '💪',
+        walk: '🚶', movie: '🎬', other: '✨',
+      }[b.activityType] || '✨';
       return {
-        id: p._id,
-        matchId: p.groupChatId || `plan_${p._id}`,
-        name: p.activity || (p.status === "free" ? "I\u2019m Free" : "Join Me"),
-        profileImage: planAvatar(p.author),
+        id: b._id,
+        matchId: b.chatId || `bondup_${b._id}`,
+        name: `${activityEmoji} ${b.title}`,
+        profileImage: bondupAvatar(b.createdBy),
         isOnline: false,
         isSystem: false,
         isVerified: false,
-        matchedDate: p.createdAt ? new Date(p.createdAt) : new Date(),
-        activityAt: new Date(p.updatedAt || p.createdAt).getTime(),
-        lastMessage: `${participantCount} joined \u2022 by ${isOwner ? "You" : authorName}`,
+        matchedDate: b.createdAt ? new Date(b.createdAt) : new Date(),
+        activityAt: new Date(b.updatedAt || b.createdAt).getTime(),
+        lastMessage: `${participantCount} joined • by ${isOwner ? "You" : creatorName}`,
         unread: 0,
         hasChatted: false,
-        isPlanChat: true,
-        planId: p._id,
-        planStatus: p.status,
+        isBondupChat: true,
+        bondupId: b._id,
+        bondupTitle: b.title,
       };
     })
     .sort((a, b) => b.activityAt - a.activityAt);
@@ -135,14 +139,14 @@ export default function Chat() {
     }
   }, []);
 
-  // ── Load plan group chats (social chats) ───────────────────────────────────
+  // ── Load bondup group chats (plans tab) ───────────────────────────────────
 
-  const loadPlanChats = useCallback(async (mounted = { current: true }) => {
+  const loadBondupChats = useCallback(async (mounted = { current: true }) => {
     setIsLoadingPlans(true);
     try {
-      const res = await planService.getMyPlans();
+      const res = await bondupService.getMyBondups();
       if (mounted.current) {
-        setPlanChats(normalizePlanChats(res.data ?? [], currentUserId));
+        setPlanChats(normalizeBondupChats(res.data ?? [], currentUserId));
       }
     } catch {
       // silent
@@ -154,18 +158,18 @@ export default function Chat() {
   useEffect(() => {
     const mounted = { current: true };
     loadMatches(mounted);
-    loadPlanChats(mounted);
+    loadBondupChats(mounted);
     return () => { mounted.current = false; };
-  }, [loadMatches, loadPlanChats]);
+  }, [loadMatches, loadBondupChats]);
 
   // Refresh list when coming back from chat (e.g. unread counts reset)
   useFocusEffect(
     useCallback(() => {
       const mounted = { current: true };
       loadMatches(mounted);
-      loadPlanChats(mounted);
+      loadBondupChats(mounted);
       return () => { mounted.current = false; };
-    }, [loadMatches, loadPlanChats])
+    }, [loadMatches, loadBondupChats])
   );
 
   // ── Socket updates ──────────────────────────────────────────────────────────
@@ -235,8 +239,8 @@ export default function Chat() {
   // ── Navigation ──────────────────────────────────────────────────────────────
 
   const handleSelectUser = (user) => {
-    if (user.isPlanChat) {
-      // Navigate to plan group chat
+    if (user.isBondupChat) {
+      // Navigate to Bondup group chat
       router.push({
         pathname: "/chat-screen",
         params: {
@@ -244,7 +248,7 @@ export default function Chat() {
           name: user.name,
           profileImage: user.profileImage ?? "",
           isGroupChat: "true",
-          planId: user.planId,
+          bondupId: user.bondupId,
         },
       });
       return;
