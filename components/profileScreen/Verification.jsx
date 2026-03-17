@@ -59,7 +59,7 @@ const s = StyleSheet.create({
     padding:          16,
   },
   cardDone: {
-    borderColor: "#F3F4F6",
+    borderColor: colors.border,
   },
   cardLeft: {
     flexDirection: "row",
@@ -70,7 +70,7 @@ const s = StyleSheet.create({
     width:           40,
     height:          40,
     borderRadius:    99,
-    backgroundColor: "#FEF3EC",
+    backgroundColor: colors.background,
     alignItems:      "center",
     justifyContent:  "center",
     flexShrink:      0,
@@ -96,7 +96,7 @@ const s = StyleSheet.create({
   cardCta: {
     fontSize:   13,
     fontFamily: "PlusJakartaSansSemiBold",
-    color:      "#E8651A",
+    color:      colors.primary,
     marginTop:  6,
   },
 });

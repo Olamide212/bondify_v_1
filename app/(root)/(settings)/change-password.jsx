@@ -18,6 +18,7 @@ import { useRouter } from "expo-router";
 import { ArrowLeft, Eye, EyeOff, ShieldCheck, CheckCircle } from "lucide-react-native";
 import { useTheme } from "../../../context/ThemeContext";
 import SettingsService from "../../../services/settingsService";
+import {colors} from "../../../constant/colors";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -247,6 +248,7 @@ const ChangePassword = () => {
         </Animated.View>
 
         {/* Save button */}
+
         <TouchableOpacity
           style={[s.saveBtn, (!allRulesPassed || loading) && { opacity: 0.6 }]}
           onPress={handleSave}
@@ -303,7 +305,7 @@ const s = StyleSheet.create({
   ruleText: { fontSize: 12, fontFamily: "PlusJakartaSans" },
 
   saveBtn: {
-    backgroundColor: "#E8651A", borderRadius: 50,
+    backgroundColor: colors.primary, borderRadius: 50,
     paddingVertical: 16, alignItems: "center", marginTop: 8,
   },
   saveBtnText: { fontSize: 16, fontFamily: "PlusJakartaSansBold", color: "#fff" },

@@ -88,20 +88,25 @@ const getPlans = async (req, res, next) => {
 // ─────────────────────────────────────────────────────────────────────────────
 const createPlan = async (req, res, next) => {
   try {
-    const { status, note, activity, location, expiryHours } = req.body;
+    const { status, note, activity, location, days } = req.body;
 
     if (!status || !['free', 'join_me', 'not_free'].includes(status)) {
       return res.status(400).json({ success: false, message: 'Invalid status. Must be free, join_me, or not_free.' });
     }
 
-    const hours = Number(expiryHours) || DEFAULT_EXPIRY_HOURS;
-    const expiresAt = new Date(Date.now() + hours * 60 * 60 * 1000);
+    if (!note || !note.trim()) {
+      return res.status(400).json({ success: false, message: 'Note is required.' });
+    }
+
+    // Plans expire after 7 days by default
+    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
     const plan = await Plan.create({
       author: req.user._id,
       status,
-      note: note || '',
+      note: note.trim(),
       activity: activity || '',
+      days: Array.isArray(days) ? days : [],
       location: location || undefined,
       expiresAt,
     });

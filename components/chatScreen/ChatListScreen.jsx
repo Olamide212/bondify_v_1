@@ -174,7 +174,7 @@ const bb = StyleSheet.create({
   blobBR: {
     position: 'absolute', bottom: -20, right: -10,
     width: 100, height: 100, borderRadius: 50,
-    backgroundColor: '#E8651A',
+    backgroundColor: colors.secondary,
     opacity: 0.22,
   },
 
@@ -222,7 +222,7 @@ const bb = StyleSheet.create({
     letterSpacing: -0.2,
   },
   aiBadge: {
-    backgroundColor: '#E8651A',
+    backgroundColor: colors.secondary,
     paddingHorizontal: 7, paddingVertical: 2,
     borderRadius: 6,
   },
@@ -239,7 +239,7 @@ const bb = StyleSheet.create({
 
   // CTA
   ctaChip: {
-    backgroundColor: '#E8651A',
+    backgroundColor: colors.secondary,
     paddingHorizontal: 16, paddingVertical: 8,
     borderRadius: 20,
   },
@@ -344,7 +344,7 @@ const ChatListScreen = ({
         {tabs.map((t, i) => (
           <TouchableOpacity
             key={t}
-            style={[
+            style={[          
               styles.tabItem,
               activeTab === i && styles.tabItemActive,
             ]}

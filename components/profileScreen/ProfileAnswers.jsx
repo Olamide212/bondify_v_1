@@ -272,7 +272,7 @@ const s = StyleSheet.create({
     width:           28,
     height:          28,
     borderRadius:    99,
-    backgroundColor: '#FEF3EC',
+    backgroundColor: colors.background,
     alignItems:      'center',
     justifyContent:  'center',
     flexShrink:      0,
@@ -282,7 +282,7 @@ const s = StyleSheet.create({
     flex:       1,
     fontSize:   13,
     fontFamily: 'PlusJakartaSansSemiBold',
-    color:      '#E8651A',
+    color:      colors.primary,
     lineHeight: 18,
   },
   deleteBtn: {
@@ -317,19 +317,19 @@ const s = StyleSheet.create({
     width:           40,
     height:          40,
     borderRadius:    99,
-    backgroundColor: '#FEF3EC',
+    backgroundColor: colors.background,
     alignItems:      'center',
     justifyContent:  'center',
   },
   addTitle: {
     fontSize:   15,
     fontFamily: 'PlusJakartaSansBold',
-    color:      '#E8651A',
+    color:      colors.primary,
   },
   addSub: {
     fontSize:   12,
     fontFamily: 'PlusJakartaSans',
-    color:      '#9CA3AF',
+    color:      colors.secondary,
     marginTop:  2,
   },
 
@@ -370,7 +370,7 @@ const s = StyleSheet.create({
     flexDirection:   'row',
     alignItems:      'flex-start',
     gap:             8,
-    backgroundColor: '#FEF3EC',
+    backgroundColor: colors.background,
     borderRadius:    12,
     padding:         12,
     marginBottom:    16,
@@ -379,7 +379,7 @@ const s = StyleSheet.create({
     flex:       1,
     fontSize:   14,
     fontFamily: 'PlusJakartaSansSemiBold',
-    color:      '#E8651A',
+    color:      colors.primary,
     lineHeight: 20,
   },
   input: {
@@ -403,7 +403,7 @@ const s = StyleSheet.create({
   changeQuestion: {
     fontSize:   14,
     fontFamily: 'PlusJakartaSansMedium',
-    color:      '#E8651A',
+    color:      colors.secondary,
     marginBottom: 16,
   },
   modalActions: {

@@ -228,7 +228,7 @@ const InterestsScreen = () => {
       <View className="px-4 py-3 bg-white border-t border-gray-100">
         <Button
           title={saving ? "Saving..." : "Save"}
-          variant="gradient"
+          variant="primary"
           onPress={handleSave}
           disabled={saving || selectedInterests.length === 0}
         />

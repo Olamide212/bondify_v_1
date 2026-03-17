@@ -39,6 +39,7 @@ import {
   View
 } from 'react-native';
 import { useTheme } from '../../context/ThemeContext';
+import {colors} from '../../constant/colors';
 
 const MAX_DURATION_S = 60;
 const BAR_COUNT      = 28;
@@ -106,7 +107,7 @@ const Waveform = ({ isActive, progress = 0 }) => {
           key={i}
           style={[wv.bar, {
             height:          bar.height,
-            backgroundColor: i < filledCount ? '#E8651A' : '#F5C4A8',
+            backgroundColor: i < filledCount ? colors.secondary : "#fff",
             transform:       [{ scaleY: bar.anim }],
           }]}
         />
@@ -346,7 +347,7 @@ export default function VoicePrompt({ profile, onUpdateField }) {
       <View style={[s.card, { backgroundColor: colors.surface }]}>
 
         <View style={s.labelRow}>
-          <Mic size={13} color="#E8651A" strokeWidth={2.5} />
+          <Mic size={13} color={colors.primary} strokeWidth={2.5} />
           <Text style={s.labelText}>VOICE PROMPT</Text>
         </View>
 
@@ -377,7 +378,7 @@ export default function VoicePrompt({ profile, onUpdateField }) {
 
           {/* Main button */}
           <TouchableOpacity
-            style={[s.mainBtn, isRecording && { backgroundColor: '#EF4444' }, isUploading && { backgroundColor: '#F5A878' }]}
+            style={[s.mainBtn, isRecording && { backgroundColor: '#EF4444' }, isUploading && { backgroundColor: colors.primary }]}
             onPress={() => {
               if (isRecording)           stopRecording();
               else if (isPlaying)        pausePlayback();
@@ -423,14 +424,14 @@ export default function VoicePrompt({ profile, onUpdateField }) {
 
         {isUploading && (
           <View style={s.uploadingRow}>
-            <ActivityIndicator size="small" color="#E8651A" />
+            <ActivityIndicator size="small" color={colors.primary} />
             <Text style={[s.statusText, { color: colors.textSecondary, marginTop: 0 }]}>Saving to your profile…</Text>
           </View>
         )}
       </View>
 
       {/* "Add another one" teaser */}
-      <View style={[s.teaserCard, { backgroundColor: colors.surface }]}>
+      {/* <View style={[s.teaserCard, { backgroundColor: colors.surface }]}>
         <View style={{ flex: 1 }}>
           <Text style={[s.teaserLabel, { color: colors.textSecondary }]}>Add another one</Text>
           <Text style={[s.teaserPrompt, { color: colors.textPrimary }]}>&quot;My secret talent is…&quot;</Text>
@@ -443,7 +444,7 @@ export default function VoicePrompt({ profile, onUpdateField }) {
           <Mic size={14} color="#fff" strokeWidth={2} />
           <Text style={s.teaserBtnText}>Record</Text>
         </TouchableOpacity>
-      </View>
+      </View> */}
     </View>
   );
 }
@@ -452,22 +453,22 @@ const s = StyleSheet.create({
   outer: { paddingHorizontal: 16, gap: 12 },
   card: { borderRadius: 22, padding: 20, gap: 14, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 10, elevation: 3 },
   labelRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  labelText: { fontSize: 11, fontFamily: 'PlusJakartaSansBold', color: '#E8651A', letterSpacing: 1.2 },
+  labelText: { fontSize: 11, fontFamily: 'PlusJakartaSansBold', color: colors.primary, letterSpacing: 1.2 },
   promptText: { fontSize: 22, fontFamily: 'PlusJakartaSansBold', lineHeight: 30 },
-  waveBox: { backgroundColor: '#FFF4EE', borderRadius: 14, paddingHorizontal: 14, paddingTop: 16, paddingBottom: 12, gap: 10 },
-  progressTrack: { height: 3, backgroundColor: '#FDDCC8', borderRadius: 2, overflow: 'hidden' },
-  progressFill: { height: 3, backgroundColor: '#E8651A', borderRadius: 2 },
+  waveBox: { backgroundColor: colors.primary, borderRadius: 14, paddingHorizontal: 14, paddingTop: 16, paddingBottom: 12, gap: 10 },
+  progressTrack: { height: 3, backgroundColor: colors.secondary, borderRadius: 2, overflow: 'hidden', opacity: 0.3 },
+  progressFill: { height: 3, backgroundColor: colors.secondary, borderRadius: 2 },
   timeRow: { flexDirection: 'row', justifyContent: 'space-between' },
-  timeLabel: { fontSize: 11, fontFamily: 'PlusJakartaSansMedium', color: '#9CA3AF' },
+  timeLabel: { fontSize: 11, fontFamily: 'PlusJakartaSansMedium', color: colors.secondary },
   controls: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 28, marginTop: 4 },
   iconBtn: { width: 46, height: 46, borderRadius: 23, alignItems: 'center', justifyContent: 'center' },
-  mainBtn: { width: 66, height: 66, borderRadius: 33, alignItems: 'center', justifyContent: 'center', backgroundColor: '#E8651A', shadowColor: '#E8651A', shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.38, shadowRadius: 12, elevation: 8 },
+  mainBtn: { width: 66, height: 66, borderRadius: 33, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.primary, shadowColor: colors.primary, shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.38, shadowRadius: 12, elevation: 8 },
   statusText: { fontSize: 12, fontFamily: 'PlusJakartaSans', textAlign: 'center', marginTop: -4 },
-  saveBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: '#22C55E', borderRadius: 50, paddingVertical: 13, marginTop: 2 },
+  saveBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: colors.primary, borderRadius: 50, paddingVertical: 13, marginTop: 2 },
   saveBtnText: { color: '#fff', fontFamily: 'PlusJakartaSansBold', fontSize: 14 },
   uploadingRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
-  teaserCard: { borderRadius: 18, padding: 18, flexDirection: 'row', alignItems: 'center', gap: 14, borderWidth: 1.5, borderColor: '#F3F4F6', borderStyle: 'dashed' },
-  teaserLabel: { fontSize: 12, fontFamily: 'PlusJakartaSans', color: '#9CA3AF', marginBottom: 3 },
+  teaserCard: { borderRadius: 18, padding: 18, flexDirection: 'row', alignItems: 'center', gap: 14, borderWidth: 1.5, borderColor: colors.border, borderStyle: 'dashed' },
+  teaserLabel: { fontSize: 12, fontFamily: 'PlusJakartaSans', color: colors.textSecondary, marginBottom: 3 },
   teaserPrompt: { fontSize: 16, fontFamily: 'PlusJakartaSansBold' },
   teaserBtn: { flexDirection: 'row', alignItems: 'center', gap: 7, backgroundColor: '#E8651A', paddingHorizontal: 16, paddingVertical: 11, borderRadius: 50 },
   teaserBtnText: { color: '#fff', fontFamily: 'PlusJakartaSansBold', fontSize: 13 },

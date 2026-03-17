@@ -3,16 +3,15 @@
  *
  * Steps:
  *  1. Pick a status (I'm Free / Join Me)
- *  2. Add optional note / activity
- *  3. Pick expiry time (2h / 4h / 6h / 12h)
- *  4. Post
+ *  2. Write a note (required)
+ *  3. Pick an activity from a list
+ *  4. Pick day(s) of the week
+ *  5. Post
  */
 
 import {
-    Calendar,
-    Clock,
     Sparkles,
-    X
+    X,
 } from "lucide-react-native";
 import { useState } from "react";
 import {
@@ -33,40 +32,61 @@ import BaseModal from "../modals/BaseModal";
 const BRAND = colors.primary;
 
 const STATUS_OPTIONS = [
-  { key: "free", label: "I'm Free for Plans 🙌", emoji: "🙌", color: "#10B981", bg: "#ECFDF5" },
+  { key: "free", label: "I'm Free 🙌", emoji: "🙌", color: "#10B981", bg: "#ECFDF5" },
   { key: "join_me", label: "Join Me! 🎉", emoji: "🎉", color: BRAND, bg: "#F1ECFF" },
 ];
 
-const EXPIRY_OPTIONS = [
-  { hours: 2, label: "2 hrs" },
-  { hours: 4, label: "4 hrs" },
-  { hours: 6, label: "6 hrs" },
-  { hours: 12, label: "12 hrs" },
+const ACTIVITIES = [
+  { key: "coffee", label: "☕ Coffee" },
+  { key: "gym", label: "💪 Gym" },
+  { key: "movies", label: "🎬 Movies" },
+  { key: "food", label: "🍔 Food & Drinks" },
+  { key: "study", label: "📚 Study" },
+  { key: "walk", label: "🚶 Walk / Hike" },
+  { key: "games", label: "🎮 Games" },
+  { key: "shopping", label: "🛍️ Shopping" },
+  { key: "sports", label: "⚽ Sports" },
+  { key: "music", label: "🎵 Live Music" },
+  { key: "beach", label: "🏖️ Beach" },
+  { key: "hangout", label: "🛋️ Hangout" },
+  { key: "travel", label: "✈️ Travel" },
+  { key: "art", label: "🎨 Art / Museum" },
+  { key: "other", label: "✨ Other" },
 ];
+
+const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 export default function CreatePlanModal({ visible, onClose, onCreated }) {
   const [status, setStatus] = useState(null);
   const [note, setNote] = useState("");
   const [activity, setActivity] = useState("");
-  const [expiryHours, setExpiryHours] = useState(6);
+  const [selectedDays, setSelectedDays] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  const toggleDay = (day) => {
+    setSelectedDays((prev) =>
+      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
+    );
+  };
 
   const reset = () => {
     setStatus(null);
     setNote("");
     setActivity("");
-    setExpiryHours(6);
+    setSelectedDays([]);
   };
 
+  const canPost = status && note.trim().length > 0;
+
   const handlePost = async () => {
-    if (!status) return;
+    if (!canPost) return;
     setLoading(true);
     try {
       const res = await planService.createPlan({
         status,
         note: note.trim(),
-        activity: activity.trim(),
-        expiryHours,
+        activity,
+        days: selectedDays,
       });
       if (res.success) {
         onCreated?.(res.data);
@@ -74,7 +94,7 @@ export default function CreatePlanModal({ visible, onClose, onCreated }) {
         onClose();
       }
     } catch (_err) {
-      // silent — could add toast
+      // silent
     } finally {
       setLoading(false);
     }
@@ -127,8 +147,10 @@ export default function CreatePlanModal({ visible, onClose, onCreated }) {
             ))}
           </View>
 
-          {/* Step 2 — Note */}
-          <Text style={s.sectionTitle}>Add a note (optional)</Text>
+          {/* Step 2 — Note (required) */}
+          <Text style={s.sectionTitle}>
+            Add a note <Text style={s.required}>*</Text>
+          </Text>
           <TextInput
             style={s.input}
             placeholder="E.g. Free for coffee in Lekki ☕"
@@ -139,54 +161,55 @@ export default function CreatePlanModal({ visible, onClose, onCreated }) {
             multiline
           />
 
-          {/* Activity */}
-          <Text style={s.sectionTitle}>Activity (optional)</Text>
-          <View style={s.inputRow}>
-            <Calendar size={18} color="#888" />
-            <TextInput
-              style={[s.input, { flex: 1, marginBottom: 0, marginLeft: 8 }]}
-              placeholder="E.g. Coffee, Gym, Movies…"
-              placeholderTextColor="#BBB"
-              value={activity}
-              onChangeText={setActivity}
-              maxLength={60}
-            />
+          {/* Step 3 — Activity (selectable list) */}
+          <Text style={s.sectionTitle}>Pick an activity</Text>
+          <View style={s.chipGrid}>
+            {ACTIVITIES.map((a) => {
+              const selected = activity === a.key;
+              return (
+                <TouchableOpacity
+                  key={a.key}
+                  style={[s.chip, selected && s.chipActive]}
+                  onPress={() => setActivity(selected ? "" : a.key)}
+                  activeOpacity={0.7}
+                >
+                  <Text style={[s.chipText, selected && s.chipTextActive]}>
+                    {a.label}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
           </View>
 
-          {/* Step 3 — Expiry */}
+          {/* Step 4 — Days of the week */}
           <Text style={[s.sectionTitle, { marginTop: 20 }]}>
-            Expires in
+            Which day(s)?
           </Text>
-          <View style={s.expiryRow}>
-            {EXPIRY_OPTIONS.map((opt) => (
-              <TouchableOpacity
-                key={opt.hours}
-                style={[
-                  s.expiryChip,
-                  expiryHours === opt.hours && s.expiryChipActive,
-                ]}
-                onPress={() => setExpiryHours(opt.hours)}
-              >
-                <Clock size={14} color={expiryHours === opt.hours ? "#fff" : "#666"} />
-                <Text
-                  style={[
-                    s.expiryLabel,
-                    expiryHours === opt.hours && s.expiryLabelActive,
-                  ]}
+          <View style={s.daysRow}>
+            {DAYS.map((day) => {
+              const selected = selectedDays.includes(day);
+              return (
+                <TouchableOpacity
+                  key={day}
+                  style={[s.dayChip, selected && s.dayChipActive]}
+                  onPress={() => toggleDay(day)}
+                  activeOpacity={0.7}
                 >
-                  {opt.label}
-                </Text>
-              </TouchableOpacity>
-            ))}
+                  <Text style={[s.dayText, selected && s.dayTextActive]}>
+                    {day}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
           </View>
         </ScrollView>
 
         {/* Post button */}
         <View style={s.footer}>
           <TouchableOpacity
-            style={[s.postBtn, !status && { opacity: 0.5 }]}
+            style={[s.postBtn, !canPost && { opacity: 0.5 }]}
             onPress={handlePost}
-            disabled={!status || loading}
+            disabled={!canPost || loading}
             activeOpacity={0.8}
           >
             {loading ? (
@@ -230,6 +253,9 @@ const s = StyleSheet.create({
     marginBottom: 10,
     marginTop: 8,
   },
+  required: {
+    color: "#EF4444",
+  },
   statusGrid: {
     flexDirection: "row",
     gap: 12,
@@ -261,41 +287,59 @@ const s = StyleSheet.create({
     marginBottom: 12,
     borderWidth: 1,
     borderColor: "#E5E7EB",
-    minHeight: 44,
+    minHeight: 60,
+    textAlignVertical: "top",
   },
-  inputRow: {
+  chipGrid: {
     flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#F9FAFB",
-    borderRadius: 12,
-    paddingHorizontal: 12,
-    borderWidth: 1,
-    borderColor: "#E5E7EB",
-    marginBottom: 12,
-  },
-  expiryRow: {
-    flexDirection: "row",
-    gap: 10,
     flexWrap: "wrap",
+    gap: 10,
   },
-  expiryChip: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
+  chip: {
     paddingHorizontal: 14,
     paddingVertical: 10,
     borderRadius: 20,
     backgroundColor: "#F3F4F6",
+    borderWidth: 1.5,
+    borderColor: "#F3F4F6",
   },
-  expiryChipActive: {
-    backgroundColor: BRAND,
+  chipActive: {
+    backgroundColor: "#F1ECFF",
+    borderColor: BRAND,
   },
-  expiryLabel: {
+  chipText: {
     fontSize: 13,
     fontFamily: "PlusJakartaSansMedium",
+    color: "#555",
+  },
+  chipTextActive: {
+    color: BRAND,
+    fontFamily: "PlusJakartaSansBold",
+  },
+  daysRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    gap: 6,
+  },
+  dayChip: {
+    flex: 1,
+    alignItems: "center",
+    paddingVertical: 12,
+    borderRadius: 12,
+    backgroundColor: "#F3F4F6",
+    borderWidth: 1.5,
+    borderColor: "#F3F4F6",
+  },
+  dayChipActive: {
+    backgroundColor: BRAND,
+    borderColor: BRAND,
+  },
+  dayText: {
+    fontSize: 13,
+    fontFamily: "PlusJakartaSansBold",
     color: "#666",
   },
-  expiryLabelActive: {
+  dayTextActive: {
     color: "#fff",
   },
   footer: {

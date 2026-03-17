@@ -137,7 +137,7 @@ const SubscriptionModal = ({ visible, onClose }) => {
               </Text>
             </View>
 
-{             benefits.map((benefit) => (
+{/* {             benefits.map((benefit) => (
                 <View
                   key={benefit.id}
                   style={{
@@ -173,7 +173,7 @@ const SubscriptionModal = ({ visible, onClose }) => {
                   </Text>
                   </View>
                 </View>
-              ))}
+              ))} */}
 
             {plans.map((plan) => (
               <View

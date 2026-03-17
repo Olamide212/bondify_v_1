@@ -105,7 +105,7 @@ const styles = StyleSheet.create({
   viewAll: {
     fontSize:   15,
     fontFamily: 'PlusJakartaSansBold',
-    color:      '#E8651A',
+    color:      colors.primary,
   },
   chipsRow: {
     flexDirection: 'row',
@@ -116,7 +116,7 @@ const styles = StyleSheet.create({
     flexDirection:     'row',
     alignItems:        'center',
     gap:               8,
-    backgroundColor:   '#E8651A',
+    backgroundColor:   colors.secondary,
     paddingHorizontal: 18,
     paddingVertical:   12,
     borderRadius:      99,

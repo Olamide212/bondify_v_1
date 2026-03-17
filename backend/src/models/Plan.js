@@ -16,20 +16,27 @@ const planSchema = new mongoose.Schema(
       required: true,
     },
 
-    // Optional short note — e.g. "Coffee in Lekki", "Gym buddy today"
+    // Short note — e.g. "Coffee in Lekki", "Gym buddy today"
     note: {
       type: String,
       maxlength: 200,
       trim: true,
-      default: '',
+      required: true,
     },
 
-    // Optional activity tag
+    // Activity tag (from predefined list)
     activity: {
       type: String,
       maxlength: 60,
       trim: true,
       default: '',
+    },
+
+    // Days of the week the user is available
+    days: {
+      type: [String],
+      enum: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+      default: [],
     },
 
     // Location (optional)
