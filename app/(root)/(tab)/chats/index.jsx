@@ -9,7 +9,7 @@ import { matchService } from "../../../../services/matchService";
 import bondupService from "../../../../services/bondupService";
 import { socketService } from "../../../../services/socketService";
 
-const CHAT_TABS = ["Chats", "Plans"];
+const CHAT_TABS = ["Dating", "Plans"];
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
 
