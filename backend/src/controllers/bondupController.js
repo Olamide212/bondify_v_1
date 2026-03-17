@@ -49,6 +49,7 @@ const createBondup = async (req, res, next) => {
       dateTime,
       visibility = 'public',
       maxParticipants,
+      postType = 'join_me',
     } = req.body;
 
     // ── Validation ────────────────────────────────────────────────────────────
@@ -79,6 +80,10 @@ const createBondup = async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'visibility must be public or circle.' });
     }
 
+    if (!['join_me', 'i_am_available'].includes(postType)) {
+      return res.status(400).json({ success: false, message: 'postType must be join_me or i_am_available.' });
+    }
+
     // Use user's city if not provided
     const bondupCity = (city || '').trim() ||
       req.user?.socialProfile?.city ||
@@ -96,6 +101,7 @@ const createBondup = async (req, res, next) => {
       city: bondupCity,
       dateTime: meetupTime,
       visibility,
+      postType,
       maxParticipants: maxParticipants ? Number(maxParticipants) : null,
       participants: [],
       createdBy: req.user._id,
@@ -125,7 +131,7 @@ const createBondup = async (req, res, next) => {
 // ─────────────────────────────────────────────────────────────────────────────
 const getPublicBondups = async (req, res, next) => {
   try {
-    const { page = 1, limit = 20, activityType, date, sort = 'soonest' } = req.query;
+    const { page = 1, limit = 20, activityType, date, sort = 'soonest', postType } = req.query;
     const skip = (Number(page) - 1) * Number(limit);
     const now = new Date();
 
@@ -147,6 +153,10 @@ const getPublicBondups = async (req, res, next) => {
 
     if (activityType && ['coffee', 'food', 'drinks', 'gym', 'walk', 'movie', 'other'].includes(activityType)) {
       filter.activityType = activityType;
+    }
+
+    if (postType && ['join_me', 'i_am_available'].includes(postType)) {
+      filter.postType = postType;
     }
 
     if (date) {
@@ -201,7 +211,7 @@ const getPublicBondups = async (req, res, next) => {
 // ─────────────────────────────────────────────────────────────────────────────
 const getCircleBondups = async (req, res, next) => {
   try {
-    const { page = 1, limit = 20, activityType, date, sort = 'soonest' } = req.query;
+    const { page = 1, limit = 20, activityType, date, sort = 'soonest', postType } = req.query;
     const skip = (Number(page) - 1) * Number(limit);
     const now = new Date();
     const userId = req.user._id;
@@ -235,6 +245,10 @@ const getCircleBondups = async (req, res, next) => {
 
     if (activityType && ['coffee', 'food', 'drinks', 'gym', 'walk', 'movie', 'other'].includes(activityType)) {
       filter.activityType = activityType;
+    }
+
+    if (postType && ['join_me', 'i_am_available'].includes(postType)) {
+      filter.postType = postType;
     }
 
     if (date) {

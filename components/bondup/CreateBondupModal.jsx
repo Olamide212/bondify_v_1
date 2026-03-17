@@ -40,6 +40,11 @@ const ACTIVITIES = [
   { key: 'other',  emoji: '✨', label: 'Other' },
 ];
 
+const POST_TYPES = {
+  join_me:       { emoji: '🎉', label: 'Join Me',      desc: "I'm planning something" },
+  i_am_available: { emoji: '🙋', label: "I'm Available", desc: 'Invite me somewhere' },
+};
+
 // Build next 7 day quick-select options
 const buildDayOptions = () => {
   const options = [];
@@ -81,6 +86,7 @@ export default function CreateBondupModal({ visible, onClose, onCreated }) {
 
   // ── Form state ───────────────────────────────────────────────────────────
   const [step, setStep] = useState(0);
+  const [postType, setPostType] = useState('join_me');
   const [activity, setActivity] = useState('');
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -96,6 +102,7 @@ export default function CreateBondupModal({ visible, onClose, onCreated }) {
 
   const resetForm = () => {
     setStep(0);
+    setPostType('join_me');
     setActivity('');
     setTitle('');
     setDescription('');
@@ -151,6 +158,7 @@ export default function CreateBondupModal({ visible, onClose, onCreated }) {
         city: city.trim(),
         dateTime: dateTime.toISOString(),
         visibility,
+        postType,
         maxParticipants: maxParticipants ? Number(maxParticipants) : undefined,
       });
 
@@ -171,6 +179,26 @@ export default function CreateBondupModal({ visible, onClose, onCreated }) {
     <View style={s.stepContainer}>
       <Text style={s.stepTitle}>What's the vibe? 🎉</Text>
       <Text style={s.stepSubtitle}>Pick an activity type for your Bondup</Text>
+
+      {/* Post type selector */}
+      <View style={s.postTypeRow}>
+        {Object.entries(POST_TYPES).map(([key, { emoji, label, desc }]) => (
+          <TouchableOpacity
+            key={key}
+            style={[s.postTypeBtn, postType === key && s.postTypeBtnActive]}
+            onPress={() => setPostType(key)}
+            activeOpacity={0.7}
+          >
+            <Text style={s.postTypeEmoji}>{emoji}</Text>
+            <Text style={[s.postTypeBtnText, postType === key && s.postTypeBtnTextActive]}>
+              {label}
+            </Text>
+            <Text style={s.postTypeDesc}>{desc}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+
+      <Text style={[s.fieldLabel, { marginBottom: 12 }]}>Activity Type *</Text>
       <View style={s.activityGrid}>
         {ACTIVITIES.map((a) => (
           <TouchableOpacity
@@ -341,6 +369,9 @@ export default function CreateBondupModal({ visible, onClose, onCreated }) {
       <View style={s.summary}>
         <Text style={s.summaryTitle}>Summary</Text>
         <Text style={s.summaryLine}>
+          {POST_TYPES[postType]?.emoji} {POST_TYPES[postType]?.label}
+        </Text>
+        <Text style={s.summaryLine}>
           {ACTIVITIES.find((a) => a.key === activity)?.emoji}{' '}
           {ACTIVITIES.find((a) => a.key === activity)?.label}
         </Text>
@@ -481,9 +512,45 @@ const s = StyleSheet.create({
     marginBottom: 24,
   },
 
-  // Activity grid
-  activityGrid: {
+  // Post type selector
+  postTypeRow: {
     flexDirection: 'row',
+    gap: 12,
+    marginBottom: 24,
+  },
+  postTypeBtn: {
+    flex: 1,
+    borderWidth: 2,
+    borderColor: '#E5E7EB',
+    borderRadius: 16,
+    padding: 14,
+    alignItems: 'center',
+    gap: 4,
+  },
+  postTypeBtnActive: {
+    borderColor: BRAND,
+    backgroundColor: colors.primaryLight,
+  },
+  postTypeEmoji: {
+    fontSize: 26,
+  },
+  postTypeBtnText: {
+    fontSize: 14,
+    fontFamily: 'PlusJakartaSansBold',
+    color: '#555',
+  },
+  postTypeBtnTextActive: {
+    color: BRAND,
+  },
+  postTypeDesc: {
+    fontSize: 11,
+    fontFamily: 'PlusJakartaSans',
+    color: '#999',
+    textAlign: 'center',
+  },
+
+  // Activity grid
+  activityGrid: {    flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 12,
   },

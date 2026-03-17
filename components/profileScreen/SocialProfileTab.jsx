@@ -11,7 +11,6 @@
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
 import {
-    Bookmark,
     ChevronRight,
     HelpCircle,
     Pencil,
@@ -159,13 +158,6 @@ export default function SocialProfileTab() {
       onPress: () => setShowEditModal(true),
     },
     {
-      key: "saved",
-      label: "Saved Posts",
-      description: "View posts you've bookmarked",
-      icon: Bookmark,
-      onPress: () => router.push("/feed-profile"),
-    },
-    {
       key: "settings",
       label: "Settings",
       description: "Manage your preferences and privacy",
@@ -240,7 +232,7 @@ export default function SocialProfileTab() {
             {[
               { value: stats.followersCount, label: "Followers" },
               { value: stats.followingCount, label: "Following" },
-              { value: stats.postsCount, label: "Posts" },
+              { value: bondupStats.created + bondupStats.joined, label: "Bondups" },
             ].map(({ value, label }) => (
               <View key={label} style={s.statItem}>
                 <Text style={s.statNum}>{value}</Text>

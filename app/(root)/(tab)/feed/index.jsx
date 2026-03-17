@@ -39,7 +39,7 @@ import { socketService } from '../../../../services/socketService';
 const BRAND = colors.primary;
 
 // ─── Filter config ──────────────────────────────────────────────────────────
-const FEED_TABS = ['All', 'Today', 'Public', 'Circle'];
+const FEED_TABS = ['Join Me', 'I Am Available'];
 
 const ACTIVITY_FILTERS = [
   { key: '', label: 'All' },
@@ -65,37 +65,34 @@ export default function BondupFeedScreen() {
   const [bondups, setBondups] = useState([]);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  const [activeTab, setActiveTab] = useState(0); // 0=All, 1=Today, 2=Public, 3=Circle
+  const [activeTab, setActiveTab] = useState(0); // 0=Join Me, 1=I Am Available
   const [activityFilter, setActivityFilter] = useState('');
   const [detailBondup, setDetailBondup] = useState(null);
   const [showCreate, setShowCreate] = useState(false);
   const [joinLoading, setJoinLoading] = useState(false);
-  const tabScrollRef = useRef(null);
+  const loadRequestRef = useRef(0);
 
   // ── Load bondups based on active tab ────────────────────────────────────
   const loadBondups = useCallback(async () => {
+    const seq = ++loadRequestRef.current;
     setLoading(true);
     try {
       const params = {};
       if (activityFilter) params.activityType = activityFilter;
-      if (activeTab === 1) {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        params.date = today.toISOString();
-      }
+      // Map tab index to postType
+      params.postType = activeTab === 1 ? 'i_am_available' : 'join_me';
 
-      let res;
-      if (activeTab === 3) {
-        res = await bondupService.getCircleBondups(params);
-      } else {
-        res = await bondupService.getPublicBondups(params);
-      }
+      const res = await bondupService.getPublicBondups(params);
 
-      setBondups(res.data ?? []);
+      if (seq === loadRequestRef.current) {
+        setBondups(res.data ?? []);
+      }
     } catch {
       // silent fail
     } finally {
-      setLoading(false);
+      if (seq === loadRequestRef.current) {
+        setLoading(false);
+      }
     }
   }, [activeTab, activityFilter]);
 
@@ -200,6 +197,8 @@ export default function BondupFeedScreen() {
       if (prev.some((b) => b._id === newBondup._id)) return prev;
       return [newBondup, ...prev];
     });
+    // Reload to sync with server and cancel any stale in-flight request
+    loadBondups();
   };
 
   const handleStartChat = async (bondup) => {
@@ -283,25 +282,21 @@ export default function BondupFeedScreen() {
         </View>
 
         {/* ── Tab bar ─────────────────────────────────────────────────────── */}
-        <ScrollView
-          ref={tabScrollRef}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={fStyles.tabScroller}
-        >
+        <View style={fStyles.tabBar}>
           {FEED_TABS.map((tab, i) => (
             <TouchableOpacity
               key={tab}
-              style={[fStyles.tabChip, i === activeTab && fStyles.tabChipActive]}
+              style={[fStyles.tabItem, i === activeTab && fStyles.tabItemActive]}
               onPress={() => setActiveTab(i)}
               activeOpacity={0.7}
             >
-              <Text style={[fStyles.tabChipText, i === activeTab && fStyles.tabChipTextActive]}>
+              <Text style={[fStyles.tabItemText, i === activeTab && fStyles.tabItemTextActive]}>
                 {tab}
               </Text>
+              {i === activeTab && <View style={fStyles.tabIndicator} />}
             </TouchableOpacity>
           ))}
-        </ScrollView>
+        </View>
 
         {/* ── Activity filter ──────────────────────────────────────────────── */}
         <ScrollView
@@ -353,8 +348,8 @@ export default function BondupFeedScreen() {
               <Text style={fStyles.emptyEmoji}>🤝</Text>
               <Text style={fStyles.emptyTitle}>No plans yet!</Text>
               <Text style={fStyles.emptySub}>
-                {activeTab === 3
-                  ? 'No Bondups from your circle yet.\nFollow more people to see their plans!'
+                {activeTab === 1
+                  ? 'No one is available right now.\nBe the first to let others know you\'re free!'
                   : 'Be the first to start a Bondup\nin your city!'}
               </Text>
               <TouchableOpacity
@@ -452,29 +447,36 @@ const fStyles = StyleSheet.create({
   },
 
   // Tabs
-  tabScroller: {
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    gap: 8,
+  tabBar: {
+    flexDirection: 'row',
     backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F0F0',
   },
-  tabChip: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    backgroundColor: '#F3F4F6',
+  tabItem: {
+    flex: 1,
+    alignItems: 'center',
+    paddingVertical: 13,
+    position: 'relative',
   },
-  tabChipActive: {
-    backgroundColor: BRAND,
-  },
-  tabChipText: {
+  tabItemActive: {},
+  tabItemText: {
     fontSize: 14,
     fontFamily: 'PlusJakartaSansMedium',
-    color: '#666',
+    color: '#888',
   },
-  tabChipTextActive: {
-    color: '#fff',
+  tabItemTextActive: {
+    color: BRAND,
     fontFamily: 'PlusJakartaSansBold',
+  },
+  tabIndicator: {
+    position: 'absolute',
+    bottom: 0,
+    left: '20%',
+    right: '20%',
+    height: 3,
+    borderRadius: 2,
+    backgroundColor: BRAND,
   },
 
   // Activity filter

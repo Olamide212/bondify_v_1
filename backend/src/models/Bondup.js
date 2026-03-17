@@ -86,6 +86,14 @@ const bondupSchema = new mongoose.Schema(
       default: true,
     },
 
+    // join_me = creator wants others to join their plan
+    // i_am_available = creator is free and open to being invited
+    postType: {
+      type: String,
+      enum: ['join_me', 'i_am_available'],
+      default: 'join_me',
+    },
+
     // Auto-expires dateTime + 24 hours (Mongo TTL deletes the document)
     expiresAt: {
       type: Date,
