@@ -1,14 +1,5 @@
 /**
  * Bondup Feed Screen  —  app/(root)/(tab)/feed/index.jsx
- *
- * Spontaneous meetup posts feed:
- *  • Bonfeed logo in header
- *  • Filter tabs: All, Today, Public, Circle
- *  • Activity filter chips
- *  • List of Bondup cards
- *  • FAB to create a new Bondup
- *  • Real-time socket updates
- *  • Joined / Full / Empty states
  */
 
 import { useRouter } from 'expo-router';
@@ -29,6 +20,7 @@ import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useSelector } from 'react-redux';
 import BondupCard from '../../../../components/bondup/BondupCard';
 import BondupDetailModal from '../../../../components/bondup/BondupDetailModal';
+import BondupJoinedModal from '../../../../components/bondup/BondupJoinedModal';
 import CreateBondupModal from '../../../../components/bondup/CreateBondupModal';
 import { colors } from '../../../../constant/colors';
 import { images } from '../../../../constant/images';
@@ -38,19 +30,42 @@ import { socketService } from '../../../../services/socketService';
 
 const BRAND = colors.primary;
 
-// ─── Filter config ──────────────────────────────────────────────────────────
-const FEED_TABS = ['Join Me', 'I Am Available'];
-
-const ACTIVITY_FILTERS = [
-  { key: '', label: 'All' },
+// ─── Combined filter chips (time-based + activity) ───────────────────────────
+const FILTER_CHIPS = [
+  { key: 'all',    label: 'All' },
+  { key: 'today',  label: 'Today' },
+  { key: 'week',   label: 'This Week' },
   { key: 'coffee', emoji: '☕', label: 'Coffee' },
-  { key: 'food',   emoji: '🍔', label: 'Food' },
+  { key: 'food',   emoji: '🍔', label: 'Dining' },
   { key: 'drinks', emoji: '🍹', label: 'Drinks' },
   { key: 'gym',    emoji: '💪', label: 'Gym' },
-  { key: 'walk',   emoji: '🚶', label: 'Walk' },
-  { key: 'movie',  emoji: '🎬', label: 'Movie' },
+  { key: 'walk',   emoji: '🚶', label: 'Outdoor' },
+  { key: 'movie',  emoji: '🎬', label: 'Cinema' },
   { key: 'other',  emoji: '✨', label: 'Other' },
 ];
+
+const ACTIVITY_KEYS = new Set(['coffee', 'food', 'drinks', 'gym', 'walk', 'movie', 'other']);
+
+// ─── Time filter (client-side) ───────────────────────────────────────────────
+const applyTimeFilter = (items, filter) => {
+  const now = new Date();
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  if (filter === 'today') {
+    const endOfToday = new Date(startOfToday.getTime() + 86400000);
+    return items.filter((b) => {
+      const d = new Date(b.dateTime);
+      return d >= startOfToday && d < endOfToday;
+    });
+  }
+  if (filter === 'week') {
+    const endOfWeek = new Date(startOfToday.getTime() + 7 * 86400000);
+    return items.filter((b) => {
+      const d = new Date(b.dateTime);
+      return d >= startOfToday && d < endOfWeek;
+    });
+  }
+  return items;
+};
 
 // ─── avatar helper ──────────────────────────────────────────────────────────
 const avatar = (user) =>
@@ -65,27 +80,32 @@ export default function BondupFeedScreen() {
   const [bondups, setBondups] = useState([]);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  const [activeTab, setActiveTab] = useState(0); // 0=Join Me, 1=I Am Available
-  const [activityFilter, setActivityFilter] = useState('');
+  const [activeFilter, setActiveFilter] = useState('all');
   const [detailBondup, setDetailBondup] = useState(null);
   const [showCreate, setShowCreate] = useState(false);
   const [joinLoading, setJoinLoading] = useState(false);
+  const [joinedBondup, setJoinedBondup] = useState(null);
   const loadRequestRef = useRef(0);
 
-  // ── Load bondups based on active tab ────────────────────────────────────
+  // ── Load bondups ─────────────────────────────────────────────────────────
   const loadBondups = useCallback(async () => {
     const seq = ++loadRequestRef.current;
     setLoading(true);
     try {
       const params = {};
-      if (activityFilter) params.activityType = activityFilter;
-      // Map tab index to postType
-      params.postType = activeTab === 1 ? 'i_am_available' : 'join_me';
+      if (ACTIVITY_KEYS.has(activeFilter)) {
+        params.activityType = activeFilter;
+      }
+      // No postType filter — return all bondups
 
       const res = await bondupService.getPublicBondups(params);
 
       if (seq === loadRequestRef.current) {
-        setBondups(res.data ?? []);
+        let items = res.data ?? [];
+        if (activeFilter === 'today' || activeFilter === 'week') {
+          items = applyTimeFilter(items, activeFilter);
+        }
+        setBondups(items);
       }
     } catch {
       // silent fail
@@ -94,7 +114,7 @@ export default function BondupFeedScreen() {
         setLoading(false);
       }
     }
-  }, [activeTab, activityFilter]);
+  }, [activeFilter]);
 
   useEffect(() => {
     loadBondups();
@@ -126,7 +146,8 @@ export default function BondupFeedScreen() {
       const res = await bondupService.joinBondup(bondupId);
       if (res.success) {
         setBondups((prev) => prev.map((b) => (b._id === bondupId ? res.data : b)));
-        setDetailBondup((d) => (d?._id === bondupId ? res.data : d));
+        setDetailBondup(null);
+        setJoinedBondup(res.data);
       }
     } catch (err) {
       const msg = err?.response?.data?.message || 'Could not join. Try again.';
@@ -197,8 +218,7 @@ export default function BondupFeedScreen() {
       if (prev.some((b) => b._id === newBondup._id)) return prev;
       return [newBondup, ...prev];
     });
-    // Reload to sync with server and cancel any stale in-flight request
-    loadBondups();
+    // No loadBondups() call — socket will update with server data
   };
 
   const handleStartChat = async (bondup) => {
@@ -211,12 +231,12 @@ export default function BondupFeedScreen() {
         );
         setDetailBondup(null);
         router.push({
-          pathname: '/chat-screen',
+          pathname: '/bondup-chat',
           params: {
-            matchId: chatId,
-            name: bondup.title,
-            isGroupChat: 'true',
+            chatId,
             bondupId: bondup._id,
+            bondupTitle: bondup.title,
+            participantCount: (bondup.participants?.length || 0) + 1,
           },
         });
       }
@@ -229,7 +249,9 @@ export default function BondupFeedScreen() {
   useEffect(() => {
     const handleNew = (b) => {
       setBondups((prev) => {
-        if (prev.some((x) => x._id === b._id)) return prev;
+        if (prev.some((x) => x._id === b._id)) {
+          return prev.map((x) => (x._id === b._id ? b : x));
+        }
         return [b, ...prev];
       });
     };
@@ -281,47 +303,30 @@ export default function BondupFeedScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* ── Tab bar ─────────────────────────────────────────────────────── */}
-        <View style={fStyles.tabBar}>
-          {FEED_TABS.map((tab, i) => (
-            <TouchableOpacity
-              key={tab}
-              style={[fStyles.tabItem, i === activeTab && fStyles.tabItemActive]}
-              onPress={() => setActiveTab(i)}
-              activeOpacity={0.7}
-            >
-              <Text style={[fStyles.tabItemText, i === activeTab && fStyles.tabItemTextActive]}>
-                {tab}
-              </Text>
-              {i === activeTab && <View style={fStyles.tabIndicator} />}
-            </TouchableOpacity>
-          ))}
-        </View>
-
-        {/* ── Activity filter ──────────────────────────────────────────────── */}
+        {/* ── Combined filter chips (time + activity) ──────────────────────── */}
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={fStyles.activityScroller}
+          contentContainerStyle={fStyles.filterScroller}
         >
-          {ACTIVITY_FILTERS.map((a) => (
+          {FILTER_CHIPS.map((chip) => (
             <TouchableOpacity
-              key={a.key}
+              key={chip.key}
               style={[
-                fStyles.activityChip,
-                activityFilter === a.key && fStyles.activityChipActive,
+                fStyles.filterChip,
+                activeFilter === chip.key && fStyles.filterChipActive,
               ]}
-              onPress={() => setActivityFilter(a.key)}
+              onPress={() => setActiveFilter(chip.key)}
               activeOpacity={0.7}
             >
-              {a.emoji && <Text style={fStyles.activityChipEmoji}>{a.emoji}</Text>}
+              {chip.emoji && <Text style={fStyles.filterChipEmoji}>{chip.emoji}</Text>}
               <Text
                 style={[
-                  fStyles.activityChipText,
-                  activityFilter === a.key && fStyles.activityChipTextActive,
+                  fStyles.filterChipText,
+                  activeFilter === chip.key && fStyles.filterChipTextActive,
                 ]}
               >
-                {a.label}
+                {chip.label}
               </Text>
             </TouchableOpacity>
           ))}
@@ -348,9 +353,7 @@ export default function BondupFeedScreen() {
               <Text style={fStyles.emptyEmoji}>🤝</Text>
               <Text style={fStyles.emptyTitle}>No plans yet!</Text>
               <Text style={fStyles.emptySub}>
-                {activeTab === 1
-                  ? 'No one is available right now.\nBe the first to let others know you\'re free!'
-                  : 'Be the first to start a Bondup\nin your city!'}
+                Be the first to start a Bondup{'\n'}in your city!
               </Text>
               <TouchableOpacity
                 style={fStyles.emptyBtn}
@@ -385,7 +388,8 @@ export default function BondupFeedScreen() {
           onPress={() => setShowCreate(true)}
           activeOpacity={0.85}
         >
-          <Plus size={26} color="#fff" />
+          <Plus size={18} color="#fff" />
+          <Text style={fStyles.fabText}>Create Bondup</Text>
         </TouchableOpacity>
 
         {/* ── Modals ──────────────────────────────────────────────────────── */}
@@ -405,6 +409,17 @@ export default function BondupFeedScreen() {
           onDelete={handleDelete}
           onStartChat={handleStartChat}
           joinLoading={joinLoading}
+        />
+
+        <BondupJoinedModal
+          visible={!!joinedBondup}
+          bondup={joinedBondup}
+          currentUserId={currentUser?._id}
+          onClose={() => setJoinedBondup(null)}
+          onOpenChat={(b) => {
+            setJoinedBondup(null);
+            handleStartChat(b);
+          }}
         />
       </SafeAreaView>
     </SafeAreaProvider>
@@ -446,72 +461,39 @@ const fStyles = StyleSheet.create({
     alignItems: 'center',
   },
 
-  // Tabs
-  tabBar: {
-    flexDirection: 'row',
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
-  },
-  tabItem: {
-    flex: 1,
-    alignItems: 'center',
-    paddingVertical: 13,
-    position: 'relative',
-  },
-  tabItemActive: {},
-  tabItemText: {
-    fontSize: 14,
-    fontFamily: 'PlusJakartaSansMedium',
-    color: '#888',
-  },
-  tabItemTextActive: {
-    color: BRAND,
-    fontFamily: 'PlusJakartaSansBold',
-  },
-  tabIndicator: {
-    position: 'absolute',
-    bottom: 0,
-    left: '20%',
-    right: '20%',
-    height: 3,
-    borderRadius: 2,
-    backgroundColor: BRAND,
-  },
-
-  // Activity filter
-  activityScroller: {
+  // Filter chips
+  filterScroller: {
     paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingVertical: 10,
     gap: 8,
     backgroundColor: '#fff',
     borderBottomWidth: 1,
     borderBottomColor: '#F0F0F0',
   },
-  activityChip: {
+  filterChip: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
+    paddingHorizontal: 14,
+    paddingVertical: 7,
+    borderRadius: 20,
     backgroundColor: '#F3F4F6',
     borderWidth: 1.5,
     borderColor: 'transparent',
   },
-  activityChipActive: {
+  filterChipActive: {
     borderColor: BRAND,
     backgroundColor: colors.primaryLight,
   },
-  activityChipEmoji: {
+  filterChipEmoji: {
     fontSize: 14,
   },
-  activityChipText: {
+  filterChipText: {
     fontSize: 13,
     fontFamily: 'PlusJakartaSansMedium',
     color: '#666',
   },
-  activityChipTextActive: {
+  filterChipTextActive: {
     color: BRAND,
     fontFamily: 'PlusJakartaSansBold',
   },
@@ -561,22 +543,29 @@ const fStyles = StyleSheet.create({
     fontFamily: 'PlusJakartaSansBold',
   },
 
-  // FAB
+  // FAB — pill button
   fab: {
     position: 'absolute',
     bottom: 50,
-    right: 20,
-    width: 58,
-    height: 58,
-    borderRadius: 29,
-    backgroundColor: BRAND,
-    justifyContent: 'center',
+    alignSelf: 'center',
+    right: 16,
+    flexDirection: 'row',
     alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 20,
+    paddingVertical: 14,
+    borderRadius: 30,
+    backgroundColor: BRAND,
     shadowColor: BRAND,
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.4,
     shadowRadius: 10,
     elevation: 10,
+  },
+  fabText: {
+    color: '#fff',
+    fontSize: 15,
+    fontFamily: 'PlusJakartaSansBold',
   },
 });
 
