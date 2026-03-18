@@ -1,22 +1,15 @@
 /**
- * BondupCard.jsx
- *
- * A card displayed in the Bondup feed showing:
- *  - Activity emoji + title
- *  - Creator info (avatar + name)
- *  - Date/time, location, city
- *  - Visibility badge (public / circle)
- *  - Participants count + avatars
- *  - Join / Joined / Full button
+ * BondupCard.jsx  —  Artistic redesign
  */
 
-import { MapPin, Users } from 'lucide-react-native';
+import { useRouter } from 'expo-router';
+import { Clock, MapPin, Users } from 'lucide-react-native';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { colors } from '../../constant/colors';
 
 const BRAND = colors.primary;
 
-// ─── Activity emoji map ───────────────────────────────────────────────────────
+// ─── Activity maps ────────────────────────────────────────────────────────────
 const ACTIVITY_EMOJI = {
   coffee: '☕',
   food:   '🍔',
@@ -29,11 +22,11 @@ const ACTIVITY_EMOJI = {
 
 const ACTIVITY_LABEL = {
   coffee: 'Coffee',
-  food:   'Food',
+  food:   'Dining',
   drinks: 'Drinks',
   gym:    'Gym',
-  walk:   'Walk',
-  movie:  'Movie',
+  walk:   'Outdoor',
+  movie:  'Cinema',
   other:  'Other',
 };
 
@@ -41,27 +34,37 @@ const ACTIVITY_LABEL = {
 const avatarUrl = (user) =>
   user?.profilePhoto || user?.images?.[0]?.url || user?.images?.[0] || null;
 
+const timeAgo = (dateStr) => {
+  if (!dateStr) return '';
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'just now';
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  return `${Math.floor(hrs / 24)}d ago`;
+};
+
 const formatDateTime = (dateTime) => {
   if (!dateTime) return '';
   const d = new Date(dateTime);
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const tomorrow = new Date(today.getTime() + 86400000);
-  const yesterday = new Date(today.getTime() - 86400000);
   const dDay = new Date(d.getFullYear(), d.getMonth(), d.getDate());
-
   const timeStr = d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
-
   if (dDay.getTime() === today.getTime()) return `Today, ${timeStr}`;
   if (dDay.getTime() === tomorrow.getTime()) return `Tomorrow, ${timeStr}`;
-  if (dDay.getTime() === yesterday.getTime()) return `Yesterday, ${timeStr}`;
   return d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' }) + `, ${timeStr}`;
 };
 
-const getFirstName = (user) => {
-  const name = [user?.firstName, user?.lastName].filter(Boolean).join(' ');
-  return name.split(' ')[0] || 'User';
+const isLiveNow = (dateTime) => {
+  if (!dateTime) return false;
+  return Math.abs(new Date(dateTime) - new Date()) <= 2 * 60 * 60 * 1000;
 };
+
+const getFullName = (user) =>
+  [user?.firstName, user?.lastName].filter(Boolean).join(' ') || 'User';
 
 // ─── Component ────────────────────────────────────────────────────────────────
 export default function BondupCard({
@@ -72,142 +75,127 @@ export default function BondupCard({
   onDelete,
   onPress,
 }) {
+  const router = useRouter();
   if (!bondup) return null;
 
   const creator = bondup.createdBy;
-  const creatorAvatar = avatarUrl(creator);
+  const creatorAv = avatarUrl(creator);
   const participantCount = bondup.participants?.length ?? 0;
-  const isFull =
-    bondup.maxParticipants != null && participantCount >= bondup.maxParticipants;
-
-  const isOwner = bondup.isOwner ||
-    String(creator?._id || creator) === String(currentUserId);
+  const isFull = bondup.maxParticipants != null && participantCount >= bondup.maxParticipants;
+  const isOwner = bondup.isOwner || String(creator?._id || creator) === String(currentUserId);
   const hasJoined = bondup.hasJoined;
-
   const activityEmoji = ACTIVITY_EMOJI[bondup.activityType] || '✨';
   const activityLabel = ACTIVITY_LABEL[bondup.activityType] || bondup.activityType;
+  const live = isLiveNow(bondup.dateTime);
+  const creatorId = creator?._id || creator;
 
-  // Show up to 3 participant avatars
-  const participantAvatars = (bondup.participants || [])
-    .slice(0, 3)
-    .map((pt) => avatarUrl(pt.user));
+  const spotsText = bondup.maxParticipants
+    ? `${participantCount}/${bondup.maxParticipants} spots`
+    : `${participantCount} joined`;
 
   return (
     <TouchableOpacity
       style={s.card}
       onPress={() => onPress?.(bondup)}
-      activeOpacity={0.85}
+      activeOpacity={0.88}
     >
-      {/* Header row */}
-      <View style={s.headerRow}>
-        {/* Creator avatar */}
-        <TouchableOpacity onPress={() => onPress?.(bondup)} activeOpacity={0.7}>
-          {creatorAvatar ? (
-            <Image source={{ uri: creatorAvatar }} style={s.creatorAvatar} />
+      {/* ── Top row: avatar | name + time | category badge ── */}
+      <View style={s.topRow}>
+        <TouchableOpacity
+          onPress={() => creatorId && router.push(`/social-profile/${creatorId}`)}
+          activeOpacity={0.8}
+        >
+          {creatorAv ? (
+            <Image source={{ uri: creatorAv }} style={s.creatorAvatar} />
           ) : (
             <View style={[s.creatorAvatar, s.creatorAvatarFallback]}>
-              <Text style={s.creatorAvatarInitial}>
+              <Text style={s.creatorInitial}>
                 {(creator?.firstName || 'U')[0].toUpperCase()}
               </Text>
             </View>
           )}
         </TouchableOpacity>
 
-        <View style={s.creatorInfo}>
-          <Text style={s.creatorName}>{getFirstName(creator)}</Text>
-          <Text style={s.timeText}>{formatDateTime(bondup.dateTime)}</Text>
+        <View style={s.creatorMeta}>
+          <Text style={s.creatorName}>{getFullName(creator)}</Text>
+          <Text style={s.timeAgoText}>
+            {bondup.createdAt ? timeAgo(bondup.createdAt) : formatDateTime(bondup.dateTime)}
+          </Text>
         </View>
 
-        {/* Visibility badge */}
-        <View style={[s.visibilityBadge, bondup.visibility === 'circle' && s.visibilityCircle]}>
-          <Text style={[s.visibilityText, bondup.visibility === 'circle' && s.visibilityCircleText]}>
-            {bondup.visibility === 'circle' ? '🔒 Circle' : '🌍 Public'}
+        <View style={s.categoryBadge}>
+          <Text style={s.categoryText}>
+            {activityLabel.toUpperCase()} {activityEmoji}
           </Text>
         </View>
       </View>
 
-      {/* Activity + Title */}
-      <View style={s.titleRow}>
-        <View style={s.activityBadge}>
-          <Text style={s.activityEmoji}>{activityEmoji}</Text>
-          <Text style={s.activityLabel}>{activityLabel}</Text>
+      {/* ── Location row ── */}
+      {(!!bondup.location || !!bondup.city) && (
+        <View style={s.locationRow}>
+          <MapPin size={12} color="#999" />
+          <Text style={s.locationText} numberOfLines={1}>
+            {[bondup.location, bondup.city].filter(Boolean).join(', ')}
+          </Text>
         </View>
-        <Text style={s.title} numberOfLines={2}>{bondup.title}</Text>
-      </View>
+      )}
 
-      {/* Description (if any) */}
+      {/* ── LIVE NOW badge ── */}
+      {live && (
+        <View style={s.liveBadge}>
+          <View style={s.liveDot} />
+          <Text style={s.liveText}>LIVE NOW</Text>
+        </View>
+      )}
+
+      {/* ── Title + description ── */}
+      <Text style={s.title} numberOfLines={2}>{bondup.title}</Text>
       {!!bondup.description && (
         <Text style={s.description} numberOfLines={2}>{bondup.description}</Text>
       )}
 
-      {/* Location + city */}
-      {(!!bondup.location || !!bondup.city) && (
-        <View style={s.locationRow}>
-          <MapPin size={13} color="#999" />
-          <Text style={s.locationText} numberOfLines={1}>
-            {[bondup.location, bondup.city].filter(Boolean).join(' • ')}
-          </Text>
+      {/* ── Info chips: time + spots ── */}
+      <View style={s.infoRow}>
+        <View style={s.infoChip}>
+          <Clock size={13} color={BRAND} />
+          <Text style={s.infoChipText}>{formatDateTime(bondup.dateTime)}</Text>
         </View>
-      )}
-
-      {/* Footer row: participants + action button */}
-      <View style={s.footerRow}>
-        {/* Participant avatars */}
-        <View style={s.participantsRow}>
-          {participantAvatars.map((uri, i) =>
-            uri ? (
-              <Image
-                key={i}
-                source={{ uri }}
-                style={[s.participantAvatar, { marginLeft: i > 0 ? -8 : 0 }]}
-              />
-            ) : (
-              <View
-                key={i}
-                style={[s.participantAvatar, s.participantAvatarFallback, { marginLeft: i > 0 ? -8 : 0 }]}
-              />
-            )
-          )}
-          <View style={s.participantCountRow}>
-            <Users size={13} color="#888" />
-            <Text style={s.participantCountText}>
-              {participantCount}
-              {bondup.maxParticipants ? `/${bondup.maxParticipants}` : ''} joined
-            </Text>
-          </View>
+        <View style={[s.infoChip, s.infoChipRight]}>
+          <Users size={13} color={BRAND} />
+          <Text style={s.infoChipText}>{spotsText}</Text>
         </View>
-
-        {/* Action button */}
-        {isOwner ? (
-          <TouchableOpacity
-            style={s.ownerBtn}
-            onPress={() => onDelete?.(bondup._id)}
-            activeOpacity={0.7}
-          >
-            <Text style={s.ownerBtnText}>Remove</Text>
-          </TouchableOpacity>
-        ) : hasJoined ? (
-          <TouchableOpacity
-            style={[s.actionBtn, s.joinedBtn]}
-            onPress={() => onLeave?.(bondup._id)}
-            activeOpacity={0.8}
-          >
-            <Text style={s.joinedBtnText}>You're in 🎉</Text>
-          </TouchableOpacity>
-        ) : isFull ? (
-          <View style={[s.actionBtn, s.fullBtn]}>
-            <Text style={s.fullBtnText}>Full</Text>
-          </View>
-        ) : (
-          <TouchableOpacity
-            style={[s.actionBtn, s.joinBtn]}
-            onPress={() => onJoin?.(bondup._id)}
-            activeOpacity={0.8}
-          >
-            <Text style={s.joinBtnText}>Join</Text>
-          </TouchableOpacity>
-        )}
       </View>
+
+      {/* ── Action button (full-width) ── */}
+      {isOwner ? (
+        <TouchableOpacity
+          style={s.manageBtn}
+          onPress={() => onPress?.(bondup)}
+          activeOpacity={0.8}
+        >
+          <Text style={s.manageBtnText}>Manage</Text>
+        </TouchableOpacity>
+      ) : hasJoined ? (
+        <TouchableOpacity
+          style={s.joinedBtn}
+          onPress={() => onLeave?.(bondup._id)}
+          activeOpacity={0.8}
+        >
+          <Text style={s.joinedBtnText}>You're in 🎉</Text>
+        </TouchableOpacity>
+      ) : isFull ? (
+        <View style={s.fullBtn}>
+          <Text style={s.fullBtnText}>Full</Text>
+        </View>
+      ) : (
+        <TouchableOpacity
+          style={s.joinBtn}
+          onPress={() => onJoin?.(bondup._id)}
+          activeOpacity={0.8}
+        >
+          <Text style={s.joinBtnText}>🔥 Join the Bond</Text>
+        </TouchableOpacity>
+      )}
     </TouchableOpacity>
   );
 }
@@ -222,16 +210,16 @@ const s = StyleSheet.create({
     padding: 16,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 10,
-    elevation: 3,
+    shadowOpacity: 0.07,
+    shadowRadius: 12,
+    elevation: 4,
   },
 
-  // Header
-  headerRow: {
+  // Top row
+  topRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: 8,
   },
   creatorAvatar: {
     width: 44,
@@ -245,12 +233,12 @@ const s = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  creatorAvatarInitial: {
+  creatorInitial: {
     color: '#fff',
-    fontSize: 18,
+    fontSize: 17,
     fontFamily: 'PlusJakartaSansBold',
   },
-  creatorInfo: {
+  creatorMeta: {
     flex: 1,
     marginLeft: 10,
   },
@@ -259,67 +247,24 @@ const s = StyleSheet.create({
     fontFamily: 'PlusJakartaSansBold',
     color: '#111',
   },
-  timeText: {
+  timeAgoText: {
     fontSize: 12,
     fontFamily: 'PlusJakartaSans',
-    color: '#888',
+    color: '#999',
     marginTop: 1,
   },
-  visibilityBadge: {
-    backgroundColor: '#F0FDF4',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 8,
-  },
-  visibilityCircle: {
-    backgroundColor: '#F5F3FF',
-  },
-  visibilityText: {
-    fontSize: 11,
-    fontFamily: 'PlusJakartaSansMedium',
-    color: '#16A34A',
-  },
-  visibilityCircleText: {
-    color: BRAND,
-  },
-
-  // Title + activity
-  titleRow: {
-    marginBottom: 6,
-  },
-  activityBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
+  categoryBadge: {
     backgroundColor: colors.primaryLight,
-    alignSelf: 'flex-start',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 8,
-    marginBottom: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 20,
+    marginLeft: 6,
   },
-  activityEmoji: {
-    fontSize: 13,
-  },
-  activityLabel: {
-    fontSize: 12,
-    fontFamily: 'PlusJakartaSansMedium',
-    color: BRAND,
-  },
-  title: {
-    fontSize: 16,
+  categoryText: {
+    fontSize: 10,
     fontFamily: 'PlusJakartaSansBold',
-    color: '#111',
-    lineHeight: 22,
-  },
-
-  // Description
-  description: {
-    fontSize: 13,
-    fontFamily: 'PlusJakartaSans',
-    color: '#666',
-    lineHeight: 18,
-    marginBottom: 8,
+    color: BRAND,
+    letterSpacing: 0.5,
   },
 
   // Location
@@ -327,7 +272,7 @@ const s = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    marginBottom: 12,
+    marginBottom: 8,
   },
   locationText: {
     fontSize: 12,
@@ -336,51 +281,80 @@ const s = StyleSheet.create({
     flex: 1,
   },
 
-  // Footer
-  footerRow: {
+  // Live badge
+  liveBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    marginTop: 4,
+    gap: 5,
+    backgroundColor: '#FFF7ED',
+    alignSelf: 'flex-start',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 20,
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: '#FED7AA',
   },
-  participantsRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    flex: 1,
+  liveDot: {
+    width: 7,
+    height: 7,
+    borderRadius: 4,
+    backgroundColor: '#F97316',
   },
-  participantAvatar: {
-    width: 26,
-    height: 26,
-    borderRadius: 13,
-    borderWidth: 2,
-    borderColor: '#fff',
-  },
-  participantAvatarFallback: {
-    backgroundColor: '#E5E7EB',
-  },
-  participantCountRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 3,
-    marginLeft: 4,
-  },
-  participantCountText: {
-    fontSize: 12,
-    fontFamily: 'PlusJakartaSans',
-    color: '#888',
+  liveText: {
+    fontSize: 11,
+    fontFamily: 'PlusJakartaSansBold',
+    color: '#F97316',
+    letterSpacing: 0.5,
   },
 
-  // Buttons
-  actionBtn: {
-    paddingHorizontal: 18,
-    paddingVertical: 9,
-    borderRadius: 14,
-    minWidth: 72,
-    alignItems: 'center',
+  // Title + description
+  title: {
+    fontSize: 18,
+    fontFamily: 'PlusJakartaSansBold',
+    color: '#111',
+    lineHeight: 24,
+    marginBottom: 4,
   },
+  description: {
+    fontSize: 13,
+    fontFamily: 'PlusJakartaSans',
+    color: '#777',
+    lineHeight: 18,
+    marginBottom: 10,
+  },
+
+  // Info chips
+  infoRow: {
+    flexDirection: 'row',
+    gap: 8,
+    marginBottom: 14,
+    marginTop: 2,
+  },
+  infoChip: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    backgroundColor: colors.primaryLight,
+    paddingHorizontal: 10,
+    paddingVertical: 7,
+    borderRadius: 10,
+  },
+  infoChipRight: {},
+  infoChipText: {
+    fontSize: 12,
+    fontFamily: 'PlusJakartaSansMedium',
+    color: BRAND,
+    flex: 1,
+  },
+
+  // Buttons (full-width)
   joinBtn: {
     backgroundColor: BRAND,
+    paddingVertical: 13,
+    borderRadius: 14,
+    alignItems: 'center',
     shadowColor: BRAND,
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.3,
@@ -389,38 +363,43 @@ const s = StyleSheet.create({
   },
   joinBtnText: {
     color: '#fff',
-    fontSize: 14,
+    fontSize: 15,
     fontFamily: 'PlusJakartaSansBold',
   },
   joinedBtn: {
-    backgroundColor: '#F0FDF4',
-    borderWidth: 1,
+    paddingVertical: 13,
+    borderRadius: 14,
+    alignItems: 'center',
+    borderWidth: 1.5,
     borderColor: '#86EFAC',
+    backgroundColor: '#F0FDF4',
   },
   joinedBtnText: {
     color: '#16A34A',
-    fontSize: 13,
+    fontSize: 15,
     fontFamily: 'PlusJakartaSansBold',
   },
   fullBtn: {
+    paddingVertical: 13,
+    borderRadius: 14,
+    alignItems: 'center',
     backgroundColor: '#F3F4F6',
   },
   fullBtnText: {
     color: '#9CA3AF',
-    fontSize: 13,
+    fontSize: 15,
     fontFamily: 'PlusJakartaSansMedium',
   },
-  ownerBtn: {
-    paddingHorizontal: 14,
-    paddingVertical: 7,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#FCA5A5',
-    backgroundColor: '#FEF2F2',
+  manageBtn: {
+    paddingVertical: 13,
+    borderRadius: 14,
+    alignItems: 'center',
+    borderWidth: 1.5,
+    borderColor: BRAND,
   },
-  ownerBtnText: {
-    fontSize: 12,
-    fontFamily: 'PlusJakartaSansMedium',
-    color: '#EF4444',
+  manageBtnText: {
+    color: BRAND,
+    fontSize: 15,
+    fontFamily: 'PlusJakartaSansBold',
   },
 });

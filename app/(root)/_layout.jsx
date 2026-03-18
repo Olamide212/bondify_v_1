@@ -63,6 +63,8 @@ export default function _layout() {
       <Stack.Screen name="(settings)" />
       <Stack.Screen name="feed-profile" />
       <Stack.Screen name="unmatched-users" />
+      <Stack.Screen name="bondup-chat" />
+      <Stack.Screen name="social-profile" />
 
       <Stack.Screen
         name="filter"

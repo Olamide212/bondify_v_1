@@ -1,22 +1,19 @@
 /**
- * BondupDetailModal.jsx
- *
- * Full details for a Bondup:
- *  - Title, activity, date/time, location, description
- *  - Creator info
- *  - Participants list
- *  - Join / Leave button
- *  - Chat button (for joined users)
- *  - Delete button (for creator)
+ * BondupDetailModal.jsx  —  Artistic redesign
  */
 
+import { useRouter } from 'expo-router';
 import {
-  CalendarDays,
+  ArrowLeft,
+  Bookmark,
+  Clock,
   MapPin,
   MessageCircle,
+  MoreVertical,
+  Navigation,
+  Share2,
   Trash2,
   Users,
-  X,
 } from 'lucide-react-native';
 import {
   ActivityIndicator,
@@ -43,6 +40,16 @@ const ACTIVITY_EMOJI = {
   other:  '✨',
 };
 
+const ACTIVITY_LABEL = {
+  coffee: 'Coffee',
+  food:   'Dining',
+  drinks: 'Drinks',
+  gym:    'Gym',
+  walk:   'Outdoor',
+  movie:  'Cinema',
+  other:  'Other',
+};
+
 const avatarUrl = (user) =>
   user?.profilePhoto || user?.images?.[0]?.url || user?.images?.[0] || null;
 
@@ -54,10 +61,14 @@ const formatDateTime = (dateTime) => {
   const tomorrow = new Date(today.getTime() + 86400000);
   const dDay = new Date(d.getFullYear(), d.getMonth(), d.getDate());
   const timeStr = d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
-
   if (dDay.getTime() === today.getTime()) return `Today at ${timeStr}`;
   if (dDay.getTime() === tomorrow.getTime()) return `Tomorrow at ${timeStr}`;
-  return d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' }) + ` at ${timeStr}`;
+  return d.toLocaleDateString(undefined, { weekday: 'short', month: 'long', day: 'numeric' }) + ` at ${timeStr}`;
+};
+
+const isLiveNow = (dateTime) => {
+  if (!dateTime) return false;
+  return Math.abs(new Date(dateTime) - new Date()) <= 2 * 60 * 60 * 1000;
 };
 
 const getFullName = (user) =>
@@ -74,187 +85,285 @@ export default function BondupDetailModal({
   onStartChat,
   joinLoading,
 }) {
+  const router = useRouter();
   if (!bondup) return null;
 
   const creator = bondup.createdBy;
+  const creatorAv = avatarUrl(creator);
+  const creatorId = creator?._id || creator;
   const participantCount = bondup.participants?.length ?? 0;
-  const isFull =
-    bondup.maxParticipants != null && participantCount >= bondup.maxParticipants;
-  const isOwner = bondup.isOwner ||
-    String(creator?._id || creator) === String(currentUserId);
+  const isFull = bondup.maxParticipants != null && participantCount >= bondup.maxParticipants;
+  const isOwner = bondup.isOwner || String(creatorId) === String(currentUserId);
   const hasJoined = bondup.hasJoined;
   const canChat = isOwner || hasJoined;
   const activityEmoji = ACTIVITY_EMOJI[bondup.activityType] || '✨';
+  const activityLabel = ACTIVITY_LABEL[bondup.activityType] || bondup.activityType;
+  const live = isLiveNow(bondup.dateTime);
+  const isTrending = live || participantCount >= 3;
+
+  const spotsText = bondup.maxParticipants
+    ? `${participantCount}/${bondup.maxParticipants}`
+    : `${participantCount}`;
+
+  // Show up to 6 participant avatars
+  const shownAvatars = (bondup.participants || []).slice(0, 6);
+  const extraCount = Math.max(0, participantCount - 6);
 
   return (
     <BaseModal visible={visible} onClose={onClose} fullScreen>
-      {/* Header bar */}
+      {/* ── Header ── */}
       <View style={s.header}>
-        <TouchableOpacity onPress={onClose} style={s.closeBtn} hitSlop={10}>
-          <X size={22} color="#333" />
+        <TouchableOpacity onPress={onClose} style={s.iconBtn} hitSlop={10}>
+          <ArrowLeft size={22} color="#333" />
         </TouchableOpacity>
-        <Text style={s.headerTitle}>Bondup Details</Text>
-        {isOwner ? (
-          <TouchableOpacity
-            style={s.deleteBtn}
-            onPress={() => onDelete?.(bondup._id)}
-            hitSlop={10}
-          >
-            <Trash2 size={20} color="#EF4444" />
+        <View style={s.headerRight}>
+          <TouchableOpacity style={s.iconBtn} hitSlop={10}>
+            <Share2 size={20} color="#555" />
           </TouchableOpacity>
-        ) : (
-          <View style={{ width: 34 }} />
-        )}
+          {isOwner && (
+            <TouchableOpacity
+              style={s.iconBtn}
+              onPress={() => {
+                Alert.alert('Remove Bondup', 'Remove this Bondup?', [
+                  { text: 'Cancel', style: 'cancel' },
+                  { text: 'Remove', style: 'destructive', onPress: () => { onClose?.(); onDelete?.(bondup._id); } },
+                ]);
+              }}
+              hitSlop={10}
+            >
+              <Trash2 size={20} color="#EF4444" />
+            </TouchableOpacity>
+          )}
+          {!isOwner && (
+            <TouchableOpacity style={s.iconBtn} hitSlop={10}>
+              <MoreVertical size={20} color="#555" />
+            </TouchableOpacity>
+          )}
+        </View>
       </View>
 
       <ScrollView
         contentContainerStyle={{ paddingBottom: 30 }}
         showsVerticalScrollIndicator={false}
       >
-        {/* Activity + Title */}
-        <View style={s.titleSection}>
-          <View style={s.activityBadge}>
-            <Text style={s.activityEmoji}>{activityEmoji}</Text>
-            <Text style={s.activityLabel}>{bondup.activityType}</Text>
+        {/* ── Trending badge ── */}
+        {isTrending && (
+          <View style={s.trendingBadge}>
+            <Text style={s.trendingText}>🔥 TRENDING NOW</Text>
           </View>
+        )}
+
+        {/* ── Title + description ── */}
+        <View style={s.titleSection}>
           <Text style={s.title}>{bondup.title}</Text>
           {!!bondup.description && (
             <Text style={s.description}>{bondup.description}</Text>
           )}
         </View>
 
-        {/* Meta info cards */}
-        <View style={s.metaRow}>
-          <View style={s.metaCard}>
-            <CalendarDays size={18} color={BRAND} />
-            <Text style={s.metaText}>{formatDateTime(bondup.dateTime)}</Text>
-          </View>
-          {(!!bondup.location || !!bondup.city) && (
-            <View style={s.metaCard}>
-              <MapPin size={18} color={BRAND} />
-              <Text style={s.metaText} numberOfLines={1}>
-                {[bondup.location, bondup.city].filter(Boolean).join(' • ')}
-              </Text>
-            </View>
-          )}
-          <View style={s.metaCard}>
-            <Users size={18} color={BRAND} />
-            <Text style={s.metaText}>
-              {participantCount}
-              {bondup.maxParticipants ? `/${bondup.maxParticipants}` : ''} joined
-            </Text>
-          </View>
-        </View>
-
-        {/* Visibility */}
-        <View style={s.visibilityRow}>
-          <Text style={s.visibilityText}>
-            {bondup.visibility === 'circle' ? '🔒 Circle only' : '🌍 Public'}
-          </Text>
-        </View>
-
-        {/* Creator */}
-        <View style={s.section}>
-          <Text style={s.sectionTitle}>Created by</Text>
-          <View style={s.personRow}>
-            {avatarUrl(creator) ? (
-              <Image source={{ uri: avatarUrl(creator) }} style={s.avatar} />
+        {/* ── Hosted by card ── */}
+        <View style={s.hostedCard}>
+          <TouchableOpacity
+            style={s.hostedAvatarBtn}
+            onPress={() => creatorId && router.push(`/social-profile/${creatorId}`)}
+            activeOpacity={0.8}
+          >
+            {creatorAv ? (
+              <Image source={{ uri: creatorAv }} style={s.hostedAvatar} />
             ) : (
-              <View style={[s.avatar, s.avatarFallback]}>
-                <Text style={s.avatarInitial}>
+              <View style={[s.hostedAvatar, s.hostedAvatarFallback]}>
+                <Text style={s.hostedAvatarInitial}>
                   {(creator?.firstName || 'U')[0].toUpperCase()}
                 </Text>
               </View>
             )}
-            <Text style={s.personName}>{getFullName(creator)}</Text>
-            {isOwner && (
-              <View style={s.youBadge}>
-                <Text style={s.youBadgeText}>You</Text>
-              </View>
-            )}
+          </TouchableOpacity>
+          <View style={s.hostedInfo}>
+            <Text style={s.hostedLabel}>HOSTED BY</Text>
+            <Text style={s.hostedName}>{getFullName(creator)}</Text>
+            <Text style={s.hostedSubtitle}>
+              {creator?.socialProfile?.bio || 'Bondup Creator'}
+            </Text>
+          </View>
+          {!isOwner && (
+            <TouchableOpacity
+              style={s.messageIconBtn}
+              onPress={() => canChat && onStartChat?.(bondup)}
+              activeOpacity={0.8}
+            >
+              <MessageCircle size={20} color={BRAND} />
+            </TouchableOpacity>
+          )}
+        </View>
+
+        {/* ── WHEN + TYPE side by side ── */}
+        <View style={s.metaPairRow}>
+          <View style={s.metaPairCard}>
+            <View style={s.metaPairIconCircle}>
+              <Clock size={16} color={BRAND} />
+            </View>
+            <Text style={s.metaPairLabel}>WHEN</Text>
+            <Text style={s.metaPairValue}>{formatDateTime(bondup.dateTime)}</Text>
+          </View>
+          <View style={[s.metaPairCard, s.metaPairCardRight]}>
+            <View style={s.metaPairIconCircleLight}>
+              <Text style={s.metaPairEmoji}>{activityEmoji}</Text>
+            </View>
+            <Text style={s.metaPairLabel}>TYPE</Text>
+            <Text style={s.metaPairValue}>{activityLabel}</Text>
           </View>
         </View>
 
-        {/* Participants */}
-        {participantCount > 0 && (
-          <View style={s.section}>
-            <Text style={s.sectionTitle}>
-              {participantCount} {participantCount === 1 ? 'Person' : 'People'} Joined
+        {/* ── Location card ── */}
+        {(!!bondup.location || !!bondup.city) && (
+          <View style={s.locationCard}>
+            <View style={s.locationCardHeader}>
+              <View>
+                <Text style={s.locationLabel}>LOCATION</Text>
+                <Text style={s.locationValue}>
+                  {[bondup.location, bondup.city].filter(Boolean).join(', ')}
+                </Text>
+              </View>
+              <TouchableOpacity style={s.navIconBtn}>
+                <Navigation size={18} color={BRAND} />
+              </TouchableOpacity>
+            </View>
+            {/* Map placeholder — TODO: replace with react-native-maps for interactive view */}
+            <View style={s.mapPlaceholder}>
+              <Text style={s.mapEmoji}>🗺️</Text>
+              <Text style={s.mapPlaceholderText}>
+                {[bondup.location, bondup.city].filter(Boolean).join(', ')}
+              </Text>
+            </View>
+          </View>
+        )}
+
+        {/* ── Who's coming ── */}
+        <View style={s.whoSection}>
+          <View style={s.whoHeader}>
+            <Text style={s.whoTitle}>
+              Who's Coming{' '}
+              <Text style={s.whoCount}>
+                ({spotsText}{bondup.maxParticipants ? '' : ' joined'})
+              </Text>
             </Text>
-            {(bondup.participants || []).map((pt, i) => {
-              const user = pt.user;
-              const isMe = String(user?._id || user) === String(currentUserId);
-              return (
-                <View key={i} style={s.personRow}>
-                  {avatarUrl(user) ? (
-                    <Image source={{ uri: avatarUrl(user) }} style={s.avatar} />
-                  ) : (
-                    <View style={[s.avatar, s.avatarFallback]}>
-                      <Text style={s.avatarInitial}>
-                        {(user?.firstName || 'U')[0].toUpperCase()}
-                      </Text>
-                    </View>
-                  )}
-                  <Text style={s.personName}>{getFullName(user)}</Text>
-                  {isMe && (
-                    <View style={s.youBadge}>
-                      <Text style={s.youBadgeText}>You</Text>
-                    </View>
-                  )}
+            {participantCount > 6 && (
+              <TouchableOpacity>
+                <Text style={s.viewAllText}>View all</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+
+          <View style={s.avatarOverlapRow}>
+            {shownAvatars.map((pt, i) => {
+              const u = pt.user;
+              const uAv = avatarUrl(u);
+              return uAv ? (
+                <Image
+                  key={i}
+                  source={{ uri: uAv }}
+                  style={[s.participantAvatar, { marginLeft: i > 0 ? -10 : 0, zIndex: shownAvatars.length - i }]}
+                />
+              ) : (
+                <View
+                  key={i}
+                  style={[s.participantAvatar, s.participantAvatarFallback, { marginLeft: i > 0 ? -10 : 0, zIndex: shownAvatars.length - i }]}
+                >
+                  <Text style={s.participantAvatarInitial}>
+                    {(u?.firstName || '?')[0].toUpperCase()}
+                  </Text>
                 </View>
               );
             })}
+            {extraCount > 0 && (
+              <View style={[s.participantAvatar, s.extraAvatar, { marginLeft: -10 }]}>
+                <Text style={s.extraAvatarText}>+{extraCount}</Text>
+              </View>
+            )}
           </View>
-        )}
+
+          {participantCount > 0 && (
+            <Text style={s.joinedFriendsText}>
+              <Users size={13} color="#888" /> {participantCount} {participantCount === 1 ? 'person' : 'people'} joined
+            </Text>
+          )}
+        </View>
       </ScrollView>
 
-      {/* Action buttons */}
+      {/* ── Footer buttons ── */}
       <View style={s.footer}>
-        {/* Chat button (only if joined or is owner) */}
-        {canChat && (
-          <TouchableOpacity
-            style={s.chatBtn}
-            onPress={() => onStartChat?.(bondup)}
-            activeOpacity={0.8}
-          >
-            <MessageCircle size={20} color={BRAND} />
-            <Text style={s.chatBtnText}>Chat</Text>
-          </TouchableOpacity>
-        )}
+        {!isOwner ? (
+          <>
+            {hasJoined ? (
+              <TouchableOpacity
+                style={s.primaryBtn}
+                onPress={() => onStartChat?.(bondup)}
+                activeOpacity={0.85}
+              >
+                <MessageCircle size={18} color="#fff" />
+                <Text style={s.primaryBtnText}>Open Chat</Text>
+              </TouchableOpacity>
+            ) : isFull ? (
+              <View style={[s.primaryBtn, s.disabledBtn]}>
+                <Text style={s.disabledBtnText}>Bondup is Full</Text>
+              </View>
+            ) : (
+              <TouchableOpacity
+                style={[s.primaryBtn, joinLoading && { opacity: 0.7 }]}
+                onPress={() => onJoin?.(bondup._id)}
+                disabled={joinLoading}
+                activeOpacity={0.85}
+              >
+                {joinLoading ? (
+                  <ActivityIndicator size="small" color="#fff" />
+                ) : (
+                  <Text style={s.primaryBtnText}>🔥 Join Bondup</Text>
+                )}
+              </TouchableOpacity>
+            )}
 
-        {/* Join / Leave / Full */}
-        {!isOwner && (
-          hasJoined ? (
+            {hasJoined ? (
+              <TouchableOpacity
+                style={s.secondaryBtn}
+                onPress={() => {
+                  Alert.alert('Leave Bondup', 'Are you sure?', [
+                    { text: 'Cancel', style: 'cancel' },
+                    { text: 'Leave', style: 'destructive', onPress: () => onLeave?.(bondup._id) },
+                  ]);
+                }}
+                activeOpacity={0.8}
+              >
+                <Text style={s.secondaryBtnText}>Leave</Text>
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity style={s.bookmarkBtn} activeOpacity={0.8}>
+                <Bookmark size={20} color="#666" />
+              </TouchableOpacity>
+            )}
+          </>
+        ) : (
+          <>
             <TouchableOpacity
-              style={[s.actionBtn, s.leaveBtn]}
+              style={s.primaryBtn}
+              onPress={() => onStartChat?.(bondup)}
+              activeOpacity={0.85}
+            >
+              <MessageCircle size={18} color="#fff" />
+              <Text style={s.primaryBtnText}>Open Chat</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={s.secondaryBtn}
               onPress={() => {
-                Alert.alert('Leave Bondup', 'Are you sure you want to leave?', [
+                Alert.alert('Delete Bondup', 'Remove this Bondup?', [
                   { text: 'Cancel', style: 'cancel' },
-                  { text: 'Leave', style: 'destructive', onPress: () => onLeave?.(bondup._id) },
+                  { text: 'Delete', style: 'destructive', onPress: () => { onClose?.(); onDelete?.(bondup._id); } },
                 ]);
               }}
               activeOpacity={0.8}
             >
-              <Text style={s.leaveBtnText}>Leave Bondup</Text>
+              <Text style={[s.secondaryBtnText, { color: '#EF4444' }]}>Delete</Text>
             </TouchableOpacity>
-          ) : isFull ? (
-            <View style={[s.actionBtn, s.fullBtn]}>
-              <Text style={s.fullBtnText}>Bondup is Full</Text>
-            </View>
-          ) : (
-            <TouchableOpacity
-              style={[s.actionBtn, s.joinBtn, joinLoading && { opacity: 0.7 }]}
-              onPress={() => onJoin?.(bondup._id)}
-              disabled={joinLoading}
-              activeOpacity={0.8}
-            >
-              {joinLoading ? (
-                <ActivityIndicator size="small" color="#fff" />
-              ) : (
-                <Text style={s.joinBtnText}>Join Bondup 🎉</Text>
-              )}
-            </TouchableOpacity>
-          )
+          </>
         )}
       </View>
     </BaseModal>
@@ -263,221 +372,370 @@ export default function BondupDetailModal({
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
 const s = StyleSheet.create({
+  // Header
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
-    paddingVertical: 14,
+    paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
+    borderBottomColor: '#F5F5F5',
   },
-  headerTitle: {
-    fontSize: 17,
-    fontFamily: 'PlusJakartaSansBold',
-    color: '#111',
+  headerRight: {
+    flexDirection: 'row',
+    gap: 8,
   },
-  closeBtn: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
+  iconBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     backgroundColor: '#F3F4F6',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  deleteBtn: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    backgroundColor: '#FEF2F2',
-    justifyContent: 'center',
-    alignItems: 'center',
+
+  // Trending badge
+  trendingBadge: {
+    alignSelf: 'flex-start',
+    backgroundColor: colors.primaryLight,
+    borderRadius: 20,
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+    marginHorizontal: 20,
+    marginTop: 16,
+    marginBottom: 4,
+    borderWidth: 1,
+    borderColor: `${BRAND}30`,
+  },
+  trendingText: {
+    fontSize: 12,
+    fontFamily: 'PlusJakartaSansBold',
+    color: BRAND,
+    letterSpacing: 0.5,
   },
 
   // Title section
   titleSection: {
     paddingHorizontal: 20,
-    paddingTop: 20,
+    paddingTop: 14,
     paddingBottom: 16,
   },
-  activityBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    backgroundColor: colors.primaryLight,
-    alignSelf: 'flex-start',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 10,
-    marginBottom: 10,
-  },
-  activityEmoji: { fontSize: 16 },
-  activityLabel: {
-    fontSize: 13,
-    fontFamily: 'PlusJakartaSansMedium',
-    color: BRAND,
-    textTransform: 'capitalize',
-  },
   title: {
-    fontSize: 22,
+    fontSize: 28,
     fontFamily: 'PlusJakartaSansBold',
-    color: '#111',
+    color: '#0F0F0F',
+    lineHeight: 34,
     marginBottom: 8,
-    lineHeight: 28,
   },
   description: {
-    fontSize: 14,
+    fontSize: 15,
     fontFamily: 'PlusJakartaSans',
     color: '#555',
-    lineHeight: 20,
+    lineHeight: 22,
   },
 
-  // Meta
-  metaRow: {
-    paddingHorizontal: 20,
-    gap: 10,
-    marginBottom: 12,
-  },
-  metaCard: {
+  // Hosted by card
+  hostedCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
-    backgroundColor: '#F8F8F8',
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
+    backgroundColor: '#fff',
+    marginHorizontal: 16,
+    marginBottom: 14,
+    borderRadius: 16,
+    padding: 14,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 2,
   },
-  metaText: {
-    fontSize: 14,
-    fontFamily: 'PlusJakartaSansMedium',
-    color: '#333',
-    flex: 1,
+  hostedAvatarBtn: {},
+  hostedAvatar: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    borderWidth: 2,
+    borderColor: `${BRAND}30`,
   },
-
-  // Visibility
-  visibilityRow: {
-    marginHorizontal: 20,
-    marginBottom: 16,
-  },
-  visibilityText: {
-    fontSize: 13,
-    fontFamily: 'PlusJakartaSansMedium',
-    color: '#888',
-  },
-
-  // Sections
-  section: {
-    paddingHorizontal: 20,
-    marginBottom: 20,
-  },
-  sectionTitle: {
-    fontSize: 15,
-    fontFamily: 'PlusJakartaSansBold',
-    color: '#111',
-    marginBottom: 12,
-  },
-
-  // Person rows
-  personRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 10,
-    gap: 10,
-  },
-  avatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: '#F0F0F0',
-  },
-  avatarFallback: {
+  hostedAvatarFallback: {
     backgroundColor: BRAND,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  avatarInitial: {
+  hostedAvatarInitial: {
     color: '#fff',
+    fontSize: 20,
+    fontFamily: 'PlusJakartaSansBold',
+  },
+  hostedInfo: {
+    flex: 1,
+    marginLeft: 12,
+  },
+  hostedLabel: {
+    fontSize: 10,
+    fontFamily: 'PlusJakartaSansBold',
+    color: '#F97316',
+    letterSpacing: 1,
+    marginBottom: 2,
+  },
+  hostedName: {
     fontSize: 16,
     fontFamily: 'PlusJakartaSansBold',
-  },
-  personName: {
-    fontSize: 15,
-    fontFamily: 'PlusJakartaSansMedium',
     color: '#111',
+  },
+  hostedSubtitle: {
+    fontSize: 12,
+    fontFamily: 'PlusJakartaSans',
+    color: '#888',
+    marginTop: 1,
+  },
+  messageIconBtn: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    borderWidth: 1.5,
+    borderColor: BRAND,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  // WHEN + TYPE pair
+  metaPairRow: {
+    flexDirection: 'row',
+    marginHorizontal: 16,
+    marginBottom: 14,
+    gap: 10,
+  },
+  metaPairCard: {
     flex: 1,
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 14,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 2,
   },
-  youBadge: {
+  metaPairCardRight: {},
+  metaPairIconCircle: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     backgroundColor: colors.primaryLight,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 8,
   },
-  youBadgeText: {
-    fontSize: 11,
+  metaPairIconCircleLight: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#FFF7ED',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  metaPairEmoji: {
+    fontSize: 18,
+  },
+  metaPairLabel: {
+    fontSize: 10,
+    fontFamily: 'PlusJakartaSansBold',
+    color: '#999',
+    letterSpacing: 1,
+    marginBottom: 4,
+  },
+  metaPairValue: {
+    fontSize: 13,
+    fontFamily: 'PlusJakartaSansBold',
+    color: '#111',
+    lineHeight: 18,
+  },
+
+  // Location card
+  locationCard: {
+    backgroundColor: '#fff',
+    marginHorizontal: 16,
+    marginBottom: 14,
+    borderRadius: 16,
+    padding: 14,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  locationCardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 12,
+  },
+  locationLabel: {
+    fontSize: 10,
+    fontFamily: 'PlusJakartaSansBold',
+    color: '#999',
+    letterSpacing: 1,
+    marginBottom: 4,
+  },
+  locationValue: {
+    fontSize: 14,
+    fontFamily: 'PlusJakartaSansBold',
+    color: '#111',
+  },
+  navIconBtn: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: colors.primaryLight,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  mapPlaceholder: {
+    height: 160,
+    borderRadius: 12,
+    backgroundColor: '#F0F0F0',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 8,
+    overflow: 'hidden',
+  },
+  mapEmoji: {
+    fontSize: 40,
+  },
+  mapPlaceholderText: {
+    fontSize: 13,
+    fontFamily: 'PlusJakartaSansMedium',
+    color: '#888',
+    textAlign: 'center',
+    paddingHorizontal: 20,
+  },
+
+  // Who's coming
+  whoSection: {
+    paddingHorizontal: 20,
+    marginBottom: 16,
+  },
+  whoHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  whoTitle: {
+    fontSize: 16,
+    fontFamily: 'PlusJakartaSansBold',
+    color: '#111',
+  },
+  whoCount: {
+    color: '#888',
+    fontFamily: 'PlusJakartaSans',
+  },
+  viewAllText: {
+    fontSize: 13,
     fontFamily: 'PlusJakartaSansBold',
     color: BRAND,
+  },
+  avatarOverlapRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  participantAvatar: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    borderWidth: 2,
+    borderColor: '#fff',
+  },
+  participantAvatarFallback: {
+    backgroundColor: BRAND,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  participantAvatarInitial: {
+    color: '#fff',
+    fontSize: 13,
+    fontFamily: 'PlusJakartaSansBold',
+  },
+  extraAvatar: {
+    backgroundColor: '#E5E7EB',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  extraAvatarText: {
+    fontSize: 11,
+    fontFamily: 'PlusJakartaSansBold',
+    color: '#555',
+  },
+  joinedFriendsText: {
+    fontSize: 13,
+    fontFamily: 'PlusJakartaSans',
+    color: '#888',
+    marginTop: 4,
   },
 
   // Footer
   footer: {
     flexDirection: 'row',
     gap: 10,
-    paddingHorizontal: 20,
-    paddingVertical: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
     borderTopWidth: 1,
     borderTopColor: '#F0F0F0',
     backgroundColor: '#fff',
   },
-  chatBtn: {
+  primaryBtn: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    borderRadius: 14,
-    borderWidth: 1.5,
-    borderColor: BRAND,
-  },
-  chatBtnText: {
-    fontSize: 15,
-    fontFamily: 'PlusJakartaSansBold',
-    color: BRAND,
-  },
-  actionBtn: {
-    flex: 1,
-    paddingVertical: 14,
-    borderRadius: 14,
-    alignItems: 'center',
-  },
-  joinBtn: {
+    justifyContent: 'center',
+    gap: 8,
     backgroundColor: BRAND,
+    paddingVertical: 15,
+    borderRadius: 16,
     shadowColor: BRAND,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 4,
   },
-  joinBtnText: {
+  primaryBtnText: {
     fontSize: 16,
     fontFamily: 'PlusJakartaSansBold',
     color: '#fff',
   },
-  leaveBtn: {
-    backgroundColor: '#FEF2F2',
-    borderWidth: 1,
-    borderColor: '#FCA5A5',
+  secondaryBtn: {
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    borderRadius: 16,
+    borderWidth: 1.5,
+    borderColor: '#E5E7EB',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  leaveBtnText: {
+  secondaryBtnText: {
     fontSize: 15,
     fontFamily: 'PlusJakartaSansBold',
-    color: '#EF4444',
+    color: '#555',
   },
-  fullBtn: {
+  bookmarkBtn: {
+    width: 52,
+    height: 52,
+    borderRadius: 16,
     backgroundColor: '#F3F4F6',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  fullBtnText: {
-    fontSize: 15,
+  disabledBtn: {
+    backgroundColor: '#F3F4F6',
+    shadowOpacity: 0,
+    elevation: 0,
+  },
+  disabledBtnText: {
+    fontSize: 16,
     fontFamily: 'PlusJakartaSansMedium',
     color: '#9CA3AF',
   },
