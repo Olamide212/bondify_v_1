@@ -46,6 +46,7 @@ export default function SocialProfileScreen() {
   const [profile, setProfile] = useState(null);
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const [followLoading, setFollowLoading] = useState(false);
   const [isFollowing, setIsFollowing] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
@@ -54,6 +55,7 @@ export default function SocialProfileScreen() {
 
   const loadProfile = async () => {
     if (!id) return;
+    setError(false);
     try {
       const [profileRes, followRes] = await Promise.all([
         feedService.getUserProfile(id),
@@ -66,7 +68,7 @@ export default function SocialProfileScreen() {
       setPosts(Array.isArray(userPosts) ? userPosts : []);
       setIsFollowing(followRes?.isFollowing ?? false);
     } catch {
-      // silent fail
+      setError(true);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -117,6 +119,28 @@ export default function SocialProfileScreen() {
         </View>
         <View style={s.loadingContainer}>
           <ActivityIndicator size="large" color={BRAND} />
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (error || !profile) {
+    return (
+      <SafeAreaView style={s.container} edges={['top']}>
+        <View style={s.header}>
+          <TouchableOpacity onPress={() => router.back()} style={s.backBtn} hitSlop={10}>
+            <ArrowLeft size={22} color="#333" />
+          </TouchableOpacity>
+          <Text style={s.headerTitle}>Profile</Text>
+          <View style={{ width: 36 }} />
+        </View>
+        <View style={s.loadingContainer}>
+          <Text style={{ fontSize: 16, color: '#888', textAlign: 'center', fontFamily: 'PlusJakartaSansMedium' }}>
+            Could not load profile.{'\n'}Please try again.
+          </Text>
+          <TouchableOpacity onPress={() => { setLoading(true); loadProfile(); }} style={{ marginTop: 16, paddingHorizontal: 24, paddingVertical: 12, backgroundColor: BRAND, borderRadius: 12 }}>
+            <Text style={{ color: '#fff', fontFamily: 'PlusJakartaSansBold', fontSize: 14 }}>Retry</Text>
+          </TouchableOpacity>
         </View>
       </SafeAreaView>
     );

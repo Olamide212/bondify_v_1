@@ -13,6 +13,7 @@ import {
 } from 'lucide-react-native';
 import { useEffect, useRef, useState } from 'react';
 import {
+  Alert,
   FlatList,
   Image,
   KeyboardAvoidingView,
@@ -104,9 +105,11 @@ export default function BondupChatScreen({ chatId, bondupTitle, participantCount
       } else {
         // Server didn't return a proper message — remove the temp optimistic entry
         setMessages((prev) => prev.filter((m) => m._id !== tempMsg._id));
+        Alert.alert('Error', 'Message could not be sent. Please try again.');
       }
     } catch {
       setMessages((prev) => prev.filter((m) => m._id !== tempMsg._id));
+      Alert.alert('Error', 'Failed to send message. Check your connection.');
     } finally {
       setSending(false);
     }
