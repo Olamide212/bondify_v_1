@@ -1,23 +1,24 @@
+import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
+import { UserX } from "lucide-react-native";
 import { useCallback, useEffect, useState } from "react";
 import {
-  ActivityIndicator,
-  Alert,
-  FlatList,
-  Image,
-  Pressable,
-  RefreshControl,
-  StyleSheet,
-  Text,
-  View,
+    ActivityIndicator,
+    Alert,
+    FlatList,
+    Image,
+    Pressable,
+    RefreshControl,
+    StyleSheet,
+    Text,
+    View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useRouter } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
-import { UserX } from "lucide-react-native";
+import { colors } from "../../../constant/colors";
 import SettingsService from "../../../services/settingsService";
 
-const PRIMARY       = "#E8572A";
-const PRIMARY_LIGHT = "#FFF0EB";
+const PRIMARY       = colors.primary;
+const PRIMARY_LIGHT = colors.primaryLight;
 
 // ── Helpers ───────────────────────────────────────────────────
 const getInitials = (name = "") =>

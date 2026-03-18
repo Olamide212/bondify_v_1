@@ -87,7 +87,7 @@ const InfoSection = () => {
     },
     {
       title: "Invite Friends",
-      description: "Share Bondify and get rewards when friends join.",
+      description: "Share Bondies and get rewards when friends join.",
       icon: Users,
       link: "invite",
     },

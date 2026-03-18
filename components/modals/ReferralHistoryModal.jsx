@@ -1,18 +1,19 @@
 import { CheckCircle, Clock, Gift, Users, X, XCircle } from "lucide-react-native";
 import {
-  ActivityIndicator,
-  FlatList,
-  Image,
-  Pressable,
-  StyleSheet,
-  Text,
-  View
+    ActivityIndicator,
+    FlatList,
+    Image,
+    Pressable,
+    StyleSheet,
+    Text,
+    View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { colors } from "../../constant/colors";
 import BaseModal from "./BaseModal";
 
-const PRIMARY = "#E8572A";
-const PRIMARY_LIGHT = "#FFF0EB";
+const PRIMARY = colors.primary;
+const PRIMARY_LIGHT = colors.primaryLight;
 
 // ─── Status config ────────────────────────────────────────────────────────────
 const STATUS_CONFIG = {

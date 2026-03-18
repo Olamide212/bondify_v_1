@@ -1,24 +1,16 @@
-import { Share } from "react-native";
+import { ArrowLeft, Copy, Gift, Share2, Star, Users } from "lucide-react-native";
 import { useCallback, useEffect, useState } from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  Pressable,
-  Image,
-  Alert,
-  Clipboard,
-  ActivityIndicator,
+  ActivityIndicator, Alert,
+  Clipboard, Image, Pressable, ScrollView, Share, StyleSheet, Text, View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Copy, Share2, Gift, Star, Users } from "lucide-react-native";
-import { ArrowLeft } from "lucide-react-native";
 import GeneralHeader from "../../../../components/headers/GeneralHeader";
+import { colors } from "../../../../constant/colors";
 import SettingsService from "../../../../services/settingsService";
 
-const PRIMARY       = "#E8572A";
-const PRIMARY_LIGHT = "#FFF0EB";
+const PRIMARY       = colors.primary;
+const PRIMARY_LIGHT = colors.primaryLight;
 
 const InviteScreen = ({ navigation }) => {
   const [referralCode,  setReferralCode]  = useState(null);
@@ -228,7 +220,7 @@ const styles = StyleSheet.create({
   countText:  { fontSize: 12, fontFamily: "PlusJakartaSansMedium", color: PRIMARY },
 
   shareBtn:         { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10, backgroundColor: PRIMARY, borderRadius: 30, paddingVertical: 16, width: "100%", marginTop: 4 },
-  shareBtnDisabled: { backgroundColor: "#F9A88A" },
+  shareBtnDisabled: { backgroundColor: "#A99BC4" },
   shareBtnText:     { color: "#fff", fontSize: 16, fontFamily: "PlusJakartaSansSemiBold" },
 
   howSection: { marginHorizontal: 16 },
