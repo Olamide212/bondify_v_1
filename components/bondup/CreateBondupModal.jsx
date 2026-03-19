@@ -3,31 +3,31 @@
  */
 
 import {
-  Calendar,
-  ChevronRight,
-  Clock,
-  Globe,
-  Lock,
-  MapPin,
-  X,
+    Calendar,
+    ChevronRight,
+    Clock,
+    Globe,
+    Lock,
+    MapPin,
+    X,
 } from 'lucide-react-native';
 import { useState } from 'react';
 import {
-  ActivityIndicator,
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Alert,
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 import { useSelector } from 'react-redux';
-import BaseModal from '../modals/BaseModal';
 import { colors } from '../../constant/colors';
 import bondupService from '../../services/bondupService';
+import BaseModal from '../modals/BaseModal';
 
 const BRAND = colors.primary;
 
@@ -236,6 +236,25 @@ export default function CreateBondupModal({ visible, onClose, onCreated }) {
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
+          {/* ── POST TYPE ── */}
+          <Text style={s.sectionLabel}>POST TYPE</Text>
+          <View style={s.postTypeRow}>
+            {Object.entries(POST_TYPES).map(([key, { emoji, label, desc }]) => (
+              <TouchableOpacity
+                key={key}
+                style={[s.postTypeCard, postType === key && s.postTypeCardActive]}
+                onPress={() => setPostType(key)}
+                activeOpacity={0.7}
+              >
+                <Text style={s.postTypeEmoji}>{emoji}</Text>
+                <Text style={[s.postTypeLabel, postType === key && s.postTypeLabelActive]}>
+                  {label}
+                </Text>
+                <Text style={s.postTypeDesc}>{desc}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+
           {/* ── WHAT'S THE PLAN? section ── */}
           <Text style={s.sectionLabel}>WHAT'S THE PLAN?</Text>
           <View style={s.card}>
@@ -386,27 +405,8 @@ export default function CreateBondupModal({ visible, onClose, onCreated }) {
 
           {showAdvanced && (
             <View style={s.advancedSection}>
-              {/* Post type */}
-              <Text style={s.advancedLabel}>POST TYPE</Text>
-              <View style={s.postTypeRow}>
-                {Object.entries(POST_TYPES).map(([key, { emoji, label, desc }]) => (
-                  <TouchableOpacity
-                    key={key}
-                    style={[s.postTypeCard, postType === key && s.postTypeCardActive]}
-                    onPress={() => setPostType(key)}
-                    activeOpacity={0.7}
-                  >
-                    <Text style={s.postTypeEmoji}>{emoji}</Text>
-                    <Text style={[s.postTypeLabel, postType === key && s.postTypeLabelActive]}>
-                      {label}
-                    </Text>
-                    <Text style={s.postTypeDesc}>{desc}</Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-
               {/* Max participants */}
-              <Text style={[s.advancedLabel, { marginTop: 16 }]}>MAX PARTICIPANTS</Text>
+              <Text style={s.advancedLabel}>MAX PARTICIPANTS</Text>
               <View style={s.card}>
                 <TextInput
                   style={s.titleInput}

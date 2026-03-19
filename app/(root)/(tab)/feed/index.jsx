@@ -8,6 +8,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
+  AppState,
   Image,
   RefreshControl,
   ScrollView,
@@ -30,41 +31,58 @@ import { socketService } from '../../../../services/socketService';
 
 const BRAND = colors.primary;
 
-// ─── Combined filter chips (time-based + activity) ───────────────────────────
-const FILTER_CHIPS = [
-  { key: 'all',    label: 'All' },
-  { key: 'today',  label: 'Today' },
-  { key: 'week',   label: 'This Week' },
-  { key: 'coffee', emoji: '☕', label: 'Coffee' },
-  { key: 'food',   emoji: '🍔', label: 'Dining' },
-  { key: 'drinks', emoji: '🍹', label: 'Drinks' },
-  { key: 'gym',    emoji: '💪', label: 'Gym' },
-  { key: 'walk',   emoji: '🚶', label: 'Outdoor' },
-  { key: 'movie',  emoji: '🎬', label: 'Cinema' },
-  { key: 'other',  emoji: '✨', label: 'Other' },
-];
-
-const ACTIVITY_KEYS = new Set(['coffee', 'food', 'drinks', 'gym', 'walk', 'movie', 'other']);
-
-// ─── Time filter (client-side) ───────────────────────────────────────────────
-const applyTimeFilter = (items, filter) => {
+// ─── Filters (current week + post type) ─────────────────────────────────────
+const buildDayFilters = () => {
   const now = new Date();
   const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  if (filter === 'today') {
-    const endOfToday = new Date(startOfToday.getTime() + 86400000);
-    return items.filter((b) => {
-      const d = new Date(b.dateTime);
-      return d >= startOfToday && d < endOfToday;
-    });
+  const todayDay = startOfToday.getDay(); // 0 = Sunday
+  const oneDayMs = 86400000;
+
+  const offsets = [-1, 0, 1];
+  const remainingDays = (7 - todayDay) % 7; // days left in this week including today
+  for (let i = 2; i <= remainingDays; i += 1) {
+    offsets.push(i); // remaining days in the current week
   }
-  if (filter === 'week') {
-    const endOfWeek = new Date(startOfToday.getTime() + 7 * 86400000);
-    return items.filter((b) => {
-      const d = new Date(b.dateTime);
-      return d >= startOfToday && d < endOfWeek;
-    });
-  }
-  return items;
+
+  const chips = [{ key: 'all', label: 'All' }];
+  const windows = { all: null };
+
+  offsets.forEach((offset) => {
+    const start = new Date(startOfToday.getTime() + offset * oneDayMs);
+    const end = new Date(start.getTime() + oneDayMs);
+
+    const label =
+      offset === -1
+        ? 'Yesterday'
+        : offset === 0
+          ? 'Today'
+          : offset === 1
+            ? 'Tomorrow'
+            : start.toLocaleDateString(undefined, { weekday: 'long' });
+
+    const key = `day_${offset}`;
+    chips.push({ key, label });
+    windows[key] = { start, end };
+  });
+
+  return { chips, windows };
+};
+
+const TYPE_CHIPS = [
+  { key: 'join_me', label: 'Join Me' },
+  { key: 'i_am_available', label: "I'm Available" },
+];
+
+// ─── Time filter (client-side) ───────────────────────────────────────────────
+const applyTimeFilter = (items, filterKey, windows) => {
+  if (filterKey === 'all') return items;
+  const window = windows[filterKey];
+  if (!window) return items;
+
+  return items.filter((b) => {
+    const d = new Date(b.dateTime);
+    return d >= window.start && d < window.end;
+  });
 };
 
 // ─── avatar helper ──────────────────────────────────────────────────────────
@@ -80,31 +98,74 @@ export default function BondupFeedScreen() {
   const [bondups, setBondups] = useState([]);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  const [activeFilter, setActiveFilter] = useState('all');
+  const [activeDayFilter, setActiveDayFilter] = useState('all');
+  const [activeTypeFilter, setActiveTypeFilter] = useState('join_me');
   const [detailBondup, setDetailBondup] = useState(null);
   const [showCreate, setShowCreate] = useState(false);
   const [joinLoading, setJoinLoading] = useState(false);
   const [joinedBondup, setJoinedBondup] = useState(null);
   const loadRequestRef = useRef(0);
+  const midnightTimeoutRef = useRef(null);
+  const appStateRef = useRef(AppState.currentState);
+
+  const [filterData, setFilterData] = useState(() => buildDayFilters());
+  const { chips: filterChips, windows: filterWindows } = filterData;
+
+  const rebuildFilters = useCallback(() => {
+    const next = buildDayFilters();
+    setFilterData(next);
+    setActiveDayFilter((prev) => (next.windows[prev] ? prev : 'all'));
+  }, []);
+
+  useEffect(() => {
+    rebuildFilters();
+
+    const scheduleMidnight = () => {
+      const now = new Date();
+      const nextMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+      const timeoutMs = nextMidnight.getTime() - now.getTime();
+
+      midnightTimeoutRef.current = setTimeout(() => {
+        rebuildFilters();
+        scheduleMidnight();
+      }, timeoutMs);
+    };
+
+    scheduleMidnight();
+
+    return () => {
+      if (midnightTimeoutRef.current) {
+        clearTimeout(midnightTimeoutRef.current);
+      }
+    };
+  }, [rebuildFilters]);
+
+  // Refresh filters and data when returning to foreground after a long suspend
+  useEffect(() => {
+    const sub = AppState.addEventListener('change', (nextState) => {
+      const prevState = appStateRef.current;
+      appStateRef.current = nextState;
+
+      const wasSuspended = prevState !== 'active';
+      if (wasSuspended && nextState === 'active') {
+        rebuildFilters();
+        loadBondups();
+      }
+    });
+
+    return () => sub.remove();
+  }, [loadBondups, rebuildFilters]);
 
   // ── Load bondups ─────────────────────────────────────────────────────────
   const loadBondups = useCallback(async () => {
     const seq = ++loadRequestRef.current;
     setLoading(true);
     try {
-      const params = {};
-      if (ACTIVITY_KEYS.has(activeFilter)) {
-        params.activityType = activeFilter;
-      }
-      // No postType filter — return all bondups
-
-      const res = await bondupService.getPublicBondups(params);
+      const res = await bondupService.getPublicBondups({});
 
       if (seq === loadRequestRef.current) {
-        let items = res.data ?? [];
-        if (activeFilter === 'today' || activeFilter === 'week') {
-          items = applyTimeFilter(items, activeFilter);
-        }
+        let items = applyTimeFilter(res.data ?? [], activeDayFilter, filterWindows);
+        items = items.filter((b) => (b.postType || 'join_me') === activeTypeFilter);
         setBondups(items);
       }
     } catch {
@@ -114,7 +175,7 @@ export default function BondupFeedScreen() {
         setLoading(false);
       }
     }
-  }, [activeFilter]);
+  }, [activeDayFilter, activeTypeFilter, filterWindows]);
 
   useEffect(() => {
     loadBondups();
@@ -303,34 +364,53 @@ export default function BondupFeedScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* ── Combined filter chips (time + activity) ──────────────────────── */}
+        {/* ── Day filters ─────────────────────────────────────────────── */}
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={fStyles.filterScroller}
+          style={fStyles.filterBar}
+          contentContainerStyle={fStyles.filterContent}
         >
-          {FILTER_CHIPS.map((chip) => (
-            <TouchableOpacity
-              key={chip.key}
-              style={[
-                fStyles.filterChip,
-                activeFilter === chip.key && fStyles.filterChipActive,
-              ]}
-              onPress={() => setActiveFilter(chip.key)}
-              activeOpacity={0.7}
-            >
-              {chip.emoji && <Text style={fStyles.filterChipEmoji}>{chip.emoji}</Text>}
-              <Text
-                style={[
-                  fStyles.filterChipText,
-                  activeFilter === chip.key && fStyles.filterChipTextActive,
-                ]}
+          
+          {filterChips.map((chip) => {
+            const isActive = activeDayFilter === chip.key;
+            return (
+              <TouchableOpacity
+                key={chip.key}
+                style={[fStyles.filterChip, isActive && fStyles.filterChipActive]}
+                onPress={() => setActiveDayFilter(chip.key)}
+                activeOpacity={0.8}
               >
-                {chip.label}
-              </Text>
-            </TouchableOpacity>
-          ))}
+                <Text
+                  style={[fStyles.filterChipText, isActive && fStyles.filterChipTextActive]}
+                >
+                  {chip.label}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
         </ScrollView>
+
+        {/* ── Type filters (tab style) ─────────────────────────────────── */}
+        <View style={[fStyles.filterBar, fStyles.typeTabBar]}>
+          {TYPE_CHIPS.map((chip) => {
+            const isActive = activeTypeFilter === chip.key;
+            return (
+              <TouchableOpacity
+                key={chip.key}
+                style={[fStyles.typeTab, isActive && fStyles.typeTabActive]}
+                onPress={() => setActiveTypeFilter(chip.key)}
+                activeOpacity={0.8}
+              >
+                <Text
+                  style={[fStyles.typeTabText, isActive && fStyles.typeTabTextActive]}
+                >
+                  {chip.label}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
 
         {/* ── Feed list ────────────────────────────────────────────────────── */}
         <ScrollView
@@ -445,8 +525,8 @@ const fStyles = StyleSheet.create({
     borderBottomColor: '#F0F0F0',
   },
   headerLogo: {
-    height: 32,
-    width: 120,
+    height: 50,
+    width: 110,
   },
   headerAvatar: {
     width: 38,
@@ -462,31 +542,33 @@ const fStyles = StyleSheet.create({
   },
 
   // Filter chips
-  filterScroller: {
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    gap: 8,
+  filterBar: {
     backgroundColor: '#fff',
     borderBottomWidth: 1,
     borderBottomColor: '#F0F0F0',
   },
-  filterChip: {
+  filterContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    paddingHorizontal: 14,
-    paddingVertical: 7,
-    borderRadius: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 6,
+    backgroundColor: '#000',
+  },
+  filterChip: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 18,
     backgroundColor: '#F3F4F6',
     borderWidth: 1.5,
     borderColor: 'transparent',
+    marginRight: 8,
+  },
+  typeChipOffset: {
+    marginLeft: 10,
   },
   filterChipActive: {
     borderColor: BRAND,
     backgroundColor: colors.primaryLight,
-  },
-  filterChipEmoji: {
-    fontSize: 14,
   },
   filterChipText: {
     fontSize: 13,
@@ -496,6 +578,31 @@ const fStyles = StyleSheet.create({
   filterChipTextActive: {
     color: BRAND,
     fontFamily: 'PlusJakartaSansBold',
+  },
+
+  // Type tabs (profile-style)
+  typeTabBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+  },
+  typeTab: {
+    flex: 1,
+    alignItems: 'center',
+    paddingVertical: 10,
+    borderBottomWidth: 2,
+    borderBottomColor: 'transparent',
+  },
+  typeTabActive: {
+    borderBottomColor: BRAND,
+  },
+  typeTabText: {
+    fontSize: 14,
+    fontFamily: 'PlusJakartaSansBold',
+    color: '#9CA3AF',
+  },
+  typeTabTextActive: {
+    color: '#111',
   },
 
   // Empty state
