@@ -1,7 +1,11 @@
 /**
  * Bondup Feed Screen  —  app/(root)/(tab)/feed/index.jsx
+ *
+ * Persistence fix: Uses AsyncStorage to cache Bondups locally so they persist
+ * across navigation and app restarts. Implements stale-while-revalidate pattern.
  */
 
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import { Plus } from 'lucide-react-native';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -28,6 +32,19 @@ import { images } from '../../../../constant/images';
 import bondupChatService from '../../../../services/bondupChatService';
 import bondupService from '../../../../services/bondupService';
 import { socketService } from '../../../../services/socketService';
+
+// ─── Cache keys for persistence ──────────────────────────────────────────────
+const BONDUPS_CACHE_KEY = '@bondify/cache/bondups';
+const BONDUPS_CACHE_TIMESTAMP_KEY = '@bondify/cache/bondups_ts';
+const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
+const safeParse = (value) => {
+  try {
+    return JSON.parse(value);
+  } catch {
+    return null;
+  }
+};
 
 const BRAND = colors.primary;
 
@@ -108,7 +125,7 @@ export default function BondupFeedScreen() {
   const loadRequestRef = useRef(0);
   const midnightTimeoutRef = useRef(null);
   const appStateRef = useRef(AppState.currentState);
-  
+  const hasRestoredCache = useRef(false);
 
   const [filterData, setFilterData] = useState(() => buildDayFilters());
   const { chips: filterChips, windows: filterWindows } = filterData;
@@ -158,24 +175,57 @@ export default function BondupFeedScreen() {
     return () => sub.remove();
   }, [loadBondups, rebuildFilters]);
 
-  // ── Load bondups (fetches ALL, stores raw) ──────────────────────────────
+  // ── Persist bondups to AsyncStorage ──────────────────────────────────────
+  const persistBondups = useCallback(async (data) => {
+    try {
+      await AsyncStorage.setItem(BONDUPS_CACHE_KEY, JSON.stringify(data));
+      await AsyncStorage.setItem(BONDUPS_CACHE_TIMESTAMP_KEY, String(Date.now()));
+    } catch {
+      // silent fail
+    }
+  }, []);
+
+  // ── Restore bondups from AsyncStorage (stale-while-revalidate) ───────────
+  useEffect(() => {
+    let isMounted = true;
+    const restoreCache = async () => {
+      if (hasRestoredCache.current) return;
+      try {
+        const cached = await AsyncStorage.getItem(BONDUPS_CACHE_KEY);
+        const parsed = safeParse(cached);
+        if (isMounted && Array.isArray(parsed) && parsed.length > 0) {
+          setAllBondups(parsed);
+          hasRestoredCache.current = true;
+        }
+      } catch {
+        // silent fail
+      }
+    };
+    restoreCache();
+    return () => { isMounted = false; };
+  }, []);
+
+  // ── Load bondups (fetches ALL, stores raw, persists to cache) ────────────
   const loadBondups = useCallback(async () => {
     const seq = ++loadRequestRef.current;
     setLoading(true);
     try {
       const res = await bondupService.getPublicBondups({});
+      const data = res.data ?? [];
 
       if (seq === loadRequestRef.current) {
-        setAllBondups(res.data ?? []);
+        setAllBondups(data);
+        // Persist to AsyncStorage for offline/stale-while-revalidate
+        persistBondups(data);
       }
     } catch {
-      // silent fail
+      // On network error, keep existing data (stale-while-revalidate)
     } finally {
       if (seq === loadRequestRef.current) {
         setLoading(false);
       }
     }
-  }, []);
+  }, [persistBondups]);
 
   useEffect(() => {
     loadBondups();
@@ -187,6 +237,14 @@ export default function BondupFeedScreen() {
     items = items.filter((b) => (b.postType || 'join_me') === activeTypeFilter);
     setBondups(items);
   }, [allBondups, activeDayFilter, activeTypeFilter, filterWindows]);
+
+  // ── Persist allBondups changes to AsyncStorage ───────────────────────────
+  useEffect(() => {
+    // Only persist if we have data (avoid persisting empty array on initial mount)
+    if (allBondups.length > 0) {
+      persistBondups(allBondups);
+    }
+  }, [allBondups, persistBondups]);
 
   const onRefresh = async () => {
     setRefreshing(true);
