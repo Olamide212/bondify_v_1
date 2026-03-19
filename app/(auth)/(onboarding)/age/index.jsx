@@ -6,8 +6,9 @@ import Info from "../../../../components/ui/Info";
 import WheelPicker from "../../../../components/ui/WheelPicker";
 import { months } from "../../../../data/months";
 import { useProfileSetup } from "../../../../hooks/useProfileSetup";
+import { colors } from "../../../../constant/colors";
 
-const PRIMARY = "#E8651A";
+const PRIMARY = colors.secondary;
 
 const getDaysInMonth = (year, month) => new Date(year, month + 1, 0).getDate();
 

@@ -17,10 +17,11 @@ import PhotoGuidelinesModal from "../../../../components/modals/PhotoGuidelinesM
 import Button from "../../../../components/ui/Button";
 import { useProfileSetup } from "../../../../hooks/useProfileSetup";
 import { profileService } from "../../../../services/profileService";
+import { colors } from "../../../../constant/colors";
 
 // Define colors object
-const colors = {
-  primary: "#EE5F2B", // Replace with your app's primary color if different
+const color = {
+  primary: colors.primary, // Replace with your app's primary color if different
 };
 
 const UploadPhoto = () => {
@@ -94,7 +95,7 @@ const UploadPhoto = () => {
                   <Ionicons name="information-circle" size={24} color={colors.primary} />
                 </TouchableOpacity> */}
               </View>
-              <View className="flex-row items-center gap-2 mb-4 bg-primary/5 p-4 rounded-lg border border-primary/30 mt-5">
+              <View className="flex-row items-center gap-2 mb-4 bg-primary/5 p-4 rounded-lg border border-primary/30 mt-2">
               <View>
             
                 <Lightbulb size={20} color={colors.primary} style={{ marginTop: 2 }} />
@@ -122,7 +123,7 @@ const UploadPhoto = () => {
                         resizeMode="cover"
                       />
                     ) : (
-                      <Ionicons name="add" size={32} color="#EE5F2B" />
+                      <Ionicons name="add" size={32} color={colors.primary} />
                     )}
                   </TouchableOpacity>
 

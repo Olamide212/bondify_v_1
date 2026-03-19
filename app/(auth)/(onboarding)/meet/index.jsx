@@ -59,7 +59,7 @@ const Meet = () => {
             <View className="w-full items-end pb-6">
               <Button
                 title="Continue"
-                variant="gradient"
+                variant="primary"
                 onPress={async () => {
                   // Persist canonical values so matching logic aligns with profile genders
                   const preferenceValues = selectedOptions.map((val) => {

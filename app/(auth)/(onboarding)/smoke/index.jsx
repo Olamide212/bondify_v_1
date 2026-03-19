@@ -61,7 +61,7 @@ const Smoke = () => {
             <View className="w-full items-end pb-6">
               <Button
                 title="Continue"
-                variant="gradient"
+                variant="primary"
                 onPress={async () => {
                   await updateProfileStep({ smoking });
                   router.push("/drink");

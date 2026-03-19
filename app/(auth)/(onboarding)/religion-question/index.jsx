@@ -67,7 +67,7 @@ const ReligionQuestions = () => {
             <View className="w-full items-end pb-6">
               <Button
                 title="Continue"
-                variant="gradient"
+                variant="primary"
                 onPress={async () => {
                   const normalizedImportance =
                     religionImportanceMap[religionImportance?.toLowerCase?.()] ||

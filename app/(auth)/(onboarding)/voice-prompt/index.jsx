@@ -20,7 +20,8 @@ import {
     Text,
     TouchableOpacity,
     TouchableWithoutFeedback,
-    View
+    View,
+    Pressable
 } from "react-native";
 import BaseModal from "../../../../components/modals/BaseModal";
 import Button from "../../../../components/ui/Button";
@@ -470,10 +471,10 @@ const VoicePrompt = () => {
 
             </ScrollView>
 
-            <View className="w-full items-end pb-6">
+            <View className="w-full  pb-6">
               <Button
                 title="Continue"
-                variant="gradient"
+                variant="primary"
                 onPress={async () => {
                   setSubmitting(true);
                   try {
@@ -481,7 +482,7 @@ const VoicePrompt = () => {
                       await profileService.uploadVoicePrompt(voiceBioUri);
                       Alert.alert("✅ Voice bio submitted!", "Your recording has been saved successfully.");
                     }
-                    router.push("/profile-prompts");
+                    router.push("/profile-answers");
                   } catch (err) {
                     console.error("Voice upload error:", err);
                     const errorMsg = err?.response?.data?.message || "Could not save voice recording.";
@@ -492,6 +493,9 @@ const VoicePrompt = () => {
                 }}
                 disabled={submitting}
               />
+              <Pressable onPress={() => router.push("/profile-answers")} disabled={submitting} className="w-full items-center mt-4">
+              <Text className='text-center mt-3 font-PlusJakartaSansMedium text-lg'>Skip</Text>
+              </Pressable>
             </View>
           </View>
         </TouchableWithoutFeedback>

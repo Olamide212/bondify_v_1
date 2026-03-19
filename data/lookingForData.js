@@ -1,8 +1,11 @@
+// Must match User model `lookingFor` enum AND seed values in seedLookups.js
 export const RELATIONSHIP_OPTIONS = [
-  { label: "Long term", value: "Long term" },
-  { label: "Something Casual", value: "Something Casual" },
-  { label: "Short term", value: "Short term" },
-  { label: "Meet business oriented people", value: "Meet business oriented people" },
-  { label: "I am not sure", value: "I am not sure" },
-  { label: "A Committed relationship", value: "A Committed relationship" },
+  { label: "Long term relationship",  value: "Long term relationship" },
+  { label: "Something Casual",         value: "Something Casual" },
+  { label: "A Committed relationship",  value: "A Committed relationship" },
+  { label: "Marriage",                  value: "Marriage" },
+  { label: "Friendship",                value: "Friendship" },
+  { label: "Activity partner",          value: "Activity partner" },
+  { label: "Just here for fun",         value: "Just here for fun" },
+  { label: "Other",                     value: "Other" },
 ];

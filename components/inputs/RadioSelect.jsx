@@ -1,6 +1,7 @@
 // components/inputs/RadioSelect.jsx
 import { Ionicons } from "@expo/vector-icons";
 import { Text, TouchableOpacity, View } from "react-native";
+import { colors } from "../../constant/colors";
 
 const RadioSelect = ({
   label,
@@ -73,7 +74,7 @@ const RadioSelect = ({
                     : (multiSelect ? "square-outline" : "radio-button-off")
                 }
                 size={20}
-                color={isSelected(option.value) ? "#EE5F2B" : "#A4A4A4"}
+                color={isSelected(option.value) ? colors.primary : "#A4A4A4"}
               />
             </View>
           </TouchableOpacity>

@@ -61,7 +61,7 @@ const Religion = () => {
             <View className="w-full items-end mt-4">
               <Button
                 title="Continue"
-                variant="gradient"
+                variant="primary"
                 onPress={async () => {
                   await updateProfileStep({ religion });
                   router.push("/religion-question");

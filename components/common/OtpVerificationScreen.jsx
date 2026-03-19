@@ -40,6 +40,7 @@ const OtpVerificationScreen = ({
   onResend,
   onBack,
   submitLabel = "Continue",
+  backButton = false,
 }) => {
   const [code, setCode] = useState("");
   const [touched, setTouched] = useState(false);
@@ -85,13 +86,17 @@ const OtpVerificationScreen = ({
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View className="flex-1 px-2 mt-4">
-            {/* Back button */}
-            <TouchableOpacity
+         {/* Back button */}
+            {backButton && (
+  <TouchableOpacity
               onPress={handleBack}
               className="mb-4 w-10 h-10 items-center justify-center"
             >
               <ChevronLeft size={24} color="#111" />
             </TouchableOpacity>
+            )}
+   
+          
 
             <Text className="text-3xl font-PlusJakartaSansBold text-black">
               {title}

@@ -51,7 +51,7 @@ const Ethnicity = () => {
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View className="flex-1 px-2">
-            <ScrollView className="flex-1 mt-8 bg-white" showsVerticalScrollIndicator={false}>
+            <ScrollView className="flex-1  bg-white" showsVerticalScrollIndicator={false}>
             <View className="flex-1 mt-8">
               <Text className="text-3xl font-PlusJakartaSansBold mb-2">
                 What’s Your Ethnicity?
@@ -73,7 +73,7 @@ const Ethnicity = () => {
             <View className="w-full items-end pb-6">
               <Button
                 title="Continue"
-                variant="gradient"
+                variant="primary"
                 onPress={async () => {
                   // Find the selected option's label
                await updateProfileStep({ ethnicity });

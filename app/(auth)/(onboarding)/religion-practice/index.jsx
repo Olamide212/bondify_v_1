@@ -42,7 +42,7 @@ const ReligionPractice = () => {
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View className="flex-1 px-2">
             <ScrollView className="flex-1 mt-8" showsVerticalScrollIndicator={false}>
-            <View className="flex-1 mt-8">
+            <View className="flex-1 ">
               <Text className="text-3xl font-PlusJakartaSansBold text-app mb-2">
                 How well do you practice your religion?
               </Text>
@@ -62,7 +62,7 @@ const ReligionPractice = () => {
             <View className="w-full items-end pb-6">
               <Button
                 title="Continue"
-                variant="gradient"
+                variant="primary"
                 onPress={async () => {
                   await updateProfileStep({ religionPractice });
                   router.push("/relocation-preference");

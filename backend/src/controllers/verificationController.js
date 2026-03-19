@@ -80,6 +80,56 @@ Rules:
   }
 };
 
+/**
+ * Uses OpenAI Vision to compare a selfie with a profile photo.
+ * Returns { match: boolean, confidence: string, reason: string }
+ */
+const compareFacesWithAI = async (selfieBuffer, profilePhotoUrl, mimeType = 'image/jpeg') => {
+  try {
+    const selfieBase64 = selfieBuffer.toString('base64');
+    const response = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      max_tokens: 150,
+      messages: [
+        {
+          role: 'user',
+          content: [
+            {
+              type: 'text',
+              text: `Compare these two photos. The first is a verification selfie and the second is the user's profile photo. Determine if they are the SAME person.
+
+Reply ONLY in this exact JSON format (no markdown):
+{"match": true/false, "confidence": "high"/"medium"/"low", "reason": "one sentence explanation"}
+
+Rules:
+- match true ONLY if the two faces clearly belong to the same person (same facial structure, features)
+- Consider that lighting, angle, expression, and hairstyle may differ between photos
+- If uncertain, set match to false with confidence "low"
+- Be strict: we need to prevent catfishing`,
+            },
+            {
+              type: 'image_url',
+              image_url: { url: `data:${mimeType};base64,${selfieBase64}`, detail: 'low' },
+            },
+            {
+              type: 'image_url',
+              image_url: { url: profilePhotoUrl, detail: 'low' },
+            },
+          ],
+        },
+      ],
+    });
+
+    const raw   = response.choices[0]?.message?.content?.trim() || '';
+    const clean = raw.replace(/```json|```/g, '').trim();
+    return JSON.parse(clean);
+  } catch (err) {
+    console.error('[verification] AI face comparison failed:', err.message);
+    // Fail open — skip comparison, rely on face detection only
+    return { match: false, confidence: 'low', reason: 'AI comparison unavailable, queued for manual review' };
+  }
+};
+
 // ─── Controller ───────────────────────────────────────────────────────────────
 /**
  * @desc    Submit selfie for identity verification
@@ -123,6 +173,18 @@ const submitVerification = async (req, res) => {
       });
     }
 
+    // ── AI face comparison with profile photo ────────────────────────────────
+    // Get the user's first profile photo for comparison
+    const profilePhotoUrl = Array.isArray(user.images) && user.images.length > 0
+      ? [...user.images].sort((a, b) => (a.order ?? 0) - (b.order ?? 0))[0]?.url
+      : null;
+
+    let faceMatch = null;
+    if (profilePhotoUrl) {
+      faceMatch = await compareFacesWithAI(req.file.buffer, profilePhotoUrl, req.file.mimetype);
+      console.log('[verification] Face comparison result:', faceMatch);
+    }
+
     // ── Upload to S3 ─────────────────────────────────────────────────────────
     const key = getS3Key(userId.toString());
     await s3.send(new PutObjectCommand({
@@ -134,26 +196,37 @@ const submitVerification = async (req, res) => {
 
     const selfieUrl = getPublicUrl(bucket, key);
 
-    // ── Update user ──────────────────────────────────────────────────────────
-    const newStatus = AUTO_APPROVE ? 'approved' : 'pending';
+    // ── Determine approval status ────────────────────────────────────────────
+    // Auto-approve if:
+    //   1) VERIFY_AUTO_APPROVE env is true, OR
+    //   2) Face was detected AND face comparison matched with high/medium confidence
+    const autoApproveByComparison = faceMatch?.match === true
+      && (faceMatch.confidence === 'high' || faceMatch.confidence === 'medium');
+    const shouldAutoApprove = AUTO_APPROVE || autoApproveByComparison;
+
+    const newStatus = shouldAutoApprove ? 'approved' : 'pending';
     const updatePayload = {
       verificationStatus:      newStatus,
       verificationSelfieUrl:   selfieUrl,
       verificationSubmittedAt: new Date(),
     };
 
-    if (AUTO_APPROVE) {
+    if (shouldAutoApprove) {
       updatePayload.verified = true;
     }
 
     await User.findByIdAndUpdate(userId, updatePayload);
 
+    const message = shouldAutoApprove
+      ? 'Verification approved. Your profile is now verified!'
+      : faceMatch && !faceMatch.match
+        ? 'Selfie submitted. We could not automatically confirm your identity — a manual review will follow shortly.'
+        : 'Selfie submitted successfully. We will review it shortly.';
+
     return res.status(200).json({
       success: true,
-      message: AUTO_APPROVE
-        ? 'Verification approved. Your profile is now verified!'
-        : 'Selfie submitted successfully. We will review it shortly.',
-      status:  newStatus,
+      message,
+      status: newStatus,
     });
 
   } catch (err) {

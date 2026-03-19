@@ -33,7 +33,7 @@ const Agreement = () => {
         ))}
       </View>
 
-      <Button variant="gradient" title="Agree & Continue" onPress={() => router.push("/age")} />
+      <Button variant="primary" title="Agree & Continue" onPress={() => router.push("/age")} />
     </View>
   );
 };

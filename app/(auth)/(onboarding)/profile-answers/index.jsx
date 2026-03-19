@@ -41,8 +41,8 @@ const ProfileAnswers = () => {
               <Text className="text-[25px] font-PlusJakartaSansBold text-app mb-2">
                 Write your profile answers
               </Text>
-              <Text className="text-app font-PlusJakartaSans">
-                Select a prompt that excites you the list below and write your
+              <Text className="text-black font-PlusJakartaSans">
+                Select a prompt that excites you in the list below and write your
                 answers
               </Text>
 
@@ -71,7 +71,7 @@ const ProfileAnswers = () => {
             <View className="w-full items-end pb-6 mt-6">
               <Button
                 title="Continue"
-                variant="gradient"
+                variant="primary"
                 disabled={Object.values(answers).filter((a) => a.trim() !== "").length === 0}
                 onPress={async () => {
                   const questions = Object.entries(answers)

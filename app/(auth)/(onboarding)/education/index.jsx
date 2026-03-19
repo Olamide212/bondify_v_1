@@ -43,8 +43,8 @@ const Education = () => {
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View className="flex-1 px-2">
-            <View className="flex-1 mt-8">
-              <Text className="text-3xl font-PlusJakartaSansBold  mb-2">
+            <View className="flex-1 ">
+              <Text className="text-3xl font-PlusJakartaSansBold mt-8  mb-2">
                 Highest Education Obtained
               </Text>
 
@@ -62,7 +62,7 @@ const Education = () => {
             <View className="w-full items-end pb-6">
               <Button
                 title="Continue"
-                variant="gradient"
+                variant="primary"
                 onPress={async () => {
                   await updateProfileStep({ education });
                   router.push("/occupation");

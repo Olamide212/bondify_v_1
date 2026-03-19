@@ -46,16 +46,16 @@ const PromptSuggestions = ({ onSelectPrompt }) => {
       }}>
         Need inspiration? Try these prompts
       </Text>
-      <ScrollView contentContainerStyle={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }} horizontal={true}>
+      <ScrollView showsHorizontalScrollIndicator={false} contentContainerStyle={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }} horizontal={true}>
         {suggestions.map((suggestion, index) => (
           <TouchableOpacity
             key={index}
             onPress={() => onSelectPrompt(suggestion)}
             style={{
-              backgroundColor: '#FFF8F3',
+              backgroundColor: colors.primary + 20,
               borderRadius: 20,
               borderWidth: 1,
-              borderColor: '#FDD9C0',
+              borderColor: colors.primary,
               paddingVertical: 8,
               paddingHorizontal: 12,
             }}
@@ -63,7 +63,7 @@ const PromptSuggestions = ({ onSelectPrompt }) => {
             <Text style={{
               fontFamily: fonts.PlusJakartaSansMedium,
               fontSize: 13,
-              color: '#1a1a1a',
+              color: colors.primary,
             }}>
               {suggestion}
             </Text>
@@ -241,41 +241,10 @@ const About = () => {
                     fontFamily: fonts.PlusJakartaSansMedium,
                   }}
                 />
-              </View>
-
-              {/* Suggestions */}
-              <PromptSuggestions onSelectPrompt={handleSelectPrompt} />
-              {/* <AIGeneratePrompts onUsePrompt={handleSelectPrompt} /> */}
-
-              {/* Generate Button */}
-              <TouchableOpacity
-                onPress={handleGenerateBio}
-                disabled={loading || !promptWords.trim()}
-                style={{
-                  backgroundColor: loading || !promptWords.trim() ? '#dadada' : '#000',
-                  borderRadius: 50,
-                  paddingVertical: 14,
-                  alignItems: 'center',
-                  flexDirection: 'row',
-                  justifyContent: 'center',
-                  gap: 8,
-                  marginBottom: 20,
-                }}
-              >
-                {loading ? (
-                  <ActivityIndicator size="small" color="#fff" />
-                ) : (
-                  <Sparkles size={16} color="#fff" strokeWidth={2} />
-                )}
-                <Text style={{ color: "#fff", fontFamily: fonts.PlusJakartaSansBold, fontSize: 14 }}>
-                  {loading ? "Generating bio..." : "Generate bio"}
-                </Text>
-              </TouchableOpacity>
-
-              {/* Generated Bio */}
+                 {/* Generated Bio */}
               {generatedBio && (
-                <View className="mb-6">
-                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                <View className="my-6">
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginVertical: 12 }}>
                     <Text style={{
                       fontFamily: fonts.PlusJakartaSansBold,
                       fontSize: 16,
@@ -330,12 +299,44 @@ const About = () => {
                   </Text>
                 </View>
               )}
+              </View>
+
+              {/* Suggestions */}
+              <PromptSuggestions onSelectPrompt={handleSelectPrompt} />
+              {/* <AIGeneratePrompts onUsePrompt={handleSelectPrompt} /> */}
+
+              {/* Generate Button */}
+              <TouchableOpacity
+                onPress={handleGenerateBio}
+                disabled={loading || !promptWords.trim()}
+                style={{
+                 
+                  borderRadius: 50,
+                  paddingVertical: 14,
+                  alignItems: 'center',
+                  flexDirection: 'row',
+                  justifyContent: 'center',
+                  gap: 8,
+                  marginBottom: 20,
+                }}
+              >
+                {loading ? (
+                  <ActivityIndicator size="small" color={colors.secondary} />
+                ) : (
+                  <Sparkles size={16} color={colors.secondary} strokeWidth={2} />
+                )}
+                <Text style={{ color: colors.secondary, fontFamily: fonts.PlusJakartaSansBold, fontSize: 14 }}>
+                  {loading ? "Generating bio..." : "Click to Generate bio"}
+                </Text>
+              </TouchableOpacity>
+
+             
             </ScrollView>
 
             <View className="w-full items-end pb-6">
               <Button
                 title="Continue"
-                variant="gradient"
+                variant="primary"
                 onPress={handleContinue}
                 disabled={!generatedBio.trim()}
               />

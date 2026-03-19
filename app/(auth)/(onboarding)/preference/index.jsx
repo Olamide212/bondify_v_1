@@ -8,16 +8,15 @@ import {
   ScrollView,
   Text,
   TouchableWithoutFeedback,
-  View,
-  ActivityIndicator
+  View
 } from "react-native";
 
 import RadioSelect from "../../../../components/inputs/RadioSelect";
+import ActivityLoader from "../../../../components/ui/ActivityLoader";
 import Button from "../../../../components/ui/Button";
 import Info from "../../../../components/ui/Info";
 import { useLookupOptions } from "../../../../hooks/useLookupOptions";
 import { useProfileSetup } from "../../../../hooks/useProfileSetup";
-import ActivityLoader from "../../../../components/ui/ActivityLoader";
 
 
 
@@ -65,12 +64,10 @@ const Preference = () => {
             <View className="w-full items-end pb-6">
               <Button
                 title="Continue"
-                variant="gradient"
+                variant="primary"
                 onPress={async () => {
-                  // Find the selected option's label
-                  const selected = lookingForOptions.find(opt => opt.value === preference);
-                  const preferenceLabel = selected ? selected.label : preference;
-                  await updateProfileStep({ lookingFor: preferenceLabel });
+                  // Send the value directly — it matches the User model enum
+                  await updateProfileStep({ lookingFor: preference });
                   router.push("/religion");
                 }}
               />

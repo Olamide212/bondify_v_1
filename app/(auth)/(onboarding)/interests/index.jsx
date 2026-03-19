@@ -128,12 +128,13 @@ const Interests = () => {
               <View className="w-full items-end mt-4">
                 <Button
                   title="Continue"
-                  variant="gradient"
+                  variant="primary"
                   onPress={async () => {
                     await updateProfileStep({ interests: selectedInterests });
                     router.push("/about");
                   }}
                   disabled={selectedInterests.length === 0}
+                  loading={true}
                 />
               </View>
             </View>

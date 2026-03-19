@@ -16,8 +16,9 @@
 
 import { useCallback, useEffect, useRef } from "react";
 import { Animated, StyleSheet, Text, View } from "react-native";
+import { colors } from "../../constant/colors";
 
-const PRIMARY   = "#E8651A";
+const PRIMARY   = colors.primary;
 const ITEM_H    = 56;
 const VISIBLE   = 5;           // must be odd — centre row = selected
 

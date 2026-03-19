@@ -17,7 +17,7 @@ import {
   RefreshCw,
   ShieldCheck,
 } from "lucide-react-native";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -30,9 +30,9 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { colors } from "../../../../constant/colors";
+import { profileService } from "../../../../services/profileService"; // Add this import
 import apiClient from "../../../../utils/axiosInstance";
 import { tokenManager } from "../../../../utils/tokenManager";
-import { profileService } from "../../../../services/profileService"; // Add this import
 
 const PRIMARY = colors.primary;
 
@@ -40,11 +40,20 @@ const PRIMARY = colors.primary;
 const STEP = { INTRO: "intro", CAMERA: "camera", PREVIEW: "preview", DONE: "done" };
 
 // ─── Intro Step ───────────────────────────────────────────────────────────────
-const IntroStep = ({ onStart, onSkip }) => (
+const IntroStep = ({ onStart, onSkip, profilePhotoUrl }) => (
   <ScrollView contentContainerStyle={is.container} showsVerticalScrollIndicator={false}>
-    <View style={is.iconWrap}>
-      <ShieldCheck size={48} color={PRIMARY} strokeWidth={1.5} />
-    </View>
+    {profilePhotoUrl ? (
+      <View style={is.photoWrap}>
+        <Image source={{ uri: profilePhotoUrl }} style={is.profilePhoto} />
+        <View style={is.photoBadge}>
+          <ShieldCheck size={16} color="#fff" strokeWidth={2} />
+        </View>
+      </View>
+    ) : (
+      <View style={is.iconWrap}>
+        <ShieldCheck size={48} color={PRIMARY} strokeWidth={1.5} />
+      </View>
+    )}
 
     <Text style={is.title}>Verify Your Identity</Text>
     <Text style={is.body}>
@@ -75,9 +84,9 @@ const IntroStep = ({ onStart, onSkip }) => (
       <Text style={is.btnText}>Open Camera</Text>
     </TouchableOpacity>
 
-    <TouchableOpacity style={is.skipBtn} onPress={onSkip} activeOpacity={0.7}>
+    {/* <TouchableOpacity style={is.skipBtn} onPress={onSkip} activeOpacity={0.7}>
       <Text style={is.skipText}>Skip for now</Text>
-    </TouchableOpacity>
+    </TouchableOpacity> */}
   </ScrollView>
 );
 
@@ -86,6 +95,9 @@ const is = StyleSheet.create({
   iconWrap:    { width: 88, height: 88, borderRadius: 99, backgroundColor: "#FEF3EC", alignItems: "center", justifyContent: "center", alignSelf: "center", marginBottom: 20 },
   title:       { fontSize: 24, fontFamily: "PlusJakartaSansBold", color: "#111", textAlign: "center", marginBottom: 10 },
   body:        { fontSize: 14, fontFamily: "PlusJakartaSans", color: "#6B7280", textAlign: "center", lineHeight: 22, marginBottom: 28 },
+  photoWrap:   { width: 100, height: 100, borderRadius: 50, alignSelf: "center", marginBottom: 20, position: "relative" },
+  profilePhoto:{ width: 100, height: 100, borderRadius: 50, borderWidth: 3, borderColor: PRIMARY },
+  photoBadge:  { position: "absolute", bottom: 0, right: 0, width: 28, height: 28, borderRadius: 14, backgroundColor: PRIMARY, alignItems: "center", justifyContent: "center", borderWidth: 2, borderColor: "#fff" },
   steps:       { gap: 16, marginBottom: 32 },
   stepRow:     { flexDirection: "row", alignItems: "flex-start", gap: 14 },
   stepNum:     { width: 32, height: 32, borderRadius: 99, backgroundColor: "#FEF3EC", alignItems: "center", justifyContent: "center", flexShrink: 0 },
@@ -248,6 +260,22 @@ export default function VerificationScreen() {
   const router = useRouter();
   const [permission, requestPermission] = useCameraPermissions();
   const [step,       setStep]           = useState(STEP.INTRO);
+  const [profilePhotoUrl, setProfilePhotoUrl] = useState(null);
+
+  // Fetch the user's first uploaded profile photo to display on the intro
+  useEffect(() => {
+    (async () => {
+      try {
+        const profile = await profileService.getMyProfile({ force: true });
+        const firstImage = Array.isArray(profile?.images) && profile.images.length > 0
+          ? profile.images.sort((a, b) => (a.order ?? 0) - (b.order ?? 0))[0]
+          : null;
+        if (firstImage?.url) setProfilePhotoUrl(firstImage.url);
+      } catch {
+        // Silently fail — the shield icon will show as fallback
+      }
+    })();
+  }, []);
   const [photoUri,   setPhotoUri]       = useState(null);
   const [submitting, setSubmitting]     = useState(false);
 
@@ -326,7 +354,7 @@ export default function VerificationScreen() {
   return (
     <SafeAreaView style={sc.safe} edges={["top"]}>
       {/* ── Header (hidden on camera/done steps) ── */}
-      {step !== STEP.CAMERA && step !== STEP.DONE && (
+      {/* {step !== STEP.CAMERA && step !== STEP.DONE && (
         <View style={sc.header}>
           <TouchableOpacity
             onPress={() =>
@@ -341,7 +369,7 @@ export default function VerificationScreen() {
           </Text>
           <View style={{ width: 26 }} />
         </View>
-      )}
+      )} */}
 
       {/* ── Camera back button ── */}
       {step === STEP.CAMERA && (
@@ -354,7 +382,7 @@ export default function VerificationScreen() {
       )}
 
       <View style={{ flex: 1 }}>
-        {step === STEP.INTRO   && <IntroStep onStart={handleStart} onSkip={handleSkip} />}
+        {step === STEP.INTRO   && <IntroStep onStart={handleStart} onSkip={handleSkip} profilePhotoUrl={profilePhotoUrl} />}
         {step === STEP.CAMERA  && <CameraStep onCapture={handleCapture} />}
         {step === STEP.PREVIEW && (
           <PreviewStep

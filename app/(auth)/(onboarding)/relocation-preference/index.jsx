@@ -41,12 +41,12 @@ const RelocationPreference = () => {
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View className="flex-1 px-2">
-            <ScrollView className="flex-1 mt-8" showsVerticalScrollIndicator={false}>
+            <ScrollView className="flex-1 " showsVerticalScrollIndicator={false}>
             <View className="flex-1 mt-8">
               <Text className="text-3xl font-PlusJakartaSansBold text-app mb-2">
                 Would you move for the right person?
               </Text>
-
+<Text className="text-lg font-PlusJakartaSans">Are you willing to relocate, if you meet the right person on Bondies?</Text>
               <View>
                 <RadioSelect
                   value={relocationPreference}
@@ -62,7 +62,7 @@ const RelocationPreference = () => {
             <View className="w-full items-end pb-6">
               <Button
                 title="Continue"
-                variant="gradient"
+                variant="primary"
                 onPress={async () => {
                   await updateProfileStep({ willRelocateForMarriage: relocationPreference });
                   router.push("/kids");
