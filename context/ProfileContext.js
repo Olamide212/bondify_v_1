@@ -207,13 +207,29 @@ export const ProfileProvider = ({ children }) => {
   }, []);
 
   const isFirstRender = useRef(true);
+  const lastRefreshTime = useRef(0);
+  const MIN_REFRESH_INTERVAL_MS = 30000; // 30 seconds minimum between refreshes
 
-  const refreshProfiles = useCallback(() => {
+  /**
+   * Refresh profiles with optional throttling.
+   * @param {boolean} force - If true, bypasses the throttle and forces a refresh
+   * @returns {boolean} - Returns true if refresh was triggered, false if skipped due to throttling
+   */
+  const refreshProfiles = useCallback((force = false) => {
+    const now = Date.now();
+    // Skip refresh if called too soon (unless forced)
+    if (!force && now - lastRefreshTime.current < MIN_REFRESH_INTERVAL_MS) {
+      console.log('[ProfileContext] Skipping refresh - too soon since last refresh');
+      return false; // Indicate refresh was skipped
+    }
+    lastRefreshTime.current = now;
+    
     setHomeSwipedProfiles([]);
     setDiscoverSwipedProfiles([]);
     setHomeCurrentIndex(0);
     setDiscoverCurrentIndex(0);
     setProfilesRefreshNonce((prev) => prev + 1);
+    return true; // Indicate refresh was triggered
   }, []);
 
   useEffect(() => {
@@ -237,6 +253,7 @@ export const ProfileProvider = ({ children }) => {
         // ✅ Block until the auth token is actually available in storage
         const token = await waitForToken();
         if (!token || !isMounted) {
+          console.log('[ProfileContext] No token found, skipping profile load');
           if (isMounted) setProfilesLoading(false);
           return;
         }
@@ -246,26 +263,33 @@ export const ProfileProvider = ({ children }) => {
         const allProfiles = [];
         const apiParams = buildApiParams(homeFilters);
 
+        console.log('[ProfileContext] Loading profiles with params:', apiParams);
+
         while (page <= totalPages) {
           const response = await profileService.getDiscoveryProfiles(
             { ...apiParams, page, limit: 100 },
             { includePagination: true }
           );
 
-          // ✅ Fixed: Access the nested data structure
-          const pageProfiles = Array.isArray(response?.data?.profiles)
-            ? response.data.profiles
+          // ✅ Fixed: profileService.getDiscoveryProfiles returns { profiles, pagination } directly
+          // when includePagination=true, NOT wrapped in a `.data` property
+          const pageProfiles = Array.isArray(response?.profiles)
+            ? response.profiles
             : [];
 
-          allProfiles.push(...pageProfiles);
-          totalPages = response?.data?.pagination?.pages || page;
+          console.log(`[ProfileContext] Page ${page}: received ${pageProfiles.length} profiles`);
 
-          if (!response?.data?.pagination) break;
+          allProfiles.push(...pageProfiles);
+          totalPages = response?.pagination?.pages || page;
+
+          if (!response?.pagination) break;
 
           page += 1;
         }
 
         const normalizedProfiles = allProfiles.map(normalizeProfile);
+        console.log(`[ProfileContext] Total profiles loaded: ${normalizedProfiles.length}`);
+        
         if (isMounted) {
           setProfilesData(normalizedProfiles);
           if (!isFirstRender.current) setHomeCurrentIndex(0);
@@ -274,6 +298,7 @@ export const ProfileProvider = ({ children }) => {
       } catch (error) {
         // Don't clear existing profiles on error — stale-while-revalidate.
         // Keep whatever data we had before.
+        console.warn('[ProfileContext] Profile load error:', error?.message || error);
       } finally {
         if (isMounted) {
           setProfilesLoading(false);
@@ -338,15 +363,21 @@ export const ProfileProvider = ({ children }) => {
 
   const handleHomeSwipe = async (direction, profile) => {
     const profileId = profile?.id;
+    console.log(`[ProfileContext] handleHomeSwipe: ${direction} on profile ${profileId}`);
     const type = direction === "right" ? "like" : "pass";
     const actionResponse = await recordSwipeAction(profileId, type);
     updateStatsForSwipe(type, actionResponse, profile);
     addHomeSwipedProfile(profileId);
-    setHomeCurrentIndex((prev) => (prev + 1) % profilesData.length);
+    setHomeCurrentIndex((prev) => {
+      const nextIndex = (prev + 1) % profilesData.length;
+      console.log(`[ProfileContext] homeCurrentIndex: ${prev} -> ${nextIndex}, total profiles: ${profilesData.length}`);
+      return nextIndex;
+    });
   };
 
   const handleHomeSuperLike = async (profile) => {
     const profileId = profile?.id;
+    console.log(`[ProfileContext] handleHomeSuperLike on profile ${profileId}`);
     const actionResponse = await recordSwipeAction(profileId, "superlike");
     updateStatsForSwipe("superlike", actionResponse, profile);
     addHomeSwipedProfile(profileId);
