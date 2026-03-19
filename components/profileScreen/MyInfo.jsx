@@ -510,7 +510,7 @@ const s = StyleSheet.create({
   rowAdd: {
     fontSize:   13,
     fontFamily: 'PlusJakartaSansMedium',
-    color:      '#E8651A',
+    color:      colors.secondary,
   },
 
   // ── Interests ──
@@ -624,8 +624,8 @@ const s = StyleSheet.create({
     borderColor:       '#E5E7EB',
   },
   optionBtnSelected: {
-    backgroundColor: '#E8651A',
-    borderColor:     '#E8651A',
+    backgroundColor: colors.primary,
+    borderColor:     colors.primary,
   },
   optionText: {
     fontSize:   16,

@@ -3,7 +3,7 @@
  */
 
 import { useRouter } from 'expo-router';
-import { Plus, User } from 'lucide-react-native';
+import { Plus } from 'lucide-react-native';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
@@ -95,7 +95,8 @@ export default function BondupFeedScreen() {
   const { user: currentUser } = useSelector((s) => s.auth);
 
   // ── State ────────────────────────────────────────────────────────────────
-  const [bondups, setBondups] = useState([]);
+  const [allBondups, setAllBondups] = useState([]);   // raw API data
+  const [bondups, setBondups] = useState([]);           // filtered for display
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [activeDayFilter, setActiveDayFilter] = useState('all');
@@ -104,8 +105,10 @@ export default function BondupFeedScreen() {
   const [showCreate, setShowCreate] = useState(false);
   const [joinLoading, setJoinLoading] = useState(false);
   const [joinedBondup, setJoinedBondup] = useState(null);
+  const loadRequestRef = useRef(0);
   const midnightTimeoutRef = useRef(null);
   const appStateRef = useRef(AppState.currentState);
+  
 
   const [filterData, setFilterData] = useState(() => buildDayFilters());
   const { chips: filterChips, windows: filterWindows } = filterData;
@@ -155,7 +158,7 @@ export default function BondupFeedScreen() {
     return () => sub.remove();
   }, [loadBondups, rebuildFilters]);
 
-  // ── Load bondups ─────────────────────────────────────────────────────────
+  // ── Load bondups (fetches ALL, stores raw) ──────────────────────────────
   const loadBondups = useCallback(async () => {
     const seq = ++loadRequestRef.current;
     setLoading(true);
@@ -163,9 +166,7 @@ export default function BondupFeedScreen() {
       const res = await bondupService.getPublicBondups({});
 
       if (seq === loadRequestRef.current) {
-        let items = applyTimeFilter(res.data ?? [], activeDayFilter, filterWindows);
-        items = items.filter((b) => (b.postType || 'join_me') === activeTypeFilter);
-        setBondups(items);
+        setAllBondups(res.data ?? []);
       }
     } catch {
       // silent fail
@@ -174,11 +175,18 @@ export default function BondupFeedScreen() {
         setLoading(false);
       }
     }
-  }, [activeDayFilter, activeTypeFilter, filterWindows]);
+  }, []);
 
   useEffect(() => {
     loadBondups();
   }, [loadBondups]);
+
+  // ── Apply day + type filters whenever raw data or filters change ─────────
+  useEffect(() => {
+    let items = applyTimeFilter(allBondups, activeDayFilter, filterWindows);
+    items = items.filter((b) => (b.postType || 'join_me') === activeTypeFilter);
+    setBondups(items);
+  }, [allBondups, activeDayFilter, activeTypeFilter, filterWindows]);
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -190,7 +198,7 @@ export default function BondupFeedScreen() {
 
   const handleJoin = async (bondupId) => {
     setJoinLoading(true);
-    setBondups((prev) =>
+    setAllBondups((prev) =>
       prev.map((b) =>
         b._id === bondupId
           ? { ...b, hasJoined: true, participants: [...(b.participants || []), { user: currentUser }] }
@@ -205,7 +213,7 @@ export default function BondupFeedScreen() {
     try {
       const res = await bondupService.joinBondup(bondupId);
       if (res.success) {
-        setBondups((prev) => prev.map((b) => (b._id === bondupId ? res.data : b)));
+        setAllBondups((prev) => prev.map((b) => (b._id === bondupId ? res.data : b)));
         setDetailBondup(null);
         setJoinedBondup(res.data);
       }
@@ -219,7 +227,7 @@ export default function BondupFeedScreen() {
   };
 
   const handleLeave = async (bondupId) => {
-    setBondups((prev) =>
+    setAllBondups((prev) =>
       prev.map((b) =>
         b._id === bondupId
           ? {
@@ -246,7 +254,7 @@ export default function BondupFeedScreen() {
     try {
       const res = await bondupService.leaveBondup(bondupId);
       if (res.success) {
-        setBondups((prev) => prev.map((b) => (b._id === bondupId ? res.data : b)));
+        setAllBondups((prev) => prev.map((b) => (b._id === bondupId ? res.data : b)));
         setDetailBondup((d) => (d?._id === bondupId ? res.data : d));
       }
     } catch {
@@ -261,7 +269,7 @@ export default function BondupFeedScreen() {
         text: 'Remove',
         style: 'destructive',
         onPress: async () => {
-          setBondups((prev) => prev.filter((b) => b._id !== bondupId));
+          setAllBondups((prev) => prev.filter((b) => b._id !== bondupId));
           setDetailBondup((d) => (d?._id === bondupId ? null : d));
           try {
             await bondupService.deleteBondup(bondupId);
@@ -274,11 +282,14 @@ export default function BondupFeedScreen() {
   };
 
   const handleCreated = (newBondup) => {
-    setBondups((prev) => {
+    setAllBondups((prev) => {
       if (prev.some((b) => b._id === newBondup._id)) return prev;
       return [newBondup, ...prev];
     });
-    // No loadBondups() call — socket will update with server data
+    // Also switch to the created bondup's type tab so user sees it immediately
+    if (newBondup.postType && newBondup.postType !== activeTypeFilter) {
+      setActiveTypeFilter(newBondup.postType);
+    }
   };
 
   const handleStartChat = async (bondup) => {
@@ -286,7 +297,7 @@ export default function BondupFeedScreen() {
       const res = await bondupChatService.startChat(bondup._id);
       if (res.success && res.data?._id) {
         const chatId = res.data._id;
-        setBondups((prev) =>
+        setAllBondups((prev) =>
           prev.map((b) => (b._id === bondup._id ? { ...b, chatId } : b))
         );
         setDetailBondup(null);
@@ -308,7 +319,7 @@ export default function BondupFeedScreen() {
   // ── Socket: real-time updates ────────────────────────────────────────────
   useEffect(() => {
     const handleNew = (b) => {
-      setBondups((prev) => {
+      setAllBondups((prev) => {
         if (prev.some((x) => x._id === b._id)) {
           return prev.map((x) => (x._id === b._id ? b : x));
         }
@@ -316,11 +327,11 @@ export default function BondupFeedScreen() {
       });
     };
     const handleUpdated = (b) => {
-      setBondups((prev) => prev.map((x) => (x._id === b._id ? b : x)));
+      setAllBondups((prev) => prev.map((x) => (x._id === b._id ? b : x)));
       setDetailBondup((d) => (d?._id === b._id ? b : d));
     };
     const handleRemoved = ({ bondupId }) => {
-      setBondups((prev) => prev.filter((x) => x._id !== bondupId));
+      setAllBondups((prev) => prev.filter((x) => x._id !== bondupId));
       setDetailBondup((d) => (d?._id === bondupId ? null : d));
     };
 
@@ -432,15 +443,15 @@ export default function BondupFeedScreen() {
               <Text style={fStyles.emptyEmoji}>🤝</Text>
               <Text style={fStyles.emptyTitle}>No plans yet!</Text>
               <Text style={fStyles.emptySub}>
-                Be the first to start a Bondup{'\n'}in your city!
+                Be the first to start a Bondup{'\n'}in  {`${ currentUser?.socialProfile?.city || currentUser?.location?.city || ''}` || "your city"}
               </Text>
-              <TouchableOpacity
+              {/* <TouchableOpacity
                 style={fStyles.emptyBtn}
                 onPress={() => setShowCreate(true)}
               >
                 <Plus size={16} color="#fff" />
                 <Text style={fStyles.emptyBtnText}>Create a Bondup</Text>
-              </TouchableOpacity>
+              </TouchableOpacity> */}
             </View>
           ) : (
             bondups.map((bondup) => (
@@ -520,12 +531,12 @@ const fStyles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 10,
     backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
+    // borderBottomWidth: 1,
+    // borderBottomColor: '#F0F0F0',
   },
   headerLogo: {
     height: 50,
-    width: 110,
+    width: 100,
   },
   headerAvatar: {
     width: 38,
@@ -543,8 +554,8 @@ const fStyles = StyleSheet.create({
   // Filter chips
   filterBar: {
     backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
+    // borderBottomWidth: 1,
+    // borderBottomColor: '#F0F0F0',
   },
   filterContent: {
     flexDirection: 'row',
@@ -566,7 +577,7 @@ const fStyles = StyleSheet.create({
   },
   filterChipActive: {
     borderColor: BRAND,
-    backgroundColor: colors.primaryLight,
+    backgroundColor: colors.primary,
   },
   filterChipText: {
     fontSize: 13,
@@ -574,7 +585,7 @@ const fStyles = StyleSheet.create({
     color: '#666',
   },
   filterChipTextActive: {
-    color: BRAND,
+    color: "#fff",
     fontFamily: 'PlusJakartaSansBold',
   },
 

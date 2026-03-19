@@ -135,20 +135,16 @@ const getPublicBondups = async (req, res, next) => {
     const skip = (Number(page) - 1) * Number(limit);
     const now = new Date();
 
-    const userCity =
-      req.user?.socialProfile?.city ||
-      req.user?.location?.city ||
-      '';
-
     const filter = {
       visibility: 'public',
       isActive: true,
       expiresAt: { $gt: now },
-      dateTime: { $gt: now },
     };
 
-    if (userCity) {
-      filter.city = { $regex: new RegExp(userCity, 'i') };
+    // Optional city filter — only when client explicitly passes ?city=...
+    const cityParam = (req.query.city || '').trim();
+    if (cityParam) {
+      filter.city = { $regex: new RegExp(cityParam.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i') };
     }
 
     if (activityType && ['coffee', 'food', 'drinks', 'gym', 'walk', 'movie', 'other'].includes(activityType)) {
@@ -239,7 +235,6 @@ const getCircleBondups = async (req, res, next) => {
       visibility: 'circle',
       isActive: true,
       expiresAt: { $gt: now },
-      dateTime: { $gt: now },
       createdBy: { $in: [...circleIds] },
     };
 
