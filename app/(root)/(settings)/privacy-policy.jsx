@@ -16,6 +16,7 @@ import {
 } from "lucide-react-native";
 import { useTheme } from "../../../context/ThemeContext";
 import GeneralHeader from "../../../components/headers/GeneralHeader";
+import { colors } from "../../../constant/colors";
 
 const SECTIONS = [
   {
@@ -63,7 +64,7 @@ const AccordionSection = ({ section, colors, defaultOpen = false }) => {
   return (
     <View style={[acc.wrapper, { borderBottomColor: colors.border }]}>
       <TouchableOpacity style={acc.header} onPress={() => setOpen((v) => !v)} activeOpacity={0.7}>
-        <Icon size={20} color="#E8651A" strokeWidth={1.8} />
+        <Icon size={20} color={colors.secondary} strokeWidth={1.8} />
         <Text style={[acc.title, { color: colors.textPrimary }]}>{section.title}</Text>
         {open
           ? <ChevronUp size={18} color={colors.textTertiary} />
@@ -75,7 +76,7 @@ const AccordionSection = ({ section, colors, defaultOpen = false }) => {
           <Text style={[acc.bodyText, { color: colors.textSecondary }]}>{section.content}</Text>
           {section.bullets?.map((b) => (
             <View key={b} style={acc.bulletRow}>
-              <View style={[acc.dot, { backgroundColor: "#E8651A" }]} />
+              <View style={[acc.dot, { backgroundColor: colors.primary }]} />
               <Text style={[acc.bulletText, { color: colors.textSecondary }]}>{b}</Text>
             </View>
           ))}
@@ -101,7 +102,7 @@ const PrivacyPolicy = () => {
         showsVerticalScrollIndicator={false}
       >
         {/* Icon */}
-        <View style={[s.iconBubble, { backgroundColor: "#FEF3EC" }]}>
+        <View style={[s.iconBubble, { backgroundColor: colors.background }]}>
           <ShieldCheck size={28} color="#E8651A" strokeWidth={1.8} />
         </View>
 

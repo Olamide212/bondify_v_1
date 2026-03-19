@@ -112,7 +112,7 @@ const EmailLogin = () => {
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View className="flex-1 px-2">
             <View className="flex-1 mt-8">
-              <Text className="text-4xl font-PlusJakartaSansSemiBold text-black">
+              <Text className="text-4xl font-PlusJakartaSansBold text-black">
                 Welcome back!
               </Text>
               <Text className="mb-5 text-black text-lg font-PlusJakartaSans">

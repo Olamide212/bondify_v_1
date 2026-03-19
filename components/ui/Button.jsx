@@ -83,7 +83,7 @@ const Button = ({
       {loading ? (
         <View className="flex-row items-center gap-2">
  <ActivityIndicator color={"#fff"} />
-        <Text className='text-xl font-PlusJakartaSansSemiBold text-white'>Loading...</Text>
+        {/* <Text className='text-xl font-PlusJakartaSansSemiBold text-white'>Loading...</Text> */}
         </View>
        
       ) : (

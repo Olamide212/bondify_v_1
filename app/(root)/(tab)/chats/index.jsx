@@ -5,8 +5,8 @@ import { useCallback, useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { useSelector } from "react-redux";
 import ChatListScreen from "../../../../components/chatScreen/ChatListScreen";
-import { matchService } from "../../../../services/matchService";
 import bondupService from "../../../../services/bondupService";
+import { matchService } from "../../../../services/matchService";
 import { socketService } from "../../../../services/socketService";
 
 const CHAT_TABS = ["Dating", "Plans"];
@@ -104,6 +104,7 @@ const normalizeBondupChats = (bondups, currentUserId) =>
         isBondupChat: true,
         bondupId: b._id,
         bondupTitle: b.title,
+        participantCount: participantCount,
       };
     })
     .sort((a, b) => b.activityAt - a.activityAt);
@@ -240,15 +241,14 @@ export default function Chat() {
 
   const handleSelectUser = (user) => {
     if (user.isBondupChat) {
-      // Navigate to Bondup group chat
+      // Navigate to Bondup chat screen
       router.push({
-        pathname: "/chat-screen",
+        pathname: "/bondup-chat",
         params: {
-          matchId: user.matchId,
-          name: user.name,
-          profileImage: user.profileImage ?? "",
-          isGroupChat: "true",
+          chatId: user.matchId,
           bondupId: user.bondupId,
+          bondupTitle: user.bondupTitle ?? user.name,
+          participantCount: String(user.participantCount ?? 0),
         },
       });
       return;

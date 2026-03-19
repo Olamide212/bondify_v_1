@@ -700,6 +700,7 @@ const s = StyleSheet.create({
   },
   postTypeRow: {
     flexDirection: 'row',
+    marginBottom: 18,
     gap: 10,
   },
   postTypeCard: {

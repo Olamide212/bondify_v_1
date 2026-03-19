@@ -104,7 +104,6 @@ export default function BondupFeedScreen() {
   const [showCreate, setShowCreate] = useState(false);
   const [joinLoading, setJoinLoading] = useState(false);
   const [joinedBondup, setJoinedBondup] = useState(null);
-  const loadRequestRef = useRef(0);
   const midnightTimeoutRef = useRef(null);
   const appStateRef = useRef(AppState.currentState);
 
@@ -353,7 +352,7 @@ export default function BondupFeedScreen() {
             style={fStyles.headerLogo}
             resizeMode="contain"
           />
-          <TouchableOpacity onPress={() => router.push('/feed-profile')}>
+          {/* <TouchableOpacity onPress={() => router.push('/feed-profile')}>
             {userAvatar ? (
               <Image source={{ uri: userAvatar }} style={fStyles.headerAvatar} />
             ) : (
@@ -361,14 +360,14 @@ export default function BondupFeedScreen() {
                 <User size={18} color="#fff" />
               </View>
             )}
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
 
         {/* ── Day filters ─────────────────────────────────────────────── */}
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          style={fStyles.filterBar}
+          style={[fStyles.filterBar, { flexGrow: 0 }]}
           contentContainerStyle={fStyles.filterContent}
         >
           
@@ -510,7 +509,7 @@ export default function BondupFeedScreen() {
 const fStyles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F5F7',
+    backgroundColor: '#fff',
   },
 
   // Header
@@ -552,7 +551,6 @@ const fStyles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 6,
-    backgroundColor: '#000',
   },
   filterChip: {
     paddingHorizontal: 12,

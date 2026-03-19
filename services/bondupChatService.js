@@ -20,6 +20,15 @@ const bondupChatService = {
   },
 
   /**
+   * Get chat state (match status, message limits).
+   * @param {string} chatId
+   */
+  getChatState: async (chatId) => {
+    const res = await apiClient.get(`/bondup-chats/${chatId}/state`);
+    return res.data;
+  },
+
+  /**
    * Get messages for a Bondup chat.
    * @param {string} chatId
    * @param {{ page?, limit? }} params
@@ -36,6 +45,34 @@ const bondupChatService = {
    */
   sendMessage: async (chatId, data) => {
     const res = await apiClient.post(`/bondup-chats/${chatId}/messages`, data);
+    return res.data;
+  },
+
+  /**
+   * Request or accept a match in a bondup_single chat.
+   * @param {string} chatId
+   */
+  requestMatch: async (chatId) => {
+    const res = await apiClient.post(`/bondup-chats/${chatId}/match`);
+    return res.data;
+  },
+
+  /**
+   * Decline / withdraw a match request.
+   * @param {string} chatId
+   */
+  declineMatch: async (chatId) => {
+    const res = await apiClient.post(`/bondup-chats/${chatId}/unmatch`);
+    return res.data;
+  },
+
+  /**
+   * Get a user's bondup profile within chat context.
+   * @param {string} chatId
+   * @param {string} userId
+   */
+  getUserProfile: async (chatId, userId) => {
+    const res = await apiClient.get(`/bondup-chats/${chatId}/user-profile/${userId}`);
     return res.data;
   },
 };

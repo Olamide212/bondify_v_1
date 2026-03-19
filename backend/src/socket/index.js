@@ -33,6 +33,7 @@ const initSocket = (httpServer) => {
   io.on('connection', (socket) => {
     socket.join(`user:${socket.userId}`);
 
+    // ── Dating chat rooms ─────────────────────────────────────────────────
     socket.on('chat:join', ({ matchId }) => {
       if (!matchId) return;
       socket.join(`match:${matchId}`);
@@ -41,6 +42,17 @@ const initSocket = (httpServer) => {
     socket.on('chat:leave', ({ matchId }) => {
       if (!matchId) return;
       socket.leave(`match:${matchId}`);
+    });
+
+    // ── Bondup chat rooms ─────────────────────────────────────────────────
+    socket.on('bondupChat:join', ({ chatId }) => {
+      if (!chatId) return;
+      socket.join(`bondupChat:${chatId}`);
+    });
+
+    socket.on('bondupChat:leave', ({ chatId }) => {
+      if (!chatId) return;
+      socket.leave(`bondupChat:${chatId}`);
     });
 
     socket.on('disconnect', () => {

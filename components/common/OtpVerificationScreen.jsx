@@ -93,7 +93,7 @@ const OtpVerificationScreen = ({
               <ChevronLeft size={24} color="#111" />
             </TouchableOpacity>
 
-            <Text className="text-3xl font-PlusJakartaSansSemiBold text-black">
+            <Text className="text-3xl font-PlusJakartaSansBold text-black">
               {title}
             </Text>
 
