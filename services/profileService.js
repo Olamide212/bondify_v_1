@@ -240,12 +240,45 @@ const getLookups = async (type) => {
   }
 };
 
+// ─── Discovery profiles caching ──────────────────────────────────────────────
+const DISCOVERY_CACHE_KEY = "@bondify/cache/discoveryProfiles";
+const DISCOVERY_CACHE_MS = 60000; // 1 minute cache
+let discoveryCache = null;
+let discoveryCachedAt = 0;
+
 const getDiscoveryProfiles = async (params = {}, config = {}) => {
-  const { includePagination = false } = config;
+  const { includePagination = false, skipCache = false } = config;
+  const now = Date.now();
+  
+  // Return cached data if valid (only for first page without filters)
+  const isFirstPage = !params.page || params.page === 1;
+  const hasFilters = Object.keys(params).some(k => k !== 'page' && k !== 'limit');
+  
+  if (!skipCache && isFirstPage && !hasFilters && discoveryCache && now - discoveryCachedAt < DISCOVERY_CACHE_MS) {
+    console.log('[profileService] Using cached discovery profiles');
+    if (includePagination) {
+      return {
+        profiles: discoveryCache.profiles,
+        pagination: discoveryCache.pagination,
+      };
+    }
+    return discoveryCache.profiles;
+  }
+  
   try {
     const response = await apiClient.get("/discover", { params });
     const payload = response.data?.data ?? response.data;
     const profiles = payload?.profiles ?? [];
+    
+    // Cache first page results without filters
+    if (isFirstPage && !hasFilters) {
+      discoveryCache = {
+        profiles,
+        pagination: payload?.pagination ?? null,
+      };
+      discoveryCachedAt = now;
+    }
+    
     if (includePagination) {
       return {
         profiles,
@@ -254,6 +287,18 @@ const getDiscoveryProfiles = async (params = {}, config = {}) => {
     }
     return profiles;
   } catch (err) {
+    // On error, return cached data if available (stale-while-revalidate)
+    if (discoveryCache && isFirstPage && !hasFilters) {
+      console.log('[profileService] Network error, using stale cache');
+      if (includePagination) {
+        return {
+          profiles: discoveryCache.profiles,
+          pagination: discoveryCache.pagination,
+        };
+      }
+      return discoveryCache.profiles;
+    }
+    
     const message =
       err.response?.data?.message ||
       err.message ||

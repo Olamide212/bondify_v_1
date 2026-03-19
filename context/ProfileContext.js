@@ -207,8 +207,18 @@ export const ProfileProvider = ({ children }) => {
   }, []);
 
   const isFirstRender = useRef(true);
+  const lastRefreshTime = useRef(0);
+  const MIN_REFRESH_INTERVAL_MS = 30000; // 30 seconds minimum between refreshes
 
-  const refreshProfiles = useCallback(() => {
+  const refreshProfiles = useCallback((force = false) => {
+    const now = Date.now();
+    // Skip refresh if called too soon (unless forced)
+    if (!force && now - lastRefreshTime.current < MIN_REFRESH_INTERVAL_MS) {
+      console.log('[ProfileContext] Skipping refresh - too soon since last refresh');
+      return;
+    }
+    lastRefreshTime.current = now;
+    
     setHomeSwipedProfiles([]);
     setDiscoverSwipedProfiles([]);
     setHomeCurrentIndex(0);
