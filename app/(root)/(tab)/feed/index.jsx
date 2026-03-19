@@ -238,12 +238,25 @@ export default function BondupFeedScreen() {
     setBondups(items);
   }, [allBondups, activeDayFilter, activeTypeFilter, filterWindows]);
 
-  // ── Persist allBondups changes to AsyncStorage ───────────────────────────
+  // ── Persist allBondups changes to AsyncStorage (debounced) ───────────────
+  const persistTimeoutRef = useRef(null);
   useEffect(() => {
-    // Only persist if we have data (avoid persisting empty array on initial mount)
-    if (allBondups.length > 0) {
-      persistBondups(allBondups);
+    // Debounce persistence to avoid excessive writes on rapid state changes
+    if (persistTimeoutRef.current) {
+      clearTimeout(persistTimeoutRef.current);
     }
+    
+    if (allBondups.length > 0) {
+      persistTimeoutRef.current = setTimeout(() => {
+        persistBondups(allBondups);
+      }, 500); // Wait 500ms after last change before persisting
+    }
+    
+    return () => {
+      if (persistTimeoutRef.current) {
+        clearTimeout(persistTimeoutRef.current);
+      }
+    };
   }, [allBondups, persistBondups]);
 
   const onRefresh = async () => {

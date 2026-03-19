@@ -210,12 +210,17 @@ export const ProfileProvider = ({ children }) => {
   const lastRefreshTime = useRef(0);
   const MIN_REFRESH_INTERVAL_MS = 30000; // 30 seconds minimum between refreshes
 
+  /**
+   * Refresh profiles with optional throttling.
+   * @param {boolean} force - If true, bypasses the throttle and forces a refresh
+   * @returns {boolean} - Returns true if refresh was triggered, false if skipped due to throttling
+   */
   const refreshProfiles = useCallback((force = false) => {
     const now = Date.now();
     // Skip refresh if called too soon (unless forced)
     if (!force && now - lastRefreshTime.current < MIN_REFRESH_INTERVAL_MS) {
       console.log('[ProfileContext] Skipping refresh - too soon since last refresh');
-      return;
+      return false; // Indicate refresh was skipped
     }
     lastRefreshTime.current = now;
     
@@ -224,6 +229,7 @@ export const ProfileProvider = ({ children }) => {
     setHomeCurrentIndex(0);
     setDiscoverCurrentIndex(0);
     setProfilesRefreshNonce((prev) => prev + 1);
+    return true; // Indicate refresh was triggered
   }, []);
 
   useEffect(() => {
