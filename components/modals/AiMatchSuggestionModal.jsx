@@ -298,13 +298,13 @@ const styles = StyleSheet.create({
   
   },
   closeModalButton: {
-    backgroundColor: colors.secondary,
+    backgroundColor: '#fff',
     paddingVertical: 20,
     borderRadius: 50,
     alignItems: 'center',
   },
   closeModalText: {
-    color: colors.primary,
+    color: colors.tertiary,
     fontSize: 16,
     fontFamily: 'PlusJakartaSansBold',
   },

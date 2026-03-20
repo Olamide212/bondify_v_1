@@ -101,6 +101,21 @@ const AIService = {
   },
 
   /**
+   * Get an AI-generated photo compliment / pick-up line for a user's photo.
+   *
+   * @param {string} targetUserId – _id of the user being viewed
+   * @param {number} [imageIndex=0] – index of the photo to reference
+   * @returns {{ suggestion: string }}
+   */
+  getPhotoCommentSuggestion: async (targetUserId, imageIndex = 0) => {
+    const response = await apiClient.post('/ai/suggest-photo-comment', {
+      targetUserId,
+      imageIndex,
+    });
+    return response.data?.data ?? response.data;
+  },
+
+  /**
    * Generate a profile bio based on a custom prompt.
    *
    * @param {{ prompt: string }} data
