@@ -10,6 +10,7 @@ const {
   deleteBondup,
   getBondup,
   getMyBondups,
+  getBondupProfile,
 } = require('../controllers/bondupController');
 
 // All routes require authentication
@@ -20,6 +21,7 @@ router.post('/create', createBondup);
 router.get('/public', getPublicBondups);
 router.get('/circle', getCircleBondups);
 router.get('/my', getMyBondups);
+router.get('/profile/:userId', getBondupProfile);
 router.get('/:id', getBondup);
 router.delete('/:id', deleteBondup);
 

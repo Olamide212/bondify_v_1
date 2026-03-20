@@ -4,6 +4,7 @@
  * Full-screen celebration modal shown after a user successfully joins a Bondup.
  */
 
+import * as Calendar from 'expo-calendar';
 import {
   CalendarDays,
   MessageCircle,
@@ -12,14 +13,15 @@ import {
 import {
   Alert,
   Image,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
-import BaseModal from '../modals/BaseModal';
 import { colors } from '../../constant/colors';
+import BaseModal from '../modals/BaseModal';
 
 const BRAND = colors.primary;
 
@@ -48,6 +50,65 @@ export default function BondupJoinedModal({
   onOpenChat,
 }) {
   if (!bondup) return null;
+
+  const handleAddToCalendar = async () => {
+    try {
+      const { status } = await Calendar.requestCalendarPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission Needed', 'Calendar access is required to add this event.');
+        return;
+      }
+
+      // Get a writable calendar
+      const calendars = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
+      let targetCalendar = calendars.find(
+        (c) => c.allowsModifications && c.isPrimary
+      );
+      if (!targetCalendar) {
+        targetCalendar = calendars.find((c) => c.allowsModifications);
+      }
+
+      // On iOS, create a default calendar if none found
+      if (!targetCalendar && Platform.OS === 'ios') {
+        const defaultSource = calendars.find((c) => c.source?.isLocalAccount)?.source
+          || { isLocalAccount: true, name: 'Bondies', type: 'local' };
+        const newCalId = await Calendar.createCalendarAsync({
+          title: 'Bondies',
+          color: BRAND,
+          entityType: Calendar.EntityTypes.EVENT,
+          sourceId: defaultSource.id,
+          source: defaultSource,
+          name: 'Bondies',
+          ownerAccount: 'personal',
+          accessLevel: Calendar.CalendarAccessLevel.OWNER,
+        });
+        targetCalendar = { id: newCalId };
+      }
+
+      if (!targetCalendar) {
+        Alert.alert('Error', 'No writable calendar found on this device.');
+        return;
+      }
+
+      const startDate = new Date(bondup.dateTime);
+      const endDate = new Date(startDate.getTime() + 2 * 60 * 60 * 1000); // 2 hours duration
+      const locationStr = [bondup.location, bondup.city].filter(Boolean).join(', ');
+
+      await Calendar.createEventAsync(targetCalendar.id, {
+        title: bondup.title || 'Bondup Meetup',
+        startDate,
+        endDate,
+        location: locationStr,
+        notes: bondup.description || `Bondup meetup with ${participantCount} people`,
+        alarms: [{ relativeOffset: -30 }], // reminder 30 mins before
+      });
+
+      Alert.alert('Added! 🎉', 'This Bondup has been added to your calendar with a 30-min reminder.');
+    } catch (err) {
+      console.error('Calendar error:', err);
+      Alert.alert('Error', 'Could not add to calendar. Please try again.');
+    }
+  };
 
   const participantCount = bondup.participants?.length ?? 0;
   const spotsText = bondup.maxParticipants
@@ -148,10 +209,10 @@ export default function BondupJoinedModal({
           <Text style={s.openChatBtnText}>Open Chat</Text>
         </TouchableOpacity>
 
-        {/* Add to Calendar button — TODO: wire up calendar integration */}
+        {/* Add to Calendar button */}
         <TouchableOpacity
           style={s.calendarBtn}
-          onPress={() => Alert.alert('Coming Soon', 'Calendar integration coming soon!')}
+          onPress={handleAddToCalendar}
           activeOpacity={0.85}
         >
           <CalendarDays size={20} color={BRAND} />

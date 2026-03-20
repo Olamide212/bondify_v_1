@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import {colors} from "../../constant/colors"
 
 const Card = ({ title, items }) => {
   return (
@@ -24,7 +25,7 @@ const Card = ({ title, items }) => {
           >
 
               {RightIcon ? (
-                <RightIcon size={20} color="#ef4444" />
+                <RightIcon size={20} color={colors.primary} />
               ) : (
                 <Ionicons name="chevron-forward" size={20} color="#9ca3af" />
               )}

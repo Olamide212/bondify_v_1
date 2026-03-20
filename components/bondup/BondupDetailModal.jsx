@@ -2,31 +2,35 @@
  * BondupDetailModal.jsx  —  Artistic redesign
  */
 
+import * as ExpoLocation from 'expo-location';
 import { useRouter } from 'expo-router';
 import {
   ArrowLeft,
   Bookmark,
   Clock,
-  MapPin,
   MessageCircle,
-  MoreVertical,
   Navigation,
   Share2,
   Trash2,
-  Users,
+  Users
 } from 'lucide-react-native';
+import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
   Image,
+  Linking,
+  Platform,
   ScrollView,
+  Share,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
-import BaseModal from '../modals/BaseModal';
+import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { colors } from '../../constant/colors';
+import BaseModal from '../modals/BaseModal';
 
 const BRAND = colors.primary;
 
@@ -74,6 +78,90 @@ const isLiveNow = (dateTime) => {
 const getFullName = (user) =>
   [user?.firstName, user?.lastName].filter(Boolean).join(' ') || 'User';
 
+// ─── Location Card with real map ─────────────────────────────────────────────
+function LocationCard({ bondup }) {
+  const [coords, setCoords] = useState(null);
+  const [geocoding, setGeocoding] = useState(true);
+
+  const locationText = [bondup.location, bondup.city].filter(Boolean).join(', ');
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const results = await ExpoLocation.geocodeAsync(locationText);
+        if (!cancelled && results?.length > 0) {
+          setCoords({ latitude: results[0].latitude, longitude: results[0].longitude });
+        }
+      } catch {
+        // geocoding failed — show fallback
+      } finally {
+        if (!cancelled) setGeocoding(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [locationText]);
+
+  const openInMaps = () => {
+    if (!coords) return;
+    const label = encodeURIComponent(locationText);
+    const url = Platform.select({
+      ios: `maps:0,0?q=${label}@${coords.latitude},${coords.longitude}`,
+      android: `geo:${coords.latitude},${coords.longitude}?q=${coords.latitude},${coords.longitude}(${label})`,
+    });
+    Linking.openURL(url);
+  };
+
+  return (
+    <View style={s.locationCard}>
+      <View style={s.locationCardHeader}>
+        <View style={{ flex: 1 }}>
+          <Text style={s.locationLabel}>LOCATION</Text>
+          <Text style={s.locationValue}>{locationText}</Text>
+        </View>
+        <TouchableOpacity
+          style={[s.navIconBtn, !coords && { opacity: 0.4 }]}
+          onPress={openInMaps}
+          disabled={!coords}
+        >
+          <Navigation size={18} color={BRAND} />
+        </TouchableOpacity>
+      </View>
+
+      {geocoding ? (
+        <View style={s.mapPlaceholder}>
+          <ActivityIndicator size="small" color={BRAND} />
+          <Text style={s.mapPlaceholderText}>Loading map…</Text>
+        </View>
+      ) : coords ? (
+        <View style={s.mapContainer}>
+          <MapView
+            style={StyleSheet.absoluteFill}
+            provider={PROVIDER_GOOGLE}
+            initialRegion={{
+              ...coords,
+              latitudeDelta: 0.01,
+              longitudeDelta: 0.01,
+            }}
+            scrollEnabled={false}
+            zoomEnabled={false}
+            pitchEnabled={false}
+            rotateEnabled={false}
+            onPress={openInMaps}
+          >
+            <Marker coordinate={coords} pinColor={BRAND} />
+          </MapView>
+        </View>
+      ) : (
+        <TouchableOpacity style={s.mapPlaceholder} onPress={openInMaps} activeOpacity={0.7}>
+          <Text style={s.mapEmoji}>🗺️</Text>
+          <Text style={s.mapPlaceholderText}>{locationText}</Text>
+        </TouchableOpacity>
+      )}
+    </View>
+  );
+}
+
 export default function BondupDetailModal({
   visible,
   bondup,
@@ -117,7 +205,23 @@ export default function BondupDetailModal({
           <ArrowLeft size={22} color="#333" />
         </TouchableOpacity>
         <View style={s.headerRight}>
-          <TouchableOpacity style={s.iconBtn} hitSlop={10}>
+          <TouchableOpacity
+            style={s.iconBtn}
+            hitSlop={10}
+            onPress={async () => {
+              try {
+                const title = bondup?.title || 'Check out this Bondup!';
+                const creator = bondup?.creator?.firstName || 'Someone';
+                const activity = bondup?.activityType ? ` — ${bondup.activityType}` : '';
+                const location = bondup?.location ? ` at ${bondup.location}` : '';
+                await Share.share({
+                  message: `${creator} posted a Bondup: "${title}"${activity}${location}. Join them on Bondies!`,
+                });
+              } catch {
+                // user cancelled or share failed
+              }
+            }}
+          >
             <Share2 size={20} color="#555" />
           </TouchableOpacity>
           {isOwner && (
@@ -134,11 +238,11 @@ export default function BondupDetailModal({
               <Trash2 size={20} color="#EF4444" />
             </TouchableOpacity>
           )}
-          {!isOwner && (
+          {/* {!isOwner && (
             <TouchableOpacity style={s.iconBtn} hitSlop={10}>
               <MoreVertical size={20} color="#555" />
             </TouchableOpacity>
-          )}
+          )} */}
         </View>
       </View>
 
@@ -216,26 +320,7 @@ export default function BondupDetailModal({
 
         {/* ── Location card ── */}
         {(!!bondup.location || !!bondup.city) && (
-          <View style={s.locationCard}>
-            <View style={s.locationCardHeader}>
-              <View>
-                <Text style={s.locationLabel}>LOCATION</Text>
-                <Text style={s.locationValue}>
-                  {[bondup.location, bondup.city].filter(Boolean).join(', ')}
-                </Text>
-              </View>
-              <TouchableOpacity style={s.navIconBtn}>
-                <Navigation size={18} color={BRAND} />
-              </TouchableOpacity>
-            </View>
-            {/* Map placeholder — TODO: replace with react-native-maps for interactive view */}
-            <View style={s.mapPlaceholder}>
-              <Text style={s.mapEmoji}>🗺️</Text>
-              <Text style={s.mapPlaceholderText}>
-                {[bondup.location, bondup.city].filter(Boolean).join(', ')}
-              </Text>
-            </View>
-          </View>
+          <LocationCard bondup={bondup} />
         )}
 
         {/* ── Who's coming ── */}
@@ -475,7 +560,7 @@ const s = StyleSheet.create({
   hostedLabel: {
     fontSize: 10,
     fontFamily: 'PlusJakartaSansBold',
-    color: '#F97316',
+    color: colors.secondary,
     letterSpacing: 1,
     marginBottom: 2,
   },
@@ -532,7 +617,7 @@ const s = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: '#FFF7ED',
+    backgroundColor: colors.primary + '20',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 8,
@@ -593,13 +678,18 @@ const s = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  mapContainer: {
+    height: 170,
+    borderRadius: 12,
+    overflow: 'hidden',
+  },
   mapPlaceholder: {
-    height: 160,
+    height: 170,
     borderRadius: 12,
     backgroundColor: '#F0F0F0',
     justifyContent: 'center',
     alignItems: 'center',
-    gap: 8,
+    gap: 6,
     overflow: 'hidden',
   },
   mapEmoji: {

@@ -1,7 +1,7 @@
 // components/ChatScreen.js
 
-import { Audio } from "expo-av";
 import { useRouter } from "expo-router";
+import { Mail, MessageCircle } from "lucide-react-native";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
@@ -10,6 +10,7 @@ import {
   Platform,
   ScrollView,
   StatusBar,
+  Linking,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -27,31 +28,9 @@ import BaseModal from "../modals/BaseModal";
 import BlockReportModal from "../modals/Blockreportmodal";
 import InputToolbar from "./InputToolbar";
 import MessageBubble from "./MessageBubble";
-import {fonts} from "../../constant/fonts";
 
 const MESSAGE_PAGE_SIZE = 20;
 const LOAD_OLDER_TRIGGER_PX = 140;
-
-// Play the message sent sound (fire-and-forget, errors are swallowed)
-const playSentSound = async () => {
-  let sound;
-  try {
-    const result = await Audio.Sound.createAsync(
-      require("../../assets/sounds/match.wav"),
-      { volume: 0.4 }
-    );
-    sound = result.sound;
-    await sound.playAsync();
-    sound.setOnPlaybackStatusUpdate((status) => {
-      if (status.didJustFinish) {
-        sound.unloadAsync().catch(() => {});
-      }
-    });
-  } catch {
-    // non-critical: ignore audio errors
-    if (sound) sound.unloadAsync().catch(() => {});
-  }
-};
 
 const ChatScreen = ({ matchedUser, onBack }) => {
   const [isTyping, setIsTyping] = useState(false);
@@ -388,8 +367,6 @@ const ChatScreen = ({ matchedUser, onBack }) => {
       setMessages((prev) =>
         prev.map((msg) => (msg.id === tempId ? normalizedMessage : msg))
       );
-      // Play sent sound (non-blocking)
-      playSentSound();
     } catch (error) {
       setMessages((prev) => prev.filter((msg) => msg.id !== tempId));
       console.error("Failed to send message:", {
@@ -506,8 +483,7 @@ const ChatScreen = ({ matchedUser, onBack }) => {
           matchedUser={matchedUser}
           onBack={() => onBack?.()}
           onOpenProfile={openProfile}
-          onOpenActions={matchedUser?.isSystem ? undefined : () => setIsActionsModalVisible(true)}
-          onUnmatch={matchedUser?.isSystem ? undefined : () => router.push("/unmatched-users")}
+          onOpenActions={() => setIsActionsModalVisible(true)}
         />
 
         <ScrollView
@@ -548,14 +524,17 @@ const ChatScreen = ({ matchedUser, onBack }) => {
             </View>
           )}
 
-          <View style={styles.matchBanner}>
-            <View style={styles.bannerContent}>
-              <Text style={styles.bannerText}>
-                You matched with {matchedUser.name}{" "}
-                {formatRelativeDate(matchedUser.matchedDate)}
-              </Text>
+          {!matchedUser?.isSystem && (
+            <View style={styles.matchBanner}>
+              <View style={styles.bannerContent}>
+                <Text style={styles.bannerText}>
+                  You matched with {matchedUser.name}{" "}
+                  {formatRelativeDate(matchedUser.matchedDate)}
+                </Text>
+              </View>
             </View>
-          </View>
+          )}
+
 
           {messages.map((message, index) => {
             const previousMessage = messages[index - 1];
@@ -600,7 +579,32 @@ const ChatScreen = ({ matchedUser, onBack }) => {
           )}
         </ScrollView>
 
-        {!matchedUser?.isSystem && (
+        {matchedUser?.isSystem ? (
+          /* ── Contact Us bar (system / team chats) ── */
+          <View style={styles.contactBar}>
+            <Text style={styles.contactBarLabel}>
+              Need help? Reach us directly
+            </Text>
+            <View style={styles.contactBarButtons}>
+              <TouchableOpacity
+                style={styles.contactBtn}
+                onPress={() => Linking.openURL('mailto:support@bondies.app')}
+                activeOpacity={0.82}
+              >
+                <Mail size={18} color={colors.primary} strokeWidth={2} />
+                <Text style={styles.contactBtnText}>Email</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.contactBtn, styles.contactBtnPrimary]}
+                onPress={() => Linking.openURL('https://wa.me/2348000000000')}
+                activeOpacity={0.82}
+              >
+                <MessageCircle size={18} color="#fff" strokeWidth={2} />
+                <Text style={[styles.contactBtnText, styles.contactBtnTextWhite]}>WhatsApp</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        ) : (
           <InputToolbar
             sendMessage={sendMessage}
             onSendImage={handleSendImage}
@@ -610,65 +614,61 @@ const ChatScreen = ({ matchedUser, onBack }) => {
           />
         )}
 
-        {/* ── Actions sheet — hidden for system/team chats ── */}
-        {!matchedUser?.isSystem && (
-          <>
-            <BaseModal
-              visible={isActionsModalVisible}
-              onClose={() => !isProcessingAction && setIsActionsModalVisible(false)}
+        {/* ── Actions sheet ── */}
+        <BaseModal
+          visible={isActionsModalVisible}
+          onClose={() => !isProcessingAction && setIsActionsModalVisible(false)}
+        >
+          <View style={styles.actionsModalContainer}>
+            <TouchableOpacity
+              style={styles.actionItem}
+              onPress={handleUnmatch}
+              disabled={isProcessingAction}
             >
-              <View style={styles.actionsModalContainer}>
-                <TouchableOpacity
-                  style={styles.actionItem}
-                  onPress={handleUnmatch}
-                  disabled={isProcessingAction}
-                >
-                  <Text style={styles.actionDangerText}>Unmatch</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.actionItem}
-                  onPress={handleBlock}
-                  disabled={isProcessingAction}
-                >
-                  <Text style={styles.actionDangerText}>Block</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.actionItem}
-                  onPress={handleReport}
-                  disabled={isProcessingAction}
-                >
-                  <Text style={styles.actionDangerText}>Report</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.actionItem}
-                  onPress={() => setIsActionsModalVisible(false)}
-                  disabled={isProcessingAction}
-                >
-                  <Text style={styles.actionCancelText}>Cancel</Text>
-                </TouchableOpacity>
-              </View>
-            </BaseModal>
+              <Text style={styles.actionDangerText}>Unmatch</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.actionItem}
+              onPress={handleBlock}
+              disabled={isProcessingAction}
+            >
+              <Text style={styles.actionDangerText}>Block</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.actionItem}
+              onPress={handleReport}
+              disabled={isProcessingAction}
+            >
+              <Text style={styles.actionDangerText}>Report</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.actionItem}
+              onPress={() => setIsActionsModalVisible(false)}
+              disabled={isProcessingAction}
+            >
+              <Text style={styles.actionCancelText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </BaseModal>
 
-            {/* ── Block / Report modal (shared component) ── */}
-            <BlockReportModal
-              visible={blockReportModal.visible}
-              mode={blockReportModal.mode}
-              profile={{
-                _id:       matchedUser.id,
-                name:      matchedUser.name,
-                images:    matchedUser.profileImage ? [matchedUser.profileImage] : [],
-              }}
-              onClose={() => setBlockReportModal((prev) => ({ ...prev, visible: false }))}
-              onSuccess={(mode) => {
-                setBlockReportModal((prev) => ({ ...prev, visible: false }));
-                if (mode === "block") {
-                  // Navigate back and remove the match from the list
-                  onBack?.({ unmatchedMatchId: matchedUser.matchId, blocked: true });
-                }
-              }}
-            />
-          </>
-        )}
+        {/* ── Block / Report modal (shared component) ── */}
+        <BlockReportModal
+          visible={blockReportModal.visible}
+          mode={blockReportModal.mode}
+          profile={{
+            _id: matchedUser.id,
+            name: matchedUser.name,
+            images: matchedUser.profileImage ? [matchedUser.profileImage] : [],
+          }}
+          onClose={() => setBlockReportModal((prev) => ({ ...prev, visible: false }))}
+          onSuccess={(mode) => {
+            setBlockReportModal((prev) => ({ ...prev, visible: false }));
+            if (mode === "block") {
+              // Navigate back and remove the match from the list
+              onBack?.({ unmatchedMatchId: matchedUser.matchId, blocked: true });
+            }
+          }}
+        />
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -695,15 +695,15 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   dateSeparatorPill: {
+    backgroundColor: colors.background,
     paddingHorizontal: 12,
     paddingVertical: 5,
     borderRadius: 999,
   },
   dateSeparatorText: {
     fontSize: 12,
-    fontFamily: fonts.PlusJakartaSansBold,
-    color: "#000",
-
+    color: "#6B7280",
+    fontWeight: "600",
   },
   loadingOlderContainer: {
     alignItems: "center",
@@ -719,7 +719,6 @@ const styles = StyleSheet.create({
   bannerText: {
     color: colors.primary,
     fontSize: 12,
-    fontFamily: fonts.PlusJakartaSansSemiBold,  
   },
   emptyStateContainer: {
     marginTop: 80,
@@ -767,6 +766,51 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   // Report / Block handled by BlockReportModal
+
+  // Contact bar (system chats)
+  contactBar: {
+    backgroundColor: '#fff',
+    borderTopWidth: 1,
+    borderTopColor: '#F3F4F6',
+    paddingHorizontal: 20,
+    paddingVertical: 14,
+    paddingBottom: 20,
+    gap: 10,
+  },
+  contactBarLabel: {
+    fontSize: 13,
+    fontFamily: 'PlusJakartaSans',
+    color: '#6B7280',
+    textAlign: 'center',
+  },
+  contactBarButtons: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  contactBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 7,
+    paddingVertical: 12,
+    borderRadius: 12,
+    borderWidth: 1.5,
+    borderColor: colors.primary,
+    backgroundColor: '#fff',
+  },
+  contactBtnPrimary: {
+    backgroundColor: '#25D366',
+    borderColor: '#25D366',
+  },
+  contactBtnText: {
+    fontSize: 14,
+    fontFamily: 'PlusJakartaSansBold',
+    color: colors.primary,
+  },
+  contactBtnTextWhite: {
+    color: '#fff',
+  },
 });
 
 export default ChatScreen;

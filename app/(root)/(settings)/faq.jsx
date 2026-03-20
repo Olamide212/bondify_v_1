@@ -26,6 +26,7 @@ import {
 } from "lucide-react-native";
 import { useTheme } from "../../../context/ThemeContext";
 import GeneralHeader from "../../../components/headers/GeneralHeader";
+import {colors} from "../../../constant/colors"
 
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
@@ -89,8 +90,8 @@ const CategoryAccordion = ({ category, colors }) => {
         onPress={() => setOpen((v) => !v)}
         activeOpacity={0.7}
       >
-        <View style={[styles.iconBubble, { backgroundColor: "#FEF3EC" }]}>
-          <Icon size={18} color="#E8651A" strokeWidth={1.8} />
+        <View style={[styles.iconBubble, { backgroundColor: colors.primary + 10 }]}>
+          <Icon size={18} color={colors.primary} strokeWidth={1.8} />
         </View>
         <Text style={[styles.categoryLabel, { color: colors.textPrimary }]}>
           {category.label}
@@ -186,8 +187,8 @@ const FAQs = () => {
         </View>
 
         {/* ── Search ── */}
-        <View style={[styles.searchWrapper, { backgroundColor: "#FEF3EC" }]}>
-          <Search size={18} color="#E8651A" strokeWidth={2} style={styles.searchIcon} />
+        <View style={[styles.searchWrapper, { backgroundColor: colors.primary + 10 }]}>
+          <Search size={18} color={colors.primary} strokeWidth={2} style={styles.searchIcon} />
           <TextInput
             style={[styles.searchInput, { color: colors.textPrimary }]}
             placeholder="Search help articles..."
@@ -199,7 +200,7 @@ const FAQs = () => {
         </View>
 
         {/* ── Categories ── */}
-        <Text style={[styles.sectionLabel, { color: "#E8651A" }]}>CATEGORIES</Text>
+        <Text style={[styles.sectionLabel, { color: colors.primary }]}>CATEGORIES</Text>
 
         {filtered.length === 0 ? (
           <Text style={[styles.emptyText, { color: colors.textTertiary }]}>
@@ -219,10 +220,10 @@ const FAQs = () => {
           </Text>
           <TouchableOpacity
             style={styles.ctaButton}
-            onPress={() => Linking.openURL("mailto:support@bondies.app")}
+            onPress={() => Linking.openURL("mailto:support@bondies.online")}
             activeOpacity={0.85}
           >
-            <Mail size={18} color="#E8651A" strokeWidth={2} />
+            <Mail size={18} color={colors.primary} strokeWidth={2} />
             <Text style={styles.ctaButtonText}>Contact Support</Text>
           </TouchableOpacity>
         </View>
@@ -369,7 +370,7 @@ const styles = StyleSheet.create({
   // CTA
   ctaCard: {
     marginTop: 20,
-    backgroundColor: "#E8651A",
+    backgroundColor: colors.primary,
     borderRadius: 20,
     padding: 24,
     alignItems: "center",
@@ -392,7 +393,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: colors.secondary,
     borderRadius: 50,
     paddingVertical: 14,
     paddingHorizontal: 32,
@@ -400,7 +401,7 @@ const styles = StyleSheet.create({
   ctaButtonText: {
     fontSize: 15,
     fontFamily: "PlusJakartaSansBold",
-    color: "#E8651A",
+    color: colors.primary,
   },
 });
 

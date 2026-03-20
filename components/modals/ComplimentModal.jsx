@@ -15,9 +15,11 @@ import {
   Animated,
   Dimensions,
   Image,
+  Keyboard,
   KeyboardAvoidingView,
   Modal,
   Platform,
+  Pressable,
   StatusBar,
   StyleSheet,
   Text,
@@ -323,7 +325,7 @@ const ComplimentModal = ({
           </View>
 
           {/* Spacer to push bottom panel down */}
-          <View style={{ flex: 1 }} />
+          <Pressable style={{ flex: 1 }} onPress={Keyboard.dismiss} />
 
           {/* ─── Bottom overlay panel ─── */}
           <KeyboardAvoidingView

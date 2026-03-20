@@ -52,7 +52,7 @@ const CommunityGuidelines = () => {
 
   return (
     <SafeAreaView style={[s.safe, { backgroundColor: colors.surface }]} edges={["top"]}>
-      <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
+      <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
 
       {/* Header — overlaid on the hero image */}
       <View style={s.headerOverlay}>
@@ -84,8 +84,8 @@ const CommunityGuidelines = () => {
           {/* Guideline cards */}
           {GUIDELINES.map(({ Icon, title, body }) => (
             <View key={title} style={[s.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-              <View style={[s.iconBubble, { backgroundColor: "#FEF3EC" }]}>
-                <Icon size={20} color="#E8651A" strokeWidth={1.8} />
+              <View style={[s.iconBubble, { backgroundColor: colors.primary +10 }]}>
+                <Icon size={20} color={colors.primary} strokeWidth={1.8} />
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={[s.cardTitle, { color: colors.textPrimary }]}>{title}</Text>
@@ -98,16 +98,16 @@ const CommunityGuidelines = () => {
 
       {/* Sticky CTA */}
       <View style={[s.footer, { backgroundColor: colors.background, borderTopColor: colors.border }]}>
-        <TouchableOpacity style={s.agreeBtn} activeOpacity={0.88} onPress={() => router.back()}>
+        {/* <TouchableOpacity style={s.agreeBtn} activeOpacity={0.88} onPress={() => router.back()}>
           <Text style={s.agreeBtnText}>I Understand & Agree</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
         <Text style={[s.footerNote, { color: colors.textTertiary }]}>
           By tapping agree you confirm you&apos;ve read our{" "}
-          <Text style={{ color: "#E8651A" }} onPress={() => router.push("/terms-of-service")}>
+          <Text style={{ color: colors.primary }} onPress={() => router.push("/terms-of-services")}>
             Terms of Service
           </Text>
           {" "}and{" "}
-          <Text style={{ color: "#E8651A" }} onPress={() => router.push("/privacy-policy")}>
+          <Text style={{ color:  colors.primary }} onPress={() => router.push("/privacy-policy")}>
             Privacy Policy
           </Text>
           .

@@ -31,8 +31,9 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSelector } from 'react-redux';
 import { colors } from '../../../constant/colors';
-import bondupChatService from '../../../services/bondupChatService';
+import bondupService from '../../../services/bondupService';
 import feedService from '../../../services/feedService';
+import profileService from '../../../services/profileService';
 
 const BRAND = colors.primary;
 
@@ -103,19 +104,46 @@ export default function BondupProfileScreen() {
     if (!id) return;
     setError(false);
     try {
-      // If we have a chatId, use the bondup-specific endpoint
-      if (chatId) {
-        const res = await bondupChatService.getUserProfile(chatId, id);
+      let loaded = false;
+
+      // Primary: bondup profile endpoint (no chatId needed)
+      try {
+        const res = await bondupService.getBondupProfile(id);
         if (res?.data) {
           setProfile(res.data.user);
           setStats(res.data.stats || {});
           setActiveBondups(res.data.activeBondups || []);
+          setIsFollowing(res.data.isFollowing ?? false);
+          loaded = true;
         }
+      } catch {
+        // Falls through to generic profile endpoint
       }
 
-      // Also check follow status
-      const followRes = await feedService.checkFollowStatus(id).catch(() => null);
-      setIsFollowing(followRes?.isFollowing ?? followRes?.data?.isFollowing ?? false);
+      // Fallback: use profileService
+      if (!loaded) {
+        try {
+          const profileData = await profileService.getProfileById(id);
+          if (profileData) {
+            setProfile(profileData);
+            setStats({
+              followersCount: profileData.followersCount || 0,
+              followingCount: profileData.followingCount || 0,
+              bondups: profileData.bondupCount || 0,
+              bio: profileData.bio || profileData.socialBio || '',
+            });
+            setActiveBondups([]);
+          } else {
+            setError(true);
+          }
+        } catch {
+          setError(true);
+        }
+
+        // Check follow status separately when using fallback
+        const followRes = await feedService.checkFollowStatus(id).catch(() => null);
+        setIsFollowing(followRes?.isFollowing ?? followRes?.data?.isFollowing ?? false);
+      }
     } catch {
       setError(true);
     } finally {
@@ -145,11 +173,13 @@ export default function BondupProfileScreen() {
         await feedService.followUser(id);
       }
       // Refresh stats
-      if (chatId) {
-        const res = await bondupChatService.getUserProfile(chatId, id);
+      try {
+        const res = await bondupService.getBondupProfile(id);
         if (res?.data) {
           setStats(res.data.stats || {});
         }
+      } catch {
+        // silent
       }
     } catch {
       setIsFollowing(wasFollowing);

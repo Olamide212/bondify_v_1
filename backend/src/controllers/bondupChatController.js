@@ -166,24 +166,7 @@ const sendBondupMessage = async (req, res, next) => {
       return res.status(403).json({ success: false, message: 'Not a member of this chat.' });
     }
 
-    // ── Message limit enforcement for bondup_single pre-match ─────────────
-    if (chat.type === 'bondup_single' && chat.matchStatus !== 'matched') {
-      const userKey = String(userId);
-      const currentCount = chat.messageCountPerUser?.get(userKey) || 0;
-
-      if (currentCount >= MESSAGE_LIMIT) {
-        return res.status(403).json({
-          success: false,
-          message: `You've reached the ${MESSAGE_LIMIT}-message limit. Match to continue chatting!`,
-          code: 'MESSAGE_LIMIT_REACHED',
-          data: {
-            limit: MESSAGE_LIMIT,
-            sent: currentCount,
-            matchStatus: chat.matchStatus,
-          },
-        });
-      }
-    }
+    // Message limits removed — bondup chats are free to use
 
     const message = await BondupMessage.create({
       bondupChat: chatId,
@@ -200,8 +183,8 @@ const sendBondupMessage = async (req, res, next) => {
       sender: userId,
     };
 
-    // Increment user's message count (for bondup_single)
-    if (chat.type === 'bondup_single' && chat.matchStatus !== 'matched') {
+    // Message count tracking (informational only — no limit enforcement)
+    if (chat.type === 'bondup_single') {
       const userKey = String(userId);
       const prev = chat.messageCountPerUser?.get(userKey) || 0;
       chat.messageCountPerUser.set(userKey, prev + 1);
@@ -221,27 +204,15 @@ const sendBondupMessage = async (req, res, next) => {
     if (io) {
       io.emit(`bondupChat:${chatId}:message`, populated);
 
-      // If this message hits the limit, notify all chat members
-      if (chat.type === 'bondup_single' && chat.matchStatus !== 'matched') {
-        const userKey = String(userId);
-        const newCount = chat.messageCountPerUser.get(userKey) || 0;
-        if (newCount >= MESSAGE_LIMIT) {
-          io.emit(`bondupChat:${chatId}:limitReached`, {
-            chatId,
-            userId: userKey,
-            limit: MESSAGE_LIMIT,
-            matchStatus: chat.matchStatus,
-          });
-        }
-      }
+      // Message limits removed — no limit-reached notification needed
     }
 
     res.status(201).json({
       success: true,
       data: populated,
       meta: chat.type === 'bondup_single' ? {
-        messagesRemaining: Math.max(0, MESSAGE_LIMIT - (chat.messageCountPerUser.get(String(userId)) || 0)),
-        matchStatus: chat.matchStatus,
+        messagesRemaining: Infinity,
+        matchStatus: chat.matchStatus || 'none',
       } : undefined,
     });
   } catch (err) {
@@ -276,10 +247,10 @@ const getBondupChatState = async (req, res, next) => {
         type: chat.type,
         matchStatus: chat.matchStatus || 'none',
         matchInitiatedBy: chat.matchInitiatedBy,
-        messageLimit: MESSAGE_LIMIT,
+        messageLimit: Infinity,
         messagesSent: messageCount,
-        messagesRemaining: chat.matchStatus === 'matched' ? Infinity : Math.max(0, MESSAGE_LIMIT - messageCount),
-        isLimitReached: chat.matchStatus !== 'matched' && messageCount >= MESSAGE_LIMIT,
+        messagesRemaining: Infinity,
+        isLimitReached: false,
       },
     });
   } catch (err) {

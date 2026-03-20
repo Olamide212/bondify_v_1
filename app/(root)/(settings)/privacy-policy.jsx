@@ -102,15 +102,15 @@ const PrivacyPolicy = () => {
         showsVerticalScrollIndicator={false}
       >
         {/* Icon */}
-        <View style={[s.iconBubble, { backgroundColor: colors.background }]}>
-          <ShieldCheck size={28} color="#E8651A" strokeWidth={1.8} />
+        <View style={[s.iconBubble, { backgroundColor: colors.primary + 10 }]}>
+          <ShieldCheck size={28} color={colors.primary} strokeWidth={1.8} />
         </View>
 
         <Text style={[s.pageTitle, { color: colors.textPrimary }]}>Your Privacy Matters</Text>
         <Text style={[s.pageIntro, { color: colors.textSecondary }]}>
           At Bondies, we believe meaningful connections are built on trust. We are committed to protecting your personal data and being transparent about how we use it.
         </Text>
-        <Text style={[s.lastUpdated, { color: "#E8651A" }]}>LAST UPDATED: FEBRUARY 24, 2026</Text>
+        <Text style={[s.lastUpdated, { color: colors.primary }]}>LAST UPDATED: FEBRUARY 24, 2026</Text>
 
         {/* Accordion */}
         <View style={[s.accordionCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
@@ -135,7 +135,7 @@ const PrivacyPolicy = () => {
             onPress={() => Linking.openURL("mailto:privacy@bondies.app")}
           >
             <Text style={s.contactLinkText}>Contact Privacy Team</Text>
-            <ExternalLink size={14} color="#E8651A" strokeWidth={2} />
+            <ExternalLink size={14} color={colors.primary} strokeWidth={2} />
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -169,7 +169,7 @@ const s = StyleSheet.create({
   contactTitle: { fontSize: 16, fontFamily: "PlusJakartaSansBold", marginBottom: 8 },
   contactBody: { fontSize: 13, fontFamily: "PlusJakartaSans", lineHeight: 19, marginBottom: 14 },
   contactLink: { flexDirection: "row", alignItems: "center", gap: 6 },
-  contactLinkText: { fontSize: 14, fontFamily: "PlusJakartaSansBold", color: "#E8651A" },
+  contactLinkText: { fontSize: 14, fontFamily: "PlusJakartaSansBold", color: colors.primary },
 });
 
 const acc = StyleSheet.create({

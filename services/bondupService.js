@@ -71,6 +71,15 @@ const bondupService = {
     const res = await apiClient.delete(`/bondup/${bondupId}`);
     return res.data;
   },
+
+  /**
+   * Get a bondup user's profile (no chat membership required).
+   * @param {string} userId
+   */
+  getBondupProfile: async (userId) => {
+    const res = await apiClient.get(`/bondup/profile/${userId}`);
+    return res.data;
+  },
 };
 
 export default bondupService;

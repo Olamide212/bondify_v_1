@@ -513,6 +513,95 @@ const getMyBondups = async (req, res, next) => {
   }
 };
 
+// ─────────────────────────────────────────────────────────────────────────────
+// GET /api/bondup/profile/:userId — Public bondup user profile (no chat required)
+// ─────────────────────────────────────────────────────────────────────────────
+const getBondupProfile = async (req, res, next) => {
+  try {
+    const { userId } = req.params;
+    const User = require('mongoose').model('User');
+
+    const targetUser = await User.findById(userId)
+      .select('firstName lastName images profilePhoto userName city')
+      .lean();
+
+    if (!targetUser) {
+      return res.status(404).json({ success: false, message: 'User not found.' });
+    }
+
+    const enrichedUser = await mapUserImages(targetUser);
+
+    // Get user's active bondups
+    const now = new Date();
+    const activeBondups = await Bondup.find({
+      $or: [
+        { createdBy: userId },
+        { 'participants.user': userId },
+      ],
+      isActive: true,
+      expiresAt: { $gt: now },
+    })
+      .sort({ dateTime: 1 })
+      .limit(10)
+      .populate('createdBy', 'firstName lastName images profilePhoto')
+      .lean();
+
+    // Get follow stats
+    let followStats = { followersCount: 0, followingCount: 0, bio: '' };
+    try {
+      const SocialProfile = require('mongoose').model('SocialProfile');
+      const socialProfile = await SocialProfile.findOne({ user: userId }).lean();
+      if (socialProfile) {
+        followStats = {
+          followersCount: socialProfile.followersCount || socialProfile.followers?.length || 0,
+          followingCount: socialProfile.followingCount || socialProfile.following?.length || 0,
+          bio: socialProfile.bio || '',
+        };
+      }
+    } catch {
+      // SocialProfile model may not exist — use Follow model fallback
+      try {
+        const followersCount = await Follow.countDocuments({ following: userId });
+        const followingCount = await Follow.countDocuments({ follower: userId });
+        followStats = { followersCount, followingCount, bio: '' };
+      } catch {
+        // silent
+      }
+    }
+
+    // Check if requester follows this user
+    let isFollowing = false;
+    try {
+      const existing = await Follow.findOne({ follower: req.user._id, following: userId });
+      isFollowing = !!existing;
+    } catch {
+      // silent
+    }
+
+    res.json({
+      success: true,
+      data: {
+        user: enrichedUser,
+        stats: {
+          ...followStats,
+          bondups: activeBondups.length,
+        },
+        isFollowing,
+        activeBondups: activeBondups.map((b) => ({
+          _id: b._id,
+          title: b.title,
+          activityType: b.activityType,
+          city: b.city,
+          dateTime: b.dateTime,
+          participantCount: b.participants?.length || 0,
+        })),
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 module.exports = {
   createBondup,
   getPublicBondups,
@@ -522,4 +611,5 @@ module.exports = {
   deleteBondup,
   getBondup,
   getMyBondups,
+  getBondupProfile,
 };

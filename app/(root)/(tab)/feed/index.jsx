@@ -233,7 +233,16 @@ export default function BondupFeedScreen() {
 
   // ── Apply day + type filters whenever raw data or filters change ─────────
   useEffect(() => {
-    let items = applyTimeFilter(allBondups, activeDayFilter, filterWindows);
+    // First, strip out expired bondups (dateTime in the past + 24h grace)
+    const now = Date.now();
+    const fresh = allBondups.filter((b) => {
+      if (!b.dateTime) return true;
+      // Keep bondups whose dateTime + 24 hours hasn't passed yet
+      const expiresMs = new Date(b.expiresAt || b.dateTime).getTime() + (b.expiresAt ? 0 : 86400000);
+      return expiresMs > now;
+    });
+
+    let items = applyTimeFilter(fresh, activeDayFilter, filterWindows);
     items = items.filter((b) => (b.postType || 'join_me') === activeTypeFilter);
     setBondups(items);
   }, [allBondups, activeDayFilter, activeTypeFilter, filterWindows]);

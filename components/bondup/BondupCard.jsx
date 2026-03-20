@@ -102,7 +102,7 @@ export default function BondupCard({
       {/* ── Top row: avatar | name + time | category badge ── */}
       <View style={s.topRow}>
         <TouchableOpacity
-          onPress={() => creatorId && router.push(`/social-profile/${creatorId}`)}
+          onPress={() => creatorId && router.push(`/bondup-profile/${creatorId}`)}
           activeOpacity={0.8}
         >
           {creatorAv ? (

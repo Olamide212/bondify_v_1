@@ -13,6 +13,7 @@ import { useRouter } from "expo-router";
 import { ArrowLeft, Calendar } from "lucide-react-native";
 import { useTheme } from "../../../context/ThemeContext";
 import GeneralHeader from "../../../components/headers/GeneralHeader";
+import {colors} from "../../../constant/colors"
 
 const TERMS = [
   {
@@ -58,16 +59,16 @@ const TermsOfService = () => {
      <GeneralHeader title="Legal" onBack={() => router.back()} leftIcon={<ArrowLeft />} />
 
       <ScrollView
-        style={{ backgroundColor: colors.background }}
-        contentContainerStyle={[s.body, { backgroundColor: colors.background }]}
+        style={{ backgroundColor: "#fff" }}
+        contentContainerStyle={[s.body, { backgroundColor: '#fff' }]}
         showsVerticalScrollIndicator={false}
       >
         <Text style={[s.pageTitle, { color: colors.textPrimary }]}>Bondies Terms of{"\n"}Service</Text>
 
         {/* Date badge */}
         <View style={s.dateBadge}>
-          <Calendar size={12} color="#E8651A" strokeWidth={2} />
-          <Text style={[s.dateText, { color: "#E8651A" }]}>Last Updated: FEBRUARY 24, 2026</Text>
+          <Calendar size={12} color={colors.primary} strokeWidth={2} />
+          <Text style={[s.dateText, { color: colors.primary }]}>Last Updated: FEBRUARY 24, 2026</Text>
         </View>
 
         <Text style={[s.intro, { color: colors.textSecondary }]}>
@@ -88,7 +89,7 @@ const TermsOfService = () => {
             )}
             {bullets?.map((b) => (
               <View key={b} style={s.bulletRow}>
-                <View style={[s.dot, { backgroundColor: "#E8651A" }]} />
+                <View style={[s.dot, { backgroundColor: colors.primary }]} />
                 <Text style={[s.bulletText, { color: colors.textSecondary }]}>{b}</Text>
               </View>
             ))}
@@ -111,14 +112,14 @@ const TermsOfService = () => {
       </ScrollView>
 
       {/* Bottom bar */}
-      <View style={[s.bottomBar, { backgroundColor: colors.surface, borderTopColor: colors.border }]}>
+      {/* <View style={[s.bottomBar, { backgroundColor: colors.surface, borderTopColor: colors.border }]}>
         <TouchableOpacity style={[s.declineBtn, { borderColor: colors.border }]} onPress={() => router.back()}>
           <Text style={[s.declineBtnText, { color: colors.textSecondary }]}>Decline</Text>
         </TouchableOpacity>
         <TouchableOpacity style={s.agreeBtn} onPress={() => router.back()} activeOpacity={0.88}>
           <Text style={s.agreeBtnText}>I Agree</Text>
         </TouchableOpacity>
-      </View>
+      </View> */}
     </SafeAreaView>
   );
 };
@@ -139,9 +140,9 @@ const s = StyleSheet.create({
   sectionHeader: { flexDirection: "row", alignItems: "center", gap: 12, marginBottom: 10 },
   numberBadge: {
     width: 40, height: 40, borderRadius: 20,
-    backgroundColor: "#FEF3EC", alignItems: "center", justifyContent: "center", flexShrink: 0,
+    backgroundColor: colors.primary + 10, alignItems: "center", justifyContent: "center", flexShrink: 0,
   },
-  numberText: { fontSize: 16, fontFamily: "PlusJakartaSansBold", color: "#E8651A" },
+  numberText: { fontSize: 16, fontFamily: "PlusJakartaSansBold", color: colors.primary },
   sectionTitle: { fontSize: 17, fontFamily: "PlusJakartaSansBold" },
   sectionBody: { fontSize: 14, fontFamily: "PlusJakartaSans", lineHeight: 21 },
   bulletRow: { flexDirection: "row", gap: 8, alignItems: "flex-start", marginBottom: 6 },
@@ -149,7 +150,7 @@ const s = StyleSheet.create({
   bulletText: { flex: 1, fontSize: 14, fontFamily: "PlusJakartaSans", lineHeight: 21 },
   contactNote: { fontSize: 13, fontFamily: "PlusJakartaSans", textAlign: "center", marginBottom: 14 },
   contactBtn: {
-    backgroundColor: "#E8651A", borderRadius: 50,
+    backgroundColor: colors.primary, borderRadius: 50,
     paddingVertical: 15, alignItems: "center", marginBottom: 24,
   },
   contactBtnText: { fontSize: 15, fontFamily: "PlusJakartaSansBold", color: "#fff" },

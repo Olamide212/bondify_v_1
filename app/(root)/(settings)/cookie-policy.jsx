@@ -33,8 +33,8 @@ const CookiePolicy = () => {
         showsVerticalScrollIndicator={false}
       >
         {/* Icon */}
-        <View style={[s.iconBubble, { backgroundColor: "#FEF3EC" }]}>
-          <Cookie size={28} color="#E8651A" strokeWidth={1.8} />
+        <View style={[s.iconBubble, { backgroundColor: colors.primary + 10 }]}>
+          <Cookie size={28} color={colors.primary} strokeWidth={1.8} />
         </View>
 
         <Text style={[s.pageTitle, { color: colors.textPrimary }]}>How we use cookies</Text>
@@ -54,8 +54,8 @@ const CookiePolicy = () => {
         {/* Essential — always on */}
         <View style={[s.cookieCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
           <View style={s.cookieRow}>
-            <View style={[s.cookieIcon, { backgroundColor: "#FEF3EC" }]}>
-              <ShieldCheck size={20} color="#E8651A" strokeWidth={1.8} />
+            <View style={[s.cookieIcon, { backgroundColor: colors.primary + 10 }]}>
+              <ShieldCheck size={20} color={colors.primary} strokeWidth={1.8} />
             </View>
             <Text style={[s.cookieTitle, { color: colors.textPrimary }]}>Essential Cookies</Text>
           </View>
@@ -68,15 +68,15 @@ const CookiePolicy = () => {
         <View style={[s.cookieCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
           <View style={s.cookieRowBetween}>
             <View style={s.cookieRow}>
-              <View style={[s.cookieIcon, { backgroundColor: "#FEF3EC" }]}>
-                <BarChart2 size={20} color="#E8651A" strokeWidth={1.8} />
+              <View style={[s.cookieIcon, { backgroundColor: colors.primary + 10 }]}>
+                <BarChart2 size={20} color={colors.primary} strokeWidth={1.8} />
               </View>
               <Text style={[s.cookieTitle, { color: colors.textPrimary }]}>Analytics</Text>
             </View>
             <Switch
               value={analytics}
               onValueChange={setAnalytics}
-              trackColor={{ false: colors.switchTrackOff, true: "#E8651A" }}
+              trackColor={{ false: colors.switchTrackOff, true: colors.primary }}
               thumbColor={Platform.OS === "android" ? "#fff" : undefined}
               ios_backgroundColor={colors.switchTrackOff}
             />
@@ -90,15 +90,15 @@ const CookiePolicy = () => {
         <View style={[s.cookieCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
           <View style={s.cookieRowBetween}>
             <View style={s.cookieRow}>
-              <View style={[s.cookieIcon, { backgroundColor: "#FEF3EC" }]}>
-                <Megaphone size={20} color="#E8651A" strokeWidth={1.8} />
+              <View style={[s.cookieIcon, { backgroundColor: colors.primary + 10 }]}>
+                <Megaphone size={20} color={colors.primary} strokeWidth={1.8} />
               </View>
               <Text style={[s.cookieTitle, { color: colors.textPrimary }]}>Marketing</Text>
             </View>
             <Switch
               value={marketing}
               onValueChange={setMarketing}
-              trackColor={{ false: colors.switchTrackOff, true: "#E8651A" }}
+              trackColor={{ false: colors.switchTrackOff, true: colors.primary }}
               thumbColor={Platform.OS === "android" ? "#fff" : undefined}
               ios_backgroundColor={colors.switchTrackOff}
             />

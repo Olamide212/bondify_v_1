@@ -13,6 +13,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { ArrowLeft, Camera, X, Info } from "lucide-react-native";
 import { useTheme } from "../../../context/ThemeContext";
+import {colors} from "../../../constant/colors";
+
 
 const CATEGORIES = [
   "Select a category",
@@ -119,11 +121,11 @@ const ReportProblem = () => {
         </Text>
 
         {/* Info banner */}
-        <View style={[s.infoBanner, { backgroundColor: "#FEF3EC", borderColor: "#FDDCC4" }]}>
-          <Info size={16} color="#E8651A" strokeWidth={2} style={{ marginTop: 1, flexShrink: 0 }} />
+        <View style={[s.infoBanner, { backgroundColor: colors.primary + 10, borderColor: colors.primary}]}>
+          <Info size={16} color={colors.primary} strokeWidth={2} style={{ marginTop: 1, flexShrink: 0 }} />
           <Text style={[s.infoText, { color: colors.textSecondary }]}>
             Our support team typically responds within 24 hours. If this is an urgent safety matter, please visit our{" "}
-            <Text style={{ color: "#E8651A" }}>Safety Center</Text>.
+            <Text style={{ color: colors.primary }}>Safety Center</Text>.
           </Text>
         </View>
 
@@ -178,7 +180,7 @@ const s = StyleSheet.create({
   },
   infoText: { flex: 1, fontSize: 13, fontFamily: "PlusJakartaSans", lineHeight: 19 },
   submitBtn: {
-    backgroundColor: "#E8651A", borderRadius: 50,
+    backgroundColor: colors.primary, borderRadius: 50,
     paddingVertical: 16, alignItems: "center", marginBottom: 14,
   },
   submitText: { fontSize: 16, fontFamily: "PlusJakartaSansBold", color: "#fff" },

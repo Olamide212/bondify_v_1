@@ -14,34 +14,47 @@
 
 import { useRouter } from 'expo-router';
 import {
-    ArrowLeft,
-    Flame,
-    Heart,
-    Lock,
-    Send,
-    X,
+  AlertTriangle,
+  ArrowLeft,
+  Clock,
+  Flame,
+  LogOut,
+  MapPin,
+  Send,
+  Users,
 } from 'lucide-react-native';
 import { useEffect, useRef, useState } from 'react';
 import {
-    Alert,
-    FlatList,
-    Image,
-    KeyboardAvoidingView,
-    Platform,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  FlatList,
+  Image,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSelector } from 'react-redux';
 import { colors } from '../../constant/colors';
 import bondupChatService from '../../services/bondupChatService';
+import bondupService from '../../services/bondupService';
+import settingsService from '../../services/settingsService';
 import { socketService } from '../../services/socketService';
+import BondupDetailModal from './BondupDetailModal';
 
 const BRAND = colors.primary;
-const MATCH_GREEN = '#22C55E';
+
+const ACTIVITY_EMOJI = {
+  coffee: '☕', food: '🍔', drinks: '🍹', gym: '💪',
+  walk: '🚶', movie: '🎬', other: '✨',
+};
+const ACTIVITY_LABEL = {
+  coffee: 'Coffee', food: 'Dining', drinks: 'Drinks', gym: 'Gym',
+  walk: 'Outdoor', movie: 'Cinema', other: 'Other',
+};
 
 const avatarUrl = (user) =>
   user?.profilePhoto || user?.images?.[0]?.url || user?.images?.[0] || null;
@@ -54,6 +67,19 @@ const getFirstName = (user) => user?.firstName || 'User';
 const formatTime = (dateStr) => {
   if (!dateStr) return '';
   return new Date(dateStr).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+};
+
+const formatBondupDate = (dateTime) => {
+  if (!dateTime) return '';
+  const d = new Date(dateTime);
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const tomorrow = new Date(today.getTime() + 86400000);
+  const dDay = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const timeStr = d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+  if (dDay.getTime() === today.getTime()) return `Today, ${timeStr}`;
+  if (dDay.getTime() === tomorrow.getTime()) return `Tomorrow, ${timeStr}`;
+  return d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' }) + `, ${timeStr}`;
 };
 
 export default function BondupChatScreen({ chatId, bondupId, bondupTitle, participantCount }) {
@@ -75,14 +101,21 @@ export default function BondupChatScreen({ chatId, bondupId, bondupTitle, partic
     isLimitReached: false,
   });
   const [chatMembers, setChatMembers] = useState([]);
-  const [matchLoading, setMatchLoading] = useState(false);
+
+  // ── Bondup details + modals ──────────────────────────────────────────────
+  const [bondupData, setBondupData] = useState(null);
+  const [detailModalVisible, setDetailModalVisible] = useState(false);
+  const [leaveReportVisible, setLeaveReportVisible] = useState(false);
+  const [actionLoading, setActionLoading] = useState(false);
+  // Global action modal state (replaces native Alert)
+  const [actionModal, setActionModal] = useState({ visible: false, icon: null, title: '', message: '', actions: [] });
+  // Report modal state
+  const [reportModalVisible, setReportModalVisible] = useState(false);
+  const [reportText, setReportText] = useState('');
+  const [reportLoading, setReportLoading] = useState(false);
 
   const isSingle = chatState.type === 'bondup_single';
-  const isMatched = chatState.matchStatus === 'matched';
-  const isPending = chatState.matchStatus === 'pending';
-  const isPreMatch = chatState.matchStatus === 'none';
-  const iInitiatedMatch = String(chatState.matchInitiatedBy?._id || chatState.matchInitiatedBy) === String(currentUser?._id);
-  const canSendMessage = !isSingle || isMatched || !chatState.isLimitReached;
+  const canSendMessage = true; // Bondup chats are unrestricted
 
   // The other member in bondup_single chat
   const otherMember = chatMembers.find((m) => String(m._id) !== String(currentUser?._id));
@@ -111,6 +144,20 @@ export default function BondupChatScreen({ chatId, bondupId, bondupTitle, partic
     })();
   }, [chatId]);
 
+  // ── Fetch bondup details for the info card ─────────────────────────────────
+  useEffect(() => {
+    if (!bondupId) return;
+    (async () => {
+      try {
+        const res = await bondupService.getBondup(bondupId);
+        if (res?.data) setBondupData(res.data);
+        else if (res?.bondup) setBondupData(res.bondup);
+      } catch {
+        // silent — card just won't show
+      }
+    })();
+  }, [bondupId]);
+
   // ── Load messages on mount ────────────────────────────────────────────────
   useEffect(() => {
     if (!chatId) return;
@@ -118,7 +165,15 @@ export default function BondupChatScreen({ chatId, bondupId, bondupTitle, partic
       try {
         const res = await bondupChatService.getMessages(chatId);
         const msgs = res.data ?? res.messages ?? [];
-        setMessages(Array.isArray(msgs) ? msgs.reverse() : []);
+        // Deduplicate by _id
+        const raw = Array.isArray(msgs) ? msgs.reverse() : [];
+        const seen = new Set();
+        const unique = raw.filter((m) => {
+          if (!m._id || seen.has(m._id)) return false;
+          seen.add(m._id);
+          return true;
+        });
+        setMessages(unique);
       } catch {
         // silent fail
       }
@@ -185,13 +240,7 @@ export default function BondupChatScreen({ chatId, bondupId, bondupTitle, partic
     const content = inputText.trim();
     if (!content || sending) return;
 
-    if (!canSendMessage) {
-      Alert.alert(
-        'Message Limit Reached',
-        'You\'ve used all your messages. Request a match to continue chatting!'
-      );
-      return;
-    }
+    if (!canSendMessage) return;
 
     setInputText('');
     setSending(true);
@@ -216,67 +265,23 @@ export default function BondupChatScreen({ chatId, bondupId, bondupTitle, partic
         );
       } else {
         setMessages((prev) => prev.filter((m) => m._id !== tempMsg._id));
-        Alert.alert('Error', 'Message could not be sent. Please try again.');
-      }
-
-      // Update remaining messages from response meta
-      if (res.meta) {
-        setChatState((prev) => ({
-          ...prev,
-          messagesRemaining: res.meta.messagesRemaining ?? prev.messagesRemaining,
-          messagesSent: (prev.messagesSent || 0) + 1,
-          isLimitReached: (res.meta.messagesRemaining ?? 1) <= 0,
-          matchStatus: res.meta.matchStatus || prev.matchStatus,
-        }));
+        showActionModal({
+          icon: 'error',
+          title: 'Error',
+          message: 'Message could not be sent. Please try again.',
+          actions: [{ label: 'OK', style: 'cancel', onPress: closeActionModal }],
+        });
       }
     } catch (err) {
-      const errData = err?.response?.data;
-      if (errData?.code === 'MESSAGE_LIMIT_REACHED') {
-        setMessages((prev) => prev.filter((m) => m._id !== tempMsg._id));
-        setChatState((prev) => ({ ...prev, isLimitReached: true }));
-      } else {
-        setMessages((prev) => prev.filter((m) => m._id !== tempMsg._id));
-        Alert.alert('Error', 'Failed to send message. Check your connection.');
-      }
+      setMessages((prev) => prev.filter((m) => m._id !== tempMsg._id));
+      showActionModal({
+        icon: 'error',
+        title: 'Error',
+        message: 'Failed to send message. Check your connection.',
+        actions: [{ label: 'OK', style: 'cancel', onPress: closeActionModal }],
+      });
     } finally {
       setSending(false);
-    }
-  };
-
-  // ── Match actions ──────────────────────────────────────────────────────────
-  const handleRequestMatch = async () => {
-    setMatchLoading(true);
-    try {
-      const res = await bondupChatService.requestMatch(chatId);
-      if (res?.data) {
-        setChatState((prev) => ({
-          ...prev,
-          matchStatus: res.data.matchStatus,
-          matchInitiatedBy: res.data.matchInitiatedBy || currentUser?._id,
-        }));
-      }
-    } catch (err) {
-      Alert.alert('Error', err?.response?.data?.message || 'Could not send match request.');
-    } finally {
-      setMatchLoading(false);
-    }
-  };
-
-  const handleDeclineMatch = async () => {
-    setMatchLoading(true);
-    try {
-      const res = await bondupChatService.declineMatch(chatId);
-      if (res?.data) {
-        setChatState((prev) => ({
-          ...prev,
-          matchStatus: res.data.matchStatus,
-          matchInitiatedBy: null,
-        }));
-      }
-    } catch {
-      Alert.alert('Error', 'Could not decline match.');
-    } finally {
-      setMatchLoading(false);
     }
   };
 
@@ -288,6 +293,290 @@ export default function BondupChatScreen({ chatId, bondupId, bondupTitle, partic
       params: { chatId },
     });
   };
+
+  // ── Show a global in-app action modal ────────────────────────────────────
+  const showActionModal = ({ icon, title, message, actions }) => {
+    setActionModal({ visible: true, icon: icon || null, title, message, actions: actions || [] });
+  };
+  const closeActionModal = () => setActionModal({ visible: false, icon: null, title: '', message: '', actions: [] });
+
+  // ── Leave bondup ──────────────────────────────────────────────────────────
+  const handleLeaveBondup = () => {
+    setLeaveReportVisible(false);
+    showActionModal({
+      icon: 'leave',
+      title: 'Leave Bondup?',
+      message: 'You will exit this bondup and its chat. This action cannot be undone.',
+      actions: [
+        { label: 'Cancel', style: 'cancel', onPress: closeActionModal },
+        {
+          label: 'Leave',
+          style: 'destructive',
+          onPress: async () => {
+            setActionLoading(true);
+            try {
+              await bondupService.leaveBondup(bondupId);
+              closeActionModal();
+              showActionModal({
+                icon: 'success',
+                title: 'Left Bondup',
+                message: 'You have left this bondup.',
+                actions: [{ label: 'OK', style: 'primary', onPress: () => { closeActionModal(); router.back(); } }],
+              });
+            } catch {
+              closeActionModal();
+              showActionModal({
+                icon: 'error',
+                title: 'Error',
+                message: 'Could not leave bondup. Try again.',
+                actions: [{ label: 'OK', style: 'cancel', onPress: closeActionModal }],
+              });
+            } finally {
+              setActionLoading(false);
+            }
+          },
+        },
+      ],
+    });
+  };
+
+  // ── Report bondup — open the report text modal ────────────────────────────
+  const handleReportBondup = () => {
+    setLeaveReportVisible(false);
+    setReportText('');
+    setReportModalVisible(true);
+  };
+
+  const submitReport = async () => {
+    const reason = reportText.trim();
+    if (!reason) return;
+    setReportLoading(true);
+    try {
+      const creatorId = bondupData?.createdBy?._id || bondupData?.createdBy;
+      if (creatorId) {
+        await settingsService.reportUser(creatorId, {
+          reason,
+          context: `Bondup: ${bondupTitle || bondupId}`,
+        });
+      }
+      setReportModalVisible(false);
+      showActionModal({
+        icon: 'success',
+        title: 'Reported',
+        message: 'Thank you. We will review this shortly.',
+        actions: [{ label: 'OK', style: 'primary', onPress: closeActionModal }],
+      });
+    } catch {
+      setReportModalVisible(false);
+      showActionModal({
+        icon: 'error',
+        title: 'Error',
+        message: 'Could not submit report. Try again.',
+        actions: [{ label: 'OK', style: 'cancel', onPress: closeActionModal }],
+      });
+    } finally {
+      setReportLoading(false);
+    }
+  };
+
+  // ── Bondup info card (top of chat) ─────────────────────────────────────────
+  const renderBondupInfoCard = () => {
+    const b = bondupData;
+    if (!b) return null;
+    const emoji = ACTIVITY_EMOJI[b.activityType] || '✨';
+    const actLabel = ACTIVITY_LABEL[b.activityType] || b.activityType || 'Activity';
+    const location = [b.location, b.city].filter(Boolean).join(', ');
+    const dateLabel = formatBondupDate(b.dateTime);
+    const pCount = b.participants?.length ?? participantCount ?? 0;
+
+    return (
+      <TouchableOpacity
+        style={infoStyles.card}
+        onPress={() => setDetailModalVisible(true)}
+        activeOpacity={0.8}
+      >
+        <View style={infoStyles.cardInner}>
+          <Text style={infoStyles.emoji}>{emoji}</Text>
+          <View style={infoStyles.cardContent}>
+            <Text style={infoStyles.title} numberOfLines={1}>
+              {b.title || bondupTitle || 'Bondup'}
+            </Text>
+            <View style={infoStyles.metaRow}>
+              {dateLabel ? (
+                <View style={infoStyles.metaItem}>
+                  <Clock size={11} color="#888" />
+                  <Text style={infoStyles.metaText}>{dateLabel}</Text>
+                </View>
+              ) : null}
+              {location ? (
+                <View style={infoStyles.metaItem}>
+                  <MapPin size={11} color="#888" />
+                  <Text style={infoStyles.metaText} numberOfLines={1}>{location}</Text>
+                </View>
+              ) : null}
+              <View style={infoStyles.metaItem}>
+                <Users size={11} color="#888" />
+                <Text style={infoStyles.metaText}>{pCount}</Text>
+              </View>
+            </View>
+          </View>
+        </View>
+        <Text style={infoStyles.tapHint}>Tap for details</Text>
+      </TouchableOpacity>
+    );
+  };
+
+  // ── Leave / Report modal ──────────────────────────────────────────────────
+  const renderLeaveReportModal = () => (
+    <Modal
+      visible={leaveReportVisible}
+      transparent
+      animationType="fade"
+      onRequestClose={() => setLeaveReportVisible(false)}
+    >
+      <TouchableOpacity
+        style={lrStyles.overlay}
+        activeOpacity={1}
+        onPress={() => setLeaveReportVisible(false)}
+      >
+        <View style={lrStyles.sheet}>
+          <View style={lrStyles.handle} />
+          <Text style={lrStyles.sheetTitle}>Options</Text>
+
+          <TouchableOpacity
+            style={lrStyles.option}
+            onPress={handleLeaveBondup}
+            disabled={actionLoading}
+            activeOpacity={0.7}
+          >
+            <View style={[lrStyles.optionIcon, { backgroundColor: '#FEF2F2' }]}>
+              <LogOut size={18} color="#EF4444" />
+            </View>
+            <View style={lrStyles.optionTextWrap}>
+              <Text style={lrStyles.optionLabel}>Leave Bondup</Text>
+              <Text style={lrStyles.optionDesc}>Exit this bondup and its chat</Text>
+            </View>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={lrStyles.option}
+            onPress={handleReportBondup}
+            activeOpacity={0.7}
+          >
+            <View style={[lrStyles.optionIcon, { backgroundColor: '#FFF7ED' }]}>
+              <AlertTriangle size={18} color="#F59E0B" />
+            </View>
+            <View style={lrStyles.optionTextWrap}>
+              <Text style={lrStyles.optionLabel}>Report</Text>
+              <Text style={lrStyles.optionDesc}>Report inappropriate content</Text>
+            </View>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={lrStyles.cancelBtn}
+            onPress={() => setLeaveReportVisible(false)}
+            activeOpacity={0.8}
+          >
+            <Text style={lrStyles.cancelText}>Cancel</Text>
+          </TouchableOpacity>
+        </View>
+      </TouchableOpacity>
+    </Modal>
+  );
+
+  // ── Global action modal (replaces native Alert) ────────────────────────────
+  const renderActionModal = () => (
+    <Modal
+      visible={actionModal.visible}
+      transparent
+      animationType="fade"
+      onRequestClose={closeActionModal}
+    >
+      <View style={amStyles.overlay}>
+        <View style={amStyles.card}>
+          {actionModal.icon === 'success' && <Text style={amStyles.iconEmoji}>✅</Text>}
+          {actionModal.icon === 'error' && <Text style={amStyles.iconEmoji}>❌</Text>}
+          {actionModal.icon === 'leave' && <Text style={amStyles.iconEmoji}>🚪</Text>}
+          <Text style={amStyles.title}>{actionModal.title}</Text>
+          <Text style={amStyles.message}>{actionModal.message}</Text>
+          <View style={amStyles.actions}>
+            {actionModal.actions.map((action, idx) => (
+              <TouchableOpacity
+                key={idx}
+                style={[
+                  amStyles.actionBtn,
+                  action.style === 'destructive' && amStyles.actionBtnDestructive,
+                  action.style === 'primary' && amStyles.actionBtnPrimary,
+                  action.style === 'cancel' && amStyles.actionBtnCancel,
+                ]}
+                onPress={action.onPress}
+                disabled={actionLoading}
+                activeOpacity={0.8}
+              >
+                <Text
+                  style={[
+                    amStyles.actionBtnText,
+                    action.style === 'destructive' && amStyles.actionBtnTextDestructive,
+                    action.style === 'primary' && amStyles.actionBtnTextPrimary,
+                    action.style === 'cancel' && amStyles.actionBtnTextCancel,
+                  ]}
+                >
+                  {action.label}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+      </View>
+    </Modal>
+  );
+
+  // ── Report modal with text input ───────────────────────────────────────────
+  const renderReportModal = () => (
+    <Modal
+      visible={reportModalVisible}
+      transparent
+      animationType="fade"
+      onRequestClose={() => setReportModalVisible(false)}
+    >
+      <View style={amStyles.overlay}>
+        <View style={amStyles.card}>
+          <Text style={amStyles.iconEmoji}>🚩</Text>
+          <Text style={amStyles.title}>Report Bondup</Text>
+          <Text style={amStyles.message}>Please describe the issue:</Text>
+          <TextInput
+            style={rpStyles.input}
+            placeholder="What went wrong?"
+            placeholderTextColor="#BBB"
+            value={reportText}
+            onChangeText={setReportText}
+            multiline
+            maxLength={500}
+            autoFocus
+          />
+          <View style={amStyles.actions}>
+            <TouchableOpacity
+              style={amStyles.actionBtnCancel}
+              onPress={() => setReportModalVisible(false)}
+              activeOpacity={0.8}
+            >
+              <Text style={amStyles.actionBtnTextCancel}>Cancel</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[amStyles.actionBtnDestructive, !reportText.trim() && { opacity: 0.4 }]}
+              onPress={submitReport}
+              disabled={!reportText.trim() || reportLoading}
+              activeOpacity={0.8}
+            >
+              <Text style={amStyles.actionBtnTextDestructive}>
+                {reportLoading ? 'Submitting...' : 'Submit Report'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    </Modal>
+  );
 
   // ── Render message ─────────────────────────────────────────────────────────
   const renderMessage = ({ item, index }) => {
@@ -342,115 +631,13 @@ export default function BondupChatScreen({ chatId, bondupId, bondupTitle, partic
     );
   };
 
-  // ── Match banner (bondup_single only) ──────────────────────────────────────
-  const renderMatchBanner = () => {
-    if (!isSingle) return null;
-
-    // MATCHED state
-    if (isMatched) {
-      return (
-        <View style={[bs.banner, bs.bannerMatched]}>
-          <Heart size={16} color={MATCH_GREEN} fill={MATCH_GREEN} />
-          <Text style={bs.bannerMatchedText}>
-            You're matched! Chat freely.
-          </Text>
-        </View>
-      );
-    }
-
-    // PENDING state
-    if (isPending) {
-      if (iInitiatedMatch) {
-        // I sent the request
-        return (
-          <View style={[bs.banner, bs.bannerPending]}>
-            <Heart size={16} color={BRAND} />
-            <Text style={bs.bannerPendingText}>
-              Match request sent! Waiting for {getFirstName(otherMember)}...
-            </Text>
-          </View>
-        );
-      }
-
-      // The other person sent a request to me
-      return (
-        <View style={bs.matchRequestCard}>
-          <View style={bs.matchRequestHeader}>
-            <Heart size={18} color={BRAND} fill={BRAND} />
-            <Text style={bs.matchRequestTitle}>
-              {getFirstName(otherMember)} wants to match!
-            </Text>
-          </View>
-          <Text style={bs.matchRequestSub}>
-            Accept to unlock unlimited messaging
-          </Text>
-          <View style={bs.matchRequestActions}>
-            <TouchableOpacity
-              style={bs.matchDeclineBtn}
-              onPress={handleDeclineMatch}
-              disabled={matchLoading}
-              activeOpacity={0.8}
-            >
-              <X size={16} color="#666" />
-              <Text style={bs.matchDeclineText}>Decline</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={bs.matchAcceptBtn}
-              onPress={handleRequestMatch}
-              disabled={matchLoading}
-              activeOpacity={0.8}
-            >
-              <Heart size={16} color="#fff" />
-              <Text style={bs.matchAcceptText}>Accept Match</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      );
-    }
-
-    // PRE_MATCH state — show message counter
-    if (isPreMatch && chatState.messagesRemaining != null) {
-      if (chatState.isLimitReached) {
-        return (
-          <View style={bs.limitReachedCard}>
-            <Lock size={18} color={BRAND} />
-            <Text style={bs.limitReachedTitle}>Message limit reached</Text>
-            <Text style={bs.limitReachedSub}>
-              Request a match to continue chatting with {getFirstName(otherMember)}
-            </Text>
-            <TouchableOpacity
-              style={bs.matchRequestBtn}
-              onPress={handleRequestMatch}
-              disabled={matchLoading}
-              activeOpacity={0.85}
-            >
-              <Heart size={16} color="#fff" />
-              <Text style={bs.matchRequestBtnText}>Request Match</Text>
-            </TouchableOpacity>
-          </View>
-        );
-      }
-
-      return (
-        <View style={[bs.banner, bs.bannerCounter]}>
-          <Text style={bs.counterText}>
-            {chatState.messagesRemaining} message{chatState.messagesRemaining !== 1 ? 's' : ''} remaining
-          </Text>
-          <Text style={bs.counterSubText}>• Match to chat freely</Text>
-        </View>
-      );
-    }
-
-    return null;
-  };
-
   // ── Header for bondup_single ───────────────────────────────────────────────
   const headerTitle = isSingle && otherMember
     ? getFirstName(otherMember)
     : bondupTitle || 'Bondup Chat';
 
   const headerSub = isSingle
-    ? (isMatched ? 'Matched' : 'Bondup Chat')
+    ? 'Bondup Chat'
     : `${participantCount || chatMembers.length || 0} members`;
 
   return (
@@ -488,17 +675,19 @@ export default function BondupChatScreen({ chatId, bondupId, bondupTitle, partic
           </View>
         )}
 
-        <View style={cs.headerIcon}>
-          {isMatched ? (
-            <Heart size={18} color={MATCH_GREEN} fill={MATCH_GREEN} />
-          ) : (
-            <Flame size={20} color={BRAND} />
-          )}
-        </View>
+        <TouchableOpacity
+          style={cs.headerIcon}
+          onPress={() => setLeaveReportVisible(true)}
+          activeOpacity={0.7}
+        >
+          <Flame size={20} color={BRAND} />
+        </TouchableOpacity>
       </View>
 
-      {/* Match Banner */}
-      {renderMatchBanner()}
+      {/* Bondup Info Card */}
+      {renderBondupInfoCard()}
+
+
 
       {/* Messages */}
       <KeyboardAvoidingView
@@ -509,7 +698,7 @@ export default function BondupChatScreen({ chatId, bondupId, bondupTitle, partic
         <FlatList
           ref={flatListRef}
           data={messages}
-          keyExtractor={(item, i) => item._id || String(i)}
+          keyExtractor={(item, i) => `${item._id || 'msg'}_${i}`}
           renderItem={renderMessage}
           contentContainerStyle={cs.messageList}
           showsVerticalScrollIndicator={false}
@@ -528,49 +717,49 @@ export default function BondupChatScreen({ chatId, bondupId, bondupTitle, partic
 
         {/* Input bar */}
         <View style={cs.inputBar}>
-          {canSendMessage ? (
-            <>
-              <TextInput
-                style={cs.input}
-                placeholder={
-                  isSingle && !isMatched
-                    ? `Message (${chatState.messagesRemaining ?? '?'} left)...`
-                    : 'Say something...'
-                }
-                placeholderTextColor="#BBB"
-                value={inputText}
-                onChangeText={setInputText}
-                multiline
-                maxLength={1000}
-                onSubmitEditing={handleSend}
-                returnKeyType="send"
-              />
-              <TouchableOpacity
-                style={[cs.sendBtn, (!inputText.trim() || sending) && cs.sendBtnDisabled]}
-                onPress={handleSend}
-                disabled={!inputText.trim() || sending}
-                activeOpacity={0.8}
-              >
-                <Send size={18} color="#fff" />
-              </TouchableOpacity>
-            </>
-          ) : (
-            <TouchableOpacity
-              style={cs.matchPromptBtn}
-              onPress={handleRequestMatch}
-              disabled={matchLoading || isPending}
-              activeOpacity={0.85}
-            >
-              <Heart size={18} color="#fff" />
-              <Text style={cs.matchPromptText}>
-                {isPending
-                  ? (iInitiatedMatch ? 'Waiting for response...' : 'Accept Match')
-                  : 'Request Match to Continue'}
-              </Text>
-            </TouchableOpacity>
-          )}
+          <TextInput
+            style={cs.input}
+            placeholder="Say something..."
+            placeholderTextColor="#BBB"
+            value={inputText}
+            onChangeText={setInputText}
+            multiline
+            maxLength={1000}
+            onSubmitEditing={handleSend}
+            returnKeyType="send"
+          />
+          <TouchableOpacity
+            style={[cs.sendBtn, (!inputText.trim() || sending) && cs.sendBtnDisabled]}
+            onPress={handleSend}
+            disabled={!inputText.trim() || sending}
+            activeOpacity={0.8}
+          >
+            <Send size={18} color="#fff" />
+          </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
+
+      {/* Leave / Report Modal */}
+      {renderLeaveReportModal()}
+
+      {/* Global Action Modal */}
+      {renderActionModal()}
+
+      {/* Report Modal */}
+      {renderReportModal()}
+
+      {/* Bondup Detail Modal */}
+      <BondupDetailModal
+        visible={detailModalVisible}
+        bondup={bondupData}
+        currentUserId={currentUser?._id}
+        onClose={() => setDetailModalVisible(false)}
+        onJoin={() => {}}
+        onLeave={handleLeaveBondup}
+        onDelete={() => {}}
+        onStartChat={() => setDetailModalVisible(false)}
+        joinLoading={false}
+      />
     </SafeAreaView>
   );
 }
@@ -730,7 +919,7 @@ const bs = StyleSheet.create({
   bannerMatchedText: {
     fontSize: 13,
     fontFamily: 'PlusJakartaSansBold',
-    color: MATCH_GREEN,
+    color: colors.secondary,
   },
   bannerPending: {
     backgroundColor: `${BRAND}10`,
@@ -954,5 +1143,241 @@ const ms = StyleSheet.create({
   },
   timeTextOther: {
     color: '#AAA',
+  },
+});
+
+// ─── Bondup Info Card Styles ────────────────────────────────────────────────
+const infoStyles = StyleSheet.create({
+  card: {
+    marginHorizontal: 16,
+    marginTop: 10,
+    marginBottom: 4,
+    backgroundColor: `${BRAND}08`,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: `${BRAND}18`,
+    padding: 12,
+  },
+  cardInner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  emoji: {
+    fontSize: 28,
+  },
+  cardContent: {
+    flex: 1,
+  },
+  title: {
+    fontSize: 15,
+    fontFamily: 'PlusJakartaSansBold',
+    color: '#111',
+    marginBottom: 4,
+  },
+  metaRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+  },
+  metaItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+  },
+  metaText: {
+    fontSize: 11,
+    fontFamily: 'PlusJakartaSans',
+    color: '#888',
+  },
+  tapHint: {
+    fontSize: 10,
+    fontFamily: 'PlusJakartaSans',
+    color: '#BBB',
+    textAlign: 'right',
+    marginTop: 6,
+  },
+});
+
+// ─── Leave / Report Modal Styles ────────────────────────────────────────────
+const lrStyles = StyleSheet.create({
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.45)',
+    justifyContent: 'flex-end',
+  },
+  sheet: {
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    paddingHorizontal: 20,
+    paddingBottom: Platform.OS === 'ios' ? 40 : 24,
+    paddingTop: 12,
+  },
+  handle: {
+    width: 36,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: '#DDD',
+    alignSelf: 'center',
+    marginBottom: 16,
+  },
+  sheetTitle: {
+    fontSize: 18,
+    fontFamily: 'PlusJakartaSansBold',
+    color: '#111',
+    marginBottom: 18,
+  },
+  option: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 14,
+    paddingVertical: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F3F4F6',
+  },
+  optionIcon: {
+    width: 42,
+    height: 42,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  optionTextWrap: {
+    flex: 1,
+  },
+  optionLabel: {
+    fontSize: 15,
+    fontFamily: 'PlusJakartaSansBold',
+    color: '#111',
+  },
+  optionDesc: {
+    fontSize: 12,
+    fontFamily: 'PlusJakartaSans',
+    color: '#888',
+    marginTop: 2,
+  },
+  cancelBtn: {
+    marginTop: 16,
+    alignItems: 'center',
+    paddingVertical: 14,
+    borderRadius: 14,
+    backgroundColor: '#F3F4F6',
+  },
+  cancelText: {
+    fontSize: 15,
+    fontFamily: 'PlusJakartaSansBold',
+    color: '#666',
+  },
+});
+
+// ─── Global Action Modal Styles ─────────────────────────────────────────────
+const amStyles = StyleSheet.create({
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 32,
+  },
+  card: {
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    paddingHorizontal: 24,
+    paddingVertical: 28,
+    width: '100%',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.15,
+    shadowRadius: 24,
+    elevation: 10,
+  },
+  iconEmoji: {
+    fontSize: 36,
+    marginBottom: 12,
+  },
+  title: {
+    fontSize: 18,
+    fontFamily: 'PlusJakartaSansBold',
+    color: '#111',
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  message: {
+    fontSize: 14,
+    fontFamily: 'PlusJakartaSans',
+    color: '#666',
+    textAlign: 'center',
+    lineHeight: 20,
+    marginBottom: 20,
+  },
+  actions: {
+    flexDirection: 'row',
+    gap: 10,
+    width: '100%',
+  },
+  actionBtn: {
+    flex: 1,
+    paddingVertical: 13,
+    borderRadius: 14,
+    alignItems: 'center',
+  },
+  actionBtnPrimary: {
+    flex: 1,
+    paddingVertical: 13,
+    borderRadius: 14,
+    alignItems: 'center',
+    backgroundColor: BRAND,
+  },
+  actionBtnDestructive: {
+    flex: 1,
+    paddingVertical: 13,
+    borderRadius: 14,
+    alignItems: 'center',
+    backgroundColor: '#EF4444',
+  },
+  actionBtnCancel: {
+    flex: 1,
+    paddingVertical: 13,
+    borderRadius: 14,
+    alignItems: 'center',
+    backgroundColor: '#F3F4F6',
+  },
+  actionBtnText: {
+    fontSize: 15,
+    fontFamily: 'PlusJakartaSansBold',
+  },
+  actionBtnTextPrimary: {
+    fontSize: 15,
+    fontFamily: 'PlusJakartaSansBold',
+    color: '#fff',
+  },
+  actionBtnTextDestructive: {
+    fontSize: 15,
+    fontFamily: 'PlusJakartaSansBold',
+    color: '#fff',
+  },
+  actionBtnTextCancel: {
+    fontSize: 15,
+    fontFamily: 'PlusJakartaSansBold',
+    color: '#666',
+  },
+});
+
+// ─── Report Input Styles ────────────────────────────────────────────────────
+const rpStyles = StyleSheet.create({
+  input: {
+    width: '100%',
+    backgroundColor: '#F3F4F6',
+    borderRadius: 14,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    fontSize: 15,
+    fontFamily: 'PlusJakartaSans',
+    color: '#111',
+    minHeight: 80,
+    textAlignVertical: 'top',
+    marginBottom: 16,
   },
 });

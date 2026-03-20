@@ -179,6 +179,19 @@ const AroundYouTab = ({ profile, onViewProfile, actionMessage }) => {
           <LinearGradient colors={['transparent', 'rgba(0,0,0,0.88)']} style={styles.bottomGradient} />
 
           <View style={styles.profileInfo}>
+  <View className="flex-row items-center gap-2 mb-3">
+{/* Compatibility Score */}
+                  {compatibilityScore !== null && !loadingScore && (
+                    <View className="flex-row items-center bg-pinkColor px-3 py-1 rounded-full">
+                      <Heart size={14} color="#fff" fill="#fff" />
+                      <Text className="text-white text-sm font-PlusJakartaSansBold ml-1">
+                        {compatibilityScore}%
+                      </Text>
+                    </View>
+                  )}
+              </View>
+
+
             {/* Name + age + verified + compatibility score */}
             <View style={styles.nameRow}>
               <View style={styles.nameLeft}>
@@ -190,14 +203,7 @@ const AroundYouTab = ({ profile, onViewProfile, actionMessage }) => {
                   <View style={{ marginLeft: 6 }}><VerifiedIcon /></View>
                 ) : null}
               </View>
-              
-              {/* Compatibility Score */}
-              {compatibilityScore !== null && !loadingScore && (
-                <View style={styles.compatibilityScore}>
-                  <Heart size={14} color="#fff" fill="#fff" />
-                  <Text style={styles.compatibilityText}>{compatibilityScore}%</Text>
-                </View>
-              )}
+         
               
               <TouchableOpacity style={styles.profileButton} onPress={handleNavigateToProfile}>
                 <Info size={22} color="#fff" />
