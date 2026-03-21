@@ -134,7 +134,7 @@ const Interests = () => {
                     router.push("/about");
                   }}
                   disabled={selectedInterests.length === 0}
-                  loading={true}
+            
                 />
               </View>
             </View>

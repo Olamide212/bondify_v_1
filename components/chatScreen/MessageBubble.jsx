@@ -3,21 +3,20 @@ import { createAudioPlayer, setAudioModeAsync } from 'expo-audio';
 import { Check, CheckCheck, Mic, Pause, Play, User } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
 import {
-  ActivityIndicator,
-  Alert,
-  Clipboard,
-  Image,
-  Modal,
-  Platform,
-  Pressable,
-  StyleSheet,
-  Text,
-  ToastAndroid,
-  TouchableOpacity,
-  View
+    ActivityIndicator,
+    Clipboard,
+    Image,
+    Modal,
+    Platform,
+    Pressable,
+    StyleSheet,
+    Text,
+    ToastAndroid,
+    TouchableOpacity,
+    View
 } from "react-native";
 import { colors } from "../../constant/colors";
-import {fonts} from "../../constant/fonts"; 
+import { fonts } from "../../constant/fonts";
 
 const EMOJI_REACTIONS = ["❤️", "😂", "😮", "😢", "👏", "🔥"];
 
@@ -33,7 +32,24 @@ const formatMessageDateTime = (value) => {
   });
 };
 
-const MessageBubble = ({ message, onReply }) => {
+/** Split text around a search term and wrap matches in a highlight span */
+const highlightText = (text, term, textStyle) => {
+  if (!term || !text) return <Text style={textStyle}>{text}</Text>;
+  const regex = new RegExp(`(${term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`, "gi");
+  const parts = text.split(regex);
+  if (parts.length === 1) return <Text style={textStyle}>{text}</Text>;
+  return (
+    <Text style={textStyle}>
+      {parts.map((part, i) =>
+        regex.test(part)
+          ? <Text key={i} style={{ backgroundColor: "#FBBF24", color: "#000", borderRadius: 2 }}>{part}</Text>
+          : part
+      )}
+    </Text>
+  );
+};
+
+const MessageBubble = ({ message, onReply, onEdit, highlight }) => {
   const [isPlayingVoice, setIsPlayingVoice] = useState(false);
   const [isImageLoading, setIsImageLoading] = useState(Boolean(message.imageUrl));
   const [imageFailed, setImageFailed] = useState(!message.imageUrl);
@@ -123,6 +139,8 @@ const MessageBubble = ({ message, onReply }) => {
     setMenuVisible(false);
   };
 
+  const isOwn = message.sender === "me";
+
   return (
     <View
       style={[
@@ -140,6 +158,38 @@ const MessageBubble = ({ message, onReply }) => {
         </View>
       )}
 
+      {message.replyTo && (
+        <View style={{
+          backgroundColor: '#F3F4F6',
+          borderLeftWidth: 3,
+          borderLeftColor: colors.primary,
+          paddingVertical: 4,
+          paddingHorizontal: 10,
+          borderRadius: 8,
+          marginBottom: 2,
+          maxWidth: '80%',
+          alignSelf: message.sender === "me" ? 'flex-end' : 'flex-start',
+        }}>
+          <Text style={{ color: colors.primary, fontWeight: 'bold', fontSize: 12, marginBottom: 2 }} numberOfLines={1}>
+            {message.replyTo.senderName || (message.replyTo.sender === 'me' ? 'You' : 'Them')}
+          </Text>
+          {message.replyTo.type === 'image' && message.replyTo.imageUrl ? (
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+              <User size={14} color={'#9CA3AF'} />
+              <Text style={{ color: '#6B7280', fontSize: 13 }}>[Image]</Text>
+            </View>
+          ) : message.replyTo.type === 'voice' ? (
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+              <Mic size={14} color={'#9CA3AF'} />
+              <Text style={{ color: '#6B7280', fontSize: 13 }}>[Voice note]</Text>
+            </View>
+          ) : (
+            <Text style={{ color: '#6B7280', fontSize: 13 }} numberOfLines={2}>
+              {message.replyTo.text}
+            </Text>
+          )}
+        </View>
+      )}
       {message.type === "text" && (
         <Pressable onLongPress={() => setMenuVisible(true)}>
           <View
@@ -148,14 +198,14 @@ const MessageBubble = ({ message, onReply }) => {
               message.sender === "me" ? styles.myBubble : styles.theirBubble,
             ]}
           >
-            <Text
-              style={[
+            {highlightText(
+              message.text,
+              highlight,
+              [
                 styles.text,
                 message.sender === "me" ? styles.myText : styles.theirText,
-              ]}
-            >
-              {message.text}
-            </Text>
+              ],
+            )}
           </View>
         </Pressable>
       )}
@@ -267,6 +317,11 @@ const MessageBubble = ({ message, onReply }) => {
             {onReply && (
               <TouchableOpacity style={styles.menuItem} onPress={handleReply}>
                 <Text style={styles.menuItemText}>↩ Reply</Text>
+              </TouchableOpacity>
+            )}
+            {isOwn && onEdit && message.type === "text" && (
+              <TouchableOpacity style={styles.menuItem} onPress={() => { setMenuVisible(false); onEdit(message); }}>
+                <Text style={styles.menuItemText}>✏️ Edit</Text>
               </TouchableOpacity>
             )}
             {message.type === "text" && (

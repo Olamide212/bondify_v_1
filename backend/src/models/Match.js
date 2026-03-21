@@ -32,6 +32,18 @@ const matchSchema = new mongoose.Schema(
       user1: { type: Number, default: 0 },
       user2: { type: Number, default: 0 },
     },
+    unmatchedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+    },
+    unmatchReason: {
+      type: String,
+      enum: ['no_connection', 'lost_interest', 'found_someone', 'inappropriate', 'no_response', 'other'],
+    },
+    unmatchDetails: {
+      type: String,
+      maxlength: 500,
+    },
   },
   {
     timestamps: true,

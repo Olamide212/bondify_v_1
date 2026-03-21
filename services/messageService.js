@@ -1,3 +1,15 @@
+const editMessage = async (messageId, content) => {
+  try {
+    const response = await apiClient.patch(`/messages/${messageId}`, { content });
+    return response.data?.data?.message ?? response.data?.message;
+  } catch (error) {
+    const message =
+      error.response?.data?.message ||
+      error.message ||
+      "Failed to edit message";
+    throw new Error(message);
+  }
+};
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import apiClient from "../utils/axiosInstance";
 
@@ -261,4 +273,5 @@ export const messageService = {
   sendDirectMessage,
   uploadChatMedia,
   deleteMessage,
+  editMessage,
 };

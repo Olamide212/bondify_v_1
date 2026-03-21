@@ -90,7 +90,9 @@ const RizzModal = ({ visible, onClose, onSend, matchId }) => {
       setLoading(true);
       try {
         const response = await AIService.getIcebreakerSuggestions(matchId);
-        const fetched  = response?.data?.suggestions;
+        // AIService already unwraps the nested data envelope,
+        // so response is { suggestions: [...] } directly
+        const fetched  = response?.suggestions ?? response?.data?.suggestions;
 
         if (Array.isArray(fetched) && fetched.length > 0) {
           setSuggestions(fetched);

@@ -177,7 +177,127 @@ const sendMessage = async (req, res, next) => {
     // Create message
     const message = await Message.create({
       match: matchId,
-      sender: userId,
+    const sendMessage = async (req, res, next) => {
+      try {
+        const io = getIO();
+        const userId = req.user._id;
+        const { matchId } = req.params;
+        const { content, type = 'text', mediaUrl, mediaDuration, replyTo } = req.body;
+        const normalizedContent = typeof content === 'string' ? content.trim() : '';
+        if (type === 'text' && !normalizedContent) {
+          return res.status(400).json({
+            success: false,
+            message: 'Message content is required',
+          });
+        }
+        if (type !== 'text' && !mediaUrl && !normalizedContent) {
+          return res.status(400).json({
+            success: false,
+            message: 'Message content or media is required',
+          });
+        }
+        const match = await Match.findById(matchId);
+        if (!match) {
+          return res.status(404).json({
+            success: false,
+            message: 'Match not found',
+          });
+        }
+        if (
+          match.user1.toString() !== userId.toString() &&
+          match.user2.toString() !== userId.toString()
+        ) {
+          return res.status(403).json({
+            success: false,
+            message: 'Not authorized to send messages in this match',
+          });
+        }
+        // Determine receiver
+        const receiverId = match.user1.toString() === userId.toString()
+          ? match.user2
+          : match.user1;
+        // Create message
+        const message = await Message.create({
+          match: matchId,
+          sender: userId,
+          receiver: receiverId,
+          content: normalizedContent,
+          type,
+          mediaUrl,
+          mediaDuration,
+          replyTo: replyTo || null,
+          delivered: true,
+          deliveredAt: new Date(),
+        });
+        // Update match
+        match.lastMessageAt = new Date();
+        if (match.user1.toString() === receiverId.toString()) {
+          match.unreadCount.user1 = (match.unreadCount.user1 || 0) + 1;
+        } else {
+          match.unreadCount.user2 = (match.unreadCount.user2 || 0) + 1;
+        }
+        await match.save();
+        await message.populate('sender', 'firstName lastName name images');
+        await message.populate('receiver', 'firstName lastName name images');
+        const messagePayload = message.toObject();
+        const senderName =
+          messagePayload?.sender?.name ||
+          [messagePayload?.sender?.firstName, messagePayload?.sender?.lastName]
+            .filter(Boolean)
+            .join(' ') ||
+          'Someone';
+        const notificationBody =
+          type === 'image' ? 'Sent you a photo'
+          : type === 'voice' ? 'Sent you a voice note'
+          : normalizedContent || 'Sent you a message';
+        // ── Socket emits ──────────────────────────────────────────────────────────
+        io.to(`match:${matchId}`).emit('message:new', { matchId, message: messagePayload });
+        io.to(`user:${String(receiverId)}`).emit('message:new', { matchId, message: messagePayload });
+        io.to(`user:${String(receiverId)}`).emit('notification:new', {
+          id:        String(message._id),
+          type:      'message',
+          matchId:   String(matchId),
+          title:     senderName,
+          body:      notificationBody,
+          createdAt: new Date().toISOString(),
+          senderId:  String(userId),
+        });
+        io.to(`user:${String(userId)}`).emit('message:delivered', {
+          matchId,
+          messageId:   String(message._id),
+          deliveredAt: new Date().toISOString(),
+        });
+        // ── WhatsApp offline notification (fire-and-forget) ───────────────────────
+        User.findById(receiverId)
+          .select('online lastActive phoneNumber countryCode whatsappOptIn firstName')
+          .lean()
+          .then((receiver) => {
+            if (!receiver) return;
+            if (!receiver.whatsappOptIn) return;
+            if (!receiver.phoneNumber) return;
+            const countryCode = (receiver.countryCode || '').replace('+', '');
+            const phone       = receiver.phoneNumber.replace(/\D/g, '');
+            const fullPhone   = `+${countryCode}${phone}`;
+            sendMessageNotification({
+              toPhone:        fullPhone,
+              recipientName:  receiver.firstName || 'there',
+              senderName,
+              matchId:        String(matchId),
+              messagePreview: normalizedContent,
+              messageType:    type,
+            });
+          })
+          .catch((err) => {
+            console.error('[whatsapp] Offline check error:', err.message);
+          });
+        return res.status(201).json({
+          success: true,
+          message: 'Message sent successfully',
+          data: { message: messagePayload },
+        });
+      } catch (error) {
+        next(error);
+      }
       receiver: receiverId,
       content: normalizedContent,
       type,

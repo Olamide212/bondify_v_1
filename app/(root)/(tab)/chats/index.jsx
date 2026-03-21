@@ -271,6 +271,7 @@ export default function Chat() {
         isOnline:     String(user.isOnline ?? false),
         isSystem:     String(user.isSystem ?? false),
         isVerified:   String(user.isVerified ?? false),
+        matchedDate:  user.matchedDate ? user.matchedDate.toISOString() : "",
       },
     });
   };

@@ -1,24 +1,24 @@
 // components/InputToolbar.js
-import { AntDesign } from '@expo/vector-icons';
 import { Audio } from "expo-av";
 import * as ImagePicker from "expo-image-picker";
-import { Mic, Send, Sparkle } from "lucide-react-native";
+import { Edit2, Mic, Reply, Send, X } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
 import {
-  StyleSheet,
-  TextInput,
-  TouchableOpacity,
-  View,
-  Image,
+    Image,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { colors } from "../../constant/colors";
+import { Icons } from "../../constant/icons";
 import { socketService } from "../../services/socketService";
 import RizzModal from "./RizzModal";
-import {Icons} from "../../constant/icons";
 
 const VOICE_ICON_COLOR = "#64748B";
 
-const InputToolbar = ({ sendMessage, onSendImage, onSendVoice, matchId, currentUserId }) => {
+const InputToolbar = ({ sendMessage, onSendImage, onSendVoice, matchId, currentUserId, replyTo, onCancelReply, editMessage, onCancelEdit }) => {
   const [messageText, setMessageText] = useState("");
   const [showRizzModal, setShowRizzModal] = useState(false);
   const typingTimeoutRef = useRef(null);
@@ -119,11 +119,24 @@ const InputToolbar = ({ sendMessage, onSendImage, onSendVoice, matchId, currentU
     await startRecording();
   };
 
-  const handleSend = () => {
-    if (messageText.trim()) {
-      sendMessage(messageText);
-      setMessageText("");
+  // Prefill input for edit
+  useEffect(() => {
+    if (editMessage) {
+      setMessageText(editMessage.text);
     }
+  }, [editMessage]);
+
+  const handleSend = () => {
+    if (!messageText.trim()) return;
+    if (editMessage) {
+      sendMessage(messageText, { edit: true, editMessage });
+      setMessageText("");
+      onCancelEdit?.();
+      return;
+    }
+    sendMessage(messageText, replyTo ? { replyTo } : undefined);
+    setMessageText("");
+    if (replyTo) onCancelReply?.();
   };
 
   const isSendEnabled = messageText.trim().length > 0 && !isUploadingMedia;
@@ -140,6 +153,21 @@ const InputToolbar = ({ sendMessage, onSendImage, onSendVoice, matchId, currentU
 
   return (
     <View style={styles.container}>
+      {/* Reply/Edit banner */}
+      {(replyTo || editMessage) && (
+        <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#F3F4F6', borderRadius: 8, padding: 8, marginBottom: 4 }}>
+          {replyTo && <Reply size={18} color={colors.primary} style={{ marginRight: 6 }} />}
+          {editMessage && <Edit2 size={18} color={colors.primary} style={{ marginRight: 6 }} />}
+          <View style={{ flex: 1 }}>
+            <Text style={{ color: '#111', fontWeight: '600' }} numberOfLines={1}>
+              {replyTo ? `Replying to: ${replyTo.text?.slice(0, 40)}` : `Editing: ${editMessage?.text?.slice(0, 40)}`}
+            </Text>
+          </View>
+          <TouchableOpacity onPress={replyTo ? onCancelReply : onCancelEdit} hitSlop={8}>
+            <X size={18} color="#6B7280" />
+          </TouchableOpacity>
+        </View>
+      )}
 
       {/* ── Left: AI Rizz button ── */}
       <View style={styles.leftActions}>
@@ -147,8 +175,8 @@ const InputToolbar = ({ sendMessage, onSendImage, onSendVoice, matchId, currentU
           style={styles.iconButton}
           onPress={() => setShowRizzModal(true)}
         >
-          <Sparkle color={colors.primary} size={30} />
-          {/* <Image source={Icons.AiIcon} style={{width: 30, height: 30}} /> */}
+          {/* <Sparkle color={colors.primary} size={30} /> */}
+          <Image source={Icons.AiIcon} style={{width: 30, height: 30}} />
        
         </TouchableOpacity>
 

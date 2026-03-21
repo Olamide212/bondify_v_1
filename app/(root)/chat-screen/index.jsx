@@ -49,6 +49,7 @@ export default function UsersChatScreen() {
     isOnline:     params.isOnline === "true",
     isSystem:     params.isSystem === "true",
     isVerified:   params.isVerified === "true",
+    matchedDate:  params.matchedDate ? new Date(params.matchedDate) : null,
   };
 
   // ── Back handler — called by ChatScreen's back button ────────────────────
@@ -68,7 +69,11 @@ export default function UsersChatScreen() {
 
   return (
     <View style={styles.container}>
-      <ChatScreen matchedUser={matchedUser} onBack={handleBack} />
+      <ChatScreen
+        matchedUser={matchedUser}
+        onBack={handleBack}
+        initialSearchMode={params.searchMode === "true"}
+      />
     </View>
   );
 }

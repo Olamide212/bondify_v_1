@@ -55,7 +55,7 @@ const IntroStep = ({ onStart, onSkip, profilePhotoUrl }) => (
       </View>
     )}
 
-    <Text style={is.title}>Verify Your Identity</Text>
+    <Text style={is.title}>Let's verify its you</Text>
     <Text style={is.body}>
       A quick selfie helps us confirm you&apos;re a real person and builds trust with your
       matches. Your selfie is only used for verification and is never shown on your profile.
@@ -92,16 +92,16 @@ const IntroStep = ({ onStart, onSkip, profilePhotoUrl }) => (
 
 const is = StyleSheet.create({
   container:   { paddingHorizontal: 24, paddingTop: 16, paddingBottom: 48 },
-  iconWrap:    { width: 88, height: 88, borderRadius: 99, backgroundColor: "#FEF3EC", alignItems: "center", justifyContent: "center", alignSelf: "center", marginBottom: 20 },
+  iconWrap:    { width: 88, height: 88, borderRadius: 99, backgroundColor: "#EDE8F5", alignItems: "center", justifyContent: "center", alignSelf: "center", marginBottom: 20 },
   title:       { fontSize: 24, fontFamily: "PlusJakartaSansBold", color: "#111", textAlign: "center", marginBottom: 10 },
   body:        { fontSize: 14, fontFamily: "PlusJakartaSans", color: "#6B7280", textAlign: "center", lineHeight: 22, marginBottom: 28 },
   photoWrap:   { width: 100, height: 100, borderRadius: 50, alignSelf: "center", marginBottom: 20, position: "relative" },
   profilePhoto:{ width: 100, height: 100, borderRadius: 50, borderWidth: 3, borderColor: PRIMARY },
   photoBadge:  { position: "absolute", bottom: 0, right: 0, width: 28, height: 28, borderRadius: 14, backgroundColor: PRIMARY, alignItems: "center", justifyContent: "center", borderWidth: 2, borderColor: "#fff" },
-  steps:       { gap: 16, marginBottom: 32 },
+  steps:       { gap: 20, marginBottom: 32 },
   stepRow:     { flexDirection: "row", alignItems: "flex-start", gap: 14 },
-  stepNum:     { width: 32, height: 32, borderRadius: 99, backgroundColor: "#FEF3EC", alignItems: "center", justifyContent: "center", flexShrink: 0 },
-  stepNumText: { fontSize: 14, fontFamily: "PlusJakartaSansBold", color: PRIMARY },
+  stepNum:     { width: 32, height: 32, borderRadius: 99, backgroundColor: "#EDE8F5", alignItems: "center", justifyContent: "center", flexShrink: 0 },
+  stepNumText: { fontSize: 15, fontFamily: "PlusJakartaSansBold", color: PRIMARY },
   stepTitle:   { fontSize: 15, fontFamily: "PlusJakartaSansSemiBold", color: "#111", marginBottom: 2 },
   stepDesc:    { fontSize: 13, fontFamily: "PlusJakartaSans", color: "#9CA3AF" },
   btn:         { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, backgroundColor: PRIMARY, borderRadius: 99, paddingVertical: 16, marginBottom: 12 },

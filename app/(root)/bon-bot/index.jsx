@@ -1,3 +1,4 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import {
     ArrowLeft,
@@ -211,21 +212,50 @@ const UserBubble = ({ message }) => (
   </View>
 );
 
+const STORAGE_KEY = "@bonbot_chat_messages";
+
+const WELCOME_MESSAGE = {
+  id: 1,
+  role: "assistant",
+  content:
+    "Hi! I'm your Bondies Assistant. Ready to level up your dating game? I can help you with icebreakers, profile tips, or even planning a date! 🧡",
+  timestamp: new Date(),
+};
+
 // ─── Main Screen ──────────────────────────────────────────────
 const AIChatScreen = () => {
   const router = useRouter();
-  const [messages, setMessages] = useState([
-    {
-      id: 1,
-      role: "assistant",
-      content:
-        "Hi! I'm your Bondies Assistant. Ready to level up your dating game? I can help you with icebreakers, profile tips, or even planning a date! 🧡",
-      timestamp: new Date(),
-    },
-  ]);
+  const [messages, setMessages] = useState([WELCOME_MESSAGE]);
   const [userInput, setUserInput]   = useState("");
   const [isLoading, setIsLoading]   = useState(false);
+  const [restored, setRestored]     = useState(false);
   const scrollViewRef               = useRef(null);
+
+  // Restore persisted messages on mount
+  useEffect(() => {
+    (async () => {
+      try {
+        const raw = await AsyncStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw).map((m) => ({
+            ...m,
+            timestamp: new Date(m.timestamp),
+          }));
+          if (parsed.length > 0) setMessages(parsed);
+        }
+      } catch {
+        // ignore read errors
+      } finally {
+        setRestored(true);
+      }
+    })();
+  }, []);
+
+  // Persist messages whenever they change (after initial restore)
+  useEffect(() => {
+    if (!restored) return;
+    AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(messages)).catch(() => {});
+  }, [messages, restored]);
 
   // Scroll to bottom on new messages
   useEffect(() => {
@@ -308,15 +338,18 @@ const AIChatScreen = () => {
       {
         text: "Clear",
         style: "destructive",
-        onPress: () =>
-          setMessages([
+        onPress: () => {
+          const freshMessages = [
             {
               id: Date.now(),
               role: "assistant",
               content: "Chat cleared! What would you like to work on? 😊",
               timestamp: new Date(),
             },
-          ]),
+          ];
+          setMessages(freshMessages);
+          AsyncStorage.removeItem(STORAGE_KEY).catch(() => {});
+        },
       },
     ]);
   };

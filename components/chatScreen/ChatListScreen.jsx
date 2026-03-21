@@ -1,5 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { User } from "lucide-react-native";
+import { useRouter } from "expo-router";
+import { User, UserX } from "lucide-react-native";
 import React, { useEffect, useRef } from "react";
 import {
   ActivityIndicator,
@@ -14,9 +15,9 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { colors } from "../../constant/colors";
 import { images } from "../../constant/images";
-import GeneralHeader from "../headers/GeneralHeader";
 import { formatRelativeDate } from "../../utils/helper";
-import { useRouter } from "expo-router";
+import GeneralHeader from "../headers/GeneralHeader";
+import VerifiedIcon from "../ui/VerifiedIcon";
 
 // ─── Avatar URI cache (unchanged) ─────────────────────────────────────────────
 
@@ -173,7 +174,7 @@ const bb = StyleSheet.create({
   blobBR: {
     position: 'absolute', bottom: -20, right: -10,
     width: 100, height: 100, borderRadius: 50,
-    backgroundColor: '#E8651A',
+    backgroundColor: colors.secondary,
     opacity: 0.22,
   },
 
@@ -259,14 +260,23 @@ const bb = StyleSheet.create({
 
 // ─── ChatListScreen ───────────────────────────────────────────────────────────
 
-const ChatListScreen = ({ users, onSelectUser, isLoading = false }) => {
+const ChatListScreen = ({
+  users,
+  onSelectUser,
+  isLoading = false,
+  chatType = "dating",
+  activeTab = 0,
+  onTabChange,
+  tabs = ["Dating", "Social"],
+}) => {
   const router = useRouter();
+  const isSocial = chatType === "social";
 
   const [isAvatarCacheHydrated, setIsAvatarCacheHydrated] = React.useState(
     loadedAvatarUris.size > 0
   );
 
-  const newMatches = users.filter((user) => !user.hasChatted);
+  const newMatches = isSocial ? [] : users.filter((user) => !user.hasChatted);
   const placeholderSlots = Array.from({ length: 5 }, (_, i) => ({ id: `placeholder-${i}` }));
 
   React.useEffect(() => {
@@ -326,68 +336,132 @@ const ChatListScreen = ({ users, onSelectUser, isLoading = false }) => {
   };
 
   return (
-    <SafeAreaView style={styles.listContainer}>
-      <GeneralHeader title="Your messages" className="text-black" />
+    <SafeAreaView style={styles.listContainer} edges={['top']}>
+      <GeneralHeader title="Chats" className="text-black" icon={<UserX />} onPress={() => router.push('/unmatched-users')} />
 
-      {/* ── New Matches ── */}
-      <Text style={styles.sectionLabel}>New Matches</Text>
-      <View style={styles.newMatchesWrapper}>
-        <FlatList
-          data={placeholderSlots}
-          horizontal
-          keyExtractor={(item) => item.id}
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ paddingLeft: 16, paddingRight: 8 }}
-          renderItem={({ index }) => {
-            const match = newMatches[index];
-            if (match) {
-              return (
-                <TouchableOpacity style={styles.newMatchItem} onPress={() => onSelectUser(match)}>
-                  <AvatarImage uri={match.profileImage} style={styles.newMatchImage} iconSize={22} isCacheReady={isAvatarCacheHydrated} />
-                  <Text style={styles.newMatchName} numberOfLines={1}>{getFirstName(match.name)}</Text>
-                </TouchableOpacity>
-              );
-            }
-            return (
-              <View style={styles.newMatchItem}>
-                <View style={styles.placeholderCircle} />
-                <Text style={styles.placeholderLabel}>Waiting</Text>
-              </View>
-            );
-          }}
-        />
+      {/* ── Tabs ── */}
+      <View style={styles.tabBar}>
+        {tabs.map((t, i) => (
+          <TouchableOpacity
+            key={t}
+            style={[          
+              styles.tabItem,
+              activeTab === i && styles.tabItemActive,
+            ]}
+            onPress={() => onTabChange?.(i)}
+          >
+            <Text
+              style={[
+                styles.tabLabel,
+                activeTab === i ? styles.tabLabelActive : styles.tabLabelInactive,
+              ]}
+            >
+              {t}
+            </Text>
+          </TouchableOpacity>
+        ))}
       </View>
+
+      {/* ── New Matches (dating only) ── */}
+      {!isSocial && (
+        <>
+          <Text style={styles.sectionLabel}>New Matches</Text>
+          <View style={styles.newMatchesWrapper}>
+            <FlatList
+              data={placeholderSlots}
+              horizontal
+              keyExtractor={(item) => item.id}
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{ paddingLeft: 16, paddingRight: 8 }}
+              renderItem={({ index }) => {
+                const match = newMatches[index];
+                if (match) {
+                  return (
+                    <TouchableOpacity style={styles.newMatchItem} onPress={() => onSelectUser(match)}>
+                      <View>
+                        <AvatarImage uri={match.profileImage} style={styles.newMatchImage} iconSize={22} isCacheReady={isAvatarCacheHydrated} />
+                        {match.isVerified && (
+                          <View style={styles.newMatchVerified}>
+                            <VerifiedIcon style={{ width: 16, height: 16 }} />
+                          </View>
+                        )}
+                      </View>
+                      <Text style={styles.newMatchName} numberOfLines={1}>{getFirstName(match.name)}</Text>
+                    </TouchableOpacity>
+                  );
+                }
+                return (
+                  <View style={styles.newMatchItem}>
+                    <View style={styles.placeholderCircle} />
+                    <Text style={styles.placeholderLabel}>Waiting</Text>
+                  </View>
+                );
+              }}
+            />
+          </View>
+        </>
+      )}
 
       {/* ── Active Chats panel ── */}
       <View style={styles.chatsPanel}>
-        <Text style={styles.sectionLabelDark}>Active chats</Text>
+        <Text style={styles.sectionLabelDark}>
+          {isSocial ? "Plan Chats" : "Active chats"}
+        </Text>
 
-        {/* ── Bon Bot Card ── */}
-        <BonBotCard onPress={() => router.push('/bon-bot')} />
+        {/* ── Bon Bot Card (dating only) ── */}
+        {!isSocial && <BonBotCard onPress={() => router.push('/bon-bot')} />}
 
         {/* ── Conversation list ── */}
         {isLoading && users.length === 0 ? (
           <View style={styles.emptyStateContainer}>
             <ActivityIndicator size="small" color={colors.primary} />
-            <Text style={styles.loadingLabel}>Loading conversations...</Text>
+            <Text style={styles.loadingLabel}>
+              {isSocial ? "Loading plan chats..." : "Loading conversations..."}
+            </Text>
           </View>
         ) : users.length === 0 ? (
           <View style={styles.emptyStateContainer}>
-            <Text style={styles.emptyStateTitle}>No conversations yet</Text>
-            <Text style={styles.emptyStateSubtitle}>Your matches and chats will appear here.</Text>
+            <Text style={styles.emptyStateTitle}>
+              {isSocial ? "No plan chats yet" : "No conversations yet"}
+            </Text>
+            <Text style={styles.emptyStateSubtitle}>
+              {isSocial
+                ? "Join or create plans to start group chats."
+                : "Your matches and chats will appear here."}
+            </Text>
           </View>
         ) : (
           <FlatList
-            data={[...users].sort((a, b) => (b.isSystem ? 1 : 0) - (a.isSystem ? 1 : 0))}
+            data={[
+              ...users.filter((u) => u.isSystem),
+              ...users.filter((u) => !u.isSystem),
+            ]}
             keyExtractor={(item) => item.id}
             renderItem={({ item }) => (
               <TouchableOpacity style={styles.matchItem} onPress={() => onSelectUser(item)}>
                 <View style={styles.profileContainer}>
-                  <AvatarImage uri={item.profileImage} style={styles.profileImage} iconSize={20} isCacheReady={isAvatarCacheHydrated} />
-                  {item.isOnline && <View style={styles.onlineIndicator} />}
+                  {item.isSystem ? (
+                    <View style={[styles.profileImage, styles.avatarFallback, styles.systemAvatar]}>
+                      <Image
+                        source={images.bondiesMainicon}
+                        style={{ width: 36, height: 36 }}
+                        resizeMode="contain"
+                      />
+                    </View>
+                  ) : (
+                    <AvatarImage uri={item.profileImage} style={styles.profileImage} iconSize={20} isCacheReady={isAvatarCacheHydrated} />
+                  )}
+                  {item.isOnline && !item.isSystem && <View style={styles.onlineIndicator} />}
                 </View>
                 <View style={styles.matchInfo}>
-                  <Text style={styles.matchName}>{getFirstName(item.name)}</Text>
+                  <View style={styles.nameRow}>
+                    <Text style={styles.matchName}>
+                      {item.isSystem ? item.name : getFirstName(item.name)}
+                    </Text>
+                    {item.isVerified && (
+                      <VerifiedIcon style={styles.verifiedBadge} />
+                    )}
+                  </View>
                   <Text style={styles.matchMessage} numberOfLines={1}>
                     {item.lastMessage || 'No messages yet'}
                   </Text>
@@ -412,7 +486,33 @@ const ChatListScreen = ({ users, onSelectUser, isLoading = false }) => {
 // ─── Styles ───────────────────────────────────────────────────────────────────
 
 const styles = StyleSheet.create({
-  listContainer: { flex: 1, backgroundColor: '#F8F7FF' },
+  listContainer: { flex: 1, backgroundColor: '#fff' },
+
+  tabBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F0F0',
+  },
+  tabItem: {
+    flex: 1,
+    alignItems: 'center',
+    paddingVertical: 12,
+  },
+  tabItemActive: {
+    borderBottomWidth: 2,
+    borderBottomColor: '#111',
+  },
+  tabLabel: {
+    fontSize: 15,
+    fontFamily: 'PlusJakartaSansBold',
+  },
+  tabLabelActive: {
+    color: '#111',
+  },
+  tabLabelInactive: {
+    color: '#9CA3AF',
+  },
 
   sectionLabel: {
     fontFamily: 'PlusJakartaSansBold',
@@ -436,12 +536,16 @@ const styles = StyleSheet.create({
     paddingBottom: 12,
     flexDirection: 'row',
   },
-  newMatchItem: { 
-    marginRight: 22,
-     alignItems: 'center',
-      width: 72 
-    },
+  newMatchItem: { marginRight: 22, alignItems: 'center', width: 72 },
   newMatchImage: { width: 72, height: 72, borderRadius: 36, backgroundColor: '#E5E7EB' },
+  newMatchVerified: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    padding: 1,
+  },
   placeholderCircle: {
     width: 72, height: 72, borderRadius: 36,
     borderWidth: 2, borderStyle: 'dashed',
@@ -480,7 +584,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#10B981', borderWidth: 2, borderColor: '#fff',
   },
   matchInfo: { flex: 1, justifyContent: 'center' },
+  nameRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   matchName: { fontSize: 15, fontFamily: 'PlusJakartaSansBold', color: '#1F2937', textTransform: 'capitalize' },
+  verifiedBadge: { width: 15, height: 15 },
+  systemAvatar: { backgroundColor: '#F0F4FF', borderWidth: 1.5, borderColor: '#6366F1', justifyContent: 'center', alignItems: 'center' },
   matchMessage: { fontSize: 13, color: '#9CA3AF', marginTop: 3, fontFamily: 'PlusJakartaSans' },
   matchMeta: { alignItems: 'flex-end' },
   matchTime: { fontSize: 11, color: '#9CA3AF', fontFamily: 'PlusJakartaSans' },

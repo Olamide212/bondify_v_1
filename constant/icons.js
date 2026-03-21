@@ -18,6 +18,7 @@ import mapIcon from "../assets/icons/Map.png"
 import verifiedBatch from "../assets/icons/verifiedBatch.png"
 import feedIcon from "../assets/icons/feed-icon.png"
 
+
 export const Icons = {
   arrowLeft,
   zodiacSign,

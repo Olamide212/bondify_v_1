@@ -564,6 +564,15 @@ const unmatch = async (req, res, next) => {
     }
 
     match.status = 'unmatched';
+
+    // Store optional unmatch reason
+    const { reason, details } = req.body || {};
+    if (reason) {
+      match.unmatchReason  = reason;
+      match.unmatchDetails = details || undefined;
+      match.unmatchedBy    = userId;
+    }
+
     await match.save();
 
     return res.json({ success: true, message: 'Unmatched successfully.' });

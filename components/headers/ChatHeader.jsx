@@ -100,7 +100,7 @@ const ChatHeader = ({ matchedUser, onBack, onOpenProfile, onOpenActions, onUnmat
               <BadgeCheck size={18} color="#1D9BF0" style={{ marginLeft: 4 }} />
             )}
             {(matchedUser.isSystem) && (
-              <MaterialIcons name="verified" size={20} color={"blue"} style={{ marginLeft: 4 }} />
+              <MaterialIcons name="verified" size={20} color={"#F6CE71"} style={{ marginLeft: 4 }} />
             )}
           </View>
 

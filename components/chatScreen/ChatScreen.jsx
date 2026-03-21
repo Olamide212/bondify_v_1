@@ -1,40 +1,46 @@
 // components/ChatScreen.js
 
 import { useRouter } from "expo-router";
-import { Mail, MessageCircle } from "lucide-react-native";
+import { Copy, Edit2, Mail, MessageCircle, Search, X } from "lucide-react-native";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
   KeyboardAvoidingView,
+  Linking,
   Platform,
   ScrollView,
   StatusBar,
-  Linking,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useSelector } from "react-redux";
 import { colors } from "../../constant/colors";
-import { matchService } from "../../services/matchService";
 import { messageService } from "../../services/messageService";
 import { socketService } from "../../services/socketService";
 import { formatRelativeDate } from "../../utils/helper";
 import Header from "../headers/ChatHeader";
-import BaseModal from "../modals/BaseModal";
-import BlockReportModal from "../modals/Blockreportmodal";
 import InputToolbar from "./InputToolbar";
 import MessageBubble from "./MessageBubble";
 
 const MESSAGE_PAGE_SIZE = 20;
 const LOAD_OLDER_TRIGGER_PX = 140;
 
-const ChatScreen = ({ matchedUser, onBack }) => {
+const ChatScreen = ({ matchedUser, onBack, initialSearchMode = false }) => {
   const [isTyping, setIsTyping] = useState(false);
   const typingTimeoutRef = useRef(null);
+
+  // Search state
+  const [isSearchOpen, setIsSearchOpen] = useState(initialSearchMode);
+  const [searchQuery, setSearchQuery] = useState("");
+  const searchInputRef = useRef(null);
+
+  // Reply/Edit state
+  const [replyTo, setReplyTo] = useState(null); // message object
+  const [editMessage, setEditMessage] = useState(null); // message object
 
   // Typing indicator handlers
   useEffect(() => {
@@ -65,11 +71,6 @@ const ChatScreen = ({ matchedUser, onBack }) => {
   const [nextCursor, setNextCursor] = useState(null);
   const [hasMoreMessages, setHasMoreMessages] = useState(false);
   const [isLoadingOlder, setIsLoadingOlder] = useState(false);
-  const [isActionsModalVisible, setIsActionsModalVisible] = useState(false);
-  const [isProcessingAction, setIsProcessingAction] = useState(false);
-
-  // Block / Report modal state (uses shared BlockReportModal)
-  const [blockReportModal, setBlockReportModal] = useState({ visible: false, mode: "block" });
 
   const scrollViewRef = useRef(null);
   const contentHeightRef = useRef(0);
@@ -431,46 +432,42 @@ const ChatScreen = ({ matchedUser, onBack }) => {
     });
   };
 
-  const handleUnmatch = () => {
-    if (!matchedUser?.matchId || isProcessingAction) return;
-
-    Alert.alert(
-      "Unmatch",
-      `Unmatch ${matchedUser.name}? This action cannot be undone.`,
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Unmatch",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              setIsProcessingAction(true);
-              await matchService.unmatch(matchedUser.matchId);
-              setIsActionsModalVisible(false);
-              onBack?.({ unmatchedMatchId: matchedUser.matchId });
-            } catch (error) {
-              Alert.alert("Unable to unmatch", error?.message || "Please try again.");
-            } finally {
-              setIsProcessingAction(false);
-            }
-          },
-        },
-      ]
-    );
+  const openChatOptions = () => {
+    if (!matchedUser) return;
+    router.push({
+      pathname: "/chat-options",
+      params: {
+        matchId:      matchedUser.matchId ?? "",
+        userId:       matchedUser.id ?? "",
+        name:         matchedUser.name ?? "",
+        profileImage: matchedUser.profileImage ?? "",
+        isVerified:   String(matchedUser.isVerified ?? false),
+      },
+    });
   };
 
-  const handleBlock = () => {
-    if (!matchedUser?.id || isProcessingAction) return;
-    setIsActionsModalVisible(false);
-    // Wait for the actions sheet close animation to finish before opening the next modal
-    setTimeout(() => setBlockReportModal({ visible: true, mode: "block" }), 350);
+  // Search helpers
+  const openSearch = () => {
+    setIsSearchOpen(true);
+    setSearchQuery("");
+    setTimeout(() => searchInputRef.current?.focus(), 100);
   };
 
-  const handleReport = () => {
-    if (!matchedUser?.id || isProcessingAction) return;
-    setIsActionsModalVisible(false);
-    setTimeout(() => setBlockReportModal({ visible: true, mode: "report" }), 350);
+  const closeSearch = () => {
+    setIsSearchOpen(false);
+    setSearchQuery("");
   };
+
+  const filteredMessages = searchQuery.trim()
+    ? messages.filter((m) =>
+        (m.text || "").toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : messages;
+
+  // Activate search when initialSearchMode changes (e.g. navigating back from chat-options)
+  useEffect(() => {
+    if (initialSearchMode) openSearch();
+  }, [initialSearchMode]);
 
   return (
     <SafeAreaView className='flex-1' edges={["top", "left", "right", "bottom"]}>
@@ -483,8 +480,34 @@ const ChatScreen = ({ matchedUser, onBack }) => {
           matchedUser={matchedUser}
           onBack={() => onBack?.()}
           onOpenProfile={openProfile}
-          onOpenActions={() => setIsActionsModalVisible(true)}
+          onOpenActions={openChatOptions}
+          onOpenSearch={openSearch}
         />
+
+        {/* ── Search bar ── */}
+        {isSearchOpen && (
+          <View style={styles.searchBar}>
+            <Search size={18} color="#9CA3AF" />
+            <TextInput
+              ref={searchInputRef}
+              style={styles.searchInput}
+              placeholder="Search messages..."
+              placeholderTextColor="#9CA3AF"
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              autoFocus
+              returnKeyType="search"
+            />
+            {searchQuery.length > 0 && (
+              <Text style={styles.searchCount}>
+                {filteredMessages.length} found
+              </Text>
+            )}
+            <TouchableOpacity onPress={closeSearch} hitSlop={8}>
+              <X size={20} color="#6B7280" />
+            </TouchableOpacity>
+          </View>
+        )}
 
         <ScrollView
           ref={scrollViewRef}
@@ -536,8 +559,8 @@ const ChatScreen = ({ matchedUser, onBack }) => {
           )}
 
 
-          {messages.map((message, index) => {
-            const previousMessage = messages[index - 1];
+          {filteredMessages.map((message, index) => {
+            const previousMessage = filteredMessages[index - 1];
             const showDateSeparator =
               index === 0 ||
               getDateKey(message.timestamp) !== getDateKey(previousMessage?.timestamp);
@@ -553,7 +576,23 @@ const ChatScreen = ({ matchedUser, onBack }) => {
                     </View>
                   </View>
                 )}
-                <MessageBubble message={message} />
+                <MessageBubble
+                  message={message}
+                  highlight={searchQuery.trim()}
+                  onReply={(msg) => setReplyTo(msg)}
+                  onEdit={(msg) => {
+                    // Only allow edit within 30s of sending
+                    const now = Date.now();
+                    const sent = message.timestamp instanceof Date ? message.timestamp.getTime() : new Date(message.timestamp).getTime();
+                    // if (now - sent > 30000) {
+                    //   Alert.alert("Edit Expired", "You can only edit a message within 30 seconds of sending.");
+                    //   return;
+                    // }
+                    setEditMessage(msg);
+                  }}
+                  EditIcon={Edit2}
+                  CopyIcon={Copy}
+                />
               </View>
             );
           })}
@@ -606,69 +645,33 @@ const ChatScreen = ({ matchedUser, onBack }) => {
           </View>
         ) : (
           <InputToolbar
-            sendMessage={sendMessage}
+            sendMessage={async (text, opts) => {
+              if (opts?.edit && editMessage) {
+                try {
+                  const updated = await messageService.editMessage(editMessage.id, text);
+                  setMessages((msgs) =>
+                    msgs.map((m) =>
+                      m.id === editMessage.id ? { ...m, text: updated.content, edited: true } : m
+                    )
+                  );
+                } catch (err) {
+                  Alert.alert("Edit Failed", err.message || "Could not edit message.");
+                }
+              } else {
+                // Normal send (with reply)
+                sendMessage(text, opts?.replyTo ? undefined : undefined, undefined, opts?.replyTo ? { replyTo: opts.replyTo.id } : undefined);
+              }
+            }}
             onSendImage={handleSendImage}
             onSendVoice={handleSendVoice}
             matchId={matchedUser?.matchId}
             currentUserId={currentUserId}
+            replyTo={replyTo}
+            onCancelReply={() => setReplyTo(null)}
+            editMessage={editMessage}
+            onCancelEdit={() => setEditMessage(null)}
           />
         )}
-
-        {/* ── Actions sheet ── */}
-        <BaseModal
-          visible={isActionsModalVisible}
-          onClose={() => !isProcessingAction && setIsActionsModalVisible(false)}
-        >
-          <View style={styles.actionsModalContainer}>
-            <TouchableOpacity
-              style={styles.actionItem}
-              onPress={handleUnmatch}
-              disabled={isProcessingAction}
-            >
-              <Text style={styles.actionDangerText}>Unmatch</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.actionItem}
-              onPress={handleBlock}
-              disabled={isProcessingAction}
-            >
-              <Text style={styles.actionDangerText}>Block</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.actionItem}
-              onPress={handleReport}
-              disabled={isProcessingAction}
-            >
-              <Text style={styles.actionDangerText}>Report</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.actionItem}
-              onPress={() => setIsActionsModalVisible(false)}
-              disabled={isProcessingAction}
-            >
-              <Text style={styles.actionCancelText}>Cancel</Text>
-            </TouchableOpacity>
-          </View>
-        </BaseModal>
-
-        {/* ── Block / Report modal (shared component) ── */}
-        <BlockReportModal
-          visible={blockReportModal.visible}
-          mode={blockReportModal.mode}
-          profile={{
-            _id: matchedUser.id,
-            name: matchedUser.name,
-            images: matchedUser.profileImage ? [matchedUser.profileImage] : [],
-          }}
-          onClose={() => setBlockReportModal((prev) => ({ ...prev, visible: false }))}
-          onSuccess={(mode) => {
-            setBlockReportModal((prev) => ({ ...prev, visible: false }));
-            if (mode === "block") {
-              // Navigate back and remove the match from the list
-              onBack?.({ unmatchedMatchId: matchedUser.matchId, blocked: true });
-            }
-          }}
-        />
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -713,6 +716,7 @@ const styles = StyleSheet.create({
   bannerContent: {
     backgroundColor: colors.background,
     paddingVertical: 8,
+
     paddingHorizontal: 16,
     borderRadius: 20,
   },
@@ -737,35 +741,33 @@ const styles = StyleSheet.create({
     color: "#6B7280",
     textAlign: "center",
   },
-  actionsModalContainer: {
-    paddingHorizontal: 16,
-    paddingBottom: 10,
-  },
-  actionItem: {
-    minHeight: 50,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: "#F3F4F6",
+
+  // Search bar
+  searchBar: {
+    flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 10,
+    backgroundColor: "#F3F4F6",
+    marginHorizontal: 16,
+    marginTop: 6,
+    marginBottom: 4,
+    borderRadius: 12,
     paddingHorizontal: 12,
+    height: 42,
+    gap: 8,
   },
-  actionItemSelected: {
-    borderColor: colors.primary,
-    backgroundColor: `${colors.primary}15`,
+  searchInput: {
+    flex: 1,
+    fontSize: 14,
+    fontFamily: "PlusJakartaSans",
+    color: "#111",
+    paddingVertical: 0,
   },
-  actionDangerText: {
-    color: "#DC2626",
-    fontSize: 16,
-    fontWeight: "600",
+  searchCount: {
+    fontSize: 12,
+    fontFamily: "PlusJakartaSansMedium",
+    color: "#6B7280",
+    marginRight: 4,
   },
-  actionCancelText: {
-    color: "#111827",
-    fontSize: 16,
-    fontWeight: "600",
-  },
-  // Report / Block handled by BlockReportModal
 
   // Contact bar (system chats)
   contactBar: {

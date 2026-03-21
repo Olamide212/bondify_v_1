@@ -98,13 +98,15 @@ const getCachedMatches = async (options = {}) => {
   return Array.isArray(cachedMatches) ? cachedMatches : [];
 };
 
-const unmatch = async (matchId) => {
+const unmatch = async (matchId, { reason, details } = {}) => {
   if (!matchId) {
     throw new Error("Match ID is required");
   }
 
   try {
-    const response = await apiClient.delete(`/matches/${matchId}`);
+    const response = await apiClient.delete(`/matches/${matchId}`, {
+      data: { reason, details },
+    });
     return response.data?.data ?? response.data;
   } catch (error) {
     const message =

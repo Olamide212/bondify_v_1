@@ -7,6 +7,21 @@ const messageSchema = new mongoose.Schema(
       ref: 'Match',
       required: true,
     },
+    replyTo: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Message',
+      default: null,
+    },
+    edited: {
+      type: Boolean,
+      default: false,
+    },
+    editHistory: [
+      {
+        text: String,
+        editedAt: Date,
+      }
+    ],
     sender: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',

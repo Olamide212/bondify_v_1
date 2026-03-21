@@ -52,9 +52,33 @@ const LocationAccess = () => {
         return;
       }
 
-      const location = await Location.getCurrentPositionAsync({
-        accuracy: Location.Accuracy.Balanced,
-      });
+      let location = null;
+      try {
+        location = await Location.getCurrentPositionAsync({
+          accuracy: Location.Accuracy.Balanced,
+        });
+      } catch {
+        // Fallback — iOS simulators / weak GPS often fail getCurrentPositionAsync
+        location = await Location.getLastKnownPositionAsync();
+      }
+
+      if (!location) {
+        Alert.alert(
+          "Location Unavailable",
+          "We couldn't determine your location right now. You can update it later in settings.",
+          [
+            {
+              text: "Continue Anyway",
+              onPress: async () => {
+                await finalizeOnboardingSafely();
+                router.replace("/root-tabs");
+              },
+            },
+          ]
+        );
+        setLoading(false);
+        return;
+      }
 
       const { latitude, longitude } = location.coords;
 

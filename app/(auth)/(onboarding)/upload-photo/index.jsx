@@ -15,9 +15,9 @@ import {
 } from "react-native";
 import PhotoGuidelinesModal from "../../../../components/modals/PhotoGuidelinesModal";
 import Button from "../../../../components/ui/Button";
+import { colors } from "../../../../constant/colors";
 import { useProfileSetup } from "../../../../hooks/useProfileSetup";
 import { profileService } from "../../../../services/profileService";
-import { colors } from "../../../../constant/colors";
 
 // Define colors object
 const color = {
@@ -180,7 +180,7 @@ const UploadPhoto = () => {
               variant="primary"
               onPress={handleContinue}
               loading={uploading}
-              disabled={uploading}
+              disabled={uploading || photos.filter(Boolean).length < 3}
             />
           </View>
         </View>
