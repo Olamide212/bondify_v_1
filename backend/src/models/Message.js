@@ -7,21 +7,31 @@ const messageSchema = new mongoose.Schema(
       ref: 'Match',
       required: true,
     },
+
+    // ── Reply threading ────────────────────────────────────────────────────
     replyTo: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Message',
       default: null,
     },
-    edited: {
+
+    // ── Edit tracking ──────────────────────────────────────────────────────
+    // Renamed from `edited` → `isEdited` to match controller + frontend
+    isEdited: {
       type: Boolean,
       default: false,
     },
+    editedAt: {
+      type: Date,
+    },
+    // Full audit trail — each entry records the previous text before an edit
     editHistory: [
       {
-        text: String,
-        editedAt: Date,
-      }
+        text:     { type: String },
+        editedAt: { type: Date },
+      },
     ],
+
     sender: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
@@ -33,13 +43,13 @@ const messageSchema = new mongoose.Schema(
       required: true,
     },
     content: {
-      type: String,
-      default: '',
+      type:     String,
+      default:  '',
       maxlength: 2000,
     },
     type: {
-      type: String,
-      enum: ['text', 'image', 'voice', 'gif', 'emoji'],
+      type:    String,
+      enum:    ['text', 'image', 'voice', 'gif', 'emoji'],
       default: 'text',
     },
     mediaUrl: {
@@ -47,17 +57,17 @@ const messageSchema = new mongoose.Schema(
     },
     mediaDuration: {
       type: Number,
-      min: 0,
+      min:  0,
     },
     read: {
-      type: Boolean,
+      type:    Boolean,
       default: false,
     },
     readAt: {
       type: Date,
     },
     delivered: {
-      type: Boolean,
+      type:    Boolean,
       default: false,
     },
     deliveredAt: {
@@ -69,7 +79,7 @@ const messageSchema = new mongoose.Schema(
   }
 );
 
-// Indexes
+// ── Indexes ────────────────────────────────────────────────────────────────────
 messageSchema.index({ match: 1, createdAt: -1 });
 messageSchema.index({ sender: 1 });
 messageSchema.index({ receiver: 1, read: 1 });

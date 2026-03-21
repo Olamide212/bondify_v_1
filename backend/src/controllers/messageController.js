@@ -9,6 +9,72 @@ const encodeCursor = (message) => {
   if (!message?._id || !message?.createdAt) return null;
   return Buffer.from(
     JSON.stringify({
+      id: String(message._id),
+      createdAt: message.createdAt.toISOString(),
+    })
+  ).toString('base64');
+};
+
+const decodeCursor = (cursor) => {
+  if (!cursor) return null;
+
+  try {
+    const parsed = JSON.parse(Buffer.from(cursor, 'base64').toString('utf8'));
+    if (!parsed?.id || !parsed?.createdAt) return null;
+    return parsed;
+  } catch (_) {
+    return null;
+  }
+};
+
+// @desc    Get messages for a match
+// @route   GET /api/messages/:matchId
+// @access  Private
+const getMessages = async (req, res, next) => {
+  try {
+    const io = getIO();
+    const userId = req.user._id;
+    const { matchId } = req.params;
+    const { page = 1, limit = 50, cursor } = req.query;
+
+    const match = await Match.findById(matchId);
+
+    if (!match) {
+      return res.status(404).json({
+        success: false,
+        message: 'Match not found',
+      });
+    }
+
+    if (
+      match.user1.toString() !== userId.toString() &&
+      match.user2.toString() !== userId.toString()
+    ) {
+      return res.status(403).json({
+        success: false,
+        message: 'Not authorized to view these messages',
+      });
+    }
+
+    const parsedLimit = Math.min(Math.max(parseInt(limit, 10) || 50, 1), 100);
+    const parsedCursor = decodeCursor(cursor);
+
+    const query = { match: matchId };
+
+    if (parsedCursor) {
+      const cursorDate = new Date(parsedCursor.createdAt);
+      query.$or = [
+        { createdAt: { $lt: cursorDate } },
+        { createdAt: cursorDate, _id: { $lt: parsedCursor.id } },
+      ];
+    }
+
+    const messages = await Message.find(query)
+      .populate('sender', 'firstName lastName name images')
+      .populate('receiver', 'firstName lastName name images')
+      .populate('replyTo', 'content type mediaUrl sender')
+      .sort({ createdAt: -1 })
+      .limit(parsedLimit + 1);
 
     const hasMore = messages.length > parsedLimit;
     const paginatedMessages = hasMore ? messages.slice(0, parsedLimit) : messages;
@@ -68,7 +134,7 @@ const sendMessage = async (req, res, next) => {
     const io = getIO();
     const userId = req.user._id;
     const { matchId } = req.params;
-    const { content, type = 'text', mediaUrl, mediaDuration } = req.body;
+    const { content, type = 'text', mediaUrl, mediaDuration, replyToId } = req.body;
     const normalizedContent = typeof content === 'string' ? content.trim() : '';
 
     if (type === 'text' && !normalizedContent) {
@@ -110,129 +176,15 @@ const sendMessage = async (req, res, next) => {
       : match.user1;
 
     // Create message
+    // Validate replyTo if provided
+    let replyToDoc = null;
+    if (replyToId) {
+      replyToDoc = await Message.findOne({ _id: replyToId, match: matchId });
+    }
+
     const message = await Message.create({
       match: matchId,
-    const sendMessage = async (req, res, next) => {
-      try {
-        const io = getIO();
-        const userId = req.user._id;
-        const { matchId } = req.params;
-        const { content, type = 'text', mediaUrl, mediaDuration, replyTo } = req.body;
-        const normalizedContent = typeof content === 'string' ? content.trim() : '';
-        if (type === 'text' && !normalizedContent) {
-          return res.status(400).json({
-            success: false,
-            message: 'Message content is required',
-          });
-        }
-        if (type !== 'text' && !mediaUrl && !normalizedContent) {
-          return res.status(400).json({
-            success: false,
-            message: 'Message content or media is required',
-          });
-        }
-        const match = await Match.findById(matchId);
-        if (!match) {
-          return res.status(404).json({
-            success: false,
-            message: 'Match not found',
-          });
-        }
-        if (
-          match.user1.toString() !== userId.toString() &&
-          match.user2.toString() !== userId.toString()
-        ) {
-          return res.status(403).json({
-            success: false,
-            message: 'Not authorized to send messages in this match',
-          });
-        }
-        // Determine receiver
-        const receiverId = match.user1.toString() === userId.toString()
-          ? match.user2
-          : match.user1;
-        // Create message
-        const message = await Message.create({
-          match: matchId,
-          sender: userId,
-          receiver: receiverId,
-          content: normalizedContent,
-          type,
-          mediaUrl,
-          mediaDuration,
-          replyTo: replyTo || null,
-          delivered: true,
-          deliveredAt: new Date(),
-        });
-        // Update match
-        match.lastMessageAt = new Date();
-        if (match.user1.toString() === receiverId.toString()) {
-          match.unreadCount.user1 = (match.unreadCount.user1 || 0) + 1;
-        } else {
-          match.unreadCount.user2 = (match.unreadCount.user2 || 0) + 1;
-        }
-        await match.save();
-        await message.populate('sender', 'firstName lastName name images');
-        await message.populate('receiver', 'firstName lastName name images');
-        const messagePayload = message.toObject();
-        const senderName =
-          messagePayload?.sender?.name ||
-          [messagePayload?.sender?.firstName, messagePayload?.sender?.lastName]
-            .filter(Boolean)
-            .join(' ') ||
-          'Someone';
-        const notificationBody =
-          type === 'image' ? 'Sent you a photo'
-          : type === 'voice' ? 'Sent you a voice note'
-          : normalizedContent || 'Sent you a message';
-        // ── Socket emits ──────────────────────────────────────────────────────────
-        io.to(`match:${matchId}`).emit('message:new', { matchId, message: messagePayload });
-        io.to(`user:${String(receiverId)}`).emit('message:new', { matchId, message: messagePayload });
-        io.to(`user:${String(receiverId)}`).emit('notification:new', {
-          id:        String(message._id),
-          type:      'message',
-          matchId:   String(matchId),
-          title:     senderName,
-          body:      notificationBody,
-          createdAt: new Date().toISOString(),
-          senderId:  String(userId),
-        });
-        io.to(`user:${String(userId)}`).emit('message:delivered', {
-          matchId,
-          messageId:   String(message._id),
-          deliveredAt: new Date().toISOString(),
-        });
-        // ── WhatsApp offline notification (fire-and-forget) ───────────────────────
-        User.findById(receiverId)
-          .select('online lastActive phoneNumber countryCode whatsappOptIn firstName')
-          .lean()
-          .then((receiver) => {
-            if (!receiver) return;
-            if (!receiver.whatsappOptIn) return;
-            if (!receiver.phoneNumber) return;
-            const countryCode = (receiver.countryCode || '').replace('+', '');
-            const phone       = receiver.phoneNumber.replace(/\D/g, '');
-            const fullPhone   = `+${countryCode}${phone}`;
-            sendMessageNotification({
-              toPhone:        fullPhone,
-              recipientName:  receiver.firstName || 'there',
-              senderName,
-              matchId:        String(matchId),
-              messagePreview: normalizedContent,
-              messageType:    type,
-            });
-          })
-          .catch((err) => {
-            console.error('[whatsapp] Offline check error:', err.message);
-          });
-        return res.status(201).json({
-          success: true,
-          message: 'Message sent successfully',
-          data: { message: messagePayload },
-        });
-      } catch (error) {
-        next(error);
-      }
+      sender: userId,
       receiver: receiverId,
       content: normalizedContent,
       type,
@@ -240,6 +192,7 @@ const sendMessage = async (req, res, next) => {
       mediaDuration,
       delivered: true,
       deliveredAt: new Date(),
+      ...(replyToDoc && { replyTo: replyToDoc._id }),
     });
 
     // Update match
@@ -253,6 +206,7 @@ const sendMessage = async (req, res, next) => {
 
     await message.populate('sender', 'firstName lastName name images');
     await message.populate('receiver', 'firstName lastName name images');
+    await message.populate('replyTo', 'content type mediaUrl sender');
 
     const messagePayload = message.toObject();
 
@@ -367,6 +321,73 @@ const deleteMessage = async (req, res, next) => {
   }
 };
 
+// @desc    Edit a message (content only, text messages, within 15 minutes)
+// @route   PATCH /api/messages/:messageId
+// @access  Private
+const editMessage = async (req, res, next) => {
+  try {
+    const io = getIO();
+    const userId = req.user._id;
+    const { messageId } = req.params;
+    const { content } = req.body;
+
+    const normalizedContent = typeof content === 'string' ? content.trim() : '';
+    if (!normalizedContent) {
+      return res.status(400).json({ success: false, message: 'Content is required.' });
+    }
+
+    const message = await Message.findById(messageId);
+
+    if (!message) {
+      return res.status(404).json({ success: false, message: 'Message not found.' });
+    }
+
+    if (message.sender.toString() !== userId.toString()) {
+      return res.status(403).json({ success: false, message: 'Not authorized to edit this message.' });
+    }
+
+    if (message.type !== 'text') {
+      return res.status(400).json({ success: false, message: 'Only text messages can be edited.' });
+    }
+
+    // 15-minute edit window
+    const EDIT_WINDOW_MS = 15 * 60 * 1000;
+    if (Date.now() - new Date(message.createdAt).getTime() > EDIT_WINDOW_MS) {
+      return res.status(400).json({ success: false, message: 'Edit window has expired (15 minutes).' });
+    }
+
+    // Push previous content into audit trail before overwriting
+    message.editHistory.push({
+      text:     message.content,
+      editedAt: new Date(),
+    });
+    message.content  = normalizedContent;
+    message.isEdited = true;
+    message.editedAt = new Date();
+    await message.save();
+
+    await message.populate('sender', 'firstName lastName name images');
+    await message.populate('receiver', 'firstName lastName name images');
+    await message.populate('replyTo', 'content type mediaUrl sender');
+
+    const messagePayload = message.toObject();
+
+    // Broadcast edit to all room participants
+    const matchId = String(message.match);
+    io.to(`match:${matchId}`).emit('message:edited', { matchId, message: messagePayload });
+    io.to(`user:${String(message.receiver)}`).emit('message:edited', { matchId, message: messagePayload });
+    io.to(`user:${String(userId)}`).emit('message:edited', { matchId, message: messagePayload });
+
+    return res.json({
+      success: true,
+      message: 'Message edited successfully.',
+      data: { message: messagePayload },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // @desc    Send a direct message to any user (no match required)
 // @route   POST /api/messages/direct/:userId
 // @access  Private
@@ -391,7 +412,7 @@ const sendDirectMessage = async (req, res, next) => {
       return res.status(404).json({ success: false, message: 'User not found.' });
     }
 
-    // Find or create a pending conversation between the two users (order-stable key)
+    // Find or create a pending conversation (order-stable key)
     const [u1, u2] = [String(senderId), String(receiverId)].sort();
     let match = await Match.findOneAndUpdate(
       { user1: u1, user2: u2 },
@@ -406,7 +427,6 @@ const sendDirectMessage = async (req, res, next) => {
       { upsert: true, new: true }
     );
 
-    // Update last activity
     match.lastMessageAt = new Date();
     const isUser1Sender = String(u1) === String(senderId);
     if (isUser1Sender) {
@@ -417,16 +437,16 @@ const sendDirectMessage = async (req, res, next) => {
     await match.save();
 
     const message = await Message.create({
-      match:     match._id,
-      sender:    senderId,
-      receiver:  receiverId,
-      content:   normalizedContent,
+      match:       match._id,
+      sender:      senderId,
+      receiver:    receiverId,
+      content:     normalizedContent,
       type,
-      delivered: true,
+      delivered:   true,
       deliveredAt: new Date(),
     });
 
-    await message.populate('sender', 'firstName lastName name images');
+    await message.populate('sender',   'firstName lastName name images');
     await message.populate('receiver', 'firstName lastName name images');
 
     const messagePayload = message.toObject();
@@ -435,14 +455,12 @@ const sendDirectMessage = async (req, res, next) => {
       [messagePayload.sender?.firstName, messagePayload.sender?.lastName].filter(Boolean).join(' ') ||
       'Someone';
 
-    // Emit to receiver's personal room
     io.to(`user:${String(receiverId)}`).emit('message:new', {
-      matchId: String(match._id),
-      message: messagePayload,
+      matchId:  String(match._id),
+      message:  messagePayload,
       isDirect: true,
     });
 
-    // Emit a notification to the receiver with view-profile CTA
     io.to(`user:${String(receiverId)}`).emit('notification:new', {
       id:        String(message._id),
       type:      'direct_message',
@@ -471,5 +489,6 @@ module.exports = {
   getMessages,
   sendMessage,
   deleteMessage,
+  editMessage,
   sendDirectMessage,
 };
