@@ -4,12 +4,12 @@ import * as ImagePicker from "expo-image-picker";
 import { Edit2, Mic, Reply, Send, X } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
 import {
-    Image,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Image,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { colors } from "../../constant/colors";
 import { Icons } from "../../constant/icons";
@@ -152,10 +152,13 @@ const InputToolbar = ({ sendMessage, onSendImage, onSendVoice, matchId, currentU
   };
 
   return (
-    <View style={styles.container}>
-      {/* Reply/Edit banner */}
+
+
+
+
+    <>
       {(replyTo || editMessage) && (
-        <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#F3F4F6', borderRadius: 8, padding: 8, marginBottom: 4 }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#F3F4F6', borderRadius: 8, padding: 8, marginHorizontal: 16, marginBottom: 2 }}>
           {replyTo && <Reply size={18} color={colors.primary} style={{ marginRight: 6 }} />}
           {editMessage && <Edit2 size={18} color={colors.primary} style={{ marginRight: 6 }} />}
           <View style={{ flex: 1 }}>
@@ -168,65 +171,61 @@ const InputToolbar = ({ sendMessage, onSendImage, onSendVoice, matchId, currentU
           </TouchableOpacity>
         </View>
       )}
-
-      {/* ── Left: AI Rizz button ── */}
-      <View style={styles.leftActions}>
-        <TouchableOpacity
-          style={styles.iconButton}
-          onPress={() => setShowRizzModal(true)}
+      <View style={styles.container}>
+        {/* ── Left: AI Rizz button ── */}
+        <View style={styles.leftActions}>
+          <TouchableOpacity
+            style={styles.iconButton}
+            onPress={() => setShowRizzModal(true)}
+          >
+            {/* <Sparkle color={colors.primary} size={30} /> */}
+            <Image source={Icons.AiIcon} style={{width: 30, height: 30}} />
+          </TouchableOpacity>
+          {/* ✅ matchId is now passed so AI fetches personalised icebreakers */}
+          <RizzModal
+            visible={showRizzModal}
+            matchId={matchId}
+            onClose={() => setShowRizzModal(false)}
+            onSend={(rizz) => {
+              sendMessage(rizz);
+              setShowRizzModal(false);
+            }}
+          />
+        </View>
+        {/* ── Centre: text input + mic ── */}
+        <View
+          className="border border-gray-200 flex-1 flex-row items-center rounded-full mr-3"
+          style={{ paddingHorizontal: 5 }}
         >
-          {/* <Sparkle color={colors.primary} size={30} /> */}
-          <Image source={Icons.AiIcon} style={{width: 30, height: 30}} />
-       
-        </TouchableOpacity>
-
-        {/* ✅ matchId is now passed so AI fetches personalised icebreakers */}
-        <RizzModal
-          visible={showRizzModal}
-          matchId={matchId}
-          onClose={() => setShowRizzModal(false)}
-          onSend={(rizz) => {
-            sendMessage(rizz);
-            setShowRizzModal(false);
-          }}
-        />
+          <TextInput
+            style={styles.input}
+            placeholder="Type a message..."
+            value={messageText}
+            onChangeText={handleTyping}
+            multiline
+            className="placeholder:text-gray-400 flex-1"
+          />
+          <TouchableOpacity
+            style={styles.iconButton}
+            onPress={handleVoicePress}
+            disabled={isUploadingMedia}
+          >
+            <Mic color={isRecording ? colors.activePrimary : VOICE_ICON_COLOR} size={20} />
+          </TouchableOpacity>
+        </View>
+        {/* ── Right: send button ── */}
+        <View style={styles.rightActions}>
+          <TouchableOpacity
+            style={styles.iconButton}
+            onPress={handleSend}
+            disabled={!isSendEnabled}
+            className="bg-primary rounded-full p-2"
+          >
+            <Send color={"#fff"} size={20} />
+          </TouchableOpacity>
+        </View>
       </View>
-
-      {/* ── Centre: text input + mic ── */}
-      <View
-        className="border border-gray-200 flex-1 flex-row items-center rounded-full mr-3"
-        style={{ paddingHorizontal: 5 }}
-      >
-        <TextInput
-          style={styles.input}
-          placeholder="Type a message..."
-          value={messageText}
-          onChangeText={handleTyping}
-          multiline
-          className="placeholder:text-gray-400 flex-1"
-        />
-        <TouchableOpacity
-          style={styles.iconButton}
-          onPress={handleVoicePress}
-          disabled={isUploadingMedia}
-        >
-          <Mic color={isRecording ? colors.activePrimary : VOICE_ICON_COLOR} size={20} />
-        </TouchableOpacity>
-      </View>
-
-      {/* ── Right: send button ── */}
-      <View style={styles.rightActions}>
-        <TouchableOpacity
-          style={styles.iconButton}
-          onPress={handleSend}
-          disabled={!isSendEnabled}
-          className="bg-primary rounded-full p-2"
-        >
-          <Send color={"#fff"} size={20} />
-        </TouchableOpacity>
-      </View>
-
-    </View>
+    </>
   );
 };
 
