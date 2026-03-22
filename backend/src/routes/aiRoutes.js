@@ -17,6 +17,7 @@ const {
   suggestMessage,
   suggestPhotoComment,
   suggestPost,
+  searchProfiles,
 } = require('../controllers/aiController');
 const { protect } = require('../middleware/auth');
 
@@ -35,8 +36,12 @@ router.get('/generate-video-suggestions', generateVideoSuggestions);
 router.get('/generate-activity-suggestions', generateActivitySuggestions);
 router.get('/date-ideas/:matchId', getDateIdeas);
 router.post('/chat', chat);
-router.post('/suggest-message',       protect, suggestMessage);
-router.post('/suggest-photo-comment', protect, suggestPhotoComment);
-router.post('/suggest-post',          protect, suggestPost);
+router.post('/suggest-message', suggestMessage);
+router.post('/suggest-photo-comment', suggestPhotoComment);
+router.post('/suggest-post', suggestPost);
+
+// ── BonBot profile search ───────────────────────────────────────────────────
+// Natural-language query → GPT extracts filters → DB query → ranked profiles
+router.post('/search-profiles', searchProfiles);
 
 module.exports = router;

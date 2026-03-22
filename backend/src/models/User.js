@@ -477,6 +477,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       enum: ['Male', 'Female', 'Non-binary', 'Other'],
     },
+    tagline: { type: String, maxlength: 100 },
     bio: { type: String, maxlength: 500 },
 
     // Location

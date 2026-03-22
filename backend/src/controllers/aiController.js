@@ -187,10 +187,10 @@ Person B (Profile Viewed):
 - Location: ${them.location?.city || 'N/A'}
 
 Based on compatibility analysis, respond with a JSON object containing:
-- isGoodMatch: boolean (true if they seem compatible, false otherwise)
-- confidence: number 1-10 (how confident you are in this suggestion)
-- reason: string (2-3 sentence explanation of why this is/isn't a good match)
-- suggestion: string (personalized suggestion for the current user about approaching this person)
+- isGoodMatch: boolean
+- confidence: number 1-10
+- reason: string (2-3 sentence explanation)
+- suggestion: string (personalized suggestion for the current user)
 
 Only respond with valid JSON, no additional text.`;
 
@@ -211,8 +211,8 @@ Only respond with valid JSON, no additional text.`;
       result = {
         isGoodMatch: true,
         confidence: 7,
-        reason: "Based on shared interests and compatible personalities, this could be a promising match.",
-        suggestion: response.choices[0].message.content
+        reason: 'Based on shared interests and compatible personalities, this could be a promising match.',
+        suggestion: response.choices[0].message.content,
       };
     }
 
@@ -387,15 +387,15 @@ Rules:
   }
 };
 
-// @desc  Generate a personalised first-message suggestion for a target user's profile
-// @route POST /api/ai/suggest-message
-// @access Private
+// ─────────────────────────────────────────────
+//  AI SUGGEST FIRST MESSAGE
+// ─────────────────────────────────────────────
 const suggestMessage = async (req, res, next) => {
   try {
-    const { OpenAI } = require('openai');
-    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+    if (!process.env.OPENAI_API_KEY) {
+      return res.status(503).json({ success: false, message: 'AI service not configured' });
+    }
 
-    const currentUser = await User.findById(req.user._id).lean();
     const { targetUserId } = req.body;
     if (!targetUserId) {
       return res.status(400).json({ success: false, message: 'targetUserId is required.' });
@@ -409,11 +409,11 @@ const suggestMessage = async (req, res, next) => {
       return res.status(404).json({ success: false, message: 'User not found.' });
     }
 
-    const name        = targetUser.firstName || 'this person';
-    const interests   = (targetUser.interests ?? []).slice(0, 4).join(', ');
-    const lookingFor  = targetUser.lookingFor || '';
-    const religion    = targetUser.religion || '';
-    const occupation  = targetUser.occupation || '';
+    const name       = targetUser.firstName || 'this person';
+    const interests  = (targetUser.interests ?? []).slice(0, 4).join(', ');
+    const lookingFor = targetUser.lookingFor || '';
+    const religion   = targetUser.religion || '';
+    const occupation = targetUser.occupation || '';
 
     const contextBits = [
       interests  && `interests: ${interests}`,
@@ -428,7 +428,8 @@ Write ONE short opening — choose from: a clever pick-up line, a witty observat
 Be charming, bold, and specific. Use 1 emoji max. Avoid generic openers like "Hey how are you" or "You seem cool".
 Reply with ONLY the message text, nothing else.`;
 
-    const completion = await openai.chat.completions.create({
+    const ai = getOpenAI();
+    const completion = await ai.chat.completions.create({
       model: 'gpt-4o-mini',
       messages: [{ role: 'user', content: prompt }],
       max_tokens: 80,
@@ -442,13 +443,14 @@ Reply with ONLY the message text, nothing else.`;
   }
 };
 
-// @desc  Generate a photo comment suggestion for a specific image on a user's profile
-// @route POST /api/ai/suggest-photo-comment
-// @access Private
+// ─────────────────────────────────────────────
+//  AI SUGGEST PHOTO COMMENT
+// ─────────────────────────────────────────────
 const suggestPhotoComment = async (req, res, next) => {
   try {
-    const { OpenAI } = require('openai');
-    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+    if (!process.env.OPENAI_API_KEY) {
+      return res.status(503).json({ success: false, message: 'AI service not configured' });
+    }
 
     const { targetUserId, imageIndex = 0 } = req.body;
     if (!targetUserId) {
@@ -478,7 +480,8 @@ Write ONE short, flirty, clever message — it can be a smooth pick-up line, a w
 Be playful, confident, and specific. Use 1 emoji max. Avoid clichés like "nice pic", "you're gorgeous", or "so beautiful".
 Reply with ONLY the message text, nothing else.`;
 
-    const completion = await openai.chat.completions.create({
+    const ai = getOpenAI();
+    const completion = await ai.chat.completions.create({
       model: 'gpt-4o-mini',
       messages: [{ role: 'user', content: prompt }],
       max_tokens: 60,
@@ -559,8 +562,6 @@ User context:
 - Personalities: ${(user.personalities || []).join(', ') || 'Not specified'}
 - Occupation: ${user.occupation || 'Not specified'}
 
-Mix different personality types: adventurous, creative, caring, ambitious, funny, thoughtful, etc. Each prompt should be exactly 3 words, separated by commas.
-
 Return ONLY a JSON array of 6 strings, like: ["Adventurous, Funny, Kind", "Creative, Ambitious, Caring", ...]`;
 
     const ai = getOpenAI();
@@ -578,7 +579,6 @@ Return ONLY a JSON array of 6 strings, like: ["Adventurous, Funny, Kind", "Creat
       const clean = raw.replace(/```json|```/g, '').trim();
       prompts = JSON.parse(clean);
     } catch {
-      // Fallback: split by newlines and clean up
       prompts = raw.split('\n').map(p => p.trim()).filter(p => p.length > 0).slice(0, 6);
     }
 
@@ -588,6 +588,9 @@ Return ONLY a JSON array of 6 strings, like: ["Adventurous, Funny, Kind", "Creat
   }
 };
 
+// ─────────────────────────────────────────────
+//  AI CONVERSATION PROMPTS GENERATOR
+// ─────────────────────────────────────────────
 const generateConversationPrompts = async (req, res, next) => {
   try {
     if (!process.env.OPENAI_API_KEY) {
@@ -600,20 +603,13 @@ const generateConversationPrompts = async (req, res, next) => {
 
     const prompt = `Generate 8 creative and engaging conversation starter prompts for a dating profile. Each prompt should be a question or incomplete statement that encourages fun, meaningful responses.
 
-Examples of good prompts:
-- "Dating me is like..."
-- "My ideal Sunday..."
-- "The fastest way to my heart..."
-- "You know you're my type if..."
-- "My hidden talent is..."
-
 User context:
 - Name: ${user.firstName}
 - Interests: ${(user.interests || []).join(', ') || 'Not specified'}
 - Personalities: ${(user.personalities || []).join(', ') || 'Not specified'}
 - Occupation: ${user.occupation || 'Not specified'}
 
-Generate 8 diverse prompts that would work well on a dating profile. Make them fun, revealing, and spark conversation. Return ONLY a JSON array of strings.`;
+Return ONLY a JSON array of strings.`;
 
     const ai = getOpenAI();
     const response = await ai.chat.completions.create({
@@ -630,7 +626,6 @@ Generate 8 diverse prompts that would work well on a dating profile. Make them f
       const clean = raw.replace(/```json|```/g, '').trim();
       prompts = JSON.parse(clean);
     } catch {
-      // Fallback: split by newlines and clean up
       prompts = raw.split('\n').map(p => p.trim()).filter(p => p.length > 0).slice(0, 8);
     }
 
@@ -640,6 +635,9 @@ Generate 8 diverse prompts that would work well on a dating profile. Make them f
   }
 };
 
+// ─────────────────────────────────────────────
+//  AI PROFILE QUESTIONS GENERATOR
+// ─────────────────────────────────────────────
 const generateProfileQuestions = async (req, res, next) => {
   try {
     if (!process.env.OPENAI_API_KEY) {
@@ -650,14 +648,7 @@ const generateProfileQuestions = async (req, res, next) => {
       'firstName interests personalities occupation'
     );
 
-    const prompt = `Generate 8 thoughtful and engaging profile questions for a dating app. Each question should help users express their personality, values, and what they're looking for in relationships.
-
-Examples of good questions:
-- "Describe your ideal partner in one sentence."
-- "What makes you happiest in a relationship?"
-- "What kind of energy do you bring to a relationship?"
-- "What's your love language?"
-- "What's the most important quality in a partner?"
+    const prompt = `Generate 8 thoughtful and engaging profile questions for a dating app that help users express their personality and values.
 
 User context:
 - Name: ${user.firstName}
@@ -665,7 +656,7 @@ User context:
 - Personalities: ${(user.personalities || []).join(', ') || 'Not specified'}
 - Occupation: ${user.occupation || 'Not specified'}
 
-Generate 8 diverse questions that would help someone get to know the user better. Make them fun, revealing, and relationship-focused. Return ONLY a JSON array of strings.`;
+Return ONLY a JSON array of strings.`;
 
     const ai = getOpenAI();
     const response = await ai.chat.completions.create({
@@ -682,7 +673,6 @@ Generate 8 diverse questions that would help someone get to know the user better
       const clean = raw.replace(/```json|```/g, '').trim();
       questions = JSON.parse(clean);
     } catch {
-      // Fallback: split by newlines and clean up
       questions = raw.split('\n').map(q => q.trim()).filter(q => q.length > 0).slice(0, 8);
     }
 
@@ -692,6 +682,9 @@ Generate 8 diverse questions that would help someone get to know the user better
   }
 };
 
+// ─────────────────────────────────────────────
+//  AI MUSIC SUGGESTIONS
+// ─────────────────────────────────────────────
 const generateMusicSuggestions = async (req, res, next) => {
   try {
     if (!process.env.OPENAI_API_KEY) {
@@ -702,15 +695,13 @@ const generateMusicSuggestions = async (req, res, next) => {
       'firstName interests personalities occupation'
     );
 
-    const prompt = `Generate 8 diverse music genres and artists that would appeal to someone with this profile. Consider their interests, personality, and occupation to make personalized recommendations.
-
-User context:
+    const prompt = `Generate 8 diverse music genres and artists personalized for someone with this profile:
 - Name: ${user.firstName}
 - Interests: ${(user.interests || []).join(', ') || 'Not specified'}
 - Personalities: ${(user.personalities || []).join(', ') || 'Not specified'}
 - Occupation: ${user.occupation || 'Not specified'}
 
-Generate 8 music suggestions that could include genres, artists, or specific songs/albums. Make them varied and personalized. Return ONLY a JSON array of strings.`;
+Return ONLY a JSON array of strings.`;
 
     const ai = getOpenAI();
     const response = await ai.chat.completions.create({
@@ -736,6 +727,9 @@ Generate 8 music suggestions that could include genres, artists, or specific son
   }
 };
 
+// ─────────────────────────────────────────────
+//  AI VIDEO SUGGESTIONS
+// ─────────────────────────────────────────────
 const generateVideoSuggestions = async (req, res, next) => {
   try {
     if (!process.env.OPENAI_API_KEY) {
@@ -746,15 +740,13 @@ const generateVideoSuggestions = async (req, res, next) => {
       'firstName interests personalities occupation'
     );
 
-    const prompt = `Generate 8 video content suggestions (shows, movies, YouTube channels, documentaries, etc.) that would appeal to someone with this profile.
-
-User context:
+    const prompt = `Generate 8 video content suggestions (shows, movies, YouTube channels, documentaries) personalized for:
 - Name: ${user.firstName}
 - Interests: ${(user.interests || []).join(', ') || 'Not specified'}
 - Personalities: ${(user.personalities || []).join(', ') || 'Not specified'}
 - Occupation: ${user.occupation || 'Not specified'}
 
-Generate 8 diverse video content suggestions. Include a mix of movies, TV shows, YouTube channels, documentaries, or other video content. Make them personalized and varied. Return ONLY a JSON array of strings.`;
+Return ONLY a JSON array of strings.`;
 
     const ai = getOpenAI();
     const response = await ai.chat.completions.create({
@@ -780,6 +772,9 @@ Generate 8 diverse video content suggestions. Include a mix of movies, TV shows,
   }
 };
 
+// ─────────────────────────────────────────────
+//  AI ACTIVITY SUGGESTIONS
+// ─────────────────────────────────────────────
 const generateActivitySuggestions = async (req, res, next) => {
   try {
     if (!process.env.OPENAI_API_KEY) {
@@ -790,15 +785,13 @@ const generateActivitySuggestions = async (req, res, next) => {
       'firstName interests personalities occupation'
     );
 
-    const prompt = `Generate 8 fun and engaging activity suggestions for someone with this profile. These should be hobbies, pastimes, or recreational activities they might enjoy.
-
-User context:
+    const prompt = `Generate 8 fun activity suggestions personalized for:
 - Name: ${user.firstName}
 - Interests: ${(user.interests || []).join(', ') || 'Not specified'}
 - Personalities: ${(user.personalities || []).join(', ') || 'Not specified'}
 - Occupation: ${user.occupation || 'Not specified'}
 
-Generate 8 diverse and creative activity suggestions. Consider both indoor and outdoor activities, creative pursuits, sports, social activities, etc. Make them personalized to their profile. Return ONLY a JSON array of strings.`;
+Mix indoor/outdoor, creative, sports, and social activities. Return ONLY a JSON array of strings.`;
 
     const ai = getOpenAI();
     const response = await ai.chat.completions.create({
@@ -824,6 +817,9 @@ Generate 8 diverse and creative activity suggestions. Consider both indoor and o
   }
 };
 
+// ─────────────────────────────────────────────
+//  AI SUGGEST POST
+// ─────────────────────────────────────────────
 const suggestPost = async (req, res, next) => {
   try {
     if (!process.env.OPENAI_API_KEY) {
@@ -833,16 +829,16 @@ const suggestPost = async (req, res, next) => {
     const { context = '' } = req.body;
     const user = req.user;
 
-    const interests = (user.interests || []).join(', ') || 'general lifestyle';
+    const interests  = (user.interests || []).join(', ') || 'general lifestyle';
     const occupation = user.occupation || '';
-    const bio = user.bio || '';
+    const bio        = user.bio || '';
 
     const prompt = `You are a creative assistant for Bondify, a dating app social feed. Help a user write an engaging post.
 
 User context:
 - Interests: ${interests}
-- Occupation: ${occupation ? occupation : 'not specified'}
-- Bio: ${bio ? bio : 'not provided'}
+- Occupation: ${occupation || 'not specified'}
+- Bio: ${bio || 'not provided'}
 ${context ? `- Topic hint: ${context}` : ''}
 
 Generate 3 different post ideas. Mix these styles:
@@ -877,8 +873,187 @@ Return ONLY a JSON array of 3 strings, no other text.`;
   }
 };
 
+// ─────────────────────────────────────────────────────────────────────────────
+//  BONBOT — Profile Search (natural language → DB query → ranked results)
+// ─────────────────────────────────────────────────────────────────────────────
+const searchProfiles = async (req, res, next) => {
+  try {
+    if (!process.env.OPENAI_API_KEY) {
+      return res.status(503).json({ success: false, message: 'AI service not configured' });
+    }
+
+    const { query } = req.body;
+    if (!query || typeof query !== 'string' || !query.trim()) {
+      return res.status(400).json({ success: false, message: 'query is required.' });
+    }
+
+    // ── 1. Load current user context ──────────────────────────────────────
+    const me = await User.findById(req.user._id)
+      .select('firstName age gender interests lookingFor location occupation religion')
+      .lean();
+
+    if (!me) return res.status(404).json({ success: false, message: 'User not found.' });
+
+    // ── 2. Ask GPT to extract structured intent from the query ────────────
+    const ai = getOpenAI();
+
+    const extractionPrompt = `You are a filter-extraction assistant for a dating app.
+The current user is: ${me.firstName}, ${me.age || 'unknown age'}, ${me.gender || 'unknown gender'}, interested in: ${(me.interests || []).join(', ') || 'various things'}.
+
+User query: "${query.trim()}"
+
+Extract a JSON object with these optional fields (only include fields that are clearly implied):
+{
+  "nearMe": true|false,
+  "gender": "Male"|"Female"|"Other"|null,
+  "minAge": number|null,
+  "maxAge": number|null,
+  "interests": string[],
+  "lookingFor": string|null,
+  "religion": string|null,
+  "intentSummary": string
+}
+
+Respond ONLY with a valid JSON object. No extra text.`;
+
+    const extraction = await ai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [{ role: 'user', content: extractionPrompt }],
+      max_tokens: 300,
+      temperature: 0.2,
+    });
+
+    let filters = {};
+    let intentSummary = 'profiles that match your request';
+    try {
+      const raw   = extraction.choices[0].message.content.trim();
+      const clean = raw.replace(/```json|```/g, '').trim();
+      filters       = JSON.parse(clean);
+      intentSummary = filters.intentSummary || intentSummary;
+    } catch {
+      filters = { nearMe: true };
+    }
+
+    // ── 3. Build Mongoose query ────────────────────────────────────────────
+    const dbQuery = {
+      _id:                 { $ne: req.user._id },
+      isActive:            true,
+      isDeleted:           { $ne: true },
+      onboardingCompleted: true,
+    };
+
+    if (filters.gender)   dbQuery.gender   = filters.gender;
+    if (filters.religion) dbQuery.religion = filters.religion;
+
+    if (filters.minAge || filters.maxAge) {
+      dbQuery.age = {};
+      if (filters.minAge) dbQuery.age.$gte = filters.minAge;
+      if (filters.maxAge) dbQuery.age.$lte = filters.maxAge;
+    }
+
+    if (filters.lookingFor) {
+      dbQuery.lookingFor = { $regex: filters.lookingFor, $options: 'i' };
+    }
+
+    if (Array.isArray(filters.interests) && filters.interests.length > 0) {
+      dbQuery.interests = {
+        $elemMatch: {
+          $in: filters.interests.map((i) => new RegExp(i, 'i')),
+        },
+      };
+    }
+
+    // Geo filter — only if user has valid coordinates AND query implies proximity
+    if (
+      filters.nearMe &&
+      me.location?.coordinates &&
+      me.location.coordinates[0] !== 0 &&
+      me.location.coordinates[1] !== 0
+    ) {
+      const MAX_KM       = 100;
+      const earthRadiusM = 6378137;
+      dbQuery['location.coordinates'] = {
+        $geoWithin: {
+          $centerSphere: [me.location.coordinates, (MAX_KM * 1000) / earthRadiusM],
+        },
+      };
+    }
+
+    // ── 4. Fetch candidates ────────────────────────────────────────────────
+    const { mapImagesWithAccessUrls } = require('../utils/imageHelper');
+
+    const candidates = await User.find(dbQuery)
+      .select('firstName age gender interests lookingFor occupation images location religion bio')
+      .limit(50)
+      .lean();
+
+    // ── 5. Rank by interest overlap ────────────────────────────────────────
+    const myInterests    = new Set((me.interests || []).map((i) => i.toLowerCase()));
+    const queryInterests = new Set((filters.interests || []).map((i) => i.toLowerCase()));
+
+    const scored = candidates.map((profile) => {
+      const theirInterests  = (profile.interests || []).map((i) => i.toLowerCase());
+      const sharedWithMe    = theirInterests.filter((i) => myInterests.has(i)).length;
+      const sharedWithQuery = queryInterests.size > 0
+        ? theirInterests.filter((i) => queryInterests.has(i)).length
+        : 0;
+      return { profile, score: sharedWithMe * 2 + sharedWithQuery * 3 };
+    });
+
+    scored.sort((a, b) => b.score - a.score);
+    const top10 = scored.slice(0, 10).map((s) => s.profile);
+
+    // ── 6. Hydrate image URLs ──────────────────────────────────────────────
+    const profiles = await Promise.all(
+      top10.map(async (p) => {
+        const hydratedImages = await mapImagesWithAccessUrls(p.images || []);
+        const firstImage     = hydratedImages[0]?.url || hydratedImages[0]?.uri || null;
+        return {
+          _id:        String(p._id),
+          firstName:  p.firstName,
+          age:        p.age,
+          gender:     p.gender,
+          interests:  (p.interests || []).slice(0, 4),
+          lookingFor: p.lookingFor,
+          occupation: p.occupation,
+          city:       p.location?.city || null,
+          bio:        p.bio || null,
+          image:      firstImage,
+        };
+      })
+    );
+
+    // ── 7. Ask GPT for a friendly chat reply ──────────────────────────────
+    const replyPrompt = `You are BonBot, a warm dating assistant inside Bondies app.
+The user asked: "${query.trim()}"
+You found ${profiles.length} profile(s) that match: ${intentSummary}.
+Write a SHORT, friendly 1-2 sentence response acknowledging what you found.
+Do not list names. Just a warm intro line. Reply with ONLY the message text.`;
+
+    const replyResp = await ai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [{ role: 'user', content: replyPrompt }],
+      max_tokens: 80,
+      temperature: 0.75,
+    });
+    const botReply = replyResp.choices[0].message.content.trim();
+
+    return res.json({
+      success: true,
+      data: {
+        message:  botReply,
+        profiles,
+        total:    profiles.length,
+        filters,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // ─────────────────────────────────────────────
-//  EXPORTS — must be after ALL function definitions
+//  EXPORTS
 // ─────────────────────────────────────────────
 module.exports = {
   getIcebreakerSuggestions,
@@ -897,4 +1072,5 @@ module.exports = {
   suggestMessage,
   suggestPhotoComment,
   suggestPost,
+  searchProfiles,
 };

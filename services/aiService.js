@@ -185,6 +185,20 @@ const AIService = {
     const response = await apiClient.get("/ai/generate-activity-suggestions");
     return response.data?.data ?? response.data;
   },
+
+/**
+   * Natural-language profile search powered by BonBot.
+   * The backend extracts intent (location, interests, age, gender, lookingFor)
+   * from the query and returns ranked profile cards + a friendly bot reply.
+   *
+   * @param {string} query  – e.g. "show me people near me who love music"
+   * @returns {{ message: string, profiles: ProfileCard[], total: number }}
+   */
+  searchProfiles: async (query) => {
+    const response = await apiClient.post('/ai/search-profiles', { query });
+    return response.data;
+  },
+
 };
 
 export default AIService;

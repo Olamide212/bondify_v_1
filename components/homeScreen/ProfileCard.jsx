@@ -141,7 +141,7 @@ const ProfileCard = ({ profile, hideAiSuggestion = false }) => {
       cancelled = true;
       clearTimeout(timer);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [profile?._id, profile?.id, compatibilityScore, hideAiSuggestion]);
 
   const handleShare = async () => {
@@ -268,7 +268,16 @@ const ProfileCard = ({ profile, hideAiSuggestion = false }) => {
             likesYou={profile?.likesYou}
           />
 
-          <View className="py-3">
+          {/* ── Tagline ── */}
+          {profile?.tagline && (
+            <View className="bg-white -mt-20 pt-16 px-4 pb-3 rounded-t-2xl mb-2">
+              <Text className="text-base text-gray-600 font-PlusJakartaSansMedium italic text-center">
+                "{profile.tagline}"
+              </Text>
+            </View>
+          )}
+
+          <View className={profile?.tagline ? "py-0" : "py-3"}>
 
             {/* ── Shared interests ── */}
             {mutualInterestCount > 0 && (

@@ -38,6 +38,7 @@ import Occupation from '../../../../components/profileScreen/Occupation';
 import ProfileAnswers from '../../../../components/profileScreen/ProfileAnswers';
 import ProfilePhotoGrid from '../../../../components/profileScreen/ProfilePhotoGrid';
 import School from '../../../../components/profileScreen/School';
+import Tagline from '../../../../components/profileScreen/Tagline';
 import Verification from '../../../../components/profileScreen/Verification';
 import VoicePrompt from '../../../../components/profileScreen/VoicePrompt';
 import Education from '../../../../components/profileScreen/WorkAndEducation';
@@ -291,6 +292,11 @@ export default function ProfileDetails() {
               <View>
                 <TextHeadingOne name="Bio" />
                 <AboutMe profile={profile} onUpdateField={handleUpdateField} />
+              </View>
+
+              <View>
+                <TextHeadingOne name="Tagline" />
+                <Tagline profile={profile} onUpdateField={handleUpdateField} />
               </View>
 
               <View>

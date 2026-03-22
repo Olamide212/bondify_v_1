@@ -1,29 +1,15 @@
-import { MessageCircle, Plus, Trash2, X } from "lucide-react-native";
-import { useEffect, useState } from "react";
+import { MessageCircle, Plus, X } from "lucide-react-native";
+import { useEffect, useRef, useState } from "react";
 import {
-  FlatList, Modal, StyleSheet, Text, TextInput,
+  FlatList, Modal, ScrollView, StyleSheet, Text, TextInput,
   TouchableOpacity, View,
 } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-import Button from "../ui/Button";
 import { colors } from "../../constant/colors";
+import { PROMPT_CATEGORIES, PROMPT_QUESTIONS } from "../../data/profilePromptQuestions";
+import Button from "../ui/Button";
 
 const MAX_PROMPTS = 3;
-
-const QUESTIONS = [
-  "What's your love language?",
-  "What's your perfect first date?",
-  "What's your biggest passion?",
-  "What are you currently reading?",
-  "What makes you laugh the most?",
-  "What's your dream travel destination?",
-  "What's a fun fact about you?",
-  "What's your go-to comfort food?",
-  "What song always lifts your mood?",
-  "What's the best advice you've ever received?",
-  "What's something on your bucket list?",
-  "What do you value most in a relationship?",
-];
 
 // ─── Single answer card ───────────────────────────────────────────────────────
 const PromptCard = ({ item, index, onEdit, onDelete }) => (
@@ -64,13 +50,29 @@ const AddPromptCard = ({ onPress, remaining }) => (
   </TouchableOpacity>
 );
 
+// ─── Category Tab ─────────────────────────────────────────────────────────────
+const CategoryTab = ({ category, isActive, onPress }) => (
+  <TouchableOpacity
+    style={[s.categoryTab, isActive && s.categoryTabActive]}
+    onPress={onPress}
+    activeOpacity={0.7}
+  >
+    <Text style={[s.categoryTabText, isActive && s.categoryTabTextActive]}>
+      {category.label}
+    </Text>
+  </TouchableOpacity>
+);
+
 // ─── Main component ───────────────────────────────────────────────────────────
 const ProfileAnswers = ({ profile, onUpdateField }) => {
   const [answers, setAnswers]               = useState(profile?.questions || []);
   const [showModal, setShowModal]           = useState(false);
+  const [modalStep, setModalStep]           = useState('categories'); // 'categories' | 'questions' | 'answer'
+  const [activeCategory, setActiveCategory] = useState(PROMPT_CATEGORIES[0].id);
   const [selectedQuestion, setSelectedQuestion] = useState(null);
   const [answer, setAnswer]                 = useState("");
   const [editingIndex, setEditingIndex]     = useState(null); // null = new prompt
+  const tabScrollRef = useRef(null);
 
   useEffect(() => {
     setAnswers(Array.isArray(profile?.questions) ? profile.questions : []);
@@ -81,6 +83,8 @@ const ProfileAnswers = ({ profile, onUpdateField }) => {
     setEditingIndex(null);
     setSelectedQuestion(null);
     setAnswer("");
+    setActiveCategory(PROMPT_CATEGORIES[0].id);
+    setModalStep('categories');
     setShowModal(true);
   };
 
@@ -90,6 +94,7 @@ const ProfileAnswers = ({ profile, onUpdateField }) => {
     setEditingIndex(index);
     setSelectedQuestion(item.question);
     setAnswer(item.answer);
+    setModalStep('answer');
     setShowModal(true);
   };
 
@@ -98,6 +103,12 @@ const ProfileAnswers = ({ profile, onUpdateField }) => {
     const updated = answers.filter((_, i) => i !== index);
     setAnswers(updated);
     onUpdateField?.("questions", updated);
+  };
+
+  // ── Select a question ─────────────────────────────────────────────────────
+  const handleSelectQuestion = (question) => {
+    setSelectedQuestion(question);
+    setModalStep('answer');
   };
 
   // ── Save answer ───────────────────────────────────────────────────────────
@@ -125,6 +136,16 @@ const ProfileAnswers = ({ profile, onUpdateField }) => {
     setSelectedQuestion(null);
     setAnswer("");
     setEditingIndex(null);
+    setModalStep('categories');
+  };
+
+  const handleBack = () => {
+    if (modalStep === 'answer' && editingIndex === null) {
+      setSelectedQuestion(null);
+      setModalStep('categories');
+    } else {
+      closeModal();
+    }
   };
 
   // Questions already used (exclude from picker unless editing that slot)
@@ -132,7 +153,9 @@ const ProfileAnswers = ({ profile, onUpdateField }) => {
     .map((a, i) => (i === editingIndex ? null : a.question))
     .filter(Boolean);
 
-  const availableQuestions = QUESTIONS.filter((q) => !usedQuestions.includes(q));
+  const currentCategoryQuestions = (PROMPT_QUESTIONS[activeCategory] || [])
+    .filter((q) => !usedQuestions.includes(q));
+
   const remaining = MAX_PROMPTS - answers.length;
   const canAdd    = answers.length < MAX_PROMPTS;
 
@@ -155,42 +178,71 @@ const ProfileAnswers = ({ profile, onUpdateField }) => {
         <AddPromptCard onPress={openAdd} remaining={remaining} />
       )}
 
-      {answers.length === 0 && !canAdd && null /* safety */}
-
       {/* ── Modal ── */}
       <Modal visible={showModal} animationType="slide">
         <SafeAreaProvider>
           <SafeAreaView style={s.modal}>
 
-            {/* ── Step 1: pick a question ── */}
-            {!selectedQuestion ? (
+            {/* ── Categories & Questions Step ── */}
+            {(modalStep === 'categories') && (
               <>
                 <View style={s.modalHeader}>
-                  <Text style={s.modalTitle}>Choose a prompt</Text>
                   <TouchableOpacity onPress={closeModal}>
                     <X size={22} color="#111" />
                   </TouchableOpacity>
+                  <Text style={s.modalTitle}>Choose a prompt</Text>
+                  <View style={{ width: 22 }} />
                 </View>
+
+                {/* Category tabs */}
+                <ScrollView
+                  ref={tabScrollRef}
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  style={s.categoryTabsContainer}
+                  contentContainerStyle={s.categoryTabsContent}
+                >
+                  {PROMPT_CATEGORIES.map((category) => (
+                    <CategoryTab
+                      key={category.id}
+                      category={category}
+                      isActive={activeCategory === category.id}
+                      onPress={() => setActiveCategory(category.id)}
+                    />
+                  ))}
+                </ScrollView>
+
+                {/* Questions list */}
                 <FlatList
-                  data={availableQuestions}
+                  data={currentCategoryQuestions}
                   keyExtractor={(q) => q}
                   ItemSeparatorComponent={() => <View style={s.separator} />}
+                  ListEmptyComponent={() => (
+                    <View style={s.emptyList}>
+                      <Text style={s.emptyText}>
+                        All questions in this category have been used
+                      </Text>
+                    </View>
+                  )}
                   renderItem={({ item: q }) => (
                     <TouchableOpacity
                       style={s.questionRow}
-                      onPress={() => setSelectedQuestion(q)}
+                      onPress={() => handleSelectQuestion(q)}
                       activeOpacity={0.7}
                     >
+                      <MessageCircle size={16} color={colors.primary} strokeWidth={2} />
                       <Text style={s.questionText}>{q}</Text>
                     </TouchableOpacity>
                   )}
                 />
               </>
-            ) : (
-              /* ── Step 2: write answer ── */
+            )}
+
+            {/* ── Answer Step ── */}
+            {modalStep === 'answer' && (
               <>
                 <View style={s.modalHeader}>
-                  <TouchableOpacity onPress={() => editingIndex === null ? setSelectedQuestion(null) : closeModal()}>
+                  <TouchableOpacity onPress={handleBack}>
                     <X size={22} color="#111" />
                   </TouchableOpacity>
                   <Text style={s.modalTitle}>Your answer</Text>
@@ -210,12 +262,13 @@ const ProfileAnswers = ({ profile, onUpdateField }) => {
                   style={s.input}
                   multiline
                   maxLength={200}
+                  autoFocus
                 />
                 <Text style={s.charCount}>{answer.length}/200</Text>
 
                 {editingIndex === null && (
                   <TouchableOpacity
-                    onPress={() => setSelectedQuestion(null)}
+                    onPress={handleBack}
                     style={{ marginBottom: 8 }}
                   >
                     <Text style={s.changeQuestion}>← Choose a different prompt</Text>
@@ -229,12 +282,6 @@ const ProfileAnswers = ({ profile, onUpdateField }) => {
                     onPress={handleSave}
                     style={{ flex: 1 }}
                   />
-                  {/* <Button
-                    title="Cancel"
-                    variant="secondary"
-                    onPress={closeModal}
-                    style={{ flex: 1, marginLeft: 12 }}
-                  /> */}
                 </View>
               </>
             )}
@@ -356,13 +403,55 @@ const s = StyleSheet.create({
     backgroundColor: '#F3F4F6',
   },
   questionRow: {
+    flexDirection:     'row',
+    alignItems:        'flex-start',
+    gap:               10,
     paddingVertical:   16,
     paddingHorizontal:  4,
   },
   questionText: {
-    fontSize:   16,
+    flex:       1,
+    fontSize:   15,
     fontFamily: 'PlusJakartaSansMedium',
     color:      '#111',
+    lineHeight: 22,
+  },
+
+  // ── Category tabs ──
+  categoryTabsContainer: {
+    flexGrow:     0,
+    marginBottom: 12,
+  },
+  categoryTabsContent: {
+    paddingRight:  20,
+    gap:           8,
+  },
+  categoryTab: {
+    paddingHorizontal: 16,
+    paddingVertical:   10,
+    borderRadius:      20,
+    backgroundColor:   '#F3F4F6',
+  },
+  categoryTabActive: {
+    backgroundColor: colors.primary,
+  },
+  categoryTabText: {
+    fontSize:   14,
+    fontFamily: 'PlusJakartaSansSemiBold',
+    color:      '#6B7280',
+  },
+  categoryTabTextActive: {
+    color: '#fff',
+  },
+  emptyList: {
+    paddingVertical: 40,
+    alignItems:      'center',
+  },
+  emptyText: {
+    fontSize:   14,
+    fontFamily: 'PlusJakartaSans',
+    color:      '#9CA3AF',
+    textAlign:  'center',
   },
 
   // ── Answer step ──
