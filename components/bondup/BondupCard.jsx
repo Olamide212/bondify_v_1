@@ -181,7 +181,7 @@ export default function BondupCard({
           onPress={() => onLeave?.(bondup._id)}
           activeOpacity={0.8}
         >
-          <Text style={s.joinedBtnText}>You're in 🎉</Text>
+          <Text style={s.joinedBtnText}>You&apos;re in 🎉</Text>
         </TouchableOpacity>
       ) : isFull ? (
         <View style={s.fullBtn}>

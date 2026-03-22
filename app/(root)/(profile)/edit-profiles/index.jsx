@@ -28,6 +28,8 @@ import GeneralHeader from '../../../../components/headers/GeneralHeader';
 import OwnProfileCard from '../../../../components/homeScreen/OwnProfileCard';
 import AboutMe from '../../../../components/profileScreen/About';
 import BasicInfo from '../../../../components/profileScreen/BasicInfo';
+import BloodGroup from '../../../../components/profileScreen/BloodGroup';
+import Genotype from '../../../../components/profileScreen/Genotype';
 import InterestCard from '../../../../components/profileScreen/InterestCard';
 import LanguageSelection from '../../../../components/profileScreen/LanguageSelection';
 import Location from '../../../../components/profileScreen/Location';
@@ -329,6 +331,15 @@ export default function ProfileDetails() {
               <View>
                 <TextHeadingOne name="About Me" />
                 <MyInfo profile={profile} onUpdateField={handleUpdateField} />
+              </View>
+
+              <View>
+                <TextHeadingOne name="Blood Group & Genotype" />
+                <View className="flex-col gap-4">
+                <BloodGroup profile={profile} onUpdateField={handleUpdateField} />
+
+                <Genotype profile={profile} onUpdateField={handleUpdateField} />
+                </View>
               </View>
 
             </View>

@@ -14,26 +14,27 @@
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { Image } from "expo-image";
 import {
-    Baby,
-    Briefcase,
-    Cigarette,
-    Dog,
-    Dumbbell,
-    GraduationCap,
-    Heart,
-    MapPin,
-    Ruler,
-    Wallet,
-    Wine,
+  Baby,
+  Briefcase,
+  Cigarette,
+  Dog,
+  Droplet,
+  Dumbbell,
+  GraduationCap,
+  Heart,
+  MapPin,
+  Ruler,
+  Wallet,
+  Wine,
 } from "lucide-react-native";
 import { useMemo, useState } from "react";
 import {
-    Animated,
-    Dimensions,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Animated,
+  Dimensions,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { Icons } from "../../constant/icons";
 import { usePersistentUriCache } from "../../hooks/usePersistentUriCache";
@@ -133,6 +134,7 @@ const OwnProfileCard = ({ profile }) => {
             isImageCacheHydrated={isImageCacheHydrated}
             isUriCached={isUriCached}
             onMarkUriLoaded={touchUri}
+            likesYou={profile?.likesYou ?? false}
           />
 
           <View className="py-3">
@@ -394,6 +396,28 @@ const OwnProfileCard = ({ profile }) => {
                     )}
                   </View>
                 )}
+              </View>
+            )}
+
+            {/* ── Health Information ── */}
+            {(profile.bloodGroup || profile.genotype) && (
+              <View className="bg-white mb-2 p-5 mx-3 rounded-2xl border border-gray-200">
+                <Text className="text-[20px] font-PlusJakartaSansSemiBold text-app mb-3">
+                  Health Information
+                </Text>
+                <View className="flex-row flex-wrap gap-2">
+                  {profile.bloodGroup && (
+                    <View className="bg-gray-100 flex-row items-center gap-2 px-4 py-2 rounded-full">
+                      <Droplet color="red" size={18} />
+                      <Text className="text-app text-base font-PlusJakartaSansMedium">{profile.bloodGroup}</Text>
+                    </View>
+                  )}
+                  {profile.genotype && (
+                    <View className="bg-gray-100 flex-row items-center gap-2 px-4 py-2 rounded-full">
+                      <Text className="text-app text-base font-PlusJakartaSansMedium">{profile.genotype}</Text>
+                    </View>
+                  )}
+                </View>
               </View>
             )}
 

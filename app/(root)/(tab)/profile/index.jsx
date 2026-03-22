@@ -1,13 +1,14 @@
 import { useFocusEffect, useRouter } from "expo-router";
 import { Settings } from "lucide-react-native";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+// ...existing code...
 import {
-    ActivityIndicator,
-    RefreshControl,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  RefreshControl,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
@@ -28,6 +29,13 @@ const ProfileScreen = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState(0);
   const lastFetchRef = useRef(0);
+
+  // Set tab from query param if present
+  useEffect(() => {
+    if (router?.params?.tab === 'social') {
+      setActiveTab(1);
+    }
+  }, [router?.params?.tab]);
 
 
   const loadProfile = useCallback(async ({ force = false, showLoading = true } = {}) => {

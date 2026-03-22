@@ -38,7 +38,7 @@ const lookupData = [
   // { type: 'looking-for', value: 'Meet business oriented people',   label: 'Meet business oriented people',   description: 'Connect with like-minded professionals',  order: 4 },
   // { type: 'looking-for', value: 'I am not sure',                   label: 'I am not sure',                   description: 'Still figuring out what I want',         order: 5 },
   { type: 'looking-for', value: 'A Committed relationship',        label: 'A Committed relationship',        description: 'Looking for commitment',                   order: 6 },
-  { type: 'looking-for', value: 'Marriage',                        label: 'Marriage',                        description: 'Looking to get married',                  order: 7 },
+  { type: 'looking-for', value: 'Marriage Focused',                        label: 'Marriage Focused',                        description: 'Looking to get married',                  order: 7 },
   { type: 'looking-for', value: 'Friendship',                      label: 'Friendship',                      description: 'Interested in meaningful connections',    order: 8 },
   { type: 'looking-for', value: 'Activity partner',                label: 'Activity partner',                description: 'Find someone to enjoy activities with',   order: 9 },
   { type: 'looking-for', value: 'Just here for fun',               label: 'Just here for fun',               description: 'Have fun and enjoy the experience',      order: 10 },
@@ -311,6 +311,27 @@ const lookupData = [
     description: 'Keep this private',
     order: 5,
   },
+
+  // ── NEW: Blood Group ─────────────────────────────────────────────────────
+  { type: 'blood-group', value: 'O+', label: 'O+', order: 1 },
+  { type: 'blood-group', value: 'O-', label: 'O-', order: 2 },
+  { type: 'blood-group', value: 'A+', label: 'A+', order: 3 },
+  { type: 'blood-group', value: 'A-', label: 'A-', order: 4 },
+  { type: 'blood-group', value: 'B+', label: 'B+', order: 5 },
+  { type: 'blood-group', value: 'B-', label: 'B-', order: 6 },
+  { type: 'blood-group', value: 'AB+', label: 'AB+', order: 7 },
+  { type: 'blood-group', value: 'AB-', label: 'AB-', order: 8 },
+  { type: 'blood-group', value: 'Prefer not to say', label: 'Prefer not to say', order: 9 },
+
+  // ── NEW: Genotype ───────────────────────────────────────────────────────
+  { type: 'genotype', value: 'AA', label: 'AA', order: 1 },
+  { type: 'genotype', value: 'AS', label: 'AS', order: 2 },
+  { type: 'genotype', value: 'SS', label: 'SS', order: 3 },
+  { type: 'genotype', value: 'AC', label: 'AC', order: 4 },
+  { type: 'genotype', value: 'SC', label: 'SC', order: 5 },
+  { type: 'genotype', value: 'CC', label: 'CC', order: 6 },
+  { type: 'genotype', value: 'Unknown', label: 'Unknown', order: 7 },
+  { type: 'genotype', value: 'Prefer not to say', label: 'Prefer not to say', order: 8 },
 
   // ── NEW: Favorite Music ──────────────────────────────────────────────────
   { type: 'favorite-music', value: 'Pop',           label: 'Pop',           order: 1 },

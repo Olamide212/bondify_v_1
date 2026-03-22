@@ -1,22 +1,34 @@
-import React, { useState } from "react";
-import { LogOut, Trash } from "lucide-react-native";
-import { useDispatch } from "react-redux";
 import { useRouter } from "expo-router";
+import { LogOut, Trash } from "lucide-react-native";
+import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { profileService } from "../../services/profileService";
 import { logout } from "../../slices/authSlice";
-import SettingCard from "./SettingCard";
 import DeleteAccountModal from "../modals/DeleteAccountModal";
+import SettingCard from "./SettingCard";
 
 const AccountAction = () => {
   const dispatch = useDispatch();
   const router = useRouter();
+  const currentUser = useSelector((state) => state.auth.user);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    // Clear user cache before logging out
+    if (currentUser?.id || currentUser?._id) {
+      const userId = currentUser.id || currentUser._id;
+      await profileService.onUserLogout(userId);
+    }
     dispatch(logout());
     router.replace("/login");
   };
 
-  const handleDeleted = () => {
+  const handleDeleted = async () => {
+    // Clear user cache before logging out
+    if (currentUser?.id || currentUser?._id) {
+      const userId = currentUser.id || currentUser._id;
+      await profileService.onUserLogout(userId);
+    }
     setShowDeleteModal(false);
     dispatch(logout());
     router.replace("/login");

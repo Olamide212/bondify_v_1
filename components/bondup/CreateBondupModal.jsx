@@ -2,28 +2,30 @@
  * CreateBondupModal.jsx  —  UI redesign (all logic preserved)
  */
 
+import * as Location from 'expo-location';
 import {
-    Calendar,
-    ChevronRight,
-    Clock,
-    Globe,
-    Lock,
-    MapPin,
-    X,
+  Calendar,
+  ChevronRight,
+  Clock,
+  Globe,
+  Lock,
+  MapPin,
+  X,
 } from 'lucide-react-native';
 import { useState } from 'react';
 import {
-    ActivityIndicator,
-    Alert,
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
+import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { useSelector } from 'react-redux';
 import { colors } from '../../constant/colors';
 import bondupService from '../../services/bondupService';
@@ -132,6 +134,7 @@ export default function CreateBondupModal({ visible, onClose, onCreated }) {
   // ── Form state (all original variables preserved) ────────────────────────
   const [postType, setPostType] = useState('join_me');
   const [activity, setActivity] = useState('');
+  const [customActivity, setCustomActivity] = useState('');
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [location, setLocation] = useState('');
@@ -145,10 +148,15 @@ export default function CreateBondupModal({ visible, onClose, onCreated }) {
   const [loading, setLoading] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [showMap, setShowMap] = useState(false);
+  const [mapLocation, setMapLocation] = useState({ latitude: 37.7749, longitude: -122.4194 });
+  const [addressSearchText, setAddressSearchText] = useState('');
+  const [geocodingError, setGeocodingError] = useState('');
 
   const resetForm = () => {
     setPostType('join_me');
     setActivity('');
+    setCustomActivity('');
     setTitle('');
     setDescription('');
     setLocation('');
@@ -160,6 +168,9 @@ export default function CreateBondupModal({ visible, onClose, onCreated }) {
     setLoading(false);
     setShowTimePicker(false);
     setShowAdvanced(false);
+    setShowMap(false);
+    setAddressSearchText('');
+    setGeocodingError('');
   };
 
   const handleClose = () => {
@@ -167,9 +178,48 @@ export default function CreateBondupModal({ visible, onClose, onCreated }) {
     onClose?.();
   };
 
+  // ── Geocoding: Convert address to coordinates ───────────────────────────
+  const handleAddressSearch = async (text) => {
+    setAddressSearchText(text);
+    if (!text.trim()) {
+      setGeocodingError('');
+      return;
+    }
+    try {
+      const results = await Location.geocodeAsync(text);
+      if (results && results.length > 0) {
+        const { latitude, longitude } = results[0];
+        setMapLocation({ latitude, longitude });
+        setGeocodingError('');
+      } else {
+        setGeocodingError('Address not found');
+      }
+    } catch {
+      setGeocodingError('Could not geocode address');
+    }
+  };
+
+  // ── Reverse Geocoding: Convert coordinates to address ───────────────────
+  const handleMapDrag = async (e) => {
+    const { latitude, longitude } = e.nativeEvent.coordinate;
+    setMapLocation({ latitude, longitude });
+    try {
+      const results = await Location.reverseGeocodeAsync({ latitude, longitude });
+      if (results && results.length > 0) {
+        const { street, city: resultCity, region } = results[0];
+        setAddressSearchText([street, resultCity, region].filter(Boolean).join(', '));
+        if (resultCity) setCity(resultCity);
+        setGeocodingError('');
+      }
+    } catch {
+      // Silent fail on reverse geocode
+    }
+  };
+
   // ── Submit (original logic) ───────────────────────────────────────────────
   const handleSubmit = async () => {
-    if (!title.trim() || !activity || !city.trim()) {
+    const finalActivity = activity === 'other' ? customActivity : activity;
+    if (!title.trim() || !finalActivity || !city.trim()) {
       Alert.alert('Missing fields', 'Please fill in title, activity, and city.');
       return;
     }
@@ -183,7 +233,7 @@ export default function CreateBondupModal({ visible, onClose, onCreated }) {
       const res = await bondupService.createBondup({
         title: title.trim(),
         description: description.trim(),
-        activityType: activity,
+        activityType: finalActivity,
         location: location.trim(),
         city: city.trim(),
         dateTime: dateTime.toISOString(),
@@ -203,7 +253,7 @@ export default function CreateBondupModal({ visible, onClose, onCreated }) {
     }
   };
 
-  const canSubmit = !!title.trim() && !!activity && !!city.trim();
+  const canSubmit = !!title.trim() && !!(activity === 'other' ? customActivity : activity) && !!city.trim();
 
   return (
     <BaseModal visible={visible} onClose={handleClose} fullScreen>
@@ -256,7 +306,7 @@ export default function CreateBondupModal({ visible, onClose, onCreated }) {
           </View>
 
           {/* ── WHAT'S THE PLAN? section ── */}
-          <Text style={s.sectionLabel}>WHAT'S THE PLAN?</Text>
+          <Text style={s.sectionLabel}>WHAT&apos;S THE PLAN?</Text>
           <View style={s.card}>
             <TextInput
               style={s.titleInput}
@@ -269,7 +319,7 @@ export default function CreateBondupModal({ visible, onClose, onCreated }) {
             <View style={s.inputDivider} />
             <TextInput
               style={s.descInput}
-              placeholder="Add a description (optional)..."
+              placeholder="Add a description..."
               placeholderTextColor="#BBB"
               value={description}
               onChangeText={setDescription}
@@ -302,6 +352,20 @@ export default function CreateBondupModal({ visible, onClose, onCreated }) {
               </TouchableOpacity>
             ))}
           </View>
+
+          {/* ── Custom Activity Input (when 'other' is selected) ── */}
+          {activity === 'other' && (
+            <View style={s.card}>
+              <TextInput
+                style={s.titleInput}
+                placeholder="Describe your activity..."
+                placeholderTextColor="#BBB"
+                value={customActivity}
+                onChangeText={setCustomActivity}
+                maxLength={100}
+              />
+            </View>
+          )}
 
           {/* ── WHEN section ── */}
           <Text style={s.sectionLabel}>WHEN</Text>
@@ -361,6 +425,62 @@ export default function CreateBondupModal({ visible, onClose, onCreated }) {
               />
             </View>
           </View>
+
+          {/* ── Map Section ── */}
+          <TouchableOpacity
+            style={s.mapToggleBtn}
+            onPress={() => setShowMap(!showMap)}
+            activeOpacity={0.7}
+          >
+            <MapPin size={16} color={BRAND} />
+            <Text style={s.mapToggleBtnText}>
+              {showMap ? 'Hide Map' : 'Show Map & Search Address'}
+            </Text>
+          </TouchableOpacity>
+
+          {showMap && (
+            <View style={s.mapContainer}>
+              <TextInput
+                style={s.addressSearchInput}
+                placeholder="Search address..."
+                placeholderTextColor="#BBB"
+                value={addressSearchText}
+                onChangeText={handleAddressSearch}
+                maxLength={150}
+              />
+              {geocodingError ? (
+                <Text style={s.geocodingError}>{geocodingError}</Text>
+              ) : null}
+              <MapView
+                style={s.map}
+                provider={PROVIDER_GOOGLE}
+                initialRegion={{
+                  latitude: mapLocation.latitude,
+                  longitude: mapLocation.longitude,
+                  latitudeDelta: 0.05,
+                  longitudeDelta: 0.05,
+                }}
+                region={{
+                  latitude: mapLocation.latitude,
+                  longitude: mapLocation.longitude,
+                  latitudeDelta: 0.05,
+                  longitudeDelta: 0.05,
+                }}
+                scrollEnabled
+                zoomEnabled
+                pitchEnabled={false}
+                rotateEnabled={false}
+              >
+                <Marker
+                  coordinate={mapLocation}
+                  draggable
+                  onDragEnd={handleMapDrag}
+                  pinColor={BRAND}
+                />
+              </MapView>
+              <Text style={s.mapHint}>Drag the marker to select location</Text>
+            </View>
+          )}
 
           {/* ── VISIBILITY section ── */}
           <Text style={s.sectionLabel}>VISIBILITY</Text>
@@ -472,7 +592,7 @@ const s = StyleSheet.create({
   scrollContent: {
     paddingHorizontal: 16,
     paddingTop: 20,
-    backgroundColor: '#F5F5F7',
+    backgroundColor: '#fff',
   },
 
   sectionLabel: {
@@ -632,6 +752,63 @@ const s = StyleSheet.create({
     fontFamily: 'PlusJakartaSans',
     color: '#111',
     paddingVertical: 4,
+  },
+
+  // Map section
+  mapToggleBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 4,
+    marginBottom: 4,
+  },
+  mapToggleBtnText: {
+    fontSize: 14,
+    fontFamily: 'PlusJakartaSansBold',
+    color: BRAND,
+  },
+  mapContainer: {
+    marginBottom: 18,
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  addressSearchInput: {
+    fontSize: 14,
+    fontFamily: 'PlusJakartaSans',
+    color: '#111',
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F0F0',
+    backgroundColor: '#fff',
+  },
+  geocodingError: {
+    fontSize: 12,
+    fontFamily: 'PlusJakartaSans',
+    color: '#EF4444',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    backgroundColor: '#FEF2F2',
+  },
+  map: {
+    width: '100%',
+    height: 250,
+  },
+  mapHint: {
+    fontSize: 11,
+    fontFamily: 'PlusJakartaSans',
+    color: '#888',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    backgroundColor: '#F9FAFB',
+    textAlign: 'center',
   },
 
   // Visibility

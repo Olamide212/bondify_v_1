@@ -10,16 +10,16 @@ import { useRouter } from 'expo-router';
 import { Plus } from 'lucide-react-native';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
-  ActivityIndicator,
-  Alert,
-  AppState,
-  Image,
-  RefreshControl,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Alert,
+    AppState,
+    Image,
+    RefreshControl,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useSelector } from 'react-redux';
@@ -52,14 +52,10 @@ const BRAND = colors.primary;
 const buildDayFilters = () => {
   const now = new Date();
   const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const todayDay = startOfToday.getDay(); // 0 = Sunday
   const oneDayMs = 86400000;
 
-  const offsets = [-1, 0, 1];
-  const remainingDays = (7 - todayDay) % 7; // days left in this week including today
-  for (let i = 2; i <= remainingDays; i += 1) {
-    offsets.push(i); // remaining days in the current week
-  }
+  // Show: yesterday, today, tomorrow, and the next 7 days
+  const offsets = [-1, 0, 1, 2, 3, 4, 5, 6, 7, 8];
 
   const chips = [{ key: 'all', label: 'All' }];
   const windows = { all: null };
@@ -75,7 +71,7 @@ const buildDayFilters = () => {
           ? 'Today'
           : offset === 1
             ? 'Tomorrow'
-            : start.toLocaleDateString(undefined, { weekday: 'long' });
+            : start.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
 
     const key = `day_${offset}`;
     chips.push({ key, label });

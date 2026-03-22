@@ -136,6 +136,7 @@ export const ProfileProvider = ({ children }) => {
       bio: profile?.bio ?? "",
       questions: profile?.questions ?? [],
       images: normalizedImages.length > 0 ? normalizedImages : [],
+      likesYou: profile?.likesYou ?? false,
     };
   }, []);
 

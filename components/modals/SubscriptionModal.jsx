@@ -1,307 +1,496 @@
-import { Check, X } from "lucide-react-native";
-import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { ArrowLeft, BadgeCheck, CheckCircle2, Sparkles, X, Zap } from "lucide-react-native";
+import { useState } from "react";
+import {
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { colors } from "../../constant/colors";
 import { Icons } from "../../constant/icons";
 import BaseModal from "./BaseModal";
 
-const plans = [
+// ─── Feature cards data ────────────────────────────────────────────────────────
+const features = [
   {
-    id: "free",
-    title: "Free",
-    price: "₦0 / mo",
-    highlight: false,
-    perks: [
-      "Limited swipes per day",
-      "Basic filters (age, gender, distance)",
-      "Send & receive messages after match",
-      "1 Spark per week",
-    ],
-  },
-  {
-    id: "plus",
-    title: "Plus",
-    price: "₦5,000 / mo",
-    highlight: false,
-    perks: [
-      "Unlimited swipes",
-      "Rewind last swipe",
-      "1 Spark boost per week",
-      "Extended filters (education, lifestyle)",
-      "No ads",
-    ],
-  },
-  {
-    id: "gold",
-    title: "Gold",
-    price: "₦15,000 / mo",
-    highlight: true,
-    perks: [
-      "All Plus features",
-      "See who liked you",
-      "5 Super Likes per day",
-      "2 Spark boosts per month",
-      "Priority placement in discovery",
-      "Passport mode",
-      "Read receipts",
-      "Bondies AI conversation starter",
-    ],
-  },
-  {
-    id: "diamond",
-    title: "Diamond",
-    price: "₦30,000 / mo",
-    highlight: false,
-    perks: [
-      "All Gold features",
-      "Unlimited Sparks",
-      "Unlimited Super Likes",
-      "Incognito Mode",
-      "VIP profile badge",
-      "Priority messaging",
-      "AI match suggestions daily",
-      "Exclusive profile customization",
-    ],
-  },
-];
-
-const benefits = [
-  {
-    id: 1,
+    id: "icebreakers",
     title: "Unlimited AI Icebreakers",
-    description: "Never run out of things to say with personalized prompts.",
-    icon: Icons.messageIcon,
+    description:
+      "Let our AI craft the perfect first message based on their unique personality.",
+    iconBg: colors.primary,
+    Icon: Zap,
+    iconColor: "#fff",
+    fullWidth: true,
   },
   {
-    id: 2,
-    title: "Deep Conversation Mode",
-    description: "Go beyond surface level with advanced profile insights.",
-    icon: Icons.deepConversationIcon,
+    id: "profile",
+    title: "Profile Analysis & Tips",
+    description:
+      "Actionable insights to make your profile stand out from the crowd.",
+    iconBg: "#E8D5FF",
+    Icon: Sparkles,
+    iconColor: "#7C3AED",
+    fullWidth: true,
   },
   {
-    id: 3,
-    title: "Priority Profile Analysis",
-    description: "Get discovered by your most compatiblematches faster.",
-    icon: Icons.verifyIcon,
+    id: "discovery",
+    title: "Priority Discovery",
+    description:
+      "Be seen 3× more often by high-compatibility matches in your area.",
+    iconBg: colors.primary + "33",
+    Icon: BadgeCheck,
+    iconColor: colors.primary,
+    fullWidth: true,
   },
   {
-    id: 4,
-    title: "Ad-free Experience",
-    description: "Zero interruptions. Purely meaningful social bonds.",
-    icon: Icons.AdFreeIcon,
+    id: "superbonds",
+    title: "5 Super Bonds",
+    description: "Per day to show serious intent.",
+    iconBg: colors.secondary + "33",
+    Icon: Zap,
+    iconColor: colors.secondary,
+    fullWidth: false,
+  },
+  {
+    id: "adfree",
+    title: "Ad-free",
+    description: "A seamless, focused experience.",
+    iconBg: "#F3F4F6",
+    Icon: X,
+    iconColor: "#9CA3AF",
+    fullWidth: false,
   },
 ];
 
+// ─── Pricing ───────────────────────────────────────────────────────────────────
+const pricing = {
+  monthly: {
+    amount: "₦5,000",
+    period: "/mo",
+    sub: null,
+    perks: ["Cancel anytime", "Full access immediately"],
+    badge: null,
+  },
+  yearly: {
+    amount: "₦3,500",
+    period: "/mo",
+    sub: "Billed annually (₦42,000/year)",
+    perks: ["Save 30% compared to monthly", "7-day free trial included"],
+    badge: "BEST VALUE",
+  },
+};
+
+// ─── Feature card ──────────────────────────────────────────────────────────────
+const FeatureCard = ({ feature }) => {
+  const { title, description, iconBg, Icon, iconColor, fullWidth } = feature;
+
+  return (
+    <View style={[styles.featureCard, !fullWidth && styles.featureCardHalf]}>
+      <View style={[styles.featureIconWrap, { backgroundColor: iconBg }]}>
+        <Icon size={22} color={iconColor} strokeWidth={2.2} />
+      </View>
+      <View style={{ flex: 1 }}>
+        <Text style={styles.featureTitle}>{title}</Text>
+        <Text style={styles.featureDesc}>{description}</Text>
+      </View>
+    </View>
+  );
+};
+
+// ─── Main Modal ────────────────────────────────────────────────────────────────
 const SubscriptionModal = ({ visible, onClose }) => {
+  const [billingCycle, setBillingCycle] = useState("yearly");
+
+  const plan = pricing[billingCycle];
+
+  // Split features into full-width and half-width
+  const fullFeatures = features.filter((f) => f.fullWidth);
+  const halfFeatures = features.filter((f) => !f.fullWidth);
+
   return (
     <BaseModal visible={visible} onClose={onClose} fullScreen>
       <SafeAreaProvider>
-        <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
+        <SafeAreaView style={styles.container}>
 
-          {/* Header */}
-          <View
-            style={{
-              flexDirection: "row",
-              justifyContent: "flex-end",
-              alignItems: "center",
-              paddingHorizontal: 20,
-              paddingVertical: 5,
-
-            }}
-          >
-
-            <TouchableOpacity onPress={onClose}>
-              <X size={24} color="#000" />
+          {/* ── Header ── */}
+          <View style={styles.header}>
+            <TouchableOpacity onPress={onClose} style={styles.backBtn} hitSlop={8}>
+              <ArrowLeft size={22} color="#111" strokeWidth={2} />
             </TouchableOpacity>
+          
+            <View style={{ width: 38 }} />
           </View>
 
-
-
-
-          {/* Body */}
           <ScrollView
-            contentContainerStyle={{
-              padding: 20,
-              gap: 20,
-              paddingBottom: 60,
-            }}
+            contentContainerStyle={styles.scroll}
+            showsVerticalScrollIndicator={false}
           >
-            <View className='flex flex-col justify-center items-center mt-6 mb-4'>
-              <Image source={Icons.BotIcon} resizeMode="contain" style={{ width: 60, height: 60, marginBottom: 8 }} />
-              <Text style={{ fontFamily: "PlusJakartaSansBold", fontSize: 26, marginTop: 8 }}>
-                Bondies <Text className='text-primary'>AI Plus</Text>
-              </Text>
-              <Text style={{ fontFamily: "PlusJakartaSansMedium", fontSize: 14, color: "#000", marginTop: 4, textAlign: 'center',  }}>
-                Unlock your full potential and experience
-                deeper connections.
-              </Text>
+            {/* ── Premium badge ── */}
+            <View style={styles.premiumBadge}>
+              <Sparkles size={13} color="#7C3AED" strokeWidth={2} />
+              <Text style={styles.premiumBadgeText}>PREMIUM EXPERIENCE</Text>
             </View>
 
-{/* {             benefits.map((benefit) => (
-                <View
-                  key={benefit.id}
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "flex-start",
-                    gap: 8,  
-                  
-                  }}
-                >
-                  <Image source={benefit.icon} style={{ width: 38, height: 38, marginRight: 8 }} />
-                  <View style={{ flexDirection: "column", flex: 1 }}>
-                  <Text
-                    style={{
-                      fontFamily: "PlusJakartaSansBold",
-                      fontSize: 17,
-                      color: "#000",
-                      marginBottom: 2,
-                    }}
-                  >
-                    {benefit.title}
-                  </Text>
-                  <Text
-                    style={{
-                      fontFamily: "PlusJakartaSans",
-                      fontSize: 15,
-                      color: "#000",
-                      flex: 1,
-                      lineHeight: 18,
-                    }}
-                    numberOfLines={2}
-                  >
-                    {benefit.description}
-                  </Text>
-                  </View>
-                </View>
-              ))} */}
+            {/* ── Hero text ── */}
+            <Text style={styles.heroTitle}>
+              Bondies{" "}
+              <Text style={styles.heroTitleAccent}>AI Plus</Text>
+            </Text>
+            <Text style={styles.heroSub}>
+              Elevate your social flow with{"\n"}intelligent connection tools.
+            </Text>
 
-            {plans.map((plan) => (
-              <View
-                key={plan.id}
-                style={{
-                  backgroundColor: "#fff",
-                  borderRadius: 16,
-                  padding: 20,
-                  shadowColor: "#000",
-                  shadowOpacity: 0.05,
-                  shadowOffset: { width: 0, height: 4 },
-                  shadowRadius: 10,
-                  elevation: 3,
-                  borderWidth: plan.id === "free" ? 2 : 1,
-                  borderColor: plan.id === "free" ? colors.primary : "#eee",
-                  marginTop: plan.highlight ? 40 : 0,
-                  minHeight: 280,
-                }}
-              >
-                {plan.highlight && (
-                  <View
-                    style={{
-                      position: "absolute",
-                      top: -20,
-                      left: 20,
-                      right: 20,
-                      backgroundColor: colors.primary,
-                      paddingVertical: 12,
-                      borderRadius: 50,
-                      alignItems: "center",
-                    }}
-                  >
-                    <Text
-                      style={{
-                        color: "#fff",
-                        fontFamily: "PlusJakartaSansSemiBold",
-                        fontSize: 16,
-                      }}
-                    >
-                      Most Popular
-                    </Text>
-                  </View>
-                )}
-                {/* Title & Price */}
-                <Text
-                  style={{
-                    fontFamily: "PlusJakartaSansBold",
-                    fontSize: 22,
-                    color: colors.primary,
-                    marginTop: plan.highlight ? 20 : 0, 
-                  }}
-                >
-                  {plan.title}
-                </Text>
-                <Text
-                  style={{
-                    fontFamily: "PlusJakartaSansBold",
-                    fontSize: 20,
-                    color: "#000",
-                    marginTop: 4,
-                    marginBottom: 12,
-                  }}
-                >
-                  {plan.price}
-                </Text>
+            {/* ── Full-width feature cards ── */}
+            <View style={styles.featuresContainer}>
+              {fullFeatures.map((f) => (
+                <FeatureCard key={f.id} feature={f} />
+              ))}
 
-                {/* Perks */}
-                <View style={{ flex: 1, paddingBottom: 10 }}>
-                  {plan.perks.map((perk, index) => (
-                    <View
-                      key={index}
-                      style={{
-                        flexDirection: "row",
-                        alignItems: "center",
-                        marginVertical: 4,
-                      }}
-                    >
-                      <Check size={18} color={colors.primary} />
-                      <Text
-                        style={{
-                          fontFamily: "PlusJakartaSans",
-                          fontSize: 16,
-                          color: "#000",
-                          marginLeft: 8,
-                          flex: 1,
-                        }}
-                      >
-                        {perk}
-                      </Text>
-                    </View>
-                  ))}
-                </View>
-
-                {/* Sticky Button */}
-                {/* <View
-                  style={{
-                    position: "absolute",
-                    bottom: 20,
-                    left: 20,
-                    right: 20,
-                  }}
-                >
-                  <TouchableOpacity
-                    style={{
-                      backgroundColor: plan.highlight ? colors.primary : "#000",
-                      paddingVertical: 12,
-                      borderRadius: 12,
-                      alignItems: "center",
-                    }}
-                  >
-                    <Text
-                      style={{
-                        color: "#fff",
-                        fontFamily: "PlusJakartaSansBold",
-                        fontSize: 16,
-                      }}
-                    >
-                      {plan.id === "free" ? "Current Plan" : "Subscribe"}
-                    </Text>
-                  </TouchableOpacity>
-                </View> */}
+              {/* ── Half-width cards row ── */}
+              <View style={styles.halfRow}>
+                {halfFeatures.map((f) => (
+                  <FeatureCard key={f.id} feature={f} />
+                ))}
               </View>
-            ))}
+            </View>
+
+            {/* ── Billing toggle ── */}
+            <View style={styles.toggleWrap}>
+              {["monthly", "yearly"].map((cycle) => (
+                <TouchableOpacity
+                  key={cycle}
+                  style={[
+                    styles.toggleBtn,
+                    billingCycle === cycle && styles.toggleBtnActive,
+                  ]}
+                  onPress={() => setBillingCycle(cycle)}
+                  activeOpacity={0.8}
+                >
+                  <Text
+                    style={[
+                      styles.toggleBtnText,
+                      billingCycle === cycle && styles.toggleBtnTextActive,
+                    ]}
+                  >
+                    {cycle.charAt(0).toUpperCase() + cycle.slice(1)}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            {/* ── Pricing card ── */}
+            <View style={styles.pricingCard}>
+              {/* Best Value ribbon */}
+              {plan.badge && (
+                <View style={styles.ribbon}>
+                  <Text style={styles.ribbonText}>{plan.badge}</Text>
+                </View>
+              )}
+
+              <View style={styles.priceRow}>
+                <Text style={styles.priceAmount}>{plan.amount}</Text>
+                <Text style={styles.pricePeriod}>{plan.period}</Text>
+              </View>
+
+              {plan.sub && (
+                <Text style={styles.priceSub}>{plan.sub}</Text>
+              )}
+
+              <View style={styles.perksList}>
+                {plan.perks.map((perk, i) => (
+                  <View key={i} style={styles.perkRow}>
+                    <CheckCircle2
+                      size={18}
+                      color={colors.primary}
+                      strokeWidth={2}
+                    />
+                    <Text style={styles.perkText}>{perk}</Text>
+                  </View>
+                ))}
+              </View>
+            </View>
           </ScrollView>
+
+          {/* ── Sticky CTA ── */}
+          <View style={styles.ctaWrap}>
+            <TouchableOpacity style={styles.ctaBtn} activeOpacity={0.88}>
+              <Text style={styles.ctaBtnText}>Upgrade to AI Plus</Text>
+            </TouchableOpacity>
+            <Text style={styles.legalText}>
+              Subscription will automatically renew at the end of the period.
+              Manage your subscription in your Account Settings. By continuing,
+              you agree to our{" "}
+              <Text style={styles.legalLink}>Terms of Service</Text> and{" "}
+              <Text style={styles.legalLink}>Privacy Policy</Text>.
+            </Text>
+          </View>
+
         </SafeAreaView>
       </SafeAreaProvider>
     </BaseModal>
   );
 };
+
+// ─── Styles ───────────────────────────────────────────────────────────────────
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
+  },
+
+  // Header
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    backgroundColor: "#fff",
+  },
+  backBtn: {
+    width: 38,
+    height: 38,
+    justifyContent: "center",
+  },
+  headerTitle: {
+    fontFamily: "PlusJakartaSansBold",
+    fontSize: 18,
+    color: colors.primary,
+  },
+
+  // Scroll
+  scroll: {
+    paddingHorizontal: 20,
+    paddingBottom: 24,
+    alignItems: "center",
+  },
+
+  // Premium badge
+  premiumBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    backgroundColor: "#EDE9FE",
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+    borderRadius: 50,
+    marginTop: 8,
+    marginBottom: 20,
+  },
+  premiumBadgeText: {
+    fontFamily: "PlusJakartaSansBold",
+    fontSize: 11,
+    color: "#7C3AED",
+    letterSpacing: 1,
+  },
+
+  // Hero
+  heroTitle: {
+    fontFamily: "PlusJakartaSansBold",
+    fontSize: 34,
+    color: "#111",
+    textAlign: "center",
+    marginBottom: 10,
+  },
+  heroTitleAccent: {
+    color: colors.primary,
+    fontStyle: "italic",
+  },
+  heroSub: {
+    fontFamily: "PlusJakartaSansMedium",
+    fontSize: 15,
+    color: "#6B7280",
+    textAlign: "center",
+    lineHeight: 22,
+    marginBottom: 28,
+  },
+
+  // Feature cards
+  featuresContainer: {
+    width: "100%",
+    gap: 14,
+    marginBottom: 28,
+  },
+  featureCard: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    backgroundColor: "#fff",
+    borderRadius: 18,
+    padding: 18,
+    gap: 14,
+    shadowColor: "#000",
+    shadowOpacity: 0.04,
+    shadowOffset: { width: 0, height: 4 },
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  featureCardHalf: {
+    flex: 1,
+    flexDirection: "column",
+    alignItems: "flex-start",
+    gap: 10,
+  },
+  halfRow: {
+    flexDirection: "row",
+    gap: 14,
+  },
+  featureIconWrap: {
+    width: 48,
+    height: 48,
+    borderRadius: 14,
+    alignItems: "center",
+    justifyContent: "center",
+    flexShrink: 0,
+  },
+  featureTitle: {
+    fontFamily: "PlusJakartaSansBold",
+    fontSize: 15,
+    color: "#111",
+    marginBottom: 4,
+  },
+  featureDesc: {
+    fontFamily: "PlusJakartaSans",
+    fontSize: 13,
+    color: "#6B7280",
+    lineHeight: 19,
+  },
+
+  // Billing toggle
+  toggleWrap: {
+    flexDirection: "row",
+    backgroundColor: "#F3F4F6",
+    borderRadius: 50,
+    padding: 4,
+    width: "100%",
+    marginBottom: 16,
+  },
+  toggleBtn: {
+    flex: 1,
+    paddingVertical: 10,
+    borderRadius: 50,
+    alignItems: "center",
+  },
+  toggleBtnActive: {
+    backgroundColor: "#fff",
+    shadowColor: "#000",
+    shadowOpacity: 0.08,
+    shadowOffset: { width: 0, height: 1 },
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  toggleBtnText: {
+    fontFamily: "PlusJakartaSansMedium",
+    fontSize: 15,
+    color: "#9CA3AF",
+  },
+  toggleBtnTextActive: {
+    fontFamily: "PlusJakartaSansBold",
+    color: colors.primary,
+  },
+
+  // Pricing card
+  pricingCard: {
+    width: "100%",
+    backgroundColor: "#fff",
+    borderRadius: 20,
+    padding: 24,
+    overflow: "hidden",
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowOffset: { width: 0, height: 4 },
+    shadowRadius: 12,
+    elevation: 3,
+  },
+  ribbon: {
+    position: "absolute",
+    top: 16,
+    right: -30,
+    backgroundColor: colors.primary,
+    paddingHorizontal: 36,
+    paddingVertical: 6,
+    transform: [{ rotate: "38deg" }],
+    width: 140,
+    alignItems: "center",
+  },
+  ribbonText: {
+    fontFamily: "PlusJakartaSansBold",
+    fontSize: 10,
+    color: "#fff",
+    letterSpacing: 0.8,
+  },
+  priceRow: {
+    flexDirection: "row",
+    alignItems: "flex-end",
+    gap: 4,
+    marginBottom: 4,
+  },
+  priceAmount: {
+    fontFamily: "PlusJakartaSansBold",
+    fontSize: 40,
+    color: "#111",
+    lineHeight: 46,
+  },
+  pricePeriod: {
+    fontFamily: "PlusJakartaSansMedium",
+    fontSize: 18,
+    color: "#6B7280",
+    marginBottom: 4,
+  },
+  priceSub: {
+    fontFamily: "PlusJakartaSansMedium",
+    fontSize: 13,
+    color: colors.primary,
+    marginBottom: 16,
+  },
+  perksList: {
+    gap: 10,
+  },
+  perkRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  perkText: {
+    fontFamily: "PlusJakartaSans",
+    fontSize: 14,
+    color: "#374151",
+  },
+
+  // CTA
+  ctaWrap: {
+    paddingHorizontal: 20,
+    paddingTop: 12,
+    paddingBottom: 24,
+    backgroundColor: "#fff",
+    borderTopWidth: 1,
+    borderTopColor: "#F0F0F0",
+    gap: 12,
+  },
+  ctaBtn: {
+    backgroundColor: colors.primary,
+    borderRadius: 50,
+    paddingVertical: 18,
+    alignItems: "center",
+  },
+  ctaBtnText: {
+    fontFamily: "PlusJakartaSansBold",
+    fontSize: 17,
+    color: "#fff",
+  },
+  legalText: {
+    fontFamily: "PlusJakartaSans",
+    fontSize: 11,
+    color: "#9CA3AF",
+    textAlign: "center",
+    lineHeight: 16,
+  },
+  legalLink: {
+    color: colors.primary,
+    fontFamily: "PlusJakartaSansMedium",
+  },
+});
 
 export default SubscriptionModal;

@@ -55,14 +55,12 @@ import AIAssistantModal from "../../../../components/modals/AIAssistantModal";
 import CardFeedbackModal from "../../../../components/modals/CardFeedbackModal";
 import ComplimentModal from "../../../../components/modals/ComplimentModal";
 import FilterModal from "../../../../components/modals/FilterModal";
-import MatchCelebrationModal from "../../../../components/modals/MatchCelebrationModal";
 import NotificationsModal from "../../../../components/modals/NotificationsModal";
 import UserProfileModal from "../../../../components/modals/UserProfileModal";
 import LogoLoader from "../../../../components/ui/LogoLoader";
 import { NotificationBanner } from "../../../../components/ui/NotificationBanner";
 import { colors } from "../../../../constant/colors";
 import { useProfile } from "../../../../context/ProfileContext";
-import { messageService } from "../../../../services/messageService";
 import SettingsService from "../../../../services/settingsService";
 import { socketService } from "../../../../services/socketService";
 
@@ -595,27 +593,6 @@ const Home = () => {
         visible={showAIModal}
         onClose={() => setShowAIModal(false)}
         fullScreen
-      />
-
-      <MatchCelebrationModal
-        visible={!!matchCelebration}
-        onClose={() => setMatchCelebration(null)}
-        matchedUser={matchCelebration}
-        currentUser={currentUser}
-        onSendMessage={async (matchedProfile, selectedIceBreaker) => {
-          if (matchedProfile?.matchId && selectedIceBreaker) {
-            try {
-              await messageService.sendMessage(matchedProfile.matchId, {
-                content: selectedIceBreaker,
-                type:    "text",
-              });
-            } catch (error) {
-              console.error("Failed to send ice breaker:", error);
-            }
-          }
-          setMatchCelebration(null);
-        }}
-        onContinueSwiping={() => setMatchCelebration(null)}
       />
     </View>
   );

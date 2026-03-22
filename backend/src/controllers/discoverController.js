@@ -150,9 +150,18 @@ const getDiscoveryProfiles = async (req, res, next) => {
       User.countDocuments(query),
     ]);
 
+    // Get all profiles that have liked the current user
+    const likesYouMap = await Like.find({ likedUser: userId, type: { $in: ['like', 'superlike'] } })
+      .select('user')
+      .lean()
+      .then((likes) => new Set(likes.map((l) => l.user.toString())));
+
     const profilesWithImages = await Promise.all(
       profiles.map(async (profile) => {
         profile.images = await mapImagesWithAccessUrls(profile.images);
+
+        // Add likesYou flag
+        profile.likesYou = likesYouMap.has(profile._id.toString());
 
         // Compute distance from current user's location to this profile
         if (

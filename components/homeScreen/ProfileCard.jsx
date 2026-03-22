@@ -2,29 +2,29 @@ import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Image } from "expo-image";
 import {
-  Baby,
-  Ban,
-  Briefcase,
-  Cigarette,
-  Dog,
-  Dumbbell,
-  Flag,
-  GraduationCap,
-  Heart,
-  MapPin,
-  Ruler,
-  Share2,
-  Wallet,
-  Wine,
+    Baby,
+    Ban,
+    Briefcase,
+    Cigarette,
+    Dog,
+    Dumbbell,
+    Flag,
+    GraduationCap,
+    Heart,
+    MapPin,
+    Ruler,
+    Share2,
+    Wallet,
+    Wine,
 } from "lucide-react-native";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
-  Animated,
-  Dimensions,
-  findNodeHandle, Share, Text,
-  TouchableOpacity,
-  UIManager,
-  View
+    Animated,
+    Dimensions,
+    findNodeHandle, Share, Text,
+    TouchableOpacity,
+    UIManager,
+    View
 } from "react-native";
 import { useSelector } from "react-redux";
 import { Icons } from "../../constant/icons";
@@ -265,6 +265,7 @@ const ProfileCard = ({ profile, hideAiSuggestion = false }) => {
             onMarkUriLoaded={touchUri}
             compatibilityScore={compatibilityScore}
             loadingScore={loadingScore}
+            likesYou={profile?.likesYou}
           />
 
           <View className="py-3">

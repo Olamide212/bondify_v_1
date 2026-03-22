@@ -274,10 +274,10 @@ const MyInfo = ({ profile, onUpdateField }) => {
       </Card>
 
       {/* ── INTERESTS & HOBBIES ──────────────────────────────────────────── */}
-      <SectionTitle label="Interests & Hobbies" />
-      <Card>
+      {/* <SectionTitle label="Interests & Hobbies" /> */}
+      {/* <Card>
         <View style={s.interestsGrid}>
-          {/* Favorite Music */}
+
           {Array.isArray(profileData?.favoriteMusic) && profileData.favoriteMusic.length > 0 && (
             <View style={s.interestCategory}>
               <View style={s.categoryHeader}>
@@ -299,7 +299,7 @@ const MyInfo = ({ profile, onUpdateField }) => {
             </View>
           )}
 
-          {/* Favorite Videos */}
+ 
           {Array.isArray(profileData?.favoriteVideos) && profileData.favoriteVideos.length > 0 && (
             <View style={s.interestCategory}>
               <View style={s.categoryHeader}>
@@ -321,7 +321,7 @@ const MyInfo = ({ profile, onUpdateField }) => {
             </View>
           )}
 
-          {/* Fun Activities */}
+          
           {Array.isArray(profileData?.funActivities) && profileData.funActivities.length > 0 && (
             <View style={s.interestCategory}>
               <View style={s.categoryHeader}>
@@ -343,7 +343,7 @@ const MyInfo = ({ profile, onUpdateField }) => {
             </View>
           )}
 
-          {/* Empty state */}
+     
           {(!Array.isArray(profileData?.favoriteMusic) || profileData.favoriteMusic.length === 0) &&
            (!Array.isArray(profileData?.favoriteVideos) || profileData.favoriteVideos.length === 0) &&
            (!Array.isArray(profileData?.funActivities) || profileData.funActivities.length === 0) && (
@@ -355,7 +355,7 @@ const MyInfo = ({ profile, onUpdateField }) => {
             </TouchableOpacity>
           )}
         </View>
-      </Card>
+      </Card> */}
 
       {/* ── OPTION PICKER MODAL ──────────────────────────────────────────── */}
       <BaseModal visible={!!activeModal} onClose={() => setActiveModal(null)} fullScreen>

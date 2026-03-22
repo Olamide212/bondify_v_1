@@ -12,6 +12,7 @@
  * Used by app/(root)/bondup-chat/index.jsx
  */
 
+import { Audio } from 'expo-av';
 import { useRouter } from 'expo-router';
 import {
   AlertTriangle,
@@ -43,6 +44,7 @@ import bondupChatService from '../../services/bondupChatService';
 import bondupService from '../../services/bondupService';
 import settingsService from '../../services/settingsService';
 import { socketService } from '../../services/socketService';
+import cacheManager from '../../utils/cacheManager';
 import BondupDetailModal from './BondupDetailModal';
 
 const BRAND = colors.primary;
@@ -117,8 +119,37 @@ export default function BondupChatScreen({ chatId, bondupId, bondupTitle, partic
   const isSingle = chatState.type === 'bondup_single';
   const canSendMessage = true; // Bondup chats are unrestricted
 
+  const playSound = async (soundFile) => {
+    try {
+      await Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
+      const { sound } = await Audio.Sound.createAsync(soundFile, {
+        shouldPlay: true,
+        volume: 0.7,
+      });
+      // Auto cleanup after sound finishes
+      sound.setOnPlaybackStatusUpdate((status) => {
+        if (status.didJustFinish) {
+          sound.unloadAsync();
+        }
+      });
+    } catch (error) {
+      if (__DEV__) console.warn('[BondupChatScreen] Sound playback failed:', error);
+    }
+  };
+
   // The other member in bondup_single chat
   const otherMember = chatMembers.find((m) => String(m._id) !== String(currentUser?._id));
+
+  // Cache chat members to avoid repeated API calls
+  useEffect(() => {
+    if (!chatMembers || chatMembers.length === 0) return;
+    chatMembers.forEach((member) => {
+      if (member?._id) {
+        const cacheKey = `bondup_user_${member._id}`;
+        cacheManager.set("bondup_chat_profiles", cacheKey, member, 24 * 60 * 60 * 1000); // 24 hours TTL
+      }
+    });
+  }, [chatMembers]);
 
   // ── Load chat details + state on mount ────────────────────────────────────
   useEffect(() => {
@@ -190,8 +221,21 @@ export default function BondupChatScreen({ chatId, bondupId, bondupTitle, partic
     const handleMessage = (msg) => {
       if (msg.chatId === chatId || msg.bondupChatId === chatId || msg.bondupChat === chatId) {
         setMessages((prev) => {
-          // Deduplicate
+          // Deduplicate by _id and also check if it's replacing a temp message from current user
+          const senderIdStr = String(msg.sender?._id || msg.sender);
+          const currentUserIdStr = String(currentUser?._id);
+          const isCurrentUserMsg = senderIdStr === currentUserIdStr;
+          
+          // Check if this message already exists
           if (prev.some((m) => m._id === msg._id)) return prev;
+          
+          // If this is from current user, remove any temp message we created
+          if (isCurrentUserMsg) {
+            // Play message delivered sound when current user's message is confirmed
+            playSound(require('../../assets/sounds/message-ping.mp3'));
+            return prev.filter((m) => !m.isTemp).concat([msg]);
+          }
+          
           return [...prev, msg];
         });
         setTimeout(() => flatListRef.current?.scrollToEnd?.({ animated: true }), 100);
@@ -263,6 +307,8 @@ export default function BondupChatScreen({ chatId, bondupId, bondupTitle, partic
         setMessages((prev) =>
           prev.map((m) => (m._id === tempMsg._id ? { ...sentMsg, isTemp: false } : m))
         );
+        // Play message sent sound
+        // playSound(require('../../assets/sounds/message-sent.mp3'));
       } else {
         setMessages((prev) => prev.filter((m) => m._id !== tempMsg._id));
         showActionModal({
@@ -584,9 +630,13 @@ export default function BondupChatScreen({ chatId, bondupId, bondupTitle, partic
     const isMe = String(sender?._id || sender) === String(currentUser?._id);
     const senderAv = avatarUrl(sender);
     const prevMsg = index > 0 ? messages[index - 1] : null;
+    const prevSenderId = prevMsg ? String(prevMsg.sender?._id || prevMsg.sender) : null;
+    const currentSenderId = String(sender?._id || sender);
     const showAvatar =
       !isMe &&
-      (!prevMsg || String(prevMsg.sender?._id || prevMsg.sender) !== String(sender?._id || sender));
+      (!prevMsg || prevSenderId !== currentSenderId);
+    // Always show sender name in group chats (for all messages from other users)
+    const showSenderName = !isMe;
 
     if (isMe) {
       return (
@@ -617,7 +667,7 @@ export default function BondupChatScreen({ chatId, bondupId, bondupTitle, partic
           <View style={ms.avatarSpacer} />
         )}
         <View style={ms.bubbleOtherWrap}>
-          {showAvatar && (
+          {showSenderName && (
             <TouchableOpacity onPress={() => handlePressUser(sender)} activeOpacity={0.7}>
               <Text style={ms.senderName}>{getFullName(sender)}</Text>
             </TouchableOpacity>

@@ -1,5 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import apiClient from "../utils/axiosInstance"; // your axios instance
+import cacheManager from "../utils/cacheManager";
 
 let cachedProfile = null;
 let cachedAt = 0;
@@ -450,6 +451,31 @@ const getProfileVisitors = async (params = {}) => {
 
 // npx expo install expo-av expo-file-system
 
+/**
+ * Called when user logs in to initialize cache for that user
+ */
+const onUserLogin = (userId) => {
+  if (!userId) return;
+  cacheManager.setCurrentUser(userId);
+};
+
+/**
+ * Called when user changes or logs out to clear old user's cache
+ */
+const onUserLogout = async (userId) => {
+  if (userId) {
+    await cacheManager.clearAllForUser(userId);
+  }
+  cacheManager.setCurrentUser(null);
+};
+
+/**
+ * Clear profile-related cache
+ */
+const clearProfileCache = async () => {
+  await cacheManager.clearNamespace("profile");
+};
+
 export const profileService = {
   getMyProfile,
   getProfileById,
@@ -466,4 +492,7 @@ export const profileService = {
   getProfileVisitors,
   uploadVoicePrompt,
   deleteVoicePrompt,
+  onUserLogin,
+  onUserLogout,
+  clearProfileCache,
 };

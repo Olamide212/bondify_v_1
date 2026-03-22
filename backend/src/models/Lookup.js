@@ -37,6 +37,8 @@ const lookupSchema = new mongoose.Schema(
         'favorite-music',
         'favorite-videos',
         'fun-activities',
+        'blood-group',
+        'genotype',
       ],
     },
     label: {

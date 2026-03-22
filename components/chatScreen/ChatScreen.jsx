@@ -1,10 +1,12 @@
 // components/ChatScreen.js
 
+import { Audio } from "expo-av";
 import { useRouter } from "expo-router";
 import { Copy, Edit2, Mail, MessageCircle, Search, X } from "lucide-react-native";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   KeyboardAvoidingView,
   Linking,
   Platform,
@@ -21,6 +23,7 @@ import { useSelector } from "react-redux";
 import { colors } from "../../constant/colors";
 import { messageService } from "../../services/messageService";
 import { socketService } from "../../services/socketService";
+import cacheManager from "../../utils/cacheManager";
 import { formatRelativeDate } from "../../utils/helper";
 import Header from "../headers/ChatHeader";
 import InputToolbar from "./InputToolbar";
@@ -113,6 +116,13 @@ const ChatScreen = ({ matchedUser, onBack, initialSearchMode = false }) => {
       }),
     [currentUserId]
   );
+
+  // Cache matched user profile data to avoid repeated API calls
+  useEffect(() => {
+    if (!matchedUser?.id) return;
+    const cacheKey = `user_${matchedUser.id}`;
+    cacheManager.set("chat_profiles", cacheKey, matchedUser, 24 * 60 * 60 * 1000); // 24 hours TTL
+  }, [matchedUser]);
 
   useEffect(() => {
     let isMounted = true;
@@ -268,6 +278,8 @@ const ChatScreen = ({ matchedUser, onBack, initialSearchMode = false }) => {
             : message
         )
       );
+      // Play message delivered sound
+      playSound(require("../../assets/sounds/message-ping.mp3"));
     };
 
     const handleMessagesRead = ({ matchId, byUserId }) => {
@@ -286,6 +298,8 @@ const ChatScreen = ({ matchedUser, onBack, initialSearchMode = false }) => {
             : message
         )
       );
+      // Play message read sound
+      // playSound(require("../../assets/sounds/message-read.mp3"));
     };
 
     const connectAndJoin = async () => {
@@ -308,6 +322,24 @@ const ChatScreen = ({ matchedUser, onBack, initialSearchMode = false }) => {
       socketService.off("messages:read", handleMessagesRead);
     };
   }, [currentUserId, matchedUser?.matchId, normalizeMessages]);
+
+  const playSound = async (soundFile) => {
+    try {
+      await Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
+      const { sound } = await Audio.Sound.createAsync(soundFile, {
+        shouldPlay: true,
+        volume: 0.7,
+      });
+      // Auto cleanup after sound finishes
+      sound.setOnPlaybackStatusUpdate((status) => {
+        if (status.didJustFinish) {
+          sound.unloadAsync();
+        }
+      });
+    } catch (error) {
+      if (__DEV__) console.warn("[ChatScreen] Sound playback failed:", error);
+    }
+  };
 
   useEffect(() => {
     if (skipNextAutoScrollRef.current) {
@@ -368,6 +400,8 @@ const ChatScreen = ({ matchedUser, onBack, initialSearchMode = false }) => {
       setMessages((prev) =>
         prev.map((msg) => (msg.id === tempId ? normalizedMessage : msg))
       );
+      // Play message sent sound
+      // playSound(require("../../assets/sounds/message-sent.mp3"));
     } catch (error) {
       setMessages((prev) => prev.filter((msg) => msg.id !== tempId));
       console.error("Failed to send message:", {

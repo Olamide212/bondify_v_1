@@ -492,6 +492,8 @@ const userSchema = new mongoose.Schema(
     // Physical Attributes
     height:    { type: Number },
     ethnicity: { type: String },
+    bloodGroup: { type: String },
+    genotype:   { type: String },
 
     // Professional
     occupation: { type: String },
@@ -549,7 +551,7 @@ const userSchema = new mongoose.Schema(
       enum: [
         'Long term relationship', 'Something Casual',
        'A Committed relationship',
-        'Marriage', 'Friendship', 'Activity partner', 'Just here for fun', 'Other',
+        'Marriage Focused', 'Friendship', 'Activity partner', 'Just here for fun', 'Other',
       ],
     },
     relationshipType: { type: String },

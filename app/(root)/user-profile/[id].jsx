@@ -2,32 +2,30 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { ChevronLeft } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
 import {
-  ActivityIndicator,
-  Dimensions,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
+    ActivityIndicator,
+    Dimensions,
+    Pressable,
+    StyleSheet,
+    Text,
+    View,
 } from "react-native";
 import Animated, {
-  interpolate,
-  runOnJS,
-  useAnimatedScrollHandler,
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
+    interpolate,
+    runOnJS,
+    useAnimatedScrollHandler,
+    useAnimatedStyle,
+    useSharedValue,
+    withTiming,
 } from "react-native-reanimated";
 import { useSelector } from "react-redux";
 import ActionButtons from "../../../components/homeScreen/ActionButtons";
 import ProfileCard from "../../../components/homeScreen/ProfileCard";
 import ComplimentModal from "../../../components/modals/ComplimentModal";
-import MatchCelebrationModal from "../../../components/modals/MatchCelebrationModal";
 import BackArrow from "../../../components/ui/BackArrow";
 import VerifiedIcon from "../../../components/ui/VerifiedIcon";
 import { colors } from "../../../constant/colors";
 import { useProfile } from "../../../context/ProfileContext";
 import { matchService } from "../../../services/matchService";
-import { messageService } from "../../../services/messageService";
 import { profileService } from "../../../services/profileService";
 
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
@@ -412,28 +410,6 @@ const UserProfile = () => {
         targetUser={currentProfile}
         currentUser={currentUser}
         onViewNextProfile={() => setShowComplimentModal(false)}
-      />
-
-      {/* Match celebration modal */}
-      <MatchCelebrationModal
-        visible={!!matchCelebration}
-        onClose={() => setMatchCelebration(null)}
-        matchedUser={matchCelebration}
-        currentUser={currentUser}
-        onSendMessage={async (matchedProfile, selectedIceBreaker) => {
-          if (matchedProfile?.matchId && selectedIceBreaker) {
-            try {
-              await messageService.sendMessage(matchedProfile.matchId, {
-                content: selectedIceBreaker,
-                type:    "text",
-              });
-            } catch (error) {
-              console.error("Failed to send ice breaker:", error);
-            }
-          }
-          setMatchCelebration(null);
-        }}
-        onContinueSwiping={() => setMatchCelebration(null)}
       />
 
       {/* Interaction banner — shown for all interactions */}

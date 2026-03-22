@@ -134,7 +134,7 @@ export default function BondupJoinedModal({
           <X size={22} color="#333" />
         </TouchableOpacity>
         <Text style={s.headerTitle}>Bondup 🔥</Text>
-        <View style={s.iconBtn} />
+        <View  />
       </View>
 
       <ScrollView
@@ -150,7 +150,7 @@ export default function BondupJoinedModal({
         </View>
 
         {/* You're in title */}
-        <Text style={s.mainTitle}>You're in 🎉</Text>
+        <Text style={s.mainTitle}>You&apos;re in 🎉</Text>
         <Text style={s.subtitle}>
           You just joined{' '}
           <Text style={s.subtitleHighlight}>{bondup.title}</Text>

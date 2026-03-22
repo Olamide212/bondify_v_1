@@ -7,11 +7,11 @@ import { Image } from 'expo-image';
 import { Briefcase, Heart, MapPin } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
 import {
-    ActivityIndicator,
-    Pressable,
-    Text,
-    TouchableWithoutFeedback,
-    View
+  ActivityIndicator,
+  Pressable,
+  Text,
+  TouchableWithoutFeedback,
+  View
 } from 'react-native';
 import { colors } from '../../../constant/colors';
 import VerifiedIcon from '../../ui/VerifiedIcon';
@@ -36,6 +36,7 @@ const ProfileHeroSection = ({
   onMarkUriLoaded,
   compatibilityScore,
   loadingScore,
+  likesYou = false,
 }) => {
   const [mainImageLoading, setMainImageLoading] = useState(false);
 
@@ -89,12 +90,20 @@ const ProfileHeroSection = ({
 
             <View className="absolute bottom-64 left-6 right-6">
               <View className="flex-row items-center gap-2 mb-3">
-{/* Compatibility Score */}
+{/* Compatibility Score & Likes You Badges */}
                   {compatibilityScore !== null && !loadingScore && (
                     <View className="flex-row items-center bg-pinkColor px-3 py-1 rounded-full">
                       <Heart size={14} color="#fff" fill="#fff" />
                       <Text className="text-white text-sm font-PlusJakartaSansBold ml-1">
                         {compatibilityScore}%
+                      </Text>
+                    </View>
+                  )}
+                  {likesYou && (
+                    <View className="flex-row items-center bg-rose-500 px-3 py-1 rounded-full">
+                      <Heart size={14} color="#fff" fill="#fff" />
+                      <Text className="text-white text-sm font-PlusJakartaSansBold ml-1">
+                        Likes You
                       </Text>
                     </View>
                   )}

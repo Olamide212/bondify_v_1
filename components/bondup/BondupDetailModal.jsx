@@ -327,7 +327,7 @@ export default function BondupDetailModal({
         <View style={s.whoSection}>
           <View style={s.whoHeader}>
             <Text style={s.whoTitle}>
-              Who's Coming{' '}
+              Who&apos;s Coming{' '}
               <Text style={s.whoCount}>
                 ({spotsText}{bondup.maxParticipants ? '' : ' joined'})
               </Text>

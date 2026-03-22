@@ -297,8 +297,17 @@ export default function BondupProfileScreen() {
               </View>
             </View>
 
-            {/* Follow Button */}
-            {!isOwnProfile && (
+            {/* Follow/Edit Profile Button */}
+            {isOwnProfile ? (
+              <TouchableOpacity
+                style={[s.followBtn, { backgroundColor: BRAND }]}
+                onPress={() => router.push({ pathname: '/(tab)/profile', params: { tab: 'social' } })}
+                activeOpacity={0.85}
+              >
+                <UserCheck size={16} color={'#fff'} />
+                <Text style={s.followBtnText}>Edit Profile</Text>
+              </TouchableOpacity>
+            ) : (
               <TouchableOpacity
                 style={[s.followBtn, isFollowing && s.followingBtn, followLoading && { opacity: 0.7 }]}
                 onPress={handleFollowToggle}

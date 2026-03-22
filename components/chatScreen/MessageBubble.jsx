@@ -319,11 +319,20 @@ const MessageBubble = ({ message, onReply, onEdit, highlight }) => {
                 <Text style={styles.menuItemText}>↩ Reply</Text>
               </TouchableOpacity>
             )}
-            {isOwn && onEdit && message.type === "text" && (
-              <TouchableOpacity style={styles.menuItem} onPress={() => { setMenuVisible(false); onEdit(message); }}>
-                <Text style={styles.menuItemText}>✏️ Edit</Text>
-              </TouchableOpacity>
-            )}
+            {isOwn && onEdit && message.type === "text" && (() => {
+              // Only show Edit if within 30s of message creation
+              const EDIT_WINDOW_MS = 30 * 1000;
+              const now = Date.now();
+              const created = new Date(message.createdAt || message.timestamp || 0).getTime();
+              if (now - created <= EDIT_WINDOW_MS) {
+                return (
+                  <TouchableOpacity style={styles.menuItem} onPress={() => { setMenuVisible(false); onEdit(message); }}>
+                    <Text style={styles.menuItemText}>✏️ Edit</Text>
+                  </TouchableOpacity>
+                );
+              }
+              return null;
+            })()}
             {message.type === "text" && (
               <TouchableOpacity style={styles.menuItem} onPress={handleCopy}>
                 <Text style={styles.menuItemText}>📋 Copy</Text>
