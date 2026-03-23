@@ -22,7 +22,6 @@ import {
 import { useEffect, useRef, useState } from "react";
 import {
     ActivityIndicator,
-    Alert,
     Image,
     StyleSheet,
     Text,
@@ -31,8 +30,9 @@ import {
 } from "react-native";
 import { useSelector } from "react-redux";
 import { colors } from "../../constant/colors";
-import feedService from "../../services/feedService";
+import { useAlert } from "../../context/AlertContext";
 import bondupService from "../../services/bondupService";
+import feedService from "../../services/feedService";
 import apiClient from "../../utils/axiosInstance";
 import EditSocialProfileModal from "./EditSocialProfileModal";
 
@@ -54,6 +54,7 @@ const getDisplayName = (user) =>
 
 export default function SocialProfileTab() {
   const router = useRouter();
+  const { showAlert } = useAlert();
   const { user: currentUser } = useSelector((s) => s.auth);
 
   const [localAvatarUri, setLocalAvatarUri] = useState(() => avatarUrl(currentUser));
@@ -142,7 +143,11 @@ export default function SocialProfileTab() {
     } catch (e) {
       justPickedPhotoRef.current = false;
       setLocalAvatarUri(avatarUrl(currentUser));
-      Alert.alert("Error", e?.response?.data?.message ?? "Could not update photo.");
+      showAlert({
+        icon: 'error',
+        title: 'Error',
+        message: e?.response?.data?.message ?? 'Could not update photo.',
+      });
     } finally {
       setUploading(false);
     }
@@ -184,7 +189,11 @@ export default function SocialProfileTab() {
       description: "Browse and manage your group chats",
       icon: Users,
       onPress: () =>
-        Alert.alert("Coming Soon", "Group chats will be available soon!"),
+        showAlert({
+          icon: 'coming',
+          title: 'Coming Soon',
+          message: 'Group chats will be available soon!',
+        }),
     },
   ];
 

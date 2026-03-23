@@ -3,7 +3,6 @@ import { Plus } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
 import {
     ActivityIndicator,
-    Alert,
     Image,
     ScrollView,
     StyleSheet,
@@ -13,6 +12,7 @@ import {
     View,
 } from "react-native";
 import { colors } from "../../constant/colors";
+import { useAlert } from "../../context/AlertContext";
 import feedService from "../../services/feedService";
 import apiClient from "../../utils/axiosInstance";
 import BaseModal from "../modals/BaseModal";
@@ -26,6 +26,7 @@ const displayName = (user) =>
   [user?.firstName, user?.lastName].filter(Boolean).join(" ") || user?.userName || "User";
 
 const FeedProfileSheet = ({ visible, user, onClose, onUpdate }) => {
+  const { showAlert } = useAlert();
   const [userName, setUserName] = useState(user?.userName ?? "");
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -107,7 +108,11 @@ const FeedProfileSheet = ({ visible, user, onClose, onUpdate }) => {
     } catch (e) {
       justPickedPhotoRef.current = false;
       setLocalAvatarUri(avatarUrl(user));
-      Alert.alert("Error", e?.response?.data?.message ?? "Could not update photo.");
+      showAlert({
+        icon: 'error',
+        title: 'Error',
+        message: e?.response?.data?.message ?? 'Could not update photo.',
+      });
     } finally {
       setUploading(false);
     }
@@ -120,7 +125,11 @@ const FeedProfileSheet = ({ visible, user, onClose, onUpdate }) => {
       await feedService.updateSocialProfile({ userName: userName.trim() });
       onUpdate?.({ userName: userName.trim() });
     } catch (e) {
-      Alert.alert("Error", e?.response?.data?.message ?? "Could not save username.");
+      showAlert({
+        icon: 'error',
+        title: 'Error',
+        message: e?.response?.data?.message ?? 'Could not save username.',
+      });
     } finally {
       setSaving(false);
     }

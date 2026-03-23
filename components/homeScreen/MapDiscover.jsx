@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import {
   View,
   StyleSheet,
-  Alert,
   TouchableOpacity,
   Text,
   Modal,
@@ -12,6 +11,7 @@ import MapView, { Marker, Circle } from "react-native-maps";
 import * as Location from "expo-location";
 import { Picker } from "@react-native-picker/picker";
 import MultiSlider from "@ptomasroos/react-native-multi-slider";
+import { useAlert } from "../../context/AlertContext";
 
 const FALLBACK_REGION = {
   latitude: 37.78825, // San Francisco fallback
@@ -21,6 +21,7 @@ const FALLBACK_REGION = {
 };
 
 const MapDiscoveryScreen = () => {
+  const { showAlert } = useAlert();
   const [userLocation, setUserLocation] = useState(null);
   const [nearbyUsers, setNearbyUsers] = useState([]);
   const [showFilter, setShowFilter] = useState(false);
@@ -37,10 +38,12 @@ const MapDiscoveryScreen = () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
         setErrorMsg("Permission to access location was denied");
-        Alert.alert(
-          "Location Permission Required",
-          "Please enable location services to use this feature"
-        );
+        showAlert({
+          icon: 'location',
+          title: 'Location Permission Required',
+          message: 'Please enable location services to use this feature',
+          actions: [{ label: 'OK', style: 'primary' }],
+        });
         return;
       }
 

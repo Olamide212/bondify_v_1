@@ -2,18 +2,17 @@ import { Image } from "expo-image";
 import { SendHorizonal as PaperPlane, Sparkles, X } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
 import {
-  ActivityIndicator,
-  Alert,
-  Animated,
-  Easing,
-  Pressable,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Animated,
+    Easing,
+    Pressable,
+    StyleSheet,
+    TextInput,
+    TouchableOpacity,
+    View
 } from "react-native";
 import { colors } from "../../constant/colors";
+import { useAlert } from "../../context/AlertContext";
 import { commentService } from "../../services/commentService";
 import AISuggestionModal from "../modals/AiSuggestionModal";
 
@@ -25,6 +24,7 @@ export default function CommentBox({
   // The profile of the person whose photo this is
   profile,
 }) {
+  const { showAlert } = useAlert();
   const [text, setText]                   = useState("");
   const [showComposer, setShowComposer]   = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -53,7 +53,11 @@ export default function CommentBox({
 
     const targetUserId = profile?._id ?? profile?.id;
     if (!targetUserId) {
-      Alert.alert("Error", "Could not identify the profile. Please try again.");
+      showAlert({
+        icon: 'error',
+        title: 'Error',
+        message: 'Could not identify the profile. Please try again.',
+      });
       return;
     }
 
@@ -72,7 +76,11 @@ export default function CommentBox({
       setTimeout(() => setSent(false), 3000);
     } catch (err) {
       console.error("CommentBox send error:", err);
-      Alert.alert("Failed to send", "Something went wrong. Please try again.");
+      showAlert({
+        icon: 'error',
+        title: 'Failed to send',
+        message: 'Something went wrong. Please try again.',
+      });
     } finally {
       setSending(false);
     }

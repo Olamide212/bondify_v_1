@@ -11,25 +11,25 @@
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { useRouter } from "expo-router";
 import {
-  Camera,
-  CheckCircle,
-  ChevronLeft,
-  RefreshCw,
-  ShieldCheck,
+    Camera,
+    CheckCircle,
+    ChevronLeft,
+    RefreshCw,
+    ShieldCheck,
 } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
 import {
-  ActivityIndicator,
-  Alert,
-  Image,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Image,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { colors } from "../../../../constant/colors";
+import { useAlert } from "../../../../context/AlertContext";
 import { profileService } from "../../../../services/profileService"; // Add this import
 import apiClient from "../../../../utils/axiosInstance";
 import { tokenManager } from "../../../../utils/tokenManager";
@@ -111,7 +111,7 @@ const is = StyleSheet.create({
 });
 
 // ─── Camera Step ──────────────────────────────────────────────────────────────
-const CameraStep = ({ onCapture }) => {
+const CameraStep = ({ onCapture, showAlert }) => {
   const cameraRef           = useRef(null);
   const [ready, setReady]   = useState(false);
   const [taking, setTaking] = useState(false);
@@ -127,7 +127,11 @@ const CameraStep = ({ onCapture }) => {
       });
       onCapture(photo.uri);
     } catch {
-      Alert.alert("Error", "Could not take photo. Please try again.");
+      showAlert({
+        icon: 'camera',
+        title: 'Error',
+        message: 'Could not take photo. Please try again.',
+      });
     } finally {
       setTaking(false);
     }
@@ -142,7 +146,11 @@ const CameraStep = ({ onCapture }) => {
         onCameraReady={() => setReady(true)}
         onMountError={(e) => {
           console.warn("Camera mount error:", e);
-          Alert.alert("Camera Error", "Could not start camera. Please try again.");
+          showAlert({
+            icon: 'camera',
+            title: 'Camera Error',
+            message: 'Could not start camera. Please try again.',
+          });
         }}
       />
 
@@ -258,6 +266,7 @@ const ds = StyleSheet.create({
 // ─── Main Screen ──────────────────────────────────────────────────────────────
 export default function VerificationScreen() {
   const router = useRouter();
+  const { showAlert } = useAlert();
   const [permission, requestPermission] = useCameraPermissions();
   const [step,       setStep]           = useState(STEP.INTRO);
   const [profilePhotoUrl, setProfilePhotoUrl] = useState(null);
@@ -283,10 +292,11 @@ export default function VerificationScreen() {
     if (!permission?.granted) {
       const result = await requestPermission();
       if (!result.granted) {
-        Alert.alert(
-          "Camera Required",
-          "Please allow camera access to take your verification selfie."
-        );
+        showAlert({
+          icon: 'camera',
+          title: 'Camera Required',
+          message: 'Please allow camera access to take your verification selfie.',
+        });
         return;
       }
     }
@@ -326,7 +336,11 @@ export default function VerificationScreen() {
         err?.response?.data?.message ||
         err?.message ||
         "Could not submit your selfie. Please try again.";
-      Alert.alert("Upload Failed", message);
+      showAlert({
+        icon: 'error',
+        title: 'Upload Failed',
+        message: message,
+      });
     } finally {
       setSubmitting(false);
     }
@@ -383,7 +397,7 @@ export default function VerificationScreen() {
 
       <View style={{ flex: 1 }}>
         {step === STEP.INTRO   && <IntroStep onStart={handleStart} onSkip={handleSkip} profilePhotoUrl={profilePhotoUrl} />}
-        {step === STEP.CAMERA  && <CameraStep onCapture={handleCapture} />}
+        {step === STEP.CAMERA  && <CameraStep onCapture={handleCapture} showAlert={showAlert} />}
         {step === STEP.PREVIEW && (
           <PreviewStep
             uri={photoUri}

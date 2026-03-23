@@ -12,25 +12,25 @@
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { useRouter } from "expo-router";
 import {
-  Camera,
-  CheckCircle,
-  ChevronLeft,
-  RefreshCw,
-  ShieldCheck,
+    Camera,
+    CheckCircle,
+    ChevronLeft,
+    RefreshCw,
+    ShieldCheck,
 } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
 import {
-  ActivityIndicator,
-  Alert,
-  Image,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Image,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { colors } from "../../../constant/colors";
+import { useAlert } from "../../../context/AlertContext";
 import apiClient from "../../../utils/axiosInstance";
 import { tokenManager } from "../../../utils/tokenManager";
 
@@ -79,12 +79,12 @@ const IntroStep = ({ onStart }) => (
 
 const is = StyleSheet.create({
   container:   { paddingHorizontal: 24, paddingTop: 16, paddingBottom: 40 },
-  iconWrap:    { width: 88, height: 88, borderRadius: 99, backgroundColor: "#FEF3EC", alignItems: "center", justifyContent: "center", alignSelf: "center", marginBottom: 20 },
+  iconWrap:    { width: 88, height: 88, borderRadius: 99, backgroundColor: colors.background, alignItems: "center", justifyContent: "center", alignSelf: "center", marginBottom: 20 },
   title:       { fontSize: 22, fontFamily: "PlusJakartaSansBold", color: "#111", textAlign: "center", marginBottom: 10 },
   body:        { fontSize: 14, fontFamily: "PlusJakartaSans", color: "#6B7280", textAlign: "center", lineHeight: 22, marginBottom: 28 },
   steps:       { gap: 16, marginBottom: 32 },
   stepRow:     { flexDirection: "row", alignItems: "flex-start", gap: 14 },
-  stepNum:     { width: 32, height: 32, borderRadius: 99, backgroundColor: "#FEF3EC", alignItems: "center", justifyContent: "center", flexShrink: 0 },
+  stepNum:     { width: 32, height: 32, borderRadius: 99, backgroundColor: colors.background, alignItems: "center", justifyContent: "center", flexShrink: 0 },
   stepNumText: { fontSize: 14, fontFamily: "PlusJakartaSansBold", color: PRIMARY },
   stepTitle:   { fontSize: 15, fontFamily: "PlusJakartaSansSemiBold", color: "#111", marginBottom: 2 },
   stepDesc:    { fontSize: 13, fontFamily: "PlusJakartaSans", color: "#9CA3AF" },
@@ -93,7 +93,7 @@ const is = StyleSheet.create({
 });
 
 // ─── Camera Step ──────────────────────────────────────────────────────────────
-const CameraStep = ({ onCapture }) => {
+const CameraStep = ({ onCapture, showAlert }) => {
   const cameraRef           = useRef(null);
   const [ready, setReady]   = useState(false);
   const [taking, setTaking] = useState(false);
@@ -109,7 +109,12 @@ const CameraStep = ({ onCapture }) => {
       });
       onCapture(photo.uri);
     } catch {
-      Alert.alert("Error", "Could not take photo. Please try again.");
+      showAlert({
+        icon: 'error',
+        title: 'Error',
+        message: 'Could not take photo. Please try again.',
+        actions: [{ label: 'OK', style: 'primary' }],
+      });
     } finally {
       setTaking(false);
     }
@@ -236,6 +241,7 @@ const ds = StyleSheet.create({
 // ─── Main Screen ──────────────────────────────────────────────────────────────
 export default function VerificationScreen() {
   const router = useRouter();
+  const { showAlert } = useAlert();
   const [token, setToken] = useState(null);
 
   const [permission, requestPermission] = useCameraPermissions();
@@ -256,10 +262,12 @@ export default function VerificationScreen() {
     if (!permission?.granted) {
       const result = await requestPermission();
       if (!result.granted) {
-        Alert.alert(
-          "Camera Required",
-          "Please allow camera access to take your verification selfie."
-        );
+        showAlert({
+          icon: 'camera',
+          title: 'Camera Required',
+          message: 'Please allow camera access to take your verification selfie.',
+          actions: [{ label: 'OK', style: 'primary' }],
+        });
         return;
       }
     }
@@ -298,7 +306,12 @@ export default function VerificationScreen() {
         err?.response?.data?.message ||
         err?.message ||
         "Could not submit your selfie. Please try again.";
-      Alert.alert("Upload Failed", message);
+      showAlert({
+        icon: 'error',
+        title: 'Upload Failed',
+        message,
+        actions: [{ label: 'OK', style: 'primary' }],
+      });
     } finally {
       setSubmitting(false);
     }
@@ -336,7 +349,7 @@ export default function VerificationScreen() {
 
       <View style={{ flex: 1 }}>
         {step === STEP.INTRO   && <IntroStep onStart={handleStart} />}
-        {step === STEP.CAMERA  && <CameraStep onCapture={handleCapture} />}
+        {step === STEP.CAMERA  && <CameraStep onCapture={handleCapture} showAlert={showAlert} />}
         {step === STEP.PREVIEW && (
           <PreviewStep
             uri={photoUri}

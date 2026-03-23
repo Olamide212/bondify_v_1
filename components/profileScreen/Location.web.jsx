@@ -3,7 +3,6 @@ import { MapPin, Navigation, X } from "lucide-react-native";
 import { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
   StyleSheet,
   Text,
   TextInput,
@@ -11,9 +10,11 @@ import {
   View,
 } from "react-native";
 import { colors } from "../../constant/colors";
+import { useAlert } from "../../context/AlertContext";
 import BaseModal from "../modals/BaseModal";
 
 const Location = ({ profile, onUpdateField }) => {
+  const { showAlert } = useAlert();
   const [isModalVisible, setIsModalVisible]     = useState(false);
   const [city, setCity]                         = useState("");
   const [stateValue, setStateValue]             = useState("");
@@ -48,7 +49,12 @@ const Location = ({ profile, onUpdateField }) => {
       setIsDetectingLocation(true);
       const { status } = await ExpoLocation.requestForegroundPermissionsAsync();
       if (status !== "granted") {
-        Alert.alert("Permission needed", "Allow location access to use your current location.");
+        showAlert({
+          icon: 'location',
+          title: 'Permission needed',
+          message: 'Allow location access to use your current location.',
+          actions: [{ label: 'OK', style: 'primary' }],
+        });
         return;
       }
       const pos = await ExpoLocation.getCurrentPositionAsync({ accuracy: ExpoLocation.Accuracy.Balanced });
@@ -61,7 +67,12 @@ const Location = ({ profile, onUpdateField }) => {
         setCountry(result.country || "");
       }
     } catch {
-      Alert.alert("Location error", "Could not detect your location. Try again.");
+      showAlert({
+        icon: 'error',
+        title: 'Location error',
+        message: 'Could not detect your location. Try again.',
+        actions: [{ label: 'OK', style: 'primary' }],
+      });
     } finally {
       setIsDetectingLocation(false);
     }
@@ -70,7 +81,12 @@ const Location = ({ profile, onUpdateField }) => {
   // ── Save ──────────────────────────────────────────────────────────────────
   const handleSaveLocation = async () => {
     if (!city && !stateValue && !country) {
-      Alert.alert("Missing location", "Enter at least one location field.");
+      showAlert({
+        icon: 'warning',
+        title: 'Missing location',
+        message: 'Enter at least one location field.',
+        actions: [{ label: 'OK', style: 'primary' }],
+      });
       return;
     }
     const base    = typeof profile?.location === "object" && profile?.location ? profile.location : {};

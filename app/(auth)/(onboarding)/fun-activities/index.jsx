@@ -2,7 +2,6 @@ import { useRouter } from "expo-router";
 import { Heart } from "lucide-react-native";
 import { useState } from "react";
 import {
-    Alert,
     KeyboardAvoidingView,
     Platform,
     SafeAreaView,
@@ -17,6 +16,7 @@ import ActivityLoader from "../../../../components/ui/ActivityLoader";
 import Button from "../../../../components/ui/Button";
 import { colors } from "../../../../constant/colors";
 import { fonts } from "../../../../constant/fonts";
+import { useAlert } from "../../../../context/AlertContext";
 import { funActivitiesData } from "../../../../data/funActivitiesData";
 import { useLookupOptions } from "../../../../hooks/useLookupOptions";
 import { useProfileSetup } from "../../../../hooks/useProfileSetup";
@@ -27,6 +27,7 @@ const FunActivities = () => {
   const [selectedActivities, setSelectedActivities] = useState([]);
   const [submitting, setSubmitting] = useState(false);
   const router = useRouter();
+  const { showAlert } = useAlert();
   const { updateProfileStep } = useProfileSetup({ isOnboarding: true });
   const { options: activityOptions, loading, error } = useLookupOptions("fun-activities");
 
@@ -39,7 +40,11 @@ const FunActivities = () => {
 
   const handleContinue = async () => {
     if (selectedActivities.length === 0) {
-      Alert.alert("Selection Required", "Please select at least one fun activity.");
+      showAlert({
+        icon: 'warning',
+        title: 'Selection Required',
+        message: 'Please select at least one fun activity.',
+      });
       return;
     }
 
@@ -49,7 +54,11 @@ const FunActivities = () => {
       router.push("/onboarding-complete");
     } catch (err) {
       console.error("Save activities error:", err);
-      Alert.alert("Error", "Could not save your activity preferences. Please try again.");
+      showAlert({
+        icon: 'error',
+        title: 'Error',
+        message: 'Could not save your activity preferences. Please try again.',
+      });
     } finally {
       setSubmitting(false);
     }

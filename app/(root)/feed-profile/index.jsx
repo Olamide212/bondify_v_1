@@ -11,7 +11,6 @@ import { ArrowLeft, Pencil, Plus } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
   Image,
   ScrollView,
   StyleSheet,
@@ -22,6 +21,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useSelector } from "react-redux";
 import { colors } from "../../../constant/colors";
+import { useAlert } from "../../../context/AlertContext";
 import feedService from "../../../services/feedService";
 import apiClient from "../../../utils/axiosInstance";
 
@@ -38,6 +38,7 @@ const getDisplayName = (user) =>
 
 export default function FeedProfileScreen() {
   const router = useRouter();
+  const { showAlert } = useAlert();
   const { user: currentUser } = useSelector((s) => s.auth);
 
   const [userName, setUserName] = useState(currentUser?.userName ?? "");
@@ -130,7 +131,12 @@ export default function FeedProfileScreen() {
       // Revert to original if upload fails
       justPickedPhotoRef.current = false;
       setLocalAvatarUri(avatarUrl(currentUser));
-      Alert.alert("Error", e?.response?.data?.message ?? "Could not update photo.");
+      showAlert({
+        icon: 'error',
+        title: 'Error',
+        message: e?.response?.data?.message ?? 'Could not update photo.',
+        actions: [{ label: 'OK', style: 'primary' }],
+      });
     } finally {
       setUploading(false);
     }
@@ -142,7 +148,12 @@ export default function FeedProfileScreen() {
     try {
       await feedService.updateSocialProfile({ userName: userName.trim() });
     } catch (e) {
-      Alert.alert("Error", e?.response?.data?.message ?? "Could not save username.");
+      showAlert({
+        icon: 'error',
+        title: 'Error',
+        message: e?.response?.data?.message ?? 'Could not save username.',
+        actions: [{ label: 'OK', style: 'primary' }],
+      });
     } finally {
       setSaving(false);
     }

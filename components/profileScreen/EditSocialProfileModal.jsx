@@ -11,7 +11,6 @@ import { X } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import {
     ActivityIndicator,
-    Alert,
     KeyboardAvoidingView,
     Platform,
     StyleSheet,
@@ -21,12 +20,14 @@ import {
     View,
 } from "react-native";
 import { colors } from "../../constant/colors";
+import { useAlert } from "../../context/AlertContext";
 import feedService from "../../services/feedService";
 import BaseModal from "../modals/BaseModal";
 
 const BRAND = colors.primary;
 
 export default function EditSocialProfileModal({ visible, onClose, initialData, onSaved }) {
+  const { showAlert } = useAlert();
   const [displayName, setDisplayName] = useState("");
   const [userName, setUserName] = useState("");
   const [bio, setBio] = useState("");
@@ -43,7 +44,11 @@ export default function EditSocialProfileModal({ visible, onClose, initialData, 
 
   const handleSave = async () => {
     if (!displayName.trim()) {
-      Alert.alert("Name required", "Please enter your display name.");
+      showAlert({
+        icon: 'warning',
+        title: 'Name required',
+        message: 'Please enter your display name.',
+      });
       return;
     }
     setSaving(true);
@@ -57,7 +62,11 @@ export default function EditSocialProfileModal({ visible, onClose, initialData, 
       onSaved?.(payload);
       onClose();
     } catch (e) {
-      Alert.alert("Error", e?.response?.data?.message ?? "Could not save profile.");
+      showAlert({
+        icon: 'error',
+        title: 'Error',
+        message: e?.response?.data?.message ?? 'Could not save profile.',
+      });
     } finally {
       setSaving(false);
     }

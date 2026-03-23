@@ -11,22 +11,22 @@
  *   onDeleted {() => void}  — called after successful deletion
  */
 
-import React, { useState, useEffect, useRef, useCallback } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  Modal,
-  StyleSheet,
-  ActivityIndicator,
-  Platform,
-  KeyboardAvoidingView,
-  ScrollView,
-  Alert,
-  Animated,
-} from "react-native";
 import { AlertTriangle, Eye, EyeOff, X } from "lucide-react-native";
+import { useCallback, useEffect, useRef, useState } from "react";
+import {
+    ActivityIndicator,
+    Animated,
+    KeyboardAvoidingView,
+    Modal,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
+} from "react-native";
+import { useAlert } from "../../context/AlertContext";
 import { useTheme } from "../../context/ThemeContext";
 import SettingsService from "../../services/settingsService";
 
@@ -89,6 +89,7 @@ const CountdownRing = ({ seconds, total, colors }) => {
 
 const DeleteAccountModal = ({ visible, onClose, onDeleted }) => {
   const { colors } = useTheme();
+  const { showAlert } = useAlert();
   const [step, setStep] = useState("countdown"); // "countdown" | "confirm"
   const [secondsLeft, setSecondsLeft] = useState(COUNTDOWN_SECONDS);
   const [password, setPassword] = useState("");
@@ -153,7 +154,11 @@ const DeleteAccountModal = ({ visible, onClose, onDeleted }) => {
       onDeleted();
     } catch (err) {
       const msg = err?.response?.data?.message ?? "Incorrect password. Please try again.";
-      Alert.alert("Could not delete account", msg);
+      showAlert({
+        icon: 'error',
+        title: 'Could not delete account',
+        message: msg,
+      });
       shake();
     } finally {
       setLoading(false);

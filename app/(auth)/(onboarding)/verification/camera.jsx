@@ -9,18 +9,19 @@ import { useRouter } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import {
     ActivityIndicator,
-    Alert,
     StyleSheet,
     Text,
     TouchableOpacity,
     View,
 } from "react-native";
 import { colors } from "../../../../constant/colors";
+import { useAlert } from "../../../../context/AlertContext";
 
 const PRIMARY = colors.primary;
 
 export default function CameraScreen() {
   const router = useRouter();
+  const { showAlert } = useAlert();
   const isFocused = useIsFocused();
   const cameraRef = useRef(null);
   const [ready, setReady] = useState(false);
@@ -53,7 +54,12 @@ export default function CameraScreen() {
         params: { photoUri: photo.uri },
       });
     } catch (error) {
-      Alert.alert("Error", "Could not take photo. Please try again.");
+      showAlert({
+        icon: 'error',
+        title: 'Error',
+        message: 'Could not take photo. Please try again.',
+        actions: [{ label: 'OK', style: 'primary' }],
+      });
       setTaking(false);
     }
   };
@@ -82,9 +88,12 @@ export default function CameraScreen() {
           onCameraReady={() => setReady(true)}
           onMountError={(e) => {
             console.warn("Camera mount error:", e);
-            Alert.alert("Camera Error", "Could not start camera. Please try again.", [
-              { text: "Go Back", onPress: () => router.back() },
-            ]);
+            showAlert({
+              icon: 'camera',
+              title: 'Camera Error',
+              message: 'Could not start camera. Please try again.',
+              actions: [{ label: 'Go Back', style: 'primary', onPress: () => router.back() }],
+            });
           }}
         />
       ) : (

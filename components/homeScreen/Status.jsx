@@ -6,11 +6,11 @@ import {
   TouchableOpacity,
   Image,
   StyleSheet,
-  Alert,
 } from "react-native";
 import { Plus } from "lucide-react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { colors } from "../../constant/colors";
+import { useAlert } from "../../context/AlertContext";
 import StatusModal from "../../components/modals/StatusModal"; 
 
 const initialStatuses = [
@@ -38,17 +38,28 @@ const initialStatuses = [
 ];
 
 const Status = () => {
+  const { showAlert } = useAlert();
   const [statuses, setStatuses] = useState(initialStatuses);
   const [isModalVisible, setIsModalVisible] = useState(false);
 
   const handleUploadPhotoStatus = () => {
     setIsModalVisible(false);
-    Alert.alert("Upload Status", "Open image picker or camera here.");
+    showAlert({
+      icon: 'camera',
+      title: 'Upload Status',
+      message: 'Open image picker or camera here.',
+      actions: [{ label: 'OK', style: 'primary' }],
+    });
   };
 
   const handleCreateTextStatus = () => {
     setIsModalVisible(false);
-    Alert.alert("Text Status", "Open text input editor here.");
+    showAlert({
+      icon: 'info',
+      title: 'Text Status',
+      message: 'Open text input editor here.',
+      actions: [{ label: 'OK', style: 'primary' }],
+    });
   };
 
   const renderItem = ({ item }) => (
@@ -57,7 +68,12 @@ const Status = () => {
         onPress={() =>
           item.isUser
             ? setIsModalVisible(true)
-            : Alert.alert("Viewing Status", `Viewing ${item.name}'s status`)
+            : showAlert({
+                icon: 'info',
+                title: 'Viewing Status',
+                message: `Viewing ${item.name}'s status`,
+                actions: [{ label: 'OK', style: 'primary' }],
+              })
         }
       >
         {item.isUser ? (

@@ -4,7 +4,6 @@ import { UserX } from "lucide-react-native";
 import { useCallback, useEffect, useState } from "react";
 import {
     ActivityIndicator,
-    Alert,
     FlatList,
     Image,
     Pressable,
@@ -15,6 +14,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { colors } from "../../../constant/colors";
+import { useAlert } from "../../../context/AlertContext";
 import SettingsService from "../../../services/settingsService";
 
 const PRIMARY       = colors.primary;
@@ -92,7 +92,7 @@ const EmptyState = () => (
 // ── Main Screen ───────────────────────────────────────────────
 const BlockedUsersScreen = () => {
   const router = useRouter();
-
+  const { showAlert } = useAlert();
   const [blockedUsers,   setBlockedUsers]   = useState([]);
   const [isLoading,      setIsLoading]      = useState(true);
   const [isRefreshing,   setIsRefreshing]   = useState(false);
@@ -139,13 +139,15 @@ const BlockedUsersScreen = () => {
 
   // ── Unblock ───────────────────────────────────────────────────
   const handleUnblock = (item) => {
-    Alert.alert(
-      "Unblock User",
-      `Unblock ${item.name ?? "this user"}? They will be able to see your profile and message you again.`,
-      [
-        { text: "Cancel", style: "cancel" },
+    showAlert({
+      icon: 'question',
+      title: 'Unblock User',
+      message: `Unblock ${item.name ?? "this user"}? They will be able to see your profile and message you again.`,
+      actions: [
+        { label: 'Cancel', style: 'cancel' },
         {
-          text: "Unblock",
+          label: 'Unblock',
+          style: 'primary',
           onPress: async () => {
             setUnblockingId(item.userId ?? item._id);
             try {
@@ -155,17 +157,19 @@ const BlockedUsersScreen = () => {
                 prev.filter((u) => (u.userId ?? u._id) !== (item.userId ?? item._id))
               );
             } catch (err) {
-              Alert.alert(
-                "Error",
-                err?.response?.data?.message || err?.message || "Failed to unblock. Please try again."
-              );
+              showAlert({
+                icon: 'error',
+                title: 'Error',
+                message: err?.response?.data?.message || err?.message || 'Failed to unblock. Please try again.',
+                actions: [{ label: 'OK', style: 'primary' }],
+              });
             } finally {
               setUnblockingId(null);
             }
           },
         },
-      ]
-    );
+      ],
+    });
   };
 
   // ── Load more on scroll end ───────────────────────────────────

@@ -16,21 +16,21 @@
 import { AlertTriangle, Ban, ChevronRight, X } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
 import {
-  ActivityIndicator,
-  Alert,
-  Animated,
-  Dimensions,
-  Easing,
-  Modal,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Animated,
+    Dimensions,
+    Easing,
+    Modal,
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { colors } from "../../constant/colors";
+import { useAlert } from "../../context/AlertContext";
 import { settingsService } from "../../services/settingsService";
 
 
@@ -57,6 +57,7 @@ const REPORT_REASONS = [
 // ─────────────────────────────────────────────────────────────────────────────
 
 const BlockReportModal = ({ visible, mode = "block", profile, onClose, onSuccess }) => {
+  const { showAlert } = useAlert();
   const slideY = useRef(new Animated.Value(SH)).current;
 
   const [screen, setScreen]             = useState(mode); // start at the passed mode
@@ -109,7 +110,11 @@ const BlockReportModal = ({ visible, mode = "block", profile, onClose, onSuccess
       setScreen("success_block");
       onSuccess?.("block");
     } catch (err) {
-      Alert.alert("Error", err?.message || "Could not block this user. Please try again.");
+      showAlert({
+        icon: 'error',
+        title: 'Error',
+        message: err?.message || 'Could not block this user. Please try again.',
+      });
     } finally {
       setLoading(false);
     }
@@ -128,7 +133,11 @@ const BlockReportModal = ({ visible, mode = "block", profile, onClose, onSuccess
       setScreen("success_report");
       onSuccess?.("report");
     } catch (err) {
-      Alert.alert("Error", err?.message || "Could not submit report. Please try again.");
+      showAlert({
+        icon: 'error',
+        title: 'Error',
+        message: err?.message || 'Could not submit report. Please try again.',
+      });
     } finally {
       setLoading(false);
     }

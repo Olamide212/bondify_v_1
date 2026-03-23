@@ -5,11 +5,11 @@ import {
   TouchableOpacity,
   FlatList,
   TextInput,
-  Alert,
 } from "react-native";
 import { MapPin, Globe, ArrowRight } from "lucide-react-native";
 import BaseModal from "../modals/BaseModal";
 import { useWallet } from "../../context/WalletContext";
+import { useAlert } from "../../context/AlertContext";
 import WalletModal from "../modals/WalletModal"; // Import your wallet screen modal
 
 const popularDestinations = [
@@ -22,6 +22,7 @@ const popularDestinations = [
 
 const BondiesHopModal = ({ visible, onClose }) => {
   const { coins, plan, deductCoins } = useWallet();
+  const { showAlert } = useAlert();
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState(null);
   const [showWallet, setShowWallet] = useState(false); // 👈 control Wallet modal
@@ -34,10 +35,12 @@ const BondiesHopModal = ({ visible, onClose }) => {
     if (!selected) return;
 
     if (plan === "Gold" || plan === "Diamond") {
-      Alert.alert(
-        "Success",
-        `You hopped to ${selected.name} (Premium access 🎉)`
-      );
+      showAlert({
+        icon: 'success',
+        title: 'Success',
+        message: `You hopped to ${selected.name} (Premium access 🎉)`,
+        actions: [{ label: 'OK', style: 'primary' }],
+      });
       onClose();
       return;
     }
@@ -46,7 +49,12 @@ const BondiesHopModal = ({ visible, onClose }) => {
     const success = deductCoins(cost);
 
     if (success) {
-      Alert.alert("Success", `You hopped to ${selected.name}! -${cost} coins`);
+      showAlert({
+        icon: 'success',
+        title: 'Success',
+        message: `You hopped to ${selected.name}! -${cost} coins`,
+        actions: [{ label: 'OK', style: 'primary' }],
+      });
       onClose();
     } else {
       // 👇 Instead of alert, open Buy Coins modal

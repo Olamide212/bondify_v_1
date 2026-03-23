@@ -22,7 +22,6 @@ import {
 import { useState } from "react";
 import {
     ActivityIndicator,
-    Alert,
     Image,
     ScrollView,
     StyleSheet,
@@ -34,6 +33,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import BlockReportModal from "../../../components/modals/Blockreportmodal";
 import UnmatchReasonModal from "../../../components/modals/UnmatchReasonModal";
 import { colors } from "../../../constant/colors";
+import { useAlert } from "../../../context/AlertContext";
 import { matchService } from "../../../services/matchService";
 import { messageService } from "../../../services/messageService";
 
@@ -58,6 +58,7 @@ const Divider = () => <View style={s.divider} />;
 // ─── Main screen ──────────────────────────────────────────────────────────────
 export default function ChatOptionsScreen() {
   const router = useRouter();
+  const { showAlert } = useAlert();
   const params  = useLocalSearchParams();
 
   const matchId      = params.matchId;
@@ -99,7 +100,12 @@ export default function ChatOptionsScreen() {
       const msgs = res?.messages ?? res?.data?.messages ?? res ?? [];
 
       if (!Array.isArray(msgs) || msgs.length === 0) {
-        Alert.alert("Nothing to export", "There are no messages in this conversation yet.");
+        showAlert({
+          icon: 'info',
+          title: 'Nothing to export',
+          message: 'There are no messages in this conversation yet.',
+          actions: [{ label: 'OK', style: 'primary' }],
+        });
         return;
       }
 
@@ -125,11 +131,21 @@ export default function ChatOptionsScreen() {
           dialogTitle: `Chat with ${name}`,
         });
       } else {
-        Alert.alert("Exported", "Chat saved but sharing is not available on this device.");
+        showAlert({
+          icon: 'success',
+          title: 'Exported',
+          message: 'Chat saved but sharing is not available on this device.',
+          actions: [{ label: 'OK', style: 'primary' }],
+        });
       }
     } catch (err) {
       console.warn("Export chat error:", err);
-      Alert.alert("Export failed", err?.message || "Could not export chat. Please try again.");
+      showAlert({
+        icon: 'error',
+        title: 'Export failed',
+        message: err?.message || 'Could not export chat. Please try again.',
+        actions: [{ label: 'OK', style: 'primary' }],
+      });
     } finally {
       setIsExporting(false);
     }
@@ -145,7 +161,12 @@ export default function ChatOptionsScreen() {
       // Navigate all the way back to the chat list
       router.dismissAll();
     } catch (err) {
-      Alert.alert("Unable to unmatch", err?.message || "Please try again.");
+      showAlert({
+        icon: 'error',
+        title: 'Unable to unmatch',
+        message: err?.message || 'Please try again.',
+        actions: [{ label: 'OK', style: 'primary' }],
+      });
     } finally {
       setIsUnmatching(false);
     }

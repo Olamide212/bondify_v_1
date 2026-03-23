@@ -4,21 +4,15 @@ import { Stack } from 'expo-router';
 export default function ProfileLayout() {
   return (
     <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen
-        name="profile-details/index"
-      />
-      <Stack.Screen
-        name="profile-detail/index"
-      />
-      <Stack.Screen
-        name="edit-profiles/index"
-      />
       <Stack.Screen name="InterestsScreen" />
-      <Stack.Screen
-        name="badges"
-      />
-      <Stack.Screen name="nationality/index" />
-      <Stack.Screen name="index" />
+      <Stack.Screen name="badges" />
+      <Stack.Screen name="edit-profiles" />
+      <Stack.Screen name="events" />
+      <Stack.Screen name="invite" />
+      <Stack.Screen name="nationality" />
+      <Stack.Screen name="subscription" />
+      <Stack.Screen name="support-center" />
+      <Stack.Screen name="wallet" />
     </Stack>
   );
 }

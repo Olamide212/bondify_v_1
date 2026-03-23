@@ -15,7 +15,6 @@ import { ArrowLeft } from 'lucide-react-native';
 import { useCallback, useEffect, useState } from 'react';
 import {
     ActivityIndicator,
-    Alert,
     RefreshControl,
     ScrollView,
     StyleSheet,
@@ -44,6 +43,7 @@ import VoicePrompt from '../../../../components/profileScreen/VoicePrompt';
 import Education from '../../../../components/profileScreen/WorkAndEducation';
 import TextHeadingOne from '../../../../components/ui/TextHeadingOne';
 import { colors as C } from '../../../../constant/colors';
+import { useAlert } from '../../../../context/AlertContext';
 import { useTheme } from '../../../../context/ThemeContext';
 import { profileService } from '../../../../services/profileService';
 
@@ -121,6 +121,7 @@ const ViewProfileTab = ({ profile }) => {
 
 export default function ProfileDetails() {
   const { colors } = useTheme();
+  const { showAlert } = useAlert();
   const [profile, setProfile]     = useState({});
   const [loading, setLoading]     = useState(false);
   const [refreshing, setRefreshing] = useState(false);
@@ -176,7 +177,12 @@ export default function ProfileDetails() {
           setProfile((prev) => ({ ...prev, voicePrompt: null }));
         } catch (err) {
           console.error('Failed to delete voice prompt:', err);
-          Alert.alert('Error', 'Could not delete voice prompt.');
+          showAlert({
+            icon: 'error',
+            title: 'Error',
+            message: 'Could not delete voice prompt.',
+            actions: [{ label: 'OK', style: 'primary' }],
+          });
         }
       } else {
         // upload local URI
@@ -206,7 +212,12 @@ export default function ProfileDetails() {
     try {
       const existingPhotoCount = Array.isArray(profile?.images) ? profile.images.length : 0;
       if (existingPhotoCount >= 6) {
-        Alert.alert('Photo Limit Reached', 'You can upload up to 6 photos only.');
+        showAlert({
+          icon: 'camera',
+          title: 'Photo Limit Reached',
+          message: 'You can upload up to 6 photos only.',
+          actions: [{ label: 'OK', style: 'primary' }],
+        });
         return;
       }
       const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();

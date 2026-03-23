@@ -16,7 +16,6 @@ import {
 import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   FlatList,
   Image,
   RefreshControl,
@@ -28,6 +27,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSelector } from 'react-redux';
 import { colors } from '../../../constant/colors';
+import { useAlert } from '../../../context/AlertContext';
 import feedService from '../../../services/feedService';
 
 const BRAND = colors.primary;
@@ -41,6 +41,7 @@ const getFullName = (user) =>
 export default function SocialProfileScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams();
+  const { showAlert } = useAlert();
   const { user: currentUser } = useSelector((s) => s.auth);
 
   const [profile, setProfile] = useState(null);
@@ -101,7 +102,12 @@ export default function SocialProfileScreen() {
       setProfile(userData);
     } catch {
       setIsFollowing(wasFollowing);
-      Alert.alert('Error', 'Could not update follow status.');
+      showAlert({
+        icon: 'error',
+        title: 'Error',
+        message: 'Could not update follow status.',
+        actions: [{ label: 'OK', style: 'primary' }],
+      });
     } finally {
       setFollowLoading(false);
     }

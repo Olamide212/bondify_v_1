@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useAuthRestore } from "../../hooks/useAuthRestore";
 
-export default function _layout() {
+export default function RootLayout() {
   const router = useRouter();
   const segments = useSegments();
   const { restored, isAuthenticated, onboardingToken } = useAuthRestore();
@@ -59,12 +59,20 @@ export default function _layout() {
       <Stack.Screen name="welcome" />
       <Stack.Screen name="(profile)" />
       <Stack.Screen name="(discover)" />
-      <Stack.Screen name="user-profile"  />
+      <Stack.Screen name="(community)" />
       <Stack.Screen name="(settings)" />
+      <Stack.Screen name="user-profile" />
       <Stack.Screen name="feed-profile" />
+      <Stack.Screen name="user-feed-profile" />
+      <Stack.Screen name="edit-user-feed-profile" />
       <Stack.Screen name="unmatched-users" />
       <Stack.Screen name="bondup-chat" />
+      <Stack.Screen name="bondup-profile" />
       <Stack.Screen name="social-profile" />
+      <Stack.Screen name="chat-screen" />
+      <Stack.Screen name="chat-options" />
+      <Stack.Screen name="bon-bot" />
+      <Stack.Screen name="verification" />
 
       <Stack.Screen
         name="filter"

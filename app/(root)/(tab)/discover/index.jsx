@@ -8,7 +8,6 @@ import {
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
     ActivityIndicator,
-    Alert,
     Animated,
     Clipboard,
     Image,
@@ -25,6 +24,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { colors } from "../../../../constant/colors";
 import { images } from "../../../../constant/images";
+import { useAlert } from "../../../../context/AlertContext";
 import AIService from "../../../../services/aiService";
 
 // ─── Constants ────────────────────────────────────────────────
@@ -210,6 +210,7 @@ const UserBubble = ({ message }) => (
 
 // ─── Main Screen ──────────────────────────────────────────────
 const AIChatScreen = ({ navigation }) => {
+  const { showAlert } = useAlert();
   const [messages, setMessages] = useState([
     {
       id: 1,
@@ -299,22 +300,27 @@ const AIChatScreen = ({ navigation }) => {
   }, [messages, sendMessage]);
 
   const clearChat = () => {
-    Alert.alert("Clear chat", "Start a fresh conversation?", [
-      { text: "Cancel", style: "cancel" },
-      {
-        text: "Clear",
-        style: "destructive",
-        onPress: () =>
-          setMessages([
-            {
-              id: Date.now(),
-              role: "assistant",
-              content: "Chat cleared! What would you like to work on? 😊",
-              timestamp: new Date(),
-            },
-          ]),
-      },
-    ]);
+    showAlert({
+      icon: 'delete',
+      title: 'Clear chat',
+      message: 'Start a fresh conversation?',
+      actions: [
+        { label: 'Cancel', style: 'cancel' },
+        {
+          label: 'Clear',
+          style: 'destructive',
+          onPress: () =>
+            setMessages([
+              {
+                id: Date.now(),
+                role: "assistant",
+                content: "Chat cleared! What would you like to work on? 😊",
+                timestamp: new Date(),
+              },
+            ]),
+        },
+      ],
+    });
   };
 
   // ─── Render ───────────────────────────────────────────────────

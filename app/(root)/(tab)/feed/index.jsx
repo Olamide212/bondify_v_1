@@ -11,7 +11,6 @@ import { Plus } from 'lucide-react-native';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
     ActivityIndicator,
-    Alert,
     AppState,
     Image,
     RefreshControl,
@@ -29,6 +28,7 @@ import BondupJoinedModal from '../../../../components/bondup/BondupJoinedModal';
 import CreateBondupModal from '../../../../components/bondup/CreateBondupModal';
 import { colors } from '../../../../constant/colors';
 import { images } from '../../../../constant/images';
+import { useAlert } from '../../../../context/AlertContext';
 import bondupChatService from '../../../../services/bondupChatService';
 import bondupService from '../../../../services/bondupService';
 import { socketService } from '../../../../services/socketService';
@@ -105,6 +105,7 @@ const avatar = (user) =>
 // ─── BondupFeedScreen ────────────────────────────────────────────────────────
 export default function BondupFeedScreen() {
   const router = useRouter();
+  const { showAlert } = useAlert();
   const { user: currentUser } = useSelector((s) => s.auth);
 
   // ── State ────────────────────────────────────────────────────────────────
@@ -295,7 +296,11 @@ export default function BondupFeedScreen() {
       }
     } catch (err) {
       const msg = err?.response?.data?.message || 'Could not join. Try again.';
-      Alert.alert('Error', msg);
+      showAlert({
+        icon: 'error',
+        title: 'Error',
+        message: msg,
+      });
       loadBondups();
     } finally {
       setJoinLoading(false);
@@ -339,22 +344,27 @@ export default function BondupFeedScreen() {
   };
 
   const handleDelete = (bondupId) => {
-    Alert.alert('Remove Bondup', 'Are you sure you want to remove this Bondup?', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Remove',
-        style: 'destructive',
-        onPress: async () => {
-          setAllBondups((prev) => prev.filter((b) => b._id !== bondupId));
-          setDetailBondup((d) => (d?._id === bondupId ? null : d));
-          try {
-            await bondupService.deleteBondup(bondupId);
-          } catch {
-            loadBondups();
-          }
+    showAlert({
+      icon: 'delete',
+      title: 'Remove Bondup',
+      message: 'Are you sure you want to remove this Bondup?',
+      actions: [
+        { label: 'Cancel', style: 'cancel' },
+        {
+          label: 'Remove',
+          style: 'destructive',
+          onPress: async () => {
+            setAllBondups((prev) => prev.filter((b) => b._id !== bondupId));
+            setDetailBondup((d) => (d?._id === bondupId ? null : d));
+            try {
+              await bondupService.deleteBondup(bondupId);
+            } catch {
+              loadBondups();
+            }
+          },
         },
-      },
-    ]);
+      ],
+    });
   };
 
   const handleCreated = (newBondup) => {
@@ -388,7 +398,11 @@ export default function BondupFeedScreen() {
         });
       }
     } catch {
-      Alert.alert('Error', 'Could not start chat. Try again.', [{ text: 'OK' }]);
+      showAlert({
+        icon: 'error',
+        title: 'Error',
+        message: 'Could not start chat. Try again.',
+      });
     }
   };
 

@@ -5,31 +5,31 @@
 import * as ExpoLocation from 'expo-location';
 import { useRouter } from 'expo-router';
 import {
-  ArrowLeft,
-  Bookmark,
-  Clock,
-  MessageCircle,
-  Navigation,
-  Share2,
-  Trash2,
-  Users
+    ArrowLeft,
+    Bookmark,
+    Clock,
+    MessageCircle,
+    Navigation,
+    Share2,
+    Trash2,
+    Users
 } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
 import {
-  ActivityIndicator,
-  Alert,
-  Image,
-  Linking,
-  Platform,
-  ScrollView,
-  Share,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Image,
+    Linking,
+    Platform,
+    ScrollView,
+    Share,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { colors } from '../../constant/colors';
+import { useAlert } from '../../context/AlertContext';
 import BaseModal from '../modals/BaseModal';
 
 const BRAND = colors.primary;
@@ -174,6 +174,7 @@ export default function BondupDetailModal({
   joinLoading,
 }) {
   const router = useRouter();
+  const { showAlert } = useAlert();
   if (!bondup) return null;
 
   const creator = bondup.createdBy;
@@ -228,10 +229,15 @@ export default function BondupDetailModal({
             <TouchableOpacity
               style={s.iconBtn}
               onPress={() => {
-                Alert.alert('Remove Bondup', 'Remove this Bondup?', [
-                  { text: 'Cancel', style: 'cancel' },
-                  { text: 'Remove', style: 'destructive', onPress: () => { onClose?.(); onDelete?.(bondup._id); } },
-                ]);
+                showAlert({
+                  icon: 'delete',
+                  title: 'Remove Bondup',
+                  message: 'Remove this Bondup?',
+                  actions: [
+                    { label: 'Cancel', style: 'cancel' },
+                    { label: 'Remove', style: 'destructive', onPress: () => { onClose?.(); onDelete?.(bondup._id); } },
+                  ],
+                });
               }}
               hitSlop={10}
             >
@@ -411,10 +417,15 @@ export default function BondupDetailModal({
               <TouchableOpacity
                 style={s.secondaryBtn}
                 onPress={() => {
-                  Alert.alert('Leave Bondup', 'Are you sure?', [
-                    { text: 'Cancel', style: 'cancel' },
-                    { text: 'Leave', style: 'destructive', onPress: () => onLeave?.(bondup._id) },
-                  ]);
+                  showAlert({
+                    icon: 'leave',
+                    title: 'Leave Bondup',
+                    message: 'Are you sure?',
+                    actions: [
+                      { label: 'Cancel', style: 'cancel' },
+                      { label: 'Leave', style: 'destructive', onPress: () => onLeave?.(bondup._id) },
+                    ],
+                  });
                 }}
                 activeOpacity={0.8}
               >
@@ -439,10 +450,15 @@ export default function BondupDetailModal({
             <TouchableOpacity
               style={s.secondaryBtn}
               onPress={() => {
-                Alert.alert('Delete Bondup', 'Remove this Bondup?', [
-                  { text: 'Cancel', style: 'cancel' },
-                  { text: 'Delete', style: 'destructive', onPress: () => { onClose?.(); onDelete?.(bondup._id); } },
-                ]);
+                showAlert({
+                  icon: 'delete',
+                  title: 'Delete Bondup',
+                  message: 'Remove this Bondup?',
+                  actions: [
+                    { label: 'Cancel', style: 'cancel' },
+                    { label: 'Delete', style: 'destructive', onPress: () => { onClose?.(); onDelete?.(bondup._id); } },
+                  ],
+                });
               }}
               activeOpacity={0.8}
             >

@@ -4,18 +4,18 @@ import { useRouter } from "expo-router";
 import { Lightbulb } from 'lucide-react-native';
 import { useState } from "react";
 import {
-  Alert,
-  Image,
-  Keyboard,
-  SafeAreaView,
-  Text,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
-  View,
+    Image,
+    Keyboard,
+    SafeAreaView,
+    Text,
+    TouchableOpacity,
+    TouchableWithoutFeedback,
+    View,
 } from "react-native";
 import PhotoGuidelinesModal from "../../../../components/modals/PhotoGuidelinesModal";
 import Button from "../../../../components/ui/Button";
 import { colors } from "../../../../constant/colors";
+import { useAlert } from "../../../../context/AlertContext";
 import { useProfileSetup } from "../../../../hooks/useProfileSetup";
 import { profileService } from "../../../../services/profileService";
 
@@ -26,6 +26,7 @@ const color = {
 
 const UploadPhoto = () => {
   const router = useRouter();
+  const { showAlert } = useAlert();
   const [photos, setPhotos] = useState(Array(6).fill(null));
   const [uploading, setUploading] = useState(false);
   const [showGuidelines, setShowGuidelines] = useState(false);
@@ -34,7 +35,11 @@ const UploadPhoto = () => {
   const pickImage = async (index) => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
-      Alert.alert("Permission Required", "Permission to access media library is required!");
+      showAlert({
+        icon: 'camera',
+        title: 'Permission Required',
+        message: 'Permission to access media library is required!',
+      });
       return;
     }
 
@@ -61,7 +66,11 @@ const UploadPhoto = () => {
   const handleContinue = async () => {
     const selectedPhotos = photos.filter((p) => p !== null);
     if (selectedPhotos.length === 0) {
-      Alert.alert("Photos Required", "Please add at least one photo to continue.");
+      showAlert({
+        icon: 'warning',
+        title: 'Photos Required',
+        message: 'Please add at least one photo to continue.',
+      });
       return;
     }
 
@@ -71,7 +80,11 @@ const UploadPhoto = () => {
       router.push("/verification");
     } catch (err) {
       console.error("Photo upload error:", err);
-      Alert.alert("Upload Failed", "Failed to upload photos. Please try again.");
+      showAlert({
+        icon: 'error',
+        title: 'Upload Failed',
+        message: 'Failed to upload photos. Please try again.',
+      });
     } finally {
       setUploading(false);
     }

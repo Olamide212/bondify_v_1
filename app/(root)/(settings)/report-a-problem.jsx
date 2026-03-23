@@ -3,17 +3,19 @@
  * Route: /report-problem
  */
 
-import React, { useState } from "react";
+import { useRouter } from "expo-router";
+import { ArrowLeft, Camera, Info } from "lucide-react-native";
+import { useState } from "react";
 import {
-  View, Text, TextInput, TouchableOpacity,
-  StyleSheet, ScrollView, StatusBar, Alert,
-  Platform,
+    ScrollView, StatusBar,
+    StyleSheet,
+    Text, TextInput, TouchableOpacity,
+    View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useRouter } from "expo-router";
-import { ArrowLeft, Camera, X, Info } from "lucide-react-native";
+import { colors } from "../../../constant/colors";
+import { useAlert } from "../../../context/AlertContext";
 import { useTheme } from "../../../context/ThemeContext";
-import {colors} from "../../../constant/colors";
 
 
 const CATEGORIES = [
@@ -28,6 +30,7 @@ const CATEGORIES = [
 
 const ReportProblem = () => {
   const { colors } = useTheme();
+  const { showAlert } = useAlert();
   const router = useRouter();
   const [category, setCategory] = useState(CATEGORIES[0]);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -36,10 +39,18 @@ const ReportProblem = () => {
 
   const handleSubmit = () => {
     if (category === CATEGORIES[0] || !description.trim()) {
-      Alert.alert("Missing info", "Please select a category and describe the problem.");
+      showAlert({
+        icon: 'warning',
+        title: 'Missing info',
+        message: 'Please select a category and describe the problem.',
+      });
       return;
     }
-    Alert.alert("Report submitted", "Our team will review your report within 24 hours.");
+    showAlert({
+      icon: 'success',
+      title: 'Report submitted',
+      message: 'Our team will review your report within 24 hours.',
+    });
     router.back();
   };
 

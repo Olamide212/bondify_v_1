@@ -2,7 +2,6 @@ import { useRouter } from "expo-router";
 import { Play } from "lucide-react-native";
 import { useState } from "react";
 import {
-    Alert,
     KeyboardAvoidingView,
     Platform,
     SafeAreaView,
@@ -17,6 +16,7 @@ import ActivityLoader from "../../../../components/ui/ActivityLoader";
 import Button from "../../../../components/ui/Button";
 import { colors } from "../../../../constant/colors";
 import { fonts } from "../../../../constant/fonts";
+import { useAlert } from "../../../../context/AlertContext";
 import { favoriteVideosData } from "../../../../data/favoriteVideosData";
 import { useLookupOptions } from "../../../../hooks/useLookupOptions";
 import { useProfileSetup } from "../../../../hooks/useProfileSetup";
@@ -27,6 +27,7 @@ const FavoriteVideos = () => {
   const [selectedVideos, setSelectedVideos] = useState([]);
   const [submitting, setSubmitting] = useState(false);
   const router = useRouter();
+  const { showAlert } = useAlert();
   const { updateProfileStep } = useProfileSetup({ isOnboarding: true });
   const { options: videoOptions, loading, error } = useLookupOptions("favorite-videos");
 
@@ -39,7 +40,11 @@ const FavoriteVideos = () => {
 
   const handleContinue = async () => {
     if (selectedVideos.length === 0) {
-      Alert.alert("Selection Required", "Please select at least one favorite video type.");
+      showAlert({
+        icon: 'warning',
+        title: 'Selection Required',
+        message: 'Please select at least one favorite video type.',
+      });
       return;
     }
 
@@ -49,7 +54,11 @@ const FavoriteVideos = () => {
       router.push("/fun-activities");
     } catch (err) {
       console.error("Save videos error:", err);
-      Alert.alert("Error", "Could not save your video preferences. Please try again.");
+      showAlert({
+        icon: 'error',
+        title: 'Error',
+        message: 'Could not save your video preferences. Please try again.',
+      });
     } finally {
       setSubmitting(false);
     }

@@ -15,7 +15,6 @@ import { ArrowLeft, MessageCircle, UserPlus, UserX } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import {
     ActivityIndicator,
-    Alert,
     FlatList,
     Image,
     ScrollView,
@@ -28,6 +27,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useSelector } from "react-redux";
 import VerifiedIcon from "../../../components/ui/VerifiedIcon";
 import { colors } from "../../../constant/colors";
+import { useAlert } from "../../../context/AlertContext";
 import feedService from "../../../services/feedService";
 
 const BRAND = colors.primary;
@@ -68,6 +68,7 @@ const HorizontalPostCard = ({ item, onPress }) => {
 export default function UserFeedProfile() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
+  const { showAlert } = useAlert();
   const { user: currentUser } = useSelector((s) => s.auth);
 
   const [profile, setProfile] = useState(null);
@@ -118,7 +119,12 @@ export default function UserFeedProfile() {
       }
       setIsFollowing(!isFollowing);
     } catch (err) {
-      Alert.alert("Error", err?.response?.data?.message ?? "Failed to update follow status");
+      showAlert({
+        icon: 'error',
+        title: 'Error',
+        message: err?.response?.data?.message ?? 'Failed to update follow status',
+        actions: [{ label: 'OK', style: 'primary' }],
+      });
     } finally {
       setFollowing(false);
     }

@@ -1,7 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import { useEffect, useRef } from "react";
-import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Animated, {
     useAnimatedStyle,
     useSharedValue,
@@ -9,6 +9,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { useDispatch, useSelector } from "react-redux";
 import { colors } from "../../../constant/colors";
+import { useAlert } from "../../../context/AlertContext";
 import { useAuthRestore } from "../../../hooks/useAuthRestore";
 import { logout } from "../../../slices/authSlice";
 import { persistor } from "../../../store/store";
@@ -20,6 +21,7 @@ const NAV_TIMEOUT_MS = 2000;
 const SplashScreen = () => {
   const dispatch           = useDispatch();
   const router             = useRouter();
+  const { showAlert }      = useAlert();
   const hasNavigated       = useRef(false);
   const resetInProgressRef = useRef(false);
   const tapCountRef        = useRef(0);
@@ -110,14 +112,15 @@ const SplashScreen = () => {
 
     if (tapCountRef.current >= 7) {
       tapCountRef.current = 0;
-      Alert.alert(
-        "Emergency Reset",
-        "This will clear local session/cache and return to onboarding.",
-        [
-          { text: "Cancel", style: "cancel" },
-          { text: "Reset", style: "destructive", onPress: performEmergencyReset },
-        ]
-      );
+      showAlert({
+        icon: 'warning',
+        title: 'Emergency Reset',
+        message: 'This will clear local session/cache and return to onboarding.',
+        actions: [
+          { label: 'Cancel', style: 'cancel' },
+          { label: 'Reset', style: 'destructive', onPress: performEmergencyReset },
+        ],
+      });
     }
   };
 

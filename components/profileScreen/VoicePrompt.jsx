@@ -31,15 +31,15 @@ import { Mic, Pause, Play, RefreshCw, Square, Trash2, Upload } from 'lucide-reac
 import { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   Animated,
   StyleSheet,
   Text,
   TouchableOpacity,
   View
 } from 'react-native';
+import { colors } from '../../constant/colors';
+import { useAlert } from '../../context/AlertContext';
 import { useTheme } from '../../context/ThemeContext';
-import {colors} from '../../constant/colors';
 
 const MAX_DURATION_S = 60;
 const BAR_COUNT      = 28;
@@ -125,6 +125,7 @@ const wv = StyleSheet.create({
 
 export default function VoicePrompt({ profile, onUpdateField }) {
   const { colors } = useTheme();
+  const { showAlert } = useAlert();
 
   // phase: 'idle' | 'recording' | 'recorded' | 'playing' | 'paused' | 'uploading'
   const [phase,        setPhase]        = useState('idle');
@@ -186,7 +187,7 @@ export default function VoicePrompt({ profile, onUpdateField }) {
     try {
       const { granted } = await AudioModule.requestRecordingPermissionsAsync();
       if (!granted) {
-        Alert.alert('Permission needed', 'Enable microphone access to record a voice prompt.');
+        showAlert({ icon: 'mic', title: 'Permission needed', message: 'Enable microphone access to record a voice prompt.' });
         return;
       }
       await ensureAudioMode(true); // allowsRecording = true
@@ -195,7 +196,7 @@ export default function VoicePrompt({ profile, onUpdateField }) {
       setPhase('recording');
     } catch (err) {
       console.error('[VoicePrompt] startRecording error:', err);
-      Alert.alert('Error', 'Could not start recording.');
+      showAlert({ icon: 'error', title: 'Error', message: 'Could not start recording.' });
     }
   };
 
@@ -218,7 +219,7 @@ export default function VoicePrompt({ profile, onUpdateField }) {
       setPhase('recorded');
     } catch (err) {
       console.error('[VoicePrompt] stopRecording error:', err);
-      Alert.alert('Error', 'Could not save recording. Please try again.');
+      showAlert({ icon: 'error', title: 'Error', message: 'Could not save recording. Please try again.' });
       setPhase('idle');
     }
   };
@@ -274,23 +275,28 @@ export default function VoicePrompt({ profile, onUpdateField }) {
   // ── Delete ────────────────────────────────────────────────────────────────
 
   const handleDelete = () => {
-    Alert.alert('Delete voice prompt', 'Remove your voice prompt from your profile?', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Delete', style: 'destructive',
-        onPress: () => {
-          if (playerRef.current) {
-            playerRef.current.removeAllListeners('playbackStatusUpdate');
-            playerRef.current.remove();
-            playerRef.current = null;
-          }
-          setRecordUri(null);
-          setPhase('idle');
-          setHasExisting(false);
-          onUpdateField?.('voicePrompt', null);
+    showAlert({
+      icon: 'delete',
+      title: 'Delete voice prompt',
+      message: 'Remove your voice prompt from your profile?',
+      actions: [
+        { label: 'Cancel', style: 'cancel' },
+        {
+          label: 'Delete', style: 'destructive',
+          onPress: () => {
+            if (playerRef.current) {
+              playerRef.current.removeAllListeners('playbackStatusUpdate');
+              playerRef.current.remove();
+              playerRef.current = null;
+            }
+            setRecordUri(null);
+            setPhase('idle');
+            setHasExisting(false);
+            onUpdateField?.('voicePrompt', null);
+          },
         },
-      },
-    ]);
+      ],
+    });
   };
 
   const handleReRecord = () => {
@@ -313,10 +319,10 @@ export default function VoicePrompt({ profile, onUpdateField }) {
       await onUpdateField?.('voicePrompt', recordUri);
       setHasExisting(true);
       setPhase('recorded');
-      Alert.alert('Saved! 🎉', 'Your voice prompt has been added to your profile.');
+      showAlert({ icon: 'success', title: 'Saved! 🎉', message: 'Your voice prompt has been added to your profile.' });
     } catch (err) {
       console.error('[VoicePrompt] upload error:', err);
-      Alert.alert('Error', 'Failed to save voice prompt. Please try again.');
+      showAlert({ icon: 'error', title: 'Error', message: 'Failed to save voice prompt. Please try again.' });
       setPhase('recorded');
     }
   };

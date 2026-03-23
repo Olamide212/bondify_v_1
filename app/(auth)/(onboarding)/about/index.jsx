@@ -2,22 +2,22 @@ import { useRouter } from "expo-router";
 import { RefreshCw, Sparkles } from "lucide-react-native";
 import { useState } from "react";
 import {
-  ActivityIndicator,
-  Alert,
-  Keyboard,
-  KeyboardAvoidingView,
-  Platform,
-  SafeAreaView,
-  ScrollView,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
-  View
+    ActivityIndicator,
+    Keyboard,
+    KeyboardAvoidingView,
+    Platform,
+    SafeAreaView,
+    ScrollView,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    TouchableWithoutFeedback,
+    View
 } from "react-native";
 import Button from "../../../../components/ui/Button";
 import { colors } from "../../../../constant/colors";
 import { fonts } from "../../../../constant/fonts";
+import { useAlert } from "../../../../context/AlertContext";
 import { useProfileSetup } from "../../../../hooks/useProfileSetup";
 import AIService from "../../../../services/aiService";
 
@@ -146,6 +146,7 @@ const About = () => {
   const [loading, setLoading] = useState(false);
   const [editing, setEditing] = useState(false);
   const router = useRouter();
+  const { showAlert } = useAlert();
   const { updateProfileStep } = useProfileSetup({ isOnboarding: true });
 
   const handleSelectPrompt = (prompt) => {
@@ -154,7 +155,11 @@ const About = () => {
 
   const handleGenerateBio = async () => {
     if (!promptWords.trim()) {
-      Alert.alert("Prompt required", "Please enter 3 words to describe yourself.");
+      showAlert({
+        icon: 'warning',
+        title: 'Prompt required',
+        message: 'Please enter 3 words to describe yourself.',
+      });
       return;
     }
     setLoading(true);
@@ -164,7 +169,11 @@ const About = () => {
       setEditing(true);
     } catch (err) {
       console.error("Bio generation error:", err);
-      Alert.alert("Error", "Couldn't generate bio. Try again.");
+      showAlert({
+        icon: 'error',
+        title: 'Error',
+        message: 'Couldn\'t generate bio. Try again.',
+      });
     } finally {
       setLoading(false);
     }
@@ -177,11 +186,19 @@ const About = () => {
   const handleContinue = async () => {
     const bio = generatedBio.trim();
     if (!bio) {
-      Alert.alert("Bio required", "Please generate and edit your bio.");
+      showAlert({
+        icon: 'warning',
+        title: 'Bio required',
+        message: 'Please generate and edit your bio.',
+      });
       return;
     }
     if (bio.length > 500) {
-      Alert.alert("Bio too long", "Please keep your bio under 500 characters.");
+      showAlert({
+        icon: 'warning',
+        title: 'Bio too long',
+        message: 'Please keep your bio under 500 characters.',
+      });
       return;
     }
     try {
@@ -189,7 +206,11 @@ const About = () => {
       router.push("/voice-prompt");
     } catch (err) {
       console.error("Bio save error:", err);
-      Alert.alert("Error", "Failed to save bio.");
+      showAlert({
+        icon: 'error',
+        title: 'Error',
+        message: 'Failed to save bio.',
+      });
     }
   };
 

@@ -40,7 +40,7 @@ const ProfileHeroSection = ({
 }) => {
   const [mainImageLoading, setMainImageLoading] = useState(false);
 
-  const voicePromptUri = extractVoicePromptUri(profile?.voicePrompt);
+  const voicePromptUri = extractVoicePromptUri("https://bondies-s3-user.s3.us-east-1.amazonaws.com/bondies/voice_prompts/69b61304986a1fb823cc0573/1774149746551-737873612.m4a");
 
   const locationLabel = [profile?.distance, profile?.location]
     .filter((v) => v && typeof v === 'string' && v.trim())

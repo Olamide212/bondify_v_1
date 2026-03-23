@@ -1,24 +1,22 @@
+import { ArrowLeft, MessageCircle } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import {
-  ActivityIndicator,
-  Alert,
-  Platform,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Switch,
-  Text,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Platform,
+    ScrollView,
+    StatusBar,
+    StyleSheet,
+    Switch,
+    Text,
+    View
 } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-import { ArrowLeft, MessageCircle } from "lucide-react-native";
-import { useDispatch, useSelector } from "react-redux";
-import SettingsService from "../../../services/settingsService";
-import { colors } from "../../../constant/colors";
-import { fonts } from "../../../constant/fonts";
 import GeneralHeader from "../../../components/headers/GeneralHeader";
+import { colors } from "../../../constant/colors";
+import { useAlert } from "../../../context/AlertContext";
+import { fonts } from "../../../constant/fonts";
 import profileService from "../../../services/profileService";
+import SettingsService from "../../../services/settingsService";
 
 // ─── Config ───────────────────────────────────────────────────────────────────
 
@@ -110,6 +108,7 @@ const ToggleRow = ({ setting, value, onChange, disabled, isLast }) => (
 // ─── Screen ───────────────────────────────────────────────────────────────────
 
 const NotificationSettings = ({ onBack }) => {
+  const { showAlert } = useAlert();
   const [settings,       setSettings]       = useState(DEFAULT_SETTINGS);
   const [isLoading,      setIsLoading]      = useState(true);
   const [savingKey,      setSavingKey]      = useState(null);
@@ -153,7 +152,12 @@ const NotificationSettings = ({ onBack }) => {
       }
     } catch (error) {
       setSettings((prev) => ({ ...prev, [key]: snapshot }));
-      Alert.alert("Couldn't save", error?.message || "Please try again.");
+      showAlert({
+        icon: 'error',
+        title: "Couldn't save",
+        message: error?.message || 'Please try again.',
+        actions: [{ label: 'OK', style: 'primary' }],
+      });
     } finally {
       setSavingKey(null);
     }
@@ -181,7 +185,12 @@ const NotificationSettings = ({ onBack }) => {
       await profileService.updateProfile({ whatsappOptIn: value });
     } catch (error) {
       setWhatsappOptIn(!value); // revert on failure
-      Alert.alert("Couldn't save", error?.message || "Please try again.");
+      showAlert({
+        icon: 'error',
+        title: "Couldn't save",
+        message: error?.message || 'Please try again.',
+        actions: [{ label: 'OK', style: 'primary' }],
+      });
     } finally {
       setSavingWhatsapp(false);
     }

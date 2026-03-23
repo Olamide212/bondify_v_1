@@ -7,6 +7,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Provider, useSelector } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
 import MatchCelebrationModal from "../components/modals/MatchCelebrationModal";
+import { AlertProvider } from "../context/AlertContext";
 import { DiscoveryProfilesProvider } from "../context/DiscoveryProfilesContext";
 import { ProfileProvider, useProfile } from "../context/ProfileContext";
 import { ThemeProvider } from "../context/ThemeContext";
@@ -109,7 +110,9 @@ const [fontsLoaded] = useFonts({
             <ProfileProvider>
               <DiscoveryProfilesProvider>
                 <ToastProvider>
-                  <RootLayoutInner />
+                  <AlertProvider>
+                    <RootLayoutInner />
+                  </AlertProvider>
                 </ToastProvider>
               </DiscoveryProfilesProvider>
             </ProfileProvider>

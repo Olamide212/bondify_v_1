@@ -8,7 +8,6 @@ import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
     ActivityIndicator,
-    Alert,
     KeyboardAvoidingView,
     Platform,
     Text,
@@ -18,10 +17,12 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { colors } from "../../../constant/colors";
+import { useAlert } from "../../../context/AlertContext";
 import SettingsService from "../../../services/settingsService";
 
 const UpdatePhoneScreen = () => {
   const router = useRouter();
+  const { showAlert } = useAlert();
 
   const [step, setStep]               = useState("phone"); // "phone" | "otp"
   const [countryCode, setCountryCode] = useState("+234");
@@ -32,7 +33,12 @@ const UpdatePhoneScreen = () => {
   // ── Step 1: send OTP to new number ───────────────────────────
   const handleSendOtp = async () => {
     if (!phoneNumber.trim())
-      return Alert.alert("Required", "Please enter your new phone number.");
+      return showAlert({
+        icon: 'warning',
+        title: 'Required',
+        message: 'Please enter your new phone number.',
+        actions: [{ label: 'OK', style: 'primary' }],
+      });
 
     setLoading(true);
     try {
@@ -42,10 +48,12 @@ const UpdatePhoneScreen = () => {
       });
       setStep("otp");
     } catch (err) {
-      Alert.alert(
-        "Error",
-        err?.response?.data?.message || err?.message || "Something went wrong."
-      );
+      showAlert({
+        icon: 'error',
+        title: 'Error',
+        message: err?.response?.data?.message || err?.message || 'Something went wrong.',
+        actions: [{ label: 'OK', style: 'primary' }],
+      });
     } finally {
       setLoading(false);
     }
@@ -54,19 +62,29 @@ const UpdatePhoneScreen = () => {
   // ── Step 2: verify OTP ────────────────────────────────────────
   const handleVerifyOtp = async () => {
     if (otp.trim().length < 4)
-      return Alert.alert("Required", "Please enter the OTP sent to your number.");
+      return showAlert({
+        icon: 'warning',
+        title: 'Required',
+        message: 'Please enter the OTP sent to your number.',
+        actions: [{ label: 'OK', style: 'primary' }],
+      });
 
     setLoading(true);
     try {
       await SettingsService.verifyPhoneUpdate({ otp: otp.trim() });
-      Alert.alert("Done!", "Your phone number has been updated.", [
-        { text: "OK", onPress: () => router.back() },
-      ]);
+      showAlert({
+        icon: 'success',
+        title: 'Done!',
+        message: 'Your phone number has been updated.',
+        actions: [{ label: 'OK', style: 'primary', onPress: () => router.back() }],
+      });
     } catch (err) {
-      Alert.alert(
-        "Invalid OTP",
-        err?.response?.data?.message || err?.message || "Please try again."
-      );
+      showAlert({
+        icon: 'error',
+        title: 'Invalid OTP',
+        message: err?.response?.data?.message || err?.message || 'Please try again.',
+        actions: [{ label: 'OK', style: 'primary' }],
+      });
     } finally {
       setLoading(false);
     }

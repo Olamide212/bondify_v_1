@@ -6,21 +6,21 @@
 
 import * as Calendar from 'expo-calendar';
 import {
-  CalendarDays,
-  MessageCircle,
-  X,
+    CalendarDays,
+    MessageCircle,
+    X,
 } from 'lucide-react-native';
 import {
-  Alert,
-  Image,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    Image,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 import { colors } from '../../constant/colors';
+import { useAlert } from '../../context/AlertContext';
 import BaseModal from '../modals/BaseModal';
 
 const BRAND = colors.primary;
@@ -49,13 +49,18 @@ export default function BondupJoinedModal({
   onClose,
   onOpenChat,
 }) {
+  const { showAlert } = useAlert();
   if (!bondup) return null;
 
   const handleAddToCalendar = async () => {
     try {
       const { status } = await Calendar.requestCalendarPermissionsAsync();
       if (status !== 'granted') {
-        Alert.alert('Permission Needed', 'Calendar access is required to add this event.');
+        showAlert({
+          icon: 'calendar',
+          title: 'Permission Needed',
+          message: 'Calendar access is required to add this event.',
+        });
         return;
       }
 
@@ -86,7 +91,11 @@ export default function BondupJoinedModal({
       }
 
       if (!targetCalendar) {
-        Alert.alert('Error', 'No writable calendar found on this device.');
+        showAlert({
+          icon: 'error',
+          title: 'Error',
+          message: 'No writable calendar found on this device.',
+        });
         return;
       }
 
@@ -103,10 +112,18 @@ export default function BondupJoinedModal({
         alarms: [{ relativeOffset: -30 }], // reminder 30 mins before
       });
 
-      Alert.alert('Added! 🎉', 'This Bondup has been added to your calendar with a 30-min reminder.');
+      showAlert({
+        icon: 'success',
+        title: 'Added! 🎉',
+        message: 'This Bondup has been added to your calendar with a 30-min reminder.',
+      });
     } catch (err) {
       console.error('Calendar error:', err);
-      Alert.alert('Error', 'Could not add to calendar. Please try again.');
+      showAlert({
+        icon: 'error',
+        title: 'Error',
+        message: 'Could not add to calendar. Please try again.',
+      });
     }
   };
 

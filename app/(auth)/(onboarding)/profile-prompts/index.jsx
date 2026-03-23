@@ -3,7 +3,6 @@ import { Plus, X } from "lucide-react-native";
 import { useState } from "react";
 import {
     ActivityIndicator,
-    Alert,
     Keyboard,
     KeyboardAvoidingView,
     Modal,
@@ -19,11 +18,12 @@ import {
 import Button from "../../../../components/ui/Button";
 import { colors } from "../../../../constant/colors";
 import { fonts } from "../../../../constant/fonts";
+import { useAlert } from "../../../../context/AlertContext";
 import { useProfileSetup } from "../../../../hooks/useProfileSetup";
 
 // ─── Prompt Selection Modal ─────────────────────────────
 
-const PromptModal = ({ visible, onClose, onSaveAnswer }) => {
+const PromptModal = ({ visible, onClose, onSaveAnswer, showAlert }) => {
   const [selectedPrompt, setSelectedPrompt] = useState("");
   const [answer, setAnswer] = useState("");
   const [aiSuggestions, setAiSuggestions] = useState([]);
@@ -76,7 +76,11 @@ const PromptModal = ({ visible, onClose, onSaveAnswer }) => {
 
   const handleSave = () => {
     if (!selectedPrompt || !answer.trim()) {
-      Alert.alert("Incomplete", "Please select a prompt and provide an answer.");
+      showAlert({
+        icon: 'warning',
+        title: 'Incomplete',
+        message: 'Please select a prompt and provide an answer.',
+      });
       return;
     }
 
@@ -317,6 +321,7 @@ const PromptModal = ({ visible, onClose, onSaveAnswer }) => {
 
 export default function ProfilePromptsScreen() {
   const router = useRouter();
+  const { showAlert } = useAlert();
   const { profileData, updateProfileData } = useProfileSetup();
   const [modalVisible, setModalVisible] = useState(false);
   const [savedAnswers, setSavedAnswers] = useState(profileData?.profilePrompts || []);
@@ -335,10 +340,11 @@ export default function ProfilePromptsScreen() {
 
   const handleContinue = () => {
     if (savedAnswers.length === 0) {
-      Alert.alert(
-        "Add at least one prompt",
-        "Share something about yourself to help others get to know you better."
-      );
+      showAlert({
+        icon: 'warning',
+        title: 'Add at least one prompt',
+        message: 'Share something about yourself to help others get to know you better.',
+      });
       return;
     }
     router.push("/(auth)/(onboarding)/profile-answers");
@@ -505,6 +511,7 @@ export default function ProfilePromptsScreen() {
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
         onSaveAnswer={handleSaveAnswer}
+        showAlert={showAlert}
       />
     </SafeAreaView>
   );

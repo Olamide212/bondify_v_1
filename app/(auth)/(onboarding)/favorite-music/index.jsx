@@ -2,7 +2,6 @@ import { useRouter } from "expo-router";
 import { Music } from "lucide-react-native";
 import { useState } from "react";
 import {
-    Alert,
     KeyboardAvoidingView,
     Platform,
     SafeAreaView,
@@ -17,6 +16,7 @@ import ActivityLoader from "../../../../components/ui/ActivityLoader";
 import Button from "../../../../components/ui/Button";
 import { colors } from "../../../../constant/colors";
 import { fonts } from "../../../../constant/fonts";
+import { useAlert } from "../../../../context/AlertContext";
 import { favoriteMusicData } from "../../../../data/favoriteMusicData";
 import { useLookupOptions } from "../../../../hooks/useLookupOptions";
 import { useProfileSetup } from "../../../../hooks/useProfileSetup";
@@ -27,6 +27,7 @@ const FavoriteMusic = () => {
   const [selectedMusic, setSelectedMusic] = useState([]);
   const [submitting, setSubmitting] = useState(false);
   const router = useRouter();
+  const { showAlert } = useAlert();
   const { updateProfileStep } = useProfileSetup({ isOnboarding: true });
   const { options: musicOptions, loading, error } = useLookupOptions("favorite-music");
 
@@ -49,7 +50,11 @@ const FavoriteMusic = () => {
 
   const handleContinue = async () => {
     if (selectedMusic.length === 0) {
-      Alert.alert("Selection Required", "Please select at least one favorite music genre.");
+      showAlert({
+        icon: 'warning',
+        title: 'Selection Required',
+        message: 'Please select at least one favorite music genre.',
+      });
       return;
     }
 
@@ -59,7 +64,11 @@ const FavoriteMusic = () => {
       router.push("/favorite-videos");
     } catch (err) {
       console.error("Save music error:", err);
-      Alert.alert("Error", "Could not save your music preferences. Please try again.");
+      showAlert({
+        icon: 'error',
+        title: 'Error',
+        message: 'Could not save your music preferences. Please try again.',
+      });
     } finally {
       setSubmitting(false);
     }

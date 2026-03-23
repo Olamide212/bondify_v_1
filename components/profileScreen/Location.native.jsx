@@ -2,16 +2,16 @@ import * as ExpoLocation from "expo-location";
 import { MapPin, Navigation, X } from "lucide-react-native";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
-  ActivityIndicator,
-  Alert,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import { colors } from "../../constant/colors";
+import { useAlert } from "../../context/AlertContext";
 import BaseModal from "../modals/BaseModal";
 
 const DEFAULT_REGION = {
@@ -22,6 +22,7 @@ const DEFAULT_REGION = {
 };
 
 const Location = ({ profile, onUpdateField }) => {
+  const { showAlert } = useAlert();
   const mapRef = useRef(null);
 
   const [isModalVisible, setIsModalVisible]     = useState(false);
@@ -97,7 +98,11 @@ const Location = ({ profile, onUpdateField }) => {
       setIsDetectingLocation(true);
       const { status } = await ExpoLocation.requestForegroundPermissionsAsync();
       if (status !== "granted") {
-        Alert.alert("Permission needed", "Allow location access to use your current location.");
+        showAlert({
+          icon: 'location',
+          title: 'Permission needed',
+          message: 'Allow location access to use your current location.',
+        });
         return;
       }
       const pos = await ExpoLocation.getCurrentPositionAsync({ accuracy: ExpoLocation.Accuracy.Balanced });
@@ -110,7 +115,11 @@ const Location = ({ profile, onUpdateField }) => {
 
       await reverseGeocode(latitude, longitude);
     } catch {
-      Alert.alert("Location error", "Could not detect your location. Try again.");
+      showAlert({
+        icon: 'error',
+        title: 'Location error',
+        message: 'Could not detect your location. Try again.',
+      });
     } finally {
       setIsDetectingLocation(false);
     }
@@ -119,7 +128,11 @@ const Location = ({ profile, onUpdateField }) => {
   // ── Save ──────────────────────────────────────────────────────────────────
   const handleSaveLocation = async () => {
     if (!city && !stateValue && !country) {
-      Alert.alert("Missing location", "Enter at least one location field or tap on the map.");
+      showAlert({
+        icon: 'warning',
+        title: 'Missing location',
+        message: 'Enter at least one location field or tap on the map.',
+      });
       return;
     }
     const base    = typeof profile?.location === "object" && profile?.location ? profile.location : {};

@@ -1,35 +1,35 @@
 import {
-  Bookmark,
-  ChevronLeft,
-  CornerDownRight,
-  Heart,
-  MessageCircle,
-  MoreHorizontal,
-  Send,
-  Share2,
-  UserMinus,
-  UserPlus,
+    Bookmark,
+    ChevronLeft,
+    CornerDownRight,
+    Heart,
+    MessageCircle,
+    MoreHorizontal,
+    Send,
+    Share2,
+    UserMinus,
+    UserPlus,
 } from "lucide-react-native";
 import { useState } from "react";
 import {
-  ActivityIndicator,
-  Alert,
-  Animated,
-  Dimensions,
-  FlatList,
-  Image,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  Share,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Animated,
+    Dimensions,
+    FlatList,
+    Image,
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView,
+    Share,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { colors } from "../../constant/colors";
+import { useAlert } from "../../context/AlertContext";
 import BaseModal from "../modals/BaseModal";
 import PostOptionsModal from "./PostOptionsModal";
 
@@ -65,6 +65,7 @@ const PostDetailModal = ({
   onShare,
   isFollowing = false,
 }) => {
+  const { showAlert } = useAlert();
   const [text, setText] = useState("");
   const [loading, setLoading] = useState(false);
   const [likeAnim] = useState(new Animated.Value(1));
@@ -121,13 +122,25 @@ const PostDetailModal = ({
         onFollow?.(authorId);
         break;
       case "mute":
-        Alert.alert("Muted", "You won't see posts from this user.");
+        showAlert({
+          icon: 'success',
+          title: 'Muted',
+          message: 'You won\'t see posts from this user.',
+        });
         break;
       case "report":
-        Alert.alert("Report", "This post has been reported.");
+        showAlert({
+          icon: 'success',
+          title: 'Report',
+          message: 'This post has been reported.',
+        });
         break;
       case "block":
-        Alert.alert("Block", "This user has been blocked.");
+        showAlert({
+          icon: 'success',
+          title: 'Block',
+          message: 'This user has been blocked.',
+        });
         break;
       case "delete":
         onOpenOptions?.({ ...post, _deleteFromDetail: true });

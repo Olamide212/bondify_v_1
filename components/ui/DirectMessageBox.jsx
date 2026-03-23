@@ -1,19 +1,20 @@
 import { SendHorizontal, Sparkles } from "lucide-react-native";
 import { useState } from "react";
 import {
-  ActivityIndicator,
-  Alert,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { colors } from "../../constant/colors";
+import { useAlert } from "../../context/AlertContext";
 import { messageService } from "../../services/messageService";
 import AISuggestionModal from "../modals/AiSuggestionModal";
 
 export default function DirectMessageBox({ profile }) {
+  const { showAlert } = useAlert();
   const [message, setMessage]               = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [sending, setSending]               = useState(false);
@@ -25,7 +26,11 @@ export default function DirectMessageBox({ profile }) {
 
     const profileId = String(profile?.id ?? profile?._id ?? "");
     if (!profileId) {
-      Alert.alert("Error", "Could not identify this user.");
+      showAlert({
+        icon: 'error',
+        title: 'Error',
+        message: 'Could not identify this user.',
+      });
       return;
     }
 
@@ -42,7 +47,11 @@ export default function DirectMessageBox({ profile }) {
       setTimeout(() => setSent(false), 3000);
     } catch (err) {
       console.error("DirectMessageBox send error:", err);
-      Alert.alert("Failed to send", err?.message || "Something went wrong. Please try again.");
+      showAlert({
+        icon: 'error',
+        title: 'Failed to send',
+        message: err?.message || 'Something went wrong. Please try again.',
+      });
     } finally {
       setSending(false);
     }

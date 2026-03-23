@@ -11,22 +11,22 @@ import { useRouter } from "expo-router";
 import { Check, Info, Mic, Pause, Play, Square, Trash2 } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
 import {
-    Alert,
     Keyboard,
     KeyboardAvoidingView,
     Platform,
+    Pressable,
     SafeAreaView,
     ScrollView,
     Text,
     TouchableOpacity,
     TouchableWithoutFeedback,
-    View,
-    Pressable
+    View
 } from "react-native";
 import BaseModal from "../../../../components/modals/BaseModal";
 import Button from "../../../../components/ui/Button";
 import { colors } from "../../../../constant/colors";
 import { fonts } from "../../../../constant/fonts";
+import { useAlert } from "../../../../context/AlertContext";
 import { profileService } from "../../../../services/profileService";
 
 // ─── Voice Bio Benefits Component ─────────────────────────────
@@ -75,7 +75,7 @@ const VoiceBioBenefits = () => {
 
 // ─── Voice Prompt Section ─────────────────────────────────────────────────────
 
-const VoicePromptSection = ({ onUseVoice }) => {
+const VoicePromptSection = ({ onUseVoice, showAlert }) => {
   const [phase, setPhase] = useState("idle"); // idle | recording | recorded | playing
   const [playPos, setPlayPos] = useState(0);
   const [playDuration, setPlayDuration] = useState(0);
@@ -108,7 +108,11 @@ const VoicePromptSection = ({ onUseVoice }) => {
     try {
       const { granted } = await AudioModule.requestRecordingPermissionsAsync();
       if (!granted) {
-        Alert.alert("Permission needed", "Enable microphone access to record your bio.");
+        showAlert({
+          icon: 'mic',
+          title: 'Permission needed',
+          message: 'Enable microphone access to record your bio.',
+        });
         return;
       }
 
@@ -121,7 +125,11 @@ const VoicePromptSection = ({ onUseVoice }) => {
       setPlayDuration(0);
     } catch (err) {
       console.error("Start recording error:", err);
-      Alert.alert("Error", "Could not start recording.");
+      showAlert({
+        icon: 'error',
+        title: 'Error',
+        message: 'Could not start recording.',
+      });
     }
   };
 
@@ -143,7 +151,11 @@ const VoicePromptSection = ({ onUseVoice }) => {
       setPhase("recorded");
     } catch (err) {
       console.error("Stop recording error:", err);
-      Alert.alert("Error", "Could not save recording. Please try again.");
+      showAlert({
+        icon: 'error',
+        title: 'Error',
+        message: 'Could not save recording. Please try again.',
+      });
     }
   };
 
@@ -179,7 +191,11 @@ const VoicePromptSection = ({ onUseVoice }) => {
       player.play();
     } catch (err) {
       console.error("Playback error:", err);
-      Alert.alert("Error", "Could not play the recording.");
+      showAlert({
+        icon: 'error',
+        title: 'Error',
+        message: 'Could not play the recording.',
+      });
     }
   };
 
@@ -195,24 +211,29 @@ const VoicePromptSection = ({ onUseVoice }) => {
   const formatTime = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
 
   const handleDelete = () => {
-    Alert.alert("Delete recording", "Remove this voice bio?", [
-      { text: "Cancel", style: "cancel" },
-      {
-        text: "Delete",
-        style: "destructive",
-        onPress: () => {
-          if (playerRef.current) {
-            playerRef.current.removeAllListeners("playbackStatusUpdate");
-            playerRef.current.remove();
-            playerRef.current = null;
-          }
-          setRecordUri(null);
-          setPhase("idle");
-          setPlayPos(0);
-          setPlayDuration(0);
+    showAlert({
+      icon: 'delete',
+      title: 'Delete recording',
+      message: 'Remove this voice bio?',
+      actions: [
+        { label: 'Cancel', style: 'cancel' },
+        {
+          label: 'Delete',
+          style: 'destructive',
+          onPress: () => {
+            if (playerRef.current) {
+              playerRef.current.removeAllListeners("playbackStatusUpdate");
+              playerRef.current.remove();
+              playerRef.current = null;
+            }
+            setRecordUri(null);
+            setPhase("idle");
+            setPlayPos(0);
+            setPlayDuration(0);
+          },
         },
-      },
-    ]);
+      ],
+    });
   };
 
   const handleUseVoice = () => {
@@ -428,10 +449,15 @@ const VoicePrompt = () => {
   const [submitting, setSubmitting] = useState(false);
   const [showBenefitsModal, setShowBenefitsModal] = useState(false);
   const router = useRouter();
+  const { showAlert } = useAlert();
 
   const handleUseVoice = (uri) => {
     setVoiceBioUri(uri);
-    Alert.alert("✅ Voice bio added!", "Your recording is saved. Tap Continue to submit.");
+    showAlert({
+      icon: 'success',
+      title: '✅ Voice bio added!',
+      message: 'Your recording is saved. Tap Continue to submit.',
+    });
   };
 
   return (
@@ -467,7 +493,7 @@ const VoicePrompt = () => {
               </View>
 
               {/* Voice bio section */}
-              <VoicePromptSection onUseVoice={handleUseVoice} />
+              <VoicePromptSection onUseVoice={handleUseVoice} showAlert={showAlert} />
 
             </ScrollView>
 
@@ -480,13 +506,21 @@ const VoicePrompt = () => {
                   try {
                     if (voiceBioUri) {
                       await profileService.uploadVoicePrompt(voiceBioUri);
-                      Alert.alert("✅ Voice bio submitted!", "Your recording has been saved successfully.");
+                      showAlert({
+                        icon: 'success',
+                        title: '✅ Voice bio submitted!',
+                        message: 'Your recording has been saved successfully.',
+                      });
                     }
                     router.push("/profile-answers");
                   } catch (err) {
                     console.error("Voice upload error:", err);
                     const errorMsg = err?.response?.data?.message || "Could not save voice recording.";
-                    Alert.alert("Voice upload failed", errorMsg);
+                    showAlert({
+                      icon: 'error',
+                      title: 'Voice upload failed',
+                      message: errorMsg,
+                    });
                   } finally {
                     setSubmitting(false);
                   }

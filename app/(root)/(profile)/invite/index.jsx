@@ -1,18 +1,20 @@
 import { ArrowLeft, Copy, Gift, Share2, Star, Users } from "lucide-react-native";
 import { useCallback, useEffect, useState } from "react";
 import {
-  ActivityIndicator, Alert,
+  ActivityIndicator,
   Clipboard, Image, Pressable, ScrollView, Share, StyleSheet, Text, View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import GeneralHeader from "../../../../components/headers/GeneralHeader";
 import { colors } from "../../../../constant/colors";
+import { useAlert } from "../../../../context/AlertContext";
 import SettingsService from "../../../../services/settingsService";
 
 const PRIMARY       = colors.primary;
 const PRIMARY_LIGHT = colors.primaryLight;
 
 const InviteScreen = ({ navigation }) => {
+  const { showAlert } = useAlert();
   const [referralCode,  setReferralCode]  = useState(null);
   const [referralCount, setReferralCount] = useState(0);
   const [referralLink,  setReferralLink]  = useState(null);
@@ -60,7 +62,12 @@ const InviteScreen = ({ navigation }) => {
     try {
       await Share.share({ message: shareText, title: "Join Bondies" });
     } catch {
-      Alert.alert("Error", "Could not share referral code.");
+      showAlert({
+        icon: 'error',
+        title: 'Error',
+        message: 'Could not share referral code.',
+        actions: [{ label: 'OK', style: 'primary' }],
+      });
     }
   };
 

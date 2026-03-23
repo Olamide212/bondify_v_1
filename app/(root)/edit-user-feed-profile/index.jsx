@@ -4,7 +4,6 @@ import { ArrowLeft } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import {
     ActivityIndicator,
-    Alert,
     Image,
     ScrollView,
     StyleSheet,
@@ -16,6 +15,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useSelector } from "react-redux";
 import { colors } from "../../../constant/colors";
+import { useAlert } from "../../../context/AlertContext";
 import feedService from "../../../services/feedService";
 import apiClient from "../../../utils/axiosInstance";
 
@@ -31,6 +31,7 @@ const fallbackDisplayName = (user) =>
 
 export default function EditFeedProfileScreen() {
   const router = useRouter();
+  const { showAlert } = useAlert();
   const { user: currentUser } = useSelector((s) => s.auth);
 
   const [displayNameInput, setDisplayNameInput] = useState(() => fallbackDisplayName(currentUser));
@@ -99,7 +100,12 @@ export default function EditFeedProfileScreen() {
       setLocalAvatarUri(uploadedUrl);
     } catch (error) {
       setLocalAvatarUri(avatarUrl(currentUser));
-      Alert.alert("Error", error?.response?.data?.message ?? "Could not update photo.");
+      showAlert({
+        icon: 'error',
+        title: 'Error',
+        message: error?.response?.data?.message ?? 'Could not update photo.',
+        actions: [{ label: 'OK', style: 'primary' }],
+      });
     } finally {
       setUploading(false);
     }
@@ -110,11 +116,21 @@ export default function EditFeedProfileScreen() {
     const trimmedUserName = userNameInput.trim();
 
     if (!trimmedDisplayName) {
-      Alert.alert("Required", "Display name cannot be empty.");
+      showAlert({
+        icon: 'warning',
+        title: 'Required',
+        message: 'Display name cannot be empty.',
+        actions: [{ label: 'OK', style: 'primary' }],
+      });
       return;
     }
     if (!trimmedUserName) {
-      Alert.alert("Required", "Username cannot be empty.");
+      showAlert({
+        icon: 'warning',
+        title: 'Required',
+        message: 'Username cannot be empty.',
+        actions: [{ label: 'OK', style: 'primary' }],
+      });
       return;
     }
 
@@ -124,11 +140,19 @@ export default function EditFeedProfileScreen() {
         displayName: trimmedDisplayName,
         userName: trimmedUserName,
       });
-      Alert.alert("Saved", "Feed profile updated successfully", [
-        { text: "OK", onPress: () => router.back() },
-      ]);
+      showAlert({
+        icon: 'success',
+        title: 'Saved',
+        message: 'Feed profile updated successfully',
+        actions: [{ label: 'OK', style: 'primary', onPress: () => router.back() }],
+      });
     } catch (error) {
-      Alert.alert("Error", error?.response?.data?.message ?? "Could not save changes.");
+      showAlert({
+        icon: 'error',
+        title: 'Error',
+        message: error?.response?.data?.message ?? 'Could not save changes.',
+        actions: [{ label: 'OK', style: 'primary' }],
+      });
     } finally {
       setSaving(false);
     }

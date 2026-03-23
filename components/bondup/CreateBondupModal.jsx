@@ -4,30 +4,30 @@
 
 import * as Location from 'expo-location';
 import {
-  Calendar,
-  ChevronRight,
-  Clock,
-  Globe,
-  Lock,
-  MapPin,
-  X,
+    Calendar,
+    ChevronRight,
+    Clock,
+    Globe,
+    Lock,
+    MapPin,
+    X,
 } from 'lucide-react-native';
 import { useState } from 'react';
 import {
-  ActivityIndicator,
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { useSelector } from 'react-redux';
 import { colors } from '../../constant/colors';
+import { useAlert } from '../../context/AlertContext';
 import bondupService from '../../services/bondupService';
 import BaseModal from '../modals/BaseModal';
 
@@ -129,6 +129,7 @@ function TimePickerSheet({ dayOptions, selectedDayIndex, selectedTime, onDaySele
 
 export default function CreateBondupModal({ visible, onClose, onCreated }) {
   const { user: currentUser } = useSelector((s) => s.auth);
+  const { showAlert } = useAlert();
   const dayOptions = buildDayOptions();
 
   // ── Form state (all original variables preserved) ────────────────────────
@@ -220,12 +221,20 @@ export default function CreateBondupModal({ visible, onClose, onCreated }) {
   const handleSubmit = async () => {
     const finalActivity = activity === 'other' ? customActivity : activity;
     if (!title.trim() || !finalActivity || !city.trim()) {
-      Alert.alert('Missing fields', 'Please fill in title, activity, and city.');
+      showAlert({
+        icon: 'warning',
+        title: 'Missing fields',
+        message: 'Please fill in title, activity, and city.',
+      });
       return;
     }
     const dateTime = parseTimeOption(selectedTime, dayOptions[selectedDayIndex].date);
     if (dateTime < new Date()) {
-      Alert.alert('Invalid time', 'Please pick a future date and time.');
+      showAlert({
+        icon: 'warning',
+        title: 'Invalid time',
+        message: 'Please pick a future date and time.',
+      });
       return;
     }
     setLoading(true);
@@ -247,7 +256,11 @@ export default function CreateBondupModal({ visible, onClose, onCreated }) {
       }
     } catch (err) {
       const msg = err?.response?.data?.message || 'Could not create Bondup. Try again.';
-      Alert.alert('Error', msg);
+      showAlert({
+        icon: 'error',
+        title: 'Error',
+        message: msg,
+      });
     } finally {
       setLoading(false);
     }

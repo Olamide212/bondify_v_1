@@ -5,7 +5,7 @@ import { colors } from "../../constant/colors";
 
 const Verification = ({ profile }) => {
   const router    = useRouter();
-  const verified  = profile?.verified === true;
+  const verified  = profile?.verificationStatus === "approved";
   const pending   = profile?.verificationStatus === "pending";
 
   const handlePress = () => {
@@ -23,7 +23,7 @@ const Verification = ({ profile }) => {
         <View style={[s.iconCircle, verified && s.iconCircleVerified, pending && s.iconCirclePending]}>
           <ShieldCheck
             size={18}
-            color={verified ? "#10B981" : pending ? "#F59E0B" : colors.primary}
+            color={verified ? "#10B981" : colors.primary}
             strokeWidth={2}
           />
         </View>
@@ -79,7 +79,7 @@ const s = StyleSheet.create({
     backgroundColor: "#D1FAE5",
   },
   iconCirclePending: {
-    backgroundColor: "#FEF3C7",
+    backgroundColor: colors.background,
   },
   cardTitle: {
     fontSize:     16,

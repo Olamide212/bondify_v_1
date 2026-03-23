@@ -1,12 +1,14 @@
 import * as Location from "expo-location";
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { Alert, Image, Text, View } from "react-native";
+import { Image, Text, View } from "react-native";
 import Button from "../../../../components/ui/Button";
+import { useAlert } from "../../../../context/AlertContext";
 import { useProfileSetup } from "../../../../hooks/useProfileSetup";
 
 const LocationAccess = () => {
   const router = useRouter();
+  const { showAlert } = useAlert();
   const [loading, setLoading] = useState(false);
   const { updateProfileStep, finalizeOnboarding } = useProfileSetup({
     isOnboarding: true,
@@ -35,19 +37,21 @@ const LocationAccess = () => {
     try {
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
-        Alert.alert(
-          "Permission Denied",
-          "Location permission is needed to find matches near you. You can enable it later in settings.",
-          [
+        showAlert({
+          icon: 'location',
+          title: 'Permission Denied',
+          message: 'Location permission is needed to find matches near you. You can enable it later in settings.',
+          actions: [
             {
-              text: "Continue Anyway",
+              label: 'Continue Anyway',
+              style: 'primary',
               onPress: async () => {
                 await finalizeOnboardingSafely();
                 router.replace("/root-tabs");
               },
             },
-          ]
-        );
+          ],
+        });
         setLoading(false);
         return;
       }
@@ -63,19 +67,21 @@ const LocationAccess = () => {
       }
 
       if (!location) {
-        Alert.alert(
-          "Location Unavailable",
-          "We couldn't determine your location right now. You can update it later in settings.",
-          [
+        showAlert({
+          icon: 'location',
+          title: 'Location Unavailable',
+          message: 'We couldn\'t determine your location right now. You can update it later in settings.',
+          actions: [
             {
-              text: "Continue Anyway",
+              label: 'Continue Anyway',
+              style: 'primary',
               onPress: async () => {
                 await finalizeOnboardingSafely();
                 router.replace("/root-tabs");
               },
             },
-          ]
-        );
+          ],
+        });
         setLoading(false);
         return;
       }
@@ -108,12 +114,14 @@ const LocationAccess = () => {
       }
 
       console.error("Location access error:", err);
-      Alert.alert(
-        "Location Error",
-        "Could not get your location. You can update it later in settings.",
-        [
+      showAlert({
+        icon: 'location',
+        title: 'Location Error',
+        message: 'Could not get your location. You can update it later in settings.',
+        actions: [
           {
-            text: "Continue Anyway",
+            label: 'Continue Anyway',
+            style: 'primary',
             onPress: async () => {
               try {
                 await finalizeOnboardingSafely();
@@ -124,8 +132,8 @@ const LocationAccess = () => {
               }
             },
           },
-        ]
-      );
+        ],
+      });
     } finally {
       setLoading(false);
     }

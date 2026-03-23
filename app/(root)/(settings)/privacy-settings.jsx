@@ -1,22 +1,22 @@
+import { ArrowLeft } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import {
-  ActivityIndicator,
-  Alert,
-  Platform,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Switch,
-  Text,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Platform,
+    ScrollView,
+    StatusBar,
+    StyleSheet,
+    Switch,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import SettingsService from "../../../services/settingsService";
-import { fonts } from "../../../constant/fonts";
 import GeneralHeader from "../../../components/headers/GeneralHeader";
-import { ArrowLeft } from "lucide-react-native";
 import { colors } from "../../../constant/colors";
+import { fonts } from "../../../constant/fonts";
+import { useAlert } from "../../../context/AlertContext";
+import SettingsService from "../../../services/settingsService";
 
 // ─── Config ───────────────────────────────────────────────────────────────────
 
@@ -125,6 +125,7 @@ const ToggleRow = ({ setting, value, onChange, disabled }) => (
 // ─── Screen ───────────────────────────────────────────────────────────────────
 
 const PrivacySettings = ({ onBack }) => {
+  const { showAlert } = useAlert();
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
   const [isLoading, setIsLoading] = useState(true);
   const [savingKey, setSavingKey] = useState(null);
@@ -160,7 +161,12 @@ const PrivacySettings = ({ onBack }) => {
     } catch (error) {
       // Revert optimistic update to snapshot
       setSettings((prev) => ({ ...prev, [key]: snapshot }));
-      Alert.alert("Couldn't save", error?.message || "Please try again.");
+      showAlert({
+        icon: 'error',
+        title: "Couldn't save",
+        message: error?.message || 'Please try again.',
+        actions: [{ label: 'OK', style: 'primary' }],
+      });
     } finally {
       setSavingKey(null);
     }

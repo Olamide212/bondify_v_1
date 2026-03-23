@@ -8,7 +8,6 @@ import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
     ActivityIndicator,
-    Alert,
     KeyboardAvoidingView,
     Platform,
     Text,
@@ -18,10 +17,12 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { colors } from "../../../constant/colors";
+import { useAlert } from "../../../context/AlertContext";
 import SettingsService from "../../../services/settingsService";
 
 const UpdateEmailScreen = () => {
   const router = useRouter();
+  const { showAlert } = useAlert();
 
   const [step, setStep]       = useState("email"); // "email" | "otp"
   const [email, setEmail]     = useState("");
@@ -31,21 +32,33 @@ const UpdateEmailScreen = () => {
   // ── Step 1: request email change OTP ─────────────────────────
   const handleSendCode = async () => {
     const cleaned = email.trim().toLowerCase();
-    if (!cleaned) return Alert.alert("Required", "Please enter your new email address.");
+    if (!cleaned) return showAlert({
+      icon: 'warning',
+      title: 'Required',
+      message: 'Please enter your new email address.',
+      actions: [{ label: 'OK', style: 'primary' }],
+    });
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(cleaned))
-      return Alert.alert("Invalid", "Please enter a valid email address.");
+      return showAlert({
+        icon: 'warning',
+        title: 'Invalid',
+        message: 'Please enter a valid email address.',
+        actions: [{ label: 'OK', style: 'primary' }],
+      });
 
     setLoading(true);
     try {
       await SettingsService.updateEmail({ email: cleaned });
       setStep("otp");
     } catch (err) {
-      Alert.alert(
-        "Error",
-        err?.response?.data?.message || err?.message || "Something went wrong."
-      );
+      showAlert({
+        icon: 'error',
+        title: 'Error',
+        message: err?.response?.data?.message || err?.message || 'Something went wrong.',
+        actions: [{ label: 'OK', style: 'primary' }],
+      });
     } finally {
       setLoading(false);
     }
@@ -54,19 +67,29 @@ const UpdateEmailScreen = () => {
   // ── Step 2: verify OTP ────────────────────────────────────────
   const handleVerifyOtp = async () => {
     if (otp.trim().length < 4)
-      return Alert.alert("Required", "Please enter the code we sent to your email.");
+      return showAlert({
+        icon: 'warning',
+        title: 'Required',
+        message: 'Please enter the code we sent to your email.',
+        actions: [{ label: 'OK', style: 'primary' }],
+      });
 
     setLoading(true);
     try {
       await SettingsService.verifyEmailUpdate({ otp: otp.trim() });
-      Alert.alert("Done!", "Your email address has been updated.", [
-        { text: "OK", onPress: () => router.back() },
-      ]);
+      showAlert({
+        icon: 'success',
+        title: 'Done!',
+        message: 'Your email address has been updated.',
+        actions: [{ label: 'OK', style: 'primary', onPress: () => router.back() }],
+      });
     } catch (err) {
-      Alert.alert(
-        "Invalid code",
-        err?.response?.data?.message || err?.message || "Please try again."
-      );
+      showAlert({
+        icon: 'error',
+        title: 'Invalid code',
+        message: err?.response?.data?.message || err?.message || 'Please try again.',
+        actions: [{ label: 'OK', style: 'primary' }],
+      });
     } finally {
       setLoading(false);
     }

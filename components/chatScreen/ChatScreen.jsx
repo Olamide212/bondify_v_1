@@ -5,22 +5,22 @@ import { useRouter } from "expo-router";
 import { Copy, Edit2, Mail, MessageCircle, Search, X } from "lucide-react-native";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
-  ActivityIndicator,
-  Alert,
-  KeyboardAvoidingView,
-  Linking,
-  Platform,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View
+    ActivityIndicator,
+    KeyboardAvoidingView,
+    Linking,
+    Platform,
+    ScrollView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useSelector } from "react-redux";
 import { colors } from "../../constant/colors";
+import { useAlert } from "../../context/AlertContext";
 import { messageService } from "../../services/messageService";
 import { socketService } from "../../services/socketService";
 import cacheManager from "../../utils/cacheManager";
@@ -33,6 +33,7 @@ const MESSAGE_PAGE_SIZE = 20;
 const LOAD_OLDER_TRIGGER_PX = 140;
 
 const ChatScreen = ({ matchedUser, onBack, initialSearchMode = false }) => {
+  const { showAlert } = useAlert();
   const [isTyping, setIsTyping] = useState(false);
   const typingTimeoutRef = useRef(null);
 
@@ -689,7 +690,11 @@ const ChatScreen = ({ matchedUser, onBack, initialSearchMode = false }) => {
                     )
                   );
                 } catch (err) {
-                  Alert.alert("Edit Failed", err.message || "Could not edit message.");
+                  showAlert({
+                    icon: 'error',
+                    title: 'Edit Failed',
+                    message: err.message || 'Could not edit message.',
+                  });
                 }
               } else {
                 // Normal send (with reply)

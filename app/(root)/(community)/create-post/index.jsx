@@ -7,16 +7,17 @@ import {
   SafeAreaView,
   ScrollView,
   Image,
-  Alert,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { X, Image as ImageIcon, Hash } from "lucide-react-native";
 import * as ImagePicker from "expo-image-picker";
 import { styles } from "../../../../components/community/styles/communityStyles";
+import { useAlert } from "../../../../context/AlertContext";
 
 const CreatePostScreen = () => {
   const { communityId, topicId } = useLocalSearchParams();
   const router = useRouter();
+  const { showAlert } = useAlert();
   const [content, setContent] = useState("");
   const [image, setImage] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -36,7 +37,12 @@ const CreatePostScreen = () => {
 
   const handleSubmit = async () => {
     if (!content.trim()) {
-      Alert.alert("Error", "Please write something before posting");
+      showAlert({
+        icon: 'warning',
+        title: 'Error',
+        message: 'Please write something before posting',
+        actions: [{ label: 'OK', style: 'primary' }],
+      });
       return;
     }
 
@@ -54,11 +60,19 @@ const CreatePostScreen = () => {
       // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      Alert.alert("Success", "Your post has been published!", [
-        { text: "OK", onPress: () => router.back() },
-      ]);
+      showAlert({
+        icon: 'success',
+        title: 'Success',
+        message: 'Your post has been published!',
+        actions: [{ label: 'OK', style: 'primary', onPress: () => router.back() }],
+      });
     } catch (error) {
-      Alert.alert("Error", "Failed to create post. Please try again.");
+      showAlert({
+        icon: 'error',
+        title: 'Error',
+        message: 'Failed to create post. Please try again.',
+        actions: [{ label: 'OK', style: 'primary' }],
+      });
     } finally {
       setIsSubmitting(false);
     }
