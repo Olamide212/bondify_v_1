@@ -442,15 +442,18 @@ const updateAISettings = async (req, res, next) => {
       'personalizedSuggestions', 'aiUpdates',
     ];
 
+    // Validate conversationStyle if provided
+    if (req.body.conversationStyle !== undefined && 
+        !['casual', 'witty', 'deep'].includes(req.body.conversationStyle)) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Invalid conversation style. Must be one of: casual, witty, deep' 
+      });
+    }
+
     const updates = {};
     allowed.forEach((key) => {
       if (req.body[key] !== undefined) {
-        // Validate conversationStyle enum
-        if (key === 'conversationStyle') {
-          if (!['casual', 'witty', 'deep'].includes(req.body[key])) {
-            return; // Skip invalid values
-          }
-        }
         updates[`aiSettings.${key}`] = req.body[key];
       }
     });

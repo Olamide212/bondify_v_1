@@ -3,6 +3,7 @@ import { ArrowLeft, Bell, ChevronRight, MessageSquare, Shield, Sparkles, Trash2 
 import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
+  Linking,
   Platform,
   Pressable,
   ScrollView,
@@ -195,7 +196,7 @@ const AISettings = ({ onBack }) => {
           onPress: async () => {
             try {
               // Clear local storage chat history
-              await AsyncStorage.removeItem('@bondify/ai_chat_history');
+              await AsyncStorage.removeItem('@bondify/cache/ai_chat_history');
               // Also call API to clear server-side if needed
               await SettingsService.clearAIChatHistory();
               showAlert({
@@ -319,7 +320,12 @@ const AISettings = ({ onBack }) => {
           {/* Footer Note */}
           <Text style={styles.footerNote}>
             Bondies AI helps you make better connections. Your data is encrypted and used only to improve your experience.{" "}
-            <Text style={styles.footerLink}>Learn more</Text>
+            <Text 
+              style={styles.footerLink}
+              onPress={() => Linking.openURL('https://bondies.app/privacy')}
+            >
+              Learn more
+            </Text>
           </Text>
         </ScrollView>
       </SafeAreaView>
