@@ -17,6 +17,9 @@ const {
   deleteAccount,
   getReferralCode,
   updatePushToken,
+  getAISettings,
+  updateAISettings,
+  clearAIChatHistory,
 } = require('../controllers/settingsController');
 
 // ── Account ───────────────────────────────────────────────────────────────────
@@ -43,5 +46,10 @@ router.get('/blocked-users',    protect, getBlockedUsers); // GET    /api/settin
 // ── Misc ──────────────────────────────────────────────────────────────────────
 router.get('/referral',     protect, getReferralCode); // GET   /api/settings/referral
 router.patch('/push-token', protect, updatePushToken); // PATCH /api/settings/push-token
+
+// ── AI Settings ───────────────────────────────────────────────────────────────
+router.get('/ai',              protect, getAISettings);        // GET    /api/settings/ai
+router.patch('/ai',            protect, updateAISettings);     // PATCH  /api/settings/ai
+router.delete('/ai/chat-history', protect, clearAIChatHistory); // DELETE /api/settings/ai/chat-history
 
 module.exports = router;

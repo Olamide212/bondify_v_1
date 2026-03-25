@@ -668,6 +668,19 @@ verificationSubmittedAt: { type: Date },
     showAge:          { type: Boolean, default: true },
     showOnlineStatus: { type: Boolean, default: true },
 
+    // AI Assistant Settings
+    aiSettings: {
+      conversationStyle: {
+        type: String,
+        enum: ['casual', 'witty', 'deep'],
+        default: 'witty',
+      },
+      showIcebreakers:         { type: Boolean, default: true  },
+      profileTips:             { type: Boolean, default: true  },
+      personalizedSuggestions: { type: Boolean, default: true  },
+      aiUpdates:               { type: Boolean, default: true  },
+    },
+
     // Push Token
     pushToken: { type: String },
 

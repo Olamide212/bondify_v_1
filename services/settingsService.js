@@ -192,6 +192,42 @@ const SettingsService = {
     const response = await apiClient.patch("/settings/push-token", data);
     return response.data;
   },
+
+  // ─── AI Settings ─────────────────────────────────────────────
+
+  /**
+   * Fetch the user's saved AI assistant preferences.
+   * @returns {{ conversationStyle: 'casual'|'witty'|'deep',
+   *             showIcebreakers: boolean, profileTips: boolean,
+   *             personalizedSuggestions: boolean, aiUpdates: boolean }}
+   */
+  getAISettings: async () => {
+    const response = await apiClient.get("/settings/ai");
+    return response.data;
+  },
+
+  /**
+   * Update one or more AI assistant settings.
+   * @param {{
+   *   conversationStyle?: 'casual'|'witty'|'deep',
+   *   showIcebreakers?: boolean,
+   *   profileTips?: boolean,
+   *   personalizedSuggestions?: boolean,
+   *   aiUpdates?: boolean
+   * }} data
+   */
+  updateAISettings: async (data) => {
+    const response = await apiClient.patch("/settings/ai", data);
+    return response.data;
+  },
+
+  /**
+   * Clear the AI assistant chat history.
+   */
+  clearAIChatHistory: async () => {
+    const response = await apiClient.delete("/settings/ai/chat-history");
+    return response.data;
+  },
 };
 
 export default SettingsService;
