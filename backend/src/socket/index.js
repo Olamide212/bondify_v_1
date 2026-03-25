@@ -1,5 +1,7 @@
 const { Server } = require('socket.io');
+const { createAdapter } = require('@socket.io/redis-adapter');
 const { verifyToken } = require('../config/jwt');
+const { getRedisClient, isRedisEnabled } = require('../config/redis');
 
 let io;
 
@@ -10,6 +12,23 @@ const initSocket = (httpServer) => {
       credentials: true,
     },
   });
+
+  // Use Redis adapter when Redis is available (enables multi-server support)
+  if (isRedisEnabled()) {
+    const setupRedisAdapter = async () => {
+      try {
+        const pubClient = getRedisClient();
+        const subClient = pubClient.duplicate();
+        await subClient.connect();
+        io.adapter(createAdapter(pubClient, subClient));
+        console.log('Socket.io: Redis adapter enabled (multi-server mode)');
+      } catch (err) {
+        console.error('Socket.io: Redis adapter error –', err.message);
+        console.log('Socket.io: falling back to in-memory adapter');
+      }
+    };
+    setupRedisAdapter();
+  }
 
   io.use((socket, next) => {
     const rawToken =

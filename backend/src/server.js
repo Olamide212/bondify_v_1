@@ -6,6 +6,7 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 
 const connectDB = require('./config/database');
+const { connectRedis } = require('./config/redis');
 const errorHandler = require('./middleware/errorHandler');
 const { initSocket } = require('./socket');
 const { authLimiter, apiLimiter } = require('./middleware/rateLimiters');
@@ -39,6 +40,9 @@ const httpServer = http.createServer(app);
 
 // Connect to database
 connectDB();
+
+// Connect to Redis (optional – app runs without it)
+connectRedis();
 
 // Middleware
 app.use(helmet());
