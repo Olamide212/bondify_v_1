@@ -21,6 +21,31 @@ const Match   = require('../models/Match');
 const { getIO } = require('../socket');
 const { mapImagesWithAccessUrls } = require('../utils/imageHelper');
 const { sendMatchNotification }   = require('../utils/whatsappService');
+const { getRedisClient, isRedisEnabled } = require('../config/redis');
+
+// Cache TTL for discovery results (seconds)
+const DISCOVERY_CACHE_TTL = 30;
+
+/**
+ * Invalidate all discovery cache entries for a given user.
+ * Called after a like/pass action so the user sees fresh results on the next request.
+ */
+const invalidateDiscoveryCache = async (userId) => {
+  if (!isRedisEnabled()) return;
+  try {
+    const pattern = `discover:${userId}:*`;
+    let cursor = 0;
+    do {
+      const reply = await getRedisClient().scan(cursor, { MATCH: pattern, COUNT: 100 });
+      cursor = reply.cursor;
+      if (reply.keys.length > 0) {
+        await getRedisClient().del(reply.keys);
+      }
+    } while (cursor !== 0);
+  } catch (err) {
+    console.error('Discovery cache invalidation error:', err.message);
+  }
+};
 
 // @desc    Get discovery profiles
 // @route   GET /api/discover
@@ -45,6 +70,27 @@ const getDiscoveryProfiles = async (req, res, next) => {
     const sanitizedMaxDistance = maxDistance ? parseInt(maxDistance, 10) : undefined;
     const sanitizedPage        = Math.max(parseInt(page,  10) || 1, 1);
     const sanitizedLimit       = Math.min(parseInt(limit, 10) || 20, 100);
+
+    // Build a stable cache key from user + query params (excluding dynamic liked/matched sets)
+    const cacheKey = `discover:${userId}:${JSON.stringify({
+      sanitizedMinAge, sanitizedMaxAge, sanitizedMaxDistance,
+      gender, religion, ethnicity, drinking, smoking,
+      interests, verifiedOnly, activeToday, location,
+      sanitizedPage, sanitizedLimit,
+    })}`;
+
+    // Return cached result when Redis is available
+    if (isRedisEnabled()) {
+      try {
+        const cached = await getRedisClient().get(cacheKey);
+        if (cached) {
+          return res.json(JSON.parse(cached));
+        }
+      } catch (cacheErr) {
+        // Cache read failure is non-fatal; continue to DB
+        console.error('Discovery cache read error:', cacheErr.message);
+      }
+    }
 
     // Exclude users already liked/superliked (but allow passed users to reappear)
     const [likedUsers, matchedUserIds] = await Promise.all([
@@ -185,7 +231,7 @@ const getDiscoveryProfiles = async (req, res, next) => {
       })
     );
 
-    return res.json({
+    const responseBody = {
       success: true,
       data: {
         profiles: profilesWithImages,
@@ -196,7 +242,18 @@ const getDiscoveryProfiles = async (req, res, next) => {
           pages: Math.ceil(total / sanitizedLimit),
         },
       },
-    });
+    };
+
+    // Cache the response in Redis
+    if (isRedisEnabled()) {
+      try {
+        await getRedisClient().setEx(cacheKey, DISCOVERY_CACHE_TTL, JSON.stringify(responseBody));
+      } catch (cacheErr) {
+        console.error('Discovery cache write error:', cacheErr.message);
+      }
+    }
+
+    return res.json(responseBody);
   } catch (error) {
     next(error);
   }
@@ -287,6 +344,7 @@ const performAction = async (req, res, next) => {
       } else if (type === 'pass') {
         await User.findByIdAndUpdate(userId, { $inc: { passesGiven: 1 } });
         // Pass can never create a match — return early
+        await invalidateDiscoveryCache(userId);
         return res.json({ success: true, message: 'Action recorded.', data: { isMatch: false } });
       }
     }
@@ -395,6 +453,12 @@ const performAction = async (req, res, next) => {
           })
           .catch((err) => console.error('[whatsapp] Match notification error:', err.message));
 
+        // Invalidate discovery cache for both users — neither should see each other again
+        await Promise.all([
+          invalidateDiscoveryCache(userId),
+          invalidateDiscoveryCache(likedUserId),
+        ]);
+
         return res.json({
           success: true,
           message: "It's a match!",
@@ -410,6 +474,9 @@ const performAction = async (req, res, next) => {
         });
       }
     }
+
+    // Invalidate the discovery cache so the liked/passed user no longer appears
+    await invalidateDiscoveryCache(userId);
 
     return res.json({
       success: true,
