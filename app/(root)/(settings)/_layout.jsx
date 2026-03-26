@@ -4,6 +4,7 @@ export default function SettingsLayout() {
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="settings" />
+      <Stack.Screen name="ai-settings" />
       <Stack.Screen name="blocked-users" />
       <Stack.Screen name="change-password" />
       <Stack.Screen name="community-guidelines" />

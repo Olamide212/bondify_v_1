@@ -415,6 +415,75 @@ const updatePushToken = async (req, res, next) => {
   }
 };
 
+// ─────────────────────────────────────────────
+//  AI SETTINGS
+// ─────────────────────────────────────────────
+const getAISettings = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id).select('aiSettings');
+    // Return defaults if aiSettings not yet set
+    const settings = user.aiSettings || {
+      conversationStyle: 'witty',
+      showIcebreakers: true,
+      profileTips: true,
+      personalizedSuggestions: true,
+      aiUpdates: true,
+    };
+    res.json({ success: true, data: settings });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const updateAISettings = async (req, res, next) => {
+  try {
+    const allowed = [
+      'conversationStyle', 'showIcebreakers', 'profileTips',
+      'personalizedSuggestions', 'aiUpdates',
+    ];
+
+    // Validate conversationStyle if provided
+    if (req.body.conversationStyle !== undefined && 
+        !['casual', 'witty', 'deep'].includes(req.body.conversationStyle)) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Invalid conversation style. Must be one of: casual, witty, deep' 
+      });
+    }
+
+    const updates = {};
+    allowed.forEach((key) => {
+      if (req.body[key] !== undefined) {
+        updates[`aiSettings.${key}`] = req.body[key];
+      }
+    });
+
+    if (Object.keys(updates).length === 0) {
+      return res.status(400).json({ success: false, message: 'No valid settings provided' });
+    }
+
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      { $set: updates },
+      { new: true, runValidators: true }
+    ).select('aiSettings');
+
+    res.json({ success: true, message: 'AI settings updated', data: user.aiSettings });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const clearAIChatHistory = async (req, res, next) => {
+  try {
+    // For now, just return success since chat history is stored locally
+    // In future, if we store chat history server-side, implement clearing here
+    res.json({ success: true, message: 'Chat history cleared' });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   updatePhoneNumber,
   verifyPhoneUpdate,
@@ -431,4 +500,7 @@ module.exports = {
   deleteAccount,
   getReferralCode,
   updatePushToken,
+  getAISettings,
+  updateAISettings,
+  clearAIChatHistory,
 };
