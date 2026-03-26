@@ -24,7 +24,7 @@ export default function OnboardingLayout() {
   const isVerificationFlow = segments.includes("verification");
   const logicalStep = isVerificationFlow ? "verification" : currentStepSegment;
 
-  const { steps, progress, resumeStep, setCurrentStep, getNextStep } = useProfileSetup({
+  const { steps, progress, resumeStep, setCurrentStep } = useProfileSetup({
     isOnboarding: true,
     trackStep: true,
   });
