@@ -18,6 +18,8 @@ const notificationSchema = new mongoose.Schema(
         'new_message',
         'new_like',
         'super_like',
+        'photo_like',
+        'photo_comment',
         'profile_visit',
         'event_invite',
         'event_reminder',
@@ -25,6 +27,8 @@ const notificationSchema = new mongoose.Schema(
         'verification_approved',
         'verification_rejected',
         'referral_joined',
+        'ai_tip',
+        'profile_incomplete',
         'system',
       ],
       required: true,
@@ -46,6 +50,16 @@ const notificationSchema = new mongoose.Schema(
     },
     readAt: {
       type: Date,
+    },
+    // Optional fields for rich notifications
+    imageUrl: {
+      type: String,
+    },
+    actionUrl: {
+      type: String,
+    },
+    actionLabel: {
+      type: String,
     },
   },
   {
