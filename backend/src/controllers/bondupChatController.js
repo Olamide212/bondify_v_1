@@ -202,13 +202,9 @@ const sendBondupMessage = async (req, res, next) => {
 
     const io = getIO();
     if (io) {
-      // Emit to all chat members except the sender
-      chat.members.forEach((memberId) => {
-        if (String(memberId) !== String(userId)) {
-          io.to(`user:${String(memberId)}`).emit(`bondupChat:${chatId}:message`, populated);
-        }
-      });
-      // Also emit to the chat room for members who have joined
+      // Emit to the chat room for all members who have joined
+      // Note: Room-based emission ensures all connected members receive the message
+      // The sender will also receive it and should filter on the client side
       io.to(`bondupChat:${chatId}`).emit(`bondupChat:${chatId}:message`, populated);
     }
 

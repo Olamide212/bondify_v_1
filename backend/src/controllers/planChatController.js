@@ -168,15 +168,11 @@ const sendMessage = async (req, res, next) => {
       populated.sender = await mapUserImages(populated.sender);
     }
 
-    // Emit to all members via socket (excluding sender)
+    // Emit to the chat room for all members who have joined
+    // Note: Room-based emission ensures all connected members receive the message
+    // The sender will also receive it and should filter on the client side
     const io = getIO();
     if (io) {
-      chat.members.forEach((memberId) => {
-        if (String(memberId) !== String(req.user._id)) {
-          io.to(`user:${String(memberId)}`).emit(`planChat:${chatId}:message`, populated);
-        }
-      });
-      // Also emit to the chat room for members who have joined
       io.to(`planChat:${chatId}`).emit(`planChat:${chatId}:message`, populated);
     }
 

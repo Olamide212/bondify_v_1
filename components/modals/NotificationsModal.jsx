@@ -340,6 +340,74 @@ const SimpleNotificationCard = ({ notification, onPress }) => {
   );
 };
 
+// Generic Activity Card for unknown notification types
+const GenericActivityCard = ({ notification, onPress }) => {
+  const avatarUrl = getAvatarUrl(notification);
+  const name = getSenderName(notification);
+  const meta = NOTIFICATION_META[notification.type] || NOTIFICATION_META.system;
+  
+  return (
+    <Pressable
+      onPress={() => onPress?.(notification)}
+      className="bg-white rounded-2xl p-4 mb-3 shadow-sm border border-gray-100"
+    >
+      <View className="flex-row items-start">
+        <View className="relative">
+          <View className="w-12 h-12 rounded-full overflow-hidden bg-gray-200">
+            {avatarUrl ? (
+              <Image source={{ uri: avatarUrl }} className="w-full h-full" resizeMode="cover" />
+            ) : (
+              <View className="w-full h-full items-center justify-center bg-gray-100">
+                <Text className="text-2xl">{meta.icon}</Text>
+              </View>
+            )}
+          </View>
+        </View>
+        
+        <View className="flex-1 ml-3">
+          <View className="flex-row items-center justify-between">
+            <Text className="text-black font-PlusJakartaSansBold flex-1 mr-2" numberOfLines={1}>
+              {notification.title || meta.label}
+            </Text>
+            <View className="flex-row items-center">
+              <Text className="text-xs text-gray-500 font-PlusJakartaSans mr-1">
+                {formatRelativeTime(notification.createdAt)}
+              </Text>
+              {!notification.read && (
+                <View className="w-2 h-2 rounded-full bg-primary" />
+              )}
+            </View>
+          </View>
+          <Text className="text-gray-600 font-PlusJakartaSans mt-1" numberOfLines={2}>
+            {notification.body}
+          </Text>
+        </View>
+      </View>
+    </Pressable>
+  );
+};
+  
+  return (
+    <Pressable
+      onPress={() => onPress?.(notification)}
+      className="flex-row items-start py-3"
+    >
+      <View className="w-10 h-10 rounded-full bg-gray-100 items-center justify-center">
+        <Text className="text-lg">{meta.icon}</Text>
+      </View>
+      
+      <View className="flex-1 ml-3">
+        <Text className="text-gray-700 font-PlusJakartaSans leading-5">
+          {notification.body}
+        </Text>
+        <Text className="text-xs text-gray-400 font-PlusJakartaSans mt-1">
+          {formatRelativeTime(notification.createdAt)}
+        </Text>
+      </View>
+    </Pressable>
+  );
+};
+
 const NotificationsModal = ({
   visible,
   notifications,
@@ -354,6 +422,11 @@ const NotificationsModal = ({
   onOpenSettings,
 }) => {
   // Categorize notifications
+  // Configuration for match display limits
+  const MAX_MATCHES_IN_HORIZONTAL = 5; // Max matches shown in horizontal scroll
+  const MAX_RECENT_ACTIVITY = 10;
+  const MAX_OLDER_NOTIFICATIONS = 20;
+  
   const { newMatches, recentActivity, olderNotifications, newCount } = useMemo(() => {
     const matches = [];
     const recent = [];
@@ -363,15 +436,12 @@ const NotificationsModal = ({
     notifications.forEach((notif) => {
       if (!notif.read) unread++;
       
-      // New matches go to the top section
+      // All matches go to the NEW MATCHES section regardless of age
+      // This keeps match visibility prominent as designed
       if (notif.type === "new_match" || notif.type === "match") {
-        if (isRecent(notif.createdAt)) {
-          matches.push(notif);
-        } else {
-          older.push(notif);
-        }
+        matches.push(notif);
       }
-      // Recent activity (last 24 hours)
+      // Recent activity (last 24 hours) - non-match notifications
       else if (isRecent(notif.createdAt)) {
         recent.push(notif);
       }
@@ -382,9 +452,9 @@ const NotificationsModal = ({
     });
     
     return {
-      newMatches: matches.slice(0, 5), // Max 5 in horizontal scroll
-      recentActivity: recent.slice(0, 10),
-      olderNotifications: older.slice(0, 20),
+      newMatches: matches.slice(0, MAX_MATCHES_IN_HORIZONTAL),
+      recentActivity: recent.slice(0, MAX_RECENT_ACTIVITY),
+      olderNotifications: older.slice(0, MAX_OLDER_NOTIFICATIONS),
       newCount: unread,
     };
   }, [notifications]);
@@ -436,9 +506,9 @@ const NotificationsModal = ({
       );
     }
     
-    // Default card for other types
+    // Default card for unknown notification types - use generic card
     return (
-      <PhotoLikeCard
+      <GenericActivityCard
         key={notification.id}
         notification={notification}
         onPress={onPressNotification}

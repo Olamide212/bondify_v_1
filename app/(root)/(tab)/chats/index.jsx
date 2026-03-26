@@ -7,10 +7,13 @@ import { useSelector } from "react-redux";
 import ChatListScreen from "../../../../components/chatScreen/ChatListScreen";
 import bondupService from "../../../../services/bondupService";
 import { matchService } from "../../../../services/matchService";
-import NotificationService from "../../../../services/notificationService";
+import NotificationService, { NOTIFICATION_META } from "../../../../services/notificationService";
 import { socketService } from "../../../../services/socketService";
 
 const CHAT_TABS = ["Dating", "Plans"];
+
+// Special ID for Bondies Team chat item
+const BONDIES_TEAM_CHAT_ID = 'bondies-team';
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
 
@@ -156,15 +159,17 @@ export default function Chat() {
         const bondupChats = normalizeBondupChats(bondupRes.data ?? [], currentUserId);
         
         // Filter system notifications to show in Plans tab
-        const systemNotifs = (notifRes.data ?? []).filter(
-          (n) => n.type === 'system' || n.type === 'ai_tip' || n.type === 'event_invite' || n.type === 'event_reminder'
-        );
+        // Use category from NOTIFICATION_META to maintain consistency
+        const systemNotifs = (notifRes.data ?? []).filter((n) => {
+          const meta = NOTIFICATION_META[n.type];
+          return meta?.category === 'system' || meta?.category === 'activity';
+        });
         setSystemNotifications(systemNotifs);
         
         // Create Bondies Team chat item if there are system notifications
         const bondiesTeamItem = systemNotifs.length > 0 ? [{
-          id: 'bondies-team',
-          matchId: 'bondies-team',
+          id: BONDIES_TEAM_CHAT_ID,
+          matchId: BONDIES_TEAM_CHAT_ID,
           name: '🔔 Bondies Team',
           profileImage: null,
           isOnline: true,
