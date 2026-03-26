@@ -386,27 +386,6 @@ const GenericActivityCard = ({ notification, onPress }) => {
     </Pressable>
   );
 };
-  
-  return (
-    <Pressable
-      onPress={() => onPress?.(notification)}
-      className="flex-row items-start py-3"
-    >
-      <View className="w-10 h-10 rounded-full bg-gray-100 items-center justify-center">
-        <Text className="text-lg">{meta.icon}</Text>
-      </View>
-      
-      <View className="flex-1 ml-3">
-        <Text className="text-gray-700 font-PlusJakartaSans leading-5">
-          {notification.body}
-        </Text>
-        <Text className="text-xs text-gray-400 font-PlusJakartaSans mt-1">
-          {formatRelativeTime(notification.createdAt)}
-        </Text>
-      </View>
-    </Pressable>
-  );
-};
 
 const NotificationsModal = ({
   visible,
@@ -431,31 +410,38 @@ const NotificationsModal = ({
     const matches = [];
     const recent = [];
     const older = [];
-    let unread = 0;
-    
-    notifications.forEach((notif) => {
-      if (!notif.read) unread++;
-      
-      // All matches go to the NEW MATCHES section regardless of age
-      // This keeps match visibility prominent as designed
-      if (notif.type === "new_match" || notif.type === "match") {
-        matches.push(notif);
+    let unreadCount = 0;
+
+    const now = Date.now();
+    const RECENT_THRESHOLD = 24 * 60 * 60 * 1000; // 24 hours
+
+    (notifications || []).forEach((n) => {
+      if (!n.read) unreadCount++;
+
+      // Match notifications go to horizontal scroll
+      if (n.type === "new_match" || n.type === "match") {
+        if (matches.length < MAX_MATCHES_IN_HORIZONTAL) {
+          matches.push(n);
+        }
+        return;
       }
-      // Recent activity (last 24 hours) - non-match notifications
-      else if (isRecent(notif.createdAt)) {
-        recent.push(notif);
-      }
-      // Older notifications
-      else {
-        older.push(notif);
+
+      // Categorize by time
+      const createdAt = n.createdAt ? new Date(n.createdAt).getTime() : now;
+      const isRecentTime = now - createdAt < RECENT_THRESHOLD;
+
+      if (isRecentTime && recent.length < MAX_RECENT_ACTIVITY) {
+        recent.push(n);
+      } else if (older.length < MAX_OLDER_NOTIFICATIONS) {
+        older.push(n);
       }
     });
-    
+
     return {
-      newMatches: matches.slice(0, MAX_MATCHES_IN_HORIZONTAL),
-      recentActivity: recent.slice(0, MAX_RECENT_ACTIVITY),
-      olderNotifications: older.slice(0, MAX_OLDER_NOTIFICATIONS),
-      newCount: unread,
+      newMatches: matches,
+      recentActivity: recent,
+      olderNotifications: older,
+      newCount: unreadCount,
     };
   }, [notifications]);
 
@@ -519,14 +505,15 @@ const NotificationsModal = ({
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
       <SafeAreaProvider>
-        <SafeAreaView className="flex-1 bg-gray-50">
+        <SafeAreaView className="flex-1 bg-white">
           {/* Header */}
           <View className="px-5 py-3 flex-row items-center justify-between bg-white">
             <View className="flex-row items-center">
-              <View className="w-10 h-10 rounded-full bg-primary/10 items-center justify-center mr-3">
-                <Text className="text-lg">🔔</Text>
-              </View>
-              <Text className="text-lg font-PlusJakartaSansBold text-primary">Bondies</Text>
+             
+                 {/* Title */}
+            <View className=" py-4">
+              <Text className="text-3xl font-PlusJakartaSansBold text-black">Notifications</Text>
+            </View>
             </View>
             <View className="flex-row items-center gap-3">
               <TouchableOpacity onPress={onOpenSettings}>
@@ -543,10 +530,7 @@ const NotificationsModal = ({
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{ paddingBottom: 40 }}
           >
-            {/* Title */}
-            <View className="px-5 py-4">
-              <Text className="text-3xl font-PlusJakartaSansBold text-black">Notifications</Text>
-            </View>
+         
             
             {/* NEW MATCHES Section */}
             {newMatches.length > 0 && (

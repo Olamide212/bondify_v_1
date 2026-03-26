@@ -465,7 +465,7 @@ const Home = () => {
 
   const handleOpenSettings = () => {
     setShowNotificationsModal(false);
-    router.push("/settings");
+    router.push("/notification-settings");
   };
 
   const onRefresh = () => {

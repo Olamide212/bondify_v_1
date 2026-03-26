@@ -1,9 +1,8 @@
-import { Facebook, Instagram, Linkedin, Mail, Phone } from "lucide-react-native";
+import { ArrowLeft, Facebook, Instagram, Mail, Phone } from "lucide-react-native";
 import { ScrollView, StyleSheet, Text } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import GeneralHeader from "../../../../components/headers/GeneralHeader";
 import Card from "../../../../components/ui/Card"; // adjust import path if needed
-import { ArrowLeft } from "lucide-react-native";
 
 const SupportCenter = () => {
   const contactItems = [
@@ -37,8 +36,7 @@ const SupportCenter = () => {
     {
       title: "@bondies",
       description: "Tiktok",
-      icon: Linkedin,
-      onPress: () => console.log("LinkedIn pressed"),
+      onPress: () => console.log("Tiktok pressed"),
     },
   ];
 

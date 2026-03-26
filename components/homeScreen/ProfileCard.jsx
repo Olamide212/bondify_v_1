@@ -131,7 +131,7 @@ const ProfileCard = ({ profile, hideAiSuggestion = false }) => {
           );
           setAiMatchModalVisible(true);
         }
-      } catch (e) {
+      } catch (_e) {
         // storage error — silently skip
       }
     };

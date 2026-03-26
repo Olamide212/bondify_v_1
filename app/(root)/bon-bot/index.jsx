@@ -1,30 +1,31 @@
 
 
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import {
-  MoreVertical,
-  Paperclip,
-  RefreshCw,
-  Send,
-  Sparkles,
+    MoreVertical,
+    Paperclip,
+    RefreshCw,
+    Send,
+    Sparkles,
 } from "lucide-react-native";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
-  ActivityIndicator,
-  Animated,
-  Clipboard,
-  FlatList,
-  Image,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  ToastAndroid,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Animated,
+    Clipboard,
+    FlatList,
+    Image,
+    KeyboardAvoidingView,
+    Platform,
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    ToastAndroid,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { colors } from "../../../constant/colors";
@@ -313,6 +314,15 @@ const UserBubble = ({ message, userPhoto, userInitial }) => (
   </View>
 );
 
+const CHAT_STORAGE_KEY = "@bondies/bon-bot-chat";
+
+const INITIAL_MESSAGE = {
+  id: 1,
+  role: "assistant",
+  content: "Hi! I'm your Bondies Assistant. Ready to level up your dating game? I can help you with icebreakers, profile tips, or even planning a date! \ud83e\udde1\n\nYou can also ask me things like \"Show me profiles near me\" or \"Find people who love music\" and I'll suggest real matches! \ud83d\udd0d",
+  timestamp: new Date(),
+};
+
 const AIChatScreen = ({ navigation }) => {
   const router = useRouter();
   const { showAlert } = useAlert();
@@ -321,12 +331,51 @@ const AIChatScreen = ({ navigation }) => {
   const [userPhoto, setUserPhoto] = useState(null);
   const [userInitial, setUserInitial] = useState("U");
 
-  const [messages, setMessages] = useState([
-    { id: 1, role: "assistant", content: "Hi! I'm your Bondies Assistant. Ready to level up your dating game? I can help you with icebreakers, profile tips, or even planning a date! 🧡\n\nYou can also ask me things like \"Show me profiles near me\" or \"Find people who love music\" and I'll suggest real matches! 🔍", timestamp: new Date() },
-  ]);
+  const [messages, setMessages] = useState([INITIAL_MESSAGE]);
+  const [chatLoaded, setChatLoaded] = useState(false);
   const [userInput, setUserInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const scrollViewRef             = useRef(null);
+
+  // Load chat from storage on mount
+  useEffect(() => {
+    const loadChat = async () => {
+      try {
+        const stored = await AsyncStorage.getItem(CHAT_STORAGE_KEY);
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          // Restore timestamps as Date objects
+          const restored = parsed.map((msg) => ({
+            ...msg,
+            timestamp: new Date(msg.timestamp),
+          }));
+          if (restored.length > 0) {
+            setMessages(restored);
+          }
+        }
+      } catch (err) {
+        console.log("Failed to load chat history:", err);
+      } finally {
+        setChatLoaded(true);
+      }
+    };
+    loadChat();
+  }, []);
+
+  // Save chat to storage whenever messages change
+  useEffect(() => {
+    if (!chatLoaded) return; // Don't save until initial load is complete
+    const saveChat = async () => {
+      try {
+        // Only save messages without profiles to keep storage small
+        const toSave = messages.map(({ profiles, ...msg }) => msg);
+        await AsyncStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(toSave));
+      } catch (err) {
+        console.log("Failed to save chat history:", err);
+      }
+    };
+    saveChat();
+  }, [messages, chatLoaded]);
 
   // Fetch user profile on mount
   useEffect(() => {
@@ -424,15 +473,22 @@ const AIChatScreen = ({ navigation }) => {
     sendMessage(lastUser.content);
   }, [messages, sendMessage]);
 
-  const clearChat = () => {
+  const clearChat = async () => {
     showAlert({
       icon: "warning",
       title: "Clear chat",
       message: "Start a fresh conversation?",
       actions: [
         { label: "Cancel", style: "cancel" },
-        { label: "Clear", style: "destructive", onPress: () =>
-            setMessages([{ id: Date.now(), role: "assistant", content: "Chat cleared! What would you like to work on? 😊", timestamp: new Date() }])
+        { label: "Clear", style: "destructive", onPress: async () => {
+            const newMessage = { id: Date.now(), role: "assistant", content: "Chat cleared! What would you like to work on? \ud83d\ude0a", timestamp: new Date() };
+            setMessages([newMessage]);
+            try {
+              await AsyncStorage.removeItem(CHAT_STORAGE_KEY);
+            } catch (err) {
+              console.log("Failed to clear chat storage:", err);
+            }
+          }
         },
       ],
     });

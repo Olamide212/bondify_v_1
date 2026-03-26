@@ -32,7 +32,7 @@ const NotificationService = {
    * @returns {{ data: Notification[], unreadCount: number, pagination }}
    */
   getNotifications: async (params = {}) => {
-    const response = await apiClient.get("/api/notifications", { params });
+    const response = await apiClient.get("/notifications", { params });
     return response.data;
   },
 
@@ -41,7 +41,7 @@ const NotificationService = {
    * @returns {number}
    */
   getUnreadCount: async () => {
-    const response = await apiClient.get("/api/notifications", {
+    const response = await apiClient.get("/notifications", {
       params: { page: 1, limit: 1 },
     });
     return response.data?.unreadCount ?? 0;
@@ -54,7 +54,7 @@ const NotificationService = {
    */
   markAsRead: async (notificationId) => {
     const response = await apiClient.patch(
-      `/api/notifications/${notificationId}/read`
+      `/notifications/${notificationId}/read`
     );
     return response.data;
   },
@@ -64,7 +64,7 @@ const NotificationService = {
    * Call this when the user opens the notifications screen.
    */
   markAllAsRead: async () => {
-    const response = await apiClient.patch("/api/notifications/read-all");
+    const response = await apiClient.patch("/notifications/read-all");
     return response.data;
   },
 
@@ -74,7 +74,7 @@ const NotificationService = {
    */
   deleteNotification: async (notificationId) => {
     const response = await apiClient.delete(
-      `/api/notifications/${notificationId}`
+      `/notifications/${notificationId}`
     );
     return response.data;
   },

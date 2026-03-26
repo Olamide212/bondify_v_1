@@ -18,6 +18,7 @@ import mapIcon from "../assets/icons/Map.png"
 import verifiedBatch from "../assets/icons/verifiedBatch.png"
 import feedIcon from "../assets/icons/feed-icon.png"
 import verifiedIcon from "../assets/icons/verified-icon.png"
+import TikTok from "../assets/icons/tiktok.png"
 
 
 export const Icons = {
@@ -39,5 +40,6 @@ export const Icons = {
   mapIcon,
   verifiedBatch,
   feedIcon,
-  verifiedIcon
+  verifiedIcon,
+  TikTok
 };

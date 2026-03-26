@@ -1,7 +1,8 @@
-import React from "react";
-import { View, Text, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import {colors} from "../../constant/colors"
+import { Image } from "expo-image";
+import { Text, TouchableOpacity, View } from "react-native";
+import { colors } from "../../constant/colors";
+import { Icons } from "../../constant/icons";
 
 const Card = ({ title, items }) => {
   return (
@@ -14,6 +15,7 @@ const Card = ({ title, items }) => {
 
       {items.map(({ title, description, onPress, icon: RightIcon }, index) => {
         const isLast = index === items.length - 1;
+        const isTiktok = description?.toLowerCase() === "tiktok";
 
         return (
           <TouchableOpacity
@@ -26,6 +28,8 @@ const Card = ({ title, items }) => {
 
               {RightIcon ? (
                 <RightIcon size={20} color={colors.primary} />
+              ) : isTiktok ? (
+                <Image source={Icons.TikTok} style={{ width: 20, height: 20 }} />
               ) : (
                 <Ionicons name="chevron-forward" size={20} color="#9ca3af" />
               )}
