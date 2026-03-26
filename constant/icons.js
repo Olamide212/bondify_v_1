@@ -17,6 +17,7 @@ import verifyIcon from "../assets/icons/verify.png"
 import mapIcon from "../assets/icons/Map.png"
 import verifiedBatch from "../assets/icons/verifiedBatch.png"
 import feedIcon from "../assets/icons/feed-icon.png"
+import verifiedIcon from "../assets/icons/verified-icon.png"
 
 
 export const Icons = {
@@ -37,5 +38,6 @@ export const Icons = {
   verifyIcon,
   mapIcon,
   verifiedBatch,
-  feedIcon
+  feedIcon,
+  verifiedIcon
 };

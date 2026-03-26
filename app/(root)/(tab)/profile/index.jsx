@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 // ...existing code...
 import {
   ActivityIndicator,
+  Dimensions,
   RefreshControl,
   StyleSheet,
   Text,
@@ -21,6 +22,7 @@ import { colors } from "../../../../constant/colors";
 import { profileService } from "../../../../services/profileService";
 
 const PROFILE_TABS = ["Dating Profile", "Social Profile"];
+const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 const ProfileScreen = () => {
   const router = useRouter();
@@ -29,13 +31,30 @@ const ProfileScreen = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState(0);
   const lastFetchRef = useRef(0);
+  const pagerRef = useRef(null);
 
   // Set tab from query param if present
   useEffect(() => {
     if (router?.params?.tab === 'social') {
       setActiveTab(1);
+      pagerRef.current?.scrollTo({ x: SCREEN_WIDTH, animated: false });
     }
   }, [router?.params?.tab]);
+
+  // Handle tab press - scroll to page
+  const handleTabPress = (index) => {
+    setActiveTab(index);
+    pagerRef.current?.scrollTo({ x: index * SCREEN_WIDTH, animated: true });
+  };
+
+  // Handle swipe - update active tab
+  const handlePageScroll = (event) => {
+    const offsetX = event.nativeEvent.contentOffset.x;
+    const newIndex = Math.round(offsetX / SCREEN_WIDTH);
+    if (newIndex !== activeTab && newIndex >= 0 && newIndex < PROFILE_TABS.length) {
+      setActiveTab(newIndex);
+    }
+  };
 
 
   const loadProfile = useCallback(async ({ force = false, showLoading = true } = {}) => {
@@ -91,7 +110,7 @@ const ProfileScreen = () => {
                 tabStyles.tab,
                 activeTab === i && tabStyles.tabActive,
               ]}
-              onPress={() => setActiveTab(i)}
+              onPress={() => handleTabPress(i)}
               activeOpacity={0.7}
             >
               <Text
@@ -107,28 +126,42 @@ const ProfileScreen = () => {
         </View>
      
         <ScrollView
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-          }
-          contentContainerStyle={{
-            paddingBottom: 80,
-          }}
+          ref={pagerRef}
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          onMomentumScrollEnd={handlePageScroll}
+          scrollEventThrottle={16}
+          style={{ flex: 1 }}
         >
-          {activeTab === 0 ? (
-            /* ── Dating Profile ──────────────────────────────────────────── */
-            <>
-              {loading ? (
-                <ActivityIndicator size="large" color={colors.primary} style={{ marginTop: 24 }} />
-              ) : (
-                <ProfileSection profile={profile || {}} />
-              )}
-              <InfoSection />
-              <SubscriptionBannerSlider />
-            </>
-          ) : (
-            /* ── Social Profile ──────────────────────────────────────────── */
+          {/* Dating Profile Tab */}
+          <ScrollView
+            style={{ width: SCREEN_WIDTH }}
+            refreshControl={
+              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            }
+            contentContainerStyle={{
+              paddingBottom: 80,
+            }}
+          >
+            {loading ? (
+              <ActivityIndicator size="large" color={colors.primary} style={{ marginTop: 24 }} />
+            ) : (
+              <ProfileSection profile={profile || {}} />
+            )}
+            <InfoSection />
+            <SubscriptionBannerSlider />
+          </ScrollView>
+
+          {/* Social Profile Tab */}
+          <ScrollView
+            style={{ width: SCREEN_WIDTH }}
+            contentContainerStyle={{
+              paddingBottom: 80,
+            }}
+          >
             <SocialProfileTab />
-          )}
+          </ScrollView>
         </ScrollView>
     
       </SafeAreaView>

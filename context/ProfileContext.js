@@ -109,7 +109,7 @@ export const ProfileProvider = ({ children }) => {
       bondScore: profile?.bondScore,
       verified: profile?.verified ?? profile?.isVerified ?? false,
       occupation: profile?.occupation,
-      completion: profile?.completionPercentage ?? profile?.completion,
+      completion: Math.min(profile?.completionPercentage ?? profile?.completion ?? 0, 100),
       religion: profile?.religion,
       education: profile?.education,
       school: profile?.school,

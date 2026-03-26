@@ -12,25 +12,29 @@ export const determineNextRoute = async ({
     pendingEmail: pendingEmail ? "yes" : "no",
   });
 
-  // 1️⃣ No active auth/onboarding session
-  if (!token && !onboardingToken) {
-    try {
-      await SecureStore.deleteItemAsync("onboardingStep");
-    } catch (error) {
-      console.warn("Failed to clear stale onboarding step:", error);
+  // 1️⃣ Fully authenticated user takes priority
+  // If we have a valid auth token, go directly to root-tabs
+  if (token) {
+    console.log("Returning /root-tabs due to token");
+    // Clear any stale onboarding data if user is fully authenticated
+    if (onboardingToken) {
+      console.log("Clearing stale onboarding token as user is fully authenticated");
+      try {
+        await SecureStore.deleteItemAsync("onboardingStep");
+      } catch (error) {
+        console.warn("Failed to clear onboarding step:", error);
+      }
     }
-
-    console.log("Returning /onboarding due to missing token and onboardingToken");
-    return "/onboarding";
+    return "/root-tabs";
   }
 
-  // 2️⃣ Pending OTP
+  // 2️⃣ Pending OTP (user started signup but didn't verify)
   if (pendingEmail) {
     console.log("Returning /validation due to pendingEmail");
     return "/validation";
   }
 
-  // 3️⃣ Onboarding flow (must take priority over token when onboarding isn't complete)
+  // 3️⃣ Onboarding flow (user created account but didn't complete profile)
   if (onboardingToken) {
     console.log("Checking onboarding step...");
     try {
@@ -38,7 +42,6 @@ export const determineNextRoute = async ({
       console.log("Last step from SecureStore:", lastStep);
 
       if (lastStep) {
-       
         const route = `/(onboarding)/${lastStep}`;
         console.log("Returning:", route);
         return route;
@@ -52,12 +55,13 @@ export const determineNextRoute = async ({
     }
   }
 
-  // 4️⃣ Fully authenticated
-  if (token) {
-    console.log("Returning /root-tabs due to token");
-    return "/root-tabs";
+  // 4️⃣ No active auth/onboarding session - new user
+  try {
+    await SecureStore.deleteItemAsync("onboardingStep");
+  } catch (error) {
+    console.warn("Failed to clear stale onboarding step:", error);
   }
 
-  // 5️⃣ New/unauthenticated user
+  console.log("Returning /onboarding - no session found");
   return "/onboarding";
 };

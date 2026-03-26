@@ -58,10 +58,10 @@ const Preference = () => {
                   className="mt-2"
                 />
               </View>
-              <Info title="You can change this details later from your profile" />
+       
             </ScrollView>
 
-            <View className="w-full items-end pb-6">
+            <View className="w-full items-center pb-6">
               <Button
                 title="Continue"
                 variant="primary"
@@ -71,6 +71,10 @@ const Preference = () => {
                   router.push("/religion");
                 }}
               />
+              <View className="w-full items-center mt-4">
+  <Info title="You can change this details later from your profile" />
+              </View>
+                   
             </View>
           </View>
         </TouchableWithoutFeedback>

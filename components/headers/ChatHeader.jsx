@@ -195,8 +195,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   userName: {
-    fontSize: 18,
-fontFamily: fonts.PlusJakartaSansSemiBold,
+    fontSize: 19,
+fontFamily: fonts.PlusJakartaSansBold,
     color: "#1F2937",
   },
   statusContainer: {

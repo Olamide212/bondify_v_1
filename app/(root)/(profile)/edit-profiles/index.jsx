@@ -12,9 +12,10 @@
 import * as ImagePicker from 'expo-image-picker';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { ArrowLeft } from 'lucide-react-native';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
     ActivityIndicator,
+    Dimensions,
     RefreshControl,
     ScrollView,
     StyleSheet,
@@ -48,6 +49,7 @@ import { useTheme } from '../../../../context/ThemeContext';
 import { profileService } from '../../../../services/profileService';
 
 const TABS = ['Edit', 'View Profile'];
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 // ─── Tab bar ──────────────────────────────────────────────────────────────────
 
@@ -126,8 +128,24 @@ export default function ProfileDetails() {
   const [loading, setLoading]     = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState(0); // 0 = Edit, 1 = View
+  const pagerRef = useRef(null);
   const params = useLocalSearchParams();
   const router = useRouter();
+
+  // Handle tab press - scroll to page
+  const handleTabPress = (index) => {
+    setActiveTab(index);
+    pagerRef.current?.scrollTo({ x: index * SCREEN_WIDTH, animated: true });
+  };
+
+  // Handle swipe - update active tab
+  const handlePageScroll = (event) => {
+    const offsetX = event.nativeEvent.contentOffset.x;
+    const newIndex = Math.round(offsetX / SCREEN_WIDTH);
+    if (newIndex !== activeTab && newIndex >= 0 && newIndex < TABS.length) {
+      setActiveTab(newIndex);
+    }
+  };
 
   // ── load ────────────────────────────────────────────────────
 
@@ -259,14 +277,24 @@ export default function ProfileDetails() {
         />
 
         {/* Tab bar */}
-        <TabBar activeIndex={activeTab} onChange={setActiveTab} />
+        <TabBar activeIndex={activeTab} onChange={handleTabPress} />
 
-        {/* ── EDIT TAB ── */}
-        {activeTab === 0 && (
+        {/* Swipeable Content */}
+        <ScrollView
+          ref={pagerRef}
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          onMomentumScrollEnd={handlePageScroll}
+          scrollEventThrottle={16}
+          style={{ flex: 1 }}
+        >
+          {/* ── EDIT TAB ── */}
           <ScrollView
-            style={{ flex: 1, backgroundColor: colors.background }}
+            style={{ width: SCREEN_WIDTH, flex: 1, backgroundColor: colors.background }}
             contentContainerStyle={{ paddingBottom: 40 }}
             refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+            nestedScrollEnabled
           >
             {loading && (
               <ActivityIndicator size="large" color={C.primary} style={{ marginTop: 20 }} />
@@ -361,12 +389,12 @@ export default function ProfileDetails() {
 
             </View>
           </ScrollView>
-        )}
 
-        {/* ── VIEW PROFILE TAB ── */}
-        {activeTab === 1 && (
-          <ViewProfileTab profile={profile} />
-        )}
+          {/* ── VIEW PROFILE TAB ── */}
+          <View style={{ width: SCREEN_WIDTH }}>
+            <ViewProfileTab profile={profile} />
+          </View>
+        </ScrollView>
       </SafeAreaView>
     </SafeAreaProvider>
   );

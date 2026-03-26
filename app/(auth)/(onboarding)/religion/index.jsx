@@ -55,7 +55,7 @@ const Religion = () => {
                     className="mt-2"
                   />
                 </View>
-                <Info title="You can change this details later from your profile" />
+     
               </View>
             </ScrollView>
             <View className="w-full items-end mt-4">
@@ -67,6 +67,9 @@ const Religion = () => {
                   router.push("/religion-question");
                 }}
               />
+                          <View className="w-full items-center mt-4">
+  <Info title="You can change this details later from your profile" />
+              </View>
             </View>
           </View>
         </TouchableWithoutFeedback>

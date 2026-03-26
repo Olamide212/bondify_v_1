@@ -59,7 +59,7 @@ const Kids = () => {
                   className="mt-2"
                 />
               </View>
-              <Info title="You can change this details later from your profile" />
+            
             </ScrollView>
 
             <View className="w-full items-end pb-6">
@@ -71,6 +71,9 @@ const Kids = () => {
                   router.push("/education");
                 }}
               />
+                          <View className="w-full items-center mt-4">
+  <Info title="You can change this details later from your profile" />
+              </View>
             </View>
           </View>
         </TouchableWithoutFeedback>

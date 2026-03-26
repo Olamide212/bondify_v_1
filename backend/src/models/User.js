@@ -749,7 +749,7 @@ userSchema.methods.calculateCompletion = function () {
   if (Array.isArray(this.interests) && this.interests.length >= 3) completed += 2;
   if (this.voicePrompt)                                             completed += 2;
 
-  this.completionPercentage = Math.round((completed / (fields.length + 5)) * 100);
+  this.completionPercentage = Math.min(Math.round((completed / (fields.length + 5)) * 100), 100);
 };
 
 // ── Virtuals ──────────────────────────────────────────────────────────────────

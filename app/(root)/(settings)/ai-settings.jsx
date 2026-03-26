@@ -16,13 +16,13 @@ import {
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import GeneralHeader from "../../../components/headers/GeneralHeader";
 import { colors } from "../../../constant/colors";
-import { useAlert } from "../../../context/AlertContext";
 import { fonts } from "../../../constant/fonts";
+import { useAlert } from "../../../context/AlertContext";
 import SettingsService from "../../../services/settingsService";
 
 // ─── Config ───────────────────────────────────────────────────────────────────
 
-const BRAND_ORANGE = "#EE5F2B";
+const BRAND_PRIMARY = colors.primary;
 
 const CONVERSATION_STYLES = [
   { key: "casual", label: "Casual" },
@@ -48,8 +48,8 @@ const ToggleRow = ({ icon: Icon, iconColor, label, description, value, onChange,
   <>
     <View style={styles.toggleRow}>
       {Icon && (
-        <View style={[styles.iconWrap, { backgroundColor: `${iconColor || BRAND_ORANGE}15` }]}>
-          <Icon size={18} color={iconColor || BRAND_ORANGE} />
+        <View style={[styles.iconWrap, { backgroundColor: `${iconColor || BRAND_PRIMARY}15` }]}>
+          <Icon size={18} color={iconColor || BRAND_PRIMARY} />
         </View>
       )}
       <View style={styles.toggleTextBlock}>
@@ -60,7 +60,7 @@ const ToggleRow = ({ icon: Icon, iconColor, label, description, value, onChange,
         value={Boolean(value)}
         onValueChange={onChange}
         disabled={disabled}
-        trackColor={{ false: "#E5E7EB", true: BRAND_ORANGE }}
+        trackColor={{ false: "#E5E7EB", true: BRAND_PRIMARY }}
         thumbColor={
           Platform.OS === "android" ? (value ? "#fff" : "#f4f3f4") : undefined
         }
@@ -93,8 +93,8 @@ const StyleSelector = ({ currentStyle, onSelect, disabled }) => (
   <View style={styles.card}>
     <View style={styles.styleRow}>
       <View style={styles.styleRowLeft}>
-        <View style={[styles.iconWrap, { backgroundColor: `${BRAND_ORANGE}15` }]}>
-          <MessageSquare size={18} color={BRAND_ORANGE} />
+        <View style={[styles.iconWrap, { backgroundColor: `${BRAND_PRIMARY}15` }]}>
+          <MessageSquare size={18} color={BRAND_PRIMARY} />
         </View>
         <Text style={styles.toggleLabel}>Conversation Style</Text>
       </View>
@@ -223,7 +223,7 @@ const AISettings = ({ onBack }) => {
     return (
       <SafeAreaView style={styles.safe} edges={["top", "left", "right", "bottom"]}>
         <View style={styles.centered}>
-          <ActivityIndicator size="large" color={BRAND_ORANGE} />
+          <ActivityIndicator size="large" color={BRAND_PRIMARY} />
         </View>
       </SafeAreaView>
     );
@@ -260,7 +260,7 @@ const AISettings = ({ onBack }) => {
           <View style={styles.card}>
             <ToggleRow
               icon={Sparkles}
-              iconColor={BRAND_ORANGE}
+              iconColor={BRAND_PRIMARY}
               label="Show Icebreakers"
               description="Prompts for new matches"
               value={settings.showIcebreakers}
@@ -270,7 +270,7 @@ const AISettings = ({ onBack }) => {
             />
             <ToggleRow
               icon={Sparkles}
-              iconColor={BRAND_ORANGE}
+              iconColor={BRAND_PRIMARY}
               label="Profile Tips"
               description="AI feedback on photos/bio"
               value={settings.profileTips}
@@ -285,7 +285,7 @@ const AISettings = ({ onBack }) => {
           <View style={styles.card}>
             <ToggleRow
               icon={Shield}
-              iconColor={BRAND_ORANGE}
+              iconColor={BRAND_PRIMARY}
               label="Personalized Suggestions"
               description="Allow AI to learn from your swiping habits"
               value={settings.personalizedSuggestions}
@@ -307,7 +307,7 @@ const AISettings = ({ onBack }) => {
           <View style={styles.card}>
             <ToggleRow
               icon={Bell}
-              iconColor={BRAND_ORANGE}
+              iconColor={BRAND_PRIMARY}
               label="AI Updates"
               description="New opening lines & improvements"
               value={settings.aiUpdates}
@@ -356,7 +356,7 @@ const styles = StyleSheet.create({
   sectionLabel: {
     fontSize: 11,
     fontFamily: fonts.PlusJakartaSansBold,
-    color: BRAND_ORANGE,
+    color: BRAND_PRIMARY,
     letterSpacing: 0.8,
     marginBottom: 8,
     marginLeft: 4,
@@ -437,7 +437,7 @@ const styles = StyleSheet.create({
   styleValueText: {
     fontSize: 15,
     fontFamily: fonts.PlusJakartaSansBold,
-    color: BRAND_ORANGE,
+    color: BRAND_PRIMARY,
   },
   styleButtonsContainer: {
     flexDirection: "row",
@@ -455,7 +455,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   styleButtonActive: {
-    backgroundColor: BRAND_ORANGE,
+    backgroundColor: BRAND_PRIMARY,
   },
   styleButtonText: {
     fontSize: 14,
@@ -478,7 +478,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   footerLink: {
-    color: BRAND_ORANGE,
+    color: BRAND_PRIMARY,
     fontFamily: fonts.PlusJakartaSansBold,
   },
 });

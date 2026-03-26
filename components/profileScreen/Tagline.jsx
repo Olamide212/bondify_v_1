@@ -1,5 +1,5 @@
 import { Quote } from "lucide-react-native";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { colors } from "../../constant/colors";
 
@@ -8,6 +8,13 @@ const MAX_LENGTH = 100;
 const Tagline = ({ profile, onUpdateField }) => {
   const [tagline, setTagline] = useState(profile?.tagline || "");
   const [isEditing, setIsEditing] = useState(false);
+
+  // Sync local state when profile prop changes
+  useEffect(() => {
+    if (!isEditing) {
+      setTagline(profile?.tagline || "");
+    }
+  }, [profile?.tagline, isEditing]);
 
   const handleSave = async () => {
     const trimmed = tagline.trim();
@@ -59,7 +66,7 @@ const Tagline = ({ profile, onUpdateField }) => {
         ) : (
           <TouchableOpacity onPress={() => setIsEditing(true)} activeOpacity={0.7}>
             {tagline ? (
-              <Text style={s.taglineText}>"{tagline}"</Text>
+              <Text style={s.taglineText}>&quot;{tagline}&quot;</Text>
             ) : (
               <Text style={s.placeholder}>Tap to add a tagline...</Text>
             )}

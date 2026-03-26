@@ -69,13 +69,7 @@ const ForgotPassword = () => {
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View className="flex-1 px-2">
-            {/* Back */}
-            <Pressable
-              onPress={() => router.back()}
-              className="mt-4 mb-2 w-10 h-10 items-center justify-center"
-            >
-              <ChevronLeft size={24} color="#111" />
-            </Pressable>
+         
 
             <View className="flex-1 mt-4">
               <Text className="text-3xl font-PlusJakartaSansSemiBold text-black">

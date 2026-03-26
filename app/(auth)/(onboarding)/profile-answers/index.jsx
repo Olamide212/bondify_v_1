@@ -2,16 +2,18 @@ import { useRouter } from "expo-router";
 import { MessageCircle, X } from "lucide-react-native";
 import { useState } from "react";
 import {
-    FlatList,
-    KeyboardAvoidingView,
-    Modal,
-    Platform,
-    ScrollView as RNScrollView,
-    SafeAreaView,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  FlatList,
+  Keyboard,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  ScrollView as RNScrollView,
+  SafeAreaView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
 } from "react-native";
 import { SafeAreaView as SAV } from "react-native-safe-area-context";
 import Button from "../../../../components/ui/Button";
@@ -271,6 +273,7 @@ const ProfileAnswers = () => {
 
       {/* ── Modal ── */}
       <Modal visible={showModal} animationType="slide">
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <SAV style={{ flex: 1, backgroundColor: '#fff', paddingHorizontal: 20, paddingTop: 12 }}>
 
           {/* ── Categories & Questions Step ── */}
@@ -332,7 +335,11 @@ const ProfileAnswers = () => {
 
           {/* ── Answer Step ── */}
           {modalStep === 'answer' && (
-            <>
+            <KeyboardAvoidingView
+              style={{ flex: 1 }}
+              behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+              keyboardVerticalOffset={Platform.OS === 'ios' ? 10 : 0}
+            >
               <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
                 <TouchableOpacity onPress={handleBack}>
                   <X size={22} color="#111" />
@@ -421,9 +428,10 @@ const ProfileAnswers = () => {
                   style={{ flex: 1 }}
                 />
               </View>
-            </>
+            </KeyboardAvoidingView>
           )}
         </SAV>
+        </TouchableWithoutFeedback>
       </Modal>
     </SafeAreaView>
   );

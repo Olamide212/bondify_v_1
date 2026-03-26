@@ -55,7 +55,7 @@ const Smoke = () => {
                   className="mt-2"
                 />
               </View>
-              <Info title="You can change this details later from your profile" />
+            
             </View>
 
             <View className="w-full items-end pb-6">
@@ -67,6 +67,9 @@ const Smoke = () => {
                   router.push("/drink");
                 }}
               />
+                          <View className="w-full items-center mt-4">
+  <Info title="You can change this details later from your profile" />
+              </View>
             </View>
           </View>
         </TouchableWithoutFeedback>

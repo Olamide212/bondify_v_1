@@ -119,14 +119,15 @@ const Age = () => {
 
       {/* Footer: disclaimer + button */}
       <View style={styles.footer}>
-        <Text style={styles.disclaimer}>
-          By tapping Next you confirm you&apos;re over 18 years old.
-        </Text>
+       
         <Button
           title="Next →"
           variant="primary"
           onPress={() => router.push("/ethnicity")}
         />
+         <Text style={styles.disclaimer}>
+          By tapping Next you confirm you&apos;re over 18 years old.
+        </Text>
       </View>
     </View>
   );

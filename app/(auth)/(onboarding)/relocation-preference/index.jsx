@@ -55,7 +55,7 @@ const RelocationPreference = () => {
                   className="mt-2"
                 />
               </View>
-              <Info title="You can change this details later from your profile" />
+           
             </View>
             </ScrollView>
 
@@ -68,6 +68,9 @@ const RelocationPreference = () => {
                   router.push("/kids");
                 }}
               />
+                          <View className="w-full items-center mt-4">
+  <Info title="You can change this details later from your profile" />
+              </View>
             </View>
           </View>
         </TouchableWithoutFeedback>

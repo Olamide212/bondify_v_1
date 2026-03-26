@@ -3,14 +3,19 @@
  * Route: /community-guidelines
  */
 
-import React from "react";
+import { useRouter } from "expo-router";
+import { AlertTriangle, ArrowLeft, Camera, Heart, Lock, Scale, Shield } from "lucide-react-native";
 import {
-  View, Text, ScrollView, TouchableOpacity,
-  StyleSheet, StatusBar, ImageBackground, Linking,
+  Image,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useRouter } from "expo-router";
-import { ArrowLeft, Heart, Shield, Lock, Scale, Camera, AlertTriangle } from "lucide-react-native";
+import GeneralHeader from "../../../components/headers/GeneralHeader";
+import { images } from "../../../constant/images";
 import { useTheme } from "../../../context/ThemeContext";
 
 const GUIDELINES = [
@@ -54,28 +59,26 @@ const CommunityGuidelines = () => {
     <SafeAreaView style={[s.safe, { backgroundColor: colors.surface }]} edges={["top"]}>
       <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
 
-      {/* Header — overlaid on the hero image */}
-      <View style={s.headerOverlay}>
-        <TouchableOpacity onPress={() => router.back()} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-          <ArrowLeft size={22} color="#fff" strokeWidth={2} />
-        </TouchableOpacity>
-        <Text style={s.headerTitle}>Community Guidelines</Text>
-        <View style={{ width: 22 }} />
-      </View>
+      <GeneralHeader title="Community Guidelines" leftIcon={<ArrowLeft />} />
 
       <ScrollView
-        style={{ backgroundColor: colors.background }}
-        contentContainerStyle={{ backgroundColor: colors.background, paddingBottom: 100 }}
+        style={{ flex: 1, backgroundColor: colors.background }}
+        contentContainerStyle={{ paddingBottom: 100 }}
         showsVerticalScrollIndicator={false}
-        stickyHeaderIndices={[0]}
       >
-        {/* Hero image with gradient overlay */}
-        <View style={s.hero}>
-          <View style={s.heroGradient} />
-          <Text style={s.heroText}>Welcome to Bondies</Text>
+        {/* Hero Image */}
+        <View style={s.heroContainer}>
+          <Image
+            source={images.onboardingImage}
+            style={s.heroImage}
+            resizeMode="cover"
+          />
         </View>
 
-        <View style={{ paddingHorizontal: 20, paddingTop: 24 }}>
+        {/* Title */}
+        <Text style={[s.title, { color: colors.textPrimary }]}>Welcome to Bondies</Text>
+
+        <View style={{ paddingHorizontal: 20 }}>
           {/* Intro */}
           <Text style={[s.intro, { color: colors.textSecondary }]}>
             We&apos;re built on meaningful connections. To keep our community safe and fun for everyone, please follow these simple rules.
@@ -119,25 +122,24 @@ const CommunityGuidelines = () => {
 
 const s = StyleSheet.create({
   safe: { flex: 1 },
-  headerOverlay: {
-    position: "absolute", top: 48, left: 0, right: 0, zIndex: 10,
-    flexDirection: "row", alignItems: "center", justifyContent: "space-between",
-    paddingHorizontal: 16, paddingVertical: 14,
+  heroContainer: { 
+    marginHorizontal: 16, 
+    borderRadius: 20, 
+    overflow: "hidden", 
+    height: 220, 
+    marginTop: 16,
+    marginBottom: 24 
   },
-  headerTitle: { fontSize: 18, fontFamily: "PlusJakartaSansBold", color: "#fff" },
-  hero: {
-    height: 220,
-    backgroundColor: "#4A4A4A",
-    justifyContent: "flex-end",
-    padding: 20,
+  heroImage: { 
+    width: "100%", 
+    height: "100%" 
   },
-  heroGradient: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(0,0,0,0.35)",
-  },
-  heroText: {
-    fontSize: 28, fontFamily: "PlusJakartaSansBold",
-    color: "#fff", letterSpacing: -0.5,
+  title: {
+    fontSize: 22, 
+    fontFamily: "PlusJakartaSansBold", 
+    textAlign: "center", 
+    marginBottom: 8, 
+    paddingHorizontal: 24,
   },
   intro: {
     fontSize: 14, fontFamily: "PlusJakartaSans",

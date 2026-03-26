@@ -16,7 +16,7 @@ import { persistor } from "../../../store/store";
 import { determineNextRoute } from "../../../utils/navigationHelper";
 import { tokenManager } from "../../../utils/tokenManager";
 
-const NAV_TIMEOUT_MS = 2000;
+const NAV_TIMEOUT_MS = 5000;
 
 const SplashScreen = () => {
   const dispatch           = useDispatch();
@@ -54,10 +54,17 @@ const SplashScreen = () => {
   };
 
   useEffect(() => {
-    const id = setTimeout(() => {
+    const id = setTimeout(async () => {
       if (!hasNavigated.current) {
-        console.warn("[SplashScreen] Hard timeout — forcing /onboarding");
-        navigate("/onboarding");
+        // Before forcing onboarding, check if there's a persisted token
+        const persistedToken = await tokenManager.getToken();
+        if (persistedToken) {
+          console.warn("[SplashScreen] Hard timeout — but token exists, going to /root-tabs");
+          navigate("/root-tabs");
+        } else {
+          console.warn("[SplashScreen] Hard timeout — no token, forcing /onboarding");
+          navigate("/onboarding");
+        }
       }
     }, NAV_TIMEOUT_MS);
     return () => clearTimeout(id);

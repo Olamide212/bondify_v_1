@@ -14,27 +14,27 @@
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { Image } from "expo-image";
 import {
-  Baby,
-  Briefcase,
-  Cigarette,
-  Dog,
-  Droplet,
-  Dumbbell,
-  GraduationCap,
-  Heart,
-  MapPin,
-  Ruler,
-  Wallet,
-  Wine,
+    Baby,
+    Briefcase,
+    Cigarette,
+    Dog,
+    Droplet,
+    Dumbbell,
+    GraduationCap,
+    Heart,
+    MapPin,
+    Ruler,
+    Wallet,
+    Wine,
 } from "lucide-react-native";
 import { useMemo, useState } from "react";
 import {
-  Animated,
-  Dimensions,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    Animated,
+    Dimensions,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { Icons } from "../../constant/icons";
 import { usePersistentUriCache } from "../../hooks/usePersistentUriCache";
@@ -137,6 +137,19 @@ const OwnProfileCard = ({ profile }) => {
             likesYou={profile?.likesYou ?? false}
           />
 
+
+                    {/* ── Tagline ── */}
+                    <View>
+   {profile?.tagline && (
+                      <View className="bg-white -mt-20 pt-10 px-4 pb-3 rounded-t-2xl mb-2">
+                        <Text className="text-3xl  font-PlusJakartaSansSemiBold ">
+                         {profile.tagline}
+                        </Text>
+                      </View>
+                    )}
+                    </View>
+                 
+
           <View className="py-3">
 
             {/* ── Looking For ── */}
@@ -180,6 +193,30 @@ const OwnProfileCard = ({ profile }) => {
                 </Text>
                 <Text className="text-app font-PlusJakartaSansBold text-2xl leading-relaxed capitalize">
                   {profile.questions[0].answer}
+                </Text>
+              </View>
+            )}
+
+            {/* ── Religion Practice ── */}
+            {profile.religionPractice && (
+              <View className="bg-white p-5 mb-2 mx-2 rounded-2xl border border-gray-200">
+                <Text className="text-app font-PlusJakartaSans text-base">
+                  How religious are you?
+                </Text>
+                <Text className="text-app font-PlusJakartaSansBold text-2xl leading-relaxed capitalize">
+                  {profile.religionPractice}
+                </Text>
+              </View>
+            )}
+
+            {/* ── Relocation Plan ── */}
+            {profile.willRelocateForMarriage && (
+              <View className="bg-white p-5 mb-2 mx-2 rounded-2xl border border-gray-200">
+                <Text className="text-app font-PlusJakartaSans text-base">
+                  Would you relocate for marriage?
+                </Text>
+                <Text className="text-app font-PlusJakartaSansBold text-2xl leading-relaxed capitalize">
+                  {profile.willRelocateForMarriage}
                 </Text>
               </View>
             )}

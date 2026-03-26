@@ -6,7 +6,7 @@ import { Icons } from "../../constant/icons";
 const VerifiedIcon = ({ style }) => {
   return (
     <Image
-      source={Icons.verifiedBatch}
+      source={Icons.verifiedIcon}
       style={[{ width: 24, height: 24 }, style]}
       resizeMode="contain"
     />

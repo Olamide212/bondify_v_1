@@ -61,15 +61,15 @@ const InterestsModal = ({
                   );
 
                   const chipClassName = selected
-                    ? "bg-secondary border-secondary"
+                    ? "bg-primary border-primary"
                     : isHighlighted
                       ? "bg-secondary border-secondary"
                       : "bg-white border-[#D1D1D1]";
 
                   const textClassName = selected
-                    ? "text-primary"
+                    ? "text-white"
                     : isHighlighted
-                      ? "text-primary"
+                      ? "text-white"
                       : "text-black";
 
                   return (

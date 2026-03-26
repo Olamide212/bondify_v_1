@@ -268,16 +268,18 @@ const ProfileCard = ({ profile, hideAiSuggestion = false }) => {
             likesYou={profile?.likesYou}
           />
 
-          {/* ── Tagline ── */}
-          {profile?.tagline && (
-            <View className="bg-white -mt-20 pt-16 px-4 pb-3 rounded-t-2xl mb-2">
-              <Text className="text-base text-gray-600 font-PlusJakartaSansMedium italic text-center">
-                "{profile.tagline}"
-              </Text>
-            </View>
-          )}
+                    {/* ── Tagline ── */}
+                    <View>
+   {profile?.tagline && (
+                      <View className="bg-white -mt-20 pt-10 px-4 pb-3 rounded-t-2xl mb-2">
+                        <Text className="text-3xl  font-PlusJakartaSansSemiBold ">
+                         {profile.tagline}
+                        </Text>
+                      </View>
+                    )}
+                    </View>
 
-          <View className={profile?.tagline ? "py-0" : "py-3"}>
+          <View className="py-3">
 
             {/* ── Shared interests ── */}
             {mutualInterestCount > 0 && (
@@ -286,7 +288,7 @@ const ProfileCard = ({ profile, hideAiSuggestion = false }) => {
                   <Text className="text-app text-[20px] font-PlusJakartaSansSemiBold">
                     Shared interests
                   </Text>
-                  {/* Count badge */}
+              
                   <View className="bg-primary/10 px-3 py-1 rounded-full">
                     <Text className="text-primary text-sm font-PlusJakartaSansBold">
                       {mutualInterestCount} in common
@@ -343,6 +345,30 @@ const ProfileCard = ({ profile, hideAiSuggestion = false }) => {
                 </Text>
                 <Text className="text-app font-PlusJakartaSansBold text-2xl leading-relaxed capitalize">
                   {profile.questions[0].answer}
+                </Text>
+              </View>
+            )}
+
+            {/* ── Religion Practice ── */}
+            {profile.religionPractice && (
+              <View className="bg-white p-5 mb-2 mx-2 rounded-2xl border border-gray-200">
+                <Text className="text-app font-PlusJakartaSans text-base">
+                  How religious are you?
+                </Text>
+                <Text className="text-app font-PlusJakartaSansBold text-2xl leading-relaxed capitalize">
+                  {profile.religionPractice}
+                </Text>
+              </View>
+            )}
+
+            {/* ── Relocation Plan ── */}
+            {profile.willRelocateForMarriage && (
+              <View className="bg-white p-5 mb-2 mx-2 rounded-2xl border border-gray-200">
+                <Text className="text-app font-PlusJakartaSans text-base">
+                  Would you relocate for marriage?
+                </Text>
+                <Text className="text-app font-PlusJakartaSansBold text-2xl leading-relaxed capitalize">
+                  {profile.willRelocateForMarriage}
                 </Text>
               </View>
             )}

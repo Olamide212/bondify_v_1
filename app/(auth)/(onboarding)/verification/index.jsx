@@ -33,6 +33,7 @@ import { useAlert } from "../../../../context/AlertContext";
 import { profileService } from "../../../../services/profileService"; // Add this import
 import apiClient from "../../../../utils/axiosInstance";
 import { tokenManager } from "../../../../utils/tokenManager";
+import VerifiedIcon from "../../../../components/ui/VerifiedIcon";
 
 const PRIMARY = colors.primary;
 
@@ -46,7 +47,8 @@ const IntroStep = ({ onStart, onSkip, profilePhotoUrl }) => (
       <View style={is.photoWrap}>
         <Image source={{ uri: profilePhotoUrl }} style={is.profilePhoto} />
         <View style={is.photoBadge}>
-          <ShieldCheck size={16} color="#fff" strokeWidth={2} />
+          <VerifiedIcon />
+        
         </View>
       </View>
     ) : (
@@ -55,7 +57,7 @@ const IntroStep = ({ onStart, onSkip, profilePhotoUrl }) => (
       </View>
     )}
 
-    <Text style={is.title}>Let's verify its you</Text>
+    <Text style={is.title}>Let&apos;s verify its you</Text>
     <Text style={is.body}>
       A quick selfie helps us confirm you&apos;re a real person and builds trust with your
       matches. Your selfie is only used for verification and is never shown on your profile.
@@ -95,9 +97,9 @@ const is = StyleSheet.create({
   iconWrap:    { width: 88, height: 88, borderRadius: 99, backgroundColor: "#EDE8F5", alignItems: "center", justifyContent: "center", alignSelf: "center", marginBottom: 20 },
   title:       { fontSize: 24, fontFamily: "PlusJakartaSansBold", color: "#111", textAlign: "center", marginBottom: 10 },
   body:        { fontSize: 14, fontFamily: "PlusJakartaSans", color: "#6B7280", textAlign: "center", lineHeight: 22, marginBottom: 28 },
-  photoWrap:   { width: 100, height: 100, borderRadius: 50, alignSelf: "center", marginBottom: 20, position: "relative" },
-  profilePhoto:{ width: 100, height: 100, borderRadius: 50, borderWidth: 3, borderColor: PRIMARY },
-  photoBadge:  { position: "absolute", bottom: 0, right: 0, width: 28, height: 28, borderRadius: 14, backgroundColor: PRIMARY, alignItems: "center", justifyContent: "center", borderWidth: 2, borderColor: "#fff" },
+  photoWrap:   { width: 150, height: 150, borderRadius: 75, alignSelf: "center", marginBottom: 20, position: "relative" },
+  profilePhoto:{ width: 150, height: 150, borderRadius: 75, borderWidth: 3, borderColor: PRIMARY },
+  photoBadge:  { position: "absolute", bottom: 5, right: 15, width: 28, height: 28,   alignItems: "center", justifyContent: "center",  },
   steps:       { gap: 20, marginBottom: 32 },
   stepRow:     { flexDirection: "row", alignItems: "flex-start", gap: 14 },
   stepNum:     { width: 32, height: 32, borderRadius: 99, backgroundColor: "#EDE8F5", alignItems: "center", justifyContent: "center", flexShrink: 0 },
@@ -181,7 +183,7 @@ const CameraStep = ({ onCapture, showAlert }) => {
 const cs = StyleSheet.create({
   container:    { flex: 1, backgroundColor: "#000" },
   overlay:      { ...StyleSheet.absoluteFillObject, alignItems: "center", justifyContent: "center" },
-  oval:         { width: 230, height: 290, borderRadius: 999, borderWidth: 2.5, borderColor: "rgba(255,255,255,0.75)", borderStyle: "dashed" },
+  oval:         { width: 230, height: 300, borderRadius: 999, borderWidth: 2.5, borderColor: "rgba(255,255,255,0.75)", borderStyle: "dashed" },
   hint:         { marginTop: 16, fontSize: 13, fontFamily: "PlusJakartaSansMedium", color: "rgba(255,255,255,0.85)" },
   shutterRow:   { position: "absolute", bottom: 48, width: "100%", alignItems: "center" },
   shutter:      { width: 72, height: 72, borderRadius: 99, backgroundColor: "#fff", alignItems: "center", justifyContent: "center", borderWidth: 4, borderColor: "rgba(255,255,255,0.4)" },

@@ -15,7 +15,9 @@ const LocationAccess = () => {
   });
 
   const isOnboardingAlreadyCompletedError = (error) => {
-    const message = typeof error === "string" ? error : error?.message;
+    const message = typeof error === "string" 
+      ? error 
+      : error?.response?.data?.message || error?.message || "";
     return (
       typeof message === "string" &&
       message.toLowerCase().includes("onboarding already completed")

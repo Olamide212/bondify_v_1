@@ -5,17 +5,17 @@ import { useRouter } from "expo-router";
 import { Copy, Edit2, Mail, MessageCircle, Search, X } from "lucide-react-native";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
-    ActivityIndicator,
-    KeyboardAvoidingView,
-    Linking,
-    Platform,
-    ScrollView,
-    StatusBar,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Linking,
+  Platform,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useSelector } from "react-redux";
@@ -453,9 +453,12 @@ const ChatScreen = ({ matchedUser, onBack, initialSearchMode = false }) => {
 
     return date.toLocaleDateString([], {
       weekday: "short",
-      month: "short",
+      month: "long",
       day: "numeric",
       year: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
     });
   };
 
@@ -627,6 +630,7 @@ const ChatScreen = ({ matchedUser, onBack, initialSearchMode = false }) => {
                   }}
                   EditIcon={Edit2}
                   CopyIcon={Copy}
+                  isSystem={matchedUser?.isSystem}
                 />
               </View>
             );
@@ -737,7 +741,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   dateSeparatorPill: {
-    backgroundColor: colors.background,
+
     paddingHorizontal: 12,
     paddingVertical: 5,
     borderRadius: 999,
@@ -745,7 +749,7 @@ const styles = StyleSheet.create({
   dateSeparatorText: {
     fontSize: 12,
     color: "#6B7280",
-    fontWeight: "600",
+   fontFamily: "PlusJakartaSansSemiBold",
   },
   loadingOlderContainer: {
     alignItems: "center",

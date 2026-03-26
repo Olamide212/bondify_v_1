@@ -49,7 +49,7 @@ const highlightText = (text, term, textStyle) => {
   );
 };
 
-const MessageBubble = ({ message, onReply, onEdit, highlight }) => {
+const MessageBubble = ({ message, onReply, onEdit, highlight, isSystem = false }) => {
   const [isPlayingVoice, setIsPlayingVoice] = useState(false);
   const [isImageLoading, setIsImageLoading] = useState(Boolean(message.imageUrl));
   const [imageFailed, setImageFailed] = useState(!message.imageUrl);
@@ -191,7 +191,7 @@ const MessageBubble = ({ message, onReply, onEdit, highlight }) => {
         </View>
       )}
       {message.type === "text" && (
-        <Pressable onLongPress={() => setMenuVisible(true)}>
+        <Pressable onLongPress={isSystem ? undefined : () => setMenuVisible(true)}>
           <View
             style={[
               styles.bubble,
@@ -211,7 +211,7 @@ const MessageBubble = ({ message, onReply, onEdit, highlight }) => {
       )}
 
       {message.type === "image" && (
-        <Pressable onLongPress={() => setMenuVisible(true)}>
+        <Pressable onLongPress={isSystem ? undefined : () => setMenuVisible(true)}>
           <View style={styles.imageWrapper}>
             {!imageFailed && message.imageUrl ? (
               <Image
@@ -249,7 +249,7 @@ const MessageBubble = ({ message, onReply, onEdit, highlight }) => {
             message.sender === "me" ? styles.myVoice : styles.theirVoice,
           ]}
           onPress={handleVoicePress}
-          onLongPress={() => setMenuVisible(true)}
+          onLongPress={isSystem ? undefined : () => setMenuVisible(true)}
           activeOpacity={0.8}
         >
           {isPlayingVoice ? (
@@ -370,22 +370,23 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 4,
   },
   theirBubble: {
-    backgroundColor: "#fff",
+    backgroundColor: '#f1f1f1',
     borderTopLeftRadius: 4,
-    borderWidth: 1,
-    borderColor: "#E5E7EB",
   },
   text: {
-    fontSize: 14,
-    fontFamily: fonts.PlusJakartaSans
+    fontSize: 15,
+    fontFamily: fonts.PlusJakartaSans,
+    lineHeight: 20,
   },
   myText: {
     color: "#fff",
-    fontFamily: fonts.PlusJakartaSans
+    fontFamily: fonts.PlusJakartaSans,
+    lineHeight: 20,
   },
   theirText: {
     color: "#1F2937",
-        fontFamily: fonts.PlusJakartaSans
+        fontFamily: fonts.PlusJakartaSans,
+        lineHeight: 20,
   },
   image: {
     width: 200,

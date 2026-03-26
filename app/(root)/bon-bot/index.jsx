@@ -31,6 +31,7 @@ import { colors } from "../../../constant/colors";
 import { images } from "../../../constant/images";
 import { useAlert } from "../../../context/AlertContext";
 import AIService from "../../../services/aiService";
+import { profileService } from "../../../services/profileService";
 
 const PRIMARY        = colors.primary;
 const PRIMARY_LIGHT  = colors.primaryLight;
@@ -296,27 +297,55 @@ const AIBubble = ({ message, onCopy, onRetry }) => {
   );
 };
 
-const UserBubble = ({ message }) => (
+const UserBubble = ({ message, userPhoto, userInitial }) => (
   <View style={styles.userBubbleRow}>
     <View style={styles.userBubble}>
       <Text style={styles.userBubbleText}>{message.content}</Text>
       <Text style={styles.timestampUser}>{formatTime(message.timestamp)}</Text>
     </View>
-    <View style={styles.userAvatarPlaceholder}>
-      <Text style={styles.userAvatarInitial}>Y</Text>
-    </View>
+    {userPhoto ? (
+      <Image source={{ uri: userPhoto }} style={styles.userAvatar} />
+    ) : (
+      <View style={styles.userAvatarPlaceholder}>
+        <Text style={styles.userAvatarInitial}>{userInitial}</Text>
+      </View>
+    )}
   </View>
 );
 
 const AIChatScreen = ({ navigation }) => {
   const router = useRouter();
   const { showAlert } = useAlert();
+  
+  // User photo state - fetched from API
+  const [userPhoto, setUserPhoto] = useState(null);
+  const [userInitial, setUserInitial] = useState("U");
+
   const [messages, setMessages] = useState([
     { id: 1, role: "assistant", content: "Hi! I'm your Bondies Assistant. Ready to level up your dating game? I can help you with icebreakers, profile tips, or even planning a date! 🧡\n\nYou can also ask me things like \"Show me profiles near me\" or \"Find people who love music\" and I'll suggest real matches! 🔍", timestamp: new Date() },
   ]);
   const [userInput, setUserInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const scrollViewRef             = useRef(null);
+
+  // Fetch user profile on mount
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+          const profile = await profileService.getMyProfile({ force: true });
+        const firstImage = Array.isArray(profile?.images) && profile.images.length > 0
+          ? profile.images.sort((a, b) => (a.order ?? 0) - (b.order ?? 0))[0]
+          : null;
+        const photo = profile?.profilePhoto || firstImage?.url || firstImage || null;
+        const initial = (profile?.firstName || profile?.userName || "U")[0].toUpperCase();
+        setUserPhoto(photo);
+        setUserInitial(initial);
+      } catch (err) {
+        console.log("Failed to fetch user profile:", err);
+      }
+    };
+    fetchUserProfile();
+  }, []);
 
   // Detect if a query is asking for profile suggestions
   const isProfileSearchQuery = useCallback((text) => {
@@ -424,7 +453,7 @@ const AIChatScreen = ({ navigation }) => {
             <Text style={styles.onlineLabel}>ONLINE ASSISTANT</Text>
           </View>
         </View>
-        <Pressable onPress={clearChat} hitSlop={8}>
+        <Pressable onPress={() => router.push("/ai-settings")} hitSlop={8}>
           <MoreVertical size={22} color="#444" />
         </Pressable>
       </View>
@@ -438,7 +467,7 @@ const AIChatScreen = ({ navigation }) => {
       >
         {messages.map((msg) =>
           msg.role === "user"
-            ? <UserBubble key={msg.id} message={msg} />
+            ? <UserBubble key={msg.id} message={msg} userPhoto={userPhoto} userInitial={userInitial} />
             : (
               <View key={msg.id}>
                 <AIBubble message={msg} onCopy={copyToClipboard} onRetry={retryLast} />
@@ -531,10 +560,10 @@ const styles = StyleSheet.create({
 
   header:       { flexDirection: "row", alignItems: "center", paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: "#f2f2f2", gap: 10 },
   backBtn:      { padding: 2 },
-  backArrow:    { fontSize: 22, color: "#222", fontWeight: "500" },
+  backArrow:    { fontSize: 22, color: "#222" },
   headerAvatar: { width: 44, height: 44, borderRadius: 22, borderWidth: 2, borderColor: PRIMARY },
   headerInfo:   { flex: 1 },
-  headerTitle:  { fontSize: 16, fontWeight: "700", color: "#111", fontFamily: "PlusJakartaSans" },
+  headerTitle:  { fontSize: 16, color: "#111", fontFamily: "PlusJakartaSansBold" },
   onlineRow:    { flexDirection: "row", alignItems: "center", gap: 5, marginTop: 2 },
   onlineDot:    { width: 7, height: 7, borderRadius: 4, backgroundColor: "#22c55e" },
   onlineLabel:  { fontSize: 10, fontWeight: "800", color: PRIMARY, letterSpacing: 0.7, fontFamily: "PlusJakartaSans" },
@@ -562,6 +591,7 @@ const styles = StyleSheet.create({
   userBubbleRow:         { flexDirection: "row", justifyContent: "flex-end", alignItems: "flex-end", marginBottom: 16, gap: 8 },
   userBubble:            { backgroundColor: PRIMARY, borderRadius: 18, borderBottomRightRadius: 4, paddingHorizontal: 14, paddingTop: 12, paddingBottom: 10, maxWidth: "72%" },
   userBubbleText:        { fontSize: 15, color: "#fff", lineHeight: 22, fontFamily: "PlusJakartaSans" },
+  userAvatar:            { width: 36, height: 36, borderRadius: 18 },
   userAvatarPlaceholder: { width: 36, height: 36, borderRadius: 18, backgroundColor: "#ddd", alignItems: "center", justifyContent: "center" },
   userAvatarInitial:     { fontSize: 14, fontWeight: "700", color: "#888" },
 
