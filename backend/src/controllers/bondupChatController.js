@@ -202,9 +202,10 @@ const sendBondupMessage = async (req, res, next) => {
 
     const io = getIO();
     if (io) {
-      io.emit(`bondupChat:${chatId}:message`, populated);
-
-      // Message limits removed — no limit-reached notification needed
+      // Emit to the chat room for all members who have joined
+      // Note: Room-based emission ensures all connected members receive the message
+      // The sender will also receive it and should filter on the client side
+      io.to(`bondupChat:${chatId}`).emit(`bondupChat:${chatId}:message`, populated);
     }
 
     res.status(201).json({
@@ -300,7 +301,7 @@ const requestMatch = async (req, res, next) => {
 
       // Also broadcast to chat room
       if (io) {
-        io.emit(`bondupChat:${chatId}:matchUpdate`, {
+        io.to(`bondupChat:${chatId}`).emit(`bondupChat:${chatId}:matchUpdate`, {
           chatId: chat._id,
           matchStatus: 'pending',
           matchInitiatedBy: userId,
@@ -338,7 +339,7 @@ const requestMatch = async (req, res, next) => {
 
       // Broadcast to chat room
       if (io) {
-        io.emit(`bondupChat:${chatId}:matchUpdate`, {
+        io.to(`bondupChat:${chatId}`).emit(`bondupChat:${chatId}:matchUpdate`, {
           chatId: chat._id,
           matchStatus: 'matched',
         });
@@ -387,7 +388,7 @@ const declineMatch = async (req, res, next) => {
 
     const io = getIO();
     if (io) {
-      io.emit(`bondupChat:${chatId}:matchUpdate`, {
+      io.to(`bondupChat:${chatId}`).emit(`bondupChat:${chatId}:matchUpdate`, {
         chatId: chat._id,
         matchStatus: 'none',
       });

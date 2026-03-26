@@ -26,7 +26,7 @@
  */
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useFocusEffect } from "expo-router";
+import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { Bell, SlidersHorizontal } from "lucide-react-native";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -91,6 +91,8 @@ const safeParse = (value) => {
 // ─────────────────────────────────────────────────────────────────────────────
 
 const Home = () => {
+  const router = useRouter();
+  const params = useLocalSearchParams();
   const {
     homeCurrentProfileIndex,
     homeProfiles,
@@ -119,6 +121,15 @@ const Home = () => {
   useEffect(() => {
     if (!profilesLoading) hasEverLoaded.current = true;
   }, [profilesLoading]);
+
+  // ─── Handle openNotifications param from navigation ───────────────────────
+  useEffect(() => {
+    if (params?.openNotifications === "true") {
+      setShowNotificationsModal(true);
+      // Clear the param to avoid re-opening on subsequent renders
+      router.setParams({ openNotifications: undefined });
+    }
+  }, [params?.openNotifications, router]);
 
   // ─── Auto-refresh on tab focus ────────────────────────────────────────────
   useFocusEffect(
@@ -418,6 +429,45 @@ const Home = () => {
     }
   };
 
+  // ─── New notification handlers for redesigned modal ───────────────────────
+  const handleBoost = () => {
+    setShowNotificationsModal(false);
+    // Navigate to boost/premium screen if available
+    router.push("/premium");
+  };
+
+  const handleJoinEvent = (notification) => {
+    if (!notification) return;
+    markNotificationAsRead(notification.id);
+    setShowNotificationsModal(false);
+    // Navigate to the event or bondup
+    if (notification.data?.eventId) {
+      router.push({
+        pathname: "/bondup-chat",
+        params: { bondupId: notification.data.eventId },
+      });
+    }
+  };
+
+  const handleDeclineEvent = (notification) => {
+    if (!notification) return;
+    markNotificationAsRead(notification.id);
+    // Could call an API to decline the event invitation
+  };
+
+  const handleViewTip = (notification) => {
+    if (!notification) return;
+    markNotificationAsRead(notification.id);
+    setShowNotificationsModal(false);
+    // Open AI assistant modal with the tip
+    setShowAIModal(true);
+  };
+
+  const handleOpenSettings = () => {
+    setShowNotificationsModal(false);
+    router.push("/settings");
+  };
+
   const onRefresh = () => {
     setIsRefreshing(true);
     refreshProfiles();
@@ -581,6 +631,11 @@ const Home = () => {
         onMarkAllRead={markAllNotificationsAsRead}
         onClearAll={() => setNotifications([])}
         onPressNotification={handlePressNotification}
+        onBoost={handleBoost}
+        onJoinEvent={handleJoinEvent}
+        onDeclineEvent={handleDeclineEvent}
+        onViewTip={handleViewTip}
+        onOpenSettings={handleOpenSettings}
       />
 
       <UserProfileModal
