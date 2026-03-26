@@ -7,6 +7,7 @@ import { useSelector } from "react-redux";
 import ChatListScreen from "../../../../components/chatScreen/ChatListScreen";
 import bondupService from "../../../../services/bondupService";
 import { matchService } from "../../../../services/matchService";
+import NotificationService from "../../../../services/notificationService";
 import { socketService } from "../../../../services/socketService";
 
 const CHAT_TABS = ["Dating", "Plans"];
@@ -116,6 +117,7 @@ export default function Chat() {
   const [activeTab, setActiveTab] = useState(0);
   const [matchUsers, setMatchUsers]       = useState([]);
   const [planChats, setPlanChats]         = useState([]);
+  const [systemNotifications, setSystemNotifications] = useState([]);
   const [isLoadingMatches, setIsLoadingMatches] = useState(true);
   const [isLoadingPlans, setIsLoadingPlans]     = useState(true);
   const currentUserId  = useSelector(
@@ -145,9 +147,39 @@ export default function Chat() {
   const loadBondupChats = useCallback(async (mounted = { current: true }) => {
     setIsLoadingPlans(true);
     try {
-      const res = await bondupService.getMyBondups();
+      const [bondupRes, notifRes] = await Promise.all([
+        bondupService.getMyBondups(),
+        NotificationService.getNotifications({ limit: 10 }).catch(() => ({ data: [] })),
+      ]);
+      
       if (mounted.current) {
-        setPlanChats(normalizeBondupChats(res.data ?? [], currentUserId));
+        const bondupChats = normalizeBondupChats(bondupRes.data ?? [], currentUserId);
+        
+        // Filter system notifications to show in Plans tab
+        const systemNotifs = (notifRes.data ?? []).filter(
+          (n) => n.type === 'system' || n.type === 'ai_tip' || n.type === 'event_invite' || n.type === 'event_reminder'
+        );
+        setSystemNotifications(systemNotifs);
+        
+        // Create Bondies Team chat item if there are system notifications
+        const bondiesTeamItem = systemNotifs.length > 0 ? [{
+          id: 'bondies-team',
+          matchId: 'bondies-team',
+          name: '🔔 Bondies Team',
+          profileImage: null,
+          isOnline: true,
+          isSystem: true,
+          isVerified: true,
+          matchedDate: new Date(),
+          activityAt: systemNotifs[0]?.createdAt ? new Date(systemNotifs[0].createdAt).getTime() : Date.now(),
+          lastMessage: systemNotifs[0]?.body || 'Updates from Bondies',
+          unread: systemNotifs.filter(n => !n.read).length,
+          hasChatted: true,
+          isBondiesTeam: true,
+          notifications: systemNotifs,
+        }] : [];
+        
+        setPlanChats([...bondiesTeamItem, ...bondupChats]);
       }
     } catch {
       // silent
@@ -240,6 +272,16 @@ export default function Chat() {
   // ── Navigation ──────────────────────────────────────────────────────────────
 
   const handleSelectUser = (user) => {
+    // Handle Bondies Team notifications - navigate to home and trigger notifications modal
+    if (user.isBondiesTeam) {
+      // Navigate to home tab which has the notifications modal
+      router.push({
+        pathname: "/(root)/(tab)/home",
+        params: { openNotifications: "true" },
+      });
+      return;
+    }
+    
     if (user.isBondupChat) {
       // Navigate to Bondup chat screen
       router.push({

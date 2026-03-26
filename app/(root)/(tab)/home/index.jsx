@@ -26,7 +26,7 @@
  */
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useFocusEffect, useRouter } from "expo-router";
+import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { Bell, SlidersHorizontal } from "lucide-react-native";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -92,6 +92,7 @@ const safeParse = (value) => {
 
 const Home = () => {
   const router = useRouter();
+  const params = useLocalSearchParams();
   const {
     homeCurrentProfileIndex,
     homeProfiles,
@@ -120,6 +121,15 @@ const Home = () => {
   useEffect(() => {
     if (!profilesLoading) hasEverLoaded.current = true;
   }, [profilesLoading]);
+
+  // ─── Handle openNotifications param from navigation ───────────────────────
+  useEffect(() => {
+    if (params?.openNotifications === "true") {
+      setShowNotificationsModal(true);
+      // Clear the param to avoid re-opening on subsequent renders
+      router.setParams({ openNotifications: undefined });
+    }
+  }, [params?.openNotifications, router]);
 
   // ─── Auto-refresh on tab focus ────────────────────────────────────────────
   useFocusEffect(
