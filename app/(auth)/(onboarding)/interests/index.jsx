@@ -73,13 +73,13 @@ const Interests = () => {
 
   return (
     <SafeAreaProvider>
-      <SafeAreaView className="flex-1 bg-white">
+      <SafeAreaView style={{flex: 1}} className="bg-white">
         <KeyboardAvoidingView
-          className="flex-1"
+          style={{flex: 1}}
           behavior={Platform.OS === "ios" ? "padding" : "height"}
         >
           <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-            <View className="flex-1 px-4">
+            <View style={{flex: 1}} className="px-4">
               <ScrollView
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={{
@@ -87,7 +87,7 @@ const Interests = () => {
                   paddingTop: 4,
                 }}
               >
-                <View className="flex-1">
+                <View style={{flex: 1}}>
                   <Text className="text-3xl font-PlusJakartaSansBold  mt-8 mb-4">
                     What are your interests?
                   </Text>

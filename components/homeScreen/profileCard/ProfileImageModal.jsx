@@ -122,7 +122,7 @@ const ProfileImageModal = ({
               <View style={{ width: 36, height: 4, borderRadius: 2, backgroundColor: 'rgba(255,255,255,0.4)' }} />
             </View>
 
-            <View className="flex-1 justify-center">
+            <View style={{flex: 1}} className="justify-center">
               <FlatList
                 ref={modalFlatListRef}
                 data={Array.from({ length: totalImages }, (_, index) => index)}

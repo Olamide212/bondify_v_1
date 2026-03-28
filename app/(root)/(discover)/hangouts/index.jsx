@@ -25,7 +25,7 @@ const mockHangouts = [
 
 export default function HangoutsScreen() {
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView style={{flex: 1}} className="bg-white">
       <GeneralHeader title="Nearby Hangouts" />
       <ScrollView className="px-4 mt-2">
         {mockHangouts.map((event) => (

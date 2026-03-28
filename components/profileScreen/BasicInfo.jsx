@@ -21,9 +21,9 @@ const BasicInfo = ({ profile }) => {
   return (
     <View style={s.card}>
       <View style={s.cardLeft}>
-        <View style={s.iconCircle}>
+        {/* <View style={s.iconCircle}>
           <User size={18} color={colors.primary} strokeWidth={2} />
-        </View>
+        </View> */}
         <View style={{ flex: 1 }}>
           <Text style={s.name} numberOfLines={1} adjustsFontSizeToFit>
             {fullName}

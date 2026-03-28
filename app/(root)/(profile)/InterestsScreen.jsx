@@ -123,7 +123,7 @@ const InterestsScreen = () => {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView style={{flex: 1}} className="bg-white">
       <GeneralHeader
         title="Interests"
         leftIcon={<ArrowLeft color={colors.textPrimary ?? "#111827"} />}
@@ -138,7 +138,7 @@ const InterestsScreen = () => {
         />
       ) : (
         <ScrollView
-          className="flex-1 px-4"
+          style={{flex: 1}} className="px-4"
           contentContainerStyle={{ paddingBottom: 120, paddingTop: 16 }}
           showsVerticalScrollIndicator={false}
         >

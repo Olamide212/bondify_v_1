@@ -14,7 +14,7 @@ const SettingsSection = ({ title, items }) => {
       ]}
     >
       {title && (
-        <Text style={[styles.title, { color: colors.primary }]}>
+        <Text style={[styles.title, { color: '#000' }]}>
           {title}
         </Text>
       )}
@@ -29,7 +29,7 @@ const SettingsSection = ({ title, items }) => {
               styles.row,
               !isLast && {
                 borderBottomWidth: StyleSheet.hairlineWidth,
-                borderBottomColor: colors.border,
+                borderBottomColor: '#dadada',
               },
             ]}
             onPress={onPress}
@@ -38,11 +38,11 @@ const SettingsSection = ({ title, items }) => {
             <View style={styles.rowInner}>
               {/* Left: title + optional description */}
               <View style={styles.textBlock}>
-                <Text style={[styles.rowTitle, { color: colors.textPrimary }]}>
+                <Text style={[styles.rowTitle, { color: '#000' }]}>
                   {title}
                 </Text>
                 {description && (
-                  <Text style={[styles.rowDescription, { color: colors.textSecondary }]}>
+                  <Text style={[styles.rowDescription, { color: '#6B7280' }]}>
                     {description}
                   </Text>
                 )}
@@ -56,12 +56,12 @@ const SettingsSection = ({ title, items }) => {
                   </Text>
                 )}
                 {RightIcon ? (
-                  <RightIcon size={20} color="#ef4444" />
+                  <RightIcon size={20} color="#000" />
                 ) : (
                   <Ionicons
                     name="chevron-forward"
                     size={20}
-                    color={colors.textTertiary}
+                    color='#000'
                   />
                 )}
               </View>
@@ -77,18 +77,18 @@ const styles = StyleSheet.create({
   container: {
     marginTop: 16,
     marginHorizontal: 16,
-    paddingHorizontal: 20,
+
     paddingTop: 20,
     paddingBottom: 4,
-    borderRadius: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
+
+    // shadowColor: "#000",
+    // shadowOffset: { width: 0, height: 1 },
+    // shadowOpacity: 0.05,
+    // shadowRadius: 4,
+    // elevation: 2,
   },
   title: {
-    fontSize: 18,
+    fontSize: 24,
     fontFamily: "PlusJakartaSansBold",
     marginBottom: 8,
   },

@@ -1,18 +1,20 @@
 import { useEffect, useState } from "react";
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { useLookupOptions } from "../../hooks/useLookupOptions";
 import ModalHeader from "../headers/ModalHeader";
 import BaseModal from "./BaseModal";
-import { colors } from "../../constant/colors";
 
-const EthnicityModal = ({
-  onClose,
+const HEIGHT_OPTIONS = Array.from({ length: 151 }, (_, i) => ({
+  value: i + 100,
+  label: `${i + 100} cm`,
+}));
+
+const ProfileHeightModal = ({
   visible,
-  initialSelected = null,
+  onClose,
   onSelect,
+  initialSelected = null,
 }) => {
   const [selectedOption, setSelectedOption] = useState(initialSelected);
-  const { options } = useLookupOptions("ethnicities");
 
   useEffect(() => {
     setSelectedOption(initialSelected);
@@ -21,13 +23,13 @@ const EthnicityModal = ({
   return (
     <BaseModal onClose={onClose} visible={visible} fullScreen>
       <View style={styles.container}>
-        <ModalHeader centerText="Ethnicity" onClose={onClose} />
+        <ModalHeader centerText="Height" onClose={onClose} />
 
         <ScrollView 
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
-          {options.map((option) => {
+          {HEIGHT_OPTIONS.map((option) => {
             const isSelected = selectedOption === option.value;
             return (
               <TouchableOpacity
@@ -52,7 +54,7 @@ const EthnicityModal = ({
   );
 };
 
-export default EthnicityModal;
+export default ProfileHeightModal;
 
 const styles = StyleSheet.create({
   container: {
@@ -66,15 +68,15 @@ const styles = StyleSheet.create({
   option: {
     paddingVertical: 16,
     paddingHorizontal: 20,
-    borderRadius: 50,
+    borderRadius: 12,
     marginBottom: 8,
     backgroundColor: '#F3F4F6',
     borderWidth: 1,
     borderColor: '#E5E7EB',
   },
   optionSelected: {
-    backgroundColor: colors.primary,
-    borderColor: colors.primary,
+    backgroundColor: '#111',
+    borderColor: '#111',
   },
   optionText: {
     fontSize: 16,

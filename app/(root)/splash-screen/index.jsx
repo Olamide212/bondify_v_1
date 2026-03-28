@@ -152,15 +152,15 @@ const SplashScreen = () => {
       </TouchableOpacity>
 
       {/* Tagline at bottom */}
-      <Animated.View style={[styles.taglineWrap, taglineStyle]}>
-        {/* Divider dots */}
+      {/* <Animated.View style={[styles.taglineWrap, taglineStyle]}>
+
         <View style={styles.dotsRow}>
           <View style={styles.dot} />
           <View style={styles.dot} />
           <View style={styles.dot} />
         </View>
         <Text style={styles.tagline}>Built by Africans, for Africans 🌍</Text>
-      </Animated.View>
+      </Animated.View> */}
     </View>
   );
 };

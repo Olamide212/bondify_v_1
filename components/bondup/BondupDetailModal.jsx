@@ -5,31 +5,33 @@
 import * as ExpoLocation from 'expo-location';
 import { useRouter } from 'expo-router';
 import {
-    ArrowLeft,
-    Bookmark,
-    Clock,
-    MessageCircle,
-    Navigation,
-    Share2,
-    Trash2,
-    Users
+  ArrowLeft,
+  Bookmark,
+  Clock,
+  MapPin,
+  MessageCircle,
+  Navigation,
+  Send,
+  Share2,
+  Trash2,
+  Users
 } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
 import {
-    ActivityIndicator,
-    Image,
-    Linking,
-    Platform,
-    ScrollView,
-    Share,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Image,
+  Linking,
+  Platform,
+  ScrollView,
+  Share,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { colors } from '../../constant/colors';
-import { useAlert } from '../../context/AlertContext';
+import AlertModal from '../modals/AlertModal';
 import BaseModal from '../modals/BaseModal';
 
 const BRAND = colors.primary;
@@ -77,6 +79,15 @@ const isLiveNow = (dateTime) => {
 
 const getFullName = (user) =>
   [user?.firstName, user?.lastName].filter(Boolean).join(' ') || 'User';
+
+const getUserLocation = (user) => {
+  if (!user) return '';
+  if (typeof user.location === 'string') return user.location;
+  if (user.location?.city || user.location?.state) {
+    return [user.location.city, user.location.state].filter(Boolean).join(', ');
+  }
+  return user.city || '';
+};
 
 // ─── Location Card with real map ─────────────────────────────────────────────
 function LocationCard({ bondup }) {
@@ -171,11 +182,57 @@ export default function BondupDetailModal({
   onLeave,
   onDelete,
   onStartChat,
+  onStartDirectChat,
   joinLoading,
 }) {
   const router = useRouter();
-  const { showAlert } = useAlert();
+  const [localAlert, setLocalAlert] = useState({ visible: false, icon: null, title: '', message: '', actions: [] });
+
+  const hideLocalAlert = () => setLocalAlert({ visible: false, icon: null, title: '', message: '', actions: [] });
+
   if (!bondup) return null;
+
+  const handleDeletePress = () => {
+    setLocalAlert({
+      visible: true,
+      icon: 'delete',
+      title: 'Remove Bondup',
+      message: 'Are you sure you want to remove this Bondup?',
+      actions: [
+        { label: 'Cancel', style: 'cancel', onPress: hideLocalAlert },
+        {
+          label: 'Remove',
+          style: 'destructive',
+          onPress: () => {
+            hideLocalAlert();
+            onClose?.();
+            setTimeout(() => onDelete?.(bondup._id), 100);
+          },
+        },
+      ],
+    });
+  };
+
+  const handleLeavePress = () => {
+    setLocalAlert({
+      visible: true,
+      icon: 'leave',
+      title: 'Leave Bondup',
+      message: 'Are you sure you want to leave?',
+      actions: [
+        { label: 'Cancel', style: 'cancel', onPress: hideLocalAlert },
+        {
+          label: 'Leave',
+          style: 'destructive',
+          onPress: () => {
+            hideLocalAlert();
+            onClose?.();
+            setTimeout(() => onLeave?.(bondup._id), 100);
+          },
+        },
+      ],
+    });
+  };
 
   const creator = bondup.createdBy;
   const creatorAv = avatarUrl(creator);
@@ -193,10 +250,6 @@ export default function BondupDetailModal({
   const spotsText = bondup.maxParticipants
     ? `${participantCount}/${bondup.maxParticipants}`
     : `${participantCount}`;
-
-  // Show up to 6 participant avatars
-  const shownAvatars = (bondup.participants || []).slice(0, 6);
-  const extraCount = Math.max(0, participantCount - 6);
 
   return (
     <BaseModal visible={visible} onClose={onClose} fullScreen>
@@ -228,17 +281,7 @@ export default function BondupDetailModal({
           {isOwner && (
             <TouchableOpacity
               style={s.iconBtn}
-              onPress={() => {
-                showAlert({
-                  icon: 'delete',
-                  title: 'Remove Bondup',
-                  message: 'Remove this Bondup?',
-                  actions: [
-                    { label: 'Cancel', style: 'cancel' },
-                    { label: 'Remove', style: 'destructive', onPress: () => { onClose?.(); onDelete?.(bondup._id); } },
-                  ],
-                });
-              }}
+              onPress={handleDeletePress}
               hitSlop={10}
             >
               <Trash2 size={20} color="#EF4444" />
@@ -338,45 +381,63 @@ export default function BondupDetailModal({
                 ({spotsText}{bondup.maxParticipants ? '' : ' joined'})
               </Text>
             </Text>
-            {participantCount > 6 && (
-              <TouchableOpacity>
-                <Text style={s.viewAllText}>View all</Text>
-              </TouchableOpacity>
-            )}
           </View>
 
-          <View style={s.avatarOverlapRow}>
-            {shownAvatars.map((pt, i) => {
+          {/* Participant List */}
+          <View style={s.participantList}>
+            {(bondup.participants || []).map((pt, i) => {
               const u = pt.user;
+              const uId = u?._id || u;
               const uAv = avatarUrl(u);
-              return uAv ? (
-                <Image
-                  key={i}
-                  source={{ uri: uAv }}
-                  style={[s.participantAvatar, { marginLeft: i > 0 ? -10 : 0, zIndex: shownAvatars.length - i }]}
-                />
-              ) : (
-                <View
-                  key={i}
-                  style={[s.participantAvatar, s.participantAvatarFallback, { marginLeft: i > 0 ? -10 : 0, zIndex: shownAvatars.length - i }]}
-                >
-                  <Text style={s.participantAvatarInitial}>
-                    {(u?.firstName || '?')[0].toUpperCase()}
-                  </Text>
+              const uLocation = getUserLocation(u);
+              const isCurrentUser = String(uId) === String(currentUserId);
+              
+              return (
+                <View key={uId || i} style={s.participantRow}>
+                  <TouchableOpacity 
+                    style={s.participantInfo}
+                    onPress={() => !isCurrentUser && uId && router.push(`/bondup-profile/${uId}`)}
+                    activeOpacity={isCurrentUser ? 1 : 0.7}
+                  >
+                    {uAv ? (
+                      <Image source={{ uri: uAv }} style={s.participantListAvatar} />
+                    ) : (
+                      <View style={[s.participantListAvatar, s.participantListAvatarFallback]}>
+                        <Text style={s.participantListInitial}>
+                          {(u?.firstName || '?')[0].toUpperCase()}
+                        </Text>
+                      </View>
+                    )}
+                    <View style={s.participantTextWrap}>
+                      <Text style={s.participantName} numberOfLines={1}>
+                        {getFullName(u)}{isCurrentUser ? ' (You)' : ''}
+                      </Text>
+                      {uLocation ? (
+                        <View style={s.participantLocationRow}>
+                          <MapPin size={11} color="#999" />
+                          <Text style={s.participantLocation} numberOfLines={1}>{uLocation}</Text>
+                        </View>
+                      ) : null}
+                    </View>
+                  </TouchableOpacity>
+                  
+                  {/* DM button - only show for other users and if current user can chat */}
+                  {!isCurrentUser && canChat && (
+                    <TouchableOpacity 
+                      style={s.dmBtn}
+                      onPress={() => onStartDirectChat?.(u)}
+                      activeOpacity={0.7}
+                    >
+                      <Send size={16} color={BRAND} />
+                    </TouchableOpacity>
+                  )}
                 </View>
               );
             })}
-            {extraCount > 0 && (
-              <View style={[s.participantAvatar, s.extraAvatar, { marginLeft: -10 }]}>
-                <Text style={s.extraAvatarText}>+{extraCount}</Text>
-              </View>
-            )}
           </View>
 
-          {participantCount > 0 && (
-            <Text style={s.joinedFriendsText}>
-              <Users size={13} color="#888" /> {participantCount} {participantCount === 1 ? 'person' : 'people'} joined
-            </Text>
+          {participantCount === 0 && (
+            <Text style={s.noParticipantsText}>No one has joined yet. Be the first!</Text>
           )}
         </View>
       </ScrollView>
@@ -391,8 +452,8 @@ export default function BondupDetailModal({
                 onPress={() => onStartChat?.(bondup)}
                 activeOpacity={0.85}
               >
-                <MessageCircle size={18} color="#fff" />
-                <Text style={s.primaryBtnText}>Open Chat</Text>
+                <Users size={18} color="#fff" />
+                <Text style={s.primaryBtnText}>Group Chat</Text>
               </TouchableOpacity>
             ) : isFull ? (
               <View style={[s.primaryBtn, s.disabledBtn]}>
@@ -416,17 +477,7 @@ export default function BondupDetailModal({
             {hasJoined ? (
               <TouchableOpacity
                 style={s.secondaryBtn}
-                onPress={() => {
-                  showAlert({
-                    icon: 'leave',
-                    title: 'Leave Bondup',
-                    message: 'Are you sure?',
-                    actions: [
-                      { label: 'Cancel', style: 'cancel' },
-                      { label: 'Leave', style: 'destructive', onPress: () => onLeave?.(bondup._id) },
-                    ],
-                  });
-                }}
+                onPress={handleLeavePress}
                 activeOpacity={0.8}
               >
                 <Text style={s.secondaryBtnText}>Leave</Text>
@@ -444,22 +495,12 @@ export default function BondupDetailModal({
               onPress={() => onStartChat?.(bondup)}
               activeOpacity={0.85}
             >
-              <MessageCircle size={18} color="#fff" />
-              <Text style={s.primaryBtnText}>Open Chat</Text>
+              <Users size={18} color="#fff" />
+              <Text style={s.primaryBtnText}>Group Chat</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={s.secondaryBtn}
-              onPress={() => {
-                showAlert({
-                  icon: 'delete',
-                  title: 'Delete Bondup',
-                  message: 'Remove this Bondup?',
-                  actions: [
-                    { label: 'Cancel', style: 'cancel' },
-                    { label: 'Delete', style: 'destructive', onPress: () => { onClose?.(); onDelete?.(bondup._id); } },
-                  ],
-                });
-              }}
+              onPress={handleDeletePress}
               activeOpacity={0.8}
             >
               <Text style={[s.secondaryBtnText, { color: '#EF4444' }]}>Delete</Text>
@@ -467,6 +508,16 @@ export default function BondupDetailModal({
           </>
         )}
       </View>
+
+      {/* ── Local Alert Modal ── */}
+      <AlertModal
+        visible={localAlert.visible}
+        icon={localAlert.icon}
+        title={localAlert.title}
+        message={localAlert.message}
+        actions={localAlert.actions}
+        onClose={hideLocalAlert}
+      />
     </BaseModal>
   );
 }
@@ -739,48 +790,73 @@ const s = StyleSheet.create({
     color: '#888',
     fontFamily: 'PlusJakartaSans',
   },
-  viewAllText: {
-    fontSize: 13,
-    fontFamily: 'PlusJakartaSansBold',
-    color: BRAND,
+  
+  // Participant list
+  participantList: {
+    gap: 2,
   },
-  avatarOverlapRow: {
+  participantRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,
+    justifyContent: 'space-between',
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F5F5F5',
   },
-  participantAvatar: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    borderWidth: 2,
-    borderColor: '#fff',
+  participantInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+    gap: 12,
   },
-  participantAvatarFallback: {
+  participantListAvatar: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+  },
+  participantListAvatarFallback: {
     backgroundColor: BRAND,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  participantAvatarInitial: {
+  participantListInitial: {
     color: '#fff',
-    fontSize: 13,
+    fontSize: 16,
     fontFamily: 'PlusJakartaSansBold',
   },
-  extraAvatar: {
-    backgroundColor: '#E5E7EB',
+  participantTextWrap: {
+    flex: 1,
+  },
+  participantName: {
+    fontSize: 15,
+    fontFamily: 'PlusJakartaSansSemiBold',
+    color: '#111',
+    marginBottom: 2,
+  },
+  participantLocationRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  participantLocation: {
+    fontSize: 12,
+    fontFamily: 'PlusJakartaSans',
+    color: '#888',
+  },
+  dmBtn: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: `${BRAND}15`,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  extraAvatarText: {
-    fontSize: 11,
-    fontFamily: 'PlusJakartaSansBold',
-    color: '#555',
-  },
-  joinedFriendsText: {
-    fontSize: 13,
+  noParticipantsText: {
+    fontSize: 14,
     fontFamily: 'PlusJakartaSans',
-    color: '#888',
-    marginTop: 4,
+    color: '#999',
+    textAlign: 'center',
+    paddingVertical: 20,
   },
 
   // Footer

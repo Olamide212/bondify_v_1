@@ -12,7 +12,7 @@ const Events = () => {
         <GeneralHeader title="Events"
           leftIcon={<ArrowLeft />}
           className="bg-white" />
-        <View className="flex-1 bg-white items-center justify-center p-6">
+        <View style={{flex: 1}} className="bg-white items-center justify-center p-6">
 
           {/* Icon */}
           <CalendarX size={64} color="#9ca3af" strokeWidth={1.5} />

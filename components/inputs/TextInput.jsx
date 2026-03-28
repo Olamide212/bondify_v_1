@@ -35,7 +35,7 @@ const TextInput = ({
         style={{ height: 50, borderRadius: 10, marginBottom: 10 }}
       >
         <RNTextInput
-          className="flex-1 text-app   bg-white font-PlusJakartaSansMedium text-[18px] "
+          style={{flex: 1, fontSize: 16}} className="text-app   bg-white font-PlusJakartaSansMedium text-[18px] "
           placeholder={placeholder}
           placeholderTextColor="#929292"
           autoCapitalize="none"
@@ -45,8 +45,6 @@ const TextInput = ({
           onChangeText={onChangeText}
           maxLength={phone ? 11 : maxLength}
           {...rest}
-          style={{fontSize: 16}}
-
           textBreakStrategy="simple"
         />
 

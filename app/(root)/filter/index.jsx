@@ -14,7 +14,7 @@ export default function FilterScreen() {
   const navigation = useNavigation();
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView style={{flex: 1}} className="bg-white">
       {/* Header */}
       <View className="flex-row items-center justify-between p-4 border-b border-gray-200">
         <TouchableOpacity onPress={() => navigation.goBack()}>

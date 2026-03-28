@@ -2,9 +2,10 @@
  * BondupCard.jsx  —  Artistic redesign
  */
 
+import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { Clock, MapPin, Users } from 'lucide-react-native';
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { colors } from '../../constant/colors';
 
 const BRAND = colors.primary;
@@ -106,7 +107,13 @@ export default function BondupCard({
           activeOpacity={0.8}
         >
           {creatorAv ? (
-            <Image source={{ uri: creatorAv }} style={s.creatorAvatar} />
+            <Image 
+              source={{ uri: creatorAv }} 
+              style={s.creatorAvatar} 
+              cachePolicy="memory-disk"
+              placeholder={{ color: '#E5E7EB' }}
+              transition={200}
+            />
           ) : (
             <View style={[s.creatorAvatar, s.creatorAvatarFallback]}>
               <Text style={s.creatorInitial}>

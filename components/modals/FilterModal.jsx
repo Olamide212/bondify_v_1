@@ -128,7 +128,7 @@ const FilterModal = ({ visible, onClose, initialFilters, onApply }) => {
   return (
     <BaseModal visible={visible} onClose={onClose} fullScreen>
       <SafeAreaProvider>
-        <SafeAreaView className="flex-1 bg-white rounded-t-3xl overflow-hidden">
+        <SafeAreaView style={{flex: 1}} className="bg-white rounded-t-3xl overflow-hidden">
 
           {/* ── Loading overlay — shown while fetching user interests ── */}
           {interestsLoading && (

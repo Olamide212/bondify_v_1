@@ -1,7 +1,8 @@
+import { Image } from "expo-image";
 import { Plus, X } from "lucide-react-native";
 import { useMemo, useState } from "react";
 import {
-  ActivityIndicator, Image, StyleSheet,
+  ActivityIndicator, StyleSheet,
   Text, TouchableOpacity, View,
 } from "react-native";
 import { colors } from "../../constant/colors";
@@ -29,8 +30,8 @@ const RADIUS     = 14;
 // ─── Individual slot ──────────────────────────────────────────────────────────
 const Slot = ({
   item, index, featured,
-  isAdding, removingIndex, imageLoading,
-  onAdd, onRemove, onLoadStart, onLoadEnd,
+  isAdding, removingIndex,
+  onAdd, onRemove,
 }) => {
   if (!item) {
     return (
@@ -53,15 +54,13 @@ const Slot = ({
   const uri = item?.url || item;
   return (
     <View style={[s.slot, featured && s.slotFeatured, s.filledSlot, featured && s.slotFeaturedFilled]}>
-      <Image source={{ uri }} style={StyleSheet.absoluteFill} resizeMode="cover"
-        onLoadStart={() => onLoadStart(index)}
-        onLoadEnd={() => onLoadEnd(index)}
+      <Image
+        source={{ uri }}
+        style={StyleSheet.absoluteFill}
+        contentFit="cover"
+        cachePolicy="memory-disk"
+        transition={200}
       />
-      {imageLoading[index] && (
-        <View style={s.imgOverlay}>
-          <ActivityIndicator size="small" color={colors.primary} />
-        </View>
-      )}
       {featured && (
         <View style={s.mainBadge}>
           <Text style={s.mainBadgeText}>Main</Text>
@@ -86,7 +85,6 @@ const Slot = ({
 const ProfilePhotoGrid = ({ photos: initialPhotos = [], onAddPhoto, onRemovePhoto }) => {
   const [isAdding,      setIsAdding]      = useState(false);
   const [removingIndex, setRemovingIndex] = useState(null);
-  const [imageLoading,  setImageLoading]  = useState(Array(MAX_PHOTOS).fill(false));
 
   const slots = useMemo(() => {
     const f = [...initialPhotos];
@@ -96,12 +94,10 @@ const ProfilePhotoGrid = ({ photos: initialPhotos = [], onAddPhoto, onRemovePhot
 
   const handleAdd    = async () => { setIsAdding(true); try { await onAddPhoto?.(); } finally { setIsAdding(false); } };
   const handleRemove = async (item, i) => { setRemovingIndex(i); try { await onRemovePhoto?.(item, i); } finally { setRemovingIndex(null); } };
-  const onLoadStart  = (i) => setImageLoading((p) => { const a=[...p]; a[i]=true;  return a; });
-  const onLoadEnd    = (i) => setImageLoading((p) => { const a=[...p]; a[i]=false; return a; });
 
   const sp = (index, extra = {}) => ({
-    item: slots[index], index, isAdding, removingIndex, imageLoading,
-    onAdd: handleAdd, onRemove: handleRemove, onLoadStart, onLoadEnd,
+    item: slots[index], index, isAdding, removingIndex,
+    onAdd: handleAdd, onRemove: handleRemove,
     ...extra,
   });
 

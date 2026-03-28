@@ -16,9 +16,9 @@ const Occupation = ({ profile, onUpdateField }) => {
     <>
       <TouchableOpacity style={s.card} onPress={() => setShowModal(true)} activeOpacity={0.8}>
         <View style={s.cardLeft}>
-          <View style={s.iconCircle}>
+          {/* <View style={s.iconCircle}>
             <Briefcase size={18} color={colors.primary} strokeWidth={2} />
-          </View>
+          </View> */}
           <View style={{ flex: 1 }}>
             <Text style={s.cardValue} numberOfLines={1}>
               {selectedOccupation || "Not set"}

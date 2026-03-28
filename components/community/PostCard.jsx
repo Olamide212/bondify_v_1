@@ -1,6 +1,7 @@
+import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import { Heart, MessageCircle, Share } from "lucide-react-native";
-import { Image, Text, TouchableOpacity, View } from "react-native";
+import { Text, TouchableOpacity, View } from "react-native";
 import VerifiedIcon from "../ui/VerifiedIcon";
 import { styles } from "./styles/communityStyles";
 
@@ -13,7 +14,13 @@ const router = useRouter();
       onPress={() => router.push(`/post/${post.id}`)}
     >
       <View style={styles.postHeader}>
-        <Image source={{ uri: post.user.avatar }} style={styles.postAvatar} />
+        <Image 
+          source={{ uri: post.user.avatar }} 
+          style={styles.postAvatar} 
+          cachePolicy="memory-disk"
+          placeholder={{ color: '#E5E7EB' }}
+          transition={200}
+        />
         <View style={styles.postUserInfo}>
           <Text style={styles.postUserName}>{post.user.name}</Text>
           <Text style={styles.postTime}>{post.time}</Text>

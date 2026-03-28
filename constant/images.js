@@ -14,6 +14,8 @@ import BOT_AVARTAR from "../assets/images/BOT_AVATAR.png"
 import onboardingImage from "../assets/images/onboarding-img.jpg"
 import feedIcon from "../assets/icons/feed-icon.png"
 import bonFeed from "../assets/images/Bonfeed.png"
+import onboardingImage2 from "../assets/images/onboarding-img-2.jpg"
+import onboardingImage3 from "../assets/images/onboarding-img-3.jpg"
 
 
 export const images = {
@@ -33,4 +35,6 @@ export const images = {
   onboardingImage,
     feedIcon,
     bonFeed,
+  onboardingImage2,
+  onboardingImage3,
 };

@@ -96,9 +96,9 @@ const UpdateEmailScreen = () => {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white" edges={["top", "left", "right"]}>
+    <SafeAreaView style={{flex: 1}} className="bg-white" edges={["top", "left", "right"]}>
       <KeyboardAvoidingView
-        className="flex-1"
+        style={{flex: 1}}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
         {/* ── Header ── */}
@@ -106,13 +106,13 @@ const UpdateEmailScreen = () => {
           <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
             <Ionicons name="arrow-back" size={24} color="#111" />
           </TouchableOpacity>
-          <Text className="flex-1 text-center text-xl font-PlusJakartaSansMedium text-gray-900">
+          <Text style={{flex: 1}} className="text-center text-xl font-PlusJakartaSansMedium text-gray-900">
             {step === "email" ? "Update Email" : "Verify Email"}
           </Text>
           <View style={{ width: 24 }} />
         </View>
 
-        <View className="flex-1 px-6 pt-8">
+        <View style={{flex: 1}} className="px-6 pt-8">
 
           {step === "email" ? (
             <>

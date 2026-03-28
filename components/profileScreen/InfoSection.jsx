@@ -42,18 +42,18 @@ const InfoSection = () => {
       icon: SlidersHorizontal,
       modal: "filters",
     },
-    // {
-    //   title: "Verification",
-    //   description: "Build trust and let others know you’re the real deal.",
-    //   icon: BadgeCheck,
-    //   link: "(settings)/verification",
-    // },
     {
-      title: "Get Premium",
-      description: "Unlock all premium features for the best experience.",
-      icon: Crown,
-      modal: "subscription",
+      title: "Verification",
+      description: "Build trust and let others know you’re the real deal.",
+      icon: BadgeCheck,
+      link: "(root)/verification",
     },
+    // {
+    //   title: "Get Premium",
+    //   description: "Unlock all premium features for the best experience.",
+    //   icon: Crown,
+    //   modal: "subscription",
+    // },
     // {
     //   title: "Bondies Hop",
     //   description: "Travel anywhere digitally and connect worldwide.",
@@ -121,15 +121,17 @@ const InfoSection = () => {
               }}
             >
               <View className="flex-row items-center gap-3 flex-1">
-                <Icon size={24} color={colors.primary} />
-                <View className="flex-1">
-                  <Text className="text-[18px] text-black font-PlusJakartaSansBold">
+              
+                <View style={{flex: 1}}>
+                  <Text className="text-[17px] text-black font-PlusJakartaSansBold">
                     {title}
                   </Text>
                   <Text className="text-base text-gray-500 font-PlusJakartaSansMedium">
                     {description}
                   </Text>
                 </View>
+
+                  <Icon size={20} color='#000' />
               </View>
             </TouchableOpacity>
           );

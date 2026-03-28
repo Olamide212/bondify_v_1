@@ -550,7 +550,7 @@ const ProfileCard = ({ profile, hideAiSuggestion = false }) => {
                 <Text className="text-[20px] font-PlusJakartaSansSemiBold text-app mb-3">
                   School and education
                 </Text>
-                <View className="flex-1 flex-row flex-wrap gap-2">
+                <View style={{flex: 1}} className="flex-row flex-wrap gap-2">
                   <View className="bg-gray-100 flex-row items-center gap-2 px-4 py-2 rounded-full">
                     <GraduationCap color="black" size={18} />
                     <Text className="text-app text-base font-PlusJakartaSansMedium">{profile.school}</Text>
@@ -647,7 +647,7 @@ const ProfileCard = ({ profile, hideAiSuggestion = false }) => {
             {/* ── Share / Block / Report ── */}
             <View className="flex-row justify-between gap-4 my-4">
               <TouchableOpacity
-                className="flex-1 p-5 justify-center items-center rounded-2xl"
+                style={{flex: 1}} className="p-5 justify-center items-center rounded-2xl"
                 onPress={handleShare}
                 activeOpacity={0.75}
               >
@@ -658,7 +658,7 @@ const ProfileCard = ({ profile, hideAiSuggestion = false }) => {
               </TouchableOpacity>
 
               <TouchableOpacity
-                className="flex-1 p-5 justify-center items-center rounded-2xl"
+                style={{flex: 1}} className="p-5 justify-center items-center rounded-2xl"
                 onPress={openBlock}
                 activeOpacity={0.75}
               >
@@ -669,7 +669,7 @@ const ProfileCard = ({ profile, hideAiSuggestion = false }) => {
               </TouchableOpacity>
 
               <TouchableOpacity
-                className="flex-1 p-5 justify-center items-center rounded-2xl"
+                style={{flex: 1}} className="p-5 justify-center items-center rounded-2xl"
                 onPress={openReport}
                 activeOpacity={0.75}
               >

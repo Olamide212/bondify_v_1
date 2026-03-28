@@ -6,7 +6,7 @@ const ModalHeader = ({ onClose, centerText, rightText, onRightPress }) => {
   return (
     <View>
       {/* Header */}
-      <View className="flex-row justify-between items-center px-4 pb-5 border-b border-gray-200">
+      <View className="flex-row justify-between items-center px-4 pb-5 ">
         {/* Close Button */}
         <TouchableOpacity onPress={onClose}>
           <Ionicons name="close" size={24} color="black" />

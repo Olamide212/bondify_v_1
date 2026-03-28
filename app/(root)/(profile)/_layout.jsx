@@ -13,6 +13,7 @@ export default function ProfileLayout() {
       <Stack.Screen name="subscription" />
       <Stack.Screen name="support-center" />
       <Stack.Screen name="wallet" />
+      <Stack.Screen name="voice-intro" />
     </Stack>
   );
 }

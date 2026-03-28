@@ -64,7 +64,7 @@ const BondiesHopModal = ({ visible, onClose }) => {
 
   return (
     <BaseModal visible={visible} onClose={onClose}>
-      <View className="flex-1 p-5">
+      <View style={{flex: 1}} className="p-5">
         {/* Header */}
         <Text className="text-2xl font-PlusJakartaSansBold mb-2">
           🌍 Bondies Hop
@@ -82,7 +82,7 @@ const BondiesHopModal = ({ visible, onClose }) => {
         {/* Current Location */}
         <View className="flex-row items-center bg-gray-100 p-3 rounded-lg mb-4">
           <MapPin size={18} className="text-primary mr-2" />
-          <Text className="flex-1 text-gray-800">
+          <Text style={{flex: 1}} className="text-gray-800">
             Your Location: Lagos, Nigeria
           </Text>
         </View>

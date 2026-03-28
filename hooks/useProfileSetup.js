@@ -27,7 +27,7 @@ const ONBOARDING_STEPS = [
   "drink",
   "interests",
   "about",
-  "voice-prompt",
+  // "voice-prompt",
   // "profile-prompts",
   "profile-answers",
   // "favorite-music",

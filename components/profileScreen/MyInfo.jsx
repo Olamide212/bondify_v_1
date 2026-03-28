@@ -2,11 +2,8 @@ import { useRouter } from "expo-router";
 import {
   Baby, BookOpen, ChevronRight, Cigarette, Dumbbell,
   Flag,
-  Gamepad2,
   Globe, Heart, HeartHandshake, MessageCircleHeart,
-  Music,
   PawPrint,
-  Play,
   Ruler, Sparkles, Users, Wallet, Wine, X
 } from "lucide-react-native";
 import { useEffect, useState } from "react";
@@ -20,11 +17,11 @@ import { colors } from "../../constant/colors";
 import { useLookupOptions } from "../../hooks/useLookupOptions";
 import BaseModal from "../modals/BaseModal";
 import ProfileEthnicityModal from "../modals/ProfileEthnicityModal";
+import ProfileHeightModal from "../modals/ProfileHeightModal";
 import ProfileReligionModal from "../modals/ProfileReligionModal";
 import ProfileDisplayZodiacModal from "../modals/ProfileZodiacDisplayModal";
 
 // ─────────────────────────────────────────────────────────────────────────────
-const HEIGHT_OPTIONS = Array.from({ length: 151 }, (_, i) => `${i + 100} cm`);
 const vals = (opts) => opts.map((o) => o.value);
 
 const MAX_INTERESTS = 5;
@@ -56,7 +53,7 @@ const InfoRow = ({ icon: Icon, title, displayValue, isLast, onPress }) => (
     activeOpacity={0.7}
   >
     <View style={s.rowLeft}>
-      <Icon size={18} color={colors.primary} />
+      <Icon size={18} color="#000" />
       <Text style={s.rowTitle}>{title}</Text>
     </View>
     <View style={s.rowRight}>
@@ -82,6 +79,7 @@ const MyInfo = ({ profile, onUpdateField }) => {
   const [zodiacVisible, setZodiacVisible]       = useState(false);
   const [ethnicityVisible, setEthnicityVisible] = useState(false);
   const [religionVisible, setReligionVisible]   = useState(false);
+  const [heightVisible, setHeightVisible]       = useState(false);
 
   // ── Lookups ──────────────────────────────────────────────────────────────
   const { options: familyPlansOpts,        loading: l1 } = useLookupOptions('family-plans');
@@ -179,7 +177,7 @@ const MyInfo = ({ profile, onUpdateField }) => {
           <View style={s.lifestyleGrid}>
             {lifestyleItems.map(({ label, icon: Icon }, i) => (
               <View key={i} style={s.lifestyleChip}>
-                <Icon size={15} color={colors.primary} strokeWidth={1.8} />
+                <Icon size={15} color="#000" strokeWidth={1.8} />
                 <Text style={s.lifestyleChipText}>{label}</Text>
               </View>
             ))}
@@ -194,9 +192,9 @@ const MyInfo = ({ profile, onUpdateField }) => {
           { key: 'nationality', title: 'Nationality',  icon: Flag     },
           { key: 'zodiac',      title: 'Zodiac Sign',  icon: Sparkles },
           { key: 'ethnicity',   title: 'Ethnicity',    icon: Globe    },
-          { key: 'height',      title: 'Height',       icon: Ruler,   options: HEIGHT_OPTIONS },
+          { key: 'height',      title: 'Height',       icon: Ruler    },
           { key: 'religion',    title: 'Religion',     icon: BookOpen },
-        ].map(({ key, title, icon, options }, i, arr) => (
+        ].map(({ key, title, icon }, i, arr) => (
           <InfoRow
             key={key}
             icon={icon}
@@ -207,8 +205,8 @@ const MyInfo = ({ profile, onUpdateField }) => {
               if (key === 'nationality') { setNationalityVisible(true); return; }
               if (key === 'zodiac')      { setZodiacVisible(true);      return; }
               if (key === 'ethnicity')   { setEthnicityVisible(true);   return; }
+              if (key === 'height')      { setHeightVisible(true);      return; }
               if (key === 'religion')    { setReligionVisible(true);    return; }
-              openModal(key, title, options);
             }}
           />
         ))}
@@ -420,6 +418,16 @@ const MyInfo = ({ profile, onUpdateField }) => {
           setProfileData((prev) => ({ ...prev, ethnicity: value }));
           onUpdateField?.('ethnicity', value);
           setEthnicityVisible(false);
+        }}
+      />
+      <ProfileHeightModal
+        visible={heightVisible}
+        onClose={() => setHeightVisible(false)}
+        initialSelected={profileData.height}
+        onSelect={(value) => {
+          setProfileData((prev) => ({ ...prev, height: value }));
+          onUpdateField?.('height', value);
+          setHeightVisible(false);
         }}
       />
       <ProfileReligionModal

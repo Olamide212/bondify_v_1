@@ -1,18 +1,18 @@
 // components/modals/BaseModal.js
 import { useEffect, useRef, useState } from "react";
 import {
-  Animated,
-  Dimensions,
-  Modal,
-  StyleSheet,
-  TouchableWithoutFeedback,
-  View,
+    Animated,
+    Dimensions,
+    Modal,
+    StyleSheet,
+    TouchableWithoutFeedback,
+    View,
 } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 
 const { height } = Dimensions.get("window");
 
-const BaseModal = ({ visible, onClose, children, fullScreen = false, contentBackground }) => {
+const BaseModal = ({ visible, onClose, children, fullScreen = false, contentBackground, noPadding = false }) => {
   const [showModal, setShowModal] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(height)).current;
@@ -79,7 +79,7 @@ const BaseModal = ({ visible, onClose, children, fullScreen = false, contentBack
 
       {fullScreen ? (
         // Full screen content
-        <View style={styles.fullScreenContent}>{children}</View>
+        <View style={[styles.fullScreenContent, noPadding && { paddingHorizontal: 0 }]}>{children}</View>
       ) : (
         // Bottom sheet content
         <Animated.View

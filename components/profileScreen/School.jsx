@@ -24,9 +24,9 @@ const School = ({ profile, onUpdateField }) => {
     <>
       <TouchableOpacity style={s.card} onPress={() => setModalVisible(true)} activeOpacity={0.8}>
         <View style={s.cardLeft}>
-          <View style={s.iconCircle}>
+          {/* <View style={s.iconCircle}>
             <SchoolIcon size={18} color={colors.primary} strokeWidth={2} />
-          </View>
+          </View> */}
           <View style={{ flex: 1 }}>
             <Text style={s.cardValue} numberOfLines={1}>
               {schoolName.trim() || "Not set"}
@@ -119,15 +119,13 @@ const s = StyleSheet.create({
     color:      "#111",
   },
   input: {
-    borderWidth:       1,
-    borderColor:       "#E5E7EB",
-    borderRadius:      12,
+    borderBottomWidth:       1,
+    borderColor:       "#000",
     paddingHorizontal: 16,
-    paddingVertical:   14,
+    paddingVertical:   20,
     fontSize:          15,
     fontFamily:        "PlusJakartaSansMedium",
     color:             "#111",
-    backgroundColor:   "#FAFAFA",
     marginBottom:      20,
   },
   footer: {

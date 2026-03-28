@@ -1,21 +1,5 @@
 /**
  * VoicePrompt.js — expo-audio SDK 53, createAudioPlayer edition
- *
- * Why createAudioPlayer instead of useAudioPlayer:
- * ─────────────────────────────────────────────────
- * useAudioPlayer(source) initialises the native player immediately. When
- * `recordUri` is null (pre-recording) this crashes on Android. When
- * `recordUri` changes (after a new recording is saved) the hook does NOT
- * reinitialise with the new source — the user would have to re-mount the
- * component to pick up the new file.
- *
- * createAudioPlayer() gives us explicit control:
- *   - create on demand, only when the user taps Play
- *   - pass the exact URI we have at that moment
- *   - release cleanly when done / on unmount
- *
- * Recording still uses useAudioRecorder (hook is fine there — it doesn't
- * need a source at init time).
  */
 
 import {
@@ -56,15 +40,14 @@ const PROMPT_QUESTIONS = [
 const fmt = (s) =>
   `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
 
-// ─── Audio mode — set once, lazily ───────────────────────────────────────────
 const ensureAudioMode = async (allowsRecording = false) => {
   await setAudioModeAsync({
-    playsInSilentMode: true,
-    shouldPlayInBackground: false,
-    interruptionMode: 'mixWithOthers',
+    playsInSilentMode:         true,
+    shouldPlayInBackground:    false,
+    interruptionMode:          'mixWithOthers',
     allowsRecording,
     allowsBackgroundRecording: false,
-    shouldDuckAndroid: false,
+    shouldDuckAndroid:         false,
   });
 };
 
@@ -85,7 +68,7 @@ const Waveform = ({ isActive, progress = 0 }) => {
         Animated.loop(
           Animated.sequence([
             Animated.timing(bar.anim, { toValue: 0.3 + Math.random() * 0.7, duration: 150 + i * 20, useNativeDriver: true }),
-            Animated.timing(bar.anim, { toValue: 0.15, duration: 150 + i * 20, useNativeDriver: true }),
+            Animated.timing(bar.anim, { toValue: 0.15,                       duration: 150 + i * 20, useNativeDriver: true }),
           ])
         )
       );
@@ -107,7 +90,7 @@ const Waveform = ({ isActive, progress = 0 }) => {
           key={i}
           style={[wv.bar, {
             height:          bar.height,
-            backgroundColor: i < filledCount ? colors.secondary : "#fff",
+            backgroundColor: i < filledCount ? colors.secondary : '#fff',
             transform:       [{ scaleY: bar.anim }],
           }]}
         />
@@ -124,7 +107,7 @@ const wv = StyleSheet.create({
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export default function VoicePrompt({ profile, onUpdateField }) {
-  const { colors } = useTheme();
+  const { colors }   = useTheme();
   const { showAlert } = useAlert();
 
   // phase: 'idle' | 'recording' | 'recorded' | 'playing' | 'paused' | 'uploading'
@@ -135,21 +118,30 @@ export default function VoicePrompt({ profile, onUpdateField }) {
   const [playDuration, setPlayDuration] = useState(0);
   const [promptIndex]  = useState(() => Math.floor(Math.random() * PROMPT_QUESTIONS.length));
 
-  // ── expo-audio: recorder (hook is fine here — no source needed at init) ───
+  // Tracks the local cache URI after recording so the profile seed
+  // useEffect never overwrites it with the remote URL after saving.
+  const localUriRef = useRef(null);
+
+  // ── expo-audio ────────────────────────────────────────────────────────────
   const audioRecorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
   const recorderState = useAudioRecorderState(audioRecorder);
   const recDurationS  = Math.floor((recorderState.durationMillis ?? 0) / 1000);
 
-  // ── expo-audio: playback player (imperative, on-demand) ───────────────────
   const playerRef = useRef(null);
 
   // ── Seed from existing profile voice prompt ───────────────────────────────
+  // Guard: if we already have a freshly recorded local file, don't overwrite
+  // it with the remote URL that comes back after onUpdateField triggers a
+  // profile refresh.
   useEffect(() => {
     if (profile?.voicePrompt) {
+      if (localUriRef.current) return; // local recording takes priority
+
       const uri =
         typeof profile.voicePrompt === 'string'
           ? profile.voicePrompt
           : profile.voicePrompt?.url || profile.voicePrompt?.uri || null;
+
       if (uri) {
         setRecordUri(uri);
         setHasExisting(true);
@@ -190,7 +182,7 @@ export default function VoicePrompt({ profile, onUpdateField }) {
         showAlert({ icon: 'mic', title: 'Permission needed', message: 'Enable microphone access to record a voice prompt.' });
         return;
       }
-      await ensureAudioMode(true); // allowsRecording = true
+      await ensureAudioMode(true);
       await audioRecorder.prepareToRecordAsync();
       audioRecorder.record();
       setPhase('recording');
@@ -205,14 +197,16 @@ export default function VoicePrompt({ profile, onUpdateField }) {
       await audioRecorder.stop();
       const tempUri = audioRecorder.uri;
 
-      await ensureAudioMode(false); // back to playback mode
+      await ensureAudioMode(false);
 
       if (!tempUri) { setPhase('idle'); return; }
 
-      // Copy to permanent cache dir — temp URI loses read permissions on iOS
       const fileName = `voice_prompt_${Date.now()}.m4a`;
       const destFile = new File(Paths.cache, fileName);
       await new File(tempUri).copy(destFile);
+
+      // Store in ref so the profile seed effect won't clobber this URI
+      localUriRef.current = destFile.uri;
 
       setRecordUri(destFile.uri);
       setHasExisting(false);
@@ -241,9 +235,22 @@ export default function VoicePrompt({ profile, onUpdateField }) {
       playerRef.current = player;
 
       player.addListener('playbackStatusUpdate', (status) => {
+        // Surface errors that were previously swallowed silently
+        if (status.error) {
+          console.error('[VoicePrompt] playback error:', status.error);
+          showAlert({ icon: 'error', title: 'Playback failed', message: 'Could not play this recording.' });
+          setPhase('recorded');
+          setPlayPos(0);
+          player.removeAllListeners('playbackStatusUpdate');
+          player.remove();
+          playerRef.current = null;
+          return;
+        }
+
         if (!status.isLoaded) return;
         if (status.currentTime !== undefined) setPlayPos(Math.round(status.currentTime));
         if (status.duration !== undefined && !isNaN(status.duration)) setPlayDuration(Math.round(status.duration));
+
         if (status.didJustFinish) {
           setPhase('recorded');
           setPlayPos(0);
@@ -258,6 +265,7 @@ export default function VoicePrompt({ profile, onUpdateField }) {
       setPhase('playing');
     } catch (err) {
       console.error('[VoicePrompt] startPlayback error:', err);
+      showAlert({ icon: 'error', title: 'Playback failed', message: 'Could not play this recording.' });
       setPhase('recorded');
     }
   };
@@ -276,8 +284,8 @@ export default function VoicePrompt({ profile, onUpdateField }) {
 
   const handleDelete = () => {
     showAlert({
-      icon: 'delete',
-      title: 'Delete voice prompt',
+      icon:    'delete',
+      title:   'Delete voice prompt',
       message: 'Remove your voice prompt from your profile?',
       actions: [
         { label: 'Cancel', style: 'cancel' },
@@ -289,6 +297,7 @@ export default function VoicePrompt({ profile, onUpdateField }) {
               playerRef.current.remove();
               playerRef.current = null;
             }
+            localUriRef.current = null; // clear local ref so seed effect works again
             setRecordUri(null);
             setPhase('idle');
             setHasExisting(false);
@@ -299,12 +308,15 @@ export default function VoicePrompt({ profile, onUpdateField }) {
     });
   };
 
+  // ── Re-record ─────────────────────────────────────────────────────────────
+
   const handleReRecord = () => {
     if (playerRef.current) {
       playerRef.current.removeAllListeners('playbackStatusUpdate');
       playerRef.current.remove();
       playerRef.current = null;
     }
+    localUriRef.current = null; // clear so seed effect can work on next mount
     setRecordUri(null);
     setPhase('idle');
     setHasExisting(false);
@@ -317,6 +329,9 @@ export default function VoicePrompt({ profile, onUpdateField }) {
     setPhase('uploading');
     try {
       await onUpdateField?.('voicePrompt', recordUri);
+      // recordUri intentionally stays as the local cache file so playback
+      // keeps working immediately after save. localUriRef.current stays set
+      // so the profile seed useEffect won't overwrite it with the remote URL.
       setHasExisting(true);
       setPhase('recorded');
       showAlert({ icon: 'success', title: 'Saved! 🎉', message: 'Your voice prompt has been added to your profile.' });
@@ -340,11 +355,13 @@ export default function VoicePrompt({ profile, onUpdateField }) {
       ? playDuration
       : MAX_DURATION_S;
 
-  const currentPos = isRecording ? recDurationS
-    : (isPlaying || phase === 'paused') ? playPos
-    : 0;
+  const currentPos = isRecording
+    ? recDurationS
+    : (isPlaying || phase === 'paused')
+      ? playPos
+      : 0;
 
-  const progress  = totalSeconds > 0 ? Math.min(currentPos / totalSeconds, 1) : 0;
+  const progress = totalSeconds > 0 ? Math.min(currentPos / totalSeconds, 1) : 0;
 
   // ── Render ────────────────────────────────────────────────────────────────
 
@@ -384,13 +401,17 @@ export default function VoicePrompt({ profile, onUpdateField }) {
 
           {/* Main button */}
           <TouchableOpacity
-            style={[s.mainBtn, isRecording && { backgroundColor: '#EF4444' }, isUploading && { backgroundColor: colors.primary }]}
+            style={[
+              s.mainBtn,
+              isRecording && { backgroundColor: '#EF4444' },
+              isUploading && { backgroundColor: colors.primary },
+            ]}
             onPress={() => {
-              if (isRecording)           stopRecording();
-              else if (isPlaying)        pausePlayback();
+              if (isRecording)             stopRecording();
+              else if (isPlaying)          pausePlayback();
               else if (phase === 'paused') resumePlayback();
-              else if (hasRecording)     startPlayback();
-              else                       startRecording();
+              else if (hasRecording)       startPlayback();
+              else                         startRecording();
             }}
             disabled={isUploading}
             activeOpacity={0.86}
@@ -416,7 +437,9 @@ export default function VoicePrompt({ profile, onUpdateField }) {
           </TouchableOpacity>
         </View>
 
-        {isRecording && <Text style={[s.statusText, { color: '#EF4444' }]}>● Recording…</Text>}
+        {isRecording && (
+          <Text style={[s.statusText, { color: '#EF4444' }]}>● Recording…</Text>
+        )}
         {!hasRecording && !isRecording && (
           <Text style={[s.statusText, { color: colors.textSecondary }]}>Tap the button to start recording</Text>
         )}
@@ -434,48 +457,28 @@ export default function VoicePrompt({ profile, onUpdateField }) {
             <Text style={[s.statusText, { color: colors.textSecondary, marginTop: 0 }]}>Saving to your profile…</Text>
           </View>
         )}
-      </View>
 
-      {/* "Add another one" teaser */}
-      {/* <View style={[s.teaserCard, { backgroundColor: colors.surface }]}>
-        <View style={{ flex: 1 }}>
-          <Text style={[s.teaserLabel, { color: colors.textSecondary }]}>Add another one</Text>
-          <Text style={[s.teaserPrompt, { color: colors.textPrimary }]}>&quot;My secret talent is…&quot;</Text>
-        </View>
-        <TouchableOpacity
-          style={s.teaserBtn}
-          onPress={() => Alert.alert('Coming soon', 'Multiple voice prompts are coming in a future update!')}
-          activeOpacity={0.86}
-        >
-          <Mic size={14} color="#fff" strokeWidth={2} />
-          <Text style={s.teaserBtnText}>Record</Text>
-        </TouchableOpacity>
-      </View> */}
+      </View>
     </View>
   );
 }
 
 const s = StyleSheet.create({
-  outer: { paddingHorizontal: 16, gap: 12 },
-  card: { borderRadius: 22, padding: 20, gap: 14, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 10, elevation: 3 },
-  labelRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  labelText: { fontSize: 11, fontFamily: 'PlusJakartaSansBold', color: colors.primary, letterSpacing: 1.2 },
-  promptText: { fontSize: 22, fontFamily: 'PlusJakartaSansBold', lineHeight: 30 },
-  waveBox: { backgroundColor: colors.primary, borderRadius: 14, paddingHorizontal: 14, paddingTop: 16, paddingBottom: 12, gap: 10 },
-  progressTrack: { height: 3, backgroundColor: colors.secondary, borderRadius: 2, overflow: 'hidden', opacity: 0.3 },
+  outer:        { paddingHorizontal: 16, gap: 12 },
+  card:         { borderRadius: 22, padding: 20, gap: 14, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 10, elevation: 3 },
+  labelRow:     { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  labelText:    { fontSize: 11, fontFamily: 'PlusJakartaSansBold', color: colors.primary, letterSpacing: 1.2 },
+  promptText:   { fontSize: 22, fontFamily: 'PlusJakartaSansBold', lineHeight: 30 },
+  waveBox:      { backgroundColor: colors.primary, borderRadius: 14, paddingHorizontal: 14, paddingTop: 16, paddingBottom: 12, gap: 10 },
+  progressTrack:{ height: 3, backgroundColor: colors.secondary, borderRadius: 2, overflow: 'hidden', opacity: 0.3 },
   progressFill: { height: 3, backgroundColor: colors.secondary, borderRadius: 2 },
-  timeRow: { flexDirection: 'row', justifyContent: 'space-between' },
-  timeLabel: { fontSize: 11, fontFamily: 'PlusJakartaSansMedium', color: colors.secondary },
-  controls: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 28, marginTop: 4 },
-  iconBtn: { width: 46, height: 46, borderRadius: 23, alignItems: 'center', justifyContent: 'center' },
-  mainBtn: { width: 66, height: 66, borderRadius: 33, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.primary, shadowColor: colors.primary, shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.38, shadowRadius: 12, elevation: 8 },
-  statusText: { fontSize: 12, fontFamily: 'PlusJakartaSans', textAlign: 'center', marginTop: -4 },
-  saveBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: colors.primary, borderRadius: 50, paddingVertical: 13, marginTop: 2 },
-  saveBtnText: { color: '#fff', fontFamily: 'PlusJakartaSansBold', fontSize: 14 },
+  timeRow:      { flexDirection: 'row', justifyContent: 'space-between' },
+  timeLabel:    { fontSize: 11, fontFamily: 'PlusJakartaSansMedium', color: colors.secondary },
+  controls:     { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 28, marginTop: 4 },
+  iconBtn:      { width: 46, height: 46, borderRadius: 23, alignItems: 'center', justifyContent: 'center' },
+  mainBtn:      { width: 66, height: 66, borderRadius: 33, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.primary, shadowColor: colors.primary, shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.38, shadowRadius: 12, elevation: 8 },
+  statusText:   { fontSize: 12, fontFamily: 'PlusJakartaSans', textAlign: 'center', marginTop: -4 },
+  saveBtn:      { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: colors.primary, borderRadius: 50, paddingVertical: 13, marginTop: 2 },
+  saveBtnText:  { color: '#fff', fontFamily: 'PlusJakartaSansBold', fontSize: 14 },
   uploadingRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
-  teaserCard: { borderRadius: 18, padding: 18, flexDirection: 'row', alignItems: 'center', gap: 14, borderWidth: 1.5, borderColor: colors.border, borderStyle: 'dashed' },
-  teaserLabel: { fontSize: 12, fontFamily: 'PlusJakartaSans', color: colors.textSecondary, marginBottom: 3 },
-  teaserPrompt: { fontSize: 16, fontFamily: 'PlusJakartaSansBold' },
-  teaserBtn: { flexDirection: 'row', alignItems: 'center', gap: 7, backgroundColor: '#E8651A', paddingHorizontal: 16, paddingVertical: 11, borderRadius: 50 },
-  teaserBtnText: { color: '#fff', fontFamily: 'PlusJakartaSansBold', fontSize: 13 },
 });

@@ -26,9 +26,9 @@ const BloodGroup = ({ profile, onUpdateField }) => {
     <>
       <TouchableOpacity style={s.card} onPress={() => setShowModal(true)} activeOpacity={0.8} disabled={loading}>
         <View style={s.cardLeft}>
-          <View style={s.iconCircle}>
-            <Droplet size={18} color={colors.primary} strokeWidth={2} />
-          </View>
+     
+            <Droplet size={18} color={"#000"} strokeWidth={2} />
+       
           <View style={{ flex: 1 }}>
             <Text style={s.cardValue} numberOfLines={1}>
               {bloodGroup || "Not set"}

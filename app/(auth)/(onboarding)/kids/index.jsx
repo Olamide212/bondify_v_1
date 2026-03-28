@@ -35,15 +35,15 @@ const Kids = () => {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView style={{flex: 1}} className="bg-white">
       <KeyboardAvoidingView
-        className="flex-1"
+        style={{flex: 1}}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         keyboardVerticalOffset={Platform.OS === "ios" ? 20 : 0}
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <View className="flex-1 px-2">
-            <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+          <View style={{flex: 1}} className="px-2">
+            <ScrollView style={{flex: 1}} showsVerticalScrollIndicator={false}>
               <Text className="text-3xl font-PlusJakartaSansBold mt-8  mb-2">
                 Do you want kids?
               </Text>

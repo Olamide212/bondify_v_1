@@ -93,7 +93,7 @@ const ProfileScreen = () => {
   return (
     <SafeAreaProvider>
      
-      <SafeAreaView className="flex-1 bg-white ">
+      <SafeAreaView style={{flex: 1}} className="bg-white ">
             <GeneralHeader
           title="Profile"
           icon={<Settings size={25} color={colors.textPrimary}
@@ -150,7 +150,7 @@ const ProfileScreen = () => {
               <ProfileSection profile={profile || {}} />
             )}
             <InfoSection />
-            <SubscriptionBannerSlider />
+            {/* <SubscriptionBannerSlider /> */}
           </ScrollView>
 
           {/* Social Profile Tab */}

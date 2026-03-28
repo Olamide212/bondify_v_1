@@ -17,14 +17,14 @@ const Welcome = () => {
   const router = useRouter();
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView style={{flex: 1}} className="bg-white">
       <KeyboardAvoidingView
-        className="flex-1"
+        style={{flex: 1}}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         keyboardVerticalOffset={Platform.OS === "ios" ? 20 : 0}
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <View className="flex-1">
+          <View style={{flex: 1}}>
           <ConfirmationScreen title="Yayy! your code is verified" subtitle="" />
 
             <View className="w-full items-end pb-6 pr-4">

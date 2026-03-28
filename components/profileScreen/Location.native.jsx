@@ -1,13 +1,14 @@
 import * as ExpoLocation from "expo-location";
-import { MapPin, Navigation, X } from "lucide-react-native";
+import { MapPin, Navigation, Search, X } from "lucide-react-native";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
-    ActivityIndicator,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Keyboard,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import { colors } from "../../constant/colors";
@@ -26,12 +27,14 @@ const Location = ({ profile, onUpdateField }) => {
   const mapRef = useRef(null);
 
   const [isModalVisible, setIsModalVisible]     = useState(false);
+  const [searchQuery, setSearchQuery]           = useState("");
   const [city, setCity]                         = useState("");
   const [stateValue, setStateValue]             = useState("");
   const [country, setCountry]                   = useState("");
   const [isDetectingLocation, setIsDetectingLocation] = useState(false);
   const [isSaving, setIsSaving]                 = useState(false);
   const [isGeocoding, setIsGeocoding]           = useState(false);
+  const [isSearching, setIsSearching]           = useState(false);
 
   const [markerCoords, setMarkerCoords] = useState(null);   // { latitude, longitude }
   const [region, setRegion]             = useState(DEFAULT_REGION);
@@ -76,11 +79,44 @@ const Location = ({ profile, onUpdateField }) => {
         setCity(result.city || result.district || result.subregion || "");
         setStateValue(result.region || "");
         setCountry(result.country || "");
+        setSearchQuery(result.city || result.district || result.subregion || "");
       }
     } catch {
       // silently fail — user can still type manually
     } finally {
       setIsGeocoding(false);
+    }
+  };
+
+  // ── Search for a city by name ─────────────────────────────────────────────
+  const handleSearchCity = async () => {
+    if (!searchQuery.trim()) return;
+    Keyboard.dismiss();
+    try {
+      setIsSearching(true);
+      const results = await ExpoLocation.geocodeAsync(searchQuery.trim());
+      if (results && results.length > 0) {
+        const { latitude, longitude } = results[0];
+        setMarkerCoords({ latitude, longitude });
+        const newRegion = { latitude, longitude, latitudeDelta: 0.05, longitudeDelta: 0.05 };
+        setRegion(newRegion);
+        mapRef.current?.animateToRegion(newRegion, 600);
+        await reverseGeocode(latitude, longitude);
+      } else {
+        showAlert({
+          icon: 'warning',
+          title: 'Not found',
+          message: 'Could not find that location. Try a different search.',
+        });
+      }
+    } catch {
+      showAlert({
+        icon: 'error',
+        title: 'Search error',
+        message: 'Could not search for location. Try again.',
+      });
+    } finally {
+      setIsSearching(false);
     }
   };
 
@@ -157,9 +193,9 @@ const Location = ({ profile, onUpdateField }) => {
       {/* ── Trigger card ── */}
       <TouchableOpacity style={s.card} onPress={() => setIsModalVisible(true)} activeOpacity={0.8}>
         <View style={s.cardLeft}>
-          <View style={s.pinCircle}>
+          {/* <View style={s.pinCircle}>
             <MapPin size={18} color={colors.primary} strokeWidth={2} />
-          </View>
+          </View> */}
           <View>
             <Text style={s.cardLocation} numberOfLines={1}>
               {locationText || "Location not set"}
@@ -170,7 +206,7 @@ const Location = ({ profile, onUpdateField }) => {
       </TouchableOpacity>
 
       {/* ── Full-screen modal ── */}
-      <BaseModal visible={isModalVisible} onClose={() => setIsModalVisible(false)} fullScreen>
+      <BaseModal visible={isModalVisible} onClose={() => setIsModalVisible(false)} fullScreen noPadding>
         <View style={s.modal}>
 
           {/* Header */}
@@ -181,7 +217,7 @@ const Location = ({ profile, onUpdateField }) => {
             </TouchableOpacity>
           </View>
 
-          {/* ── Map ── */}
+          {/* ── Full Map ── */}
           <View style={s.mapWrap}>
             <MapView
               ref={mapRef}
@@ -197,6 +233,23 @@ const Location = ({ profile, onUpdateField }) => {
                 <Marker coordinate={markerCoords} pinColor={colors.primary} />
               )}
             </MapView>
+
+            {/* Search field at top */}
+            <View style={s.searchWrap}>
+              <View style={s.searchInputWrap}>
+                <Search size={18} color="#9CA3AF" />
+                <TextInput
+                  value={searchQuery}
+                  onChangeText={setSearchQuery}
+                  placeholder="Search city..."
+                  placeholderTextColor="#9CA3AF"
+                  style={s.searchInput}
+                  returnKeyType="search"
+                  onSubmitEditing={handleSearchCity}
+                />
+                {isSearching && <ActivityIndicator size="small" color={colors.primary} />}
+              </View>
+            </View>
 
             {/* GPS button over map */}
             <TouchableOpacity
@@ -223,57 +276,21 @@ const Location = ({ profile, onUpdateField }) => {
             <View style={s.mapHint}>
               <Text style={s.mapHintText}>Tap anywhere on the map to pin your location</Text>
             </View>
+
+
+            {/* ── Save button on map ── */}
+            <TouchableOpacity
+              style={[s.saveBtn, isSaving && { opacity: 0.7 }]}
+              onPress={handleSaveLocation}
+              disabled={isSaving}
+              activeOpacity={0.85}
+            >
+              {isSaving
+                ? <ActivityIndicator color="#fff" />
+                : <Text style={s.saveBtnText}>Save Location</Text>
+              }
+            </TouchableOpacity>
           </View>
-
-          {/* ── Fields ── */}
-          <View style={s.fields}>
-            <View style={s.fieldRow}>
-              <View style={[s.fieldWrap, { flex: 1.2 }]}>
-                <Text style={s.label}>City</Text>
-                <TextInput
-                  value={city}
-                  onChangeText={setCity}
-                  placeholder="City"
-                  placeholderTextColor="#9CA3AF"
-                  style={s.input}
-                />
-              </View>
-              <View style={[s.fieldWrap, { flex: 1 }]}>
-                <Text style={s.label}>State</Text>
-                <TextInput
-                  value={stateValue}
-                  onChangeText={setStateValue}
-                  placeholder="State"
-                  placeholderTextColor="#9CA3AF"
-                  style={s.input}
-                />
-              </View>
-            </View>
-
-            <View style={s.fieldWrap}>
-              <Text style={s.label}>Country</Text>
-              <TextInput
-                value={country}
-                onChangeText={setCountry}
-                placeholder="Country"
-                placeholderTextColor="#9CA3AF"
-                style={s.input}
-              />
-            </View>
-          </View>
-
-          {/* ── Save button ── */}
-          <TouchableOpacity
-            style={[s.saveBtn, isSaving && { opacity: 0.7 }]}
-            onPress={handleSaveLocation}
-            disabled={isSaving}
-            activeOpacity={0.85}
-          >
-            {isSaving
-              ? <ActivityIndicator color="#fff" />
-              : <Text style={s.saveBtnText}>Save Location</Text>
-            }
-          </TouchableOpacity>
 
         </View>
       </BaseModal>
@@ -340,8 +357,36 @@ const s = StyleSheet.create({
 
   // ── Map ──
   mapWrap: {
-    height:   280,
+    flex:     1,
     position: 'relative',
+  },
+  searchWrap: {
+    position:          'absolute',
+    top:               12,
+    left:              12,
+    right:             70,
+    zIndex:            10,
+  },
+  searchInputWrap: {
+    flexDirection:     'row',
+    alignItems:        'center',
+    backgroundColor:   '#fff',
+    borderRadius:      12,
+    paddingHorizontal: 14,
+    paddingVertical:   10,
+    gap:               10,
+    shadowColor:       '#000',
+    shadowOpacity:     0.12,
+    shadowRadius:      6,
+    shadowOffset:      { width: 0, height: 2 },
+    elevation:         4,
+  },
+  searchInput: {
+    flex:       1,
+    fontSize:   15,
+    fontFamily: 'PlusJakartaSansMedium',
+    color:      '#111',
+    padding:    0,
   },
   gpsBtn: {
     position:        'absolute',
@@ -361,7 +406,7 @@ const s = StyleSheet.create({
   },
   geocodingBadge: {
     position:          'absolute',
-    top:               12,
+    top:               70,
     left:              12,
     flexDirection:     'row',
     alignItems:        'center',
@@ -378,7 +423,7 @@ const s = StyleSheet.create({
   },
   mapHint: {
     position:          'absolute',
-    bottom:            12,
+    bottom:            90,
     alignSelf:         'center',
     backgroundColor:   'rgba(0,0,0,0.48)',
     borderRadius:      99,
@@ -391,45 +436,21 @@ const s = StyleSheet.create({
     color:      '#fff',
   },
 
-  // ── Fields ──
-  fields: {
-    paddingHorizontal: 20,
-    paddingTop:        18,
-    gap:               12,
-  },
-  fieldRow: {
-    flexDirection: 'row',
-    gap:           12,
-  },
-  fieldWrap: {
-    gap: 6,
-  },
-  label: {
-    fontSize:   13,
-    fontFamily: 'PlusJakartaSansSemiBold',
-    color:      '#374151',
-  },
-  input: {
-    borderWidth:   1,
-    borderColor:   '#E5E7EB',
-    borderRadius:  12,
-    paddingHorizontal: 14,
-    paddingVertical:   12,
-    fontSize:      15,
-    fontFamily:    'PlusJakartaSansMedium',
-    color:         '#111',
-    backgroundColor: '#FAFAFA',
-  },
-
   // ── Save button ──
   saveBtn: {
-    marginHorizontal: 20,
-    marginTop:        'auto',
-    marginBottom:     24,
-    backgroundColor:  '#111',
+    position:         'absolute',
+    bottom:           24,
+    left:             20,
+    right:            20,
+    backgroundColor:  colors.primary,
     borderRadius:     99,
     paddingVertical:  16,
     alignItems:       'center',
+    shadowColor:      '#000',
+    shadowOpacity:    0.15,
+    shadowRadius:     8,
+    shadowOffset:     { width: 0, height: 4 },
+    elevation:        6,
   },
   saveBtnText: {
     fontSize:   16,

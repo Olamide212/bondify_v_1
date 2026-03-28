@@ -27,14 +27,14 @@ const Card = ({ title, items }) => {
           >
 
               {RightIcon ? (
-                <RightIcon size={20} color={colors.primary} />
+                <RightIcon size={20} color={'#000'} />
               ) : isTiktok ? (
                 <Image source={Icons.TikTok} style={{ width: 20, height: 20 }} />
               ) : (
-                <Ionicons name="chevron-forward" size={20} color="#9ca3af" />
+                <Ionicons name="chevron-forward" size={20} color="#000" />
               )}
             <View className="flex-row items-center gap-3 flex-1">
-              <View className="flex-1">
+              <View style={{flex: 1}}>
                 <Text className="text-xl text-black font-PlusJakartaSansSemiBold">
                   {title}
                 </Text>

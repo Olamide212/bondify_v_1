@@ -139,7 +139,7 @@ const PhotoLikeCard = ({ notification, onPress }) => {
           </View>
         </View>
         
-        <View className="flex-1 ml-3">
+        <View style={{flex: 1}} className="ml-3">
           <View className="flex-row items-center justify-between">
             <Text className="text-black font-PlusJakartaSansBold">
               <Text className="text-black">{name}</Text>
@@ -196,9 +196,9 @@ const EventInviteCard = ({ notification, onPress, onJoin, onDecline }) => {
           </View>
         </View>
         
-        <View className="flex-1 ml-3">
+        <View style={{flex: 1}} className="ml-3">
           <View className="flex-row items-start justify-between">
-            <View className="flex-1">
+            <View style={{flex: 1}}>
               <Text className="text-black font-PlusJakartaSansBold">
                 {name}
                 <Text className="text-gray-600 font-PlusJakartaSans"> invited you to</Text>
@@ -248,7 +248,7 @@ const AITipCard = ({ notification, onPress, onViewTip }) => {
           <Text className="text-2xl">✨</Text>
         </View>
         
-        <View className="flex-1 ml-3">
+        <View style={{flex: 1}} className="ml-3">
           <View className="flex-row items-center justify-between">
             <Text className="text-black font-PlusJakartaSansBold">
               AI Assistant:
@@ -294,7 +294,7 @@ const MessageCard = ({ notification, onPress }) => {
           )}
         </View>
         
-        <View className="flex-1 ml-3">
+        <View style={{flex: 1}} className="ml-3">
           <View className="flex-row items-center justify-between">
             <Text className="text-black font-PlusJakartaSansBold">{name || "Someone"}</Text>
             <View className="flex-row items-center">
@@ -328,7 +328,7 @@ const SimpleNotificationCard = ({ notification, onPress }) => {
         <Text className="text-lg">{meta.icon}</Text>
       </View>
       
-      <View className="flex-1 ml-3">
+      <View style={{flex: 1}} className="ml-3">
         <Text className="text-gray-700 font-PlusJakartaSans leading-5">
           {notification.body}
         </Text>
@@ -364,7 +364,7 @@ const GenericActivityCard = ({ notification, onPress }) => {
           </View>
         </View>
         
-        <View className="flex-1 ml-3">
+        <View style={{flex: 1}} className="ml-3">
           <View className="flex-row items-center justify-between">
             <Text className="text-black font-PlusJakartaSansBold flex-1 mr-2" numberOfLines={1}>
               {notification.title || meta.label}
@@ -505,7 +505,7 @@ const NotificationsModal = ({
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
       <SafeAreaProvider>
-        <SafeAreaView className="flex-1 bg-white">
+        <SafeAreaView style={{flex: 1}} className="bg-white">
           {/* Header */}
           <View className="px-5 py-3 flex-row items-center justify-between bg-white">
             <View className="flex-row items-center">
@@ -526,7 +526,7 @@ const NotificationsModal = ({
           </View>
           
           <ScrollView 
-            className="flex-1" 
+            style={{flex: 1}} 
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{ paddingBottom: 40 }}
           >
@@ -601,7 +601,7 @@ const NotificationsModal = ({
             
             {/* Empty State */}
             {notifications.length === 0 && (
-              <View className="flex-1 items-center justify-center px-8 py-20">
+              <View style={{flex: 1}} className="items-center justify-center px-8 py-20">
                 <View className="w-20 h-20 rounded-full bg-primary/10 items-center justify-center mb-4">
                   <Bell color={colors.primary} size={32} />
                 </View>

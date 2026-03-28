@@ -31,9 +31,9 @@ const Tagline = ({ profile, onUpdateField }) => {
     <View style={s.container}>
       <View style={s.card}>
         <View style={s.header}>
-          <View style={s.iconWrap}>
+          {/* <View style={s.iconWrap}>
             <Quote size={18} color={colors.primary} strokeWidth={2} />
-          </View>
+          </View> */}
           <View style={s.headerText}>
             <Text style={s.title}>Tagline</Text>
             <Text style={s.subtitle}>A short catchy phrase about you</Text>

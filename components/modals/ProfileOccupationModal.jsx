@@ -33,14 +33,14 @@ const OccupationModal = ({ visible, onClose, onSelect, initialSelected }) => {
       visible={visible}
 
     >
-      <SafeAreaView className="flex-1 bg-white">
+      <SafeAreaView style={{flex: 1}} className="bg-white">
         <KeyboardAvoidingView
-          className="flex-1"
+          style={{flex: 1}}
           behavior={Platform.OS === "ios" ? "padding" : "height"}
           keyboardVerticalOffset={Platform.OS === "ios" ? 20 : 0}
         >
           <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-            <View className="flex-1 px-4">
+            <View style={{flex: 1}} className="px-4">
               {/* Header */}
               <View className="mt-6 mb-6">
                 <Text className="text-3xl font-PlusJakartaSansBold">

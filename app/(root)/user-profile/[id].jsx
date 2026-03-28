@@ -326,7 +326,7 @@ const UserProfile = () => {
 
   if (loadingProfile) {
     return (
-      <View className="flex-1 items-center justify-center bg-white">
+      <View style={{flex: 1}} className="items-center justify-center bg-white">
         <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
@@ -334,14 +334,14 @@ const UserProfile = () => {
 
   if (!currentProfile) {
     return (
-      <View className="flex-1 items-center justify-center bg-black">
+      <View style={{flex: 1}} className="items-center justify-center bg-black">
         <Text className="text-white">Profile not found.</Text>
       </View>
     );
   }
 
   return (
-    <View className="flex-1">
+    <View style={{flex: 1}}>
       {/* Static header (fades out on scroll) */}
       <Animated.View style={[styles.staticHeader, staticHeaderStyle]}>
         <View style={styles.staticHeaderRow}>

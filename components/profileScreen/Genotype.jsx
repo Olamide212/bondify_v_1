@@ -26,9 +26,9 @@ const Genotype = ({ profile, onUpdateField }) => {
     <>
       <TouchableOpacity style={s.card} onPress={() => setShowModal(true)} activeOpacity={0.8} disabled={loading}>
         <View style={s.cardLeft}>
-          <View style={s.iconCircle}>
-            <Dna size={18} color={colors.primary} strokeWidth={2} />
-          </View>
+  
+            <Dna size={18} color={'#000'} strokeWidth={2} />
+
           <View style={{ flex: 1 }}>
             <Text style={s.cardValue} numberOfLines={1}>
               {genotype || "Not set"}

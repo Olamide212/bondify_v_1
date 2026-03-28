@@ -1,18 +1,18 @@
+import { Image } from "expo-image";
 import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
-  Image,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
 import * as Progress from "react-native-progress";
+import { colors } from "../../constant/colors";
 import { getProfileAge } from "../../utils/ageHelper";
 import apiClient from "../../utils/axiosInstance";
 import VerifiedIcon from "../ui/VerifiedIcon";
-import {colors} from "../../constant/colors";
 
 const PRIMARY = colors.secondary;   // your orange e.g. '#E8521A' --- IGNORE ---
 const PHOTO_SIZE     = 130;
@@ -34,8 +34,13 @@ const ProfileSection = ({ profile, isUploading }) => {
   // ── Live stats ───────────────────────────────────────────────────────────
   const [stats, setStats]               = useState({ matches: 0, likes: 0, profileViews: 0 });
   const [statsLoading, setStatsLoading] = useState(true);
+  const hasLoadedStatsRef = useRef(false);
 
   useEffect(() => {
+    // Only load stats once, skip on subsequent visits
+    if (hasLoadedStatsRef.current) return;
+    hasLoadedStatsRef.current = true;
+    
     let mounted = true;
     (async () => {
       try {
@@ -78,7 +83,14 @@ const ProfileSection = ({ profile, isUploading }) => {
         <View style={styles.photoInRing}>
           {profileImage ? (
             <>
-              <Image source={{ uri: profileImage }} style={styles.photo} resizeMode="cover" />
+              <Image 
+                source={{ uri: profileImage }} 
+                style={styles.photo} 
+                contentFit="cover"
+                cachePolicy="memory-disk"
+                placeholder={{ color: '#E5E7EB' }}
+                transition={200}
+              />
               {isUploading && (
                 <View style={styles.uploadOverlay}>
                   <ActivityIndicator size="large" color={PRIMARY} />
@@ -91,9 +103,9 @@ const ProfileSection = ({ profile, isUploading }) => {
         </View>
 
         {/* Percentage badge anchored to the bottom of the ring */}
-        <View style={styles.percentBadge}>
+        {/* <View style={styles.percentBadge}>
           <Text style={styles.percentBadgeText}>{completion}%</Text>
-        </View>
+        </View> */}
       </View>
 
       {/* ── Name ── */}
@@ -102,7 +114,7 @@ const ProfileSection = ({ profile, isUploading }) => {
           {profile?.firstName || "Your Profile"}
           {displayAge ? `, ${displayAge}` : ""}
         </Text>
-        {profile?.verified && <VerifiedIcon />}
+        {profile?.isVerified && <VerifiedIcon style={{width: 22, height: 22}} />}
       </View>
 
       {/* ── Completion hint ── */}
@@ -197,7 +209,7 @@ const styles = StyleSheet.create({
   nameRow: {
     flexDirection:     "row",
     alignItems:        "center",
-    gap:               8,
+    gap:               4,
     marginTop:         20,
     paddingHorizontal: 24,
   },

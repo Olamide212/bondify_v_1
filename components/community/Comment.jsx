@@ -1,3 +1,4 @@
+import { Image } from "expo-image";
 import {
     ChevronDown,
     ChevronUp,
@@ -5,7 +6,7 @@ import {
     MessageCircle,
 } from "lucide-react-native";
 import { useState } from "react";
-import { Image, Text, TouchableOpacity, View } from "react-native";
+import { Text, TouchableOpacity, View } from "react-native";
 import VerifiedIcon from "../ui/VerifiedIcon";
 import { styles } from "./styles/communityStyles";
 
@@ -23,6 +24,9 @@ const Comment = ({ comment, onLike, onReply, onLikeReply }) => {
         <Image
           source={{ uri: comment.user.avatar }}
           style={styles.commentAvatar}
+          cachePolicy="memory-disk"
+          placeholder={{ color: '#E5E7EB' }}
+          transition={200}
         />
         <View style={styles.commentUserInfo}>
           <Text style={styles.commentUserName}>{comment.user.name}</Text>
@@ -82,6 +86,9 @@ const Comment = ({ comment, onLike, onReply, onLikeReply }) => {
                     <Image
                       source={{ uri: reply.user.avatar }}
                       style={styles.replyAvatar}
+                      cachePolicy="memory-disk"
+                      placeholder={{ color: '#E5E7EB' }}
+                      transition={200}
                     />
                     <View style={styles.replyUserInfo}>
                       <Text style={styles.replyUserName}>

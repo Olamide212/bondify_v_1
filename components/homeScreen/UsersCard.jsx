@@ -52,7 +52,7 @@ export default function UsersCard() {
   };
 
   return (
-    <View className="flex-1 bg-app">
+    <View style={{flex: 1}} className="bg-app">
   {/*    <MatchStats matches={matches} likes={likes} />*/}
       <ProfileCard profile={currentProfile} />
       <ActionButtons onSwipe={handleSwipe} onSuperLike={handleSuperLike} />

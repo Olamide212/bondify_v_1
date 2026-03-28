@@ -23,13 +23,13 @@ const WalletScreen = ({ navigation }) => {
   const [selectedBundle, setSelectedBundle] = useState(null);
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView style={{flex: 1}} className="bg-white">
       {/* Header */}
       <View className="flex-row items-center p-4 border-b border-gray-200">
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <ArrowLeft size={24} color="black" />
         </TouchableOpacity>
-        <Text className="flex-1 text-center text-lg font-PlusJakartaSansBold">
+        <Text style={{flex: 1}} className="text-center text-lg font-PlusJakartaSansBold">
           My Wallet
         </Text>
         <View style={{ width: 24 }} />

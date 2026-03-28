@@ -91,9 +91,9 @@ const UploadPhoto = () => {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView style={{flex: 1}} className="bg-white">
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <View className="flex-1 px-2">
+        <View style={{flex: 1}} className="px-2">
           <View className='flex-1'>
             {/* Title + Subtitle */}
             <View className="mb-6 mt-8">

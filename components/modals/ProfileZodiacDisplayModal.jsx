@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import { View } from "react-native";
-import OptionBox from "../../components/ui/optionBox";
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useLookupOptions } from "../../hooks/useLookupOptions";
 import ModalHeader from "../headers/ModalHeader";
 import BaseModal from "./BaseModal";
+import { colors } from "../../constant/colors";
 
 const ProfileDisplayZodiacModal = ({
   visible,
@@ -14,35 +14,75 @@ const ProfileDisplayZodiacModal = ({
   const [selectedOption, setSelectedOption] = useState(initialSelected);
   const { options } = useLookupOptions("zodiac");
 
-  // keep state in sync if profileData changes
   useEffect(() => {
     setSelectedOption(initialSelected);
   }, [initialSelected]);
 
   return (
-    <BaseModal onClose={onClose} visible={visible}>
-      <ModalHeader centerText="Zodiac Sign" onClose={onClose} />
+    <BaseModal onClose={onClose} visible={visible} fullScreen>
+      <View style={styles.container}>
+        <ModalHeader centerText="Zodiac Sign" onClose={onClose} />
 
-      <View className="flex-row flex-wrap p-4">
-        {options.map((option) => {
-          const isSelected = selectedOption === option.value;
-          return (
-            <OptionBox
-              key={option.value}
-              label={option.label}
-              value={option.value}
-              selected={isSelected}
-              onPress={() => {
-                setSelectedOption(option.value);
-                onSelect(option.value); // ✅ update immediately
-                onClose(); // ✅ close immediately
-              }}
-            />
-          );
-        })}
+        <ScrollView 
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          {options.map((option) => {
+            const isSelected = selectedOption === option.value;
+            return (
+              <TouchableOpacity
+                key={option.value}
+                style={[styles.option, isSelected && styles.optionSelected]}
+                onPress={() => {
+                  setSelectedOption(option.value);
+                  onSelect(option.value);
+                  onClose();
+                }}
+                activeOpacity={0.7}
+              >
+                <Text style={[styles.optionText, isSelected && styles.optionTextSelected]}>
+                  {option.label}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </ScrollView>
       </View>
     </BaseModal>
   );
 };
 
 export default ProfileDisplayZodiacModal;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
+  scrollContent: {
+    padding: 16,
+    paddingBottom: 40,
+  },
+  option: {
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    borderRadius: 50,
+    marginBottom: 8,
+    backgroundColor: '#F3F4F6',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+  },
+  optionSelected: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
+  },
+  optionText: {
+    fontSize: 16,
+    fontFamily: 'PlusJakartaSansMedium',
+    color: '#111',
+    textAlign: 'center',
+  },
+  optionTextSelected: {
+    color: '#fff',
+  },
+});

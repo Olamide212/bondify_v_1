@@ -76,7 +76,7 @@ const MySelf = () => {
 
       {/* Modal */}
       <Modal visible={showModal} animationType="slide">
-        <SafeAreaView className="flex-1 bg-white p-6">
+        <SafeAreaView style={{flex: 1}} className="bg-white p-6">
           {!selectedQuestion ? (
             <>
               

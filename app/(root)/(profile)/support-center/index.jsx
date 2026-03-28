@@ -42,10 +42,10 @@ const SupportCenter = () => {
 
   return (
     <SafeAreaProvider>
-      <SafeAreaView className="flex-1 bg-white">
+      <SafeAreaView style={{flex: 1}} className="bg-white">
         <GeneralHeader title=" Support" leftIcon={<ArrowLeft />}
           className="bg-white" />
-        <ScrollView contentContainerStyle={styles.scrollContent} className="flex-1 flex-col gap-6 bg-background">
+        <ScrollView contentContainerStyle={styles.scrollContent} style={{flex: 1}} className="flex-col gap-6 bg-background">
           <Text style={styles.headerTitle}>Contact us</Text>
 
           <Text style={styles.infoText}>

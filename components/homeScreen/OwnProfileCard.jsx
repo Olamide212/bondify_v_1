@@ -142,7 +142,7 @@ const OwnProfileCard = ({ profile }) => {
                     <View>
    {profile?.tagline && (
                       <View className="bg-white -mt-20 pt-10 px-4 pb-3 rounded-t-2xl mb-2">
-                        <Text className="text-3xl  font-PlusJakartaSansSemiBold ">
+                        <Text className="text-3xl  font-PlusJakartaSansSemiBold">
                          {profile.tagline}
                         </Text>
                       </View>
@@ -393,7 +393,7 @@ const OwnProfileCard = ({ profile }) => {
                 <Text className="text-[20px] font-PlusJakartaSansSemiBold text-app mb-3">
                   School and education
                 </Text>
-                <View className="flex-1 flex-row flex-wrap gap-2">
+                <View style={{flex: 1}} className="flex-row flex-wrap gap-2">
                   <View className="bg-gray-100 flex-row items-center gap-2 px-4 py-2 rounded-full">
                     <GraduationCap color="black" size={18} />
                     <Text className="text-app text-base font-PlusJakartaSansMedium">{profile.school}</Text>

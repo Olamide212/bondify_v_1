@@ -203,7 +203,7 @@ const About = () => {
     }
     try {
       await updateProfileStep({ bio });
-      router.push("/voice-prompt");
+      router.push("/profile-answers");
     } catch (err) {
       console.error("Bio save error:", err);
       showAlert({
@@ -215,16 +215,16 @@ const About = () => {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView style={{flex: 1}} className="bg-white">
       <KeyboardAvoidingView
-        className="flex-1"
+        style={{flex: 1}}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         keyboardVerticalOffset={Platform.OS === "ios" ? 20 : 0}
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <View className="flex-1 px-3">
+          <View style={{flex: 1}} className="px-3">
             <ScrollView
-              className="flex-1"
+              style={{flex: 1}}
               showsVerticalScrollIndicator={false}
               keyboardShouldPersistTaps="handled"
             >

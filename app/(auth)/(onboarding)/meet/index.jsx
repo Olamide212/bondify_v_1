@@ -32,15 +32,15 @@ const Meet = () => {
     );
   }
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView style={{flex: 1}} className="bg-white">
       <KeyboardAvoidingView
-        className="flex-1"
+        style={{flex: 1}}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         keyboardVerticalOffset={Platform.OS === "ios" ? 20 : 0}
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <View className="flex-1 px-2">
-            <View className="flex-1 mt-8">
+          <View style={{flex: 1}} className="px-2">
+            <View style={{flex: 1}} className="mt-8">
               <Text className="text-3xl font-PlusJakartaSansBold mb-2">
                 I would like to meet...
               </Text>

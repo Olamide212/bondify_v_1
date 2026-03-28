@@ -36,7 +36,7 @@ const CheckboxSelect = ({
             onPress={() => toggleSelection(option.value)}
             style={{ borderRadius: 10 }}
           >
-            <View className="flex-1 pr-2">
+            <View style={{flex: 1}} className="pr-2">
               <Text className="text-black text-xl font-PlusJakartaSansBold">
                 {option.label}
               </Text>

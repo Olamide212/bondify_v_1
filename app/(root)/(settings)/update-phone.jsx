@@ -91,9 +91,9 @@ const UpdatePhoneScreen = () => {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white" edges={["top", "left", "right"]}>
+    <SafeAreaView style={{flex: 1}} className="bg-white" edges={["top", "left", "right"]}>
       <KeyboardAvoidingView
-        className="flex-1"
+        style={{flex: 1}}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
         {/* ── Header ── */}
@@ -101,13 +101,13 @@ const UpdatePhoneScreen = () => {
           <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
             <Ionicons name="arrow-back" size={24} color="#111" />
           </TouchableOpacity>
-          <Text className="flex-1 text-center text-xl font-PlusJakartaSansMedium text-gray-900">
+          <Text style={{flex: 1}} className="text-center text-xl font-PlusJakartaSansMedium text-gray-900">
             {step === "phone" ? "Update Phone Number" : "Verify Number"}
           </Text>
           <View style={{ width: 24 }} />
         </View>
 
-        <View className="flex-1 px-6 pt-8">
+        <View style={{flex: 1}} className="px-6 pt-8">
 
           {step === "phone" ? (
             <>
@@ -129,7 +129,7 @@ const UpdatePhoneScreen = () => {
                   maxLength={5}
                 />
                 <TextInput
-                  className="flex-1 border border-gray-200 rounded-xl px-4 py-4 text-base font-PlusJakartaSans text-gray-900"
+                  style={{flex: 1}} className="border border-gray-200 rounded-xl px-4 py-4 text-base font-PlusJakartaSans text-gray-900"
                   placeholder="08012345678"
                   placeholderTextColor="#bbb"
                   value={phoneNumber}

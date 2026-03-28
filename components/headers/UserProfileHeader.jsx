@@ -7,7 +7,7 @@ const UserProfileHeader = ({ progress }) => {
   return (
     <View className="flex-row items-center justify-between p-4 bg-white">
       <ArrowLeft size={24} />
-      <View className="flex-1 px-4">
+      <View style={{flex: 1}} className="px-4">
         <Progress.Bar
           progress={progress}
           width={null}

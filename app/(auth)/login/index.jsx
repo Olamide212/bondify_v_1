@@ -102,16 +102,16 @@ const EmailLogin = () => {
   }, [dispatch]);
 
   return (
-    <SafeAreaProvider className="flex-1 bg-white">
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaProvider style={{flex: 1}} className="bg-white">
+    <SafeAreaView style={{flex: 1}} className="bg-white" style={{flex: 1}}>
       <KeyboardAvoidingView
-        className="flex-1"
+        style={{flex: 1}}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 0}
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <View className="flex-1 px-2">
-            <View className="flex-1 mt-8">
+          <View style={{flex: 1}} className="px-2">
+            <View style={{flex: 1}} className="mt-8">
               <Text className="text-4xl font-PlusJakartaSansBold text-black">
                 Welcome back!
               </Text>

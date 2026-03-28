@@ -12,8 +12,8 @@ const ConfirmationScreen = ({title, subtitle}) => {
 
 
   return (
-    <View className="flex-1 px-4">
-      <View className="flex-1 justify-center  mt-32">
+    <View style={{flex: 1}} className="px-4">
+      <View style={{flex: 1}} className="justify-center  mt-32">
         <Image
           source={require("../../assets/images/bondify-icon-color.png")}
           contentFit="contain"

@@ -19,14 +19,14 @@ import { useRouter } from "expo-router";
 import { ChevronLeft } from "lucide-react-native";
 import { useState } from "react";
 import {
-    Keyboard,
-    KeyboardAvoidingView,
-    Platform,
-    SafeAreaView,
-    Text,
-    TouchableOpacity,
-    TouchableWithoutFeedback,
-    View,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  SafeAreaView,
+  Text,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
 } from "react-native";
 import GlobalOtpInput from "../inputs/OtpInput";
 import Button from "../ui/Button";
@@ -78,25 +78,25 @@ const OtpVerificationScreen = ({
       : "Please enter the verification code sent to your email");
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView style={{flex: 1}} className="bg-white" style={{ flex: 1 }}>
       <KeyboardAvoidingView
-        className="flex-1"
+        style={{flex: 1}}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 0}
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <View className="flex-1 px-2 mt-4">
-         {/* Back button */}
+          <View style={{flex: 1}} className="px-2 mt-4">
+            {/* Back button */}
             {backButton && (
-  <TouchableOpacity
-              onPress={handleBack}
-              className="mb-4 w-10 h-10 items-center justify-center"
-            >
-              <ChevronLeft size={24} color="#111" />
-            </TouchableOpacity>
+              <TouchableOpacity
+                onPress={handleBack}
+                className="mb-4 w-10 h-10 items-center justify-center"
+              >
+                <ChevronLeft size={24} color="#111" />
+              </TouchableOpacity>
             )}
-   
-          
+
+
 
             <Text className="text-3xl font-PlusJakartaSansBold text-black">
               {title}

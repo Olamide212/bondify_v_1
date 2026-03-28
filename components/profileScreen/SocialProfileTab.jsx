@@ -229,7 +229,7 @@ export default function SocialProfileTab() {
           )}
         </TouchableOpacity>
 
-        <Text style={s.displayName}>{displayName}</Text>
+        <Text style={s.displayName} numberOfLines={1}>{displayName}</Text>
         {!!userName && <Text style={s.handle}>@{userName}</Text>}
         {!!bio && <Text style={s.bio}>{bio}</Text>}
 
@@ -253,7 +253,7 @@ export default function SocialProfileTab() {
       </View>
 
       {/* ── Bondup Activity Section ──────────────────────────────────── */}
-      <View style={s.bondupSection}>
+      {/* <View style={s.bondupSection}>
         <View style={s.bondupSectionHeader}>
           <Text style={s.bondupSectionTitle}>🎉 My Bondups</Text>
           <View style={s.bondupStatsBadges}>
@@ -294,7 +294,7 @@ export default function SocialProfileTab() {
             </View>
           ))
         )}
-      </View>
+      </View> */}
 
       {/* ── Menu list ───────────────────────────────────────────────────── */}
       <View style={s.menuCard}>
@@ -305,14 +305,14 @@ export default function SocialProfileTab() {
             onPress={onPress}
             activeOpacity={0.6}
           >
-            <View style={s.menuIconWrap}>
-              <Icon size={20} color={BRAND} />
-            </View>
+           
             <View style={s.menuTextWrap}>
               <Text style={s.menuLabel}>{label}</Text>
               <Text style={s.menuDesc}>{description}</Text>
             </View>
-            <ChevronRight size={18} color="#CCC" />
+   
+              <Icon size={20} color='#000' />
+
           </TouchableOpacity>
         ))}
       </View>
@@ -379,6 +379,7 @@ const s = StyleSheet.create({
     fontSize: 20,
     fontFamily: "PlusJakartaSansBold",
     color: "#111",
+    textTransform: "capitalize",
   },
   handle: {
     fontSize: 14,
@@ -418,17 +419,17 @@ const s = StyleSheet.create({
     marginHorizontal: 16,
     borderRadius: 16,
     padding: 4,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.04,
-    shadowRadius: 6,
-    elevation: 2,
+    // shadowColor: "#000",
+    // shadowOffset: { width: 0, height: 1 },
+    // shadowOpacity: 0.04,
+    // shadowRadius: 6,
+    // elevation: 2,
   },
   menuItem: {
     flexDirection: "row",
     alignItems: "center",
     paddingVertical: 16,
-    paddingHorizontal: 14,
+
   },
   menuItemBorder: {
     borderBottomWidth: 1,
@@ -445,7 +446,7 @@ const s = StyleSheet.create({
   },
   menuTextWrap: { flex: 1 },
   menuLabel: {
-    fontSize: 15,
+    fontSize: 16,
     fontFamily: "PlusJakartaSansBold",
     color: "#111",
   },

@@ -16,9 +16,9 @@ const PromptCard = ({ item, index, onEdit, onDelete }) => (
   <View style={s.promptCard}>
     {/* Top row: question + delete */}
     <View style={s.promptHeader}>
-      <View style={s.promptIconWrap}>
+      {/* <View style={s.promptIconWrap}>
         <MessageCircle size={14} color={colors.primary} strokeWidth={2} />
-      </View>
+      </View> */}
       <Text style={s.promptQuestion} numberOfLines={2}>{item.question}</Text>
       <TouchableOpacity
         onPress={() => onDelete(index)}
@@ -230,7 +230,7 @@ const ProfileAnswers = ({ profile, onUpdateField }) => {
                       onPress={() => handleSelectQuestion(q)}
                       activeOpacity={0.7}
                     >
-                      <MessageCircle size={16} color={colors.primary} strokeWidth={2} />
+                      {/* <MessageCircle size={16} color={colors.primary} strokeWidth={2} /> */}
                       <Text style={s.questionText}>{q}</Text>
                     </TouchableOpacity>
                   )}
@@ -250,7 +250,7 @@ const ProfileAnswers = ({ profile, onUpdateField }) => {
                 </View>
 
                 <View style={s.questionBubble}>
-                  <MessageCircle size={16} color={colors.primary} strokeWidth={2} />
+                  {/* <MessageCircle size={16} color={colors.primary} strokeWidth={2} /> */}
                   <Text style={s.questionBubbleText}>{selectedQuestion}</Text>
                 </View>
 

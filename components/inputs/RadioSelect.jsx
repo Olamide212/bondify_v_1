@@ -53,7 +53,7 @@ const RadioSelect = ({
             style={{ borderRadius: 10 }}
           >
             <View className="flex-row justify-between items-center">
-              <View className="flex-1 pr-4">
+              <View style={{flex: 1}} className="pr-4">
                 <Text
                   className={`text-app text-[16px] font-PlusJakartaSansBold 
                   ${isSelected(option.value) ? "text-black" : ""} `}

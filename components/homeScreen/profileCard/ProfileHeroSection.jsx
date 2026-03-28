@@ -125,11 +125,11 @@ const ProfileHeroSection = ({
               </View>
 
               {/* Voice prompt */}
-              {voicePromptUri ? (
+              {/* {voicePromptUri ? (
                 <View style={{ marginBottom: 14 }}>
                   <VoicePromptButton uri={voicePromptUri} />
                 </View>
-              ) : null}
+              ) : null} */}
 
               {/* Chips */}
               <View className="flex-row items-center flex-wrap gap-x-4 gap-y-4">

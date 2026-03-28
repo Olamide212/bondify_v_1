@@ -343,28 +343,15 @@ export default function BondupFeedScreen() {
     }
   };
 
-  const handleDelete = (bondupId) => {
-    showAlert({
-      icon: 'delete',
-      title: 'Remove Bondup',
-      message: 'Are you sure you want to remove this Bondup?',
-      actions: [
-        { label: 'Cancel', style: 'cancel' },
-        {
-          label: 'Remove',
-          style: 'destructive',
-          onPress: async () => {
-            setAllBondups((prev) => prev.filter((b) => b._id !== bondupId));
-            setDetailBondup((d) => (d?._id === bondupId ? null : d));
-            try {
-              await bondupService.deleteBondup(bondupId);
-            } catch {
-              loadBondups();
-            }
-          },
-        },
-      ],
-    });
+  const handleDelete = async (bondupId) => {
+    // Optimistic update
+    setAllBondups((prev) => prev.filter((b) => b._id !== bondupId));
+    setDetailBondup((d) => (d?._id === bondupId ? null : d));
+    try {
+      await bondupService.deleteBondup(bondupId);
+    } catch {
+      loadBondups();
+    }
   };
 
   const handleCreated = (newBondup) => {

@@ -41,9 +41,9 @@ const AboutMe = ({ profile, onUpdateField }) => {
         activeOpacity={0.8}
       >
         <View style={s.cardLeft}>
-          <View style={s.iconCircle}>
+          {/* <View style={s.iconCircle}>
             <FileText size={18} color={colors.primary} strokeWidth={2} />
-          </View>
+          </View> */}
           <View style={{ flex: 1 }}>
             <Text style={s.cardValue} numberOfLines={2}>
               {profile?.bio?.trim() || "Not set"}

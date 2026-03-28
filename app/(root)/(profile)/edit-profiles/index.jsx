@@ -1,12 +1,5 @@
 /**
  * ProfileDetails.js  — Edit Profile screen
- *
- * Two tabs:
- *   "Edit"         — all form sections (existing) + new VoicePrompt section
- *   "View Profile" — read-only preview card exactly as others see you
- *
- * Voice prompt:
- *   onUpdateField('voicePrompt', localUri) → calls profileService.uploadVoicePrompt(uri)
  */
 
 import * as ImagePicker from 'expo-image-picker';
@@ -14,14 +7,14 @@ import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { ArrowLeft } from 'lucide-react-native';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
-    ActivityIndicator,
-    Dimensions,
-    RefreshControl,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Dimensions,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import GeneralHeader from '../../../../components/headers/GeneralHeader';
@@ -40,42 +33,36 @@ import ProfilePhotoGrid from '../../../../components/profileScreen/ProfilePhotoG
 import School from '../../../../components/profileScreen/School';
 import Tagline from '../../../../components/profileScreen/Tagline';
 import Verification from '../../../../components/profileScreen/Verification';
-import VoicePrompt from '../../../../components/profileScreen/VoicePrompt';
 import Education from '../../../../components/profileScreen/WorkAndEducation';
+import VoiceIntroCard from '../../../../components/profileScreen/voicePrompts/VoiceIntroCard';
 import TextHeadingOne from '../../../../components/ui/TextHeadingOne';
 import { colors as C } from '../../../../constant/colors';
 import { useAlert } from '../../../../context/AlertContext';
 import { useTheme } from '../../../../context/ThemeContext';
 import { profileService } from '../../../../services/profileService';
+import { voiceIntroStore } from '../../../../store/voiceIntroStore';
 
 const TABS = ['Edit', 'View Profile'];
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 // ─── Tab bar ──────────────────────────────────────────────────────────────────
 
-const TabBar = ({ activeIndex, onChange }) => {
-  return (
-    <View style={tb.tabBar}>
-      {TABS.map((label, i) => (
-        <TouchableOpacity
-          key={label}
-          style={[tb.tabItem, activeIndex === i && tb.tabItemActive]}
-          onPress={() => onChange(i)}
-          activeOpacity={0.8}
-        >
-          <Text
-            style={[
-              tb.label,
-              activeIndex === i ? tb.labelActive : tb.labelInactive,
-            ]}
-          >
-            {label}
-          </Text>
-        </TouchableOpacity>
-      ))}
-    </View>
-  );
-};
+const TabBar = ({ activeIndex, onChange }) => (
+  <View style={tb.tabBar}>
+    {TABS.map((label, i) => (
+      <TouchableOpacity
+        key={label}
+        style={[tb.tabItem, activeIndex === i && tb.tabItemActive]}
+        onPress={() => onChange(i)}
+        activeOpacity={0.8}
+      >
+        <Text style={[tb.label, activeIndex === i ? tb.labelActive : tb.labelInactive]}>
+          {label}
+        </Text>
+      </TouchableOpacity>
+    ))}
+  </View>
+);
 
 const tb = StyleSheet.create({
   tabBar: {
@@ -101,7 +88,6 @@ const tb = StyleSheet.create({
 // ─── View Profile tab ─────────────────────────────────────────────────────────
 
 const ViewProfileTab = ({ profile }) => {
-  // Normalise profile images so OwnProfileCard can render them
   const normalizedProfile = {
     ...profile,
     images: Array.isArray(profile?.images)
@@ -124,21 +110,24 @@ const ViewProfileTab = ({ profile }) => {
 export default function ProfileDetails() {
   const { colors } = useTheme();
   const { showAlert } = useAlert();
-  const [profile, setProfile]     = useState({});
-  const [loading, setLoading]     = useState(false);
-  const [refreshing, setRefreshing] = useState(false);
-  const [activeTab, setActiveTab] = useState(0); // 0 = Edit, 1 = View
-  const pagerRef = useRef(null);
-  const params = useLocalSearchParams();
   const router = useRouter();
+  const params = useLocalSearchParams();
 
-  // Handle tab press - scroll to page
+  const [profile, setProfile] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [activeTab, setActiveTab] = useState(0);
+
+  const pagerRef = useRef(null);
+  const hasLoadedRef = useRef(false);
+
+  // ── Tab handling ─────────────────────────────────────────────────────────
+
   const handleTabPress = (index) => {
     setActiveTab(index);
     pagerRef.current?.scrollTo({ x: index * SCREEN_WIDTH, animated: true });
   };
 
-  // Handle swipe - update active tab
   const handlePageScroll = (event) => {
     const offsetX = event.nativeEvent.contentOffset.x;
     const newIndex = Math.round(offsetX / SCREEN_WIDTH);
@@ -147,7 +136,7 @@ export default function ProfileDetails() {
     }
   };
 
-  // ── load ────────────────────────────────────────────────────
+  // ── Load profile ──────────────────────────────────────────────────────────
 
   const loadProfile = useCallback(async ({ force = false, showLoading = true } = {}) => {
     try {
@@ -172,59 +161,75 @@ export default function ProfileDetails() {
 
   useFocusEffect(
     useCallback(() => {
-      loadProfile({ force: true, showLoading: !profile?._id && !profile?.id });
+      // Only load once on initial mount, skip on subsequent visits
+      if (hasLoadedRef.current) return;
+      hasLoadedRef.current = true;
+      loadProfile({ force: false, showLoading: true });
     }, [loadProfile])
   );
 
-  // Handle param-based field updates (e.g. from child screens)
+  // ── Param-based field updates (from child screens) ────────────────────────
+
   useEffect(() => {
     if (!params.updatedField || !params.updatedValue) return;
     setProfile((prev) => ({ ...prev, [params.updatedField]: params.updatedValue }));
     router.setParams({ updatedField: undefined, updatedValue: undefined });
   }, [params.updatedField, params.updatedValue, router]);
 
-  // ── field update ─────────────────────────────────────────────
+  // ── Register voice intro store callbacks ──────────────────────────────────
+  // These let VoiceIntroScreen call upload/delete without needing
+  // function props through Expo Router params.
+
+  useEffect(() => {
+    if (!voiceIntroStore) return;
+
+    voiceIntroStore.setSave(async (localUri) => {
+      try {
+        const updated = await profileService.uploadVoicePrompt(localUri);
+        // Only update the flag — do NOT overwrite with remote URL.
+        // VoiceIntroScreen keeps localUriRef so playback always uses
+        // the cached local file, never the remote URL.
+        setProfile((prev) => ({
+          ...prev,
+          voicePrompt: updated?.voicePrompt ?? prev.voicePrompt ?? localUri,
+        }));
+      } catch (err) {
+        console.error('[ProfileDetails] uploadVoicePrompt failed:', err);
+        throw err; // rethrow so VoiceIntroScreen can show its error alert
+      }
+    });
+
+    voiceIntroStore.setDelete(async () => {
+      try {
+        await profileService.deleteVoicePrompt();
+        setProfile((prev) => ({ ...prev, voicePrompt: null }));
+      } catch (err) {
+        console.error('[ProfileDetails] deleteVoicePrompt failed:', err);
+        throw err;
+      }
+    });
+
+    return () => voiceIntroStore.clear();
+  }, []);
+
+  // ── Field update (all other fields) ──────────────────────────────────────
 
   const handleUpdateField = async (field, value) => {
-    // Voice prompt uses its own multipart endpoint
-    if (field === 'voicePrompt') {
-      if (value === null) {
-        // delete
-        try {
-          await profileService.deleteVoicePrompt();
-          setProfile((prev) => ({ ...prev, voicePrompt: null }));
-        } catch (err) {
-          console.error('Failed to delete voice prompt:', err);
-          showAlert({
-            icon: 'error',
-            title: 'Error',
-            message: 'Could not delete voice prompt.',
-            actions: [{ label: 'OK', style: 'primary' }],
-          });
-        }
-      } else {
-        // upload local URI
-        try {
-          const updated = await profileService.uploadVoicePrompt(value);
-          setProfile((prev) => ({ ...prev, voicePrompt: updated.voicePrompt }));
-        } catch (err) {
-          console.error('Failed to upload voice prompt:', err);
-          throw err; // rethrow so VoicePrompt component can handle its own state
-        }
-      }
-      return;
-    }
-
-    // All other fields
     try {
       const updatedProfile = await profileService.updateProfile({ [field]: value });
       setProfile(updatedProfile || {});
     } catch (error) {
       console.error(`Failed to update ${field}:`, error);
     }
+
   };
 
-  // ── photo handlers ───────────────────────────────────────────
+  // Add this handler alongside handleUpdateField in ProfileDetails.js:
+  const handleVoiceDelete = useCallback(() => {
+    setProfile((prev) => ({ ...prev, voicePrompt: null }));
+  }, []);
+
+  // ── Photo handlers ────────────────────────────────────────────────────────
 
   const handleAddPhoto = async () => {
     try {
@@ -265,11 +270,12 @@ export default function ProfileDetails() {
     }
   };
 
-  // ── render ───────────────────────────────────────────────────
+  // ── Render ────────────────────────────────────────────────────────────────
 
   return (
-    <SafeAreaProvider style={{ backgroundColor: colors.background }}>
+    <SafeAreaProvider style={{ backgroundColor: '#fff' }}>
       <SafeAreaView style={[s.safe, { backgroundColor: '#fff' }]}>
+
         <GeneralHeader
           title="Edit Profile"
           leftIcon={<ArrowLeft />}
@@ -279,7 +285,7 @@ export default function ProfileDetails() {
         {/* Tab bar */}
         <TabBar activeIndex={activeTab} onChange={handleTabPress} />
 
-        {/* Swipeable Content */}
+        {/* Swipeable pages */}
         <ScrollView
           ref={pagerRef}
           horizontal
@@ -302,8 +308,8 @@ export default function ProfileDetails() {
 
             <View style={s.sections}>
 
+              {/* Photos */}
               <View>
-                {/* <TextHeadingOne name="Media" /> */}
                 <ProfilePhotoGrid
                   photos={profile?.images || []}
                   onAddPhoto={handleAddPhoto}
@@ -312,78 +318,100 @@ export default function ProfileDetails() {
                 />
               </View>
 
-              {/* ── Voice Prompt ── */}
-              <View>
-                <TextHeadingOne name="Voice Prompt" />
-                <VoicePrompt profile={profile} onUpdateField={handleUpdateField} />
-              </View>
+              {/* Voice Intro */}
 
+              {/* <View>
+                <TextHeadingOne name="Voice Intro" />
+                <VoiceIntroCard
+                  hasRecording={!!profile?.voicePrompt}
+                  voiceUri={
+                    typeof profile?.voicePrompt === 'string'
+                      ? profile.voicePrompt
+                      : profile?.voicePrompt?.url ?? profile?.voicePrompt?.uri ?? null
+                  }
+                  onPress={() => router.push('/voice-intro')}
+                  onReplace={() => router.push('/voice-intro')}
+                  onDelete={handleVoiceDelete}
+                />
+              </View> */}
+
+              {/* Verification */}
               <View>
                 <TextHeadingOne name="Verification" />
                 <Verification profile={profile} />
               </View>
 
+              {/* Basic Info */}
               <View>
                 <TextHeadingOne name="Basic Info" />
                 <BasicInfo profile={profile} />
               </View>
 
+              {/* Bio */}
               <View>
                 <TextHeadingOne name="Bio" />
                 <AboutMe profile={profile} onUpdateField={handleUpdateField} />
               </View>
 
+              {/* Tagline */}
               <View>
                 <TextHeadingOne name="Tagline" />
                 <Tagline profile={profile} onUpdateField={handleUpdateField} />
               </View>
 
+              {/* Location */}
               <View>
                 <TextHeadingOne name="Location" />
                 <Location profile={profile} onUpdateField={handleUpdateField} />
               </View>
 
+              {/* Education */}
               <View>
                 <TextHeadingOne name="Education Level" />
                 <Education profile={profile} onUpdateField={handleUpdateField} />
               </View>
 
+              {/* School */}
               <View>
                 <TextHeadingOne name="School" />
                 <School profile={profile} onUpdateField={handleUpdateField} />
               </View>
 
+              {/* Occupation */}
               <View>
                 <TextHeadingOne name="Occupation" />
                 <Occupation profile={profile} onUpdateField={handleUpdateField} />
               </View>
 
+              {/* Prompts */}
               <View>
                 <TextHeadingOne name="Prompt" />
                 <ProfileAnswers profile={profile} onUpdateField={handleUpdateField} />
               </View>
 
+              {/* Interests */}
+              <View>
+                <InterestCard profile={profile} onUpdateField={handleUpdateField} />
+              </View>
 
-<View>
-<InterestCard profile={profile} onUpdateField={handleUpdateField} />
-</View>
-
+              {/* Languages */}
               <View>
                 <TextHeadingOne name="Languages" />
                 <LanguageSelection profile={profile} onUpdateField={handleUpdateField} />
               </View>
 
+              {/* About Me */}
               <View>
                 <TextHeadingOne name="About Me" />
                 <MyInfo profile={profile} onUpdateField={handleUpdateField} />
               </View>
 
+              {/* Blood Group & Genotype */}
               <View>
                 <TextHeadingOne name="Blood Group & Genotype" />
                 <View className="flex-col gap-4">
-                <BloodGroup profile={profile} onUpdateField={handleUpdateField} />
-
-                <Genotype profile={profile} onUpdateField={handleUpdateField} />
+                  <BloodGroup profile={profile} onUpdateField={handleUpdateField} />
+                  <Genotype profile={profile} onUpdateField={handleUpdateField} />
                 </View>
               </View>
 
@@ -394,6 +422,7 @@ export default function ProfileDetails() {
           <View style={{ width: SCREEN_WIDTH }}>
             <ViewProfileTab profile={profile} />
           </View>
+
         </ScrollView>
       </SafeAreaView>
     </SafeAreaProvider>
@@ -401,6 +430,6 @@ export default function ProfileDetails() {
 }
 
 const s = StyleSheet.create({
-  safe:     { flex: 1 },
+  safe: { flex: 1 },
   sections: { flex: 1, gap: 12, marginTop: 10 },
 });

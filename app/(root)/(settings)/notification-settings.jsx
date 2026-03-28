@@ -207,7 +207,7 @@ const NotificationSettings = ({ onBack }) => {
   }
 
   return (
-    <SafeAreaProvider className="flex-1 bg-white">
+    <SafeAreaProvider style={{flex: 1}} className="bg-white">
       <SafeAreaView style={styles.safe} edges={["top", "left", "right", "bottom"]}>
         <StatusBar barStyle="dark-content" backgroundColor="#fff" />
 

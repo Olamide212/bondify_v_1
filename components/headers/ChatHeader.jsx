@@ -1,11 +1,12 @@
 // components/Header.js
-import { ArrowLeft, BadgeCheck, MoreVertical, User, UserX } from "lucide-react-native";
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { Image } from "expo-image";
+import { ArrowLeft, BadgeCheck, MoreVertical, User } from "lucide-react-native";
 import React from "react";
-import { ActivityIndicator, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Image as RNImage, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { colors } from "../../constant/colors";
 import { fonts } from "../../constant/fonts";
 import { images } from "../../constant/images";
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 const ChatHeader = ({ matchedUser, onBack, onOpenProfile, onOpenActions, onUnmatch }) => {
   const [isImageLoading, setIsImageLoading] = React.useState(Boolean(matchedUser?.profileImage));
@@ -36,7 +37,7 @@ const ChatHeader = ({ matchedUser, onBack, onOpenProfile, onOpenActions, onUnmat
   const renderAvatar = () => {
     if (matchedUser.isSystem) {
       return (
-        <Image
+        <RNImage
           source={images.bondiesMainicon}
           style={styles.chatProfileImage}
           resizeMode="cover"
@@ -50,11 +51,12 @@ const ChatHeader = ({ matchedUser, onBack, onOpenProfile, onOpenActions, onUnmat
           <Image
             source={{ uri: matchedUser.profileImage }}
             style={styles.chatProfileImage}
+            cachePolicy="memory-disk"
             onLoadStart={() => {
               setIsImageLoading(true);
               setImageFailed(false);
             }}
-            onLoadEnd={() => setIsImageLoading(false)}
+            onLoad={() => setIsImageLoading(false)}
             onError={() => {
               setIsImageLoading(false);
               setImageFailed(true);
