@@ -62,7 +62,8 @@ const uploadToS3 = async (file, folder = 'misc') => {
     })
   );
 
-  const baseUrl = process.env.AWS_S3_PUBLIC_BASE_URL;
+  const baseUrl = process.env.AWS_CLOUDFRONT_DOMAIN ||
+    process.env.AWS_S3_PUBLIC_BASE_URL;
   const url = baseUrl
     ? `${baseUrl.replace(/\/$/, '')}/${key}`
     : `https://${bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`;

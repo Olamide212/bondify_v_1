@@ -162,7 +162,7 @@ const Onboarding = () => {
                 title="Create an Account"
                 onPress={() => router.push("/register")}
                 style={styles.outlineBtn}
-                textClassName="font-PlusJakartaSansMedium"
+                textClassName="font-PlusJakartaSansMedium text-white"
                 variant="secondary"
               />
             </View>

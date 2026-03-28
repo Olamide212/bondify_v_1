@@ -43,14 +43,14 @@ const Ethnicity = () => {
   }
 
   return (
-    <SafeAreaView style={{flex: 1}} className="bg-white">
+    <SafeAreaView style={{flex: 1, backgroundColor:'#fff'}} className="bg-white">
       <KeyboardAvoidingView
         style={{flex: 1}}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         keyboardVerticalOffset={Platform.OS === "ios" ? 20 : 0}
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <View style={{flex: 1}} className="px-2">
+          <View style={{flex: 1, backgroundColor:'#fff'}} className="">
             <ScrollView style={{flex: 1}} className=" bg-white" showsVerticalScrollIndicator={false}>
             <View style={{flex: 1}} className="mt-8">
               <Text className="text-3xl font-PlusJakartaSansBold mb-2">
@@ -70,7 +70,7 @@ const Ethnicity = () => {
             </View>
                 </ScrollView>
 
-            <View className="w-full items-end pb-6">
+            <View className="w-full items-end pb-6 bg-white">
               <Button
                 title="Continue"
                 variant="primary"

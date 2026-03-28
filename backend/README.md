@@ -436,6 +436,37 @@ lsof -ti:5000 | xargs kill
 ### OTP Not Received
 During development, OTP codes are logged to console. Check terminal output.
 
+## CloudFront CDN Setup (Optional)
+
+For faster global asset delivery, you can set up AWS CloudFront CDN to serve S3 assets. This can reduce latency by 100-200ms and lower costs.
+
+### Quick Setup
+
+1. **Run the deployment script**:
+   ```bash
+   cd ..
+   ./deploy-cloudfront.sh
+   ```
+
+2. **Update environment variables**:
+   ```bash
+   # Add to your .env file
+   AWS_CLOUDFRONT_DOMAIN=https://YOUR_DISTRIBUTION_ID.cloudfront.net
+   ```
+
+3. **Redeploy your backend** to use CloudFront URLs.
+
+### Manual Setup
+
+See [CLOUDFRONT_SETUP.md](../CLOUDFRONT_SETUP.md) for detailed instructions.
+
+### Benefits
+
+- ⚡ **Faster loading**: Assets served from global edge locations
+- 💰 **Cost savings**: Reduced S3 data transfer costs
+- 🛡️ **DDoS protection**: Built-in protection against attacks
+- 📊 **Analytics**: Detailed usage and performance metrics
+
 ## Support
 
 For issues and questions:

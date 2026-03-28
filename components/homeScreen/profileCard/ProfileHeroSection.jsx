@@ -56,6 +56,8 @@ const ProfileHeroSection = ({
     return parts.length === 0 ? 'Unknown' : `${parts[0]} `;
   })();
 
+     const verified  = profile?.verificationStatus === "approved";
+
   return (
     <Pressable onPress={() => openImageModal(currentImageIndex)}>
       <View
@@ -118,7 +120,7 @@ const ProfileHeroSection = ({
                 </Text>
                 <View className="flex-row items-center gap-2">
                   <Text className="text-white text-4xl font-PlusJakartaSans">{profile.age}</Text>
-                  {(profile.verified || profile.isVerified) && <VerifiedIcon />}
+                  {verified && <VerifiedIcon />}
                   
                 
                 </View>

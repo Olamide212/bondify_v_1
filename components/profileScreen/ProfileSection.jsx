@@ -1,6 +1,6 @@
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
-import { useEffect, useRef, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   StyleSheet,
@@ -21,7 +21,7 @@ const RING_GAP       = 4;
 const CIRCLE_SIZE    = PHOTO_SIZE + (RING_THICKNESS + RING_GAP) * 2; // 148
 const BADGE_OFFSET   = 10; // how far the % badge extends below the ring
 
-const ProfileSection = ({ profile, isUploading }) => {
+const ProfileSection = memo(({ profile, isUploading }) => {
   const completion   = Math.min(profile?.completionPercentage || 0, 100);
   const profileImage =
     profile?.images?.[0]?.url ||
@@ -30,7 +30,7 @@ const ProfileSection = ({ profile, isUploading }) => {
     "";
   const displayAge = getProfileAge(profile);
   const router     = useRouter();
-
+   const verified  = profile?.verificationStatus === "approved";
   // ── Live stats ───────────────────────────────────────────────────────────
   const [stats, setStats]               = useState({ matches: 0, likes: 0, profileViews: 0 });
   const [statsLoading, setStatsLoading] = useState(true);
@@ -114,7 +114,7 @@ const ProfileSection = ({ profile, isUploading }) => {
           {profile?.firstName || "Your Profile"}
           {displayAge ? `, ${displayAge}` : ""}
         </Text>
-        {profile?.isVerified && <VerifiedIcon style={{width: 22, height: 22}} />}
+        {verified && <VerifiedIcon style={{width: 22, height: 22}} />}
       </View>
 
       {/* ── Completion hint ── */}
@@ -138,7 +138,9 @@ const ProfileSection = ({ profile, isUploading }) => {
       </View>
     </TouchableOpacity>
   );
-};
+});
+
+ProfileSection.displayName = 'ProfileSection';
 
 export default ProfileSection;
 

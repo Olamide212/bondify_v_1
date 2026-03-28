@@ -24,13 +24,22 @@ config.resolver.assetExts.push("png");
 
 config.transformer = {
   babelTransformerPath: require.resolve("react-native-svg-transformer"),
-     experimentalImportSupport: false,
-       inlineRequires: true,
+  experimentalImportSupport: false,
+  inlineRequires: true,
+  minifierConfig: {
+    compress: {
+      drop_console: true,
+      drop_debugger: true,
+    },
+  },
 };
 config.resolver = {
   assetExts: config.resolver.assetExts.filter((ext) => ext !== "svg"),
   sourceExts: [...config.resolver.sourceExts, "svg"],
 };
+
+// Enable tree shaking and minification
+config.transformer.optimize = true;
 
 // --- resolve workaround for react-async-hook package ---
 const path = require('path');

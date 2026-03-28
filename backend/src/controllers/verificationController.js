@@ -32,7 +32,8 @@ const getS3Key = (userId) =>
   `bondies/verifications/${userId}/${Date.now()}-${Math.round(Math.random() * 1e9)}.jpg`;
 
 const getPublicUrl = (bucket, key) => {
-  const base = process.env.AWS_S3_PUBLIC_BASE_URL;
+  const base = process.env.AWS_CLOUDFRONT_DOMAIN ||
+    process.env.AWS_S3_PUBLIC_BASE_URL;
   if (base) return `${base.replace(/\/$/, '')}/${key}`;
   return `https://${bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`;
 };

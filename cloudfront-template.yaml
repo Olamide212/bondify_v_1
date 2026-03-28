@@ -1,0 +1,142 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'CloudFront CDN Distribution for Bondify Assets'
+
+Parameters:
+  S3BucketName:
+    Type: String
+    Description: Name of the S3 bucket containing assets
+    Default: bondify-assets
+
+  PriceClass:
+    Type: String
+    Description: CloudFront price class
+    Default: PriceClass_All
+    AllowedValues:
+      - PriceClass_All
+      - PriceClass_200
+      - PriceClass_100
+
+  Environment:
+    Type: String
+    Description: Environment name (dev, staging, prod)
+    Default: prod
+    AllowedValues:
+      - dev
+      - staging
+      - prod
+
+Resources:
+  # Origin Access Control for S3
+  CloudFrontOriginAccessControl:
+    Type: AWS::CloudFront::OriginAccessControl
+    Properties:
+      OriginAccessControlConfig:
+        Name: !Sub "${S3BucketName}-oac"
+        Description: !Sub "OAC for ${S3BucketName} bucket"
+        OriginAccessControlOriginType: s3
+        SigningBehavior: always
+        SigningProtocol: sigv4
+
+  # CloudFront Distribution
+  CloudFrontDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Comment: !Sub "Bondify Assets CDN - ${Environment}"
+        Enabled: true
+        PriceClass: !Ref PriceClass
+
+        # Origins
+        Origins:
+          - Id: S3Origin
+            DomainName: !Sub "${S3BucketName}.s3.amazonaws.com"
+            OriginAccessControlId: !GetAtt CloudFrontOriginAccessControl.Id
+            S3OriginConfig:
+              OriginAccessIdentity: ""
+
+        # Default Cache Behavior
+        DefaultCacheBehavior:
+          TargetOriginId: S3Origin
+          ViewerProtocolPolicy: redirect-to-https
+          Compress: true
+          ForwardedValues:
+            QueryString: false
+            Cookies:
+              Forward: none
+          CachePolicyId: 4135c4d9-6adf-44d3-ade2-bf2f086efe45  # CachingOptimized
+
+        # Additional Cache Behaviors for different asset types
+        CacheBehaviors:
+          # Images - Long cache
+          - PathPattern: "*.jpg"
+            TargetOriginId: S3Origin
+            ViewerProtocolPolicy: redirect-to-https
+            Compress: true
+            CachePolicyId: 4135c4d9-6adf-44d3-ade2-bf2f086efe45
+            OriginRequestPolicyId: 88a5eaf4-2fd4-4709-b370-b4c650ea3fcf  # CORS-S3Origin
+
+          - PathPattern: "*.png"
+            TargetOriginId: S3Origin
+            ViewerProtocolPolicy: redirect-to-https
+            Compress: true
+            CachePolicyId: 4135c4d9-6adf-44d3-ade2-bf2f086efe45
+            OriginRequestPolicyId: 88a5eaf4-2fd4-4709-b370-b4c650ea3fcf
+
+          - PathPattern: "*.webp"
+            TargetOriginId: S3Origin
+            ViewerProtocolPolicy: redirect-to-https
+            Compress: true
+            CachePolicyId: 4135c4d9-6adf-44d3-ade2-bf2f086efe45
+            OriginRequestPolicyId: 88a5eaf4-2fd4-4709-b370-b4c650ea3fcf
+
+          - PathPattern: "*.gif"
+            TargetOriginId: S3Origin
+            ViewerProtocolPolicy: redirect-to-https
+            Compress: true
+            CachePolicyId: 4135c4d9-6adf-44d3-ade2-bf2f086efe45
+            OriginRequestPolicyId: 88a5eaf4-2fd4-4709-b370-b4c650ea3fcf
+
+          # Audio files - Medium cache
+          - PathPattern: "*.m4a"
+            TargetOriginId: S3Origin
+            ViewerProtocolPolicy: redirect-to-https
+            Compress: false
+            CachePolicyId: 4135c4d9-6adf-44d3-ade2-bf2f086efe45
+            OriginRequestPolicyId: 88a5eaf4-2fd4-4709-b370-b4c650ea3fcf
+
+          - PathPattern: "*.mp3"
+            TargetOriginId: S3Origin
+            ViewerProtocolPolicy: redirect-to-https
+            Compress: false
+            CachePolicyId: 4135c4d9-6adf-44d3-ade2-bf2f086efe45
+            OriginRequestPolicyId: 88a5eaf4-2fd4-4709-b370-b4c650ea3fcf
+
+        # Custom Error Pages
+        CustomErrorResponses:
+          - ErrorCode: 403
+            ResponsePagePath: /errors/403.html
+            ResponseCode: 404
+            ErrorCachingMinTTL: 300
+          - ErrorCode: 404
+            ResponsePagePath: /errors/404.html
+            ResponseCode: 404
+            ErrorCachingMinTTL: 300
+
+Outputs:
+  CloudFrontDomain:
+    Description: CloudFront Distribution Domain Name
+    Value: !GetAtt CloudFrontDistribution.DomainName
+    Export:
+      Name: !Sub "${AWS::StackName}-CloudFrontDomain"
+
+  DistributionId:
+    Description: CloudFront Distribution ID
+    Value: !Ref CloudFrontDistribution
+    Export:
+      Name: !Sub "${AWS::StackName}-DistributionId"
+
+  S3BucketName:
+    Description: S3 Bucket Name
+    Value: !Ref S3BucketName
+    Export:
+      Name: !Sub "${AWS::StackName}-S3BucketName"

@@ -18,7 +18,8 @@ const getObjectKey = (userId, originalname) => {
 };
 
 const getPublicUrl = (bucket, key) => {
-  const baseUrl = process.env.AWS_S3_PUBLIC_BASE_URL;
+  const baseUrl = process.env.AWS_CLOUDFRONT_DOMAIN ||
+    process.env.AWS_S3_PUBLIC_BASE_URL;
   if (baseUrl) {
     return `${baseUrl.replace(/\/$/, '')}/${key}`;
   }

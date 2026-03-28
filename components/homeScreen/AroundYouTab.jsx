@@ -8,19 +8,17 @@ import { useRouter } from 'expo-router';
 import { Briefcase, Heart, Info, MapPin } from 'lucide-react-native';
 import { useEffect, useRef, useState } from 'react';
 import {
-    Animated,
-    Image,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    TouchableWithoutFeedback,
-    useWindowDimensions,
-    View,
+  Animated,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  useWindowDimensions,
+  View,
 } from 'react-native';
-import { colors } from '../../constant/colors';
 import AIService from '../../services/aiService';
 import VerifiedIcon from '../ui/VerifiedIcon';
-import VoicePromptButton from '../ui/VoicepromptButton';
 
 const FALLBACK_IMAGE = 'https://via.placeholder.com/800x1200?text=No+Photo';
 
@@ -63,6 +61,7 @@ const AroundYouTab = ({ profile, onViewProfile, actionMessage }) => {
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const router   = useRouter();
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
+     const verified  = profile?.verificationStatus === "approved";
 
   useEffect(() => {
     setCurrentImageIndex(0);
@@ -199,9 +198,9 @@ const AroundYouTab = ({ profile, onViewProfile, actionMessage }) => {
                   <Text style={styles.nameText} numberOfLines={1}>{displayName},</Text>
                   {profile.age ? <Text style={styles.ageText}>{profile.age}</Text> : null}
                 </View>
-                {(profile.isVerified || profile.verified) ? (
+                {verified && 
                   <View style={{ marginLeft: 6 }}><VerifiedIcon /></View>
-                ) : null}
+                }
               </View>
          
               
@@ -219,16 +218,16 @@ const AroundYouTab = ({ profile, onViewProfile, actionMessage }) => {
             ) : null}
 
             {/* Voice prompt */}
-            {voicePromptUri ? (
+            {/* {voicePromptUri ? (
               <View style={{ marginBottom: 10, marginTop: 4 }}>
                 <VoicePromptButton uri={voicePromptUri} />
               </View>
-            ) : null}
+            ) : null} */}
 
             {/* Location — "641km away · Lagos" */}
             {(distanceText || cityLabel || locationText) ? (
-              <View style={styles.locationRow}>
-                <MapPin size={16} color={colors.secondary || '#F59E0B'} />
+              <View style={styles.locationRow} className=''>
+                <MapPin size={16} color={'#fff'} />
                 <Text style={styles.locationText} numberOfLines={1}>
                   {[distanceText, cityLabel || locationText].filter(Boolean).join('  ·  ')}
                 </Text>
@@ -276,7 +275,7 @@ const styles = StyleSheet.create({
     position: 'absolute', top: 50, left: 16, right: 16,
     flexDirection: 'row', gap: 4, zIndex: 20, justifyContent: 'center',
   },
-  dot:         { flex: 1, height: 3, borderRadius: 2 },
+  dot:         { width: 20, height: 3, borderRadius: 2 },
   dotActive:   { backgroundColor: '#fff' },
   dotInactive: { backgroundColor: 'rgba(255,255,255,0.35)' },
 

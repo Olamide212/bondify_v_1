@@ -18,7 +18,12 @@ const bcrypt  = require('bcryptjs');
 const BOT_EMAIL     = 'bondies-team@bondify.internal';
 const BOT_FIRSTNAME = 'Bondies';
 const BOT_LASTNAME  = 'Team';
-const BOT_AVATAR    = 'https://bondify-assets.s3.amazonaws.com/system/bondies-team-avatar.png';
+
+// Use CloudFront CDN if available, otherwise fallback to direct S3
+const BOT_AVATAR_KEY = 'system/bondies-team-avatar.png';
+const BOT_AVATAR = process.env.AWS_CLOUDFRONT_DOMAIN
+  ? `${process.env.AWS_CLOUDFRONT_DOMAIN.replace(/\/$/, '')}/${BOT_AVATAR_KEY}`
+  : `https://bondify-assets.s3.amazonaws.com/${BOT_AVATAR_KEY}`;
 
 const WELCOME_MESSAGES = [
   `Hey there! 👋 Welcome to Bondies — we're so glad you're here.\n\nThis is a safe space to meet genuine people who are looking for real connections. Take your time, fill out your profile, and let's help you find your bond. 💛\n\nIf you ever need help, just reach out — we've got you! 🙌`,
