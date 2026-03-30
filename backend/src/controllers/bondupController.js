@@ -715,6 +715,11 @@ const getMutualFriends = async (req, res, next) => {
     res.json({ success: true, data: mutualFriendsWithProfiles });
   } catch (err) { next(err); }
 };
+
+// ─────────────────────────────────────────────────────────────────────────────
+// GET /api/bondup/friend-status/:userId
+// ─────────────────────────────────────────────────────────────────────────────
+const getFriendStatus = async (req, res, next) => {
   try {
     const targetUserId = req.params.userId;
 
