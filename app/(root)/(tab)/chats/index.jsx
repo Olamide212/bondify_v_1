@@ -12,9 +12,6 @@ import { socketService } from "../../../../services/socketService";
 
 const CHAT_TABS = ["Dating", "Plans"];
 
-// Special ID for Bondies Team chat item
-const BONDIES_TEAM_CHAT_ID = 'bondies-team';
-
 // ─── helpers ─────────────────────────────────────────────────────────────────
 
 const getActivityTimestamp = (entry) => {
@@ -89,8 +86,13 @@ const normalizeBondupChats = (bondups, currentUserId) =>
       const creatorName = [b.createdBy?.firstName, b.createdBy?.lastName].filter(Boolean).join(" ") || "User";
       const isOwner = String(b.createdBy?._id || b.createdBy) === String(currentUserId);
       const activityEmoji = {
-        coffee: '☕', food: '🍔', drinks: '🍹', gym: '💪',
-        walk: '🚶', movie: '🎬', other: '✨',
+        coffee: '☕', food: '🍔', drinks: '🍹', brunch: '🥐', dinner: '🍽️', lunch: '🥗', snacks: '🍿', dessert: '🍰',
+        gym: '💪', yoga: '🧘', running: '🏃', hiking: '🥾', cycling: '🚴', swimming: '🏊', tennis: '🎾', basketball: '🏀', football: '⚽', volleyball: '🏐',
+        walk: '🚶', park: '🌳', beach: '🏖️', picnic: '🧺', camping: '⛺', fishing: '🎣',
+        movie: '🎬', theater: '🎭', concert: '🎵', museum: '🏛️', art: '🎨', comedy: '😂',
+        board_games: '🎲', video_games: '🎮', karaoke: '🎤', dancing: '💃', party: '🎉', networking: '🤝',
+        workshop: '🔨', class: '📚', photography: '📷', painting: '🖌️', music: '🎼',
+        other: '✨',
       }[b.activityType] || '✨';
       return {
         id: b._id,
@@ -166,25 +168,7 @@ export default function Chat() {
         });
         setSystemNotifications(systemNotifs);
         
-        // Create Bondies Team chat item if there are system notifications
-        const bondiesTeamItem = systemNotifs.length > 0 ? [{
-          id: BONDIES_TEAM_CHAT_ID,
-          matchId: BONDIES_TEAM_CHAT_ID,
-          name: '🔔 Bondies Team',
-          profileImage: null,
-          isOnline: true,
-          isSystem: true,
-          isVerified: true,
-          matchedDate: new Date(),
-          activityAt: systemNotifs[0]?.createdAt ? new Date(systemNotifs[0].createdAt).getTime() : Date.now(),
-          lastMessage: systemNotifs[0]?.body || 'Updates from Bondies',
-          unread: systemNotifs.filter(n => !n.read).length,
-          hasChatted: true,
-          isBondiesTeam: true,
-          notifications: systemNotifs,
-        }] : [];
-        
-        setPlanChats([...bondiesTeamItem, ...bondupChats]);
+        setPlanChats(bondupChats);
       }
     } catch {
       // silent

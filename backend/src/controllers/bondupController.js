@@ -58,7 +58,7 @@ const createBondup = async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'Title is required.' });
     }
 
-    if (!activityType || !['coffee', 'food', 'drinks', 'gym', 'walk', 'movie', 'other'].includes(activityType)) {
+    if (!activityType || !['coffee', 'food', 'drinks', 'brunch', 'dinner', 'lunch', 'snacks', 'dessert', 'gym', 'yoga', 'running', 'hiking', 'cycling', 'swimming', 'tennis', 'basketball', 'football', 'volleyball', 'walk', 'park', 'beach', 'picnic', 'camping', 'fishing', 'movie', 'theater', 'concert', 'museum', 'art', 'comedy', 'board_games', 'video_games', 'karaoke', 'dancing', 'party', 'networking', 'workshop', 'class', 'photography', 'painting', 'music', 'other'].includes(activityType)) {
       return res.status(400).json({ success: false, message: 'Invalid activity type.' });
     }
 
@@ -148,7 +148,7 @@ const getPublicBondups = async (req, res, next) => {
       filter.city = { $regex: new RegExp(cityParam.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i') };
     }
 
-    if (activityType && ['coffee', 'food', 'drinks', 'gym', 'walk', 'movie', 'other'].includes(activityType)) {
+    if (activityType && ['coffee', 'food', 'drinks', 'brunch', 'dinner', 'lunch', 'snacks', 'dessert', 'gym', 'yoga', 'running', 'hiking', 'cycling', 'swimming', 'tennis', 'basketball', 'football', 'volleyball', 'walk', 'park', 'beach', 'picnic', 'camping', 'fishing', 'movie', 'theater', 'concert', 'museum', 'art', 'comedy', 'board_games', 'video_games', 'karaoke', 'dancing', 'party', 'networking', 'workshop', 'class', 'photography', 'painting', 'music', 'other'].includes(activityType)) {
       filter.activityType = activityType;
     }
 
@@ -239,7 +239,7 @@ const getCircleBondups = async (req, res, next) => {
       createdBy: { $in: [...circleIds] },
     };
 
-    if (activityType && ['coffee', 'food', 'drinks', 'gym', 'walk', 'movie', 'other'].includes(activityType)) {
+    if (activityType && ['coffee', 'food', 'drinks', 'brunch', 'dinner', 'lunch', 'snacks', 'dessert', 'gym', 'yoga', 'running', 'hiking', 'cycling', 'swimming', 'tennis', 'basketball', 'football', 'volleyball', 'walk', 'park', 'beach', 'picnic', 'camping', 'fishing', 'movie', 'theater', 'concert', 'museum', 'art', 'comedy', 'board_games', 'video_games', 'karaoke', 'dancing', 'party', 'networking', 'workshop', 'class', 'photography', 'painting', 'music', 'other'].includes(activityType)) {
       filter.activityType = activityType;
     }
 

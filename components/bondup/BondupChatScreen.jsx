@@ -15,27 +15,27 @@
 import { Audio } from 'expo-av';
 import { useRouter } from 'expo-router';
 import {
-  AlertTriangle,
-  ArrowLeft,
-  Clock,
-  Flame,
-  LogOut,
-  MapPin,
-  Send,
-  Users,
+    AlertTriangle,
+    ArrowLeft,
+    Clock,
+    Flame,
+    LogOut,
+    MapPin,
+    Send,
+    Users,
 } from 'lucide-react-native';
 import { useEffect, useRef, useState } from 'react';
 import {
-  FlatList,
-  Image,
-  KeyboardAvoidingView,
-  Modal,
-  Platform,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View
+    FlatList,
+    Image,
+    KeyboardAvoidingView,
+    Modal,
+    Platform,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSelector } from 'react-redux';
@@ -50,12 +50,22 @@ import BondupDetailModal from './BondupDetailModal';
 const BRAND = colors.primary;
 
 const ACTIVITY_EMOJI = {
-  coffee: '☕', food: '🍔', drinks: '🍹', gym: '💪',
-  walk: '🚶', movie: '🎬', other: '✨',
+  coffee: '☕', food: '🍔', drinks: '🍹', brunch: '🥐', dinner: '🍽️', lunch: '🥗', snacks: '🍿', dessert: '🍰',
+  gym: '💪', yoga: '🧘', running: '🏃', hiking: '🥾', cycling: '🚴', swimming: '🏊', tennis: '🎾', basketball: '🏀', football: '⚽', volleyball: '🏐',
+  walk: '🚶', park: '🌳', beach: '🏖️', picnic: '🧺', camping: '⛺', fishing: '🎣',
+  movie: '🎬', theater: '🎭', concert: '🎵', museum: '🏛️', art: '🎨', comedy: '😂',
+  board_games: '🎲', video_games: '🎮', karaoke: '🎤', dancing: '💃', party: '🎉', networking: '🤝',
+  workshop: '🔨', class: '📚', photography: '📷', painting: '🖌️', music: '🎼',
+  other: '✨',
 };
 const ACTIVITY_LABEL = {
-  coffee: 'Coffee', food: 'Dining', drinks: 'Drinks', gym: 'Gym',
-  walk: 'Outdoor', movie: 'Cinema', other: 'Other',
+  coffee: 'Coffee', food: 'Dining', drinks: 'Drinks', brunch: 'Brunch', dinner: 'Dinner', lunch: 'Lunch', snacks: 'Snacks', dessert: 'Dessert',
+  gym: 'Gym', yoga: 'Yoga', running: 'Running', hiking: 'Hiking', cycling: 'Cycling', swimming: 'Swimming', tennis: 'Tennis', basketball: 'Basketball', football: 'Football', volleyball: 'Volleyball',
+  walk: 'Walking', park: 'Park', beach: 'Beach', picnic: 'Picnic', camping: 'Camping', fishing: 'Fishing',
+  movie: 'Cinema', theater: 'Theater', concert: 'Concert', museum: 'Museum', art: 'Art Gallery', comedy: 'Comedy Show',
+  board_games: 'Board Games', video_games: 'Video Games', karaoke: 'Karaoke', dancing: 'Dancing', party: 'Party', networking: 'Networking',
+  workshop: 'Workshop', class: 'Class', photography: 'Photography', painting: 'Painting', music: 'Music',
+  other: 'Other',
 };
 
 const avatarUrl = (user) =>

@@ -37,23 +37,23 @@ import BaseModal from '../modals/BaseModal';
 const BRAND = colors.primary;
 
 const ACTIVITY_EMOJI = {
-  coffee: '☕',
-  food:   '🍔',
-  drinks: '🍹',
-  gym:    '💪',
-  walk:   '🚶',
-  movie:  '🎬',
-  other:  '✨',
+  coffee: '☕', food: '🍔', drinks: '🍹', brunch: '🥐', dinner: '🍽️', lunch: '🥗', snacks: '🍿', dessert: '🍰',
+  gym: '💪', yoga: '🧘', running: '🏃', hiking: '🥾', cycling: '🚴', swimming: '🏊', tennis: '🎾', basketball: '🏀', football: '⚽', volleyball: '🏐',
+  walk: '🚶', park: '🌳', beach: '🏖️', picnic: '🧺', camping: '⛺', fishing: '🎣',
+  movie: '🎬', theater: '🎭', concert: '🎵', museum: '🏛️', art: '🎨', comedy: '😂',
+  board_games: '🎲', video_games: '🎮', karaoke: '🎤', dancing: '💃', party: '🎉', networking: '🤝',
+  workshop: '🔨', class: '📚', photography: '📷', painting: '🖌️', music: '🎼',
+  other: '✨',
 };
 
 const ACTIVITY_LABEL = {
-  coffee: 'Coffee',
-  food:   'Dining',
-  drinks: 'Drinks',
-  gym:    'Gym',
-  walk:   'Outdoor',
-  movie:  'Cinema',
-  other:  'Other',
+  coffee: 'Coffee', food: 'Dining', drinks: 'Drinks', brunch: 'Brunch', dinner: 'Dinner', lunch: 'Lunch', snacks: 'Snacks', dessert: 'Dessert',
+  gym: 'Gym', yoga: 'Yoga', running: 'Running', hiking: 'Hiking', cycling: 'Cycling', swimming: 'Swimming', tennis: 'Tennis', basketball: 'Basketball', football: 'Football', volleyball: 'Volleyball',
+  walk: 'Walking', park: 'Park', beach: 'Beach', picnic: 'Picnic', camping: 'Camping', fishing: 'Fishing',
+  movie: 'Cinema', theater: 'Theater', concert: 'Concert', museum: 'Museum', art: 'Art Gallery', comedy: 'Comedy Show',
+  board_games: 'Board Games', video_games: 'Video Games', karaoke: 'Karaoke', dancing: 'Dancing', party: 'Party', networking: 'Networking',
+  workshop: 'Workshop', class: 'Class', photography: 'Photography', painting: 'Painting', music: 'Music',
+  other: 'Other',
 };
 
 const avatarUrl = (user) =>

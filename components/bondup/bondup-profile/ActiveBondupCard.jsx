@@ -22,8 +22,13 @@ const ActiveBondupCard = ({ bondup, currentUserId, onBondupUpdate }) => {
   } = useBondupInteractions();
 
   const emoji = {
-    coffee: '☕', food: '🍔', drinks: '🍹', gym: '💪',
-    walk: '🚶', movie: '🎬', other: '✨',
+    coffee: '☕', food: '🍔', drinks: '🍹', brunch: '🥐', dinner: '🍽️', lunch: '🥗', snacks: '🍿', dessert: '🍰',
+    gym: '💪', yoga: '🧘', running: '🏃', hiking: '🥾', cycling: '🚴', swimming: '🏊', tennis: '🎾', basketball: '🏀', football: '⚽', volleyball: '🏐',
+    walk: '🚶', park: '🌳', beach: '🏖️', picnic: '🧺', camping: '⛺', fishing: '🎣',
+    movie: '🎬', theater: '🎭', concert: '🎵', museum: '🏛️', art: '🎨', comedy: '😂',
+    board_games: '🎲', video_games: '🎮', karaoke: '🎤', dancing: '💃', party: '🎉', networking: '🤝',
+    workshop: '🔨', class: '📚', photography: '📷', painting: '🖌️', music: '🎼',
+    other: '✨',
   }[bondup.activityType] || '✨';
 
   const dateLabel = bondup.dateTime

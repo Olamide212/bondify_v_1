@@ -12,6 +12,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import {
   ArrowLeft,
   MapPin,
+  Plus,
 } from 'lucide-react-native';
 import { useCallback, useEffect, useState } from 'react';
 import {
@@ -32,6 +33,7 @@ import FriendRequestsModal from '../../../components/bondup/bondup-profile/Frien
 import FriendsTab from '../../../components/bondup/bondup-profile/FriendsTab';
 import MutualFriendsTab from '../../../components/bondup/bondup-profile/MutualFriendsTab';
 import ProfileTabs from '../../../components/bondup/bondup-profile/ProfileTabs';
+import CreateBondupModal from '../../../components/bondup/CreateBondupModal';
 import { colors } from '../../../constant/colors';
 import bondupService from '../../../services/bondupService';
 import profileService from '../../../services/profileService';
@@ -64,6 +66,7 @@ export default function BondupProfileScreen() {
   const [activeTab, setActiveTab] = useState('bondups'); // 'bondups', 'friends', 'mutual'
   const [refreshing, setRefreshing] = useState(false);
   const [showFriendRequests, setShowFriendRequests] = useState(false);
+  const [showCreateBondup, setShowCreateBondup] = useState(false);
 
   const isOwnProfile = String(id) === String(currentUser?._id);
 
@@ -317,9 +320,30 @@ export default function BondupProfileScreen() {
         )}
       </ScrollView>
 
+      {/* Floating Action Button - Only for current user */}
+      {isOwnProfile && (
+        <TouchableOpacity
+          style={s.fab}
+          onPress={() => setShowCreateBondup(true)}
+          activeOpacity={0.8}
+        >
+          <Plus size={24} color="#fff" />
+        </TouchableOpacity>
+      )}
+
       <FriendRequestsModal
         visible={showFriendRequests}
         onClose={() => setShowFriendRequests(false)}
+      />
+
+      <CreateBondupModal
+        visible={showCreateBondup}
+        onClose={() => setShowCreateBondup(false)}
+        onCreated={(newBondup) => {
+          // Refresh the bondups list when a new bondup is created
+          loadProfile();
+          setShowCreateBondup(false);
+        }}
       />
     </SafeAreaView>
   );
@@ -582,5 +606,23 @@ const s = StyleSheet.create({
   emptyBondups: {
     alignItems: 'center',
     paddingVertical: 40,
+  },
+
+  // Floating Action Button
+  fab: {
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: BRAND,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: BRAND,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
   },
 });

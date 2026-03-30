@@ -4,25 +4,25 @@
 
 import * as Location from 'expo-location';
 import {
-    Calendar,
-    ChevronRight,
-    Clock,
-    Globe,
-    Lock,
-    MapPin,
-    X,
+  Calendar,
+  ChevronRight,
+  Clock,
+  Globe,
+  Lock,
+  MapPin,
+  X,
 } from 'lucide-react-native';
 import { useState } from 'react';
 import {
-    ActivityIndicator,
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { useSelector } from 'react-redux';
@@ -33,14 +33,95 @@ import BaseModal from '../modals/BaseModal';
 
 const BRAND = colors.primary;
 
+// Expanded activities list without emojis
 const ACTIVITIES = [
-  { key: 'food',   emoji: '🍽️', label: 'Dining' },
-  { key: 'drinks', emoji: '🍸', label: 'Drinks' },
-  { key: 'movie',  emoji: '🎬', label: 'Cinema' },
-  { key: 'walk',   emoji: '🏃', label: 'Outdoor' },
-  { key: 'gym',    emoji: '💪', label: 'Gym' },
-  { key: 'coffee', emoji: '☕', label: 'Coffee' },
-  { key: 'other',  emoji: '✨', label: 'Other' },
+  // Food & Drink
+  { key: 'coffee', label: 'Coffee' },
+  { key: 'food', label: 'Dining' },
+  { key: 'drinks', label: 'Drinks' },
+  { key: 'brunch', label: 'Brunch' },
+  { key: 'dinner', label: 'Dinner' },
+  { key: 'lunch', label: 'Lunch' },
+  { key: 'snacks', label: 'Snacks' },
+  { key: 'dessert', label: 'Dessert' },
+  
+  // Sports & Fitness
+  { key: 'gym', label: 'Gym' },
+  { key: 'yoga', label: 'Yoga' },
+  { key: 'running', label: 'Running' },
+  { key: 'hiking', label: 'Hiking' },
+  { key: 'cycling', label: 'Cycling' },
+  { key: 'swimming', label: 'Swimming' },
+  { key: 'tennis', label: 'Tennis' },
+  { key: 'basketball', label: 'Basketball' },
+  { key: 'football', label: 'Football' },
+  { key: 'volleyball', label: 'Volleyball' },
+  
+  // Outdoor Activities
+  { key: 'walk', label: 'Walking' },
+  { key: 'park', label: 'Park' },
+  { key: 'beach', label: 'Beach' },
+  { key: 'picnic', label: 'Picnic' },
+  { key: 'camping', label: 'Camping' },
+  { key: 'fishing', label: 'Fishing' },
+  
+  // Entertainment
+  { key: 'movie', label: 'Cinema' },
+  { key: 'theater', label: 'Theater' },
+  { key: 'concert', label: 'Concert' },
+  { key: 'museum', label: 'Museum' },
+  { key: 'art', label: 'Art Gallery' },
+  { key: 'comedy', label: 'Comedy Show' },
+  
+  // Social & Games
+  { key: 'board_games', label: 'Board Games' },
+  { key: 'video_games', label: 'Video Games' },
+  { key: 'karaoke', label: 'Karaoke' },
+  { key: 'dancing', label: 'Dancing' },
+  { key: 'party', label: 'Party' },
+  { key: 'networking', label: 'Networking' },
+  
+  // Learning & Creative
+  { key: 'workshop', label: 'Workshop' },
+  { key: 'class', label: 'Class' },
+  { key: 'photography', label: 'Photography' },
+  { key: 'painting', label: 'Painting' },
+  { key: 'music', label: 'Music' },
+  
+  // Other
+  { key: 'other', label: 'Other' },
+];
+
+// Group activities by category for the modal
+const ACTIVITY_CATEGORIES = [
+  {
+    title: "🍽️ Food & Drink",
+    items: ACTIVITIES.filter(a => ['coffee', 'food', 'drinks', 'brunch', 'dinner', 'lunch', 'snacks', 'dessert'].includes(a.key))
+  },
+  {
+    title: "💪 Sports & Fitness", 
+    items: ACTIVITIES.filter(a => ['gym', 'yoga', 'running', 'hiking', 'cycling', 'swimming', 'tennis', 'basketball', 'football', 'volleyball'].includes(a.key))
+  },
+  {
+    title: "🏞️ Outdoor Activities",
+    items: ACTIVITIES.filter(a => ['walk', 'park', 'beach', 'picnic', 'camping', 'fishing'].includes(a.key))
+  },
+  {
+    title: "🎭 Entertainment",
+    items: ACTIVITIES.filter(a => ['movie', 'theater', 'concert', 'museum', 'art', 'comedy'].includes(a.key))
+  },
+  {
+    title: "🎲 Social & Games",
+    items: ACTIVITIES.filter(a => ['board_games', 'video_games', 'karaoke', 'dancing', 'party', 'networking'].includes(a.key))
+  },
+  {
+    title: "🎨 Learning & Creative",
+    items: ACTIVITIES.filter(a => ['workshop', 'class', 'photography', 'painting', 'music'].includes(a.key))
+  },
+  {
+    title: "✨ Other",
+    items: ACTIVITIES.filter(a => ['other'].includes(a.key))
+  }
 ];
 
 const POST_TYPES = {
@@ -80,7 +161,139 @@ const parseTimeOption = (timeStr, baseDate) => {
   return d;
 };
 
-// ─── "Change Time" sheet state ────────────────────────────────────────────────
+// ─── Activity Selection Modal ──────────────────────────────────────────────
+function ActivitySelectionModal({ visible, onClose, selectedActivity, onSelectActivity }) {
+  return (
+    <BaseModal visible={visible} onClose={onClose} fullScreen>
+      <View style={asm.container}>
+        {/* Header */}
+        <View style={asm.header}>
+          <TouchableOpacity onPress={onClose} style={asm.cancelBtn} hitSlop={10}>
+            <Text style={asm.cancelText}>Cancel</Text>
+          </TouchableOpacity>
+          <Text style={asm.headerTitle}>Choose Activity</Text>
+          <View style={{ width: 60 }} />
+        </View>
+
+        <ScrollView 
+          style={{ flex: 1 }}
+          contentContainerStyle={asm.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          <Text style={asm.subtitle}>What would you like to do?</Text>
+
+          {/* Activity Categories */}
+          {ACTIVITY_CATEGORIES.map((category) => (
+            <View key={category.title} style={asm.category}>
+              <Text style={asm.categoryTitle}>{category.title}</Text>
+              <View style={asm.activityGrid}>
+                {category.items.map((activity) => {
+                  const isSelected = selectedActivity === activity.key;
+                  return (
+                    <TouchableOpacity
+                      key={activity.key}
+                      style={[asm.activityButton, isSelected && asm.activityButtonSelected]}
+                      onPress={() => {
+                        onSelectActivity(activity.key);
+                        onClose();
+                      }}
+                      activeOpacity={0.7}
+                    >
+                      <Text style={[asm.activityLabel, isSelected && asm.activityLabelSelected]}>
+                        {activity.label}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            </View>
+          ))}
+        </ScrollView>
+      </View>
+    </BaseModal>
+  );
+}
+
+// ─── Activity Selection Modal Styles ────────────────────────────────────────
+const asm = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F0F0',
+  },
+  cancelBtn: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+  },
+  cancelText: {
+    fontSize: 16,
+    fontFamily: 'PlusJakartaSansMedium',
+    color: BRAND,
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontFamily: 'PlusJakartaSansBold',
+    color: '#111',
+  },
+  scrollContent: {
+    padding: 16,
+    paddingBottom: 40,
+  },
+  subtitle: {
+    fontSize: 20,
+    fontFamily: 'PlusJakartaSansBold',
+    color: '#111',
+    marginBottom: 24,
+    textAlign: 'center',
+  },
+  category: {
+    marginBottom: 24,
+  },
+  categoryTitle: {
+    fontSize: 16,
+    fontFamily: 'PlusJakartaSansBold',
+    color: BRAND,
+    marginBottom: 12,
+  },
+  activityGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  activityButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#D1D1D1',
+    backgroundColor: '#fff',
+    minWidth: 80,
+    alignItems: 'center',
+  },
+  activityButtonSelected: {
+    backgroundColor: BRAND,
+    borderColor: BRAND,
+  },
+  activityLabel: {
+    fontSize: 14,
+    fontFamily: 'PlusJakartaSansMedium',
+    color: '#111',
+  },
+  activityLabelSelected: {
+    color: '#fff',
+    fontFamily: 'PlusJakartaSansBold',
+  },
+});
+
+// ─── Main CreateBondupModal Component ───────────────────────────────────────
 function TimePickerSheet({ dayOptions, selectedDayIndex, selectedTime, onDaySelect, onTimeSelect, onClose }) {
   return (
     <View style={tp.sheet}>
@@ -153,6 +366,7 @@ export default function CreateBondupModal({ visible, onClose, onCreated }) {
   const [mapLocation, setMapLocation] = useState({ latitude: 37.7749, longitude: -122.4194 });
   const [addressSearchText, setAddressSearchText] = useState('');
   const [geocodingError, setGeocodingError] = useState('');
+  const [showActivityModal, setShowActivityModal] = useState(false);
 
   const resetForm = () => {
     setPostType('join_me');
@@ -172,6 +386,7 @@ export default function CreateBondupModal({ visible, onClose, onCreated }) {
     setShowMap(false);
     setAddressSearchText('');
     setGeocodingError('');
+    setShowActivityModal(false);
   };
 
   const handleClose = () => {
@@ -350,21 +565,18 @@ export default function CreateBondupModal({ visible, onClose, onCreated }) {
               <Text style={s.requiredText}>REQUIRED</Text>
             </View>
           </View>
-          <View style={s.activityGrid}>
-            {ACTIVITIES.map((a) => (
-              <TouchableOpacity
-                key={a.key}
-                style={[s.activityChip, activity === a.key && s.activityChipActive]}
-                onPress={() => setActivity(a.key)}
-                activeOpacity={0.7}
-              >
-                <Text style={s.activityChipEmoji}>{a.emoji}</Text>
-                <Text style={[s.activityChipLabel, activity === a.key && s.activityChipLabelActive]}>
-                  {a.label}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
+          
+          {/* Activity Selection Button */}
+          <TouchableOpacity
+            style={[s.activitySelectButton, !activity && s.activitySelectButtonEmpty]}
+            onPress={() => setShowActivityModal(true)}
+            activeOpacity={0.7}
+          >
+            <Text style={[s.activitySelectText, !activity && s.activitySelectTextEmpty]}>
+              {activity ? ACTIVITIES.find(a => a.key === activity)?.label : 'Choose an activity'}
+            </Text>
+            <ChevronRight size={20} color={activity ? BRAND : '#BBB'} />
+          </TouchableOpacity>
 
           {/* ── Custom Activity Input (when 'other' is selected) ── */}
           {activity === 'other' && (
@@ -557,6 +769,14 @@ export default function CreateBondupModal({ visible, onClose, onCreated }) {
           <View style={{ height: 40 }} />
         </ScrollView>
       </KeyboardAvoidingView>
+
+      {/* Activity Selection Modal */}
+      <ActivitySelectionModal
+        visible={showActivityModal}
+        onClose={() => setShowActivityModal(false)}
+        selectedActivity={activity}
+        onSelectActivity={setActivity}
+      />
     </BaseModal>
   );
 }
@@ -669,42 +889,28 @@ const s = StyleSheet.create({
     color: BRAND,
     letterSpacing: 0.5,
   },
-  activityGrid: {
+  activitySelectButton: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 10,
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    borderRadius: 12,
+    borderWidth: 1.5,
+    borderColor: BRAND,
+    backgroundColor: '#fff',
     marginBottom: 18,
   },
-  activityChip: {
-    width: '30%',
-    backgroundColor: '#fff',
-    borderRadius: 14,
-    borderWidth: 1.5,
+  activitySelectButtonEmpty: {
     borderColor: '#E5E7EB',
-    paddingVertical: 14,
-    alignItems: 'center',
-    gap: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.04,
-    shadowRadius: 4,
-    elevation: 1,
   },
-  activityChipActive: {
-    borderColor: BRAND,
-    backgroundColor: colors.primaryLight,
-  },
-  activityChipEmoji: {
-    fontSize: 24,
-  },
-  activityChipLabel: {
-    fontSize: 12,
+  activitySelectText: {
+    fontSize: 16,
     fontFamily: 'PlusJakartaSansMedium',
-    color: '#555',
-  },
-  activityChipLabelActive: {
     color: BRAND,
-    fontFamily: 'PlusJakartaSansBold',
+  },
+  activitySelectTextEmpty: {
+    color: '#BBB',
   },
 
   // When section

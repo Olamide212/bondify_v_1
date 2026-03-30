@@ -11,13 +11,12 @@
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
 import {
-    ChevronRight,
     HelpCircle,
     Pencil,
     Plus,
     Settings,
     Share2,
-    Users,
+    Users
 } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -39,8 +38,13 @@ import EditSocialProfileModal from "./EditSocialProfileModal";
 const BRAND = colors.primary;
 
 const ACTIVITY_EMOJI = {
-  coffee: '☕', food: '🍔', drinks: '🍹', gym: '💪',
-  walk: '🚶', movie: '🎬', other: '✨',
+  coffee: '☕', food: '🍔', drinks: '🍹', brunch: '🥐', dinner: '🍽️', lunch: '🥗', snacks: '🍿', dessert: '🍰',
+  gym: '💪', yoga: '🧘', running: '🏃', hiking: '🥾', cycling: '🚴', swimming: '🏊', tennis: '🎾', basketball: '🏀', football: '⚽', volleyball: '🏐',
+  walk: '🚶', park: '🌳', beach: '🏖️', picnic: '🧺', camping: '⛺', fishing: '🎣',
+  movie: '🎬', theater: '🎭', concert: '🎵', museum: '🏛️', art: '🎨', comedy: '😂',
+  board_games: '🎲', video_games: '🎮', karaoke: '🎤', dancing: '💃', party: '🎉', networking: '🤝',
+  workshop: '🔨', class: '📚', photography: '📷', painting: '🖌️', music: '🎼',
+  other: '✨',
 };
 
 const avatarUrl = (user) =>
