@@ -47,3 +47,5 @@ router.delete('/:id', deleteBondup);
 router.get('/social-profile', getSocialProfile);
 router.patch('/social-profile', updateSocialProfile);
 router.post('/social-profile/photo', upload.single('profilePhoto'), uploadSocialPhoto);
+
+module.exports = router;
