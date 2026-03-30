@@ -517,7 +517,7 @@ const ChatScreen = ({ matchedUser, onBack, initialSearchMode = false }) => {
         <Header
           matchedUser={matchedUser}
           onBack={() => onBack?.()}
-          onOpenProfile={openProfile}
+          onOpenProfile={openProfile} 
           onOpenActions={openChatOptions}
           onOpenSearch={openSearch}
         />
@@ -669,12 +669,12 @@ const ChatScreen = ({ matchedUser, onBack, initialSearchMode = false }) => {
                 onPress={() => Linking.openURL('mailto:support@bondies.app')}
                 activeOpacity={0.82}
               >
-                <Mail size={18} color={colors.primary} strokeWidth={2} />
+                <Mail size={18} color={'#fff'} strokeWidth={2} />
                 <Text style={styles.contactBtnText}>Email</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={[styles.contactBtn, styles.contactBtnPrimary]}
-                onPress={() => Linking.openURL('https://wa.me/2348000000000')}
+                onPress={() => Linking.openURL('https://wa.me/2349068820664')}
                 activeOpacity={0.82}
               >
                 <MessageCircle size={18} color="#fff" strokeWidth={2} />
@@ -842,7 +842,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 1.5,
     borderColor: colors.primary,
-    backgroundColor: '#fff',
+    backgroundColor: colors.primary,
   },
   contactBtnPrimary: {
     backgroundColor: '#25D366',
@@ -851,7 +851,7 @@ const styles = StyleSheet.create({
   contactBtnText: {
     fontSize: 14,
     fontFamily: 'PlusJakartaSansBold',
-    color: colors.primary,
+    color: '#fff',
   },
   contactBtnTextWhite: {
     color: '#fff',

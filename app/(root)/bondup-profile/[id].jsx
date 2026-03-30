@@ -1,38 +1,38 @@
 /**
  * Bondup User Profile Screen  —  app/(root)/bondup-profile/[id].jsx
  *
- * Displays a bondup participant's profile:
+ * Displays a bondup participant's profile with friend-based interactions:
  *   • First name + location
- *   • Follow button
- *   • Stats: Followers, Following, Bondups
+ *   • Friend request button (standalone at top)
+ *   • Three tabs: Bondups, Friends, Mutual Friends
  *   • Social bio
- *   • Active bondups list
  */
 
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import {
-    ArrowLeft,
-    MapPin,
-    UserCheck,
-    UserPlus,
-    Users,
+  ArrowLeft,
+  MapPin,
 } from 'lucide-react-native';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
-    ActivityIndicator,
-    FlatList,
-    Image,
-    RefreshControl,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Image,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSelector } from 'react-redux';
+import BondupsTab from '../../../components/bondup/bondup-profile/BondupsTab';
+import FriendActionButton from '../../../components/bondup/bondup-profile/FriendActionButton';
+import FriendsTab from '../../../components/bondup/bondup-profile/FriendsTab';
+import MutualFriendsTab from '../../../components/bondup/bondup-profile/MutualFriendsTab';
+import ProfileTabs from '../../../components/bondup/bondup-profile/ProfileTabs';
 import { colors } from '../../../constant/colors';
 import bondupService from '../../../services/bondupService';
-import feedService from '../../../services/feedService';
 import profileService from '../../../services/profileService';
 
 const BRAND = colors.primary;
@@ -42,46 +42,6 @@ const avatarUrl = (user) =>
 
 const getFirstName = (user) =>
   user?.firstName || user?.userName || 'User';
-
-// ─── Bondup Card (compact) ──────────────────────────────────────────────────
-const ActiveBondupCard = ({ bondup }) => {
-  const emoji = {
-    coffee: '☕', food: '🍔', drinks: '🍹', gym: '💪',
-    walk: '🚶', movie: '🎬', other: '✨',
-  }[bondup.activityType] || '✨';
-
-  const dateLabel = bondup.dateTime
-    ? new Date(bondup.dateTime).toLocaleDateString(undefined, {
-        weekday: 'short',
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-      })
-    : '';
-
-  return (
-    <View style={s.bondupCard}>
-      <Text style={s.bondupEmoji}>{emoji}</Text>
-      <View style={s.bondupCardContent}>
-        <Text style={s.bondupTitle} numberOfLines={1}>{bondup.title}</Text>
-        <View style={s.bondupMeta}>
-          {!!bondup.city && (
-            <View style={s.bondupMetaRow}>
-              <MapPin size={11} color="#888" />
-              <Text style={s.bondupMetaText}>{bondup.city}</Text>
-            </View>
-          )}
-          {!!dateLabel && <Text style={s.bondupMetaText}>{dateLabel}</Text>}
-        </View>
-      </View>
-      <View style={s.bondupParticipants}>
-        <Users size={13} color="#888" />
-        <Text style={s.bondupParticipantCount}>{bondup.participantCount ?? 0}</Text>
-      </View>
-    </View>
-  );
-};
 
 // ─── Main Screen ──────────────────────────────────────────────────────────────
 export default function BondupProfileScreen() {
@@ -94,13 +54,48 @@ export default function BondupProfileScreen() {
   const [activeBondups, setActiveBondups] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
-  const [isFollowing, setIsFollowing] = useState(false);
-  const [followLoading, setFollowLoading] = useState(false);
+  const [friendStatus, setFriendStatus] = useState('none');
+  const [friendRequestLoading, setFriendRequestLoading] = useState(false);
+  const [friends, setFriends] = useState([]);
+  const [friendsLoading, setFriendsLoading] = useState(false);
+  const [mutualFriends, setMutualFriends] = useState([]);
+  const [mutualFriendsLoading, setMutualFriendsLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState('bondups'); // 'bondups', 'friends', 'mutual'
   const [refreshing, setRefreshing] = useState(false);
 
   const isOwnProfile = String(id) === String(currentUser?._id);
 
-  const loadProfile = async () => {
+  const loadMutualFriends = useCallback(async () => {
+    if (!id || isOwnProfile) return;
+    setMutualFriendsLoading(true);
+    try {
+      const res = await bondupService.getMutualFriends(id);
+      if (res?.data) {
+        setMutualFriends(res.data);
+      }
+    } catch {
+      // silent
+    } finally {
+      setMutualFriendsLoading(false);
+    }
+  }, [id, isOwnProfile]);
+
+  const loadFriends = useCallback(async () => {
+    if (!id) return;
+    setFriendsLoading(true);
+    try {
+      const res = await bondupService.getFriends(id);
+      if (res?.data) {
+        setFriends(res.data);
+      }
+    } catch {
+      // silent
+    } finally {
+      setFriendsLoading(false);
+    }
+  }, [id]);
+
+  const loadProfile = useCallback(async () => {
     if (!id) return;
     setError(false);
     try {
@@ -113,7 +108,7 @@ export default function BondupProfileScreen() {
           setProfile(res.data.user);
           setStats(res.data.stats || {});
           setActiveBondups(res.data.activeBondups || []);
-          setIsFollowing(res.data.isFollowing ?? false);
+          setFriendStatus(res.data.friendStatus || 'none');
           loaded = true;
         }
       } catch {
@@ -140,51 +135,45 @@ export default function BondupProfileScreen() {
           setError(true);
         }
 
-        // Check follow status separately when using fallback
-        const followRes = await feedService.checkFollowStatus(id).catch(() => null);
-        setIsFollowing(followRes?.isFollowing ?? followRes?.data?.isFollowing ?? false);
+        // Check friend status separately when using fallback
+        const friendStatusRes = await bondupService.getFriendStatus(id).catch(() => ({ data: { status: 'none' } }));
+        setFriendStatus(friendStatusRes?.data?.status || 'none');
       }
+
+      // Load friends data
+      await loadFriends();
+      await loadMutualFriends();
     } catch {
       setError(true);
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
-  };
+  }, [id, loadFriends, loadMutualFriends]);
 
   useEffect(() => {
     loadProfile();
-  }, [id, chatId]);
+  }, [id, chatId, loadProfile]);
 
   const onRefresh = () => {
     setRefreshing(true);
     loadProfile();
   };
 
-  const handleFollowToggle = async () => {
+  const handleFriendRequest = async () => {
     if (isOwnProfile) return;
-    setFollowLoading(true);
-    const wasFollowing = isFollowing;
-    setIsFollowing(!wasFollowing);
+    setFriendRequestLoading(true);
     try {
-      if (wasFollowing) {
-        await feedService.unfollowUser(id);
-      } else {
-        await feedService.followUser(id);
+      if (friendStatus === 'none') {
+        await bondupService.sendFriendRequest(id);
+        setFriendStatus('request_sent');
       }
-      // Refresh stats
-      try {
-        const res = await bondupService.getBondupProfile(id);
-        if (res?.data) {
-          setStats(res.data.stats || {});
-        }
-      } catch {
-        // silent
-      }
+      // For other states, we might want to show different actions
+      // but for now, only handle sending requests
     } catch {
-      setIsFollowing(wasFollowing);
+      // silent
     } finally {
-      setFollowLoading(false);
+      setFriendRequestLoading(false);
     }
   };
 
@@ -243,108 +232,59 @@ export default function BondupProfileScreen() {
         <View style={{ width: 36 }} />
       </View>
 
-      <FlatList
-        data={activeBondups}
-        keyExtractor={(item) => item._id}
-        renderItem={({ item }) => <ActiveBondupCard bondup={item} />}
-        contentContainerStyle={s.listContent}
+      <ScrollView
+        contentContainerStyle={s.scrollContent}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[BRAND]} tintColor={BRAND} />
         }
-        ListHeaderComponent={
-          <View>
-            {/* Avatar */}
-            <View style={s.avatarSection}>
-              {userAv ? (
-                <Image source={{ uri: userAv }} style={s.avatar} />
-              ) : (
-                <View style={[s.avatar, s.avatarFallback]}>
-                  <Text style={s.avatarInitial}>
-                    {(profile?.firstName || 'U')[0].toUpperCase()}
-                  </Text>
-                </View>
-              )}
+      >
+        {/* Avatar */}
+        <View style={s.avatarSection}>
+          {userAv ? (
+            <Image source={{ uri: userAv }} style={s.avatar} />
+          ) : (
+            <View style={[s.avatar, s.avatarFallback]}>
+              <Text style={s.avatarInitial}>
+                {(profile?.firstName || 'U')[0].toUpperCase()}
+              </Text>
             </View>
+          )}
+        </View>
 
-            {/* Name + Location */}
-            <View style={s.nameSection}>
-              <Text style={s.fullName}>{getFirstName(profile)}</Text>
-              {!!profile.city && (
-                <View style={s.locationRow}>
-                  <MapPin size={14} color="#888" />
-                  <Text style={s.locationText}>{profile.city}</Text>
-                </View>
-              )}
-              {!!stats.bio && <Text style={s.bio}>{stats.bio}</Text>}
+        {/* Name + Location */}
+        <View style={s.nameSection}>
+          <Text style={s.fullName}>{getFirstName(profile)}</Text>
+          {!!profile.city && (
+            <View style={s.locationRow}>
+              <MapPin size={14} color="#888" />
+              <Text style={s.locationText}>{profile.city}</Text>
             </View>
+          )}
+          {!!stats.bio && <Text style={s.bio}>{stats.bio}</Text>}
+        </View>
 
-            {/* Stats */}
-            <View style={s.statsRow}>
-              <View style={s.statItem}>
-                <Text style={s.statNumber}>{stats.followersCount ?? 0}</Text>
-                <Text style={s.statLabel}>Followers</Text>
-              </View>
-              <View style={s.statDivider} />
-              <View style={s.statItem}>
-                <Text style={s.statNumber}>{stats.followingCount ?? 0}</Text>
-                <Text style={s.statLabel}>Following</Text>
-              </View>
-              <View style={s.statDivider} />
-              <View style={s.statItem}>
-                <Text style={s.statNumber}>{stats.bondups ?? 0}</Text>
-                <Text style={s.statLabel}>Bondups</Text>
-              </View>
-            </View>
+        {/* Friend Action Button - Standalone */}
+        <FriendActionButton
+          friendStatus={friendStatus}
+          onSendRequest={handleFriendRequest}
+          loading={friendRequestLoading}
+        />
 
-            {/* Follow/Edit Profile Button */}
-            {isOwnProfile ? (
-              <TouchableOpacity
-                style={[s.followBtn, { backgroundColor: BRAND }]}
-                onPress={() => router.push({ pathname: '/(tab)/profile', params: { tab: 'social' } })}
-                activeOpacity={0.85}
-              >
-                <UserCheck size={16} color={'#fff'} />
-                <Text style={s.followBtnText}>Edit Profile</Text>
-              </TouchableOpacity>
-            ) : (
-              <TouchableOpacity
-                style={[s.followBtn, isFollowing && s.followingBtn, followLoading && { opacity: 0.7 }]}
-                onPress={handleFollowToggle}
-                disabled={followLoading}
-                activeOpacity={0.85}
-              >
-                {followLoading ? (
-                  <ActivityIndicator size="small" color={isFollowing ? BRAND : '#fff'} />
-                ) : isFollowing ? (
-                  <>
-                    <UserCheck size={16} color={BRAND} />
-                    <Text style={s.followingBtnText}>Following</Text>
-                  </>
-                ) : (
-                  <>
-                    <UserPlus size={16} color="#fff" />
-                    <Text style={s.followBtnText}>Follow</Text>
-                  </>
-                )}
-              </TouchableOpacity>
-            )}
+        {/* Tab Navigation */}
+        <ProfileTabs activeTab={activeTab} onTabChange={setActiveTab} />
 
-            {/* Active Bondups header */}
-            {activeBondups.length > 0 && (
-              <View style={s.sectionHeader}>
-                <Text style={s.sectionTitle}>Active Bondups</Text>
-              </View>
-            )}
-          </View>
-        }
-        ListEmptyComponent={
-          <View style={s.emptyBondups}>
-            <Text style={s.emptyEmoji}>🤝</Text>
-            <Text style={s.emptyText}>No active bondups</Text>
-          </View>
-        }
-      />
+        {/* Tab Content */}
+        {activeTab === 'bondups' && (
+          <BondupsTab bondups={activeBondups} loading={false} />
+        )}
+        {activeTab === 'friends' && (
+          <FriendsTab friends={friends} loading={friendsLoading} />
+        )}
+        {activeTab === 'mutual' && (
+          <MutualFriendsTab mutualFriends={mutualFriends} loading={mutualFriendsLoading} />
+        )}
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -403,8 +343,81 @@ const s = StyleSheet.create({
     color: '#111',
   },
 
-  listContent: {
+  scrollContent: {
     paddingBottom: 40,
+  },
+
+  // Tab Content
+  tabContent: {
+    flex: 1,
+    minHeight: 200,
+  },
+
+  // Friend Button (in tab)
+  friendBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: BRAND,
+    marginHorizontal: 32,
+    paddingVertical: 13,
+    borderRadius: 16,
+    marginBottom: 24,
+    shadowColor: BRAND,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  friendsBtn: {
+    backgroundColor: '#fff',
+    borderWidth: 1.5,
+    borderColor: BRAND,
+    shadowOpacity: 0,
+    elevation: 0,
+  },
+  requestSentBtn: {
+    backgroundColor: '#FFA500',
+    shadowOpacity: 0,
+    elevation: 0,
+  },
+  friendBtnText: {
+    fontSize: 15,
+    fontFamily: 'PlusJakartaSansBold',
+    color: '#fff',
+  },
+  friendsBtnText: {
+    fontSize: 15,
+    fontFamily: 'PlusJakartaSansBold',
+    color: BRAND,
+  },
+
+  // Bondups by day
+  daySection: {
+    marginBottom: 16,
+  },
+  dayLabel: {
+    fontSize: 16,
+    fontFamily: 'PlusJakartaSansBold',
+    color: '#111',
+    marginHorizontal: 16,
+    marginBottom: 8,
+  },
+
+  // Empty states
+  emptyState: {
+    alignItems: 'center',
+    paddingVertical: 40,
+  },
+  emptyEmoji: {
+    fontSize: 40,
+    marginBottom: 12,
+  },
+  emptyText: {
+    fontSize: 14,
+    fontFamily: 'PlusJakartaSans',
+    color: '#888',
   },
 
   // Avatar
@@ -461,73 +474,6 @@ const s = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 20,
     marginTop: 4,
-  },
-
-  // Stats
-  statsRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginHorizontal: 32,
-    backgroundColor: '#F8F8F8',
-    borderRadius: 16,
-    paddingVertical: 14,
-    marginBottom: 18,
-  },
-  statItem: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  statNumber: {
-    fontSize: 20,
-    fontFamily: 'PlusJakartaSansBold',
-    color: '#111',
-  },
-  statLabel: {
-    fontSize: 12,
-    fontFamily: 'PlusJakartaSans',
-    color: '#888',
-    marginTop: 2,
-  },
-  statDivider: {
-    width: 1,
-    height: 32,
-    backgroundColor: '#E5E7EB',
-  },
-
-  // Follow button
-  followBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    backgroundColor: BRAND,
-    marginHorizontal: 32,
-    paddingVertical: 13,
-    borderRadius: 16,
-    marginBottom: 24,
-    shadowColor: BRAND,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  followingBtn: {
-    backgroundColor: '#fff',
-    borderWidth: 1.5,
-    borderColor: BRAND,
-    shadowOpacity: 0,
-    elevation: 0,
-  },
-  followBtnText: {
-    fontSize: 15,
-    fontFamily: 'PlusJakartaSansBold',
-    color: '#fff',
-  },
-  followingBtnText: {
-    fontSize: 15,
-    fontFamily: 'PlusJakartaSansBold',
-    color: BRAND,
   },
 
   // Section
@@ -600,14 +546,5 @@ const s = StyleSheet.create({
   emptyBondups: {
     alignItems: 'center',
     paddingVertical: 40,
-  },
-  emptyEmoji: {
-    fontSize: 40,
-    marginBottom: 12,
-  },
-  emptyText: {
-    fontSize: 14,
-    fontFamily: 'PlusJakartaSans',
-    color: '#888',
   },
 });

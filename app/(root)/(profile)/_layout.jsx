@@ -11,7 +11,7 @@ export default function ProfileLayout() {
       <Stack.Screen name="invite" />
       <Stack.Screen name="nationality" />
       <Stack.Screen name="subscription" />
-      <Stack.Screen name="support-center" />
+      <Stack.Screen name="support-center" screenOptions={{presentation: 'modal'}} />
       <Stack.Screen name="wallet" />
       <Stack.Screen name="voice-intro" />
     </Stack>

@@ -16,6 +16,7 @@ import feedIcon from "../assets/icons/feed-icon.png"
 import bonFeed from "../assets/images/Bonfeed.png"
 import onboardingImage2 from "../assets/images/onboarding-img-2.jpg"
 import onboardingImage3 from "../assets/images/onboarding-img-3.jpg"
+import teamIcon from "../assets/images/team-icon.png"
 
 
 export const images = {
@@ -33,8 +34,9 @@ export const images = {
   bondiesMainicon,
   BOT_AVARTAR,
   onboardingImage,
-    feedIcon,
-    bonFeed,
+  feedIcon,
+  bonFeed,
   onboardingImage2,
   onboardingImage3,
+  teamIcon
 };

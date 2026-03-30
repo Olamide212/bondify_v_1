@@ -808,6 +808,11 @@ const s = StyleSheet.create({
     alignItems: 'center',
     flex: 1,
     gap: 12,
+    borderWidth: 1,
+    borderColor: colors.primary + '20',
+    borderRadius: 12,
+    padding: 14,
+    backgroundColor: colors.primary + '10',
   },
   participantListAvatar: {
     width: 44,
@@ -815,7 +820,7 @@ const s = StyleSheet.create({
     borderRadius: 22,
   },
   participantListAvatarFallback: {
-    backgroundColor: BRAND,
+    backgroundColor: colors.primary,
     justifyContent: 'center',
     alignItems: 'center',
   },

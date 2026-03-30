@@ -80,6 +80,60 @@ const bondupService = {
     const res = await apiClient.get(`/bondup/profile/${userId}`);
     return res.data;
   },
+
+  /**
+   * Send a friend request to a user.
+   * @param {string} userId
+   */
+  sendFriendRequest: async (userId) => {
+    const res = await apiClient.post(`/bondup/friend-request/${userId}`);
+    return res.data;
+  },
+
+  /**
+   * Accept a friend request.
+   * @param {string} requestId
+   */
+  acceptFriendRequest: async (requestId) => {
+    const res = await apiClient.post(`/bondup/friend-request/${requestId}/accept`);
+    return res.data;
+  },
+
+  /**
+   * Decline a friend request.
+   * @param {string} requestId
+   */
+  declineFriendRequest: async (requestId) => {
+    const res = await apiClient.post(`/bondup/friend-request/${requestId}/decline`);
+    return res.data;
+  },
+
+  /**
+   * Get friends for a user.
+   * @param {string} userId
+   */
+  getFriends: async (userId) => {
+    const res = await apiClient.get(`/bondup/friends/${userId || ''}`);
+    return res.data;
+  },
+
+  /**
+   * Check friend status with another user.
+   * @param {string} userId
+   */
+  getFriendStatus: async (userId) => {
+    const res = await apiClient.get(`/bondup/friend-status/${userId}`);
+    return res.data;
+  },
+
+  /**
+   * Get mutual friends with another user.
+   * @param {string} userId
+   */
+  getMutualFriends: async (userId) => {
+    const res = await apiClient.get(`/bondup/mutual-friends/${userId}`);
+    return res.data;
+  },
 };
 
 export default bondupService;

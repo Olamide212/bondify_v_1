@@ -38,7 +38,7 @@ const ChatHeader = ({ matchedUser, onBack, onOpenProfile, onOpenActions, onUnmat
     if (matchedUser.isSystem) {
       return (
         <RNImage
-          source={images.bondiesMainicon}
+          source={images.teamIcon}
           style={styles.chatProfileImage}
           resizeMode="cover"
         />
@@ -190,7 +190,7 @@ const styles = StyleSheet.create({
   },
   userInfo: {
     flex: 1,
-    marginLeft: 12,
+    marginLeft: 2,
   },
   nameRow: {
     flexDirection: 'row',

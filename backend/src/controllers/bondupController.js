@@ -1,6 +1,7 @@
 const Bondup = require('../models/Bondup');
 const BondupChat = require('../models/BondupChat');
 const Follow = require('../models/Follow');
+const FriendRequest = require('../models/FriendRequest');
 const { mapUserImages } = require('../utils/imageHelper');
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -514,6 +515,248 @@ const getMyBondups = async (req, res, next) => {
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
+// POST /api/bondup/friend-request/:userId
+// ─────────────────────────────────────────────────────────────────────────────
+const sendFriendRequest = async (req, res, next) => {
+  try {
+    const receiverId = req.params.userId;
+    if (String(receiverId) === String(req.user._id)) {
+      return res.status(400).json({ success: false, message: 'Cannot send friend request to yourself.' });
+    }
+
+    // Check if users are already friends
+    const existingFriendship = await FriendRequest.findOne({
+      $or: [
+        { sender: req.user._id, receiver: receiverId, status: 'accepted' },
+        { sender: receiverId, receiver: req.user._id, status: 'accepted' }
+      ]
+    });
+
+    if (existingFriendship) {
+      return res.status(400).json({ success: false, message: 'Users are already friends.' });
+    }
+
+    // Check if there's already a pending request
+    const existingRequest = await FriendRequest.findOne({
+      $or: [
+        { sender: req.user._id, receiver: receiverId, status: 'pending' },
+        { sender: receiverId, receiver: req.user._id, status: 'pending' }
+      ]
+    });
+
+    if (existingRequest) {
+      return res.status(400).json({ success: false, message: 'Friend request already exists.' });
+    }
+
+    const friendRequest = await FriendRequest.create({
+      sender: req.user._id,
+      receiver: receiverId,
+      status: 'pending'
+    });
+
+    res.json({ success: true, data: { friendRequest, status: 'pending' } });
+  } catch (err) { next(err); }
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// POST /api/bondup/friend-request/:requestId/accept
+// ─────────────────────────────────────────────────────────────────────────────
+const acceptFriendRequest = async (req, res, next) => {
+  try {
+    const request = await FriendRequest.findById(req.params.requestId);
+    if (!request) {
+      return res.status(404).json({ success: false, message: 'Friend request not found.' });
+    }
+
+    if (String(request.receiver) !== String(req.user._id)) {
+      return res.status(403).json({ success: false, message: 'Not authorized to accept this request.' });
+    }
+
+    if (request.status !== 'pending') {
+      return res.status(400).json({ success: false, message: 'Request is not pending.' });
+    }
+
+    request.status = 'accepted';
+    await request.save();
+
+    res.json({ success: true, data: { friendRequest: request, status: 'accepted' } });
+  } catch (err) { next(err); }
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// POST /api/bondup/friend-request/:requestId/decline
+// ─────────────────────────────────────────────────────────────────────────────
+const declineFriendRequest = async (req, res, next) => {
+  try {
+    const request = await FriendRequest.findById(req.params.requestId);
+    if (!request) {
+      return res.status(404).json({ success: false, message: 'Friend request not found.' });
+    }
+
+    if (String(request.receiver) !== String(req.user._id)) {
+      return res.status(403).json({ success: false, message: 'Not authorized to decline this request.' });
+    }
+
+    if (request.status !== 'pending') {
+      return res.status(400).json({ success: false, message: 'Request is not pending.' });
+    }
+
+    request.status = 'declined';
+    await request.save();
+
+    res.json({ success: true, data: { friendRequest: request, status: 'declined' } });
+  } catch (err) { next(err); }
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// GET /api/bondup/friends/:userId
+// ─────────────────────────────────────────────────────────────────────────────
+const getFriends = async (req, res, next) => {
+  try {
+    const userId = req.params.userId || req.user._id;
+
+    const friendships = await FriendRequest.find({
+      $or: [
+        { sender: userId, status: 'accepted' },
+        { receiver: userId, status: 'accepted' }
+      ]
+    })
+    .populate('sender', 'firstName lastName userName')
+    .populate('receiver', 'firstName lastName userName')
+    .lean();
+
+    // Attach social profile data
+    const friendIds = [];
+    friendships.forEach(f => {
+      if (String(f.sender._id) !== String(userId)) friendIds.push(f.sender._id);
+      if (String(f.receiver._id) !== String(userId)) friendIds.push(f.receiver._id);
+    });
+
+    const SocialProfile = require('../models/SocialProfile');
+    const socialProfiles = await SocialProfile.find({ user: { $in: friendIds } }).lean();
+    const spMap = {};
+    socialProfiles.forEach(sp => { spMap[String(sp.user)] = sp; });
+
+    const friends = friendships.map(f => {
+      const friend = String(f.sender._id) === String(userId) ? f.receiver : f.sender;
+      return {
+        ...friend,
+        profilePhoto: spMap[String(friend._id)]?.profilePhoto || null,
+        displayName: spMap[String(friend._id)]?.displayName || null,
+      };
+    });
+
+    res.json({ success: true, data: friends });
+  } catch (err) { next(err); }
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// GET /api/bondup/mutual-friends/:userId
+// ─────────────────────────────────────────────────────────────────────────────
+const getMutualFriends = async (req, res, next) => {
+  try {
+    const targetUserId = req.params.userId;
+
+    // Get current user's friends
+    const currentUserFriends = await FriendRequest.find({
+      $or: [
+        { sender: req.user._id, status: 'accepted' },
+        { receiver: req.user._id, status: 'accepted' }
+      ]
+    }).select('sender receiver');
+
+    // Get target user's friends
+    const targetUserFriends = await FriendRequest.find({
+      $or: [
+        { sender: targetUserId, status: 'accepted' },
+        { receiver: targetUserId, status: 'accepted' }
+      ]
+    }).select('sender receiver');
+
+    // Extract friend IDs for current user
+    const currentUserFriendIds = new Set();
+    currentUserFriends.forEach(f => {
+      if (String(f.sender) !== String(req.user._id)) currentUserFriendIds.add(String(f.sender));
+      if (String(f.receiver) !== String(req.user._id)) currentUserFriendIds.add(String(f.receiver));
+    });
+
+    // Extract friend IDs for target user
+    const targetUserFriendIds = new Set();
+    targetUserFriends.forEach(f => {
+      if (String(f.sender) !== String(targetUserId)) targetUserFriendIds.add(String(f.sender));
+      if (String(f.receiver) !== String(targetUserId)) targetUserFriendIds.add(String(f.receiver));
+    });
+
+    // Find intersection (mutual friends)
+    const mutualFriendIds = [...currentUserFriendIds].filter(id => targetUserFriendIds.has(id));
+
+    if (mutualFriendIds.length === 0) {
+      return res.json({ success: true, data: [] });
+    }
+
+    // Get mutual friends' data
+    const User = require('mongoose').model('User');
+    const mutualFriends = await User.find({ _id: { $in: mutualFriendIds } })
+      .select('firstName lastName userName')
+      .lean();
+
+    // Attach social profile data
+    const SocialProfile = require('../models/SocialProfile');
+    const socialProfiles = await SocialProfile.find({ user: { $in: mutualFriendIds } }).lean();
+    const spMap = {};
+    socialProfiles.forEach(sp => { spMap[String(sp.user)] = sp; });
+
+    const mutualFriendsWithProfiles = mutualFriends.map(friend => ({
+      ...friend,
+      profilePhoto: spMap[String(friend._id)]?.profilePhoto || null,
+      displayName: spMap[String(friend._id)]?.displayName || null,
+    }));
+
+    res.json({ success: true, data: mutualFriendsWithProfiles });
+  } catch (err) { next(err); }
+};
+  try {
+    const targetUserId = req.params.userId;
+
+    // Check if users are friends
+    const friendship = await FriendRequest.findOne({
+      $or: [
+        { sender: req.user._id, receiver: targetUserId, status: 'accepted' },
+        { sender: targetUserId, receiver: req.user._id, status: 'accepted' }
+      ]
+    });
+
+    if (friendship) {
+      return res.json({ success: true, data: { status: 'friends' } });
+    }
+
+    // Check for pending requests
+    const sentRequest = await FriendRequest.findOne({
+      sender: req.user._id,
+      receiver: targetUserId,
+      status: 'pending'
+    });
+
+    if (sentRequest) {
+      return res.json({ success: true, data: { status: 'request_sent', requestId: sentRequest._id } });
+    }
+
+    const receivedRequest = await FriendRequest.findOne({
+      sender: targetUserId,
+      receiver: req.user._id,
+      status: 'pending'
+    });
+
+    if (receivedRequest) {
+      return res.json({ success: true, data: { status: 'request_received', requestId: receivedRequest._id } });
+    }
+
+    // No relationship
+    res.json({ success: true, data: { status: 'none' } });
+  } catch (err) { next(err); }
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
 // GET /api/bondup/profile/:userId — Public bondup user profile (no chat required)
 // ─────────────────────────────────────────────────────────────────────────────
 const getBondupProfile = async (req, res, next) => {
@@ -569,11 +812,41 @@ const getBondupProfile = async (req, res, next) => {
       }
     }
 
-    // Check if requester follows this user
-    let isFollowing = false;
+    // Check friend status instead of follow status
+    let friendStatus = 'none';
     try {
-      const existing = await Follow.findOne({ follower: req.user._id, following: userId });
-      isFollowing = !!existing;
+      // Check if users are friends
+      const friendship = await FriendRequest.findOne({
+        $or: [
+          { sender: req.user._id, receiver: userId, status: 'accepted' },
+          { sender: userId, receiver: req.user._id, status: 'accepted' }
+        ]
+      });
+
+      if (friendship) {
+        friendStatus = 'friends';
+      } else {
+        // Check for pending requests
+        const sentRequest = await FriendRequest.findOne({
+          sender: req.user._id,
+          receiver: userId,
+          status: 'pending'
+        });
+
+        if (sentRequest) {
+          friendStatus = 'request_sent';
+        } else {
+          const receivedRequest = await FriendRequest.findOne({
+            sender: userId,
+            receiver: req.user._id,
+            status: 'pending'
+          });
+
+          if (receivedRequest) {
+            friendStatus = 'request_received';
+          }
+        }
+      }
     } catch {
       // silent
     }
@@ -586,7 +859,7 @@ const getBondupProfile = async (req, res, next) => {
           ...followStats,
           bondups: activeBondups.length,
         },
-        isFollowing,
+        friendStatus,
         activeBondups: activeBondups.map((b) => ({
           _id: b._id,
           title: b.title,
@@ -612,4 +885,10 @@ module.exports = {
   getBondup,
   getMyBondups,
   getBondupProfile,
+  sendFriendRequest,
+  acceptFriendRequest,
+  declineFriendRequest,
+  getFriends,
+  getFriendStatus,
+  getMutualFriends,
 };

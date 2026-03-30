@@ -18,6 +18,7 @@ import { images } from "../../constant/images";
 import { formatRelativeDate } from "../../utils/helper";
 import GeneralHeader from "../headers/GeneralHeader";
 import VerifiedIcon from "../ui/VerifiedIcon";
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 // ─── Avatar URI cache (unchanged) ─────────────────────────────────────────────
 
@@ -380,11 +381,14 @@ const ChatListScreen = ({
                     <TouchableOpacity style={styles.newMatchItem} onPress={() => onSelectUser(match)}>
                       <View>
                         <AvatarImage uri={match.profileImage} style={styles.newMatchImage} iconSize={22} isCacheReady={isAvatarCacheHydrated} />
-                        {match.isVerified && (
+                        {match.verified && (
                           <View style={styles.newMatchVerified}>
                             <VerifiedIcon style={{ width: 16, height: 16 }} />
                           </View>
                         )}
+                          {(match.isSystem) && (
+              <MaterialIcons name="verified" size={20} color={"#F6CE71"} style={{ marginLeft: 4 }} />
+            )}
                       </View>
                       <Text style={styles.newMatchName} numberOfLines={1}>{getFirstName(match.name)}</Text>
                     </TouchableOpacity>
