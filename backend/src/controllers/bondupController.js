@@ -2,7 +2,7 @@ const Bondup = require('../models/Bondup');
 const BondupChat = require('../models/BondupChat');
 const Follow = require('../models/Follow');
 const FriendRequest = require('../models/FriendRequest');
-const { mapUserImages } = require('../utils/imageHelper');
+const { mapUserImages, getImageUrl } = require('../utils/imageHelper');
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -670,14 +670,17 @@ const getFriends = async (req, res, next) => {
     const spMap = {};
     socialProfiles.forEach(sp => { spMap[String(sp.user)] = sp; });
 
-    const friends = friendships.map(f => {
+    const friends = await Promise.all(friendships.map(async (f) => {
       const friend = String(f.sender._id) === String(userId) ? f.receiver : f.sender;
+      const profilePhoto = spMap[String(friend._id)]?.profilePhoto;
+      const processedProfilePhoto = profilePhoto ? await getImageUrl(profilePhoto) : null;
+      
       return {
         ...friend,
-        profilePhoto: spMap[String(friend._id)]?.profilePhoto || null,
+        profilePhoto: processedProfilePhoto,
         displayName: spMap[String(friend._id)]?.displayName || null,
       };
-    });
+    }));
 
     res.json({ success: true, data: friends });
   } catch (err) { next(err); }
@@ -739,10 +742,15 @@ const getMutualFriends = async (req, res, next) => {
     const spMap = {};
     socialProfiles.forEach(sp => { spMap[String(sp.user)] = sp; });
 
-    const mutualFriendsWithProfiles = mutualFriends.map(friend => ({
-      ...friend,
-      profilePhoto: spMap[String(friend._id)]?.profilePhoto || null,
-      displayName: spMap[String(friend._id)]?.displayName || null,
+    const mutualFriendsWithProfiles = await Promise.all(mutualFriends.map(async (friend) => {
+      const profilePhoto = spMap[String(friend._id)]?.profilePhoto;
+      const processedProfilePhoto = profilePhoto ? await getImageUrl(profilePhoto) : null;
+      
+      return {
+        ...friend,
+        profilePhoto: processedProfilePhoto,
+        displayName: spMap[String(friend._id)]?.displayName || null,
+      };
     }));
 
     res.json({ success: true, data: mutualFriendsWithProfiles });

@@ -22,17 +22,15 @@ const FriendItem = ({ friend }) => {
           </Text>
         </View>
       )}
-      <View style={s.friendInfo}>
-        <Text style={s.friendName}>{friend.firstName || friend.userName}</Text>
-        {friend.displayName && <Text style={s.friendUsername}>@{friend.userName}</Text>}
-      </View>
+      <Text style={s.friendName}>{friend.firstName || friend.userName}</Text>
+      {friend.displayName && <Text style={s.friendUsername}>@{friend.userName}</Text>}
     </TouchableOpacity>
   );
 };
 
 const s = StyleSheet.create({
   friendItem: {
-    flexDirection: 'row',
+    flexDirection: 'column',
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 12,
@@ -40,10 +38,10 @@ const s = StyleSheet.create({
     borderBottomColor: '#F5F5F5',
   },
   friendAvatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    marginRight: 12,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    marginBottom: 8,
   },
   friendAvatarFallback: {
     backgroundColor: BRAND,
@@ -52,21 +50,20 @@ const s = StyleSheet.create({
   },
   friendAvatarInitial: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: 20,
     fontFamily: 'PlusJakartaSansBold',
-  },
-  friendInfo: {
-    flex: 1,
   },
   friendName: {
     fontSize: 15,
     fontFamily: 'PlusJakartaSansBold',
     color: '#111',
+    textAlign: 'center',
   },
   friendUsername: {
     fontSize: 13,
     fontFamily: 'PlusJakartaSansMedium',
     color: '#666',
+    textAlign: 'center',
   },
 });
 

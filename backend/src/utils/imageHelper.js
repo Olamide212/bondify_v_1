@@ -40,6 +40,35 @@ const mapImagesWithAccessUrls = async (images = []) => {
 };
 
 /**
+ * Process a single image publicId to get an accessible URL
+ * @param {string} publicId - S3 object key
+ * @returns {string|null} - Accessible URL or null if no publicId
+ */
+const getImageUrl = async (publicId) => {
+  if (!publicId) return null;
+
+  const bucket = process.env.AWS_S3_BUCKET;
+  const baseUrl = process.env.AWS_S3_PUBLIC_BASE_URL;
+
+  if (!bucket) return null;
+
+  if (baseUrl) {
+    return `${baseUrl.replace(/\/$/, '')}/${publicId}`;
+  }
+
+  try {
+    const signedUrl = await getSignedUrl(
+      s3,
+      new GetObjectCommand({ Bucket: bucket, Key: publicId }),
+      { expiresIn: 60 * 60 }
+    );
+    return signedUrl;
+  } catch (_) {
+    return null;
+  }
+};
+
+/**
  * Upload a single file (multer file object) to S3
  * @param {Object} file - multer file object with buffer, originalname, mimetype
  * @param {string} folder - S3 folder prefix e.g. 'verifications/userId'
@@ -93,5 +122,5 @@ const deleteFromS3 = async (publicId) => {
   await s3.send(new DeleteObjectCommand({ Bucket: bucket, Key: publicId }));
 };
 
-module.exports = { mapImagesWithAccessUrls, mapUserImages, uploadToS3, deleteFromS3 };
+module.exports = { mapImagesWithAccessUrls, mapUserImages, getImageUrl, uploadToS3, deleteFromS3 };
 
