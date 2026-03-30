@@ -142,6 +142,34 @@ const bondupService = {
     const res = await apiClient.get(`/bondup/mutual-friends/${userId}`);
     return res.data;
   },
+
+  /**
+   * Get the current user's social profile.
+   */
+  getSocialProfile: async () => {
+    const res = await apiClient.get('/bondup/social-profile');
+    return res.data;
+  },
+
+  /**
+   * Update the current user's social profile.
+   * @param {{ userName?, displayName?, profilePhoto?, bio? }} data
+   */
+  updateSocialProfile: async (data) => {
+    const res = await apiClient.patch('/bondup/social-profile', data);
+    return res.data;
+  },
+
+  /**
+   * Upload a social profile photo.
+   * @param {FormData} formData
+   */
+  uploadSocialPhoto: async (formData) => {
+    const res = await apiClient.post('/bondup/social-profile/photo', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return res.data;
+  },
 };
 
 export default bondupService;

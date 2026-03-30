@@ -4,6 +4,9 @@ import { colors } from '../../../constant/colors';
 
 const BRAND = colors.primary;
 
+const avatarUrl = (user) =>
+  user?.profilePhoto || user?.images?.[0]?.url || user?.images?.[0] || null;
+
 const FriendItem = ({ friend }) => {
   const router = useRouter();
 
@@ -11,10 +14,12 @@ const FriendItem = ({ friend }) => {
     router.push(`/bondup-profile/${friend._id}`);
   };
 
+  const friendAvatar = avatarUrl(friend);
+
   return (
     <TouchableOpacity style={s.friendItem} onPress={handlePress} activeOpacity={0.7}>
-      {friend.profilePhoto ? (
-        <Image source={{ uri: friend.profilePhoto }} style={s.friendAvatar} />
+      {friendAvatar ? (
+        <Image source={{ uri: friendAvatar }} style={s.friendAvatar} />
       ) : (
         <View style={[s.friendAvatar, s.friendAvatarFallback]}>
           <Text style={s.friendAvatarInitial}>
@@ -23,7 +28,7 @@ const FriendItem = ({ friend }) => {
         </View>
       )}
       <Text style={s.friendName}>{friend.firstName || friend.userName}</Text>
-      {friend.displayName && <Text style={s.friendUsername}>@{friend.userName}</Text>}
+      {friend.displayName && <Text style={s.friendUsername}>{friend.userName}</Text>}
     </TouchableOpacity>
   );
 };
@@ -34,13 +39,12 @@ const s = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F5F5F5',
+
   },
   friendAvatar: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    width: 100,
+    height: 100,
+    borderRadius: 50,
     marginBottom: 8,
   },
   friendAvatarFallback: {

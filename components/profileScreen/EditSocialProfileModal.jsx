@@ -21,7 +21,7 @@ import {
 } from "react-native";
 import { colors } from "../../constant/colors";
 import { useAlert } from "../../context/AlertContext";
-import feedService from "../../services/feedService";
+import bondupService from "../../services/bondupService";
 import BaseModal from "../modals/BaseModal";
 
 const BRAND = colors.primary;
@@ -58,7 +58,7 @@ export default function EditSocialProfileModal({ visible, onClose, initialData, 
         userName: userName.trim(),
         bio: bio.trim(),
       };
-      await feedService.updateSocialProfile(payload);
+      await bondupService.updateSocialProfile(payload);
       onSaved?.(payload);
       onClose();
     } catch (e) {

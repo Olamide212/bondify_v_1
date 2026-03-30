@@ -10,18 +10,19 @@ import { useRouter } from "expo-router";
 import { ArrowLeft, Pencil, Plus } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
 import {
-  ActivityIndicator,
-  Image,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View
+    ActivityIndicator,
+    Image,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useSelector } from "react-redux";
 import { colors } from "../../../constant/colors";
 import { useAlert } from "../../../context/AlertContext";
+import bondupService from "../../../services/bondupService";
 import feedService from "../../../services/feedService";
 import apiClient from "../../../utils/axiosInstance";
 
@@ -59,7 +60,7 @@ export default function FeedProfileScreen() {
     if (!currentUser?._id) return;
     setLoadingData(true);
     Promise.all([
-      feedService.getSocialProfile().catch(() => null),
+      bondupService.getSocialProfile().catch(() => null),
       feedService.getUserProfile(currentUser._id).catch(() => null),
       feedService.getSavedPosts().catch(() => null),
     ])
@@ -113,7 +114,7 @@ export default function FeedProfileScreen() {
       const formData = new FormData();
       formData.append("profilePhoto", { uri, name: fileName, type: mimeType });
 
-      const res = await apiClient.post("/feed/social-profile/photo", formData, {
+      const res = await apiClient.post("/bondup/social-profile/photo", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
@@ -146,7 +147,7 @@ export default function FeedProfileScreen() {
     if (!userName.trim()) return;
     setSaving(true);
     try {
-      await feedService.updateSocialProfile({ userName: userName.trim() });
+      await bondupService.updateSocialProfile({ userName: userName.trim() });
     } catch (e) {
       showAlert({
         icon: 'error',

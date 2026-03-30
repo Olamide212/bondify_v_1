@@ -16,7 +16,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useSelector } from "react-redux";
 import { colors } from "../../../constant/colors";
 import { useAlert } from "../../../context/AlertContext";
-import feedService from "../../../services/feedService";
+import bondupService from "../../../services/bondupService";
 import apiClient from "../../../utils/axiosInstance";
 
 const BRAND = colors.primary;
@@ -45,7 +45,7 @@ export default function EditFeedProfileScreen() {
     let mounted = true;
     const loadProfile = async () => {
       try {
-        const res = await feedService.getSocialProfile();
+        const res = await bondupService.getSocialProfile();
         const profile = res?.data ?? res;
         if (!mounted) return;
         setDisplayNameInput(profile?.displayName ?? fallbackDisplayName(currentUser));
@@ -87,7 +87,7 @@ export default function EditFeedProfileScreen() {
       const formData = new FormData();
       formData.append("profilePhoto", { uri, name: fileName, type: mimeType });
 
-      const res = await apiClient.post("/feed/social-profile/photo", formData, {
+      const res = await apiClient.post("/bondup/social-profile/photo", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
@@ -136,7 +136,7 @@ export default function EditFeedProfileScreen() {
 
     setSaving(true);
     try {
-      await feedService.updateSocialProfile({
+      await bondupService.updateSocialProfile({
         displayName: trimmedDisplayName,
         userName: trimmedUserName,
       });

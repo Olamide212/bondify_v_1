@@ -925,6 +925,79 @@ const getBondupProfile = async (req, res, next) => {
   }
 };
 
+// ─────────────────────────────────────────────────────────────────────────────
+// GET /api/bondup/social-profile — current user's social profile —————————————
+const getSocialProfile = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id)
+      .select('firstName lastName userName nationality images')
+      .lean();
+    if (!user) return res.status(404).json({ success: false, message: 'User not found.' });
+
+    let socialProfile = await SocialProfile.findOne({ user: req.user._id }).lean();
+    if (!socialProfile) {
+      // Auto-seed from existing user data on first access
+      socialProfile = await SocialProfile.create({ user: req.user._id, userName: user.userName });
+    }
+
+    const followersCount = await Follow.countDocuments({ following: req.user._id });
+    const followingCount = await Follow.countDocuments({ follower: req.user._id });
+    const postsCount     = await Post.countDocuments({ author: req.user._id, isPublic: true });
+    res.json({
+      success: true,
+      data: {
+        ...user,
+        displayName:  socialProfile.displayName  ?? null,
+        profilePhoto: socialProfile.profilePhoto  ?? null,
+        bio:          socialProfile.bio           ?? null,
+        followersCount,
+        followingCount,
+        postsCount,
+      },
+    });
+  } catch (err) { next(err); }
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PATCH /api/bondup/social-profile — update social profile fields ————————————
+const updateSocialProfile = async (req, res, next) => {
+  try {
+    const { userName, displayName, profilePhoto, bio } = req.body;
+    const updates = {};
+    if (userName     !== undefined) updates.userName     = String(userName).trim().toLowerCase();
+    if (displayName  !== undefined) updates.displayName  = String(displayName).trim();
+    if (profilePhoto !== undefined) updates.profilePhoto = profilePhoto;
+    if (bio          !== undefined) updates.bio          = String(bio).trim();
+
+    const socialProfile = await SocialProfile.findOneAndUpdate(
+      { user: req.user._id },
+      updates,
+      { new: true, upsert: true }
+    ).lean();
+    res.json({ success: true, data: socialProfile });
+  } catch (err) { next(err); }
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// POST /api/bondup/social-profile/photo — upload social avatar to S3 —————————
+const uploadSocialPhoto = async (req, res, next) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: 'No file uploaded.' });
+    }
+
+    const { url, publicId } = await uploadToS3(req.file, `social-avatars/${req.user._id}`);
+
+    const socialProfile = await SocialProfile.findOneAndUpdate(
+      { user: req.user._id },
+      { profilePhoto: url, profilePhotoKey: publicId },
+      { new: true, upsert: true }
+    ).lean();
+
+    res.json({ success: true, data: { profilePhoto: url, socialProfile } });
+  } catch (err) { next(err); }
+};
+
 module.exports = {
   createBondup,
   getPublicBondups,
@@ -942,4 +1015,7 @@ module.exports = {
   getFriends,
   getFriendStatus,
   getMutualFriends,
+  getSocialProfile,
+  updateSocialProfile,
+  uploadSocialPhoto,
 };

@@ -13,6 +13,7 @@ import {
 } from "react-native";
 import { colors } from "../../constant/colors";
 import { useAlert } from "../../context/AlertContext";
+import bondupService from "../../services/bondupService";
 import feedService from "../../services/feedService";
 import apiClient from "../../utils/axiosInstance";
 import BaseModal from "../modals/BaseModal";
@@ -46,7 +47,7 @@ const FeedProfileSheet = ({ visible, user, onClose, onUpdate }) => {
     }
     setLoadingData(true);
     Promise.all([
-      feedService.getSocialProfile().catch(() => null),
+      bondupService.getSocialProfile().catch(() => null),
       feedService.getUserProfile(user._id).catch(() => null),
       feedService.getSavedPosts().catch(() => null),
     ])
@@ -93,7 +94,7 @@ const FeedProfileSheet = ({ visible, user, onClose, onUpdate }) => {
         type: mimeType,
       });
 
-      const res = await apiClient.post("/feed/social-profile/photo", formData, {
+      const res = await apiClient.post("/bondup/social-profile/photo", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
@@ -122,7 +123,7 @@ const FeedProfileSheet = ({ visible, user, onClose, onUpdate }) => {
     if (!userName.trim()) return;
     setSaving(true);
     try {
-      await feedService.updateSocialProfile({ userName: userName.trim() });
+      await bondupService.updateSocialProfile({ userName: userName.trim() });
       onUpdate?.({ userName: userName.trim() });
     } catch (e) {
       showAlert({

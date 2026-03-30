@@ -73,12 +73,14 @@ export default function SocialProfileTab() {
   const [bondupStats, setBondupStats] = useState({ created: 0, joined: 0 });
   const justPickedPhotoRef = useRef(false);
 
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+
   // ── Load social profile data ─────────────────────────────────────────────
   useEffect(() => {
     if (!currentUser?._id) return;
     setLoadingData(true);
     Promise.all([
-      feedService.getSocialProfile().catch(() => null),
+      bondupService.getSocialProfile().catch(() => null),
       feedService.getUserProfile(currentUser._id).catch(() => null),
       bondupService.getMyBondups().catch(() => null),
     ])
@@ -111,7 +113,7 @@ export default function SocialProfileTab() {
       })
       .finally(() => setLoadingData(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentUser?._id]);
+  }, [currentUser?._id, refreshTrigger]);
 
   // ── Pick & upload photo ──────────────────────────────────────────────────
   const handlePickPhoto = async () => {
@@ -134,7 +136,7 @@ export default function SocialProfileTab() {
     try {
       const formData = new FormData();
       formData.append("profilePhoto", { uri, name: fileName, type: mimeType });
-      const res = await apiClient.post("/feed/social-profile/photo", formData, {
+      const res = await apiClient.post("/bondup/social-profile/photo", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
       const uploadedUrl =
@@ -144,6 +146,20 @@ export default function SocialProfileTab() {
         uri;
       setLocalAvatarUri(uploadedUrl);
       justPickedPhotoRef.current = false;
+
+      // Refresh social profile data to ensure consistency
+      try {
+        const socialRes = await bondupService.getSocialProfile();
+        if (socialRes?.data) {
+          setLocalAvatarUri(socialRes.data.profilePhoto || avatarUrl(currentUser));
+          setUserName(socialRes.data.userName || currentUser?.userName || "");
+          setBio(socialRes.data.bio || "");
+          const apiName = socialRes.data.displayName?.trim?.();
+          if (apiName) setDisplayName(apiName);
+        }
+      } catch {
+        // If refresh fails, keep the uploaded URL
+      }
     } catch (e) {
       justPickedPhotoRef.current = false;
       setLocalAvatarUri(avatarUrl(currentUser));
@@ -327,9 +343,8 @@ export default function SocialProfileTab() {
         onClose={() => setShowEditModal(false)}
         initialData={{ displayName, userName, bio }}
         onSaved={(data) => {
-          if (data.displayName) setDisplayName(data.displayName);
-          if (data.userName) setUserName(data.userName);
-          if (data.bio !== undefined) setBio(data.bio);
+          // Trigger a refresh of all social profile data
+          setRefreshTrigger(prev => prev + 1);
         }}
       />
     </View>

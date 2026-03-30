@@ -104,6 +104,34 @@ export default function BondupProfileScreen() {
     if (!id) return;
     setError(false);
     try {
+      // Handle current user's own profile
+      if (isOwnProfile && currentUser) {
+        // Use the same bondup profile endpoint for consistency
+        try {
+          const res = await bondupService.getBondupProfile(id);
+          if (res?.data) {
+            setProfile(res.data.user);
+            setStats(res.data.stats || {});
+            setActiveBondups(res.data.activeBondups || []);
+            setFriendStatus('none'); // Can't be friends with yourself
+            await loadFriends();
+            return;
+          }
+        } catch {
+          // Fall back to current user data
+          setProfile(currentUser);
+          setStats({
+            followersCount: currentUser.followersCount || 0,
+            followingCount: currentUser.followingCount || 0,
+            bondups: currentUser.bondupCount || 0,
+            bio: currentUser.bio || currentUser.socialBio || '',
+          });
+          setFriendStatus('none');
+          await loadFriends();
+          return;
+        }
+      }
+
       let loaded = false;
 
       // Primary: bondup profile endpoint (no chatId needed)
@@ -154,7 +182,7 @@ export default function BondupProfileScreen() {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [id, loadFriends, loadMutualFriends]);
+  }, [id, isOwnProfile, currentUser, loadFriends, loadMutualFriends]);
 
   useEffect(() => {
     loadProfile();

@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { protect } = require('../middleware/auth');
+const upload = require('../middleware/upload');
 const {
   createBondup,
   getPublicBondups,
@@ -18,6 +19,9 @@ const {
   getFriends,
   getFriendStatus,
   getMutualFriends,
+  getSocialProfile,
+  updateSocialProfile,
+  uploadSocialPhoto,
 } = require('../controllers/bondupController');
 
 // All routes require authentication
@@ -39,8 +43,7 @@ router.get('/mutual-friends/:userId', getMutualFriends);
 router.get('/:id', getBondup);
 router.delete('/:id', deleteBondup);
 
-// Join / Leave
-router.post('/join/:id', joinBondup);
-router.post('/leave/:id', leaveBondup);
-
-module.exports = router;
+// Social Profile
+router.get('/social-profile', getSocialProfile);
+router.patch('/social-profile', updateSocialProfile);
+router.post('/social-profile/photo', upload.single('profilePhoto'), uploadSocialPhoto);

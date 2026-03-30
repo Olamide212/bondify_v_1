@@ -717,7 +717,7 @@ export default function CreateBondupModal({ visible, onClose, onCreated }) {
             >
               <Globe size={22} color={visibility === 'public' ? BRAND : '#999'} />
               <Text style={[s.visibilityCardTitle, visibility === 'public' && s.visibilityCardTitleActive]}>
-                Public 🌍
+                Public 
               </Text>
               <Text style={s.visibilityCardDesc}>Visible to your city</Text>
             </TouchableOpacity>
@@ -728,7 +728,7 @@ export default function CreateBondupModal({ visible, onClose, onCreated }) {
             >
               <Lock size={22} color={visibility === 'circle' ? BRAND : '#999'} />
               <Text style={[s.visibilityCardTitle, visibility === 'circle' && s.visibilityCardTitleActive]}>
-                Circle 👥
+                Circle 
               </Text>
               <Text style={s.visibilityCardDesc}>Friends only</Text>
             </TouchableOpacity>
