@@ -28,6 +28,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSelector } from 'react-redux';
 import BondupsTab from '../../../components/bondup/bondup-profile/BondupsTab';
 import FriendActionButton from '../../../components/bondup/bondup-profile/FriendActionButton';
+import FriendRequestsModal from '../../../components/bondup/bondup-profile/FriendRequestsModal';
 import FriendsTab from '../../../components/bondup/bondup-profile/FriendsTab';
 import MutualFriendsTab from '../../../components/bondup/bondup-profile/MutualFriendsTab';
 import ProfileTabs from '../../../components/bondup/bondup-profile/ProfileTabs';
@@ -62,6 +63,7 @@ export default function BondupProfileScreen() {
   const [mutualFriendsLoading, setMutualFriendsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('bondups'); // 'bondups', 'friends', 'mutual'
   const [refreshing, setRefreshing] = useState(false);
+  const [showFriendRequests, setShowFriendRequests] = useState(false);
 
   const isOwnProfile = String(id) === String(currentUser?._id);
 
@@ -155,6 +157,13 @@ export default function BondupProfileScreen() {
     loadProfile();
   }, [id, chatId, loadProfile]);
 
+  // Handle tab switching when viewing other users' profiles
+  useEffect(() => {
+    if (!isOwnProfile && activeTab === 'friends') {
+      setActiveTab('bondups');
+    }
+  }, [isOwnProfile, activeTab]);
+
   const onRefresh = () => {
     setRefreshing(true);
     loadProfile();
@@ -174,6 +183,20 @@ export default function BondupProfileScreen() {
       // silent
     } finally {
       setFriendRequestLoading(false);
+    }
+  };
+
+  const handleEditProfile = () => {
+    router.push('/profile?tab=social');
+  };
+
+  const handleBondupUpdate = (updatedBondup, bondupId) => {
+    if (bondupId && !updatedBondup) {
+      // Bondup was deleted
+      setActiveBondups(prev => prev.filter(b => b._id !== bondupId));
+    } else if (updatedBondup) {
+      // Bondup was updated
+      setActiveBondups(prev => prev.map(b => b._id === updatedBondup._id ? updatedBondup : b));
     }
   };
 
@@ -268,15 +291,23 @@ export default function BondupProfileScreen() {
         <FriendActionButton
           friendStatus={friendStatus}
           onSendRequest={handleFriendRequest}
+          onShowRequests={() => setShowFriendRequests(true)}
+          onEditProfile={handleEditProfile}
           loading={friendRequestLoading}
+          isOwnProfile={isOwnProfile}
         />
 
         {/* Tab Navigation */}
-        <ProfileTabs activeTab={activeTab} onTabChange={setActiveTab} />
+        <ProfileTabs activeTab={activeTab} onTabChange={setActiveTab} isOwnProfile={isOwnProfile} />
 
         {/* Tab Content */}
         {activeTab === 'bondups' && (
-          <BondupsTab bondups={activeBondups} loading={false} />
+          <BondupsTab 
+            bondups={activeBondups} 
+            loading={false} 
+            currentUserId={currentUser?._id}
+            onBondupUpdate={handleBondupUpdate}
+          />
         )}
         {activeTab === 'friends' && (
           <FriendsTab friends={friends} loading={friendsLoading} />
@@ -285,6 +316,11 @@ export default function BondupProfileScreen() {
           <MutualFriendsTab mutualFriends={mutualFriends} loading={mutualFriendsLoading} />
         )}
       </ScrollView>
+
+      <FriendRequestsModal
+        visible={showFriendRequests}
+        onClose={() => setShowFriendRequests(false)}
+      />
     </SafeAreaView>
   );
 }

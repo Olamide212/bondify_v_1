@@ -7,18 +7,18 @@
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
-import { Plus } from 'lucide-react-native';
+import { Plus, User } from 'lucide-react-native';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
-    ActivityIndicator,
-    AppState,
-    Image,
-    RefreshControl,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  AppState,
+  Image,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useSelector } from 'react-redux';
@@ -440,7 +440,7 @@ export default function BondupFeedScreen() {
             style={fStyles.headerLogo}
             resizeMode="contain"
           />
-          {/* <TouchableOpacity onPress={() => router.push('/feed-profile')}>
+          <TouchableOpacity onPress={() => router.push(`/bondup-profile/${currentUser?._id}`)}>
             {userAvatar ? (
               <Image source={{ uri: userAvatar }} style={fStyles.headerAvatar} />
             ) : (
@@ -448,7 +448,7 @@ export default function BondupFeedScreen() {
                 <User size={18} color="#fff" />
               </View>
             )}
-          </TouchableOpacity> */}
+          </TouchableOpacity>
         </View>
 
         {/* ── Day filters ─────────────────────────────────────────────── */}

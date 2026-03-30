@@ -1,7 +1,7 @@
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import ActiveBondupCard from './ActiveBondupCard';
 
-const BondupsTab = ({ bondups, loading }) => {
+const BondupsTab = ({ bondups, loading, currentUserId, onBondupUpdate }) => {
   if (loading) {
     return (
       <View style={s.tabContent}>
@@ -49,7 +49,12 @@ const BondupsTab = ({ bondups, loading }) => {
           <View key={day} style={s.daySection}>
             <Text style={s.dayLabel}>{day}</Text>
             {dayBondups.map((bondup) => (
-              <ActiveBondupCard key={bondup._id} bondup={bondup} />
+              <ActiveBondupCard 
+                key={bondup._id} 
+                bondup={bondup} 
+                currentUserId={currentUserId}
+                onBondupUpdate={onBondupUpdate}
+              />
             ))}
           </View>
         ))}
@@ -92,7 +97,7 @@ const s = StyleSheet.create({
     color: '#111',
     paddingHorizontal: 16,
     paddingVertical: 8,
-    backgroundColor: '#F8F9FA',
+    // backgroundColor: '#F8F9FA',
   },
 });
 

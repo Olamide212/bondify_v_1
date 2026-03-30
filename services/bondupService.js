@@ -91,6 +91,14 @@ const bondupService = {
   },
 
   /**
+   * Get pending friend requests for the current user.
+   */
+  getFriendRequests: async () => {
+    const res = await apiClient.get('/bondup/friend-requests');
+    return res.data;
+  },
+
+  /**
    * Accept a friend request.
    * @param {string} requestId
    */

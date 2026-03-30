@@ -609,6 +609,39 @@ const declineFriendRequest = async (req, res, next) => {
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
+// GET /api/bondup/friend-requests — get pending friend requests for current user
+// ─────────────────────────────────────────────────────────────────────────────
+const getFriendRequests = async (req, res, next) => {
+  try {
+    const requests = await FriendRequest.find({
+      receiver: req.user._id,
+      status: 'pending'
+    })
+    .populate('sender', 'firstName lastName userName images profilePhoto')
+    .sort({ createdAt: -1 })
+    .lean();
+
+    // Attach social profile data
+    const senderIds = requests.map(r => r.sender._id);
+    const SocialProfile = require('../models/SocialProfile');
+    const socialProfiles = await SocialProfile.find({ user: { $in: senderIds } }).lean();
+    const spMap = {};
+    socialProfiles.forEach(sp => { spMap[String(sp.user)] = sp; });
+
+    const enrichedRequests = requests.map(request => ({
+      ...request,
+      sender: {
+        ...request.sender,
+        profilePhoto: spMap[String(request.sender._id)]?.profilePhoto || request.sender.profilePhoto,
+        displayName: spMap[String(request.sender._id)]?.displayName || null,
+      }
+    }));
+
+    res.json({ success: true, data: enrichedRequests });
+  } catch (err) { next(err); }
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
 // GET /api/bondup/friends/:userId
 // ─────────────────────────────────────────────────────────────────────────────
 const getFriends = async (req, res, next) => {
@@ -868,10 +901,14 @@ const getBondupProfile = async (req, res, next) => {
         activeBondups: activeBondups.map((b) => ({
           _id: b._id,
           title: b.title,
+          description: b.description,
           activityType: b.activityType,
           city: b.city,
           dateTime: b.dateTime,
           participantCount: b.participants?.length || 0,
+          createdBy: b.createdBy,
+          hasJoined: b.participants?.some((pt) => String(pt.user) === String(req.user._id)) || false,
+          isOwner: String(b.createdBy?._id || b.createdBy) === String(req.user._id),
         })),
       },
     });
@@ -891,6 +928,7 @@ module.exports = {
   getMyBondups,
   getBondupProfile,
   sendFriendRequest,
+  getFriendRequests,
   acceptFriendRequest,
   declineFriendRequest,
   getFriends,

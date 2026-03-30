@@ -1,10 +1,26 @@
 import { MapPin, Users } from 'lucide-react-native';
-import { StyleSheet, Text, View } from 'react-native';
-import { colors } from '../../../constant/colors';
+import { useState } from 'react';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useSelector } from "react-redux";
+import { useBondupInteractions } from '../../../hooks/useBondupInteractions';
+import bondupService from '../../../services/bondupService';
+import BondupDetailModal from '../../bondup/BondupDetailModal';
 
-const BRAND = colors.primary;
+const ActiveBondupCard = ({ bondup, currentUserId, onBondupUpdate }) => {
+  const [modalVisible, setModalVisible] = useState(false);
+  const [joinLoading, setJoinLoading] = useState(false);
+  const [detailedBondup, setDetailedBondup] = useState(null);
+  const [loadingDetail, setLoadingDetail] = useState(false);
+  const { user: currentUser } = useSelector((s) => s.auth);
 
-const ActiveBondupCard = ({ bondup }) => {
+  const {
+    handleJoin,
+    handleLeave,
+    handleDelete,
+    handleStartChat,
+    handleStartDirectChat,
+  } = useBondupInteractions();
+
   const emoji = {
     coffee: '☕', food: '🍔', drinks: '🍹', gym: '💪',
     walk: '🚶', movie: '🎬', other: '✨',
@@ -20,26 +36,98 @@ const ActiveBondupCard = ({ bondup }) => {
       })
     : '';
 
+  const handlePress = async () => {
+    setModalVisible(true);
+    setLoadingDetail(true);
+    try {
+      const res = await bondupService.getBondup(bondup._id);
+      if (res.success) {
+        setDetailedBondup(res.data);
+      }
+    } catch (error) {
+      console.error('Failed to load bondup details:', error);
+      // Fallback to basic bondup data if detailed fetch fails
+      setDetailedBondup(bondup);
+    } finally {
+      setLoadingDetail(false);
+    }
+  };
+
+  const handleModalClose = () => {
+    setModalVisible(false);
+    setDetailedBondup(null);
+  };
+
+  const handleJoinPress = async () => {
+    await handleJoin(bondup._id, (updatedBondup) => {
+      setDetailedBondup(updatedBondup);
+      onBondupUpdate?.(updatedBondup);
+    });
+  };
+
+  const handleLeavePress = async () => {
+    await handleLeave(bondup._id, (updatedBondup) => {
+      setDetailedBondup(updatedBondup);
+      onBondupUpdate?.(updatedBondup);
+    });
+  };
+
+  const handleDeletePress = async () => {
+    await handleDelete(bondup._id, () => {
+      onBondupUpdate?.(null, bondup._id); // Pass null data and bondupId to indicate deletion
+      setModalVisible(false);
+      setDetailedBondup(null);
+    });
+  };
+
+  const handleStartChatPress = async () => {
+    await handleStartChat(detailedBondup || bondup);
+  };
+
+  const handleStartDirectChatPress = async (userId) => {
+    await handleStartDirectChat(userId);
+  };
+
   return (
-    <View style={s.bondupCard}>
-      <Text style={s.bondupEmoji}>{emoji}</Text>
-      <View style={s.bondupCardContent}>
-        <Text style={s.bondupTitle} numberOfLines={1}>{bondup.title}</Text>
-        <View style={s.bondupMeta}>
-          {!!bondup.city && (
-            <View style={s.bondupMetaRow}>
-              <MapPin size={11} color="#888" />
-              <Text style={s.bondupMetaText}>{bondup.city}</Text>
-            </View>
+    <>
+      <TouchableOpacity style={s.bondupCard} onPress={handlePress} activeOpacity={0.7}>
+        <Text style={s.bondupEmoji}>{emoji}</Text>
+        <View style={s.bondupCardContent}>
+          <Text style={s.bondupTitle} numberOfLines={1}>{bondup.title}</Text>
+          {!!bondup.description && (
+            <Text style={s.bondupDescription} numberOfLines={2}>
+              {bondup.description}
+            </Text>
           )}
-          {!!dateLabel && <Text style={s.bondupMetaText}>{dateLabel}</Text>}
+          <View style={s.bondupMeta}>
+            {!!bondup.city && (
+              <View style={s.bondupMetaRow}>
+                <MapPin size={11} color="#888" />
+                <Text style={s.bondupMetaText}>{bondup.city}</Text>
+              </View>
+            )}
+            {!!dateLabel && <Text style={s.bondupMetaText}>{dateLabel}</Text>}
+          </View>
         </View>
-      </View>
-      <View style={s.bondupParticipants}>
-        <Users size={13} color="#888" />
-        <Text style={s.bondupParticipantCount}>{bondup.participantCount ?? 0}</Text>
-      </View>
-    </View>
+        <View style={s.bondupParticipants}>
+          <Users size={13} color="#888" />
+          <Text style={s.bondupParticipantCount}>{bondup.participantCount ?? 0}</Text>
+        </View>
+      </TouchableOpacity>
+
+      <BondupDetailModal
+        visible={modalVisible}
+        bondup={detailedBondup || bondup}
+        currentUserId={currentUser?._id}
+        onClose={handleModalClose}
+        onJoin={handleJoinPress}
+        onLeave={handleLeavePress}
+        onDelete={handleDeletePress}
+        onStartChat={handleStartChatPress}
+        onStartDirectChat={handleStartDirectChatPress}
+        joinLoading={joinLoading || loadingDetail}
+      />
+    </>
   );
 };
 
@@ -48,9 +136,12 @@ const s = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
+    marginHorizontal: 20,
     paddingVertical: 14,
     borderBottomWidth: 1,
     borderBottomColor: '#F5F5F5',
+    backgroundColor: '#007AFF10',
+    borderRadius: 12,
   },
   bondupEmoji: {
     fontSize: 24,
@@ -64,6 +155,13 @@ const s = StyleSheet.create({
     fontFamily: 'PlusJakartaSansBold',
     color: '#111',
     marginBottom: 3,
+  },
+  bondupDescription: {
+    fontSize: 13,
+    fontFamily: 'PlusJakartaSans',
+    color: '#666',
+    marginBottom: 6,
+    lineHeight: 18,
   },
   bondupMeta: {
     flexDirection: 'row',

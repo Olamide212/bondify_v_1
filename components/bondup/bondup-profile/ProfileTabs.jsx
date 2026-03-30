@@ -1,15 +1,15 @@
 import { Calendar, Users } from 'lucide-react-native';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { colors } from '../../../constant/colors';
 
-const BRAND = colors.primary;
-
-const ProfileTabs = ({ activeTab, onTabChange }) => {
-  const tabs = [
+const ProfileTabs = ({ activeTab, onTabChange, isOwnProfile }) => {
+  const allTabs = [
     { key: 'bondups', label: 'Bondups', icon: Calendar },
     { key: 'friends', label: 'Friends', icon: Users },
     { key: 'mutual', label: 'Mutual Friends', icon: Users },
   ];
+
+  // For other users, don't show the 'friends' tab
+  const tabs = isOwnProfile ? allTabs : allTabs.filter(tab => tab.key !== 'friends');
 
   return (
     <View style={s.tabNavigation}>
@@ -23,7 +23,7 @@ const ProfileTabs = ({ activeTab, onTabChange }) => {
             style={[s.tabButton, isActive && s.activeTabButton]}
             onPress={() => onTabChange(tab.key)}
           >
-            <Icon size={16} color={isActive ? '#fff' : '#666'} />
+            {/* <Icon size={16} color={isActive ? '#000' : '#666'} /> */}
             <Text style={[s.tabButtonText, isActive && s.activeTabButtonText]}>
               {tab.label}
             </Text>
@@ -39,8 +39,9 @@ const s = StyleSheet.create({
     flexDirection: 'row',
     borderBottomWidth: 1,
     borderBottomColor: '#F0F0F0',
-    marginHorizontal: 16,
+    // marginHorizontal: 16,
     marginBottom: 16,
+    marginTop: 20
   },
   tabButton: {
     flex: 1,
@@ -54,15 +55,15 @@ const s = StyleSheet.create({
   },
   activeTabButton: {
     borderBottomWidth: 2,
-    borderBottomColor: BRAND,
+    borderBottomColor: '#000',
   },
   tabButtonText: {
-    fontSize: 12,
+    fontSize: 14,
     fontFamily: 'PlusJakartaSansMedium',
     color: '#666',
   },
   activeTabButtonText: {
-    color: BRAND,
+    color: '#000',
     fontFamily: 'PlusJakartaSansBold',
   },
 });

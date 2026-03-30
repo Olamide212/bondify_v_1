@@ -1,7 +1,8 @@
 import { useRouter } from "expo-router";
 import { Plus, X } from "lucide-react-native";
-import { Text, TouchableOpacity, View } from "react-native";
+import { Text, TouchableOpacity, View , StyleSheet } from "react-native";
 import { colors } from "../../constant/colors";
+
 
 /**
  * InterestsCard
@@ -66,8 +67,6 @@ const InterestsCard = ({ interests = [], onRemove }) => {
 const PLACEHOLDER_INTERESTS = ['Art', 'Gaming', 'Cooking', 'Travel', 'Music'];
 
 export default InterestsCard;
-
-import { StyleSheet } from "react-native";
 const styles = StyleSheet.create({
   card: {
     backgroundColor:  '#fff',

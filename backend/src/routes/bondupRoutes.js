@@ -12,6 +12,7 @@ const {
   getMyBondups,
   getBondupProfile,
   sendFriendRequest,
+  getFriendRequests,
   acceptFriendRequest,
   declineFriendRequest,
   getFriends,
@@ -29,6 +30,7 @@ router.get('/circle', getCircleBondups);
 router.get('/my', getMyBondups);
 router.get('/profile/:userId', getBondupProfile);
 router.post('/friend-request/:userId', sendFriendRequest);
+router.get('/friend-requests', getFriendRequests);
 router.post('/friend-request/:requestId/accept', acceptFriendRequest);
 router.post('/friend-request/:requestId/decline', declineFriendRequest);
 router.get('/friends/:userId?', getFriends);
