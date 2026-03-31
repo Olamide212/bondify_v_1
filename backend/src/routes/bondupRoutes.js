@@ -42,6 +42,8 @@ router.get('/friend-status/:userId', getFriendStatus);
 router.get('/mutual-friends/:userId', getMutualFriends);
 router.get('/:id', getBondup);
 router.delete('/:id', deleteBondup);
+router.post('/join/:id', joinBondup);
+router.post('/leave/:id', leaveBondup);
 
 // Social Profile
 router.get('/social-profile', getSocialProfile);

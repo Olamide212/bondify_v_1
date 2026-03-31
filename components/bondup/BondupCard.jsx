@@ -101,42 +101,47 @@ export default function BondupCard({
       onPress={() => onPress?.(bondup)}
       activeOpacity={0.88}
     >
-      {/* ── Top row: avatar | name + time | category badge ── */}
-      <View style={s.topRow}>
-        <TouchableOpacity
-          onPress={() => creatorId && router.push(`/bondup-profile/${creatorId}`)}
-          activeOpacity={0.8}
-        >
-          {creatorAv ? (
-            <Image 
-              source={{ uri: creatorAv }} 
-              style={s.creatorAvatar} 
-              cachePolicy="memory-disk"
-              placeholder={{ color: '#E5E7EB' }}
-              transition={200}
-            />
-          ) : (
-            <View style={[s.creatorAvatar, s.creatorAvatarFallback]}>
-              <Text style={s.creatorInitial}>
-                {(creator?.firstName || 'U')[0].toUpperCase()}
-              </Text>
-            </View>
-          )}
-        </TouchableOpacity>
+      {/* Background layers */}
+      <View style={s.cardBackground}>
+        <View style={s.cardGradient} />
+        <View style={s.cardPattern} />
 
-        <View style={s.creatorMeta}>
-          <Text style={s.creatorName}>{getFullName(creator)}</Text>
-          <Text style={s.timeAgoText}>
-            {bondup.createdAt ? timeAgo(bondup.createdAt) : formatDateTime(bondup.dateTime)}
-          </Text>
-        </View>
+        {/* ── Top row: avatar | name + time | category badge ── */}
+        <View style={s.topRow}>
+          <TouchableOpacity
+            onPress={() => creatorId && router.push(`/bondup-profile/${creatorId}`)}
+            activeOpacity={0.8}
+          >
+            {creatorAv ? (
+              <Image 
+                source={{ uri: creatorAv }} 
+                style={s.creatorAvatar} 
+                cachePolicy="memory-disk"
+                placeholder={{ color: '#E5E7EB' }}
+                transition={200}
+              />
+            ) : (
+              <View style={[s.creatorAvatar, s.creatorAvatarFallback]}>
+                <Text style={s.creatorInitial}>
+                  {(creator?.firstName || 'U')[0].toUpperCase()}
+                </Text>
+              </View>
+            )}
+          </TouchableOpacity>
 
-        <View style={s.categoryBadge}>
-          <Text style={s.categoryText}>
-            {activityLabel.toUpperCase()} 
-          </Text>
+          <View style={s.creatorMeta}>
+            <Text style={s.creatorName}>{getFullName(creator)}</Text>
+            <Text style={s.timeAgoText}>
+              {bondup.createdAt ? timeAgo(bondup.createdAt) : formatDateTime(bondup.dateTime)}
+            </Text>
+          </View>
+
+          <View style={s.categoryBadge}>
+            <Text style={s.categoryText}>
+              {activityLabel.toUpperCase()} 
+            </Text>
+          </View>
         </View>
-      </View>
 
       {/* ── Location row ── */}
       {(!!bondup.location || !!bondup.city) && (
@@ -213,6 +218,7 @@ export default function BondupCard({
           <Text style={s.joinBtnText}>🔥 Join the Bond</Text>
         </TouchableOpacity>
       )}
+      </View>
     </TouchableOpacity>
   );
 }
@@ -220,31 +226,60 @@ export default function BondupCard({
 // ─── Styles ───────────────────────────────────────────────────────────────────
 const s = StyleSheet.create({
   card: {
-    backgroundColor: '#fff',
     marginHorizontal: 16,
-    marginBottom: 14,
-    borderRadius: 20,
-    padding: 16,
+    marginBottom: 16,
+    borderRadius: 24,
+    overflow: 'hidden',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.07,
-    shadowRadius: 12,
-    elevation: 4,
-
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 16,
+    elevation: 8,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+  },
+  cardBackground: {
+    backgroundColor: '#fff',
+    padding: 20,
+    position: 'relative',
+  },
+  cardGradient: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+  },
+  cardPattern: {
+    position: 'absolute',
+    top: -50,
+    right: -50,
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: 'rgba(59, 130, 246, 0.05)',
+    transform: [{ scale: 2 }],
   },
 
   // Top row
   topRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 12,
+    zIndex: 10,
   },
   creatorAvatar: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    borderWidth: 2,
-    borderColor: `${BRAND}30`,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    borderWidth: 3,
+    borderColor: '#fff',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
   creatorAvatarFallback: {
     backgroundColor: BRAND,
@@ -253,36 +288,39 @@ const s = StyleSheet.create({
   },
   creatorInitial: {
     color: '#fff',
-    fontSize: 17,
+    fontSize: 20,
     fontFamily: 'PlusJakartaSansBold',
   },
   creatorMeta: {
     flex: 1,
-    marginLeft: 10,
+    marginLeft: 12,
   },
   creatorName: {
-    fontSize: 15,
+    fontSize: 16,
     fontFamily: 'PlusJakartaSansBold',
-    color: '#111',
-    textTransform: 'capitalize',
+    color: '#1f2937',
+    marginBottom: 2,
   },
   timeAgoText: {
     fontSize: 12,
     fontFamily: 'PlusJakartaSans',
-    color: '#999',
-    marginTop: 1,
+    color: '#6b7280',
   },
   categoryBadge: {
     backgroundColor: colors.secondary,
     paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 20,
-    marginLeft: 6,
+    paddingVertical: 4,
+    borderRadius: 12,
+    shadowColor: BRAND,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 2,
   },
   categoryText: {
+    color: '#fff',
     fontSize: 10,
     fontFamily: 'PlusJakartaSansBold',
-    color: '#fff',
     letterSpacing: 0.5,
   },
 
@@ -290,13 +328,14 @@ const s = StyleSheet.create({
   locationRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    marginBottom: 8,
+    gap: 6,
+    marginBottom: 10,
+    zIndex: 10,
   },
   locationText: {
-    fontSize: 12,
-    fontFamily: 'PlusJakartaSans',
-    color: '#999',
+    fontSize: 13,
+    fontFamily: 'PlusJakartaSansMedium',
+    color: '#6b7280',
     flex: 1,
   },
 
@@ -329,57 +368,61 @@ const s = StyleSheet.create({
 
   // Title + description
   title: {
-    fontSize: 18,
+    fontSize: 20,
     fontFamily: 'PlusJakartaSansBold',
-    color: '#111',
-    lineHeight: 24,
-    marginBottom: 4,
+    color: '#1f2937',
+    lineHeight: 26,
+    marginBottom: 6,
+    zIndex: 10,
   },
   description: {
-    fontSize: 13,
+    fontSize: 14,
     fontFamily: 'PlusJakartaSans',
-    color: '#777',
-    lineHeight: 18,
-    marginBottom: 10,
+    color: '#6b7280',
+    lineHeight: 20,
+    marginBottom: 12,
+    zIndex: 10,
   },
 
   // Info chips
   infoRow: {
     flexDirection: 'row',
-    gap: 8,
-    marginBottom: 14,
-    marginTop: 2,
+    gap: 10,
+    marginBottom: 16,
+    zIndex: 10,
   },
   infoChip: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 5,
-    backgroundColor: colors.primaryLight,
-    paddingHorizontal: 10,
-    paddingVertical: 7,
-    borderRadius: 10,
+    gap: 6,
+    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(59, 130, 246, 0.2)',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 12,
   },
   infoChipRight: {},
   infoChipText: {
     fontSize: 12,
     fontFamily: 'PlusJakartaSansMedium',
     color: BRAND,
-    flex: 1,
   },
 
   // Buttons
   joinBtn: {
     backgroundColor: BRAND,
-    paddingVertical: 13,
-    borderRadius: 40,
+    paddingVertical: 14,
+    borderRadius: 16,
     alignItems: 'center',
     shadowColor: BRAND,
-    shadowOffset: { width: 0, height: 3 },
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
-    shadowRadius: 6,
-    elevation: 4,
-    width: 160, // Reduced width for smaller button
+    shadowRadius: 8,
+    elevation: 6,
+    width: 160,
+    zIndex: 10,
   },
   joinBtnText: {
     color: '#fff',
@@ -387,25 +430,27 @@ const s = StyleSheet.create({
     fontFamily: 'PlusJakartaSansBold',
   },
   joinedBtn: {
-    paddingVertical: 13,
-    borderRadius: 50,
+    paddingVertical: 14,
+    borderRadius: 16,
     alignItems: 'center',
-    borderWidth: 1.5,
-    borderColor: '#86EFAC',
+    borderWidth: 2,
+    borderColor: '#10B981',
     backgroundColor: '#F0FDF4',
-    width: 160, // Match join button width
+    width: 160,
+    zIndex: 10,
   },
   joinedBtnText: {
-    color: '#16A34A',
+    color: '#059669',
     fontSize: 15,
     fontFamily: 'PlusJakartaSansBold',
   },
   fullBtn: {
-    paddingVertical: 13,
-    borderRadius: 14,
+    paddingVertical: 14,
+    borderRadius: 16,
     alignItems: 'center',
     backgroundColor: '#F3F4F6',
-    width: 160, // Match other button widths
+    width: 160,
+    zIndex: 10,
   },
   fullBtnText: {
     color: '#9CA3AF',
@@ -413,12 +458,14 @@ const s = StyleSheet.create({
     fontFamily: 'PlusJakartaSansMedium',
   },
   manageBtn: {
-    paddingVertical: 13,
-    borderRadius: 50,
+    paddingVertical: 14,
+    borderRadius: 16,
     alignItems: 'center',
-    borderWidth: 1.5,
+    borderWidth: 2,
     borderColor: BRAND,
-    width: 160, // Match other button widths
+    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+    width: 160,
+    zIndex: 10,
   },
   manageBtnText: {
     color: BRAND,
@@ -432,17 +479,18 @@ const s = StyleSheet.create({
     gap: 8,
     width: '100%',
     justifyContent: 'center',
+    zIndex: 10,
   },
   chatBtn: {
     backgroundColor: BRAND,
-    paddingVertical: 13,
-    borderRadius: 14,
+    paddingVertical: 14,
+    borderRadius: 16,
     alignItems: 'center',
     shadowColor: BRAND,
-    shadowOffset: { width: 0, height: 3 },
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
-    shadowRadius: 6,
-    elevation: 4,
+    shadowRadius: 8,
+    elevation: 6,
     flex: 1,
   },
   chatBtnText: {
@@ -451,10 +499,10 @@ const s = StyleSheet.create({
     fontFamily: 'PlusJakartaSansBold',
   },
   exitBtn: {
-    paddingVertical: 13,
-    borderRadius: 14,
+    paddingVertical: 14,
+    borderRadius: 16,
     alignItems: 'center',
-    borderWidth: 1.5,
+    borderWidth: 2,
     borderColor: '#EF4444',
     backgroundColor: '#FEF2F2',
     flex: 1,

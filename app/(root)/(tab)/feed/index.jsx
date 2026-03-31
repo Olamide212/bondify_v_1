@@ -594,8 +594,8 @@ export default function BondupFeedScreen() {
           onPress={() => setShowCreate(true)}
           activeOpacity={0.85}
         >
-          <Plus size={18} color="#fff" />
-          <Text style={fStyles.fabText}>Create Bondup</Text>
+          <Plus size={30} color="#fff" />
+         
         </TouchableOpacity>
 
         {/* ── Modals ──────────────────────────────────────────────────────── */}
@@ -692,8 +692,7 @@ const fStyles = StyleSheet.create({
     marginLeft: 10,
   },
   filterChipActive: {
-    borderColor: BRAND,
-    backgroundColor: colors.primary,
+    backgroundColor: '#000',
   },
   filterChipText: {
     fontSize: 13,
@@ -719,7 +718,7 @@ const fStyles = StyleSheet.create({
     borderBottomColor: 'transparent',
   },
   typeTabActive: {
-    borderBottomColor: BRAND,
+    borderBottomColor: '#000',
   },
   typeTabText: {
     fontSize: 14,
@@ -784,13 +783,12 @@ const fStyles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    paddingHorizontal: 20,
-    paddingVertical: 14,
-    borderRadius: 30,
-    backgroundColor: BRAND,
-    shadowColor: BRAND,
+    padding: 15,
+    borderRadius: 50,
+    backgroundColor: colors.secondary,
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.4,
+    shadowOpacity: 0.2,
     shadowRadius: 10,
     elevation: 10,
   },

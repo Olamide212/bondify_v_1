@@ -98,7 +98,7 @@ const s = StyleSheet.create({
     backgroundColor: colors.secondary,
     paddingVertical: 13,
     paddingHorizontal: 20,
-    borderRadius: 16,
+    borderRadius: 50,
     // shadowColor: BRAND,
     // shadowOffset: { width: 0, height: 4 },
     // shadowOpacity: 0.3,
@@ -115,7 +115,7 @@ const s = StyleSheet.create({
     backgroundColor: colors.secondary,
     paddingVertical: 13,
     paddingHorizontal: 20,
-    borderRadius: 16,
+    borderRadius: 50,
     // shadowColor: BRAND,
     // shadowOffset: { width: 0, height: 4 },
     // shadowOpacity: 0.3,
@@ -138,6 +138,7 @@ const s = StyleSheet.create({
   },
   editBtn: {
     backgroundColor: BRAND,
+    borderRadius: 50,
   },
   friendBtnText: {
     fontSize: 15,
