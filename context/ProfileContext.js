@@ -144,6 +144,10 @@ export const ProfileProvider = ({ children }) => {
       questions: profile?.questions ?? [],
       images: normalizedImages.length > 0 ? normalizedImages : [],
       likesYou: profile?.likesYou ?? false,
+      blurPhotos: profile?.blurPhotos ?? profile?.privacySettings?.blurPhotos ?? false,
+      verificationStatus: profile?.verificationStatus ?? "unverified",
+      chatSlotsAvailable: profile?.chatSlotsAvailable ?? 0,
+      createdAt: profile?.createdAt ?? null,
     };
   }, []);
 

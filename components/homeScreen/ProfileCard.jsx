@@ -244,6 +244,7 @@ const ProfileCard = ({ profile, hideAiSuggestion = false }) => {
         isImageCacheHydrated={isImageCacheHydrated}
         isUriCached={isUriCached}
         onMarkUriLoaded={touchUri}
+        blurPhotos={profile?.blurPhotos}
       />
 
       <Animated.ScrollView
@@ -381,6 +382,7 @@ const ProfileCard = ({ profile, hideAiSuggestion = false }) => {
                 onPress={() => openImageModal(1)}
                 showComposer={visibleCommentBoxIndex === 0}
                 profile={profile}
+                blurPhotos={profile?.blurPhotos}
               />
             </View>
 
@@ -541,6 +543,7 @@ const ProfileCard = ({ profile, hideAiSuggestion = false }) => {
                 onPress={() => openImageModal(2)}
                 showComposer={visibleCommentBoxIndex === 1}
                 profile={profile}
+                blurPhotos={profile?.blurPhotos}
               />
             </View>
 
@@ -609,6 +612,7 @@ const ProfileCard = ({ profile, hideAiSuggestion = false }) => {
                 onPress={() => openImageModal(3)}
                 showComposer={visibleCommentBoxIndex === 2}
                 profile={profile}
+                blurPhotos={profile?.blurPhotos}
               />
             </View>
 

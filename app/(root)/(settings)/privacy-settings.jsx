@@ -62,6 +62,14 @@ const PROFILE_TOGGLES = [
   },
 ];
 
+const PHOTO_TOGGLES = [
+  {
+    key: "blurPhotos",
+    label: "Blur my photos",
+    description: "Your photos will appear blurred to other users until they match with you",
+  },
+];
+
 const CONTACT_TOGGLES = [
   {
     key: "allowMessageFromNonMatches",
@@ -77,6 +85,7 @@ const DEFAULT_SETTINGS = {
   showAge: true,
   showOnlineStatus: true,
   allowMessageFromNonMatches: false,
+  blurPhotos: false,
 };
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
@@ -239,6 +248,22 @@ const PrivacySettings = ({ onBack }) => {
                 disabled={savingKey === setting.key}
               />
               {i < PROFILE_TOGGLES.length - 1 && <View style={styles.divider} />}
+            </View>
+          ))}
+        </View>
+
+        {/* Photo privacy */}
+        <SectionLabel>PHOTO PRIVACY</SectionLabel>
+        <View style={styles.card}>
+          {PHOTO_TOGGLES.map((setting, i) => (
+            <View key={setting.key}>
+              <ToggleRow
+                setting={setting}
+                value={settings[setting.key]}
+                onChange={handleToggle}
+                disabled={savingKey === setting.key}
+              />
+              {i < PHOTO_TOGGLES.length - 1 && <View style={styles.divider} />}
             </View>
           ))}
         </View>

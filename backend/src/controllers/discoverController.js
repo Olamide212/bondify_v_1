@@ -228,6 +228,9 @@ const getDiscoveryProfiles = async (req, res, next) => {
         // Add available chat slots info
         profile.chatSlotsAvailable = profile.chatSlots?.available ?? 0;
 
+        // Expose blur preference so the client can render blurred photos
+        profile.blurPhotos = Boolean(profile.privacySettings?.blurPhotos);
+
         // Compute distance from current user's location to this profile
         if (
           currentUser.location?.coordinates?.length === 2 &&

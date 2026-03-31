@@ -42,12 +42,12 @@ const InfoSection = () => {
       icon: SlidersHorizontal,
       modal: "filters",
     },
-    {
-      title: "Verification",
-      description: "Build trust and let others know you’re the real deal.",
-      icon: BadgeCheck,
-      link: "(root)/verification",
-    },
+    // {
+    //   title: "Verification",
+    //   description: "Build trust and let others know you’re the real deal.",
+    //   icon: BadgeCheck,
+    //   link: "(root)/verification",
+    // },
     // {
     //   title: "Get Premium",
     //   description: "Unlock all premium features for the best experience.",

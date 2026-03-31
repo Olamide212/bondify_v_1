@@ -4,18 +4,18 @@
 
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { Image } from 'expo-image';
-import { Briefcase, Heart, MapPin } from 'lucide-react-native';
+import { Briefcase, Eye, Heart, MapPin } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
 import {
-  ActivityIndicator,
-  Pressable,
-  Text,
-  TouchableWithoutFeedback,
-  View
+    ActivityIndicator,
+    Pressable,
+    StyleSheet,
+    Text,
+    TouchableWithoutFeedback,
+    View
 } from 'react-native';
 import { colors } from '../../../constant/colors';
 import VerifiedIcon from '../../ui/VerifiedIcon';
-import VoicePromptButton from '../../ui/VoicepromptButton';
 
 const extractVoicePromptUri = (voicePrompt) => {
   if (!voicePrompt) return null;
@@ -73,6 +73,7 @@ const ProfileHeroSection = ({
               contentFit="cover"
               cachePolicy="memory-disk"
               style={{ width: '100%', height: 950 }}
+              blurRadius={profile?.blurPhotos ? 25 : 0}
               onLoadStart={() => {
                 const uri = getImageUri(currentImageIndex);
                 if (isImageCacheHydrated && !isUriCached(uri)) setMainImageLoading(true);
@@ -87,6 +88,14 @@ const ProfileHeroSection = ({
             {mainImageLoading && (
               <View className="absolute inset-0 items-center justify-center">
                 <ActivityIndicator size="small" color={colors.primary} />
+              </View>
+            )}
+
+            {/* Blur badge overlay */}
+            {profile?.blurPhotos && (
+              <View style={heroStyles.blurBadge}>
+                <Eye size={16} color="#fff" />
+                <Text style={heroStyles.blurBadgeText}>Photos are blurred</Text>
               </View>
             )}
 
@@ -167,5 +176,26 @@ const ProfileHeroSection = ({
     </Pressable>
   );
 };
+
+const heroStyles = StyleSheet.create({
+  blurBadge: {
+    position: 'absolute',
+    top: '40%',
+    alignSelf: 'center',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: 'rgba(0,0,0,0.55)',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 20,
+    zIndex: 30,
+  },
+  blurBadgeText: {
+    color: '#fff',
+    fontSize: 14,
+    fontFamily: 'PlusJakartaSansSemiBold',
+  },
+});
 
 export default ProfileHeroSection;

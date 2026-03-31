@@ -240,6 +240,7 @@ const updatePrivacySettings = async (req, res, next) => {
     const allowed = [
       'profileVisibility', 'showLastActive', 'showDistance',
       'showAge', 'showOnlineStatus', 'allowMessageFromNonMatches',
+      'blurPhotos',
     ];
 
     const updates = {};

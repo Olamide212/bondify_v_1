@@ -23,6 +23,7 @@ export default function CommentBox({
   showComposer: showComposerProp = false,
   // The profile of the person whose photo this is
   profile,
+  blurPhotos = false,
 }) {
   const { showAlert } = useAlert();
   const [text, setText]                   = useState("");
@@ -97,6 +98,7 @@ export default function CommentBox({
           style={styles.image}
           contentFit="cover"
           className="rounded-2xl"
+          blurRadius={blurPhotos ? 25 : 0}
         />
       </Pressable>
 

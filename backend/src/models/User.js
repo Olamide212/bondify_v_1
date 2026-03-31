@@ -671,6 +671,7 @@ verificationSubmittedAt: { type: Date },
       showAge:                    { type: Boolean, default: true  },
       showOnlineStatus:           { type: Boolean, default: true  },
       allowMessageFromNonMatches: { type: Boolean, default: false },
+      blurPhotos:                 { type: Boolean, default: false },
     },
 
     // Top-level privacy mirrors (kept for legacy queries / middleware)

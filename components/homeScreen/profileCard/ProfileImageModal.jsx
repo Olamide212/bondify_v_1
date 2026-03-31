@@ -27,6 +27,7 @@ const ProfileImageModal = ({
   isImageCacheHydrated,
   isUriCached,
   onMarkUriLoaded,
+  blurPhotos = false,
 }) => {
   const [isImageLoading, setIsImageLoading] = useState(false);
   const modalFlatListRef = useRef(null);
@@ -146,6 +147,7 @@ const ProfileImageModal = ({
                         style={{ width: "100%", height: "100%" }}
                         contentFit="cover"
                         cachePolicy="memory-disk"
+                        blurRadius={blurPhotos ? 25 : 0}
                         onLoadStart={() => {
                           if (isImageCacheHydrated && !isUriCached(uri)) {
                             setIsImageLoading(true);

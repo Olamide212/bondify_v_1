@@ -4,16 +4,16 @@
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import { Briefcase, Heart, Info, MapPin } from 'lucide-react-native';
+import { Briefcase, Eye, Heart, Info, MapPin } from 'lucide-react-native';
 import { useEffect, useRef, useState } from 'react';
 import {
-  Animated,
-  Image,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  useWindowDimensions,
-  View,
+    Animated,
+    Image,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    useWindowDimensions,
+    View,
 } from 'react-native';
 import { PanGestureHandler, PinchGestureHandler, State } from 'react-native-gesture-handler';
 import AIService from '../../services/aiService';
@@ -197,9 +197,18 @@ const AroundYouTab = ({ profile, onViewProfile, actionMessage }) => {
               source={{ uri: currentUri }}
               style={styles.image}
               resizeMode="cover"
+              blurRadius={profile.blurPhotos ? 25 : 0}
             />
             <View style={styles.overlay} />
             <LinearGradient colors={['transparent', 'rgba(0,0,0,0.88)']} style={styles.bottomGradient} />
+
+            {/* Blur badge overlay */}
+            {profile.blurPhotos && (
+              <View style={styles.blurBadge}>
+                <Eye size={16} color="#fff" />
+                <Text style={styles.blurBadgeText}>Photos are blurred</Text>
+              </View>
+            )}
 
             <View style={styles.profileInfo}>
             <View className="flex-row items-center gap-2 mb-3">
@@ -359,6 +368,25 @@ const styles = StyleSheet.create({
     width: 48, height: 48, borderRadius: 24,
     justifyContent: 'center', alignItems: 'center',
     backgroundColor: 'rgba(255,255,255,0.20)',
+  },
+
+  blurBadge: {
+    position: 'absolute',
+    top: '40%',
+    alignSelf: 'center',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: 'rgba(0,0,0,0.55)',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 20,
+    zIndex: 30,
+  },
+  blurBadgeText: {
+    color: '#fff',
+    fontSize: 14,
+    fontFamily: 'PlusJakartaSansSemiBold',
   },
 
   compatibilityScore: {
