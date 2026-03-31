@@ -27,7 +27,7 @@
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
-import { Rocket, SlidersHorizontal } from "lucide-react-native";
+import { ArrowUpDown, Rocket, SlidersHorizontal } from "lucide-react-native";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   AppState,
@@ -57,6 +57,7 @@ import CardFeedbackModal from "../../../../components/modals/CardFeedbackModal";
 import ComplimentModal from "../../../../components/modals/ComplimentModal";
 import FilterModal from "../../../../components/modals/FilterModal";
 import NotificationsModal from "../../../../components/modals/NotificationsModal";
+import SortModal from "../../../../components/modals/SortModal";
 import UserProfileModal from "../../../../components/modals/UserProfileModal";
 import LogoLoader from "../../../../components/ui/LogoLoader";
 import { NotificationBanner } from "../../../../components/ui/NotificationBanner";
@@ -107,6 +108,8 @@ const Home = () => {
     refreshProfiles,
     homeFilters,
     setHomeFilters,
+    homeSort,
+    setHomeSort,
     matchCelebration,
     setMatchCelebration,
   } = useProfile();
@@ -160,6 +163,7 @@ const Home = () => {
   const [showAIModal,            setShowAIModal]            = useState(false);
   const [showComplimentModal,    setShowComplimentModal]    = useState(false);
   const [showBoostModal,         setShowBoostModal]         = useState(false);
+  const [showSortModal,          setShowSortModal]          = useState(false);
   const [selectedProfileId,      setSelectedProfileId]      = useState(null);
   const [isRefreshing,           setIsRefreshing]           = useState(false);
   const [notifications,          setNotifications]          = useState([]);
@@ -581,6 +585,12 @@ const Home = () => {
               </View>
             </Pressable> */}
 
+            <Pressable onPress={() => setShowSortModal(true)}>
+              <View className="justify-center items-center rounded-full">
+                <ArrowUpDown size={20} color={homeSort ? colors.primary : '#000'} />
+              </View>
+            </Pressable>
+
             <Pressable onPress={() => setShowFilterModal(true)}>
               <View className="justify-center items-center rounded-full ">
                 <SlidersHorizontal size={20} color='#000' fill={"#000"} />
@@ -716,6 +726,15 @@ const Home = () => {
         onClose={() => setShowBoostModal(false)}
         onBoost={handleConfirmBoost}
         isLoading={isBoosting}
+      />
+
+      <SortModal
+        visible={showSortModal}
+        onClose={() => setShowSortModal(false)}
+        initialSort={homeSort}
+        onApply={(sort) => {
+          setHomeSort(sort);
+        }}
       />
     </View>
   );

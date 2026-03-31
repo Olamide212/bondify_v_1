@@ -47,12 +47,14 @@ export const ProfileProvider = ({ children }) => {
   const [profilesLoading, setProfilesLoading] = useState(true);
   const [profilesRefreshNonce, setProfilesRefreshNonce] = useState(0);
   const [homeFilters, setHomeFilters] = useState(DEFAULT_HOME_FILTERS);
+  const [homeSort, setHomeSort] = useState(null);
   const [homeSwipedProfiles, setHomeSwipedProfiles] = useState([]);
   const [discoverSwipedProfiles, setDiscoverSwipedProfiles] = useState([]);
   const [homeCurrentIndex, setHomeCurrentIndex] = useState(0);
   const [discoverCurrentIndex, setDiscoverCurrentIndex] = useState(0);
   const [lastRewoundProfile, setLastRewoundProfile] = useState(null);
   const [rewindAvailable, setRewindAvailable] = useState(false);
+  const [matchCelebration, setMatchCelebration] = useState(null);
 
   // Update showMe filter when user preference changes (e.g. after login)
   const prevGenderPref = useRef(userGenderPref);
@@ -62,17 +64,6 @@ export const ProfileProvider = ({ children }) => {
       setHomeFilters((prev) => ({ ...prev, showMe: userGenderPref }));
     }
   }, [userGenderPref]);
-
-  // Handle rewind - set index to rewound profile when it appears in homeProfiles
-  useEffect(() => {
-    if (lastRewoundProfile && homeProfiles.length > 0) {
-      const rewoundIndex = homeProfiles.findIndex(p => p.id === lastRewoundProfile.id);
-      if (rewoundIndex !== -1) {
-        setHomeCurrentIndex(rewoundIndex);
-        setLastRewoundProfile(null); // Clear it after setting
-      }
-    }
-  }, [homeProfiles, lastRewoundProfile]);
 
   const normalizeProfileRef = useRef(null);
 
@@ -223,6 +214,62 @@ export const ProfileProvider = ({ children }) => {
     return params;
   }, []);
 
+  // ─── Client-side sort comparator ─────────────────────────────────────────
+  const getSortComparator = useCallback((sortKey) => {
+    if (!sortKey) return null;
+
+    switch (sortKey) {
+      case "age_youngest":
+        return (a, b) => (Number(a?.age) || 0) - (Number(b?.age) || 0);
+
+      case "age_oldest":
+        return (a, b) => (Number(b?.age) || 0) - (Number(a?.age) || 0);
+
+      case "distance_closest": {
+        const dist = (p) => {
+          const d = typeof p?.distance === "number"
+            ? p.distance
+            : Number.parseFloat(String(p?.distance || "").replace(/[^\d.]/g, ""));
+          return Number.isFinite(d) ? d : Infinity;
+        };
+        return (a, b) => dist(a) - dist(b);
+      }
+
+      case "just_joined":
+        return (a, b) => {
+          const da = new Date(a?.createdAt || 0).getTime();
+          const db = new Date(b?.createdAt || 0).getTime();
+          return db - da; // newest first
+        };
+
+      case "recently_active":
+        return (a, b) => {
+          const da = new Date(a?.lastActive || 0).getTime();
+          const db = new Date(b?.lastActive || 0).getTime();
+          return db - da; // most recent first
+        };
+
+      case "available_chat_slot":
+        // Profiles with available chat slots come first
+        return (a, b) => {
+          const aSlot = a?.availableChatSlot ?? a?.chatSlotsAvailable ?? 0;
+          const bSlot = b?.availableChatSlot ?? b?.chatSlotsAvailable ?? 0;
+          return Number(bSlot) - Number(aSlot);
+        };
+
+      case "in_their_filters":
+        // Profiles where current user matches their filters come first
+        return (a, b) => {
+          const aMatch = a?.inTheirFilters ? 1 : 0;
+          const bMatch = b?.inTheirFilters ? 1 : 0;
+          return bMatch - aMatch;
+        };
+
+      default:
+        return null;
+    }
+  }, []);
+
   const isFirstRender = useRef(true);
   const lastRefreshTime = useRef(0);
   const MIN_REFRESH_INTERVAL_MS = 30000; // 30 seconds minimum between refreshes
@@ -279,6 +326,7 @@ export const ProfileProvider = ({ children }) => {
         let totalPages = 1;
         const allProfiles = [];
         const apiParams = buildApiParams(homeFilters);
+        if (homeSort) apiParams.sortBy = homeSort;
 
         console.log('[ProfileContext] Loading profiles with params:', apiParams);
 
@@ -331,7 +379,7 @@ export const ProfileProvider = ({ children }) => {
 
   // ✅ currentUserId added as a dependency — when a new user logs in and the
   // Redux auth state updates, this effect re-runs and fetches their profiles
-  }, [homeFilters, buildApiParams, profilesRefreshNonce, currentUserId]);
+  }, [homeFilters, homeSort, buildApiParams, profilesRefreshNonce, currentUserId]);
 
   const addHomeSwipedProfile = (profileId) => {
     if (!profileId) return;
@@ -523,6 +571,23 @@ export const ProfileProvider = ({ children }) => {
       return true;
     });
 
+  // ─── Apply client-side sorting ────────────────────────────────────────────
+  const sortComparator = getSortComparator(homeSort);
+  if (sortComparator) {
+    homeProfiles.sort(sortComparator);
+  }
+
+  // Handle rewind - set index to rewound profile when it appears in homeProfiles
+  useEffect(() => {
+    if (lastRewoundProfile && homeProfiles.length > 0) {
+      const rewoundIndex = homeProfiles.findIndex(p => p.id === lastRewoundProfile.id);
+      if (rewoundIndex !== -1) {
+        setHomeCurrentIndex(rewoundIndex);
+        setLastRewoundProfile(null); // Clear it after setting
+      }
+    }
+  }, [homeProfiles, lastRewoundProfile]);
+
   const discoverProfiles = profilesData.filter(
     (profile) => !discoverSwipedProfiles.includes(profile.id)
   );
@@ -549,6 +614,8 @@ export const ProfileProvider = ({ children }) => {
     refreshProfiles,
     homeFilters,
     setHomeFilters,
+    homeSort,
+    setHomeSort,
     matchCelebration,
     setMatchCelebration,
   };

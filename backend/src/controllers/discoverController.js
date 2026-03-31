@@ -62,6 +62,7 @@ const getDiscoveryProfiles = async (req, res, next) => {
     const {
       minAge, maxAge, maxDistance, gender, religion, ethnicity,
       drinking, smoking, interests, verifiedOnly, activeToday, location,
+      sortBy,
       page = 1, limit = 20,
     } = req.query;
 
@@ -75,7 +76,7 @@ const getDiscoveryProfiles = async (req, res, next) => {
     const cacheKey = `discover:${userId}:${JSON.stringify({
       sanitizedMinAge, sanitizedMaxAge, sanitizedMaxDistance,
       gender, religion, ethnicity, drinking, smoking,
-      interests, verifiedOnly, activeToday, location,
+      interests, verifiedOnly, activeToday, location, sortBy,
       sanitizedPage, sanitizedLimit,
     })}`;
 
@@ -186,10 +187,25 @@ const getDiscoveryProfiles = async (req, res, next) => {
 
     const skip = (sanitizedPage - 1) * sanitizedLimit;
 
+    // Build sort object based on sortBy parameter
+    let sortObj = { lastActive: -1, _id: 1 }; // default
+    if (sortBy) {
+      switch (sortBy) {
+        case 'age_youngest':       sortObj = { age: 1, _id: 1 };          break;
+        case 'age_oldest':         sortObj = { age: -1, _id: 1 };         break;
+        case 'distance_closest':   sortObj = { lastActive: -1, _id: 1 };  break; // distance sorted post-query
+        case 'just_joined':        sortObj = { createdAt: -1, _id: 1 };   break;
+        case 'recently_active':    sortObj = { lastActive: -1, _id: 1 };  break;
+        case 'available_chat_slot': sortObj = { lastActive: -1, _id: 1 }; break; // sorted post-query
+        case 'in_their_filters':   sortObj = { lastActive: -1, _id: 1 };  break; // sorted post-query
+        default:                   sortObj = { lastActive: -1, _id: 1 };  break;
+      }
+    }
+
     const [profiles, total] = await Promise.all([
       User.find(query)
         .select('-password -otp -otpExpiry -verificationSelfieUrl')
-        .sort({ lastActive: -1, _id: 1 })
+        .sort(sortObj)
         .skip(skip)
         .limit(sanitizedLimit)
         .lean(),
@@ -208,6 +224,9 @@ const getDiscoveryProfiles = async (req, res, next) => {
 
         // Add likesYou flag
         profile.likesYou = likesYouMap.has(profile._id.toString());
+
+        // Add available chat slots info
+        profile.chatSlotsAvailable = profile.chatSlots?.available ?? 0;
 
         // Compute distance from current user's location to this profile
         if (
@@ -234,6 +253,15 @@ const getDiscoveryProfiles = async (req, res, next) => {
         return profile;
       })
     );
+
+    // Post-query sort for distance_closest (requires computed distance field)
+    if (sortBy === 'distance_closest') {
+      profilesWithImages.sort((a, b) => {
+        const da = typeof a.distance === 'number' ? a.distance : Infinity;
+        const db = typeof b.distance === 'number' ? b.distance : Infinity;
+        return da - db;
+      });
+    }
 
     const responseBody = {
       success: true,

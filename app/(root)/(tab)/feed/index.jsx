@@ -7,7 +7,7 @@
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
-import { Plus, User } from 'lucide-react-native';
+import { MapPin, Plus, User } from 'lucide-react-native'; // Added MapPin for the icon
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
@@ -468,6 +468,8 @@ export default function BondupFeedScreen() {
   const renderSkeleton = () =>
     [1, 2, 3].map((i) => <View key={i} style={sk.skeletonCard} />);
 
+  const userCity = currentUser?.socialProfile?.city || currentUser?.location?.city || 'your city';
+
   return (
     <SafeAreaProvider>
       <SafeAreaView style={fStyles.container} edges={['top']}>
@@ -558,8 +560,13 @@ export default function BondupFeedScreen() {
               <Text style={fStyles.emptyEmoji}>🤝</Text>
               <Text style={fStyles.emptyTitle}>No plans yet!</Text>
               <Text style={fStyles.emptySub}>
-                Be the first to start a Bondup{'\n'}in  {`${ currentUser?.socialProfile?.city || currentUser?.location?.city || ''}` || "your city"}
+                Be the first to start a Bondup{'\n'}in
               </Text>
+              {/* Highlighted city with background and icon */}
+              <View style={fStyles.cityHighlightContainer}>
+                <MapPin size={16} color={colors.primary} style={fStyles.cityIcon} />
+                <Text style={fStyles.cityHighlightText}>{userCity}</Text>
+              </View>
               {/* <TouchableOpacity
                 style={fStyles.emptyBtn}
                 onPress={() => setShowCreate(true)}
@@ -752,7 +759,30 @@ const fStyles = StyleSheet.create({
     color: '#888',
     textAlign: 'center',
     lineHeight: 22,
+    marginBottom: 12, // Reduced to accommodate the highlighted city
+  },
+  // New: Highlighted city container
+  cityHighlightContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F0F8FF', // Light blue background for highlight
+    borderRadius: 10, // Pill shape
+    paddingHorizontal: 16,
+    paddingVertical: 8,
     marginBottom: 24,
+    // shadowColor: '#000',
+    // shadowOffset: { width: 0, height: 2 },
+    // shadowOpacity: 0.1,
+    // shadowRadius: 4,
+    // elevation: 2, // For Android shadow
+  },
+  cityIcon: {
+    marginRight: 8,
+  },
+  cityHighlightText: {
+    fontSize: 18, // Bigger font for emphasis
+    fontFamily: 'PlusJakartaSansBold',
+    color: colors.primary, // Use primary color for prominence
   },
   emptyBtn: {
     flexDirection: 'row',
@@ -761,7 +791,7 @@ const fStyles = StyleSheet.create({
     backgroundColor: BRAND,
     paddingHorizontal: 24,
     paddingVertical: 13,
-    borderRadius: 16,
+    borderRadius: 10,
     shadowColor: BRAND,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
