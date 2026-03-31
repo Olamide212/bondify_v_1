@@ -1,5 +1,5 @@
 import { LinearGradient } from 'expo-linear-gradient';
-import { Zap } from 'lucide-react-native';
+import { Zap, Rocket } from 'lucide-react-native';
 import React from 'react';
 import {
     ActivityIndicator,
@@ -67,7 +67,7 @@ const BoostModal = ({ visible, onClose, onBoost, isLoading = false }) => {
               ]}
             >
               <View style={styles.iconContainer}>
-                <Zap size={48} color={colors.primary} fill={colors.primary} />
+                <Rocket size={48} color={colors.primary} fill={colors.primary} />
               </View>
 
               <Text style={styles.title}>Boost Your Profile</Text>
@@ -99,7 +99,7 @@ const BoostModal = ({ visible, onClose, onBoost, isLoading = false }) => {
                       <ActivityIndicator color="#fff" size="small" />
                     ) : (
                       <>
-                        <Zap size={20} color="#fff" />
+                        <Rocket size={20} color="#fff" />
                         <Text style={styles.boostButtonText}>Boost Now</Text>
                       </>
                     )}
@@ -107,7 +107,7 @@ const BoostModal = ({ visible, onClose, onBoost, isLoading = false }) => {
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                  style={[styles.button, styles.cancelButton]}
+                  style={[styles.cancelButton]}
                   onPress={onClose}
                   disabled={isLoading}
                 >
@@ -184,19 +184,19 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: 'column',
     gap: 12,
-    width: '100%',
+    width: '80%',
   },
   button: {
     width: '100%',
     paddingVertical: 16,
-    borderRadius: 12,
+    borderRadius: 50,
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',
-    gap: 8,
+    gap: 4,
   },
   cancelButton: {
-
+    alignItems: 'center',
 
     borderColor: '#e5e7eb',
   },
@@ -204,11 +204,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: 'PlusJakartaSansBold',
     color: '#374151',
+    textAlign: 'center',
   },
   gradientButton: {
     width: '100%',
     paddingVertical: 16,
-    borderRadius: 12,
+    borderRadius: 50,
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',

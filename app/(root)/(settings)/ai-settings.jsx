@@ -2,22 +2,23 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { ArrowLeft, Bell, ChevronRight, MessageSquare, Shield, Sparkles, Trash2 } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import {
-  ActivityIndicator,
-  Linking,
-  Platform,
-  Pressable,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Switch,
-  Text,
-  View
+    ActivityIndicator,
+    Linking,
+    Platform,
+    Pressable,
+    ScrollView,
+    StatusBar,
+    StyleSheet,
+    Switch,
+    Text,
+    View
 } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import GeneralHeader from "../../../components/headers/GeneralHeader";
 import { colors } from "../../../constant/colors";
 import { fonts } from "../../../constant/fonts";
 import { useAlert } from "../../../context/AlertContext";
+import { profileService } from "../../../services/profileService";
 import SettingsService from "../../../services/settingsService";
 
 // ─── Config ───────────────────────────────────────────────────────────────────
@@ -132,6 +133,21 @@ const AISettings = ({ onBack }) => {
   const [settings, setSettings]   = useState(DEFAULT_SETTINGS);
   const [isLoading, setIsLoading] = useState(true);
   const [savingKey, setSavingKey] = useState(null);
+  const [userId, setUserId] = useState(null);
+
+  // Load AI settings on mount
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const profile = await profileService.getMyProfile({ force: true });
+        if (mounted) setUserId(profile?._id || profile?.id);
+      } catch {
+        // silent
+      }
+    })();
+    return () => { mounted = false; };
+  }, []);
 
   // Load AI settings on mount
   useEffect(() => {
@@ -196,7 +212,8 @@ const AISettings = ({ onBack }) => {
           onPress: async () => {
             try {
               // Clear local storage chat history
-              await AsyncStorage.removeItem('@bondify/cache/ai_chat_history');
+              const chatKey = userId ? `@bondify/cache/ai_chat_history-${userId}` : '@bondify/cache/ai_chat_history';
+              await AsyncStorage.removeItem(chatKey);
               // Also call API to clear server-side if needed
               await SettingsService.clearAIChatHistory();
               showAlert({

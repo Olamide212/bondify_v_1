@@ -3,29 +3,29 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import {
-    MoreVertical,
-    Paperclip,
-    RefreshCw,
-    Send,
-    Sparkles,
+  MoreVertical,
+  Paperclip,
+  RefreshCw,
+  Send,
+  Sparkles,
 } from "lucide-react-native";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
-    ActivityIndicator,
-    Animated,
-    Clipboard,
-    FlatList,
-    Image,
-    KeyboardAvoidingView,
-    Platform,
-    Pressable,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    ToastAndroid,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Animated,
+  Clipboard,
+  FlatList,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  ToastAndroid,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { colors } from "../../../constant/colors";
@@ -330,6 +330,7 @@ const AIChatScreen = ({ navigation }) => {
   // User photo state - fetched from API
   const [userPhoto, setUserPhoto] = useState(null);
   const [userInitial, setUserInitial] = useState("U");
+  const [userId, setUserId] = useState(null);
 
   const [messages, setMessages] = useState([INITIAL_MESSAGE]);
   const [chatLoaded, setChatLoaded] = useState(false);
@@ -337,11 +338,15 @@ const AIChatScreen = ({ navigation }) => {
   const [isLoading, setIsLoading] = useState(false);
   const scrollViewRef             = useRef(null);
 
+  const chatStorageKey = useMemo(() => {
+    return userId ? `@bondify/cache/ai_chat_history-${userId}` : '@bondify/cache/ai_chat_history';
+  }, [userId]);
+
   // Load chat from storage on mount
   useEffect(() => {
     const loadChat = async () => {
       try {
-        const stored = await AsyncStorage.getItem(CHAT_STORAGE_KEY);
+        const stored = await AsyncStorage.getItem(chatStorageKey);
         if (stored) {
           const parsed = JSON.parse(stored);
           // Restore timestamps as Date objects
@@ -359,23 +364,23 @@ const AIChatScreen = ({ navigation }) => {
         setChatLoaded(true);
       }
     };
-    loadChat();
-  }, []);
+    if (userId) loadChat(); // Only load when userId is available
+  }, [userId, chatStorageKey]);
 
   // Save chat to storage whenever messages change
   useEffect(() => {
-    if (!chatLoaded) return; // Don't save until initial load is complete
+    if (!chatLoaded || !userId) return; // Don't save until initial load is complete and userId is set
     const saveChat = async () => {
       try {
         // Only save messages without profiles to keep storage small
         const toSave = messages.map(({ profiles, ...msg }) => msg);
-        await AsyncStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(toSave));
+        await AsyncStorage.setItem(chatStorageKey, JSON.stringify(toSave));
       } catch (err) {
         console.log("Failed to save chat history:", err);
       }
     };
     saveChat();
-  }, [messages, chatLoaded]);
+  }, [messages, chatLoaded, userId, chatStorageKey]);
 
   // Fetch user profile on mount
   useEffect(() => {
@@ -387,8 +392,10 @@ const AIChatScreen = ({ navigation }) => {
           : null;
         const photo = profile?.profilePhoto || firstImage?.url || firstImage || null;
         const initial = (profile?.firstName || profile?.userName || "U")[0].toUpperCase();
+        const id = profile?._id || profile?.id;
         setUserPhoto(photo);
         setUserInitial(initial);
+        setUserId(id);
       } catch (err) {
         console.log("Failed to fetch user profile:", err);
       }
@@ -484,7 +491,7 @@ const AIChatScreen = ({ navigation }) => {
             const newMessage = { id: Date.now(), role: "assistant", content: "Chat cleared! What would you like to work on? \ud83d\ude0a", timestamp: new Date() };
             setMessages([newMessage]);
             try {
-              await AsyncStorage.removeItem(CHAT_STORAGE_KEY);
+              await AsyncStorage.removeItem(chatStorageKey);
             } catch (err) {
               console.log("Failed to clear chat storage:", err);
             }

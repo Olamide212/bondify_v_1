@@ -928,6 +928,9 @@ const getBondupProfile = async (req, res, next) => {
 // GET /api/bondup/social-profile — current user's social profile —————————————
 const getSocialProfile = async (req, res, next) => {
   try {
+    const Post = require('../models/Post');
+    const SocialProfile = require('../models/SocialProfile');
+    const User = require('../models/User');
     const user = await User.findById(req.user._id)
       .select('firstName lastName userName nationality images')
       .lean();
@@ -961,6 +964,7 @@ const getSocialProfile = async (req, res, next) => {
 // PATCH /api/bondup/social-profile — update social profile fields ————————————
 const updateSocialProfile = async (req, res, next) => {
   try {
+    const SocialProfile = require('../models/SocialProfile');
     const { userName, displayName, profilePhoto, bio } = req.body;
     const updates = {};
     if (userName     !== undefined) updates.userName     = String(userName).trim().toLowerCase();
@@ -981,6 +985,7 @@ const updateSocialProfile = async (req, res, next) => {
 // POST /api/bondup/social-profile/photo — upload social avatar to S3 —————————
 const uploadSocialPhoto = async (req, res, next) => {
   try {
+    const SocialProfile = require('../models/SocialProfile');
     if (!req.file) {
       return res.status(400).json({ success: false, message: 'No file uploaded.' });
     }

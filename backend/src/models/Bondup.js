@@ -22,7 +22,7 @@ const bondupSchema = new mongoose.Schema(
 
     activityType: {
       type: String,
-      enum: ['coffee', 'food', 'drinks', 'gym', 'walk', 'movie', 'other'],
+      enum: ['coffee', 'food', 'drinks', 'brunch', 'dinner', 'lunch', 'snacks', 'dessert', 'gym', 'yoga', 'running', 'hiking', 'cycling', 'swimming', 'tennis', 'basketball', 'football', 'volleyball', 'walk', 'park', 'beach', 'picnic', 'camping', 'fishing', 'movie', 'theater', 'concert', 'museum', 'art', 'comedy', 'board_games', 'video_games', 'karaoke', 'dancing', 'party', 'networking', 'workshop', 'class', 'photography', 'painting', 'music', 'other'],
       required: true,
     },
 
