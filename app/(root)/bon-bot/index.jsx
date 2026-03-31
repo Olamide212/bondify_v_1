@@ -323,7 +323,7 @@ const INITIAL_MESSAGE = {
   timestamp: new Date(),
 };
 
-const AIChatScreen = ({ navigation }) => {
+const AIChatScreen = () => {
   const router = useRouter();
   const { showAlert } = useAlert();
   
@@ -331,6 +331,7 @@ const AIChatScreen = ({ navigation }) => {
   const [userPhoto, setUserPhoto] = useState(null);
   const [userInitial, setUserInitial] = useState("U");
   const [userId, setUserId] = useState(null);
+  const [userProfile, setUserProfile] = useState(null);
 
   const [messages, setMessages] = useState([INITIAL_MESSAGE]);
   const [chatLoaded, setChatLoaded] = useState(false);
@@ -396,6 +397,7 @@ const AIChatScreen = ({ navigation }) => {
         setUserPhoto(photo);
         setUserInitial(initial);
         setUserId(id);
+        setUserProfile(profile);
       } catch (err) {
         console.log("Failed to fetch user profile:", err);
       }
@@ -458,7 +460,23 @@ const AIChatScreen = ({ navigation }) => {
           ]);
         } else {
           // ── Normal chat branch ─────────────────────────────────────────
-          const history  = buildHistory([...messages, userMsg]);
+          let messageContent = trimmed;
+          // Include profile context based on the message content
+          if (trimmed.toLowerCase().includes('bio') || trimmed.toLowerCase().includes('review my bio')) {
+            const bio = userProfile?.bio || userProfile?.socialProfile?.bio || '';
+            if (bio) {
+              messageContent += `\n\nMy current bio: "${bio}"`;
+            }
+          } else if (trimmed.toLowerCase().includes('age') || trimmed.toLowerCase().includes('profile')) {
+            const age = userProfile?.age;
+            const interests = userProfile?.interests;
+            const lookingFor = userProfile?.lookingFor;
+            if (age) messageContent += `\n\nMy age: ${age}`;
+            if (interests && interests.length > 0) messageContent += `\n\nMy interests: ${interests.join(', ')}`;
+            if (lookingFor) messageContent += `\n\nI'm looking for: ${lookingFor}`;
+          }
+          const userMsgWithContext = { ...userMsg, content: messageContent };
+          const history  = buildHistory([...messages, userMsgWithContext]);
           const response = await AIService.chat(history);
           const reply    = response?.message ?? response?.data?.message ?? "Sorry, I didn't catch that.";
           setMessages((prev) => [...prev, { id: Date.now() + 1, role: "assistant", content: reply, timestamp: new Date() }]);
@@ -505,7 +523,7 @@ const AIChatScreen = ({ navigation }) => {
     <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
 
       <View style={styles.header}>
-        <Pressable onPress={() => navigation?.goBack()} style={styles.backBtn} hitSlop={8}>
+        <Pressable onPress={() => router.back()} style={styles.backBtn} hitSlop={8}>
           <Text style={styles.backArrow}>←</Text>
         </Pressable>
         <Image source={BOT_AVATAR} style={styles.headerAvatar} />

@@ -34,7 +34,6 @@ import School from '../../../../components/profileScreen/School';
 import Tagline from '../../../../components/profileScreen/Tagline';
 import Verification from '../../../../components/profileScreen/Verification';
 import Education from '../../../../components/profileScreen/WorkAndEducation';
-import VoiceIntroCard from '../../../../components/profileScreen/voicePrompts/VoiceIntroCard';
 import TextHeadingOne from '../../../../components/ui/TextHeadingOne';
 import { colors as C } from '../../../../constant/colors';
 import { useAlert } from '../../../../context/AlertContext';

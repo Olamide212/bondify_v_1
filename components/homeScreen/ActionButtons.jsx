@@ -55,9 +55,9 @@ const ActionButtons = ({ onSwipe, onCompliment, Redo = false }) => (
         <View
           intensity={25}
           tint="light"
-          className="flex-1 items-center justify-center bg-white"
+          className="flex-1 items-center justify-center bg-primary"
         >
-          <Heart size={26} color="#FB3857" fill="#FB3857" />
+          <Heart size={26} color="#fff" fill="#fff" />
         </View>
       </TouchableOpacity>
     </View>

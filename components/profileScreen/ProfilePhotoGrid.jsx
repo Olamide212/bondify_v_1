@@ -93,7 +93,7 @@ const ProfilePhotoGrid = ({ photos: initialPhotos = [], onAddPhoto, onRemovePhot
   }, [initialPhotos]);
 
   const handleAdd    = async () => { setIsAdding(true); try { await onAddPhoto?.(); } finally { setIsAdding(false); } };
-  const handleRemove = async (item, i) => { setRemovingIndex(i); try { await onRemovePhoto?.(item, i); } finally { setRemovingIndex(null); } };
+  const handleRemove = async (item, i) => { setRemovingIndex(i); try { await onRemovePhoto?.(item); } finally { setRemovingIndex(null); } };
 
   const sp = (index, extra = {}) => ({
     item: slots[index], index, isAdding, removingIndex,
