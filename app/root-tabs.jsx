@@ -527,12 +527,12 @@ const styles = StyleSheet.create({
     borderRadius: 22,
   },
   iconImage: {
-    width: 28,
-    height: 28,
+    width: 25,
+    height: 25,
     resizeMode: "contain",
   },
   activeIconImage: {
-    tintColor: colors.activePrimary,
+    tintColor: '#2A343D',
   },
   inactiveIconImage: {
     tintColor: colors.inactiveTab,

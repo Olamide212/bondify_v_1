@@ -476,6 +476,20 @@ const clearProfileCache = async () => {
   await cacheManager.clearNamespace("profile");
 };
 
+/**
+ * Boost profile visibility
+ * @returns {Promise<{success: boolean, message: string, boostedAt: Date}>}
+ */
+const boostProfile = async () => {
+  try {
+    const response = await apiClient.post("/profile/boost");
+    return response.data;
+  } catch (error) {
+    console.error("Failed to boost profile:", error);
+    throw error;
+  }
+};
+
 export const profileService = {
   getMyProfile,
   getProfileById,
@@ -492,6 +506,7 @@ export const profileService = {
   getProfileVisitors,
   uploadVoicePrompt,
   deleteVoicePrompt,
+  boostProfile,
   onUserLogin,
   onUserLogout,
   clearProfileCache,

@@ -397,7 +397,7 @@ export default function VerificationScreen() {
         </TouchableOpacity>
       )}
 
-      <View style={{ flex: 1 }}>
+      <View style={{ flex: 1, }}>
         {step === STEP.INTRO   && <IntroStep onStart={handleStart} onSkip={handleSkip} profilePhotoUrl={profilePhotoUrl} />}
         {step === STEP.CAMERA  && <CameraStep onCapture={handleCapture} showAlert={showAlert} />}
         {step === STEP.PREVIEW && (

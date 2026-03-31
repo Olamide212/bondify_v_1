@@ -73,7 +73,7 @@ const Interests = () => {
 
   return (
     <SafeAreaProvider>
-      <SafeAreaView style={{flex: 1}} className="bg-white">
+      <SafeAreaView style={{flex: 1, backgroundColor: 'white'}} className="bg-white">
         <KeyboardAvoidingView
           style={{flex: 1}}
           behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -125,7 +125,7 @@ const Interests = () => {
                 </View>
               </ScrollView>
 
-              <View className="w-full items-end mt-4">
+              <View className="w-full items-end mt-4 bg-white">
                 <Button
                   title="Continue"
                   variant="primary"

@@ -155,7 +155,7 @@ const AroundYouTab = ({ profile, onViewProfile, actionMessage }) => {
   };
 
   return (
-    <View style={[styles.tabContent, { height: screenHeight - 200 }]}>
+    <View style={[styles.tabContent, { height: screenHeight * 0.75 }]}>
 
       {actionMessage ? (
         <View style={styles.actionMessage}>
@@ -269,7 +269,12 @@ const AroundYouTab = ({ profile, onViewProfile, actionMessage }) => {
 };
 
 const styles = StyleSheet.create({
-  tabContent: { flex: 1 },
+  tabContent: { 
+    flex: 1,
+    marginTop: 100, // Add margin top to reduce visible height
+    backgroundColor: '#fff', // White background
+
+  },
 
   dotsContainer: {
     position: 'absolute', top: 50, left: 16, right: 16,
@@ -279,8 +284,14 @@ const styles = StyleSheet.create({
   dotActive:   { backgroundColor: '#fff' },
   dotInactive: { backgroundColor: 'rgba(255,255,255,0.35)' },
 
-  imageContainer: { flex: 1, position: 'relative', overflow: 'hidden' },
-  image:          { width: '100%', height: '100%' },
+  imageContainer: { flex: 1, position: 'relative', overflow: 'hidden', borderTopLeftRadius: 20, // Added top border radius
+    borderTopRightRadius: 20,  },
+  image: { 
+    width: '100%', 
+    height: '100%',
+    borderTopLeftRadius: 20, // Added top border radius
+    borderTopRightRadius: 20, // Added top border radius
+  },
   overlay:        { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.10)' },
   bottomGradient: { position: 'absolute', bottom: 0, left: 0, right: 0, height: 280 },
 

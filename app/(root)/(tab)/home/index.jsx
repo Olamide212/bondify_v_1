@@ -27,24 +27,25 @@
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
-import { Bell, SlidersHorizontal } from "lucide-react-native";
+import { Bell, SlidersHorizontal, Zap } from "lucide-react-native";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
-    AppState,
-    Pressable,
-    RefreshControl,
-    ScrollView,
-    StyleSheet,
-    Text,
-    View,
+  AppState,
+  Image,
+  Pressable,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
 } from "react-native";
 import Animated, {
-    interpolate,
-    runOnJS,
-    useAnimatedStyle,
-    useSharedValue,
-    withSequence,
-    withTiming,
+  interpolate,
+  runOnJS,
+  useAnimatedStyle,
+  useSharedValue,
+  withSequence,
+  withTiming,
 } from "react-native-reanimated";
 import { useSelector } from "react-redux";
 import ActionButtons from "../../../../components/homeScreen/ActionButtons";
@@ -52,6 +53,7 @@ import ActionTipsOverlay from "../../../../components/homeScreen/ActionTipsOverl
 import AroundYou from "../../../../components/homeScreen/AroundYouTab";
 import EmptyDeckSlider from "../../../../components/homeScreen/EmptyDeckSlider";
 import AIAssistantModal from "../../../../components/modals/AIAssistantModal";
+import BoostModal from "../../../../components/modals/BoostModal";
 import CardFeedbackModal from "../../../../components/modals/CardFeedbackModal";
 import ComplimentModal from "../../../../components/modals/ComplimentModal";
 import FilterModal from "../../../../components/modals/FilterModal";
@@ -60,7 +62,9 @@ import UserProfileModal from "../../../../components/modals/UserProfileModal";
 import LogoLoader from "../../../../components/ui/LogoLoader";
 import { NotificationBanner } from "../../../../components/ui/NotificationBanner";
 import { colors } from "../../../../constant/colors";
+import { images } from "../../../../constant/images";
 import { useProfile } from "../../../../context/ProfileContext";
+import { profileService } from "../../../../services/profileService";
 import SettingsService from "../../../../services/settingsService";
 import { socketService } from "../../../../services/socketService";
 
@@ -153,9 +157,11 @@ const Home = () => {
   const [showNotificationsModal, setShowNotificationsModal] = useState(false);
   const [showAIModal,            setShowAIModal]            = useState(false);
   const [showComplimentModal,    setShowComplimentModal]    = useState(false);
+  const [showBoostModal,         setShowBoostModal]         = useState(false);
   const [selectedProfileId,      setSelectedProfileId]      = useState(null);
   const [isRefreshing,           setIsRefreshing]           = useState(false);
   const [notifications,          setNotifications]          = useState([]);
+  const [isBoosting,             setIsBoosting]             = useState(false);
 
   // ─── First-time tips ──────────────────────────────────────────────────────
   const [showActionTips, setShowActionTips] = useState(false);
@@ -284,6 +290,38 @@ const Home = () => {
     if (!currentProfile) return;
     setSelectedProfileId(currentProfile._id || currentProfile.id);
     setShowProfileModal(true);
+  };
+
+  const handleBoostProfile = () => {
+    setShowBoostModal(true);
+  };
+
+  const handleConfirmBoost = async () => {
+    setIsBoosting(true);
+    try {
+      const result = await profileService.boostProfile();
+      if (result.success) {
+        setShowBoostModal(false);
+        // Show success message
+        enqueueBanner({
+          id: `boost-success-${Date.now()}`,
+          type: 'boost_success',
+          title: 'Profile Boosted! ⚡',
+          body: result.message,
+        });
+      }
+    } catch (error) {
+      console.error('Boost failed:', error);
+      // Show error message
+      enqueueBanner({
+        id: `boost-error-${Date.now()}`,
+        type: 'boost_error',
+        title: 'Boost Failed',
+        body: error.response?.data?.message || 'Unable to boost profile. Try again later.',
+      });
+    } finally {
+      setIsBoosting(false);
+    }
   };
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -506,11 +544,24 @@ const Home = () => {
 
       {/* ── Header ── */}
       <View style={styles.headerWrapper}>
-        <View className="flex-row justify-end gap-4">
-          <View className="flex-row gap-2">
+        <View className="flex-row justify-between items-center ">
+          {/* Left: Boost Icon */}
+          <Pressable onPress={handleBoostProfile} disabled={isBoosting}>
+            <View className="justify-center items-center rounded-full bg-background p-2">
+              <Zap size={22} color={isBoosting ? '#ccc' : '#000'} />
+            </View>
+          </Pressable>
+
+          {/* Center: Bondies Icon */}
+          <View className="justify-center items-center">
+            <Image source={images.bondiesMainicon} style={styles.centerLogo} />
+          </View>
+
+          {/* Right: Bell and Filter Icons */}
+          <View className="flex-row gap-4">
             <Pressable onPress={handleOpenNotifications}>
-              <View className="justify-center items-center rounded-full bg-background w-14 h-14">
-                <Bell size={23} color={colors.primary} />
+              <View className="justify-center items-center rounded-full ">
+                <Bell size={22} color='#000' />
                 {unreadNotificationsCount > 0 && (
                   <View style={styles.notificationsBadge}>
                     <Text style={styles.notificationsBadgeText}>
@@ -522,8 +573,8 @@ const Home = () => {
             </Pressable>
 
             <Pressable onPress={() => setShowFilterModal(true)}>
-              <View className="justify-center items-center rounded-full bg-background w-14 h-14">
-                <SlidersHorizontal size={23} color={colors.primary} />
+              <View className="justify-center items-center rounded-full ">
+                <SlidersHorizontal size={22} color='#000' />
               </View>
             </Pressable>
           </View>
@@ -649,6 +700,13 @@ const Home = () => {
         onClose={() => setShowAIModal(false)}
         fullScreen
       />
+
+      <BoostModal
+        visible={showBoostModal}
+        onClose={() => setShowBoostModal(false)}
+        onBoost={handleConfirmBoost}
+        isLoading={isBoosting}
+      />
     </View>
   );
 };
@@ -658,7 +716,7 @@ const styles = StyleSheet.create({
 
   headerWrapper: {
     position: "absolute",
-    top:      60,
+    top:      50,
     left:     20,
     right:    20,
     zIndex:   50,
@@ -690,6 +748,11 @@ const styles = StyleSheet.create({
     justifyContent:    "center",
   },
   notificationsBadgeText: { color: "#fff", fontSize: 10, fontWeight: "700" },
+  centerLogo: {
+    width: 32,
+    height: 32,
+    resizeMode: 'contain',
+  },
 });
 
 export default Home;

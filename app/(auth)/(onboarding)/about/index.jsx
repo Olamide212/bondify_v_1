@@ -215,7 +215,7 @@ const About = () => {
   };
 
   return (
-    <SafeAreaView style={{flex: 1}} className="bg-white">
+    <SafeAreaView style={{flex: 1, backgroundColor: 'white'}} className="bg-white">
       <KeyboardAvoidingView
         style={{flex: 1}}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -354,7 +354,7 @@ const About = () => {
              
             </ScrollView>
 
-            <View className="w-full items-end pb-6">
+            <View className="w-full items-end pb-6 bg-white">
               <Button
                 title="Continue"
                 variant="primary"

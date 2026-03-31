@@ -32,7 +32,7 @@ const Meet = () => {
     );
   }
   return (
-    <SafeAreaView style={{flex: 1}} className="bg-white">
+    <SafeAreaView style={{flex: 1, backgroundColor: 'white'}} className="bg-white" >
       <KeyboardAvoidingView
         style={{flex: 1}}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -53,7 +53,9 @@ const Meet = () => {
                   className="mt-2"
                 />
               </View>
-              <Info title="You can change this details later from your profile" />
+              <View className="w-full mt-4 justify-center items-center">
+                <Info title="You can change this details later from your profile"  />
+              </View>
             </View>
 
             <View className="w-full items-end pb-6">

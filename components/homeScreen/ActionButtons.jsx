@@ -1,4 +1,4 @@
-import { Heart, MessageCircle, X } from "lucide-react-native";
+import { Heart, MessageCircle, X, Sparkles} from "lucide-react-native";
 import { memo } from "react";
 import { TouchableOpacity, View } from "react-native";
 
@@ -19,7 +19,7 @@ const ActionButtons = ({ onSwipe, onCompliment, Redo = false }) => (
       activeOpacity={0.8}
       className="w-[60px] h-[60px] bg-primary rounded-full items-center justify-center"
     >
-      <MessageCircle size={28} color="#fff" fill="#fff" />
+      <Sparkles size={28} color="#fff" fill="#fff" />
     </TouchableOpacity>
 
     {/* Nope + Like - Right side */}
@@ -37,7 +37,7 @@ const ActionButtons = ({ onSwipe, onCompliment, Redo = false }) => (
       <TouchableOpacity
         onPress={() => onSwipe?.("right")}
         activeOpacity={0.8}
-        className="w-[50px] h-[50px] bg-white rounded-full items-center justify-center shadow"
+        className="w-[60px] h-[60px] bg-white rounded-full items-center justify-center shadow"
       >
         <Heart size={26} color="#FB3857" fill="#FB3857" />
       </TouchableOpacity>

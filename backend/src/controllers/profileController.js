@@ -496,6 +496,61 @@ const getProfileVisitors = async (req, res, next) => {
   }
 };
 
+// ─────────────────────────────────────────────────────────────────────────────
+// POST /api/profile/boost — boost profile visibility —————————————————————————
+const boostProfile = async (req, res, next) => {
+  try {
+    const userId = req.user._id;
+    const user = req.user;
+
+    // Check if it's a new day (reset boostsToday if needed)
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const lastBoostDate = user.boostDate ? new Date(user.boostDate) : null;
+    lastBoostDate?.setHours(0, 0, 0, 0);
+
+    let boostsToday = user.boostsToday || 0;
+    if (!lastBoostDate || today.getTime() !== lastBoostDate.getTime()) {
+      // New day, reset the counter
+      boostsToday = 0;
+    }
+
+    // Check if user has reached the daily limit (3 boosts per day)
+    if (boostsToday >= 3) {
+      return res.status(400).json({
+        success: false,
+        message: 'You have reached the daily boost limit of 3 boosts. Try again tomorrow.',
+        boostsRemaining: 0
+      });
+    }
+
+    // Update user's boost data
+    const updateData = {
+      lastBoostAt: new Date(),
+      boostedAt: new Date(),
+      boostsToday: boostsToday + 1,
+      boostDate: today
+    };
+
+    await User.findByIdAndUpdate(userId, updateData);
+
+    // Emit socket event for real-time updates
+    const io = getIO();
+    if (io) {
+      io.emit('profile:boosted', { userId });
+    }
+
+    const boostsRemaining = 2 - boostsToday; // Since we haven't incremented yet in the response
+
+    res.json({
+      success: true,
+      message: 'Profile boosted successfully! Your profile will be more visible for the next 24 hours.',
+      boostedAt: new Date(),
+      boostsRemaining
+    });
+  } catch (err) { next(err); }
+};
+
 module.exports = {
   updateProfile,
   completeOnboarding,
@@ -505,4 +560,5 @@ module.exports = {
   deleteVoicePrompt,
   getProfileStats,
   getProfileVisitors,
+  boostProfile,
 };

@@ -241,6 +241,16 @@
 //       priorityMatching: { type: Boolean, default: false },
 //     },
 
+//     // Profile Boost
+//     lastBoostAt: {
+//       type: Date,
+//       default: null,
+//     },
+//     boostedAt: {
+//       type: Date,
+//       default: null,
+//     },
+
 //     // Profile Completion
 //     completionPercentage: {
 //       type: Number,
@@ -691,6 +701,24 @@ verificationSubmittedAt: { type: Date },
     referralCode:  { type: String, unique: true, sparse: true },
     referredBy:    { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     referralCount: { type: Number, default: 0 },
+
+    // Profile Boost
+    lastBoostAt: {
+      type: Date,
+      default: null,
+    },
+    boostedAt: {
+      type: Date,
+      default: null,
+    },
+    boostsToday: {
+      type: Number,
+      default: 0,
+    },
+    boostDate: {
+      type: Date,
+      default: null,
+    },
 
     // Account Status
     isActive:     { type: Boolean, default: true  },

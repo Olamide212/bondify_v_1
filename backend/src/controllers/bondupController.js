@@ -2,7 +2,7 @@ const Bondup = require('../models/Bondup');
 const BondupChat = require('../models/BondupChat');
 const Follow = require('../models/Follow');
 const FriendRequest = require('../models/FriendRequest');
-const { mapUserImages, getImageUrl } = require('../utils/imageHelper');
+const { mapUserImages, getImageUrl, uploadToS3 } = require('../utils/imageHelper');
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
