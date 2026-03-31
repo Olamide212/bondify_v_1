@@ -27,7 +27,7 @@
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
-import { Bell, SlidersHorizontal, Zap } from "lucide-react-native";
+import { Bell, SlidersHorizontal, Zap, Rocket } from "lucide-react-native";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   AppState,
@@ -47,7 +47,7 @@ import Animated, {
   withSequence,
   withTiming,
 } from "react-native-reanimated";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import ActionButtons from "../../../../components/homeScreen/ActionButtons";
 import ActionTipsOverlay from "../../../../components/homeScreen/ActionTipsOverlay";
 import AroundYou from "../../../../components/homeScreen/AroundYouTab";
@@ -67,6 +67,8 @@ import { useProfile } from "../../../../context/ProfileContext";
 import { profileService } from "../../../../services/profileService";
 import SettingsService from "../../../../services/settingsService";
 import { socketService } from "../../../../services/socketService";
+import { updateCurrentUser } from "../../../../slices/authSlice";
+import Svg, { Path, Circle } from 'react-native-svg';
 
 // ─── Swipe badge assets ───────────────────────────────────────────────────────
 const BOND_BADGE = require("../../../../assets/images/Bond_Badge_Right.png");
@@ -111,6 +113,7 @@ const Home = () => {
   } = useProfile();
 
   const { user: currentUser } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
 
   // ─── Derived deck state ───────────────────────────────────────────────────
   const hasProfiles    = Array.isArray(homeProfiles) && homeProfiles.length > 0;
@@ -302,6 +305,10 @@ const Home = () => {
       const result = await profileService.boostProfile();
       if (result.success) {
         setShowBoostModal(false);
+        // Update the user state with new boost count
+        dispatch(updateCurrentUser({
+          boostsToday: (currentUser?.boostsToday || 0) + 1
+        }));
         // Show success message
         enqueueBanner({
           id: `boost-success-${Date.now()}`,
@@ -545,23 +552,26 @@ const Home = () => {
       {/* ── Header ── */}
       <View style={styles.headerWrapper}>
         <View className="flex-row justify-between items-center ">
-          {/* Left: Boost Icon */}
+          {/* Left: Boost Icon with Count */}
           <Pressable onPress={handleBoostProfile} disabled={isBoosting}>
-            <View className="justify-center items-center rounded-full bg-background p-2">
-              <Zap size={22} color={isBoosting ? '#ccc' : '#000'} />
+            <View className="flex-row items-center rounded-full px-3 py-2 gap-1" style={{ backgroundColor: colors.primary  }}>
+              <Rocket size={15} fill={"#fff"} color={isBoosting ? '#ccc' : '#fff'} />
+              <Text className="text-sm font-PlusJakartaSansBold text-white">
+                {currentUser?.boostsToday || 0}/3
+              </Text>
             </View>
           </Pressable>
 
           {/* Center: Bondies Icon */}
-          <View className="justify-center items-center">
+          {/* <View className="justify-center items-center">
             <Image source={images.bondiesMainicon} style={styles.centerLogo} />
-          </View>
+          </View> */}
 
           {/* Right: Bell and Filter Icons */}
           <View className="flex-row gap-4">
-            <Pressable onPress={handleOpenNotifications}>
+            {/* <Pressable onPress={handleOpenNotifications}>
               <View className="justify-center items-center rounded-full ">
-                <Bell size={22} color='#000' />
+                <Bell size={20} color='#000' fill={"#000"} />
                 {unreadNotificationsCount > 0 && (
                   <View style={styles.notificationsBadge}>
                     <Text style={styles.notificationsBadgeText}>
@@ -570,11 +580,11 @@ const Home = () => {
                   </View>
                 )}
               </View>
-            </Pressable>
+            </Pressable> */}
 
             <Pressable onPress={() => setShowFilterModal(true)}>
               <View className="justify-center items-center rounded-full ">
-                <SlidersHorizontal size={22} color='#000' />
+                <SlidersHorizontal size={20} color='#000' fill={"#000"} />
               </View>
             </Pressable>
           </View>

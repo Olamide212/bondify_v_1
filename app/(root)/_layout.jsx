@@ -61,7 +61,9 @@ export default function RootLayout() {
       <Stack.Screen name="(discover)" />
       <Stack.Screen name="(community)" />
       <Stack.Screen name="(settings)" />
-      <Stack.Screen name="user-profile" />
+      <Stack.Screen name="user-profile" options={{    presentation: "modal", 
+          animation: "slide_from_bottom", 
+          gestureDirection: "vertical", }} />
       <Stack.Screen name="feed-profile" />
       <Stack.Screen name="user-feed-profile" />
       <Stack.Screen name="edit-user-feed-profile" />

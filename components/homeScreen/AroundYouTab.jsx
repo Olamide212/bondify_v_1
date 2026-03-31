@@ -1,7 +1,6 @@
 /**
  * AroundYouTab.jsx
  */
-
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
@@ -13,10 +12,10 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  TouchableWithoutFeedback,
   useWindowDimensions,
   View,
 } from 'react-native';
+import { PanGestureHandler, PinchGestureHandler, State } from 'react-native-gesture-handler';
 import AIService from '../../services/aiService';
 import VerifiedIcon from '../ui/VerifiedIcon';
 
@@ -59,9 +58,17 @@ const AroundYouTab = ({ profile, onViewProfile, actionMessage }) => {
   const [compatibilityScore, setCompatibilityScore] = useState(null);
   const [loadingScore, setLoadingScore] = useState(false);
   const fadeAnim = useRef(new Animated.Value(1)).current;
-  const router   = useRouter();
+
+  // Zoom state
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+  const [lastScale, setLastScale] = useState(1);
+  const [panEnabled, setPanEnabled] = useState(false);
+  const panRef = useRef(null);
+  const pinchRef = useRef(null);
+
+  const router = useRouter();
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
-     const verified  = profile?.verificationStatus === "approved";
+  const verified = profile?.verificationStatus === "approved";
 
   useEffect(() => {
     setCurrentImageIndex(0);
@@ -70,7 +77,7 @@ const AroundYouTab = ({ profile, onViewProfile, actionMessage }) => {
   useEffect(() => {
     const fetchCompatibilityScore = async () => {
       if (!profile?._id && !profile?.id) return;
-      
+
       setLoadingScore(true);
       try {
         const userId = profile._id || profile.id;
@@ -89,17 +96,18 @@ const AroundYouTab = ({ profile, onViewProfile, actionMessage }) => {
 
   if (!profile) return null;
 
-  const rawImages      = Array.isArray(profile.images) ? profile.images : [];
-  const imageUris      = rawImages.map(extractImageUri).filter(Boolean);
-  const totalImages    = imageUris.length || 1;
-  const safeIndex      = Math.min(currentImageIndex, totalImages - 1);
-  const currentUri     = imageUris[safeIndex] || FALLBACK_IMAGE;
+  const rawImages = Array.isArray(profile.images) ? profile.images : [];
+  const imageUris = rawImages.map(extractImageUri).filter(Boolean);
+  const totalImages = imageUris.length || 1;
+  const safeIndex = Math.min(currentImageIndex, totalImages - 1);
+  const currentUri = imageUris[safeIndex] || FALLBACK_IMAGE;
   const voicePromptUri = extractVoicePromptUri(profile.voicePrompt);
-  const locationText   = formatLocation(profile.location);
+  const locationText = formatLocation(profile.location);
   const nationalityText = profile.nationality ? String(profile.nationality).trim() : null;
   const occupationText = profile.occupation ? String(profile.occupation).trim() : null;
   const religionText = profile.religion ? String
-  (profile.religion).trim() : null;
+    (profile.religion).trim() : null;
+    const ethnicityText = profile.ethnicity ? String(profile.ethnicity).trim() : null;
 
   // Format distance like "641km away"
   const distanceText = (() => {
@@ -125,7 +133,7 @@ const AroundYouTab = ({ profile, onViewProfile, actionMessage }) => {
     }
     return null;
   })();
-  const displayName    = (() => {
+  const displayName = (() => {
     const parts = String(profile.name || '').trim().split(/\s+/).filter(Boolean);
     return parts.length === 0 ? 'Unknown' : parts[0];
   })();
@@ -137,16 +145,25 @@ const AroundYouTab = ({ profile, onViewProfile, actionMessage }) => {
     });
   };
 
-  const handleTap = (event) => {
-    if (totalImages <= 1) return;
-    const isRight = event.nativeEvent.locationX > screenWidth / 2;
-    fadeTransition(() =>
-      setCurrentImageIndex((prev) =>
-        isRight
-          ? prev < totalImages - 1 ? prev + 1 : 0
-          : prev > 0 ? prev - 1 : totalImages - 1
-      )
-    );
+  // Pinch gesture handler for zoom
+  const onPinchGestureEvent = (event) => {
+    const newScale = lastScale * event.nativeEvent.scale;
+    // Limit zoom between 1x and 3x
+    const clampedScale = Math.max(1, Math.min(3, newScale));
+    scaleAnim.setValue(clampedScale);
+    setPanEnabled(clampedScale > 1);
+  };
+
+  const onPinchHandlerStateChange = (event) => {
+    if (event.nativeEvent.state === State.END) {
+      setLastScale(scaleAnim._value);
+    }
+  };
+
+  // Pan gesture handler for moving zoomed image
+  const onPanGestureEvent = (event) => {
+    if (!panEnabled) return;
+    // Pan logic can be added here if needed for moving the image
   };
 
   const handleNavigateToProfile = () => {
@@ -163,32 +180,39 @@ const AroundYouTab = ({ profile, onViewProfile, actionMessage }) => {
         </View>
       ) : null}
 
-      {totalImages > 1 && (
-        <View style={styles.dotsContainer}>
-          {Array.from({ length: totalImages }).map((_, i) => (
-            <View key={i} style={[styles.dot, i === safeIndex ? styles.dotActive : styles.dotInactive]} />
-          ))}
-        </View>
-      )}
+      <PinchGestureHandler
+        ref={pinchRef}
+        onGestureEvent={onPinchGestureEvent}
+        onHandlerStateChange={onPinchHandlerStateChange}
+        simultaneousHandlers={panRef}
+      >
+        <PanGestureHandler
+          ref={panRef}
+          onGestureEvent={onPanGestureEvent}
+          simultaneousHandlers={pinchRef}
+          enabled={panEnabled}
+        >
+          <Animated.View style={[styles.imageContainer, { opacity: fadeAnim, transform: [{ scale: scaleAnim }] }]}>
+            <Image
+              source={{ uri: currentUri }}
+              style={styles.image}
+              resizeMode="cover"
+            />
+            <View style={styles.overlay} />
+            <LinearGradient colors={['transparent', 'rgba(0,0,0,0.88)']} style={styles.bottomGradient} />
 
-      <TouchableWithoutFeedback onPress={handleTap}>
-        <Animated.View style={[styles.imageContainer, { opacity: fadeAnim }]}>
-          <Image source={{ uri: currentUri }} style={styles.image} resizeMode="cover" />
-          <View style={styles.overlay} />
-          <LinearGradient colors={['transparent', 'rgba(0,0,0,0.88)']} style={styles.bottomGradient} />
-
-          <View style={styles.profileInfo}>
-  <View className="flex-row items-center gap-2 mb-3">
-{/* Compatibility Score */}
-                  {compatibilityScore !== null && !loadingScore && (
-                    <View className="flex-row items-center bg-pinkColor px-3 py-1 rounded-full">
-                      <Heart size={14} color="#fff" fill="#fff" />
-                      <Text className="text-white text-sm font-PlusJakartaSansBold ml-1">
-                        {compatibilityScore}%
-                      </Text>
-                    </View>
-                  )}
-              </View>
+            <View style={styles.profileInfo}>
+            <View className="flex-row items-center gap-2 mb-3">
+              {/* Compatibility Score */}
+              {compatibilityScore !== null && !loadingScore && (
+                <View className="flex-row items-center bg-pinkColor px-3 py-1 rounded-full">
+                  <Heart size={14} color="#fff" fill="#fff" />
+                  <Text className="text-white text-sm font-PlusJakartaSansBold ml-1">
+                    {compatibilityScore}%
+                  </Text>
+                </View>
+              )}
+            </View>
 
 
             {/* Name + age + verified + compatibility score */}
@@ -198,12 +222,12 @@ const AroundYouTab = ({ profile, onViewProfile, actionMessage }) => {
                   <Text style={styles.nameText} numberOfLines={1}>{displayName},</Text>
                   {profile.age ? <Text style={styles.ageText}>{profile.age}</Text> : null}
                 </View>
-                {verified && 
+                {verified &&
                   <View style={{ marginLeft: 6 }}><VerifiedIcon /></View>
                 }
               </View>
-         
-              
+
+
               <TouchableOpacity style={styles.profileButton} onPress={handleNavigateToProfile}>
                 <Info size={22} color="#fff" />
               </TouchableOpacity>
@@ -227,49 +251,57 @@ const AroundYouTab = ({ profile, onViewProfile, actionMessage }) => {
             {/* Location — "641km away · Lagos" */}
             {(distanceText || cityLabel || locationText) ? (
               <View style={styles.locationRow} className=''>
-                <MapPin size={16} color={'#fff'} />
+                <MapPin size={16} color={'#fff'}  />
                 <Text style={styles.locationText} numberOfLines={1}>
                   {[distanceText, cityLabel || locationText].filter(Boolean).join('  ·  ')}
                 </Text>
               </View>
             ) : null}
 
-            {/* Nationality
-            {nationalityText ? (
+
+            {/* {nationalityText ? (
               <View style={styles.nationalityRow}>
                 <Text style={styles.nationalityText}>{nationalityText}</Text>
               </View>
-            ) : null} */}
+            ) : null}  */}
+
+            {/* {ethnicityText ? (
+              <View className='px-6 py-2 flex-row items-center justify-center gap-1 bg-black/40 rounded-full'>
+                  <MapPin size={16} color={'#fff'} />
+                <Text className='capitalize text-white font-PlusJakartaSansMedium'>{ethnicityText}</Text>
+              </View>
+            ) : null}  */}
 
             <View className='flex-row items-center gap-2 mt-3'>
-{/* Occupation */}
-            {occupationText ? (
-              <View className='px-6 py-2 flex-row items-center justify-center gap-1 bg-black/40 rounded-full'>
-                    <Briefcase size={16} color='#fff' />
-                <Text className='capitalize text-white font-PlusJakartaSansMedium'> {occupationText}</Text>
-              </View>
-            ) : null}
+              {/* Occupation */}
+              {occupationText ? (
+                <View className='px-6 py-2 flex-row items-center justify-center gap-1 bg-black/40 rounded-full'>
+                  <Briefcase size={16} color='#fff' />
+                  <Text className='capitalize text-white font-PlusJakartaSansMedium'> {occupationText}</Text>
+                </View>
+              ) : null}
 
-            {/* Religion */}
-            {religionText ? (
-              <View className='px-6 py-2 flex-row items-center justify-center gap-1 bg-black/40 rounded-full'>
-              <MaterialCommunityIcons name="hands-pray" size={20} color="#fff" />
-                <Text className='capitalize text-white font-PlusJakartaSansMedium'> {religionText}</Text>
-              </View>
-            ) : null}
+              {/* Religion */}
+              {religionText ? (
+                <View className='px-6 py-2 flex-row items-center justify-center gap-1 bg-black/40 rounded-full'>
+                  <MaterialCommunityIcons name="hands-pray" size={20} color="#fff" />
+                  <Text className='capitalize text-white font-PlusJakartaSansMedium'> {religionText}</Text>
+                </View>
+              ) : null}
             </View>
-            
 
-     
+
+
           </View>
         </Animated.View>
-      </TouchableWithoutFeedback>
+        </PanGestureHandler>
+      </PinchGestureHandler>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  tabContent: { 
+  tabContent: {
     flex: 1,
     marginTop: 100, // Add margin top to reduce visible height
     backgroundColor: '#fff', // White background
@@ -277,22 +309,24 @@ const styles = StyleSheet.create({
   },
 
   dotsContainer: {
-    position: 'absolute', top: 50, left: 16, right: 16,
+    position: 'absolute', top: 20, right: 16,
     flexDirection: 'row', gap: 4, zIndex: 20, justifyContent: 'center',
   },
-  dot:         { width: 20, height: 3, borderRadius: 2 },
-  dotActive:   { backgroundColor: '#fff' },
+  dot: { width: 20, height: 3, borderRadius: 2 },
+  dotActive: { backgroundColor: '#fff' },
   dotInactive: { backgroundColor: 'rgba(255,255,255,0.35)' },
 
-  imageContainer: { flex: 1, position: 'relative', overflow: 'hidden', borderTopLeftRadius: 20, // Added top border radius
-    borderTopRightRadius: 20,  },
-  image: { 
-    width: '100%', 
+  imageContainer: {
+    flex: 1, position: 'relative', overflow: 'hidden', borderTopLeftRadius: 20, // Added top border radius
+    borderTopRightRadius: 20,
+  },
+  image: {
+    width: '100%',
     height: '100%',
     borderTopLeftRadius: 20, // Added top border radius
     borderTopRightRadius: 20, // Added top border radius
   },
-  overlay:        { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.10)' },
+  overlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.10)' },
   bottomGradient: { position: 'absolute', bottom: 0, left: 0, right: 0, height: 280 },
 
   actionMessage: {
@@ -305,20 +339,20 @@ const styles = StyleSheet.create({
 
   profileInfo: { position: 'absolute', bottom: 120, left: 20, right: 20, zIndex: 10 },
 
-  nameRow:    { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 },
-  nameLeft:   { flexDirection: 'row', alignItems: 'center', flex: 1 },
+  nameRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 },
+  nameLeft: { flexDirection: 'row', alignItems: 'center', flex: 1 },
   nameAgeRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  nameText:   { color: '#fff', fontSize: 36, fontFamily: 'PlusJakartaSansBold', textTransform: 'capitalize' },
-  ageText:    { color: '#fff', fontSize: 30, fontFamily: 'PlusJakartaSansMedium' },
+  nameText: { color: '#fff', fontSize: 36, fontFamily: 'PlusJakartaSansBold', textTransform: 'capitalize' },
+  ageText: { color: '#fff', fontSize: 30, fontFamily: 'PlusJakartaSansMedium' },
 
   activeStatusBadge: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 8, marginTop: -2 },
   activeDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#10B981' },
   activeStatusText: { color: 'rgba(255,255,255,0.85)', fontSize: 13, fontFamily: 'PlusJakartaSansMedium' },
 
-  locationRow:  { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  locationRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   locationText: { color: 'rgba(255,255,255,0.9)', fontSize: 15, fontFamily: 'PlusJakartaSansMedium', flex: 1 },
 
-  nationalityRow:  { flexDirection: 'row', alignItems: 'center', marginTop: 4 },
+  nationalityRow: { flexDirection: 'row', alignItems: 'center', marginTop: 4 },
   nationalityText: { color: 'rgba(255,255,255,0.75)', fontSize: 13, fontFamily: 'PlusJakartaSansMedium' },
 
   profileButton: {

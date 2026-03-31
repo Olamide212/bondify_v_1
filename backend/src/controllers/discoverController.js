@@ -212,7 +212,11 @@ const getDiscoveryProfiles = async (req, res, next) => {
         // Compute distance from current user's location to this profile
         if (
           currentUser.location?.coordinates?.length === 2 &&
-          profile.location?.coordinates?.length === 2
+          profile.location?.coordinates?.length === 2 &&
+          currentUser.location.coordinates[0] !== 0 &&
+          currentUser.location.coordinates[1] !== 0 &&
+          profile.location.coordinates[0] !== 0 &&
+          profile.location.coordinates[1] !== 0
         ) {
           const [lon1, lat1] = currentUser.location.coordinates;
           const [lon2, lat2] = profile.location.coordinates;

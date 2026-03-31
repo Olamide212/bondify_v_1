@@ -108,7 +108,7 @@ export default function CommentBox({
             style={styles.sparkBtn}
             onPress={() => setShowComposer(true)}
           >
-            <Sparkles size={26} color="#fff" />
+            <Sparkles size={26} color="#fff" fill={'#fff'} />
           </TouchableOpacity>
         ) : (
           <Animated.View
@@ -140,7 +140,7 @@ export default function CommentBox({
                 onPress={() => setShowSuggestions(true)}
                 disabled={sending}
               >
-                <Sparkles size={18} color={colors.primary} />
+                <Sparkles size={18} color={colors.primary}  />
               </TouchableOpacity>
             </View>
 
