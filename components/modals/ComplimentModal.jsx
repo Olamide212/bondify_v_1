@@ -83,17 +83,19 @@ const ComplimentModal = ({
   // Animations
   const slideAnim = useRef(new Animated.Value(SCREEN_H)).current;
   const overlayAnim = useRef(new Animated.Value(0)).current;
+  const imageOpacity = useRef(new Animated.Value(0)).current; // For image fade animation
   const sentScale = useRef(new Animated.Value(0)).current;
   const successOpacity = useRef(new Animated.Value(0)).current;
 
   const [showModal, setShowModal] = useState(false);
 
-  // Animate in / out
+  // Animate in / out (updated to include image opacity)
   useEffect(() => {
     if (visible) {
       setShowModal(true);
       slideAnim.setValue(SCREEN_H);
       overlayAnim.setValue(0);
+      imageOpacity.setValue(0); // Reset image opacity
       Animated.parallel([
         Animated.spring(slideAnim, {
           toValue: 0,
@@ -102,6 +104,11 @@ const ComplimentModal = ({
           tension: 55,
         }),
         Animated.timing(overlayAnim, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+        Animated.timing(imageOpacity, { // Fade in image
           toValue: 1,
           duration: 300,
           useNativeDriver: true,
@@ -117,6 +124,11 @@ const ComplimentModal = ({
         Animated.timing(overlayAnim, {
           toValue: 0,
           duration: 200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(imageOpacity, { // Fade out image
+          toValue: 0,
+          duration: 250,
           useNativeDriver: true,
         }),
       ]).start(() => setShowModal(false));
@@ -143,6 +155,11 @@ const ComplimentModal = ({
       Animated.timing(overlayAnim, {
         toValue: 0,
         duration: 200,
+        useNativeDriver: true,
+      }),
+      Animated.timing(imageOpacity, { // Fade out image
+        toValue: 0,
+        duration: 250,
         useNativeDriver: true,
       }),
     ]).start(() => {
@@ -285,15 +302,15 @@ const ComplimentModal = ({
     >
       <StatusBar barStyle="light-content" />
       <View style={styles.fullScreen}>
-        {/* ─── Background: user photo ─── */}
+        {/* ─── Animated Background: user photo ─── */}
         {avatarUri ? (
-          <Image
+          <Animated.Image
             source={{ uri: avatarUri }}
-            style={styles.bgImage}
+            style={[styles.bgImage, { opacity: imageOpacity }]}
             resizeMode="cover"
           />
         ) : (
-          <View style={[styles.bgImage, { backgroundColor: colors.primary }]} />
+          <Animated.View style={[styles.bgImage, { backgroundColor: colors.primary, opacity: imageOpacity }]} />
         )}
 
         {/* ─── Animated slide-up content ─── */}
@@ -353,7 +370,7 @@ const ComplimentModal = ({
                       { transform: [{ scale: sentScale }] },
                     ]}
                   >
-                    {matched ? "🎉" : "💌"}
+                    {matched ? "🎉" : "��"}
                   </Animated.Text>
                   <Text
                     style={styles.successTitle}

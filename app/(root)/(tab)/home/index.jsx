@@ -27,17 +27,16 @@
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
-import { Bell, SlidersHorizontal, Zap, Rocket } from "lucide-react-native";
+import { Rocket, SlidersHorizontal } from "lucide-react-native";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   AppState,
-  Image,
   Pressable,
   RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
-  View,
+  View
 } from "react-native";
 import Animated, {
   interpolate,
@@ -62,13 +61,11 @@ import UserProfileModal from "../../../../components/modals/UserProfileModal";
 import LogoLoader from "../../../../components/ui/LogoLoader";
 import { NotificationBanner } from "../../../../components/ui/NotificationBanner";
 import { colors } from "../../../../constant/colors";
-import { images } from "../../../../constant/images";
 import { useProfile } from "../../../../context/ProfileContext";
 import { profileService } from "../../../../services/profileService";
 import SettingsService from "../../../../services/settingsService";
 import { socketService } from "../../../../services/socketService";
 import { updateCurrentUser } from "../../../../slices/authSlice";
-import Svg, { Path, Circle } from 'react-native-svg';
 
 // ─── Swipe badge assets ───────────────────────────────────────────────────────
 const BOND_BADGE = require("../../../../assets/images/Bond_Badge_Right.png");
@@ -104,6 +101,8 @@ const Home = () => {
     homeProfiles,
     handleHomeSwipe,
     handleHomeSuperLike,
+    handleRewind,
+    rewindAvailable,
     profilesLoading,
     refreshProfiles,
     homeFilters,
@@ -648,7 +647,8 @@ const Home = () => {
           <ActionButtons
             onSwipe={handleSwipe}
             onCompliment={handleComplimentPress}
-            Redo={true}
+            onRewind={handleRewind}
+            Redo={rewindAvailable}
           />
         </View>
       )}

@@ -667,10 +667,63 @@ const getPassed = async (req, res, next) => {
   }
 };
 
+// @desc    Rewind the last pass action
+// @route   POST /api/discover/rewind
+// @access  Private
+const rewindPass = async (req, res, next) => {
+  try {
+    const userId = req.user._id;
+
+    // Find the most recent pass action for this user
+    const lastPass = await Like.findOne({ user: userId, type: 'pass' })
+      .sort({ createdAt: -1 })
+      .populate('likedUser', 'firstName lastName name images age location bio')
+      .lean();
+
+    if (!lastPass) {
+      return res.status(404).json({
+        success: false,
+        message: 'No pass action to rewind.',
+      });
+    }
+
+    // Delete the pass action
+    await Like.findByIdAndDelete(lastPass._id);
+
+    // Decrement the passesGiven counter
+    await User.findByIdAndUpdate(userId, { $inc: { passesGiven: -1 } });
+
+    // Invalidate discovery cache
+    await invalidateDiscoveryCache(userId);
+
+    // Format the profile data for the response
+    const profile = lastPass.likedUser;
+    const formattedProfile = {
+      id: profile._id,
+      name: profile.name || [profile.firstName, profile.lastName].filter(Boolean).join(' '),
+      age: profile.age,
+      images: profile.images || [],
+      bio: profile.bio,
+      location: profile.location,
+    };
+
+    res.json({
+      success: true,
+      message: 'Pass action rewound successfully.',
+      data: {
+        profile: formattedProfile,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getDiscoveryProfiles,
   performAction,
   getLikedYou,
   getYouLiked,
   getPassed,
+  rewindPass,
 };

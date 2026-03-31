@@ -65,12 +65,12 @@ export default function AuthLayout() {
     contentStyle: { backgroundColor: "#fff" },
     cardOverlayEnabled: false,
   }}>
-        <Stack.Screen name="login" />
-        <Stack.Screen name="register" />
-        <Stack.Screen name="reset-password" />
-        <Stack.Screen name="forgot-password" />
-        <Stack.Screen name="forgot-password-otp" />
-        <Stack.Screen name="validation" />
+        <Stack.Screen name="login/index" />
+        <Stack.Screen name="register/index" />
+        <Stack.Screen name="reset-password/index" />
+        <Stack.Screen name="forgot-password/index" />
+        <Stack.Screen name="forgot-password-otp/index" />
+        <Stack.Screen name="validation/index" />
         <Stack.Screen name="(onboarding)" />
       </Stack>
     </SafeAreaView>

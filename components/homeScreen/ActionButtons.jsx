@@ -1,5 +1,5 @@
 import { BlurView } from "expo-blur";
-import { Heart, Sparkles, X } from "lucide-react-native";
+import { Heart, RotateCcw, Sparkles, X } from "lucide-react-native";
 import { memo } from "react";
 import { TouchableOpacity, View } from "react-native";
 
@@ -9,9 +9,10 @@ import { TouchableOpacity, View } from "react-native";
  * Props:
  *   onSwipe(direction: "left" | "right")  — pass and like
  *   onCompliment()                         — open compliment modal
- *   Redo?: boolean                         — reserved for undo (future)
+ *   onRewind()                             — rewind last pass
+ *   Redo?: boolean                         — show rewind button
  */
-const ActionButtons = ({ onSwipe, onCompliment, Redo = false }) => (
+const ActionButtons = ({ onSwipe, onCompliment, onRewind, Redo = false }) => (
   <View className="flex-row justify-between items-center px-4 py-6">
 
     {/* Compliment - Left side */}
@@ -29,8 +30,25 @@ const ActionButtons = ({ onSwipe, onCompliment, Redo = false }) => (
       </BlurView>
     </TouchableOpacity>
 
-    {/* Nope + Like - Right side */}
+    {/* Rewind + Nope + Like - Center/Right side */}
     <View className="flex-row items-center gap-4">
+      {/* Rewind (only show when Redo is true) */}
+      {Redo && (
+        <TouchableOpacity
+          onPress={() => onRewind?.()}
+          activeOpacity={0.8}
+          className="w-[50px] h-[50px] rounded-full overflow-hidden"
+        >
+          <View
+            intensity={25}
+            tint="light"
+            className="flex-1 items-center justify-center bg-yellow-500"
+          >
+            <RotateCcw size={24} color="#fff" />
+          </View>
+        </TouchableOpacity>
+      )}
+
       {/* Pass (Nope) */}
       <TouchableOpacity
         onPress={() => onSwipe?.("left")}
