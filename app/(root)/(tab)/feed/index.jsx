@@ -207,13 +207,23 @@ export default function BondupFeedScreen() {
     const seq = ++loadRequestRef.current;
     setLoading(true);
     try {
-      const res = await bondupService.getPublicBondups({});
-      const data = res.data ?? [];
+      // Get user's city for filtering public bondups
+      const userCity = currentUser?.socialProfile?.city || currentUser?.location?.city || '';
+
+      // Load both public and circle bondups
+      const [publicRes, circleRes] = await Promise.all([
+        bondupService.getPublicBondups({ city: userCity }).catch(() => ({ data: [] })),
+        bondupService.getCircleBondups({}).catch(() => ({ data: [] })),
+      ]);
+
+      const publicData = publicRes.data ?? [];
+      const circleData = circleRes.data ?? [];
+      const allData = [...publicData, ...circleData];
 
       if (seq === loadRequestRef.current) {
-        setAllBondups(data);
+        setAllBondups(allData);
         // Persist to AsyncStorage for offline/stale-while-revalidate
-        persistBondups(data);
+        persistBondups(allData);
       }
     } catch {
       // On network error, keep existing data (stale-while-revalidate)
@@ -340,6 +350,34 @@ export default function BondupFeedScreen() {
       }
     } catch {
       loadBondups();
+    }
+  };
+
+  const handleJoinChat = async (bondupId) => {
+    try {
+      const bondup = allBondups.find(b => b._id === bondupId);
+      if (!bondup) return;
+
+      const chatRes = await bondupChatService.startChat(bondupId);
+      if (chatRes.success) {
+        const chatId = chatRes.data._id;
+        router.push({
+          pathname: '/bondup-chat',
+          params: {
+            chatId,
+            bondupId: bondup._id,
+            bondupTitle: bondup.title,
+            participantCount: bondup.participants?.length || 0,
+          },
+        });
+      }
+    } catch (err) {
+      const msg = err?.response?.data?.message || 'Could not join chat. Try again.';
+      showAlert({
+        icon: 'error',
+        title: 'Error',
+        message: msg,
+      });
     }
   };
 
@@ -540,6 +578,7 @@ export default function BondupFeedScreen() {
                 onLeave={handleLeave}
                 onDelete={handleDelete}
                 onPress={setDetailBondup}
+                onJoinChat={handleJoinChat}
               />
             ))
           )}

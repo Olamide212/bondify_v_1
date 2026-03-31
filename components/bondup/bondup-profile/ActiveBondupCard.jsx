@@ -96,7 +96,7 @@ const ActiveBondupCard = ({ bondup, currentUserId, onBondupUpdate }) => {
   return (
     <>
       <TouchableOpacity style={s.bondupCard} onPress={handlePress} activeOpacity={0.7}>
-        <Text style={s.bondupEmoji}>{emoji}</Text>
+        {/* <Text style={s.bondupEmoji}>{emoji}</Text> */}
         <View style={s.bondupCardContent}>
           <Text style={s.bondupTitle} numberOfLines={1}>{bondup.title}</Text>
           {!!bondup.description && (

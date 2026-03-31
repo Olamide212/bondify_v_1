@@ -20,7 +20,7 @@ const bondupService = {
   },
 
   /**
-   * Get Bondups from the user's circle (followers/following).
+   * Get Bondups from people the user follows (circle/friends only).
    * @param {{ page?, limit?, activityType?, date?, sort? }} params
    */
   getCircleBondups: async (params = {}) => {

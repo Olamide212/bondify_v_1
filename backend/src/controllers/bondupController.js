@@ -142,11 +142,16 @@ const getPublicBondups = async (req, res, next) => {
       expiresAt: { $gt: now },
     };
 
-    // Optional city filter — only when client explicitly passes ?city=...
+    // Required city filter for public bondups - they should only be visible in the creator's city
     const cityParam = (req.query.city || '').trim();
-    if (cityParam) {
-      filter.city = { $regex: new RegExp(cityParam.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i') };
+    if (!cityParam) {
+      return res.json({
+        success: true,
+        data: [],
+        pagination: { page: Number(page), limit: Number(limit), total: 0, hasMore: false },
+      });
     }
+    filter.city = { $regex: new RegExp(cityParam.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i') };
 
     if (activityType && ['coffee', 'food', 'drinks', 'brunch', 'dinner', 'lunch', 'snacks', 'dessert', 'gym', 'yoga', 'running', 'hiking', 'cycling', 'swimming', 'tennis', 'basketball', 'football', 'volleyball', 'walk', 'park', 'beach', 'picnic', 'camping', 'fishing', 'movie', 'theater', 'concert', 'museum', 'art', 'comedy', 'board_games', 'video_games', 'karaoke', 'dancing', 'party', 'networking', 'workshop', 'class', 'photography', 'painting', 'music', 'other'].includes(activityType)) {
       filter.activityType = activityType;
@@ -213,18 +218,12 @@ const getCircleBondups = async (req, res, next) => {
     const now = new Date();
     const userId = req.user._id;
 
-    // Get the user's circle (people they follow + people who follow them)
-    const [following, followers] = await Promise.all([
-      Follow.find({ follower: userId }).select('following').lean(),
-      Follow.find({ following: userId }).select('follower').lean(),
-    ]);
+    // Get the user's circle (people they follow)
+    const following = await Follow.find({ follower: userId }).select('following').lean();
 
-    const circleIds = new Set([
-      ...following.map((f) => String(f.following)),
-      ...followers.map((f) => String(f.follower)),
-    ]);
+    const followingIds = following.map((f) => String(f.following));
 
-    if (circleIds.size === 0) {
+    if (followingIds.length === 0) {
       return res.json({
         success: true,
         data: [],
@@ -236,7 +235,7 @@ const getCircleBondups = async (req, res, next) => {
       visibility: 'circle',
       isActive: true,
       expiresAt: { $gt: now },
-      createdBy: { $in: [...circleIds] },
+      createdBy: { $in: followingIds },
     };
 
     if (activityType && ['coffee', 'food', 'drinks', 'brunch', 'dinner', 'lunch', 'snacks', 'dessert', 'gym', 'yoga', 'running', 'hiking', 'cycling', 'swimming', 'tennis', 'basketball', 'football', 'volleyball', 'walk', 'park', 'beach', 'picnic', 'camping', 'fishing', 'movie', 'theater', 'concert', 'museum', 'art', 'comedy', 'board_games', 'video_games', 'karaoke', 'dancing', 'party', 'networking', 'workshop', 'class', 'photography', 'painting', 'music', 'other'].includes(activityType)) {

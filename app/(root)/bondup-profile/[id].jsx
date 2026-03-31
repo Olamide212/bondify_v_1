@@ -43,8 +43,12 @@ const BRAND = colors.primary;
 const avatarUrl = (user) =>
   user?.profilePhoto || user?.images?.[0]?.url || user?.images?.[0] || null;
 
-const getFirstName = (user) =>
-  user?.firstName || user?.userName || 'User';
+const getFullName = (user) => {
+  const firstName = user?.firstName || '';
+  const lastName = user?.lastName || '';
+  const fullName = `${firstName} ${lastName}`.trim();
+  return fullName || user?.userName || 'User';
+};
 
 // ─── Main Screen ──────────────────────────────────────────────────────────────
 export default function BondupProfileScreen() {
@@ -300,7 +304,7 @@ export default function BondupProfileScreen() {
           ) : (
             <View style={[s.avatar, s.avatarFallback]}>
               <Text style={s.avatarInitial}>
-                {(profile?.firstName || 'U')[0].toUpperCase()}
+                {getFullName(profile)[0].toUpperCase()}
               </Text>
             </View>
           )}
@@ -308,7 +312,7 @@ export default function BondupProfileScreen() {
 
         {/* Name + Location */}
         <View style={s.nameSection}>
-          <Text style={s.fullName}>{getFirstName(profile)}</Text>
+          <Text style={s.fullName}>{getFullName(profile)}</Text>
           {!!profile.city && (
             <View style={s.locationRow}>
               <MapPin size={14} color="#888" />
@@ -543,6 +547,7 @@ const s = StyleSheet.create({
     fontFamily: 'PlusJakartaSansBold',
     color: '#111',
     marginBottom: 6,
+    textTransform: 'capitalize',
   },
   locationRow: {
     flexDirection: 'row',

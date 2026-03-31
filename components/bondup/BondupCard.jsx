@@ -75,6 +75,7 @@ export default function BondupCard({
   onLeave,
   onDelete,
   onPress,
+  onJoinChat,
 }) {
   const router = useRouter();
   if (!bondup) return null;
@@ -132,7 +133,7 @@ export default function BondupCard({
 
         <View style={s.categoryBadge}>
           <Text style={s.categoryText}>
-            {activityLabel.toUpperCase()} {activityEmoji}
+            {activityLabel.toUpperCase()} 
           </Text>
         </View>
       </View>
@@ -173,7 +174,7 @@ export default function BondupCard({
         </View>
       </View>
 
-      {/* ── Action button (full-width) ── */}
+      {/* ── Action button ── */}
       {isOwner ? (
         <TouchableOpacity
           style={s.manageBtn}
@@ -183,13 +184,22 @@ export default function BondupCard({
           <Text style={s.manageBtnText}>Manage</Text>
         </TouchableOpacity>
       ) : hasJoined ? (
-        <TouchableOpacity
-          style={s.joinedBtn}
-          onPress={() => onLeave?.(bondup._id)}
-          activeOpacity={0.8}
-        >
-          <Text style={s.joinedBtnText}>You&apos;re in 🎉</Text>
-        </TouchableOpacity>
+        <View style={s.joinedButtonsContainer}>
+          <TouchableOpacity
+            style={s.chatBtn}
+            onPress={() => onJoinChat?.(bondup._id)}
+            activeOpacity={0.8}
+          >
+            <Text style={s.chatBtnText}>💬 Join Chat</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={s.exitBtn}
+            onPress={() => onLeave?.(bondup._id)}
+            activeOpacity={0.8}
+          >
+            <Text style={s.exitBtnText}>Exit</Text>
+          </TouchableOpacity>
+        </View>
       ) : isFull ? (
         <View style={s.fullBtn}>
           <Text style={s.fullBtnText}>Full</Text>
@@ -220,6 +230,7 @@ const s = StyleSheet.create({
     shadowOpacity: 0.07,
     shadowRadius: 12,
     elevation: 4,
+
   },
 
   // Top row
@@ -253,6 +264,7 @@ const s = StyleSheet.create({
     fontSize: 15,
     fontFamily: 'PlusJakartaSansBold',
     color: '#111',
+    textTransform: 'capitalize',
   },
   timeAgoText: {
     fontSize: 12,
@@ -261,7 +273,7 @@ const s = StyleSheet.create({
     marginTop: 1,
   },
   categoryBadge: {
-    backgroundColor: colors.primaryLight,
+    backgroundColor: colors.secondary,
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 20,
@@ -270,7 +282,7 @@ const s = StyleSheet.create({
   categoryText: {
     fontSize: 10,
     fontFamily: 'PlusJakartaSansBold',
-    color: BRAND,
+    color: '#fff',
     letterSpacing: 0.5,
   },
 
@@ -356,17 +368,18 @@ const s = StyleSheet.create({
     flex: 1,
   },
 
-  // Buttons (full-width)
+  // Buttons
   joinBtn: {
     backgroundColor: BRAND,
     paddingVertical: 13,
-    borderRadius: 14,
+    borderRadius: 40,
     alignItems: 'center',
     shadowColor: BRAND,
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.3,
     shadowRadius: 6,
     elevation: 4,
+    width: 160, // Reduced width for smaller button
   },
   joinBtnText: {
     color: '#fff',
@@ -375,11 +388,12 @@ const s = StyleSheet.create({
   },
   joinedBtn: {
     paddingVertical: 13,
-    borderRadius: 14,
+    borderRadius: 50,
     alignItems: 'center',
     borderWidth: 1.5,
     borderColor: '#86EFAC',
     backgroundColor: '#F0FDF4',
+    width: 160, // Match join button width
   },
   joinedBtnText: {
     color: '#16A34A',
@@ -391,6 +405,7 @@ const s = StyleSheet.create({
     borderRadius: 14,
     alignItems: 'center',
     backgroundColor: '#F3F4F6',
+    width: 160, // Match other button widths
   },
   fullBtnText: {
     color: '#9CA3AF',
@@ -399,14 +414,54 @@ const s = StyleSheet.create({
   },
   manageBtn: {
     paddingVertical: 13,
-    borderRadius: 14,
+    borderRadius: 50,
     alignItems: 'center',
     borderWidth: 1.5,
     borderColor: BRAND,
+    width: 160, // Match other button widths
   },
   manageBtnText: {
     color: BRAND,
     fontSize: 15,
+    fontFamily: 'PlusJakartaSansBold',
+  },
+
+  // Joined buttons container
+  joinedButtonsContainer: {
+    flexDirection: 'row',
+    gap: 8,
+    width: '100%',
+    justifyContent: 'center',
+  },
+  chatBtn: {
+    backgroundColor: BRAND,
+    paddingVertical: 13,
+    borderRadius: 14,
+    alignItems: 'center',
+    shadowColor: BRAND,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 4,
+    flex: 1,
+  },
+  chatBtnText: {
+    color: '#fff',
+    fontSize: 14,
+    fontFamily: 'PlusJakartaSansBold',
+  },
+  exitBtn: {
+    paddingVertical: 13,
+    borderRadius: 14,
+    alignItems: 'center',
+    borderWidth: 1.5,
+    borderColor: '#EF4444',
+    backgroundColor: '#FEF2F2',
+    flex: 1,
+  },
+  exitBtnText: {
+    color: '#EF4444',
+    fontSize: 14,
     fontFamily: 'PlusJakartaSansBold',
   },
 });
