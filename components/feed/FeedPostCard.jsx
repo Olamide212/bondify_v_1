@@ -1,3 +1,4 @@
+import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import {
     Bookmark,
@@ -10,7 +11,6 @@ import { useState } from "react";
 import {
     Animated,
     Dimensions,
-    Image,
     ScrollView,
     StyleSheet,
     Text,
@@ -71,7 +71,7 @@ const FeedPostCard = ({
       {/* Author row */}
       <TouchableOpacity style={styles.authorRow} onPress={handleNavigateToProfile} activeOpacity={0.7}>
         {avatarUrl(post.author) ? (
-          <Image source={{ uri: avatarUrl(post.author) }} style={styles.authorAvatar} />
+          <Image source={{ uri: avatarUrl(post.author) }} style={styles.authorAvatar} cachePolicy="memory-disk" transition={150} />
         ) : (
           <View style={[styles.authorAvatar, styles.avatarFallback]}>
             <Text style={styles.avatarInitial}>
@@ -104,7 +104,7 @@ const FeedPostCard = ({
       {post.mediaUrls?.length > 0 && (
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: 8 }}>
           {post.mediaUrls.map((url, i) => (
-            <Image key={i} source={{ uri: url }} style={styles.mediaImg} />
+            <Image key={i} source={{ uri: url }} style={styles.mediaImg} cachePolicy="memory-disk" transition={200} />
           ))}
         </ScrollView>
       )}

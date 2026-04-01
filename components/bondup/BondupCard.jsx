@@ -64,8 +64,8 @@ const isLiveNow = (dateTime) => {
   return Math.abs(new Date(dateTime) - new Date()) <= 2 * 60 * 60 * 1000;
 };
 
-const getFullName = (user) =>
-  [user?.firstName, user?.lastName].filter(Boolean).join(' ') || 'User';
+const getDisplayName = (user) =>
+  user?.userName || user?.firstName || 'User';
 
 // ─── Component ────────────────────────────────────────────────────────────────
 export default function BondupCard({
@@ -130,7 +130,7 @@ export default function BondupCard({
           </TouchableOpacity>
 
           <View style={s.creatorMeta}>
-            <Text style={s.creatorName}>{getFullName(creator)}</Text>
+            <Text style={s.creatorName}>{getDisplayName(creator)}</Text>
             <Text style={s.timeAgoText}>
               {bondup.createdAt ? timeAgo(bondup.createdAt) : formatDateTime(bondup.dateTime)}
             </Text>
@@ -270,9 +270,9 @@ const s = StyleSheet.create({
     zIndex: 10,
   },
   creatorAvatar: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
     borderWidth: 3,
     borderColor: '#fff',
     shadowColor: '#000',
@@ -311,11 +311,11 @@ const s = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 12,
-    shadowColor: BRAND,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 2,
+    // shadowColor: BRAND,
+    // shadowOffset: { width: 0, height: 2 },
+    // shadowOpacity: 0.2,
+    // shadowRadius: 4,
+    // elevation: 2,
   },
   categoryText: {
     color: '#fff',

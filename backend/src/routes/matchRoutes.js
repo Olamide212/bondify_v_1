@@ -6,6 +6,8 @@ const {
   unmatch,
   getUnmatchedUsers,
   getInteractionStatus,
+  requestRematch,
+  respondToRematch,
 } = require('../controllers/matchController');
 const { protect } = require('../middleware/auth');
 
@@ -17,5 +19,9 @@ router.get('/interaction/:targetId',  protect, getInteractionStatus);
 
 router.get('/:id',    protect, getMatch);
 router.delete('/:id', protect, unmatch);
+
+// Rematch
+router.post('/:id/rematch',         protect, requestRematch);
+router.post('/:id/rematch/respond', protect, respondToRematch);
 
 module.exports = router;

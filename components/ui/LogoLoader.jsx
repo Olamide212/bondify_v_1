@@ -1,5 +1,5 @@
-import React, { useEffect, useRef } from "react";
-import { Animated, Easing, StyleSheet, View, Image } from "react-native";
+import { useEffect, useRef, useState } from "react";
+import { Animated, Easing, Image, StyleSheet, View } from "react-native";
 import { images } from "../../constant/images";
 
 const LogoLoader = ({
@@ -139,7 +139,8 @@ const LogoLoader = ({
     centerSource = logo || images.bondifyIcon;
   }
 
-  const centerIsAvatar = !!userAvatar;
+  const [avatarFailed, setAvatarFailed] = useState(false);
+  const centerIsAvatar = !!userAvatar && !avatarFailed;
 
   // Dot positions and their animated values
   const dotConfigs = [
@@ -186,8 +187,10 @@ const LogoLoader = ({
 
       {/* Nearby Users — mini avatars or colored dots */}
       {dotConfigs.map(({ opacityAnim, scaleAnim, position }, i) => {
-        const avatarUri = nearbyAvatars && nearbyAvatars[i];
-        if (avatarUri) {
+        const avatarSrc = nearbyAvatars && nearbyAvatars[i];
+        if (avatarSrc) {
+          // Support both URI strings and require() image sources
+          const imgSource = typeof avatarSrc === "string" ? { uri: avatarSrc } : avatarSrc;
           return (
             <Animated.View
               key={i}
@@ -205,7 +208,7 @@ const LogoLoader = ({
               ]}
             >
               <Image
-                source={{ uri: avatarUri }}
+                source={imgSource}
                 style={[
                   styles.miniAvatarImage,
                   {
@@ -252,6 +255,7 @@ const LogoLoader = ({
       {centerIsAvatar ? (
         <Image
           source={centerSource}
+          onError={() => setAvatarFailed(true)}
           style={[
             styles.centerAvatar,
             {
@@ -264,7 +268,7 @@ const LogoLoader = ({
         />
       ) : (
         <Image
-          source={centerSource}
+          source={logo || images.bondifyIcon}
           style={{
             width: size * 0.55,
             height: size * 0.55,

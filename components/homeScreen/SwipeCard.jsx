@@ -1,24 +1,24 @@
-import React, { useState } from "react";
-import {
-  View,
-  Text,
-  Image,
-  TouchableOpacity,
-  Dimensions,
-  StyleSheet,
-  Animated,
-} from "react-native";
-import {
-  Heart,
-  MapPin,
-  ChevronRight,
-  User,
-  Star,
-  Briefcase,
-} from "lucide-react-native";
-import { LinearGradient } from "expo-linear-gradient";
 import { BlurView } from "expo-blur";
+import { Image } from "expo-image";
+import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
+import {
+    Briefcase,
+    ChevronRight,
+    Heart,
+    MapPin,
+    Star,
+    User,
+} from "lucide-react-native";
+import { useState } from "react";
+import {
+    Animated,
+    Dimensions,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+} from "react-native";
 
 const { width } = Dimensions.get("window");
 const CARD_HEIGHT = 570;
@@ -70,6 +70,9 @@ const SwipeCard = ({ profile, actionMessage }) => {
         <Image
           source={{ uri: profile?.images?.[currentImageIndex] }}
           style={styles.image}
+          contentFit="cover"
+          cachePolicy="memory-disk"
+          transition={200}
         />
 
         {/* Dark overlay */}

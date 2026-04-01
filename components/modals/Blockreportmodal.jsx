@@ -16,18 +16,20 @@
 import { AlertTriangle, Ban, ChevronRight, X } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
 import {
-    ActivityIndicator,
-    Animated,
-    Dimensions,
-    Easing,
-    Modal,
-    Pressable,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Animated,
+  Dimensions,
+  Easing,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { colors } from "../../constant/colors";
 import { useAlert } from "../../context/AlertContext";
@@ -100,6 +102,16 @@ const BlockReportModal = ({ visible, mode = "block", profile, onClose, onSuccess
     }).start(() => onClose());
   };
 
+  // Called from success screen "Done" button — animate closed then fire onSuccess
+  const handleDone = (resultMode) => {
+    Animated.timing(slideY, {
+      toValue: SH,
+      duration: 240,
+      easing: Easing.in(Easing.ease),
+      useNativeDriver: true,
+    }).start(() => onSuccess?.(resultMode));
+  };
+
   // ── Block ───────────────────────────────────────────────────────────────────
 
   const handleBlock = async () => {
@@ -108,7 +120,6 @@ const BlockReportModal = ({ visible, mode = "block", profile, onClose, onSuccess
     try {
       await settingsService.blockUser(targetId);
       setScreen("success_block");
-      onSuccess?.("block");
     } catch (err) {
       showAlert({
         icon: 'error',
@@ -131,7 +142,6 @@ const BlockReportModal = ({ visible, mode = "block", profile, onClose, onSuccess
         details: details.trim(),
       });
       setScreen("success_report");
-      onSuccess?.("report");
     } catch (err) {
       showAlert({
         icon: 'error',
@@ -292,7 +302,7 @@ const BlockReportModal = ({ visible, mode = "block", profile, onClose, onSuccess
             They&apos;ll no longer be able to contact you or see your profile.
             You can manage blocked users in Settings.
           </Text>
-          <TouchableOpacity style={[styles.actionBtn, styles.blockBtn]} onPress={close}>
+          <TouchableOpacity style={[styles.actionBtn, styles.blockBtn]} onPress={() => handleDone("block")}>
             <Text style={styles.actionBtnText}>Done</Text>
           </TouchableOpacity>
         </>
@@ -309,7 +319,7 @@ const BlockReportModal = ({ visible, mode = "block", profile, onClose, onSuccess
             Thanks for helping keep Bondies safe. Our team will review your report
             and take appropriate action.
           </Text>
-          <TouchableOpacity style={[styles.actionBtn, styles.reportBtn]} onPress={close}>
+          <TouchableOpacity style={[styles.actionBtn, styles.reportBtn]} onPress={() => handleDone("report")}>
             <Text style={styles.actionBtnText}>Done</Text>
           </TouchableOpacity>
         </>
@@ -326,11 +336,16 @@ const BlockReportModal = ({ visible, mode = "block", profile, onClose, onSuccess
       animationType="none"
       onRequestClose={close}
     >
-      <Pressable style={styles.backdrop} onPress={close} />
-
-      <Animated.View
-        style={[styles.sheet, { transform: [{ translateY: slideY }] }]}
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={{ flex: 1 }}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 0}
       >
+        <Pressable style={styles.backdrop} onPress={close} />
+
+        <Animated.View
+          style={[styles.sheet, { transform: [{ translateY: slideY }] }]}
+        >
         {/* Handle + close */}
         <View style={styles.sheetHeader}>
           <View style={styles.handle} />
@@ -346,7 +361,8 @@ const BlockReportModal = ({ visible, mode = "block", profile, onClose, onSuccess
         >
           {renderContent()}
         </ScrollView>
-      </Animated.View>
+        </Animated.View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 };
@@ -357,10 +373,6 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0.45)",
   },
   sheet: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
     backgroundColor: "#fff",
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,

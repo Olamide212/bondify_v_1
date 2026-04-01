@@ -1,6 +1,7 @@
 // components/ImageCarousel.jsx
-import React, { useState } from "react";
-import { View, Image, StyleSheet, FlatList, Dimensions } from "react-native";
+import { Image } from "expo-image";
+import { useState } from "react";
+import { Dimensions, FlatList, StyleSheet, View } from "react-native";
 
 const { width, height } = Dimensions.get("window");
 
@@ -27,7 +28,9 @@ export default function ImageCarousel({ images }) {
           <Image
             source={{ uri: item }}
             style={styles.image}
-            resizeMode="cover"
+            contentFit="cover"
+            cachePolicy="memory-disk"
+            transition={200}
           />
         )}
       />

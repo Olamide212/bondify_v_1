@@ -1,5 +1,6 @@
+import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { colors } from '../../../constant/colors';
 
 const BRAND = colors.primary;
@@ -19,7 +20,7 @@ const FriendItem = ({ friend }) => {
   return (
     <TouchableOpacity style={s.friendItem} onPress={handlePress} activeOpacity={0.7}>
       {friendAvatar ? (
-        <Image source={{ uri: friendAvatar }} style={s.friendAvatar} />
+        <Image source={{ uri: friendAvatar }} style={s.friendAvatar} cachePolicy="memory-disk" transition={150} />
       ) : (
         <View style={[s.friendAvatar, s.friendAvatarFallback]}>
           <Text style={s.friendAvatarInitial}>

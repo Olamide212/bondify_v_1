@@ -8,16 +8,15 @@ import {
     ScrollView,
     Text,
     TouchableWithoutFeedback,
-    View,
-      ActivityIndicator
+    View
 } from "react-native";
 
 import RadioSelect from "../../../../components/inputs/RadioSelect";
+import ActivityLoader from "../../../../components/ui/ActivityLoader";
 import Button from "../../../../components/ui/Button";
 import Info from "../../../../components/ui/Info";
 import { useLookupOptions } from "../../../../hooks/useLookupOptions";
 import { useProfileSetup } from "../../../../hooks/useProfileSetup";
-import ActivityLoader from "../../../../components/ui/ActivityLoader";
 
 const relationshipTypeMap = {
   seperated: "separated",
@@ -71,6 +70,7 @@ const MaritalStatus = () => {
               <Button
                 title="Continue"
                 variant="primary"
+                disabled={!maritalStatus}
                 onPress={async () => {
                   const normalizedRelationshipType =
                     relationshipTypeMap[maritalStatus?.toLowerCase?.()] || maritalStatus;

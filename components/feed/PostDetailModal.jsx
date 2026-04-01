@@ -1,3 +1,4 @@
+import { Image } from "expo-image";
 import {
     Bookmark,
     ChevronLeft,
@@ -16,7 +17,6 @@ import {
     Animated,
     Dimensions,
     FlatList,
-    Image,
     KeyboardAvoidingView,
     Platform,
     ScrollView,
@@ -182,6 +182,8 @@ const PostDetailModal = ({
           <Image
             source={{ uri: avatarUrl(item.author) }}
             style={[styles.commentAvatar, isReply && styles.replyAvatar]}
+            cachePolicy="memory-disk"
+            transition={150}
           />
         ) : (
           <View
@@ -237,7 +239,7 @@ const PostDetailModal = ({
       {/* Author row */}
       <View style={styles.authorRow}>
         {avatarUrl(post.author) ? (
-          <Image source={{ uri: avatarUrl(post.author) }} style={styles.authorAvatar} />
+          <Image source={{ uri: avatarUrl(post.author) }} style={styles.authorAvatar} cachePolicy="memory-disk" transition={150} />
         ) : (
           <View style={[styles.authorAvatar, styles.avatarFallback]}>
             <Text style={styles.avatarInitial}>
@@ -286,7 +288,7 @@ const PostDetailModal = ({
       {post.mediaUrls?.length > 0 && (
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: 8 }}>
           {post.mediaUrls.map((url, i) => (
-            <Image key={i} source={{ uri: url }} style={styles.mediaImg} />
+            <Image key={i} source={{ uri: url }} style={styles.mediaImg} cachePolicy="memory-disk" transition={200} />
           ))}
         </ScrollView>
       )}

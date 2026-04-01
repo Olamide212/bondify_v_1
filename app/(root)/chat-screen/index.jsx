@@ -67,12 +67,22 @@ export default function UsersChatScreen() {
 
   // ─────────────────────────────────────────────────────────────────────────
 
+  const isUnmatched = params.isUnmatched === "true";
+  const rematchRequestedByMe = params.rematchRequestedByMe === "true";
+  // If this chat was opened from a rematch request card in the chat list,
+  // the current user is the RECEIVER (the other person sent the request).
+  const isRematchReceiver = params.isRematchRequest === "true";
+
   return (
     <View style={styles.container}>
       <ChatScreen
         matchedUser={matchedUser}
         onBack={handleBack}
-        initialSearchMode={params.searchMode === "true"}
+        initialSearchMode={!!params.searchMode}
+        searchTrigger={params.searchMode}
+        isUnmatched={isUnmatched}
+        rematchRequestedByMe={rematchRequestedByMe}
+        isRematchReceiver={isRematchReceiver}
       />
     </View>
   );

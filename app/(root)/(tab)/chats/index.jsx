@@ -138,7 +138,40 @@ export default function Chat() {
       if (mounted.current && cached.length > 0) setMatchUsers(normalizeMatches(cached));
 
       const fresh = await matchService.getMatches();
-      if (mounted.current) setMatchUsers(fresh.length > 0 ? normalizeMatches(fresh) : []);
+      if (mounted.current) {
+        const normalizedMatches = fresh.matches.length > 0 ? normalizeMatches(fresh.matches) : [];
+        // Normalize rematch requests with a special flag
+        const rematchEntries = (fresh.rematchRequests || []).map((r) => {
+          const images = Array.isArray(r.user?.images)
+            ? r.user.images
+                .map((img) =>
+                  typeof img === "string" ? img : img?.url || img?.uri || img?.secure_url
+                )
+                .filter(Boolean)
+            : [];
+          const profileImage = images[0] || r.user?.profileImage;
+          return {
+            id:               r.user?._id ?? r.user?.id,
+            matchId:          r.matchId ?? r.id,
+            name:             getFirstName(
+              r.user?.name ||
+                [r.user?.firstName, r.user?.lastName].filter(Boolean).join(' ') ||
+                'Unknown'
+            ),
+            profileImage,
+            isOnline:         r.user?.online ?? false,
+            isSystem:         false,
+            isVerified:       r.user?.verificationStatus === 'approved' || !!r.user?.verified,
+            matchedDate:      r.matchedAt ? new Date(r.matchedAt) : new Date(),
+            activityAt:       new Date(r.rematchRequestedAt || Date.now()).getTime(),
+            lastMessage:      '💫 Wants to rematch with you',
+            unread:           0,
+            hasChatted:       true,
+            isRematchRequest: true,
+          };
+        });
+        setMatchUsers([...rematchEntries, ...normalizedMatches]);
+      }
     } catch {
       const fallback = await matchService.getCachedMatches();
       if (mounted.current) setMatchUsers(fallback.length > 0 ? normalizeMatches(fallback) : []);
@@ -242,11 +275,25 @@ export default function Chat() {
       );
     };
 
+    // When a rematch request comes in, reload the matches list to show it
+    const handleRematchRequest = () => {
+      const mounted = { current: true };
+      loadMatches(mounted);
+    };
+
+    // When a rematch response comes in (accepted/declined), reload
+    const handleRematchResponse = ({ accepted }) => {
+      const mounted = { current: true };
+      loadMatches(mounted);
+    };
+
     const connect = async () => {
       const socket = await socketService.connect();
       if (!socket || !isMounted) return;
       socketService.on("message:new", handleMessageNew);
       socketService.on("messages:read", handleMessagesRead);
+      socketService.on("rematch:request", handleRematchRequest);
+      socketService.on("rematch:response", handleRematchResponse);
     };
 
     connect();
@@ -255,8 +302,10 @@ export default function Chat() {
       isMounted = false;
       socketService.off("message:new", handleMessageNew);
       socketService.off("messages:read", handleMessagesRead);
+      socketService.off("rematch:request", handleRematchRequest);
+      socketService.off("rematch:response", handleRematchResponse);
     };
-  }, [currentUserId]);
+  }, [currentUserId, loadMatches]);
 
   // ── Navigation ──────────────────────────────────────────────────────────────
 
@@ -303,6 +352,9 @@ export default function Chat() {
         isSystem:     String(user.isSystem ?? false),
         isVerified:   String(user.isVerified ?? false),
         matchedDate:  user.matchedDate ? user.matchedDate.toISOString() : "",
+        // Rematch request flag — opens chat in "rematch response" mode
+        isUnmatched:        String(user.isRematchRequest ?? false),
+        isRematchRequest:   String(user.isRematchRequest ?? false),
       },
     });
   };

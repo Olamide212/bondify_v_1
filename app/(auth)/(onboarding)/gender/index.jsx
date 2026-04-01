@@ -7,16 +7,14 @@ import {
     SafeAreaView,
     Text,
     TouchableWithoutFeedback,
-    View,
-    ActivityIndicator,
+    View
 } from "react-native";
 
 import RadioSelect from "../../../../components/inputs/RadioSelect";
+import ActivityLoader from "../../../../components/ui/ActivityLoader";
 import Button from "../../../../components/ui/Button";
-import Info from "../../../../components/ui/Info";
 import { useLookupOptions } from "../../../../hooks/useLookupOptions";
 import { useProfileSetup } from "../../../../hooks/useProfileSetup";
-import ActivityLoader from "../../../../components/ui/ActivityLoader";
 
 
 
@@ -64,6 +62,7 @@ const Gender = () => {
               <Button
                 title="Continue"
                 variant="primary"
+                disabled={!gender}
                 onPress={async () => {
                   // Find the selected option's label
                   const selected = genderOptions.find(opt => opt.value === gender);

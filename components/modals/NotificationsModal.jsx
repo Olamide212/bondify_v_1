@@ -1,13 +1,13 @@
+import { Image } from "expo-image";
 import { Bell, Plus, Settings, X } from "lucide-react-native";
 import { useMemo } from "react";
 import {
-  Image,
-  Modal,
-  Pressable,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
+    Modal,
+    Pressable,
+    ScrollView,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { colors } from "../../constant/colors";
@@ -78,7 +78,7 @@ const MatchAvatar = ({ notification, onPress }) => {
       <View className="relative">
         <View className="w-16 h-16 rounded-full overflow-hidden bg-gray-200 border-2 border-primary">
           {avatarUrl ? (
-            <Image source={{ uri: avatarUrl }} className="w-full h-full" resizeMode="cover" />
+            <Image source={{ uri: avatarUrl }} className="w-full h-full" contentFit="cover" cachePolicy="memory-disk" transition={150} />
           ) : (
             <View className="w-full h-full items-center justify-center bg-gray-300">
               <Text className="text-gray-500 text-2xl font-PlusJakartaSansBold">
@@ -124,7 +124,7 @@ const PhotoLikeCard = ({ notification, onPress }) => {
         <View className="relative">
           <View className="w-12 h-12 rounded-full overflow-hidden bg-gray-200">
             {avatarUrl ? (
-              <Image source={{ uri: avatarUrl }} className="w-full h-full" resizeMode="cover" />
+              <Image source={{ uri: avatarUrl }} className="w-full h-full" contentFit="cover" cachePolicy="memory-disk" transition={150} />
             ) : (
               <View className="w-full h-full items-center justify-center bg-gray-300">
                 <Text className="text-gray-500 text-lg font-PlusJakartaSansBold">
@@ -157,7 +157,7 @@ const PhotoLikeCard = ({ notification, onPress }) => {
           
           {photoUrl && (
             <View className="mt-3 w-14 h-14 rounded-xl overflow-hidden bg-gray-200">
-              <Image source={{ uri: photoUrl }} className="w-full h-full" resizeMode="cover" />
+              <Image source={{ uri: photoUrl }} className="w-full h-full" contentFit="cover" cachePolicy="memory-disk" transition={150} />
             </View>
           )}
         </View>
@@ -181,7 +181,7 @@ const EventInviteCard = ({ notification, onPress, onJoin, onDecline }) => {
         <View className="relative">
           <View className="w-12 h-12 rounded-full overflow-hidden bg-gray-200">
             {avatarUrl ? (
-              <Image source={{ uri: avatarUrl }} className="w-full h-full" resizeMode="cover" />
+              <Image source={{ uri: avatarUrl }} className="w-full h-full" contentFit="cover" cachePolicy="memory-disk" transition={150} />
             ) : (
               <View className="w-full h-full items-center justify-center bg-gray-300">
                 <Text className="text-gray-500 text-lg font-PlusJakartaSansBold">
@@ -284,7 +284,7 @@ const MessageCard = ({ notification, onPress }) => {
       <View className="flex-row items-center">
         <View className="w-12 h-12 rounded-full overflow-hidden bg-gray-200">
           {avatarUrl ? (
-            <Image source={{ uri: avatarUrl }} className="w-full h-full" resizeMode="cover" />
+            <Image source={{ uri: avatarUrl }} className="w-full h-full" contentFit="cover" cachePolicy="memory-disk" transition={150} />
           ) : (
             <View className="w-full h-full items-center justify-center bg-gray-300">
               <Text className="text-gray-500 text-lg font-PlusJakartaSansBold">
@@ -355,7 +355,7 @@ const GenericActivityCard = ({ notification, onPress }) => {
         <View className="relative">
           <View className="w-12 h-12 rounded-full overflow-hidden bg-gray-200">
             {avatarUrl ? (
-              <Image source={{ uri: avatarUrl }} className="w-full h-full" resizeMode="cover" />
+              <Image source={{ uri: avatarUrl }} className="w-full h-full" contentFit="cover" cachePolicy="memory-disk" transition={150} />
             ) : (
               <View className="w-full h-full items-center justify-center bg-gray-100">
                 <Text className="text-2xl">{meta.icon}</Text>

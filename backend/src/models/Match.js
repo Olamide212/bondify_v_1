@@ -44,6 +44,13 @@ const matchSchema = new mongoose.Schema(
       type: String,
       maxlength: 500,
     },
+    rematchRequestedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+    },
+    rematchRequestedAt: {
+      type: Date,
+    },
   },
   {
     timestamps: true,

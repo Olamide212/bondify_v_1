@@ -132,7 +132,7 @@ const createBondup = async (req, res, next) => {
 // ─────────────────────────────────────────────────────────────────────────────
 const getPublicBondups = async (req, res, next) => {
   try {
-    const { page = 1, limit = 20, activityType, date, sort = 'soonest', postType } = req.query;
+    const { page = 1, limit = 20, activityType, categories, date, sort = 'soonest', postType, lat, lng, distance } = req.query;
     const skip = (Number(page) - 1) * Number(limit);
     const now = new Date();
 
@@ -153,8 +153,17 @@ const getPublicBondups = async (req, res, next) => {
     }
     filter.city = { $regex: new RegExp(cityParam.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i') };
 
+    // Single activity type filter
     if (activityType && ['coffee', 'food', 'drinks', 'brunch', 'dinner', 'lunch', 'snacks', 'dessert', 'gym', 'yoga', 'running', 'hiking', 'cycling', 'swimming', 'tennis', 'basketball', 'football', 'volleyball', 'walk', 'park', 'beach', 'picnic', 'camping', 'fishing', 'movie', 'theater', 'concert', 'museum', 'art', 'comedy', 'board_games', 'video_games', 'karaoke', 'dancing', 'party', 'networking', 'workshop', 'class', 'photography', 'painting', 'music', 'other'].includes(activityType)) {
       filter.activityType = activityType;
+    }
+
+    // Multi-category filter (comma-separated)
+    if (categories) {
+      const catArray = categories.split(',').map(c => c.trim()).filter(Boolean);
+      if (catArray.length > 0) {
+        filter.activityType = { $in: catArray };
+      }
     }
 
     if (postType && ['join_me', 'i_am_available'].includes(postType)) {
@@ -213,7 +222,7 @@ const getPublicBondups = async (req, res, next) => {
 // ─────────────────────────────────────────────────────────────────────────────
 const getCircleBondups = async (req, res, next) => {
   try {
-    const { page = 1, limit = 20, activityType, date, sort = 'soonest', postType } = req.query;
+    const { page = 1, limit = 20, activityType, categories, date, sort = 'soonest', postType } = req.query;
     const skip = (Number(page) - 1) * Number(limit);
     const now = new Date();
     const userId = req.user._id;
@@ -238,8 +247,17 @@ const getCircleBondups = async (req, res, next) => {
       createdBy: { $in: followingIds },
     };
 
+    // Single activity type filter
     if (activityType && ['coffee', 'food', 'drinks', 'brunch', 'dinner', 'lunch', 'snacks', 'dessert', 'gym', 'yoga', 'running', 'hiking', 'cycling', 'swimming', 'tennis', 'basketball', 'football', 'volleyball', 'walk', 'park', 'beach', 'picnic', 'camping', 'fishing', 'movie', 'theater', 'concert', 'museum', 'art', 'comedy', 'board_games', 'video_games', 'karaoke', 'dancing', 'party', 'networking', 'workshop', 'class', 'photography', 'painting', 'music', 'other'].includes(activityType)) {
       filter.activityType = activityType;
+    }
+
+    // Multi-category filter (comma-separated)
+    if (categories) {
+      const catArray = categories.split(',').map(c => c.trim()).filter(Boolean);
+      if (catArray.length > 0) {
+        filter.activityType = { $in: catArray };
+      }
     }
 
     if (postType && ['join_me', 'i_am_available'].includes(postType)) {

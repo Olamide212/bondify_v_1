@@ -247,7 +247,8 @@ export default function ProfileDetails() {
 
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        quality: 0.7,
+        allowsEditing: true,
+        quality: 1,
       });
       if (result.canceled) return;
 

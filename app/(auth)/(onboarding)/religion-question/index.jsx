@@ -7,16 +7,15 @@ import {
     SafeAreaView,
     Text,
     TouchableWithoutFeedback,
-    View,
-    ActivityIndicator
+    View
 } from "react-native";
 
 import RadioSelect from "../../../../components/inputs/RadioSelect";
+import ActivityLoader from "../../../../components/ui/ActivityLoader";
 import Button from "../../../../components/ui/Button";
 import Info from "../../../../components/ui/Info";
 import { useLookupOptions } from "../../../../hooks/useLookupOptions";
 import { useProfileSetup } from "../../../../hooks/useProfileSetup";
-import ActivityLoader from "../../../../components/ui/ActivityLoader";
 
 const religionImportanceMap = {
   "not-matter": "It doesn't matter to me at all",
@@ -68,6 +67,7 @@ const ReligionQuestions = () => {
               <Button
                 title="Continue"
                 variant="primary"
+                disabled={!religionImportance}
                 onPress={async () => {
                   const normalizedImportance =
                     religionImportanceMap[religionImportance?.toLowerCase?.()] ||

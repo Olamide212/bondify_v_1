@@ -695,7 +695,7 @@ const styles = StyleSheet.create({
   chipIcon:    { fontSize: 13 },
   chipLabel:   { fontSize: 12, color: "#333", fontFamily: "PlusJakartaSans" },
 
-  inputBar:       { flexDirection: "row", alignItems: "center", paddingHorizontal: 12, paddingTop: 8, paddingBottom: 14, backgroundColor: "#fff", gap: 10 },
+  inputBar:       { flexDirection: "row", alignItems: "center", paddingHorizontal: 12, paddingTop: 8, paddingBottom: 20, backgroundColor: "#fff", gap: 10 },
   inputWrapper:   { flex: 1, flexDirection: "row", alignItems: "center", borderWidth: 1, borderColor: "#e5e5e5", borderRadius: 28, paddingHorizontal: 14, paddingVertical: Platform.OS === "ios" ? 10 : 6, backgroundColor: "#fafafa", gap: 8 },
   textInput:      { flex: 1, fontSize: 15, color: "#111", maxHeight: 100, fontFamily: "PlusJakartaSans", paddingTop: 0, paddingBottom: 0 },
   sendBtn:        { width: 48, height: 48, borderRadius: 24, backgroundColor: PRIMARY, alignItems: "center", justifyContent: "center" },

@@ -1,8 +1,8 @@
+import { Image } from "expo-image";
 import { CheckCircle, Clock, Gift, Users, X, XCircle } from "lucide-react-native";
 import {
     ActivityIndicator,
     FlatList,
-    Image,
     Pressable,
     StyleSheet,
     Text,
@@ -55,7 +55,7 @@ const ReferralItem = ({ item }) => {
     <View style={styles.itemRow}>
       {/* Avatar */}
       {item.avatar ? (
-        <Image source={{ uri: item.avatar }} style={styles.avatar} />
+        <Image source={{ uri: item.avatar }} style={styles.avatar} cachePolicy="memory-disk" transition={150} />
       ) : (
         <View style={styles.avatarFallback}>
           <Text style={styles.avatarInitials}>{initials}</Text>

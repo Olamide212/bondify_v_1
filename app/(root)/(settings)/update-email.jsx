@@ -11,11 +11,11 @@ import {
     KeyboardAvoidingView,
     Platform,
     Text,
-    TextInput,
     TouchableOpacity,
     View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import TextInput from "../../../components/inputs/TextInput";
 import { colors } from "../../../constant/colors";
 import { useAlert } from "../../../context/AlertContext";
 import SettingsService from "../../../services/settingsService";
@@ -125,14 +125,10 @@ const UpdateEmailScreen = () => {
               </Text>
 
               <TextInput
-                className="border border-gray-200 rounded-xl px-4 py-4 text-base font-PlusJakartaSans text-gray-900 mb-6"
                 placeholder="newmail@example.com"
-                placeholderTextColor="#bbb"
                 value={email}
                 onChangeText={setEmail}
                 keyboardType="email-address"
-                autoCapitalize="none"
-                autoCorrect={false}
               />
 
               <TouchableOpacity
@@ -164,9 +160,7 @@ const UpdateEmailScreen = () => {
               </Text>
 
               <TextInput
-                className="border border-gray-200 rounded-xl px-4 py-4 text-3xl font-PlusJakartaSansBold text-gray-900 text-center tracking-widest mb-6"
-                placeholder="- - - - - -"
-                placeholderTextColor="#ccc"
+                placeholder="Enter verification code"
                 value={otp}
                 onChangeText={setOtp}
                 keyboardType="number-pad"

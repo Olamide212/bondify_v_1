@@ -271,7 +271,7 @@
 import { AntDesign } from '@expo/vector-icons';
 import { Audio } from "expo-av";
 import * as ImagePicker from "expo-image-picker";
-import { Edit2, Mic, Reply, Send, X } from "lucide-react-native";
+import { Edit2, Mic, Reply, Send, X, Sparkles} from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
 import {
   StyleSheet,
@@ -458,7 +458,8 @@ const InputToolbar = ({ sendMessage, onSendImage, onSendVoice, matchId, currentU
           style={styles.iconButton}
           onPress={() => setShowRizzModal(true)}
         >
-          <AntDesign name="robot" size={28} color={colors.gray} />
+          <Sparkles color={colors.gray}  />
+          
         </TouchableOpacity>
 
         {/* ✅ matchId is now passed so AI fetches personalised icebreakers */}
@@ -517,8 +518,8 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
     alignItems: "center",
-    paddingTop: 16,
-    paddingBottom: 30,
+    paddingTop: 10,
+    paddingBottom: 10,
     paddingHorizontal: 16,
     backgroundColor: "#fff",
     borderTopWidth: 1,

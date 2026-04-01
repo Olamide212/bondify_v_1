@@ -85,8 +85,9 @@ export default function ChatOptionsScreen() {
   const handleSearchChat = () => {
     router.back();
     // Slight delay to ensure back navigation completes, then set param
+    // Use a unique timestamp so the effect re-fires on every tap
     setTimeout(() => {
-      router.setParams({ searchMode: "true" });
+      router.setParams({ searchMode: String(Date.now()) });
     }, 100);
   };
 

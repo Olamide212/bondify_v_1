@@ -12,7 +12,9 @@ import {
     Animated,
     Dimensions,
     Easing,
+    KeyboardAvoidingView,
     Modal,
+    Platform,
     Pressable,
     ScrollView,
     StyleSheet,
@@ -190,26 +192,27 @@ const UnmatchReasonModal = ({ visible, name = "this person", onClose, onConfirm,
 
   return (
     <Modal visible transparent animationType="none" statusBarTranslucent onRequestClose={onClose}>
-      <Pressable style={s.overlay} onPress={onClose} />
-      <Animated.View style={[s.sheet, { transform: [{ translateY: slideY }] }]}>
-        {screen === "reasons" && renderReasons()}
-        {screen === "detail" && renderDetail()}
-        {screen === "confirm" && renderConfirm()}
-      </Animated.View>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={{ flex: 1 }}
+      >
+        <Pressable style={s.overlay} onPress={onClose} />
+        <Animated.View style={[s.sheet, { transform: [{ translateY: slideY }] }]}>
+          {screen === "reasons" && renderReasons()}
+          {screen === "detail" && renderDetail()}
+          {screen === "confirm" && renderConfirm()}
+        </Animated.View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 };
 
 const s = StyleSheet.create({
   overlay: {
-    ...StyleSheet.absoluteFillObject,
+    flex: 1,
     backgroundColor: "rgba(0,0,0,0.45)",
   },
   sheet: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
     backgroundColor: "#fff",
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,

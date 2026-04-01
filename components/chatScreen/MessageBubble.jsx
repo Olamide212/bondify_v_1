@@ -1,19 +1,18 @@
-// components/MessageBubble.js
 import { createAudioPlayer, setAudioModeAsync } from 'expo-audio';
-import { Check, CheckCheck, Mic, Pause, Play, User } from "lucide-react-native";
+import { Image } from "expo-image";
+import { Check, CheckCheck, Mic, Pause, Play, User, X } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
 import {
-    ActivityIndicator,
-    Clipboard,
-    Image,
-    Modal,
-    Platform,
-    Pressable,
-    StyleSheet,
-    Text,
-    ToastAndroid,
-    TouchableOpacity,
-    View
+  ActivityIndicator,
+  Clipboard,
+  Modal,
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text,
+  ToastAndroid,
+  TouchableOpacity,
+  View
 } from "react-native";
 import { colors } from "../../constant/colors";
 import { fonts } from "../../constant/fonts";
@@ -49,7 +48,7 @@ const highlightText = (text, term, textStyle) => {
   );
 };
 
-const MessageBubble = ({ message, onReply, onEdit, highlight, isSystem = false }) => {
+const MessageBubble = ({ message, onReply, onEdit, onResend, highlight, isSystem = false }) => {
   const [isPlayingVoice, setIsPlayingVoice] = useState(false);
   const [isImageLoading, setIsImageLoading] = useState(Boolean(message.imageUrl));
   const [imageFailed, setImageFailed] = useState(!message.imageUrl);
@@ -115,6 +114,8 @@ const MessageBubble = ({ message, onReply, onEdit, highlight, isSystem = false }
         return <CheckCheck color="#9CA3AF" size={12} />;
       case "read":
         return <CheckCheck color={colors.primary} size={12} />;
+      case "failed":
+        return <X color="#EF4444" size={12} />;
       default:
         return null;
     }
@@ -132,6 +133,11 @@ const MessageBubble = ({ message, onReply, onEdit, highlight, isSystem = false }
   const handleReply = () => {
     setMenuVisible(false);
     onReply?.(message);
+  };
+
+  const handleResend = () => {
+    setMenuVisible(false);
+    onResend?.(message);
   };
 
   const handleReaction = (emoji) => {
@@ -196,6 +202,7 @@ const MessageBubble = ({ message, onReply, onEdit, highlight, isSystem = false }
             style={[
               styles.bubble,
               message.sender === "me" ? styles.myBubble : styles.theirBubble,
+              message.failed && styles.failedBubble,
             ]}
           >
             {highlightText(
@@ -212,11 +219,13 @@ const MessageBubble = ({ message, onReply, onEdit, highlight, isSystem = false }
 
       {message.type === "image" && (
         <Pressable onLongPress={isSystem ? undefined : () => setMenuVisible(true)}>
-          <View style={styles.imageWrapper}>
+          <View style={[styles.imageWrapper, message.failed && styles.failedImageWrapper]}>
             {!imageFailed && message.imageUrl ? (
               <Image
                 source={{ uri: message.imageUrl }}
                 style={styles.image}
+                cachePolicy="memory-disk"
+                transition={200}
                 onLoadStart={() => {
                   setIsImageLoading(true);
                   setImageFailed(false);
@@ -247,6 +256,7 @@ const MessageBubble = ({ message, onReply, onEdit, highlight, isSystem = false }
           style={[
             styles.voice,
             message.sender === "me" ? styles.myVoice : styles.theirVoice,
+            message.failed && styles.failedVoice,
           ]}
           onPress={handleVoicePress}
           onLongPress={isSystem ? undefined : () => setMenuVisible(true)}
@@ -314,12 +324,17 @@ const MessageBubble = ({ message, onReply, onEdit, highlight, isSystem = false }
             </View>
             <View style={styles.menuDivider} />
             {/* Actions */}
-            {onReply && (
+            {message.failed && onResend && (
+              <TouchableOpacity style={styles.menuItem} onPress={handleResend}>
+                <Text style={styles.menuItemText}>🔄 Resend</Text>
+              </TouchableOpacity>
+            )}
+            {onReply && !message.failed && (
               <TouchableOpacity style={styles.menuItem} onPress={handleReply}>
                 <Text style={styles.menuItemText}>↩ Reply</Text>
               </TouchableOpacity>
             )}
-            {isOwn && onEdit && message.type === "text" && (() => {
+            {isOwn && onEdit && message.type === "text" && !message.failed && (() => {
               // Only show Edit if within 30s of message creation
               const EDIT_WINDOW_MS = 30 * 1000;
               const now = Date.now();
@@ -333,7 +348,7 @@ const MessageBubble = ({ message, onReply, onEdit, highlight, isSystem = false }
               }
               return null;
             })()}
-            {message.type === "text" && (
+            {message.type === "text" && !message.failed && (
               <TouchableOpacity style={styles.menuItem} onPress={handleCopy}>
                 <Text style={styles.menuItemText}>📋 Copy</Text>
               </TouchableOpacity>
@@ -373,6 +388,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#f1f1f1',
     borderTopLeftRadius: 4,
   },
+  failedBubble: {
+    borderWidth: 1,
+    borderColor: "#EF4444",
+  },
   text: {
     fontSize: 15,
     fontFamily: fonts.PlusJakartaSans,
@@ -400,6 +419,10 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     backgroundColor: "#F8FAFC",
   },
+  failedImageWrapper: {
+    borderWidth: 1,
+    borderColor: "#EF4444",
+  },
   imagePlaceholder: {
     justifyContent: "center",
     alignItems: "center",
@@ -425,6 +448,10 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     borderWidth: 1,
     borderColor: "#E5E7EB",
+  },
+  failedVoice: {
+    borderWidth: 1,
+    borderColor: "#EF4444",
   },
   duration: {
     marginLeft: 8,
@@ -492,7 +519,7 @@ const styles = StyleSheet.create({
   menuItemText: {
     fontSize: 16,
     color: "#111",
-    fontFamily: "PlusJakartaSans",
+    fontFamily: fonts.PlusJakartaSans,
   },
   reactionBadge: {
     position: "absolute",

@@ -1,15 +1,15 @@
 import { Audio } from "expo-av";
+import { Image } from "expo-image";
 import { MessageCircle, Sparkles, X } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
 import {
-  Animated,
-  Dimensions,
-  Image,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
+    Animated,
+    Dimensions,
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    Text,
+    View,
 } from "react-native";
 import { colors } from "../../constant/colors";
 import { ICE_BREAKERS } from "../../constant/iceBreakers";
@@ -108,7 +108,7 @@ const MatchCelebrationModal = ({
   const matchedName      = matchedUser?.name || matchedUser?.firstName || "someone special";
 
   return (
-    <BaseModal visible={visible} onClose={onClose} fullScreen>
+    <BaseModal visible={visible} onClose={onClose} fullScreen noPadding >
       <View style={styles.container}>
 
         {/* Close button */}
@@ -141,7 +141,7 @@ const MatchCelebrationModal = ({
             {/* Current user */}
             <View style={[styles.avatarWrapper, styles.avatarLeft]}>
               {currentUserImage ? (
-                <Image source={{ uri: currentUserImage }} style={styles.avatar} />
+                <Image source={{ uri: currentUserImage }} style={styles.avatar} cachePolicy="memory-disk" transition={150} />
               ) : (
                 <View style={[styles.avatar, styles.avatarPlaceholder]}>
                   <Text style={styles.avatarInitial}>You</Text>
@@ -162,7 +162,7 @@ const MatchCelebrationModal = ({
             {/* Matched user */}
             <View style={[styles.avatarWrapper, styles.avatarRight]}>
               {matchedUserImage ? (
-                <Image source={{ uri: matchedUserImage }} style={styles.avatar} />
+                <Image source={{ uri: matchedUserImage }} style={styles.avatar} cachePolicy="memory-disk" transition={150} />
               ) : (
                 <View style={[styles.avatar, styles.avatarPlaceholder]}>
                   <Text style={styles.avatarInitial}>

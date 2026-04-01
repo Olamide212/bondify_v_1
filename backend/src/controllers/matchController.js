@@ -455,7 +455,8 @@ const getMatches = async (req, res, next) => {
     const sanitizedLimit = Math.min(parseInt(req.query.limit || 20, 10), 100);
     const skip           = (sanitizedPage - 1) * sanitizedLimit;
 
-    const [matches, total] = await Promise.all([
+    // Fetch active matches + unmatched matches with a pending rematch request FOR this user
+    const [matches, total, rematchMatches] = await Promise.all([
       Match.find({
         $or: [{ user1: userId }, { user2: userId }],
         status: 'matched',
@@ -469,6 +470,16 @@ const getMatches = async (req, res, next) => {
         $or: [{ user1: userId }, { user2: userId }],
         status: 'matched',
       }),
+      // Pending rematch requests where the OTHER user requested (so current user can respond)
+      Match.find({
+        $or: [{ user1: userId }, { user2: userId }],
+        status: 'unmatched',
+        rematchRequestedBy: { $exists: true, $ne: null, $ne: userId },
+      })
+        .populate('user1', 'firstName lastName name age images bio location lastActive online verified isSystem')
+        .populate('user2', 'firstName lastName name age images bio location lastActive online verified isSystem')
+        .sort({ rematchRequestedAt: -1 })
+        .limit(10),
     ]);
 
     const Message = require('../models/Message');
@@ -500,10 +511,36 @@ const getMatches = async (req, res, next) => {
       };
     }));
 
+    // Format pending rematch requests
+    const formattedRematchRequests = await Promise.all(rematchMatches.map(async (match) => {
+      const isUser1   = match.user1._id.toString() === userId.toString();
+      const otherUser = isUser1 ? match.user2 : match.user1;
+      const otherUserObj = otherUser.toObject();
+      otherUserObj.images = await mapImagesWithAccessUrls(otherUserObj.images);
+
+      const latestMessage = await Message.findOne({ match: match._id })
+        .sort({ createdAt: -1 })
+        .select('content type mediaUrl createdAt sender')
+        .lean();
+
+      return {
+        matchId:             match._id,
+        matchedAt:           match.matchedAt,
+        lastMessageAt:       match.lastMessageAt,
+        lastMessage:         latestMessage || null,
+        unread:              0,
+        user:                otherUserObj,
+        isRematchRequest:    true,
+        rematchRequestedAt:  match.rematchRequestedAt,
+        rematchRequestedBy:  match.rematchRequestedBy,
+      };
+    }));
+
     return res.json({
       success: true,
       data: {
         matches: formattedMatches,
+        rematchRequests: formattedRematchRequests,
         pagination: { page: sanitizedPage, limit: sanitizedLimit, total, pages: Math.ceil(total / sanitizedLimit) },
       },
     });
@@ -642,6 +679,8 @@ const getUnmatchedUsers = async (req, res, next) => {
       return {
         matchId:      match._id,
         unmatchedAt:  match.updatedAt,
+        rematchRequestedBy: match.rematchRequestedBy || null,
+        rematchRequestedAt: match.rematchRequestedAt || null,
         user: {
           _id:        other._id,
           name:       [other.firstName, other.lastName].filter(Boolean).join(' ') || other.name || 'User',
@@ -655,4 +694,119 @@ const getUnmatchedUsers = async (req, res, next) => {
   } catch (error) { next(error); }
 };
 
-module.exports = { getMatches, getMatch, unmatch, getUnmatchedUsers, getInteractionStatus };
+// ── POST /api/matches/:id/rematch ── Request a rematch ──────────────────────
+const requestRematch = async (req, res, next) => {
+  try {
+    const userId = req.user._id;
+    const match  = await Match.findById(req.params.id);
+
+    if (!match) {
+      return res.status(404).json({ success: false, message: 'Match not found.' });
+    }
+    if (match.status !== 'unmatched') {
+      return res.status(400).json({ success: false, message: 'Can only request rematch for unmatched connections.' });
+    }
+
+    const isParticipant =
+      match.user1.toString() === userId.toString() ||
+      match.user2.toString() === userId.toString();
+    if (!isParticipant) {
+      return res.status(403).json({ success: false, message: 'Not authorised.' });
+    }
+
+    if (match.rematchRequestedBy) {
+      return res.status(400).json({ success: false, message: 'A rematch request is already pending.' });
+    }
+
+    match.rematchRequestedBy = userId;
+    match.rematchRequestedAt = new Date();
+    await match.save();
+
+    // Notify the other user via socket
+    const otherUserId = match.user1.toString() === userId.toString() ? match.user2 : match.user1;
+    const currentUser = await User.findById(userId).select('firstName lastName name').lean();
+    const currentUserName =
+      currentUser?.name ||
+      [currentUser?.firstName, currentUser?.lastName].filter(Boolean).join(' ') ||
+      'Someone';
+
+    try {
+      const io = getIO();
+      io.to(`user:${String(otherUserId)}`).emit('rematch:request', {
+        matchId: String(match._id),
+        userId:  String(userId),
+        name:    currentUserName,
+      });
+    } catch (_) { /* socket not critical */ }
+
+    return res.json({ success: true, message: 'Rematch request sent.' });
+  } catch (error) { next(error); }
+};
+
+// ── POST /api/matches/:id/rematch/respond ── Accept or decline rematch ──────
+const respondToRematch = async (req, res, next) => {
+  try {
+    const userId  = req.user._id;
+    const { accept } = req.body;
+    const match   = await Match.findById(req.params.id);
+
+    if (!match) {
+      return res.status(404).json({ success: false, message: 'Match not found.' });
+    }
+    if (match.status !== 'unmatched' || !match.rematchRequestedBy) {
+      return res.status(400).json({ success: false, message: 'No pending rematch request.' });
+    }
+
+    const isParticipant =
+      match.user1.toString() === userId.toString() ||
+      match.user2.toString() === userId.toString();
+    if (!isParticipant) {
+      return res.status(403).json({ success: false, message: 'Not authorised.' });
+    }
+    if (match.rematchRequestedBy.toString() === userId.toString()) {
+      return res.status(400).json({ success: false, message: 'You cannot respond to your own rematch request.' });
+    }
+
+    const requesterId = match.rematchRequestedBy;
+
+    if (accept) {
+      match.status             = 'matched';
+      match.matchedAt          = new Date();
+      match.rematchRequestedBy = undefined;
+      match.rematchRequestedAt = undefined;
+      match.unmatchedBy        = undefined;
+      match.unmatchReason      = undefined;
+      match.unmatchDetails     = undefined;
+    } else {
+      match.rematchRequestedBy = undefined;
+      match.rematchRequestedAt = undefined;
+    }
+
+    await match.save();
+
+    // Notify the requester via socket
+    const currentUser = await User.findById(userId).select('firstName lastName name').lean();
+    const currentUserName =
+      currentUser?.name ||
+      [currentUser?.firstName, currentUser?.lastName].filter(Boolean).join(' ') ||
+      'Someone';
+
+    try {
+      const io = getIO();
+      io.to(`user:${String(requesterId)}`).emit('rematch:response', {
+        matchId:  String(match._id),
+        userId:   String(userId),
+        name:     currentUserName,
+        accepted: !!accept,
+      });
+    } catch (_) { /* socket not critical */ }
+
+    return res.json({
+      success: true,
+      message: accept ? 'Rematch accepted! You are matched again.' : 'Rematch declined.',
+      data:    { accepted: !!accept },
+    });
+  } catch (error) { next(error); }
+};
+
+module.exports = { getMatches, getMatch, unmatch, getUnmatchedUsers, getInteractionStatus, requestRematch, respondToRematch };

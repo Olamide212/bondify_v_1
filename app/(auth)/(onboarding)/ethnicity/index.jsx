@@ -1,23 +1,22 @@
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
-  ActivityIndicator,
-  Keyboard,
-  KeyboardAvoidingView,
-  Platform,
-  SafeAreaView,
-  Text,
-  TouchableWithoutFeedback,
-  View,
+    Keyboard,
+    KeyboardAvoidingView,
+    Platform,
+    SafeAreaView,
+    Text,
+    TouchableWithoutFeedback,
+    View
 } from "react-native";
 
+import { ScrollView } from "react-native-gesture-handler";
 import RadioSelect from "../../../../components/inputs/RadioSelect";
+import ActivityLoader from "../../../../components/ui/ActivityLoader";
 import Button from "../../../../components/ui/Button";
 import { ETHNICITY_OPTIONS } from "../../../../data/ethnicityData";
 import { useLookupOptions } from "../../../../hooks/useLookupOptions";
 import { useProfileSetup } from "../../../../hooks/useProfileSetup";
-import { ScrollView } from "react-native-gesture-handler";
-import ActivityLoader from "../../../../components/ui/ActivityLoader";
 
 
 
@@ -74,6 +73,7 @@ const Ethnicity = () => {
               <Button
                 title="Continue"
                 variant="primary"
+                disabled={!ethnicity}
                 onPress={async () => {
                   // Find the selected option's label
                await updateProfileStep({ ethnicity });

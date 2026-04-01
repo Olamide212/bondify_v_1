@@ -16,6 +16,7 @@ import {
     View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import GlobalPhoneInput from "../../../components/inputs/PhoneInput";
 import { colors } from "../../../constant/colors";
 import { useAlert } from "../../../context/AlertContext";
 import SettingsService from "../../../services/settingsService";
@@ -107,7 +108,7 @@ const UpdatePhoneScreen = () => {
           <View style={{ width: 24 }} />
         </View>
 
-        <View style={{flex: 1}} className="px-6 pt-8">
+        <View style={{flex: 1}} className="px-6 ">
 
           {step === "phone" ? (
             <>
@@ -116,25 +117,16 @@ const UpdatePhoneScreen = () => {
                 New phone number
               </Text>
               <Text className="text-base font-PlusJakartaSans text-gray-500 mb-8 leading-6">
-                We&apos;ll send a one-time code to verify your new number.
+                We&apos;ll send a one-time code to your email to verify the phone number update.
               </Text>
 
-              {/* Country code + number row */}
-              <View className="flex-row gap-3 mb-6">
-                <TextInput
-                  className="w-20 border border-gray-200 rounded-xl px-3 py-4 text-base font-PlusJakartaSans text-gray-900 text-center"
-                  value={countryCode}
-                  onChangeText={setCountryCode}
-                  keyboardType="phone-pad"
-                  maxLength={5}
-                />
-                <TextInput
-                  style={{flex: 1}} className="border border-gray-200 rounded-xl px-4 py-4 text-base font-PlusJakartaSans text-gray-900"
-                  placeholder="08012345678"
-                  placeholderTextColor="#bbb"
-                  value={phoneNumber}
-                  onChangeText={setPhoneNumber}
-                  keyboardType="phone-pad"
+              {/* Phone input */}
+              <View className="mb-6">
+                <GlobalPhoneInput
+                  phoneNumber={phoneNumber}
+                  countryCode={countryCode}
+                  onChangePhoneNumber={setPhoneNumber}
+                  onChangeCountryCode={setCountryCode}
                 />
               </View>
 
@@ -160,10 +152,9 @@ const UpdatePhoneScreen = () => {
                 Enter the code
               </Text>
               <Text className="text-base font-PlusJakartaSans text-gray-500 mb-8 leading-6">
-                We sent a code to{" "}
+                We sent a verification code to your email to confirm the phone number change to{" "}
                 <Text className="font-PlusJakartaSansMedium text-gray-800">
-                  {countryCode}
-                  {phoneNumber}
+                  {countryCode}{phoneNumber}
                 </Text>
               </Text>
 

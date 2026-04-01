@@ -1,14 +1,14 @@
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
-  Keyboard,
-  KeyboardAvoidingView,
-  Platform,
-  SafeAreaView,
-  ScrollView,
-  Text,
-  TouchableWithoutFeedback,
-  View
+    Keyboard,
+    KeyboardAvoidingView,
+    Platform,
+    SafeAreaView,
+    ScrollView,
+    Text,
+    TouchableWithoutFeedback,
+    View
 } from "react-native";
 
 import RadioSelect from "../../../../components/inputs/RadioSelect";
@@ -65,6 +65,7 @@ const Preference = () => {
               <Button
                 title="Continue"
                 variant="primary"
+                disabled={!preference}
                 onPress={async () => {
                   // Send the value directly — it matches the User model enum
                   await updateProfileStep({ lookingFor: preference });

@@ -1,11 +1,11 @@
 import { Ionicons } from "@expo/vector-icons";
+import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import { UserX } from "lucide-react-native";
 import { useCallback, useEffect, useState } from "react";
 import {
     ActivityIndicator,
     FlatList,
-    Image,
     Pressable,
     RefreshControl,
     StyleSheet,
@@ -33,7 +33,7 @@ const BlockedUserRow = ({ item, onUnblock, isUnblocking }) => (
   <View style={styles.row}>
     {/* Avatar */}
     {item.profilePhoto ? (
-      <Image source={{ uri: item.profilePhoto }} style={styles.avatar} />
+      <Image source={{ uri: item.profilePhoto }} style={styles.avatar} cachePolicy="memory-disk" transition={150} />
     ) : (
       <View style={styles.avatarPlaceholder}>
         <Text style={styles.avatarInitials}>{getInitials(item.name)}</Text>
@@ -80,7 +80,7 @@ const BlockedUserRow = ({ item, onUnblock, isUnblocking }) => (
 const EmptyState = () => (
   <View style={styles.emptyContainer}>
     <View style={styles.emptyIconWrap}>
-      <UserX size={36} color={PRIMARY} />
+      <UserX size={36} color={"#000"} />
     </View>
     <Text style={styles.emptyTitle}>No blocked users</Text>
     <Text style={styles.emptySubtitle}>
@@ -360,7 +360,7 @@ const styles = StyleSheet.create({
     width: 72,
     height: 72,
     borderRadius: 36,
-    backgroundColor: PRIMARY_LIGHT,
+    backgroundColor: "rgba(0, 0, 0, 0.05)",
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 4,

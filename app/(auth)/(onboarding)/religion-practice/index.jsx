@@ -1,7 +1,6 @@
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
-    ActivityIndicator,
     Keyboard,
     KeyboardAvoidingView,
     Platform,
@@ -11,13 +10,13 @@ import {
     View
 } from "react-native";
 
+import { ScrollView } from "react-native-gesture-handler";
 import RadioSelect from "../../../../components/inputs/RadioSelect";
+import ActivityLoader from "../../../../components/ui/ActivityLoader";
 import Button from "../../../../components/ui/Button";
 import Info from "../../../../components/ui/Info";
 import { useLookupOptions } from "../../../../hooks/useLookupOptions";
 import { useProfileSetup } from "../../../../hooks/useProfileSetup";
-import { ScrollView } from "react-native-gesture-handler";
-import ActivityLoader from "../../../../components/ui/ActivityLoader";
 
 const ReligionPractice = () => {
   const [religionPractice, setReligionPractice] = useState("");
@@ -63,6 +62,7 @@ const ReligionPractice = () => {
               <Button
                 title="Continue"
                 variant="primary"
+                disabled={!religionPractice}
                 onPress={async () => {
                   await updateProfileStep({ religionPractice });
                   router.push("/relocation-preference");

@@ -5,6 +5,7 @@
  * (join/leave, start chatting, delete).
  */
 
+import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import {
     Clock,
@@ -15,7 +16,6 @@ import {
 } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import {
-    Image,
     ScrollView,
     StyleSheet,
     Text,
@@ -114,7 +114,7 @@ export default function PlanDetailModal({
           activeOpacity={0.7}
         >
           {avatarUrl(plan.author) ? (
-            <Image source={{ uri: avatarUrl(plan.author) }} style={s.avatar} />
+            <Image source={{ uri: avatarUrl(plan.author) }} style={s.avatar} cachePolicy="memory-disk" transition={150} />
           ) : (
             <View style={[s.avatar, s.avatarFallback]}>
               <Text style={s.avatarInitial}>
@@ -173,7 +173,7 @@ export default function PlanDetailModal({
                 activeOpacity={0.7}
               >
                 {avatarUrl(u) ? (
-                  <Image source={{ uri: avatarUrl(u) }} style={s.participantAvatar} />
+                  <Image source={{ uri: avatarUrl(u) }} style={s.participantAvatar} cachePolicy="memory-disk" transition={150} />
                 ) : (
                   <View style={[s.participantAvatar, s.avatarFallback]}>
                     <Text style={s.participantInitial}>

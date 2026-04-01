@@ -4,13 +4,13 @@
  * Horizontal layout: large author avatar on the left, content on the right.
  */
 
+import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import {
     MapPin,
     Users,
 } from "lucide-react-native";
 import {
-    Image,
     StyleSheet,
     Text,
     TouchableOpacity,
@@ -116,6 +116,8 @@ export default function PlanCard({
             <Image
               source={{ uri: avatarUrl(plan.author) }}
               style={styles.authorAvatar}
+              cachePolicy="memory-disk"
+              transition={150}
             />
           ) : (
             <View style={[styles.authorAvatar, styles.avatarFallback]}>
@@ -184,6 +186,8 @@ export default function PlanCard({
                       styles.participantAvatar,
                       i > 0 && { marginLeft: -6 },
                     ]}
+                    cachePolicy="memory-disk"
+                    transition={150}
                   />
                 ) : (
                   <View

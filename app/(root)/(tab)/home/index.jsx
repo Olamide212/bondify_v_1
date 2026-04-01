@@ -117,6 +117,23 @@ const Home = () => {
   const { user: currentUser } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
 
+  // ─── Current user avatar for loader ───────────────────────────────────────
+  const userAvatar =
+    currentUser?.profilePhoto ||
+    currentUser?.images?.[0]?.url ||
+    currentUser?.images?.[0] ||
+    null;
+
+  // Placeholder nearby-user avatars for the radar dots
+  const NEARBY_PLACEHOLDERS = useMemo(
+    () => [
+      require("../../../../assets/images/BOT_AVATAR.png"),
+      require("../../../../assets/images/user.png"),
+      require("../../../../assets/images/bondify-icon.png"),
+    ],
+    []
+  );
+
   // ─── Derived deck state ───────────────────────────────────────────────────
   const hasProfiles    = Array.isArray(homeProfiles) && homeProfiles.length > 0;
   const currentProfile = hasProfiles
@@ -540,7 +557,13 @@ const Home = () => {
   const showEmptyDeck  = !profilesLoading && hasEverLoaded.current && !hasProfiles;
 
   if (showFullLoader) {
-    return <LogoLoader color={colors.primary} />;
+    return (
+      <LogoLoader
+        color={colors.primary}
+        userAvatar={userAvatar}
+        nearbyAvatars={NEARBY_PLACEHOLDERS}
+      />
+    );
   }
 
   return (
@@ -647,7 +670,11 @@ const Home = () => {
         ) : profilesLoading ? (
           // ── Loading state (not first load) — show inline loader ──────────
           <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-            <LogoLoader color={colors.primary} />
+            <LogoLoader
+              color={colors.primary}
+              userAvatar={userAvatar}
+              nearbyAvatars={NEARBY_PLACEHOLDERS}
+            />
           </View>
         ) : null}
       </ScrollView>

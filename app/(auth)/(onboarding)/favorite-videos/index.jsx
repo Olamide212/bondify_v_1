@@ -165,7 +165,7 @@ const FavoriteVideos = () => {
                   title="Continue"
                   variant="gradient"
                   onPress={handleContinue}
-                  disabled={submitting}
+                  disabled={submitting || selectedVideos.length === 0}
                 />
                 <TouchableOpacity
                   onPress={handleSkip}

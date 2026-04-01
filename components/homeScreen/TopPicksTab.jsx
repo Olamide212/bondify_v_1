@@ -1,14 +1,14 @@
-import React, { useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  Image,
-  TouchableOpacity,
-  StyleSheet,
-  FlatList,
-} from "react-native";
-import { Star } from "lucide-react-native";
+import { Image } from "expo-image";
 import { useRouter } from "expo-router";
+import { Star } from "lucide-react-native";
+import { useEffect, useState } from "react";
+import {
+    FlatList,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+} from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 
 const TopPicksTab = ({ profile }) => {
@@ -50,7 +50,7 @@ const TopPicksTab = ({ profile }) => {
       style={styles.gridItem}
       onPress={() => handleNavigateToProfile(item.id)}
     >
-      <Image source={{ uri: item.images[0] }} style={styles.gridImage} />
+      <Image source={{ uri: item.images[0] }} style={styles.gridImage} contentFit="cover" cachePolicy="memory-disk" transition={200} />
       <View className='flex-1 flex-row gap-1  px-3 items-center absolute bg-white/70 left-0 right-0  bottom-2 py-2 mx-2 rounded-full'>
         <Text className='text-lg font-PlusJakartaSansBold '>{item.name}</Text>
         {item.verified && (

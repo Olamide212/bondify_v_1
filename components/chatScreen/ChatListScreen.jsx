@@ -1,16 +1,17 @@
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import { User, UserX } from "lucide-react-native";
 import React, { useEffect, useRef } from "react";
 import {
-  ActivityIndicator,
-  Animated,
-  FlatList,
-  Image,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Animated,
+    FlatList,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { colors } from "../../constant/colors";
@@ -18,7 +19,6 @@ import { images } from "../../constant/images";
 import { formatRelativeDate } from "../../utils/helper";
 import GeneralHeader from "../headers/GeneralHeader";
 import VerifiedIcon from "../ui/VerifiedIcon";
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 // ─── Avatar URI cache (unchanged) ─────────────────────────────────────────────
 
@@ -319,9 +319,10 @@ const ChatListScreen = ({
           <Image
             source={{ uri }}
             style={style}
+            cachePolicy="memory-disk"
+            transition={150}
             onLoadStart={() => { if (isCacheReady && !loadedAvatarUris.has(uri)) setLoading(true); setFailed(false); }}
             onLoad={async () => { if (uri) { touchLoadedAvatarUri(uri); await persistLoadedAvatarUris(); } setLoading(false); setFailed(false); }}
-            onLoadEnd={() => { if (loadedAvatarUris.has(uri)) setLoading(false); }}
             onError={() => { setLoading(false); setFailed(true); }}
           />
         ) : (

@@ -273,7 +273,9 @@ const ProfileAnswers = () => {
 
       {/* ── Modal ── */}
       <Modal visible={showModal} animationType="slide">
+        <SafeAreaView style={{flex: 1}}>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+
         <SAV style={{ flex: 1, backgroundColor: '#fff', paddingHorizontal: 20, paddingTop: 12 }}>
 
           {/* ── Categories & Questions Step ── */}
@@ -323,7 +325,7 @@ const ProfileAnswers = () => {
                     onPress={() => handleSelectQuestion(q)}
                     activeOpacity={0.7}
                   >
-                    <MessageCircle size={16} color={colors.primary} strokeWidth={2} />
+                    {/* <MessageCircle size={16} color={colors.primary} strokeWidth={2} /> */}
                     <Text style={{ flex: 1, fontSize: 15, fontFamily: 'PlusJakartaSansMedium', color: '#111', lineHeight: 22 }}>
                       {q}
                     </Text>
@@ -432,7 +434,9 @@ const ProfileAnswers = () => {
           )}
         </SAV>
         </TouchableWithoutFeedback>
+        </SafeAreaView>
       </Modal>
+
     </SafeAreaView>
   );
 };

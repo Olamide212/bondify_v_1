@@ -1,23 +1,22 @@
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
-  Keyboard,
-  KeyboardAvoidingView,
-  Platform,
-  SafeAreaView,
-  ScrollView,
-  Text,
-  TouchableWithoutFeedback,
-  View,
-    ActivityIndicator
+    Keyboard,
+    KeyboardAvoidingView,
+    Platform,
+    SafeAreaView,
+    ScrollView,
+    Text,
+    TouchableWithoutFeedback,
+    View
 } from "react-native";
 
 import RadioSelect from "../../../../components/inputs/RadioSelect";
+import ActivityLoader from "../../../../components/ui/ActivityLoader";
 import Button from "../../../../components/ui/Button";
 import Info from "../../../../components/ui/Info";
 import { useLookupOptions } from "../../../../hooks/useLookupOptions";
 import { useProfileSetup } from "../../../../hooks/useProfileSetup";
-import ActivityLoader from "../../../../components/ui/ActivityLoader";
 
 
 
@@ -66,6 +65,7 @@ const Kids = () => {
               <Button
                 title="Continue"
                 variant="primary"
+                disabled={!children}
                 onPress={async () => {
                   await updateProfileStep({ children });
                   router.push("/education");

@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const BlockedUser = require('../models/BlockedUser');
 const { generateOTP, calculateOTPExpiry } = require('../config/otp');
+const { sendOtpEmail } = require('../utils/termiiService');
 
 // ─────────────────────────────────────────────
 //  UPDATE PHONE NUMBER
@@ -21,14 +22,25 @@ const updatePhoneNumber = async (req, res, next) => {
     const otp = generateOTP();
     const otpExpiry = calculateOTPExpiry();
 
-    await User.findByIdAndUpdate(req.user._id, { phoneNumber, countryCode, otp, otpExpiry });
+    // Store the new phone number in pending fields so we only apply after OTP verification
+    await User.findByIdAndUpdate(req.user._id, {
+      pendingPhoneNumber: phoneNumber,
+      pendingCountryCode: countryCode,
+      otp,
+      otpExpiry,
+    });
 
-    // TODO: Send OTP via SMS (Twilio)
-    console.log(`Phone update OTP for ${req.user.email}: ${otp}`);
+    // Send OTP to the user's email for verification
+    const user = await User.findById(req.user._id);
+    await sendOtpEmail({
+      email: user.email,
+      firstName: user.firstName,
+      otp,
+    });
 
     res.json({
       success: true,
-      message: 'OTP sent to your new phone number. Please verify to complete the update.',
+      message: 'OTP sent to your email. Please verify to complete the phone number update.',
     });
   } catch (error) {
     next(error);
@@ -42,7 +54,7 @@ const verifyPhoneUpdate = async (req, res, next) => {
   try {
     const { otp } = req.body;
 
-    const user = await User.findById(req.user._id).select('+otp +otpExpiry');
+    const user = await User.findById(req.user._id).select('+otp +otpExpiry +pendingPhoneNumber +pendingCountryCode');
     if (!user) return res.status(404).json({ success: false, message: 'User not found' });
 
     if (user.otp !== otp)
@@ -50,6 +62,13 @@ const verifyPhoneUpdate = async (req, res, next) => {
     if (user.otpExpiry < new Date())
       return res.status(400).json({ success: false, message: 'OTP expired' });
 
+    // Apply the pending phone number now that OTP is verified
+    if (user.pendingPhoneNumber) {
+      user.phoneNumber = user.pendingPhoneNumber;
+      user.countryCode = user.pendingCountryCode || user.countryCode;
+      user.pendingPhoneNumber = undefined;
+      user.pendingCountryCode = undefined;
+    }
     user.otp = undefined;
     user.otpExpiry = undefined;
     await user.save();

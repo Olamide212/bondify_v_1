@@ -4,13 +4,13 @@ import { useRouter } from "expo-router";
 import { Lightbulb } from 'lucide-react-native';
 import { useState } from "react";
 import {
-    Image,
-    Keyboard,
-    SafeAreaView,
-    Text,
-    TouchableOpacity,
-    TouchableWithoutFeedback,
-    View,
+  Image,
+  Keyboard,
+  SafeAreaView,
+  Text,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
 } from "react-native";
 import PhotoGuidelinesModal from "../../../../components/modals/PhotoGuidelinesModal";
 import Button from "../../../../components/ui/Button";
@@ -45,9 +45,8 @@ const UploadPhoto = () => {
 
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true, // allow user to crop the photo before selecting
-      aspect: [4, 5], // portrait-friendly crop keeps focus on face
-      quality: 0.85,
+      allowsEditing: true,
+      quality: 1,
     });
 
     if (!result.canceled) {

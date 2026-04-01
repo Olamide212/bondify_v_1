@@ -466,6 +466,10 @@ const userSchema = new mongoose.Schema(
     // Pending email change (waiting for OTP verification)
     pendingEmail: { type: String, lowercase: true, trim: true, select: false },
 
+    // Pending phone number change (waiting for OTP verification)
+    pendingPhoneNumber: { type: String, select: false },
+    pendingCountryCode: { type: String, select: false },
+
     // OTP Verification
     otp:        { type: String, select: false },
     otpExpiry:  { type: Date,   select: false },

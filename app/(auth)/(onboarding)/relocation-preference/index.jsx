@@ -7,17 +7,16 @@ import {
     SafeAreaView,
     Text,
     TouchableWithoutFeedback,
-    View,
-    ActivityIndicator
+    View
 } from "react-native";
 
+import { ScrollView } from "react-native-gesture-handler";
 import RadioSelect from "../../../../components/inputs/RadioSelect";
+import ActivityLoader from "../../../../components/ui/ActivityLoader";
 import Button from "../../../../components/ui/Button";
 import Info from "../../../../components/ui/Info";
 import { useLookupOptions } from "../../../../hooks/useLookupOptions";
 import { useProfileSetup } from "../../../../hooks/useProfileSetup";
-import { ScrollView } from "react-native-gesture-handler";
-import ActivityLoader from "../../../../components/ui/ActivityLoader";
 
 const RelocationPreference = () => {
   const [relocationPreference, setRelocationPreference] = useState("");
@@ -63,6 +62,7 @@ const RelocationPreference = () => {
               <Button
                 title="Continue"
                 variant="primary"
+                disabled={!relocationPreference}
                 onPress={async () => {
                   await updateProfileStep({ willRelocateForMarriage: relocationPreference });
                   router.push("/kids");

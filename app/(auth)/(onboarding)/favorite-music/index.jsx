@@ -175,7 +175,7 @@ const FavoriteMusic = () => {
                   title="Continue"
                   variant="gradient"
                   onPress={handleContinue}
-                  disabled={submitting}
+                  disabled={submitting || selectedMusic.length === 0}
                 />
                 <TouchableOpacity
                   onPress={handleSkip}

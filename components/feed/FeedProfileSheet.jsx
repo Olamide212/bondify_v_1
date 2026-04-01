@@ -1,9 +1,9 @@
+import { Image } from "expo-image";
 import * as ImagePicker from "expo-image-picker";
 import { Plus } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
 import {
     ActivityIndicator,
-    Image,
     ScrollView,
     StyleSheet,
     Text,
@@ -144,7 +144,7 @@ const FeedProfileSheet = ({ visible, user, onClose, onUpdate }) => {
       <View style={styles.profileHead}>
         <TouchableOpacity onPress={handlePickPhoto} style={styles.avatarWrap} disabled={uploading}>
           {(localAvatarUri || avatarUrl(user)) ? (
-            <Image source={{ uri: localAvatarUri || avatarUrl(user) }} style={styles.avatar} />
+            <Image source={{ uri: localAvatarUri || avatarUrl(user) }} style={styles.avatar} cachePolicy="memory-disk" transition={150} />
           ) : (
             <View style={[styles.avatar, styles.avatarFallback]}>
               <Text style={styles.avatarInitial}>

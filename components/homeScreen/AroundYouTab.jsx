@@ -2,13 +2,13 @@
  * AroundYouTab.jsx
  */
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { Briefcase, Eye, Heart, Info, MapPin } from 'lucide-react-native';
 import { useEffect, useRef, useState } from 'react';
 import {
     Animated,
-    Image,
     StyleSheet,
     Text,
     TouchableOpacity,
@@ -196,7 +196,9 @@ const AroundYouTab = ({ profile, onViewProfile, actionMessage }) => {
             <Image
               source={{ uri: currentUri }}
               style={styles.image}
-              resizeMode="cover"
+              contentFit="cover"
+              cachePolicy="memory-disk"
+              transition={200}
               blurRadius={profile.blurPhotos ? 25 : 0}
             />
             <View style={styles.overlay} />

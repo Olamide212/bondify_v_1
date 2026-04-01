@@ -7,18 +7,21 @@
  * Full useTheme support.
  */
 
-import React, { useState, useRef } from "react";
+import { useRouter } from "expo-router";
+import { ArrowLeft, ShieldCheck } from "lucide-react-native";
+import { useRef, useState } from "react";
 import {
-  View, Text, TextInput, TouchableOpacity,
-  StyleSheet, ScrollView, StatusBar,
-  ActivityIndicator, Animated, Alert,
+  ActivityIndicator, Animated,
+  ScrollView, StatusBar,
+  StyleSheet,
+  Text, TouchableOpacity,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useRouter } from "expo-router";
-import { ArrowLeft, Eye, EyeOff, ShieldCheck, CheckCircle } from "lucide-react-native";
+import TextInput from "../../../components/inputs/TextInput";
+import { colors } from "../../../constant/colors";
 import { useTheme } from "../../../context/ThemeContext";
 import SettingsService from "../../../services/settingsService";
-import {colors} from "../../../constant/colors";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -29,60 +32,6 @@ const RULES = [
   { id: "special", label: "One special character (!@#$…)",   test: (v) => /[^A-Za-z0-9]/.test(v) },
 ];
 
-// ─── Sub-components ───────────────────────────────────────────────────────────
-
-const PasswordField = ({ label, value, onChange, placeholder, showToggle, onToggle, error, colors }) => (
-  <View style={{ marginBottom: 20 }}>
-    <Text style={[s.fieldLabel, { color: colors.textPrimary }]}>{label}</Text>
-    <View
-      style={[
-        s.inputRow,
-        {
-          backgroundColor: colors.inputBackground,
-          borderColor: error ? "#EF4444" : colors.border,
-        },
-      ]}
-    >
-      <TextInput
-        style={[s.input, { color: colors.textPrimary }]}
-        placeholder={placeholder}
-        placeholderTextColor={colors.textTertiary}
-        secureTextEntry={!showToggle}
-        value={value}
-        onChangeText={onChange}
-        autoCapitalize="none"
-        autoCorrect={false}
-      />
-      <TouchableOpacity
-        onPress={onToggle}
-        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-      >
-        {showToggle
-          ? <EyeOff size={18} color={colors.textTertiary} strokeWidth={1.8} />
-          : <Eye size={18} color={colors.textTertiary} strokeWidth={1.8} />
-        }
-      </TouchableOpacity>
-    </View>
-    {error && <Text style={s.errorText}>{error}</Text>}
-  </View>
-);
-
-const StrengthRule = ({ rule, value, colors }) => {
-  const passed = rule.test(value);
-  return (
-    <View style={s.ruleRow}>
-      <CheckCircle
-        size={14}
-        color={passed ? "#22C55E" : colors.textTertiary}
-        strokeWidth={2.5}
-      />
-      <Text style={[s.ruleText, { color: passed ? "#22C55E" : colors.textTertiary }]}>
-        {rule.label}
-      </Text>
-    </View>
-  );
-};
-
 // ─── Screen ───────────────────────────────────────────────────────────────────
 
 const ChangePassword = () => {
@@ -92,9 +41,6 @@ const ChangePassword = () => {
   const [current, setCurrent]         = useState("");
   const [next, setNext]               = useState("");
   const [confirm, setConfirm]         = useState("");
-  const [showCurrent, setShowCurrent] = useState(false);
-  const [showNext, setShowNext]       = useState(false);
-  const [showConfirm, setShowConfirm] = useState(false);
   const [errors, setErrors]           = useState({});
   const [loading, setLoading]         = useState(false);
   const [success, setSuccess]         = useState(false);
@@ -159,7 +105,7 @@ const ChangePassword = () => {
   // ── Success state ─────────────────────────────────────────────
   if (success) {
     return (
-      <SafeAreaView style={[s.safe, { backgroundColor: colors.background }]} edges={["top"]}>
+      <SafeAreaView style={[s.safe, { backgroundColor: '#fff' }]} edges={["top"]}>
         <View style={s.successContainer}>
           <View style={[s.successIcon, { backgroundColor: "#DCFCE7" }]}>
             <ShieldCheck size={36} color="#22C55E" strokeWidth={2} />
@@ -174,7 +120,7 @@ const ChangePassword = () => {
   }
 
   return (
-    <SafeAreaView style={[s.safe, { backgroundColor: colors.surface }]} edges={["top"]}>
+    <SafeAreaView style={[s.safe, { backgroundColor: '#fff' }]} edges={["top"]}>
       <StatusBar barStyle={colors.statusBarStyle} backgroundColor={colors.surface} />
 
       {/* Header */}
@@ -187,8 +133,8 @@ const ChangePassword = () => {
       </View>
 
       <ScrollView
-        style={{ backgroundColor: colors.background }}
-        contentContainerStyle={[s.body, { backgroundColor: colors.background, paddingBottom: 40 }]}
+        style={{ backgroundColor: '#fff'}}
+        contentContainerStyle={[s.body, { backgroundColor: '#fff', paddingBottom: 40 }]}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
@@ -206,26 +152,22 @@ const ChangePassword = () => {
             </View>
           )}
 
-          <PasswordField
+          <TextInput
             label="Current password"
-            value={current}
-            onChange={setCurrent}
             placeholder="Enter current password"
-            showToggle={showCurrent}
-            onToggle={() => setShowCurrent((v) => !v)}
+            secureTextEntry
+            value={current}
+            onChangeText={setCurrent}
             error={errors.current}
-            colors={colors}
           />
 
-          <PasswordField
+          <TextInput
             label="New password"
-            value={next}
-            onChange={(v) => { setNext(v); setErrors((e) => ({ ...e, next: undefined })); }}
             placeholder="Enter new password"
-            showToggle={showNext}
-            onToggle={() => setShowNext((v) => !v)}
+            secureTextEntry
+            value={next}
+            onChangeText={(v) => { setNext(v); setErrors((e) => ({ ...e, next: undefined })); }}
             error={errors.next}
-            colors={colors}
           />
 
           {/* Strength rules — shown while typing */}
@@ -235,15 +177,13 @@ const ChangePassword = () => {
             </View>
           )} */}
 
-          <PasswordField
+          <TextInput
             label="Confirm new password"
-            value={confirm}
-            onChange={(v) => { setConfirm(v); setErrors((e) => ({ ...e, confirm: undefined })); }}
             placeholder="Re-enter new password"
-            showToggle={showConfirm}
-            onToggle={() => setShowConfirm((v) => !v)}
+            secureTextEntry
+            value={confirm}
+            onChangeText={(v) => { setConfirm(v); setErrors((e) => ({ ...e, confirm: undefined })); }}
             error={errors.confirm}
-            colors={colors}
           />
         </Animated.View>
 
@@ -287,22 +227,6 @@ const s = StyleSheet.create({
     padding: 12, marginBottom: 16,
   },
   generalErrorText: { fontSize: 13, fontFamily: "PlusJakartaSans", color: "#EF4444" },
-
-  fieldLabel: { fontSize: 14, fontFamily: "PlusJakartaSansBold", marginBottom: 8 },
-  inputRow: {
-    flexDirection: "row", alignItems: "center",
-    borderWidth: 1, borderRadius: 12,
-    paddingHorizontal: 14, paddingVertical: 13, gap: 8,
-  },
-  input: { flex: 1, fontSize: 15, fontFamily: "PlusJakartaSans", padding: 0 },
-  errorText: { fontSize: 12, fontFamily: "PlusJakartaSans", color: "#EF4444", marginTop: 5 },
-
-  rulesCard: {
-    borderRadius: 12, borderWidth: StyleSheet.hairlineWidth,
-    padding: 14, marginBottom: 20, gap: 8,
-  },
-  ruleRow: { flexDirection: "row", alignItems: "center", gap: 8 },
-  ruleText: { fontSize: 12, fontFamily: "PlusJakartaSans" },
 
   saveBtn: {
     backgroundColor: colors.primary, borderRadius: 50,

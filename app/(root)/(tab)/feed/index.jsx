@@ -6,19 +6,19 @@
  */
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
-import { MapPin, Plus, User } from 'lucide-react-native'; // Added MapPin for the icon
+import { ArrowUpDown, MapPin, Plus, User } from 'lucide-react-native';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
-  ActivityIndicator,
-  AppState,
-  Image,
-  RefreshControl,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    AppState,
+    RefreshControl,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useSelector } from 'react-redux';
@@ -26,6 +26,7 @@ import BondupCard from '../../../../components/bondup/BondupCard';
 import BondupDetailModal from '../../../../components/bondup/BondupDetailModal';
 import BondupJoinedModal from '../../../../components/bondup/BondupJoinedModal';
 import CreateBondupModal from '../../../../components/bondup/CreateBondupModal';
+import BondupFilterModal from '../../../../components/modals/BondupFilterModal';
 import { colors } from '../../../../constant/colors';
 import { images } from '../../../../constant/images';
 import { useAlert } from '../../../../context/AlertContext';
@@ -119,6 +120,13 @@ export default function BondupFeedScreen() {
   const [showCreate, setShowCreate] = useState(false);
   const [joinLoading, setJoinLoading] = useState(false);
   const [joinedBondup, setJoinedBondup] = useState(null);
+  const [showFilter, setShowFilter] = useState(false);
+  const [activeFilters, setActiveFilters] = useState({
+    city: '',
+    categories: [],
+    distance: null,
+    sortBy: 'soonest',
+  });
   const loadRequestRef = useRef(0);
   const midnightTimeoutRef = useRef(null);
   const appStateRef = useRef(AppState.currentState);
@@ -208,12 +216,24 @@ export default function BondupFeedScreen() {
     setLoading(true);
     try {
       // Get user's city for filtering public bondups
-      const userCity = currentUser?.socialProfile?.city || currentUser?.location?.city || '';
+      const userCity = activeFilters.city || currentUser?.socialProfile?.city || currentUser?.location?.city || '';
+
+      // Build query params from active filters
+      const filterParams = {};
+      if (activeFilters.categories.length > 0) {
+        filterParams.categories = activeFilters.categories.join(',');
+      }
+      if (activeFilters.sortBy) {
+        filterParams.sort = activeFilters.sortBy;
+      }
+      if (activeFilters.distance) {
+        filterParams.distance = activeFilters.distance;
+      }
 
       // Load both public and circle bondups
       const [publicRes, circleRes] = await Promise.all([
-        bondupService.getPublicBondups({ city: userCity }).catch(() => ({ data: [] })),
-        bondupService.getCircleBondups({}).catch(() => ({ data: [] })),
+        bondupService.getPublicBondups({ city: userCity, ...filterParams }).catch(() => ({ data: [] })),
+        bondupService.getCircleBondups({ ...filterParams }).catch(() => ({ data: [] })),
       ]);
 
       const publicData = publicRes.data ?? [];
@@ -232,7 +252,7 @@ export default function BondupFeedScreen() {
         setLoading(false);
       }
     }
-  }, [persistBondups]);
+  }, [persistBondups, activeFilters]);
 
   useEffect(() => {
     loadBondups();
@@ -464,6 +484,11 @@ export default function BondupFeedScreen() {
   // ── Helpers ──────────────────────────────────────────────────────────────
   const userAvatar = avatar(currentUser);
   const hasBondups = bondups.length > 0;
+  const hasActiveFilters =
+    activeFilters.city.trim() !== '' ||
+    activeFilters.categories.length > 0 ||
+    activeFilters.distance !== null ||
+    activeFilters.sortBy !== 'soonest';
 
   const renderSkeleton = () =>
     [1, 2, 3].map((i) => <View key={i} style={sk.skeletonCard} />);
@@ -478,17 +503,27 @@ export default function BondupFeedScreen() {
           <Image
             source={images.bonFeed}
             style={fStyles.headerLogo}
-            resizeMode="contain"
+            contentFit="contain"
           />
-          <TouchableOpacity onPress={() => router.push(`/bondup-profile/${currentUser?._id}`)}>
-            {userAvatar ? (
-              <Image source={{ uri: userAvatar }} style={fStyles.headerAvatar} />
-            ) : (
-              <View style={[fStyles.headerAvatar, fStyles.headerAvatarFallback]}>
-                <User size={18} color="#fff" />
-              </View>
-            )}
-          </TouchableOpacity>
+          <View style={fStyles.headerRight}>
+            <TouchableOpacity
+              onPress={() => setShowFilter(true)}
+              style={fStyles.filterIconBtn}
+              activeOpacity={0.7}
+            >
+              <ArrowUpDown size={20} color="#333" />
+              {hasActiveFilters && <View style={fStyles.filterDot} />}
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => router.push(`/bondup-profile/${currentUser?._id}`)}>
+              {userAvatar ? (
+                <Image source={{ uri: userAvatar }} style={fStyles.headerAvatar} cachePolicy="memory-disk" transition={150} />
+              ) : (
+                <View style={[fStyles.headerAvatar, fStyles.headerAvatarFallback]}>
+                  <User size={18} color="#fff" />
+                </View>
+              )}
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/* ── Day filters ─────────────────────────────────────────────── */}
@@ -634,6 +669,16 @@ export default function BondupFeedScreen() {
             handleStartChat(b);
           }}
         />
+
+        <BondupFilterModal
+          visible={showFilter}
+          onClose={() => setShowFilter(false)}
+          initialFilters={activeFilters}
+          onApply={(filters) => {
+            setActiveFilters(filters);
+            setShowFilter(false);
+          }}
+        />
       </SafeAreaView>
     </SafeAreaProvider>
   );
@@ -660,6 +705,29 @@ const fStyles = StyleSheet.create({
   headerLogo: {
     height: 50,
     width: 100,
+  },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  filterIconBtn: {
+    width: 38,
+    height: 38,
+ 
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  filterDot: {
+    position: 'absolute',
+    top: 6,
+    right: 6,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: BRAND,
+    borderWidth: 1.5,
+    borderColor: '#fff',
   },
   headerAvatar: {
     width: 38,

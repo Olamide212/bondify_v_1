@@ -76,13 +76,14 @@ const getMatches = async (options = {}) => {
     const response = await apiClient.get("/matches", { params: options });
     const payload = response.data?.data ?? response.data;
     const matches = payload?.matches ?? [];
+    const rematchRequests = payload?.rematchRequests ?? [];
     await writeCachedMatches(cacheKey, matches);
-    return matches;
+    return { matches, rematchRequests };
   } catch (error) {
     if (isNetworkLikeError(error)) {
       const cachedMatches = await readCachedMatches(cacheKey);
       if (Array.isArray(cachedMatches)) {
-        return cachedMatches;
+        return { matches: cachedMatches, rematchRequests: [] };
       }
     }
 
@@ -140,10 +141,38 @@ const getUnmatchedUsers = async () => {
   }
 };
 
+// @desc  Request a rematch with an unmatched user.
+const requestRematch = async (matchId) => {
+  if (!matchId) throw new Error("Match ID is required");
+  try {
+    const response = await apiClient.post(`/matches/${matchId}/rematch`);
+    return response.data;
+  } catch (error) {
+    const message =
+      error.response?.data?.message || error.message || "Failed to request rematch";
+    throw new Error(message);
+  }
+};
+
+// @desc  Accept or decline a rematch request.
+const respondToRematch = async (matchId, accept) => {
+  if (!matchId) throw new Error("Match ID is required");
+  try {
+    const response = await apiClient.post(`/matches/${matchId}/rematch/respond`, { accept });
+    return response.data;
+  } catch (error) {
+    const message =
+      error.response?.data?.message || error.message || "Failed to respond to rematch";
+    throw new Error(message);
+  }
+};
+
 export const matchService = {
   getCachedMatches,
   getMatches,
   unmatch,
   getUnmatchedUsers,
   getInteractionStatus,
+  requestRematch,
+  respondToRematch,
 };

@@ -165,7 +165,7 @@ const FunActivities = () => {
                   title="Continue"
                   variant="gradient"
                   onPress={handleContinue}
-                  disabled={submitting}
+                  disabled={submitting || selectedActivities.length === 0}
                 />
                 <TouchableOpacity
                   onPress={handleSkip}

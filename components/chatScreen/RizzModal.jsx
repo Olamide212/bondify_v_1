@@ -186,11 +186,11 @@ const RizzModal = ({ visible, onClose, onSend, matchId }) => {
         )}
 
         {/* Suggestion counter e.g. "1 / 3" */}
-        {!loading && (
+        {/* {!loading && (
           <Text style={styles.counter} className="font-PlusJakartaSans">
             {currentIdx + 1} / {suggestions.length}
           </Text>
-        )}
+        )} */}
 
         {/* Action buttons */}
         <View style={styles.buttonRow}>
@@ -203,7 +203,7 @@ const RizzModal = ({ visible, onClose, onSend, matchId }) => {
             <MaterialIcons
               name="autorenew"
               size={26}
-              color={loading ? "#fff" : colors.secondary}
+              color={'#fff'}
             />
           </TouchableOpacity>
 
@@ -330,7 +330,7 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   primaryBtnText: {
-    color: colors.primary,
+    color: '#fff',
     fontWeight: "bold",
     fontSize: 16,
   },

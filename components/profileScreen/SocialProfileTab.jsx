@@ -8,6 +8,7 @@
  *  • Menu: Edit Profile, Saved Posts, Settings, Help, Invite Friends
  */
 
+import { Image } from "expo-image";
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
 import {
@@ -21,7 +22,6 @@ import {
 import { useEffect, useRef, useState } from "react";
 import {
     ActivityIndicator,
-    Image,
     StyleSheet,
     Text,
     TouchableOpacity,
@@ -230,7 +230,7 @@ export default function SocialProfileTab() {
           activeOpacity={0.7}
         >
           {displayAvatar ? (
-            <Image source={{ uri: displayAvatar }} style={s.avatar} />
+            <Image source={{ uri: displayAvatar }} style={s.avatar} cachePolicy="memory-disk" transition={150} />
           ) : (
             <View style={[s.avatar, s.avatarFallback]}>
               <Text style={s.avatarInitial}>

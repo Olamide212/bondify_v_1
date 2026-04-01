@@ -1,7 +1,6 @@
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
-    ActivityIndicator,
     Keyboard,
     KeyboardAvoidingView,
     Platform,
@@ -12,11 +11,11 @@ import {
 } from "react-native";
 
 import CheckboxSelect from "../../../../components/inputs/CheckboxSelect";
+import ActivityLoader from "../../../../components/ui/ActivityLoader";
 import Button from "../../../../components/ui/Button";
 import Info from "../../../../components/ui/Info";
 import { useLookupOptions } from "../../../../hooks/useLookupOptions";
 import { useProfileSetup } from "../../../../hooks/useProfileSetup";
-import ActivityLoader from "../../../../components/ui/ActivityLoader";
 
 
 const Meet = () => {
@@ -62,6 +61,7 @@ const Meet = () => {
               <Button
                 title="Continue"
                 variant="primary"
+                disabled={selectedOptions.length === 0}
                 onPress={async () => {
                   // Persist canonical values so matching logic aligns with profile genders
                   const preferenceValues = selectedOptions.map((val) => {
