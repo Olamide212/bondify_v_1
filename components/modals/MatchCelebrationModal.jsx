@@ -1,5 +1,4 @@
 import { Audio } from "expo-av";
-import { Image } from "expo-image";
 import { MessageCircle, Sparkles, X } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -13,6 +12,7 @@ import {
 } from "react-native";
 import { colors } from "../../constant/colors";
 import { ICE_BREAKERS } from "../../constant/iceBreakers";
+import LoadingImage from '../ui/LoadingImage';
 import BaseModal from "./BaseModal";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
@@ -141,7 +141,7 @@ const MatchCelebrationModal = ({
             {/* Current user */}
             <View style={[styles.avatarWrapper, styles.avatarLeft]}>
               {currentUserImage ? (
-                <Image source={{ uri: currentUserImage }} style={styles.avatar} cachePolicy="memory-disk" transition={150} />
+                <LoadingImage source={{ uri: currentUserImage }} style={styles.avatar} containerStyle={styles.avatar} cachePolicy="memory-disk" transition={150} indicatorColor="#fff" />
               ) : (
                 <View style={[styles.avatar, styles.avatarPlaceholder]}>
                   <Text style={styles.avatarInitial}>You</Text>
@@ -162,7 +162,7 @@ const MatchCelebrationModal = ({
             {/* Matched user */}
             <View style={[styles.avatarWrapper, styles.avatarRight]}>
               {matchedUserImage ? (
-                <Image source={{ uri: matchedUserImage }} style={styles.avatar} cachePolicy="memory-disk" transition={150} />
+                <LoadingImage source={{ uri: matchedUserImage }} style={styles.avatar} containerStyle={styles.avatar} cachePolicy="memory-disk" transition={150} indicatorColor="#fff" />
               ) : (
                 <View style={[styles.avatar, styles.avatarPlaceholder]}>
                   <Text style={styles.avatarInitial}>

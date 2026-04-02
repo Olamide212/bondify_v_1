@@ -28,10 +28,13 @@ export default function RootLayout() {
       return;
     }
 
-    if (onboardingToken && !isAuthenticated) {
+    // If user has an onboarding token, they haven't completed onboarding.
+    // Redirect them back to their last onboarding step — even if they
+    // also have an auth token (verifyOtp gives both tokens).
+    if (onboardingToken) {
       const redirectToOnboarding = async () => {
         const lastStep = await SecureStore.getItemAsync("onboardingStep");
-        router.replace(lastStep ? `/(onboarding)/${lastStep}` : "/(onboarding)/age");
+        router.replace(lastStep ? `/(onboarding)/${lastStep}` : "/(onboarding)/agreement");
       };
 
       redirectToOnboarding();

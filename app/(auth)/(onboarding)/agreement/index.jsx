@@ -1,10 +1,9 @@
-import { View, Text } from "react-native";
-import React from "react";
+import { Text, View } from "react-native";
 
-import Button from "../../../../components/ui/Button";
-import { useProfileSetup } from "../../../../hooks/useProfileSetup";
-import {guidelines} from "../../../../data/guidelinesData"
 import { useRouter } from "expo-router";
+import Button from "../../../../components/ui/Button";
+import { guidelines } from "../../../../data/guidelinesData";
+import { useProfileSetup } from "../../../../hooks/useProfileSetup";
 
 
 const Agreement = () => {
@@ -34,6 +33,8 @@ const Agreement = () => {
       </View>
 
       <Button variant="primary" title="Agree & Continue" onPress={() => router.push("/age")} />
+
+      
     </View>
   );
 };

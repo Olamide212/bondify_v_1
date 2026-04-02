@@ -170,8 +170,8 @@ const compressImage = async (uri) => {
     const { manipulate } = await import("expo-image-manipulator");
     const result = await manipulate(
       uri,
-      [{ resize: { width: 1200, height: 1600 } }],
-      { compress: 0.7, format: "jpeg" }
+      [], // no resize — keep original dimensions & clarity
+      { compress: 0.95, format: "jpeg" }
     );
     return result.uri;
   } catch (err) {

@@ -14,7 +14,6 @@ import {
 import RadioSelect from "../../../../components/inputs/RadioSelect";
 import ActivityLoader from "../../../../components/ui/ActivityLoader";
 import Button from "../../../../components/ui/Button";
-import Info from "../../../../components/ui/Info";
 import { useLookupOptions } from "../../../../hooks/useLookupOptions";
 import { useProfileSetup } from "../../../../hooks/useProfileSetup";
 
@@ -26,6 +25,7 @@ const relationshipTypeMap = {
 
 const MaritalStatus = () => {
   const [maritalStatus, setMaritalStatus] = useState("");
+  const [submitting, setSubmitting] = useState(false);
   const { options: relationshipStatusOptions, loading } = useLookupOptions("relationship-status");
 
   const router = useRouter();
@@ -71,17 +71,19 @@ const MaritalStatus = () => {
                 title="Continue"
                 variant="primary"
                 disabled={!maritalStatus}
+                loading={submitting}
                 onPress={async () => {
-                  const normalizedRelationshipType =
-                    relationshipTypeMap[maritalStatus?.toLowerCase?.()] || maritalStatus;
-
-                  await updateProfileStep({ relationshipType: normalizedRelationshipType });
-                  router.push("/meet");
+                  setSubmitting(true);
+                  try {
+                    const normalizedRelationshipType =
+                      relationshipTypeMap[maritalStatus?.toLowerCase?.()] || maritalStatus;
+                    await updateProfileStep({ relationshipType: normalizedRelationshipType });
+                    router.push("/meet");
+                  } finally {
+                    setSubmitting(false);
+                  }
                 }}
               />
-              <View className="w-full mt-4 justify-center items-center">
-          <Info title="You can change this details later from your profile"  />
-              </View>
             
             </View>
           </View>

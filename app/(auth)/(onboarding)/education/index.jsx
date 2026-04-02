@@ -13,7 +13,6 @@ import {
 import RadioSelect from "../../../../components/inputs/RadioSelect";
 import ActivityLoader from "../../../../components/ui/ActivityLoader";
 import Button from "../../../../components/ui/Button";
-import Info from "../../../../components/ui/Info";
 import { useLookupOptions } from "../../../../hooks/useLookupOptions";
 import { useProfileSetup } from "../../../../hooks/useProfileSetup";
 
@@ -22,6 +21,7 @@ import { useProfileSetup } from "../../../../hooks/useProfileSetup";
 
 const Education = () => {
   const [education, setEducation] = useState("");
+  const [submitting, setSubmitting] = useState(false);
   const { options: educationOptions, loading } = useLookupOptions("education");
 
   const router = useRouter();
@@ -63,14 +63,17 @@ const Education = () => {
                 title="Continue"
                 variant="primary"
                 disabled={!education}
+                loading={submitting}
                 onPress={async () => {
-                  await updateProfileStep({ education });
-                  router.push("/occupation");
+                  setSubmitting(true);
+                  try {
+                    await updateProfileStep({ education });
+                    router.push("/occupation");
+                  } finally {
+                    setSubmitting(false);
+                  }
                 }}
               />
-                          <View className="w-full items-center mt-4">
-  <Info title="You can change this details later from your profile" />
-              </View>
             </View>
           </View>
         </TouchableWithoutFeedback>

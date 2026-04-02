@@ -1,6 +1,6 @@
 import * as SecureStore from "expo-secure-store";
 
-// navigationHelper.js - Add debugging
+// navigationHelper.js
 export const determineNextRoute = async ({
   token,
   onboardingToken,
@@ -12,29 +12,15 @@ export const determineNextRoute = async ({
     pendingEmail: pendingEmail ? "yes" : "no",
   });
 
-  // 1️⃣ Fully authenticated user takes priority
-  // If we have a valid auth token, go directly to root-tabs
-  if (token) {
-    console.log("Returning /root-tabs due to token");
-    // Clear any stale onboarding data if user is fully authenticated
-    if (onboardingToken) {
-      console.log("Clearing stale onboarding token as user is fully authenticated");
-      try {
-        await SecureStore.deleteItemAsync("onboardingStep");
-      } catch (error) {
-        console.warn("Failed to clear onboarding step:", error);
-      }
-    }
-    return "/root-tabs";
-  }
-
-  // 2️⃣ Pending OTP (user started signup but didn't verify)
+  // 1️⃣ Pending OTP (user started signup but didn't verify email)
   if (pendingEmail) {
     console.log("Returning /validation due to pendingEmail");
     return "/validation";
   }
 
-  // 3️⃣ Onboarding flow (user created account but didn't complete profile)
+  // 2️⃣ Onboarding not completed — user has an onboarding token
+  // This takes priority even if user also has an auth token, because
+  // onboardingToken is only present when onboardingCompleted === false.
   if (onboardingToken) {
     console.log("Checking onboarding step...");
     try {
@@ -47,15 +33,21 @@ export const determineNextRoute = async ({
         return route;
       }
 
-      console.log("Returning /(onboarding)/age as default");
-      return "/(onboarding)/age";
+      console.log("Returning /(onboarding)/agreement as default");
+      return "/(onboarding)/agreement";
     } catch (error) {
       console.error("Error reading SecureStore:", error);
-      return "/(onboarding)/age";
+      return "/(onboarding)/agreement";
     }
   }
 
-  // 4️⃣ No active auth/onboarding session - new user
+  // 3️⃣ Fully authenticated user with completed onboarding
+  if (token) {
+    console.log("Returning /root-tabs due to token (onboarding complete)");
+    return "/root-tabs";
+  }
+
+  // 4️⃣ No active auth/onboarding session — new user
   try {
     await SecureStore.deleteItemAsync("onboardingStep");
   } catch (error) {

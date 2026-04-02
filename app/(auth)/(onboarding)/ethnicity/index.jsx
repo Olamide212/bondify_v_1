@@ -22,6 +22,7 @@ import { useProfileSetup } from "../../../../hooks/useProfileSetup";
 
 const Ethnicity = () => {
   const [ethnicity, setEthnicity] = useState("");
+  const [submitting, setSubmitting] = useState(false);
   const { options: ethnicityOptions, loading, error } = useLookupOptions("ethnicity");
 
   const router = useRouter();
@@ -74,10 +75,15 @@ const Ethnicity = () => {
                 title="Continue"
                 variant="primary"
                 disabled={!ethnicity}
+                loading={submitting}
                 onPress={async () => {
-                  // Find the selected option's label
-               await updateProfileStep({ ethnicity });
-                  router.push("/gender");
+                  setSubmitting(true);
+                  try {
+                    await updateProfileStep({ ethnicity });
+                    router.push("/gender");
+                  } finally {
+                    setSubmitting(false);
+                  }
                 }}
               />
             </View>

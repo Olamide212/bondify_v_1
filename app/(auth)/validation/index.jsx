@@ -41,12 +41,15 @@ const Validation = () => {
         variant: "success",
       });
 
+      // Set the onboarding step so the auth layout guard knows where to redirect.
+      // We do NOT navigate here — the auth layout guard will detect the
+      // onboardingToken change and redirect to the correct onboarding step,
+      // preventing the agreement screen from showing twice.
       await import("expo-secure-store").then((SecureStore) =>
         SecureStore.setItemAsync("onboardingStep", "agreement")
       );
 
-      console.log("🚀 Navigating to agreement...");
-      router.replace("/(onboarding)/agreement");
+      console.log("✅ OTP verified — auth layout guard will redirect to onboarding");
     } catch (err) {
       console.error("❌ OTP Verification failed:", err);
       showToast({

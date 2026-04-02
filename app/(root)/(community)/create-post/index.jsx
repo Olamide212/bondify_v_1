@@ -1,16 +1,16 @@
-import React, { useState } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  SafeAreaView,
-  ScrollView,
-  Image,
-} from "react-native";
-import { useLocalSearchParams, useRouter } from "expo-router";
-import { X, Image as ImageIcon, Hash } from "lucide-react-native";
 import * as ImagePicker from "expo-image-picker";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { Hash, Image as ImageIcon, X } from "lucide-react-native";
+import { useState } from "react";
+import {
+    Image,
+    SafeAreaView,
+    ScrollView,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
+} from "react-native";
 import { styles } from "../../../../components/community/styles/communityStyles";
 import { useAlert } from "../../../../context/AlertContext";
 
@@ -25,8 +25,7 @@ const CreatePostScreen = () => {
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [4, 3],
+      allowsEditing: false,
       quality: 1,
     });
 

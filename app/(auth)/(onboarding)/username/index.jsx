@@ -1,22 +1,23 @@
-import React, { useState } from "react";
-import {
-  SafeAreaView,
-  Text,
-  View,
-  KeyboardAvoidingView,
-  Platform,
-  TouchableWithoutFeedback,
-  Keyboard,
-} from "react-native";
-import NextButton from "../../../../components/ui/NextButton";
 import { useRouter } from "expo-router";
+import { useState } from "react";
+import {
+    Keyboard,
+    KeyboardAvoidingView,
+    Platform,
+    SafeAreaView,
+    Text,
+    TouchableWithoutFeedback,
+    View,
+} from "react-native";
 import TextInput from "../../../../components/inputs/TextInput";
 import Info from "../../../../components/ui/Info";
+import NextButton from "../../../../components/ui/NextButton";
 import { useProfileSetup } from "../../../../hooks/useProfileSetup";
 
 const Username = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
+  const [submitting, setSubmitting] = useState(false);
   const { updateProfileStep } = useProfileSetup({ isOnboarding: true });
 
   const router = useRouter();
@@ -53,9 +54,15 @@ const Username = () => {
             <View className="w-full items-end pb-6">
               <NextButton
                 variant="gradient"
+                loading={submitting}
                 onPress={async () => {
-                  await updateProfileStep({ firstName, lastName });
-                  router.push("/age");
+                  setSubmitting(true);
+                  try {
+                    await updateProfileStep({ firstName, lastName });
+                    router.push("/age");
+                  } finally {
+                    setSubmitting(false);
+                  }
                 }}
               />
             </View>

@@ -1,5 +1,4 @@
 import { BlurView } from "expo-blur";
-import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import {
@@ -19,6 +18,7 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
+import LoadingImage from '../ui/LoadingImage';
 
 const { width } = Dimensions.get("window");
 const CARD_HEIGHT = 570;
@@ -67,12 +67,15 @@ const SwipeCard = ({ profile, actionMessage }) => {
 
       {/* Main Image with Fade Animation */}
       <Animated.View style={[styles.imageContainer, { opacity: fadeAnim }]}>
-        <Image
+        <LoadingImage
           source={{ uri: profile?.images?.[currentImageIndex] }}
           style={styles.image}
+          containerStyle={StyleSheet.absoluteFillObject}
           contentFit="cover"
           cachePolicy="memory-disk"
           transition={200}
+          indicatorColor="#fff"
+          indicatorSize="large"
         />
 
         {/* Dark overlay */}

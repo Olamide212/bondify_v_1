@@ -25,7 +25,6 @@ const User    = require('../models/User');
 const OpenAI  = require('openai');
 
 const openai  = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-const AUTO_APPROVE = process.env.VERIFY_AUTO_APPROVE === 'true';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 const getS3Key = (userId) =>
@@ -34,7 +33,12 @@ const getS3Key = (userId) =>
 const getPublicUrl = (bucket, key) => {
   const base = process.env.AWS_CLOUDFRONT_DOMAIN ||
     process.env.AWS_S3_PUBLIC_BASE_URL;
-  if (base) return `${base.replace(/\/$/, '')}/${key}`;
+  if (base) {
+    const normalizedBase = base.startsWith('http')
+      ? base.replace(/\/$/, '')
+      : `https://${base.replace(/\/$/, '')}`;
+    return `${normalizedBase}/${key}`;
+  }
   return `https://${bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`;
 };
 
@@ -156,7 +160,7 @@ const submitVerification = async (req, res) => {
       return res.status(404).json({ success: false, message: 'User not found.' });
     }
 
-    if (user.verified) {
+    if (user.verificationStatus === 'approved') {
       return res.status(400).json({ success: false, message: 'Account is already verified.' });
     }
 
@@ -174,16 +178,51 @@ const submitVerification = async (req, res) => {
       });
     }
 
-    // ── AI face comparison with profile photo ────────────────────────────────
+    // ── AI face comparison with profile photo (STRICT) ────────────────────────
     // Get the user's first profile photo for comparison
     const profilePhotoUrl = Array.isArray(user.images) && user.images.length > 0
       ? [...user.images].sort((a, b) => (a.order ?? 0) - (b.order ?? 0))[0]?.url
       : null;
 
-    let faceMatch = null;
-    if (profilePhotoUrl) {
-      faceMatch = await compareFacesWithAI(req.file.buffer, profilePhotoUrl, req.file.mimetype);
-      console.log('[verification] Face comparison result:', faceMatch);
+    if (!profilePhotoUrl) {
+      return res.status(422).json({
+        success: false,
+        message: 'You must upload at least one profile photo before verifying your identity.',
+        code: 'NO_PROFILE_PHOTO',
+      });
+    }
+
+    const faceMatch = await compareFacesWithAI(req.file.buffer, profilePhotoUrl, req.file.mimetype);
+    console.log('[verification] Face comparison result:', faceMatch);
+
+    // STRICT: Reject immediately if faces don't match
+    if (!faceMatch.match) {
+      return res.status(422).json({
+        success: false,
+        message: faceMatch.confidence === 'low' && faceMatch.reason?.includes('unavailable')
+          ? 'Face comparison service is temporarily unavailable. Please try again shortly.'
+          : `Verification failed: The selfie does not match your profile photo. ${faceMatch.reason || 'Please ensure you are taking a clear selfie of yourself.'}`,
+        code: 'FACE_MISMATCH',
+        comparison: {
+          match:      faceMatch.match,
+          confidence: faceMatch.confidence,
+          reason:     faceMatch.reason,
+        },
+      });
+    }
+
+    // STRICT: Only accept high or medium confidence matches
+    if (faceMatch.confidence === 'low') {
+      return res.status(422).json({
+        success: false,
+        message: 'We could not confidently confirm your identity. Please retake the selfie in better lighting with your face clearly visible.',
+        code: 'LOW_CONFIDENCE',
+        comparison: {
+          match:      faceMatch.match,
+          confidence: faceMatch.confidence,
+          reason:     faceMatch.reason,
+        },
+      });
     }
 
     // ── Upload to S3 ─────────────────────────────────────────────────────────
@@ -197,37 +236,23 @@ const submitVerification = async (req, res) => {
 
     const selfieUrl = getPublicUrl(bucket, key);
 
-    // ── Determine approval status ────────────────────────────────────────────
-    // Auto-approve if:
-    //   1) VERIFY_AUTO_APPROVE env is true, OR
-    //   2) Face was detected AND face comparison matched with high/medium confidence
-    const autoApproveByComparison = faceMatch?.match === true
-      && (faceMatch.confidence === 'high' || faceMatch.confidence === 'medium');
-    const shouldAutoApprove = AUTO_APPROVE || autoApproveByComparison;
-
-    const newStatus = shouldAutoApprove ? 'approved' : 'pending';
+    // ── Auto-approve: face detected + face matched with high/medium confidence ─
     const updatePayload = {
-      verificationStatus:      newStatus,
+      verificationStatus:      'approved',
       verificationSelfieUrl:   selfieUrl,
       verificationSubmittedAt: new Date(),
     };
 
-    if (shouldAutoApprove) {
-      updatePayload.verified = true;
-    }
-
     await User.findByIdAndUpdate(userId, updatePayload);
-
-    const message = shouldAutoApprove
-      ? 'Verification approved. Your profile is now verified!'
-      : faceMatch && !faceMatch.match
-        ? 'Selfie submitted. We could not automatically confirm your identity — a manual review will follow shortly.'
-        : 'Selfie submitted successfully. We will review it shortly.';
 
     return res.status(200).json({
       success: true,
-      message,
-      status: newStatus,
+      message: 'Verification approved! Your profile is now verified.',
+      status: 'approved',
+      comparison: {
+        match:      faceMatch.match,
+        confidence: faceMatch.confidence,
+      },
     });
 
   } catch (err) {

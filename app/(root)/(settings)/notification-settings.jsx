@@ -1,21 +1,21 @@
 import { ArrowLeft, MessageCircle } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import {
-    ActivityIndicator,
-    Platform,
-    ScrollView,
-    StatusBar,
-    StyleSheet,
-    Switch,
-    Text,
-    View
+  ActivityIndicator,
+  Platform,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Switch,
+  Text,
+  View
 } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import GeneralHeader from "../../../components/headers/GeneralHeader";
 import { colors } from "../../../constant/colors";
-import { useAlert } from "../../../context/AlertContext";
 import { fonts } from "../../../constant/fonts";
-import profileService from "../../../services/profileService";
+import { useAlert } from "../../../context/AlertContext";
+import { profileService } from "../../../services/profileService";
 import SettingsService from "../../../services/settingsService";
 
 // ─── Config ───────────────────────────────────────────────────────────────────
@@ -120,7 +120,7 @@ const NotificationSettings = ({ onBack }) => {
     let mounted = true;
     (async () => {
       try {
-        const [notifRes, profileRes] = await Promise.all([
+        const [notifRes, profile] = await Promise.all([
           SettingsService.getNotificationSettings(),
           profileService.getMyProfile(),
         ]);
@@ -129,8 +129,8 @@ const NotificationSettings = ({ onBack }) => {
           if (notifRes?.data) {
             setSettings((prev) => ({ ...prev, ...notifRes.data }));
           }
-          if (profileRes?.data?.user) {
-            setWhatsappOptIn(Boolean(profileRes.data.user.whatsappOptIn));
+          if (profile) {
+            setWhatsappOptIn(Boolean(profile.whatsappOptIn));
           }
         }
       } catch {

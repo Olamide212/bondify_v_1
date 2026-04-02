@@ -56,7 +56,7 @@ export default function AuthLayout() {
   ]);
 
   return (
-    <SafeAreaView className={"flex-1 bg-white px-4"}>
+    <SafeAreaView className={"flex-1  px-4"} style={{backgroundColor: '#fff'}}>
       {!isOnboarding && <HeaderWithLogo showBackButton={!isLogin} />}
       <StatusBar style="dark" />
       <Stack screenOptions={{

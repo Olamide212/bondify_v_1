@@ -1,6 +1,8 @@
 import { X } from "lucide-react-native";
 import { Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { colors } from "../../constant/colors";
+import { SafeAreaView } from "react-native-safe-area-context";
+
 
 const PhotoGuidelinesModal = ({ visible, onClose }) => {
   const guidelines = [
@@ -53,7 +55,7 @@ const PhotoGuidelinesModal = ({ visible, onClose }) => {
       animationType="slide"
       onRequestClose={onClose}
     >
-      <View style={styles.container}>
+      <SafeAreaView style={styles.container}>
         <View style={styles.header}>
           <Text style={styles.title}>Photo Guidelines</Text>
           <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
@@ -83,7 +85,7 @@ const PhotoGuidelinesModal = ({ visible, onClose }) => {
             ))}
           </View>
 
-          <View style={styles.dosDonts}>
+          {/* <View style={styles.dosDonts}>
             <View style={styles.dosContainer}>
               <Text style={styles.dosTitle}>✅ DO</Text>
               <Text style={styles.dosText}>
@@ -95,7 +97,7 @@ const PhotoGuidelinesModal = ({ visible, onClose }) => {
             </View>
 
             <View style={styles.dontsContainer}>
-              <Text style={styles.dontsTitle}>❌ DON'T</Text>
+              <Text style={styles.dontsTitle}>❌ DON&apos;T</Text>
               <Text style={styles.dontsText}>
                 • Use old photos{"\n"}
                 • Over-edit or filter{"\n"}
@@ -103,7 +105,7 @@ const PhotoGuidelinesModal = ({ visible, onClose }) => {
                 • Use blurry images
               </Text>
             </View>
-          </View>
+          </View> */}
 
           <Text style={styles.footer}>
             Photos that violate our guidelines may be rejected. Respectful and authentic photos help everyone find better matches!
@@ -113,7 +115,7 @@ const PhotoGuidelinesModal = ({ visible, onClose }) => {
         <TouchableOpacity style={styles.button} onPress={onClose}>
           <Text style={styles.buttonText}>Got it!</Text>
         </TouchableOpacity>
-      </View>
+      </SafeAreaView>
     </Modal>
   );
 };
@@ -122,7 +124,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
-    paddingTop: 16,
   },
   header: {
     flexDirection: "row",

@@ -2,18 +2,18 @@ import { useRouter } from "expo-router";
 import { MessageCircle, X } from "lucide-react-native";
 import { useState } from "react";
 import {
-  FlatList,
-  Keyboard,
-  KeyboardAvoidingView,
-  Modal,
-  Platform,
-  ScrollView as RNScrollView,
-  SafeAreaView,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
-  View,
+    FlatList,
+    Keyboard,
+    KeyboardAvoidingView,
+    Modal,
+    Platform,
+    ScrollView as RNScrollView,
+    SafeAreaView,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    TouchableWithoutFeedback,
+    View,
 } from "react-native";
 import { SafeAreaView as SAV } from "react-native-safe-area-context";
 import Button from "../../../../components/ui/Button";
@@ -114,6 +114,7 @@ const ProfileAnswers = () => {
   const [activeCategory, setActiveCategory] = useState(PROMPT_CATEGORIES[0].id);
   const [selectedQuestion, setSelectedQuestion] = useState(null);
   const [answerText, setAnswerText] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   const { updateProfileStep } = useProfileSetup({ isOnboarding: true });
   const router = useRouter();
@@ -261,9 +262,15 @@ const ProfileAnswers = () => {
                 title="Continue"
                 variant="primary"
                 disabled={!canContinue}
+                loading={submitting}
                 onPress={async () => {
-                  await updateProfileStep({ questions: answers });
-                  router.push("/upload-photo");
+                  setSubmitting(true);
+                  try {
+                    await updateProfileStep({ questions: answers });
+                    router.push("/upload-photo");
+                  } finally {
+                    setSubmitting(false);
+                  }
                 }}
               />
             </View>

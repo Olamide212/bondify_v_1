@@ -1,10 +1,15 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
+import * as SecureStore from "expo-secure-store";
 import { useEffect, useRef } from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, TouchableOpacity, View } from "react-native";
 import Animated, {
     useAnimatedStyle,
     useSharedValue,
+    withDelay,
+    withRepeat,
+    withSequence,
+    withSpring,
     withTiming,
 } from "react-native-reanimated";
 import { useDispatch, useSelector } from "react-redux";
@@ -31,19 +36,31 @@ const SplashScreen = () => {
   const { pendingEmail } = useSelector((state) => state.auth);
 
   // ── Animations ──────────────────────────────────────────────────────────────
-  const iconScale     = useSharedValue(0.9);
-  const textOpacity   = useSharedValue(0);
-  const textTranslate = useSharedValue(20);
-  const taglineOpacity = useSharedValue(0);
+  const iconScale   = useSharedValue(0);
+  const iconOpacity = useSharedValue(0);
+  const iconGlow    = useSharedValue(1);
 
   useEffect(() => {
-    iconScale.value      = withTiming(0.6, { duration: 800 });
-    textOpacity.value    = withTiming(1,   { duration: 600 });
-    textTranslate.value  = withTiming(0,   { duration: 600 });
-    // Tagline fades in slightly after logo
-    setTimeout(() => {
-      taglineOpacity.value = withTiming(1, { duration: 700 });
-    }, 400);
+    // Step 1: Fade + spring-scale in from 0 → 1
+    iconOpacity.value = withTiming(1, { duration: 500 });
+    iconScale.value   = withSpring(1, {
+      damping:   8,
+      stiffness: 90,
+      mass:      0.8,
+    });
+
+    // Step 2: After entry, do a gentle pulse loop
+    iconGlow.value = withDelay(
+      700,
+      withRepeat(
+        withSequence(
+          withTiming(1.08, { duration: 900 }),
+          withTiming(1.00, { duration: 900 }),
+        ),
+        -1,   // infinite
+        true  // reverse
+      )
+    );
   }, []);
 
   // ── Navigation ──────────────────────────────────────────────────────────────
@@ -56,10 +73,15 @@ const SplashScreen = () => {
   useEffect(() => {
     const id = setTimeout(async () => {
       if (!hasNavigated.current) {
-        // Before forcing onboarding, check if there's a persisted token
-        const persistedToken = await tokenManager.getToken();
-        if (persistedToken) {
-          console.warn("[SplashScreen] Hard timeout — but token exists, going to /root-tabs");
+        const persistedToken          = await tokenManager.getToken();
+        const persistedOnboardingToken = await tokenManager.getOnboardingToken();
+
+        if (persistedOnboardingToken) {
+          const lastStep = await SecureStore.getItemAsync("onboardingStep");
+          console.warn("[SplashScreen] Hard timeout — onboarding incomplete, redirecting");
+          navigate(lastStep ? `/(onboarding)/${lastStep}` : "/(onboarding)/agreement");
+        } else if (persistedToken) {
+          console.warn("[SplashScreen] Hard timeout — token exists, going to /root-tabs");
           navigate("/root-tabs");
         } else {
           console.warn("[SplashScreen] Hard timeout — no token, forcing /onboarding");
@@ -79,19 +101,11 @@ const SplashScreen = () => {
 
   // ── Animated styles ─────────────────────────────────────────────────────────
   const iconStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: iconScale.value }],
+    opacity:   iconOpacity.value,
+    transform: [{ scale: iconScale.value * iconGlow.value }],
   }));
 
-  const textStyle = useAnimatedStyle(() => ({
-    opacity:   textOpacity.value,
-    transform: [{ translateX: textTranslate.value }],
-  }));
-
-  const taglineStyle = useAnimatedStyle(() => ({
-    opacity: taglineOpacity.value,
-  }));
-
-  // ── Emergency reset (7 taps) ─────────────────────────────────────────────
+  // ── Emergency reset (7 taps) ──���──────────────────────────────────────────
   const performEmergencyReset = async () => {
     if (resetInProgressRef.current) return;
     resetInProgressRef.current = true;
@@ -120,12 +134,12 @@ const SplashScreen = () => {
     if (tapCountRef.current >= 7) {
       tapCountRef.current = 0;
       showAlert({
-        icon: 'warning',
-        title: 'Emergency Reset',
-        message: 'This will clear local session/cache and return to onboarding.',
+        icon: "warning",
+        title: "Emergency Reset",
+        message: "This will clear local session/cache and return to onboarding.",
         actions: [
-          { label: 'Cancel', style: 'cancel' },
-          { label: 'Reset', style: 'destructive', onPress: performEmergencyReset },
+          { label: "Cancel",  style: "cancel" },
+          { label: "Reset",   style: "destructive", onPress: performEmergencyReset },
         ],
       });
     }
@@ -144,23 +158,7 @@ const SplashScreen = () => {
           style={[styles.icon, iconStyle]}
           resizeMode="contain"
         />
-        <Animated.Image
-          source={require("../../../assets/images/bondies-logo-white (1).png")}
-          style={[styles.wordmark, textStyle]}
-          resizeMode="contain"
-        />
       </TouchableOpacity>
-
-      {/* Tagline at bottom */}
-      {/* <Animated.View style={[styles.taglineWrap, taglineStyle]}>
-
-        <View style={styles.dotsRow}>
-          <View style={styles.dot} />
-          <View style={styles.dot} />
-          <View style={styles.dot} />
-        </View>
-        <Text style={styles.tagline}>Built by Africans, for Africans 🌍</Text>
-      </Animated.View> */}
     </View>
   );
 };
@@ -176,37 +174,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   icon: {
-    width:  100,
-    height: 100,
-  },
-  wordmark: {
-    width:     180,
-    height:    80,
-    marginTop: -20,
-  },
-  taglineWrap: {
-    position:  "absolute",
-    bottom:    48,
-    alignItems: "center",
-    gap:        10,
-  },
-  dotsRow: {
-    flexDirection: "row",
-    gap:           6,
-    marginBottom:  6,
-  },
-  dot: {
-    width:           4,
-    height:          4,
-    borderRadius:    2,
-    backgroundColor: "rgba(255,255,255,0.4)",
-  },
-  tagline: {
-    fontSize:      13,
-    fontFamily:    "PlusJakartaSansMedium",
-    color:         "rgba(255,255,255,0.85)",
-    letterSpacing: 0.5,
-    textAlign:     "center",
+    width:  130,
+    height: 130,
   },
 });
 

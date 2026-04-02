@@ -4,7 +4,8 @@ const s3 = require('../config/s3');
 
 const mapImagesWithAccessUrls = async (images = []) => {
   const bucket = process.env.AWS_S3_BUCKET;
-  const baseUrl = process.env.AWS_S3_PUBLIC_BASE_URL;
+  const baseUrl = process.env.AWS_CLOUDFRONT_DOMAIN ||
+    process.env.AWS_S3_PUBLIC_BASE_URL;
 
   if (!bucket) return images;
 
@@ -13,9 +14,12 @@ const mapImagesWithAccessUrls = async (images = []) => {
       if (!image?.publicId) return image;
 
       if (baseUrl) {
+        const normalizedBase = baseUrl.startsWith('http')
+          ? baseUrl.replace(/\/$/, '')
+          : `https://${baseUrl.replace(/\/$/, '')}`;
         return {
           ...image,
-          url: `${baseUrl.replace(/\/$/, '')}/${image.publicId}`,
+          url: `${normalizedBase}/${image.publicId}`,
         };
       }
 
@@ -48,12 +52,16 @@ const getImageUrl = async (publicId) => {
   if (!publicId) return null;
 
   const bucket = process.env.AWS_S3_BUCKET;
-  const baseUrl = process.env.AWS_S3_PUBLIC_BASE_URL;
+  const baseUrl = process.env.AWS_CLOUDFRONT_DOMAIN ||
+    process.env.AWS_S3_PUBLIC_BASE_URL;
 
   if (!bucket) return null;
 
   if (baseUrl) {
-    return `${baseUrl.replace(/\/$/, '')}/${publicId}`;
+    const normalizedBase = baseUrl.startsWith('http')
+      ? baseUrl.replace(/\/$/, '')
+      : `https://${baseUrl.replace(/\/$/, '')}`;
+    return `${normalizedBase}/${publicId}`;
   }
 
   try {
@@ -94,7 +102,7 @@ const uploadToS3 = async (file, folder = 'misc') => {
   const baseUrl = process.env.AWS_CLOUDFRONT_DOMAIN ||
     process.env.AWS_S3_PUBLIC_BASE_URL;
   const url = baseUrl
-    ? `${baseUrl.replace(/\/$/, '')}/${key}`
+    ? `${baseUrl.startsWith('http') ? baseUrl.replace(/\/$/, '') : `https://${baseUrl.replace(/\/$/, '')}`}/${key}`
     : `https://${bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`;
 
   return { url, publicId: key };

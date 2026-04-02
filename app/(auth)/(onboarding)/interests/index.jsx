@@ -1,16 +1,16 @@
-import React, { useState } from "react";
-import {
-  SafeAreaView,
-  Text,
-  View,
-  KeyboardAvoidingView,
-  Platform,
-  TouchableWithoutFeedback,
-  Keyboard,
-  TouchableOpacity,
-  ScrollView,
-} from "react-native";
 import { useRouter } from "expo-router";
+import { useState } from "react";
+import {
+    Keyboard,
+    KeyboardAvoidingView,
+    Platform,
+    SafeAreaView,
+    ScrollView,
+    Text,
+    TouchableOpacity,
+    TouchableWithoutFeedback,
+    View,
+} from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import Button from "../../../../components/ui/Button";
 import { useProfileSetup } from "../../../../hooks/useProfileSetup";
@@ -60,6 +60,7 @@ const INTEREST_CATEGORIES = [
 
 const Interests = () => {
   const [selectedInterests, setSelectedInterests] = useState([]);
+  const [submitting, setSubmitting] = useState(false);
   const router = useRouter();
   const { updateProfileStep } = useProfileSetup({ isOnboarding: true });
 
@@ -130,11 +131,16 @@ const Interests = () => {
                   title="Continue"
                   variant="primary"
                   onPress={async () => {
-                    await updateProfileStep({ interests: selectedInterests });
-                    router.push("/about");
+                    setSubmitting(true);
+                    try {
+                      await updateProfileStep({ interests: selectedInterests });
+                      router.push("/about");
+                    } finally {
+                      setSubmitting(false);
+                    }
                   }}
                   disabled={selectedInterests.length === 0}
-            
+                  loading={submitting}
                 />
               </View>
             </View>

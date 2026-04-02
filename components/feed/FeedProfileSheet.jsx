@@ -72,9 +72,8 @@ const FeedProfileSheet = ({ visible, user, onClose, onUpdate }) => {
   const handlePickPhoto = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      quality: 0.8,
-      allowsEditing: true,
-      aspect: [1, 1],
+      quality: 1,
+      allowsEditing: false,
     });
     if (result.canceled) return;
 

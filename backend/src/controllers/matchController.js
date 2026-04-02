@@ -668,14 +668,11 @@ const getUnmatchedUsers = async (req, res, next) => {
       .sort({ updatedAt: -1 })
       .lean();
 
-    const formatted = unmatches.map((match) => {
+    const formatted = await Promise.all(unmatches.map(async (match) => {
       const isUser1 = match.user1._id.toString() === userId.toString();
       const other   = isUser1 ? match.user2 : match.user1;
-      const images  = Array.isArray(other.images)
-        ? other.images
-            .map((img) => (typeof img === 'string' ? img : img?.url || img?.secure_url))
-            .filter(Boolean)
-        : [];
+      const signedImages = await mapImagesWithAccessUrls(other.images || []);
+      const profileImage = signedImages?.[0]?.url || signedImages?.[0] || null;
       return {
         matchId:      match._id,
         unmatchedAt:  match.updatedAt,
@@ -684,11 +681,11 @@ const getUnmatchedUsers = async (req, res, next) => {
         user: {
           _id:        other._id,
           name:       [other.firstName, other.lastName].filter(Boolean).join(' ') || other.name || 'User',
-          profileImage: images[0] || null,
+          profileImage,
           verified:   other.verified,
         },
       };
-    });
+    }));
 
     res.json({ success: true, data: formatted });
   } catch (error) { next(error); }

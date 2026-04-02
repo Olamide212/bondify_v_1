@@ -1,10 +1,10 @@
 import { useRouter } from "expo-router";
+import { Eye } from "lucide-react-native";
 import { useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Button from "../../../../components/ui/Button";
 import WheelPicker from "../../../../components/ui/WheelPicker";
 import { useProfileSetup } from "../../../../hooks/useProfileSetup";
-import { Eye } from "lucide-react-native";
 
 const PRIMARY = "#E8651A";
 
@@ -20,9 +20,10 @@ const Height = () => {
   const router = useRouter();
   const { updateProfileStep } = useProfileSetup({ isOnboarding: true });
 
-  const [unit,           setUnit]           = useState("cm");   // 'cm' | 'ft'
-  const [selectedHeight, setSelectedHeight] = useState(179);    // in cm always
+  const [unit,           setUnit]           = useState("cm");
+  const [selectedHeight, setSelectedHeight] = useState(179);
   const [showOnProfile,  setShowOnProfile]  = useState(true);
+  const [submitting,     setSubmitting]     = useState(false);
 
   // ── Picker items depend on unit ──────────────────────────────────────────
   const cmItems = Array.from({ length: 151 }, (_, i) => {
@@ -38,11 +39,16 @@ const Height = () => {
   const items = unit === "cm" ? cmItems : ftItems;
 
   const handleContinue = async () => {
-    await updateProfileStep({
-      height:          selectedHeight,
-      showHeightOnProfile: showOnProfile,
-    });
-    router.push("/gender");
+    setSubmitting(true);
+    try {
+      await updateProfileStep({
+        height:          selectedHeight,
+        showHeightOnProfile: showOnProfile,
+      });
+      router.push("/gender");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -127,6 +133,7 @@ const Height = () => {
           title="Next →"
           variant="primary"
           onPress={handleContinue}
+          loading={submitting}
         />
       </View>
     </View>

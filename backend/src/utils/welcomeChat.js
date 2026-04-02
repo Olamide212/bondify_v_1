@@ -21,8 +21,9 @@ const BOT_LASTNAME  = 'Team';
 
 // Use CloudFront CDN if available, otherwise fallback to direct S3
 const BOT_AVATAR_KEY = 'system/bondies-team-avatar.png';
-const BOT_AVATAR = process.env.AWS_CLOUDFRONT_DOMAIN
-  ? `${process.env.AWS_CLOUDFRONT_DOMAIN.replace(/\/$/, '')}/${BOT_AVATAR_KEY}`
+const cfDomain = process.env.AWS_CLOUDFRONT_DOMAIN;
+const BOT_AVATAR = cfDomain
+  ? `${cfDomain.startsWith('http') ? cfDomain.replace(/\/$/, '') : `https://${cfDomain.replace(/\/$/, '')}`}/${BOT_AVATAR_KEY}`
   : `https://bondify-assets.s3.amazonaws.com/${BOT_AVATAR_KEY}`;
 
 const WELCOME_MESSAGES = [

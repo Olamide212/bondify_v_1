@@ -18,6 +18,7 @@ import {
     View,
 } from "react-native";
 import { colors } from "../../constant/colors";
+import LoadingImage from '../ui/LoadingImage';
 
 const BRAND = colors.primary;
 const { width: SW } = Dimensions.get("window");
@@ -104,7 +105,7 @@ const FeedPostCard = ({
       {post.mediaUrls?.length > 0 && (
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: 8 }}>
           {post.mediaUrls.map((url, i) => (
-            <Image key={i} source={{ uri: url }} style={styles.mediaImg} cachePolicy="memory-disk" transition={200} />
+            <LoadingImage key={i} source={{ uri: url }} style={styles.mediaImg} containerStyle={styles.mediaImg} cachePolicy="memory-disk" transition={200} indicatorColor="#999" />
           ))}
         </ScrollView>
       )}

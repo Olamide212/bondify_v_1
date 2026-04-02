@@ -1,26 +1,26 @@
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
-  Keyboard,
-  KeyboardAvoidingView,
-  Platform,
-  SafeAreaView,
-  Text,
-  TouchableWithoutFeedback,
-  View
+    Keyboard,
+    KeyboardAvoidingView,
+    Platform,
+    SafeAreaView,
+    Text,
+    TouchableWithoutFeedback,
+    View
 } from "react-native";
 
 import { ScrollView } from "react-native-gesture-handler";
 import RadioSelect from "../../../../components/inputs/RadioSelect";
 import ActivityLoader from "../../../../components/ui/ActivityLoader";
 import Button from "../../../../components/ui/Button";
-import Info from "../../../../components/ui/Info";
 import { useLookupOptions } from "../../../../hooks/useLookupOptions";
 import { useProfileSetup } from "../../../../hooks/useProfileSetup";
 
 
 const Religion = () => {
   const [religion, setReligion] = useState("");
+  const [submitting, setSubmitting] = useState(false);
   const { options: religionOptions, loading } = useLookupOptions("religions");
 
   const router = useRouter();
@@ -62,14 +62,17 @@ const Religion = () => {
                 title="Continue"
                 variant="primary"
                 disabled={!religion}
+                loading={submitting}
                 onPress={async () => {
-                  await updateProfileStep({ religion });
-                  router.push("/religion-question");
+                  setSubmitting(true);
+                  try {
+                    await updateProfileStep({ religion });
+                    router.push("/religion-question");
+                  } finally {
+                    setSubmitting(false);
+                  }
                 }}
               />
-              <View className="w-full items-center mt-4">
-                <Info title="You can change this details later from your profile" />
-              </View>
             </View>
           </View>
         </TouchableWithoutFeedback>

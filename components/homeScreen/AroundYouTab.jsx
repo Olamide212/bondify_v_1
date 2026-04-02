@@ -2,10 +2,9 @@
  * AroundYouTab.jsx
  */
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import { Briefcase, Eye, Heart, Info, MapPin } from 'lucide-react-native';
+import { Briefcase, Eye, Globe, Heart, Info, MapPin, Users } from 'lucide-react-native';
 import { useEffect, useRef, useState } from 'react';
 import {
     Animated,
@@ -17,6 +16,7 @@ import {
 } from 'react-native';
 import { PanGestureHandler, PinchGestureHandler, State } from 'react-native-gesture-handler';
 import AIService from '../../services/aiService';
+import LoadingImage from '../ui/LoadingImage';
 import VerifiedIcon from '../ui/VerifiedIcon';
 
 const FALLBACK_IMAGE = 'https://via.placeholder.com/800x1200?text=No+Photo';
@@ -193,13 +193,16 @@ const AroundYouTab = ({ profile, onViewProfile, actionMessage }) => {
           enabled={panEnabled}
         >
           <Animated.View style={[styles.imageContainer, { opacity: fadeAnim, transform: [{ scale: scaleAnim }] }]}>
-            <Image
+            <LoadingImage
               source={{ uri: currentUri }}
               style={styles.image}
+              containerStyle={StyleSheet.absoluteFillObject}
               contentFit="cover"
               cachePolicy="memory-disk"
               transition={200}
               blurRadius={profile.blurPhotos ? 25 : 0}
+              indicatorColor="#fff"
+              indicatorSize="large"
             />
             <View style={styles.overlay} />
             <LinearGradient colors={['transparent', 'rgba(0,0,0,0.88)']} style={styles.bottomGradient} />
@@ -270,25 +273,28 @@ const AroundYouTab = ({ profile, onViewProfile, actionMessage }) => {
             ) : null}
 
 
-            {/* {nationalityText ? (
-              <View style={styles.nationalityRow}>
-                <Text style={styles.nationalityText}>{nationalityText}</Text>
-              </View>
-            ) : null}  */}
-
-            {/* {ethnicityText ? (
-              <View className='px-6 py-2 flex-row items-center justify-center gap-1 bg-black/40 rounded-full'>
-                  <MapPin size={16} color={'#fff'} />
-                <Text className='capitalize text-white font-PlusJakartaSansMedium'>{ethnicityText}</Text>
-              </View>
-            ) : null}  */}
-
-            <View className='flex-row items-center gap-2 mt-3'>
+            <View className='flex-row flex-wrap items-center gap-2 mt-3'>
               {/* Occupation */}
               {occupationText ? (
                 <View className='px-6 py-2 flex-row items-center justify-center gap-1 bg-black/40 rounded-full'>
                   <Briefcase size={16} color='#fff' />
                   <Text className='capitalize text-white font-PlusJakartaSansMedium'> {occupationText}</Text>
+                </View>
+              ) : null}
+
+              {/* Nationality */}
+              {nationalityText ? (
+                <View className='px-6 py-2 flex-row items-center justify-center gap-1 bg-black/40 rounded-full'>
+                  <Globe size={16} color='#fff' />
+                  <Text className='capitalize text-white font-PlusJakartaSansMedium'> {nationalityText}</Text>
+                </View>
+              ) : null}
+
+              {/* Ethnicity */}
+              {ethnicityText ? (
+                <View className='px-6 py-2 flex-row items-center justify-center gap-1 bg-black/40 rounded-full'>
+                  <Users size={16} color='#fff' />
+                  <Text className='capitalize text-white font-PlusJakartaSansMedium'> {ethnicityText}</Text>
                 </View>
               ) : null}
 

@@ -11,29 +11,29 @@
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { useRouter } from "expo-router";
 import {
-    Camera,
-    CheckCircle,
-    ChevronLeft,
-    RefreshCw,
-    ShieldCheck,
+  Camera,
+  CheckCircle,
+  ChevronLeft,
+  RefreshCw,
+  ShieldCheck,
 } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
 import {
-    ActivityIndicator,
-    Image,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import VerifiedIcon from "../../../../components/ui/VerifiedIcon";
 import { colors } from "../../../../constant/colors";
 import { useAlert } from "../../../../context/AlertContext";
 import { profileService } from "../../../../services/profileService"; // Add this import
 import apiClient from "../../../../utils/axiosInstance";
 import { tokenManager } from "../../../../utils/tokenManager";
-import VerifiedIcon from "../../../../components/ui/VerifiedIcon";
 
 const PRIMARY = colors.primary;
 
@@ -156,10 +156,24 @@ const CameraStep = ({ onCapture, showAlert }) => {
         }}
       />
 
-      {/* Oval face guide */}
-      <View style={cs.overlay}>
-        <View style={cs.oval} />
-        <Text style={cs.hint}>Position your face inside the oval</Text>
+      {/* Dark overlay with transparent oval cutout */}
+      <View style={cs.overlayWrap} pointerEvents="none">
+        {/* Top dark region */}
+        <View style={cs.overlayTop} />
+        {/* Middle row: left dark | oval hole | right dark */}
+        <View style={cs.overlayMiddle}>
+          <View style={cs.overlaySide} />
+          <View style={cs.ovalHole}>
+            <View style={cs.ovalBorder} />
+          </View>
+          <View style={cs.overlaySide} />
+        </View>
+        {/* Hint text row */}
+        <View style={cs.hintRow}>
+          <Text style={cs.hint}>Position your face inside the oval</Text>
+        </View>
+        {/* Bottom dark region */}
+        <View style={cs.overlayBottom} />
       </View>
 
       {/* Shutter */}
@@ -180,11 +194,20 @@ const CameraStep = ({ onCapture, showAlert }) => {
   );
 };
 
+const OVAL_WIDTH = 230;
+const OVAL_HEIGHT = 300;
+
 const cs = StyleSheet.create({
-  container:    { flex: 1, backgroundColor: "#000" },
-  overlay:      { ...StyleSheet.absoluteFillObject, alignItems: "center", justifyContent: "center" },
-  oval:         { width: 230, height: 300, borderRadius: 999, borderWidth: 2.5, borderColor: "rgba(255,255,255,0.75)", borderStyle: "dashed" },
-  hint:         { marginTop: 16, fontSize: 13, fontFamily: "PlusJakartaSansMedium", color: "rgba(255,255,255,0.85)" },
+  container:    { flex: 1, backgroundColor: "#000", padding: 0 },
+  overlayWrap:  { ...StyleSheet.absoluteFillObject },
+  overlayTop:   { flex: 1, backgroundColor: "rgba(0,0,0,0.6)" },
+  overlayMiddle:{ flexDirection: "row", height: OVAL_HEIGHT },
+  overlaySide:  { flex: 1, backgroundColor: "rgba(0,0,0,0.6)" },
+  ovalHole:     { width: OVAL_WIDTH, height: OVAL_HEIGHT, alignItems: "center", justifyContent: "center" },
+  ovalBorder:   { width: OVAL_WIDTH, height: OVAL_HEIGHT, borderRadius: OVAL_HEIGHT / 2, borderWidth: 2.5, borderColor: "rgba(255,255,255,0.75)", borderStyle: "dashed" },
+  hintRow:      { backgroundColor: "rgba(0,0,0,0.6)", alignItems: "center", paddingVertical: 12 },
+  hint:         { fontSize: 13, fontFamily: "PlusJakartaSansMedium", color: "rgba(255,255,255,0.85)" },
+  overlayBottom:{ flex: 1, backgroundColor: "rgba(0,0,0,0.6)" },
   shutterRow:   { position: "absolute", bottom: 48, width: "100%", alignItems: "center" },
   shutter:      { width: 72, height: 72, borderRadius: 99, backgroundColor: "#fff", alignItems: "center", justifyContent: "center", borderWidth: 4, borderColor: "rgba(255,255,255,0.4)" },
   shutterInner: { width: 54, height: 54, borderRadius: 99, backgroundColor: PRIMARY },
@@ -245,10 +268,10 @@ const DoneStep = ({ onContinue }) => (
     <View style={ds.iconWrap}>
       <CheckCircle size={52} color="#10B981" strokeWidth={1.5} />
     </View>
-    <Text style={ds.title}>Selfie Submitted! 🎉</Text>
+    <Text style={ds.title}>Verified! 🎉</Text>
     <Text style={ds.body}>
-      We&apos;re reviewing your photo now. You&apos;ll receive your verified badge shortly
-      — usually within a few minutes.
+      Your identity has been confirmed. You now have a verified badge on your profile
+      — matches can trust it&apos;s really you.
     </Text>
     <TouchableOpacity style={ds.btn} onPress={onContinue} activeOpacity={0.85}>
       <Text style={ds.btnText}>Continue →</Text>
@@ -325,24 +348,53 @@ export default function VerificationScreen() {
         type: "image/jpeg",
       });
 
-      await apiClient.post("/verification/verify", formData, {
+      const response = await apiClient.post("/verification/verify", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
       });
 
-      setStep(STEP.DONE);
+      // If backend approved, go to Done step
+      if (response.data?.status === 'approved') {
+        setStep(STEP.DONE);
+      } else {
+        // Shouldn't happen with strict mode, but handle gracefully
+        setStep(STEP.DONE);
+      }
     } catch (err) {
+      const code = err?.response?.data?.code;
       const message =
         err?.response?.data?.message ||
         err?.message ||
         "Could not submit your selfie. Please try again.";
-      showAlert({
-        icon: 'error',
-        title: 'Upload Failed',
-        message: message,
-      });
+
+      if (code === 'FACE_MISMATCH' || code === 'LOW_CONFIDENCE') {
+        // Face didn't match or low confidence — prompt retake
+        showAlert({
+          icon: 'error',
+          title: 'Verification Failed',
+          message: message,
+          actions: [
+            { label: 'Retake Selfie', style: 'primary', onPress: () => setStep(STEP.CAMERA) },
+          ],
+        });
+      } else if (code === 'NO_PROFILE_PHOTO') {
+        showAlert({
+          icon: 'error',
+          title: 'Profile Photo Required',
+          message: 'Please upload at least one profile photo before verifying.',
+          actions: [
+            { label: 'OK', style: 'primary', onPress: () => router.back() },
+          ],
+        });
+      } else {
+        showAlert({
+          icon: 'error',
+          title: 'Upload Failed',
+          message: message,
+        });
+      }
     } finally {
       setSubmitting(false);
     }
@@ -352,19 +404,9 @@ export default function VerificationScreen() {
     router.push("/(onboarding)/location-access");
   };
 
-  // Add this new handler for the DONE step
-  const handleDoneContinue = async () => {
-    try {
-      // Mark onboarding as complete after verification
-      await profileService.completeOnboarding();
-      
-      // Then navigate to location access
-      router.push("/(onboarding)/location-access");
-    } catch (error) {
-      console.error("Failed to complete onboarding:", error);
-      // Still navigate even if the call fails, to avoid blocking the user
-      router.push("/(onboarding)/location-access");
-    }
+  // Navigate to location-access (the final onboarding step that calls finalizeOnboarding)
+  const handleDoneContinue = () => {
+    router.push("/(onboarding)/location-access");
   };
 
   return (

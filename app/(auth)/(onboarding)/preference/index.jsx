@@ -14,7 +14,6 @@ import {
 import RadioSelect from "../../../../components/inputs/RadioSelect";
 import ActivityLoader from "../../../../components/ui/ActivityLoader";
 import Button from "../../../../components/ui/Button";
-import Info from "../../../../components/ui/Info";
 import { useLookupOptions } from "../../../../hooks/useLookupOptions";
 import { useProfileSetup } from "../../../../hooks/useProfileSetup";
 
@@ -22,6 +21,7 @@ import { useProfileSetup } from "../../../../hooks/useProfileSetup";
 
 const Preference = () => {
   const [preference, setPreference] = useState("");
+  const [submitting, setSubmitting] = useState(false);
   const { options: lookingForOptions, loading } = useLookupOptions("looking-for");
 
   const router = useRouter();
@@ -66,15 +66,17 @@ const Preference = () => {
                 title="Continue"
                 variant="primary"
                 disabled={!preference}
+                loading={submitting}
                 onPress={async () => {
-                  // Send the value directly — it matches the User model enum
-                  await updateProfileStep({ lookingFor: preference });
-                  router.push("/religion");
+                  setSubmitting(true);
+                  try {
+                    await updateProfileStep({ lookingFor: preference });
+                    router.push("/religion");
+                  } finally {
+                    setSubmitting(false);
+                  }
                 }}
               />
-              <View className="w-full items-center mt-4">
-  <Info title="You can change this details later from your profile" />
-              </View>
                    
             </View>
           </View>

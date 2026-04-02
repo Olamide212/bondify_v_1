@@ -164,14 +164,18 @@ export const restoreAuth = createAsyncThunk(
           const payload = response.data?.data ?? response.data;
           currentUser = payload?.user ?? payload ?? null;
 
-          // If user profile was fetched successfully, onboarding is complete.
-          // Clear any stale onboarding token that may have persisted due to
-          // a previous network failure during finalization.
+          // Only clear onboarding token if user has ACTUALLY completed onboarding.
+          // Previously this assumed any user with a profile = onboarding complete,
+          // which allowed users to bypass onboarding after app refresh.
           if (currentUser && onboardingToken) {
-            console.log("🧹 Clearing stale onboarding token — user profile exists");
-            await tokenManager.setToken({ onboardingToken: null });
-            await SecureStore.deleteItemAsync("onboardingStep");
-            onboardingToken = null;
+            if (currentUser.onboardingCompleted) {
+              console.log("🧹 Clearing stale onboarding token — onboarding is completed");
+              await tokenManager.setToken({ onboardingToken: null });
+              await SecureStore.deleteItemAsync("onboardingStep");
+              onboardingToken = null;
+            } else {
+              console.log("📋 User has onboarding token and onboarding NOT completed — preserving");
+            }
           }
         } catch (error) {
           if (isInvalidAuthError(error)) {

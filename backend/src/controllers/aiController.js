@@ -95,14 +95,14 @@ const getCompatibilityScore = async (req, res, next) => {
 
     const prompt = `You are a relationship compatibility analyst.
 
-Person A:
+You (the current user):
 - Interests: ${(me.interests || []).join(', ') || 'N/A'}
 - Personalities: ${(me.personalities || []).join(', ') || 'N/A'}
 - Looking for: ${me.lookingFor || 'N/A'}
 - Love language: ${me.loveLanguage || 'N/A'}
 - Communication style: ${me.communicationStyle || 'N/A'}
 
-Person B:
+${them.firstName}:
 - Interests: ${(them.interests || []).join(', ') || 'N/A'}
 - Personalities: ${(them.personalities || []).join(', ') || 'N/A'}
 - Looking for: ${them.lookingFor || 'N/A'}
@@ -112,7 +112,7 @@ Person B:
 Analyze compatibility and respond ONLY with a JSON object like:
 {
   "score": <number 0-100>,
-  "summary": "<2-3 sentence summary>",
+  "summary": "<2-3 sentence summary addressing the current user as 'You' and the other person by their name ${them.firstName}>",
   "strengths": ["<strength1>", "<strength2>"],
   "challenges": ["<challenge1>"]
 }`;
@@ -162,10 +162,9 @@ const getMatchSuggestion = async (req, res, next) => {
 
     if (!them) return res.status(404).json({ success: false, message: 'User not found' });
 
-    const prompt = `You are a dating app matchmaker AI. Analyze if these two people would be a good match and provide a suggestion.
+    const prompt = `You are a dating app matchmaker AI. Analyze if these two people would be a good match and provide a suggestion. Always refer to the current user as "You" (never by name) and the other person by their first name.
 
-Person A (Current User):
-- Name: ${me.firstName}
+You (Current User):
 - Age: ${me.age}
 - Interests: ${(me.interests || []).join(', ') || 'N/A'}
 - Personalities: ${(me.personalities || []).join(', ') || 'N/A'}
@@ -175,8 +174,7 @@ Person A (Current User):
 - Occupation: ${me.occupation || 'N/A'}
 - Location: ${me.location?.city || 'N/A'}
 
-Person B (Profile Viewed):
-- Name: ${them.firstName}
+${them.firstName} (Profile Viewed):
 - Age: ${them.age}
 - Interests: ${(them.interests || []).join(', ') || 'N/A'}
 - Personalities: ${(them.personalities || []).join(', ') || 'N/A'}
@@ -189,8 +187,8 @@ Person B (Profile Viewed):
 Based on compatibility analysis, respond with a JSON object containing:
 - isGoodMatch: boolean
 - confidence: number 1-10
-- reason: string (2-3 sentence explanation)
-- suggestion: string (personalized suggestion for the current user)
+- reason: string (2-3 sentence explanation, refer to the current user as "You" and the other person as "${them.firstName}", e.g. "You and ${them.firstName} both share...")
+- suggestion: string (personalized suggestion addressing the current user as "You")
 
 Only respond with valid JSON, no additional text.`;
 

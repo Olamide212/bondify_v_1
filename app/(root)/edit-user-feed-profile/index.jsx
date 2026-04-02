@@ -70,9 +70,8 @@ export default function EditFeedProfileScreen() {
   const handlePickPhoto = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      quality: 0.85,
-      allowsEditing: true,
-      aspect: [1, 1],
+      quality: 1,
+      allowsEditing: false,
     });
     if (result.canceled) return;
 

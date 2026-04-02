@@ -40,14 +40,15 @@ router.post('/friend-request/:requestId/decline', declineFriendRequest);
 router.get('/friends/:userId?', getFriends);
 router.get('/friend-status/:userId', getFriendStatus);
 router.get('/mutual-friends/:userId', getMutualFriends);
+
+// Social Profile (must be before /:id to avoid being caught by the param route)
+router.get('/social-profile', getSocialProfile);
+router.patch('/social-profile', updateSocialProfile);
+router.post('/social-profile/photo', upload.single('profilePhoto'), uploadSocialPhoto);
+
 router.get('/:id', getBondup);
 router.delete('/:id', deleteBondup);
 router.post('/join/:id', joinBondup);
 router.post('/leave/:id', leaveBondup);
-
-// Social Profile
-router.get('/social-profile', getSocialProfile);
-router.patch('/social-profile', updateSocialProfile);
-router.post('/social-profile/photo', upload.single('profilePhoto'), uploadSocialPhoto);
 
 module.exports = router;

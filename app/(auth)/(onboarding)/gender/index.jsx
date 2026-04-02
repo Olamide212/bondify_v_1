@@ -20,6 +20,7 @@ import { useProfileSetup } from "../../../../hooks/useProfileSetup";
 
 const Gender = () => {
   const [gender, setGender] = useState("");
+  const [submitting, setSubmitting] = useState(false);
   const { options: genderOptions, loading } = useLookupOptions("genders");
 
   const router = useRouter();
@@ -42,7 +43,7 @@ const Gender = () => {
           <View style={{flex: 1}} className="px-2">
             <View style={{flex: 1}} className="mt-8">
               <Text className="text-3xl font-PlusJakartaSansBold mb-2">
-                What’s Your Gender?
+                How do you identify yourself?
               </Text>
               <Text className="text-lg font-PlusJakartaSans">
                 Tell us about your gender
@@ -63,12 +64,17 @@ const Gender = () => {
                 title="Continue"
                 variant="primary"
                 disabled={!gender}
+                loading={submitting}
                 onPress={async () => {
-                  // Find the selected option's label
-                  const selected = genderOptions.find(opt => opt.value === gender);
-                  const genderLabel = selected ? selected.label : gender;
-                  await updateProfileStep({ gender: genderLabel });
-                  router.push("/marital-status");
+                  setSubmitting(true);
+                  try {
+                    const selected = genderOptions.find(opt => opt.value === gender);
+                    const genderLabel = selected ? selected.label : gender;
+                    await updateProfileStep({ gender: genderLabel });
+                    router.push("/marital-status");
+                  } finally {
+                    setSubmitting(false);
+                  }
                 }}
               />
             </View>

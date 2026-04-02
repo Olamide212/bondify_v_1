@@ -20,6 +20,7 @@ import { useProfileSetup } from "../../../../hooks/useProfileSetup";
 
 const Meet = () => {
   const [selectedOptions, setSelectedOptions] = useState([]);
+  const [submitting, setSubmitting] = useState(false);
   const { options: meetOptions, loading } = useLookupOptions("gender-preferences");
 
   const router = useRouter();
@@ -62,16 +63,21 @@ const Meet = () => {
                 title="Continue"
                 variant="primary"
                 disabled={selectedOptions.length === 0}
+                loading={submitting}
                 onPress={async () => {
-                  // Persist canonical values so matching logic aligns with profile genders
-                  const preferenceValues = selectedOptions.map((val) => {
-                    const opt = meetOptions.find((o) => o.value === val);
-                    return opt ? opt.value : val;
-                  });
-                  await updateProfileStep({
-                    discoveryPreferences: { genderPreference: preferenceValues },
-                  });
-                  router.push("/preference");
+                  setSubmitting(true);
+                  try {
+                    const preferenceValues = selectedOptions.map((val) => {
+                      const opt = meetOptions.find((o) => o.value === val);
+                      return opt ? opt.value : val;
+                    });
+                    await updateProfileStep({
+                      discoveryPreferences: { genderPreference: preferenceValues },
+                    });
+                    router.push("/preference");
+                  } finally {
+                    setSubmitting(false);
+                  }
                 }}
               />
             </View>

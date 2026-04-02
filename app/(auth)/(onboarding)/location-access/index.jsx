@@ -59,13 +59,40 @@ const LocationAccess = () => {
       }
 
       let location = null;
+
+      // 1) Try last known position first (instant, cached)
       try {
-        location = await Location.getCurrentPositionAsync({
-          accuracy: Location.Accuracy.Balanced,
-        });
-      } catch {
-        // Fallback — iOS simulators / weak GPS often fail getCurrentPositionAsync
         location = await Location.getLastKnownPositionAsync();
+      } catch {
+        // No cached position available
+      }
+
+      // 2) If no cached location, get a fresh fix with timeout
+      if (!location) {
+        try {
+          location = await Promise.race([
+            Location.getCurrentPositionAsync({
+              accuracy: Location.Accuracy.Balanced,
+            }),
+            new Promise((_, reject) =>
+              setTimeout(() => reject(new Error("timeout")), 15000)
+            ),
+          ]);
+        } catch {
+          // Balanced accuracy failed or timed out — try lowest accuracy
+          try {
+            location = await Promise.race([
+              Location.getCurrentPositionAsync({
+                accuracy: Location.Accuracy.Lowest,
+              }),
+              new Promise((_, reject) =>
+                setTimeout(() => reject(new Error("timeout")), 10000)
+              ),
+            ]);
+          } catch {
+            // All attempts failed
+          }
+        }
       }
 
       if (!location) {

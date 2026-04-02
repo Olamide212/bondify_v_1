@@ -1,12 +1,11 @@
-import { View, Text, StyleSheet } from "react-native";
-import React from "react";
-import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
+import { StyleSheet, Text, View } from "react-native";
+import LoadingImage from '../ui/LoadingImage';
 
 const ImageCard = ({ imageSource, fullName, age, occupation }) => {
   return (
     <View style={styles.card}>
-      <Image source={imageSource} style={styles.image} contentFit="cover" />
+      <LoadingImage source={imageSource} style={styles.image} containerStyle={{ width: '100%', height: '100%' }} contentFit="cover" indicatorColor="#fff" />
       <LinearGradient
         colors={["transparent", "rgba(0,0,0,0.8)"]}
         style={styles.overlay}

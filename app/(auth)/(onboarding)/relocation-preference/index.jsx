@@ -14,12 +14,12 @@ import { ScrollView } from "react-native-gesture-handler";
 import RadioSelect from "../../../../components/inputs/RadioSelect";
 import ActivityLoader from "../../../../components/ui/ActivityLoader";
 import Button from "../../../../components/ui/Button";
-import Info from "../../../../components/ui/Info";
 import { useLookupOptions } from "../../../../hooks/useLookupOptions";
 import { useProfileSetup } from "../../../../hooks/useProfileSetup";
 
 const RelocationPreference = () => {
   const [relocationPreference, setRelocationPreference] = useState("");
+  const [submitting, setSubmitting] = useState(false);
   const { options: relocationOptions, loading } = useLookupOptions("relocation-preference");
 
   const router = useRouter();
@@ -63,14 +63,17 @@ const RelocationPreference = () => {
                 title="Continue"
                 variant="primary"
                 disabled={!relocationPreference}
+                loading={submitting}
                 onPress={async () => {
-                  await updateProfileStep({ willRelocateForMarriage: relocationPreference });
-                  router.push("/kids");
+                  setSubmitting(true);
+                  try {
+                    await updateProfileStep({ willRelocateForMarriage: relocationPreference });
+                    router.push("/kids");
+                  } finally {
+                    setSubmitting(false);
+                  }
                 }}
               />
-                          <View className="w-full items-center mt-4">
-  <Info title="You can change this details later from your profile" />
-              </View>
             </View>
           </View>
         </TouchableWithoutFeedback>

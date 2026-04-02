@@ -45,7 +45,12 @@ const getVoicePromptObjectKey = (userId, originalname) => {
 const getPublicUrl = (bucket, key) => {
   const baseUrl = process.env.AWS_CLOUDFRONT_DOMAIN ||
     process.env.AWS_S3_PUBLIC_BASE_URL;
-  if (baseUrl) return `${baseUrl.replace(/\/$/, '')}/${key}`;
+  if (baseUrl) {
+    const normalizedBase = baseUrl.startsWith('http')
+      ? baseUrl.replace(/\/$/, '')
+      : `https://${baseUrl.replace(/\/$/, '')}`;
+    return `${normalizedBase}/${key}`;
+  }
   const region = process.env.AWS_REGION;
   return `https://${bucket}.s3.${region}.amazonaws.com/${key}`;
 };

@@ -1,25 +1,25 @@
-import React, { useState } from "react";
-import {
-  SafeAreaView,
-  Text,
-  View,
-  KeyboardAvoidingView,
-  Platform,
-  TouchableWithoutFeedback,
-  Keyboard,
-  ScrollView,
-  TouchableOpacity,
-    ActivityIndicator
-} from "react-native";
 import { useRouter } from "expo-router";
-import Button from "../../../../components/ui/Button";
-import { useProfileSetup } from "../../../../hooks/useProfileSetup";
-import { useLookupOptions } from "../../../../hooks/useLookupOptions";
+import { useState } from "react";
+import {
+    Keyboard,
+    KeyboardAvoidingView,
+    Platform,
+    SafeAreaView,
+    ScrollView,
+    Text,
+    TouchableOpacity,
+    TouchableWithoutFeedback,
+    View
+} from "react-native";
 import ActivityLoader from "../../../../components/ui/ActivityLoader";
+import Button from "../../../../components/ui/Button";
+import { useLookupOptions } from "../../../../hooks/useLookupOptions";
+import { useProfileSetup } from "../../../../hooks/useProfileSetup";
 
 const Occupation = () => {
   const router = useRouter();
   const [selectedOccupation, setSelectedOccupation] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
   const { updateProfileStep } = useProfileSetup({ isOnboarding: true });
   const { options: occupationOptions, loading } = useLookupOptions("occupations");
 
@@ -84,10 +84,16 @@ const Occupation = () => {
                 title="Continue"
                 variant="primary"
                 onPress={async () => {
-                  await updateProfileStep({ occupation: selectedOccupation });
-                  router.push("/smoke");
+                  setSubmitting(true);
+                  try {
+                    await updateProfileStep({ occupation: selectedOccupation });
+                    router.push("/smoke");
+                  } finally {
+                    setSubmitting(false);
+                  }
                 }}
                 disabled={!selectedOccupation}
+                loading={submitting}
               />
             </View>
           </View>

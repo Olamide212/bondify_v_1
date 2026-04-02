@@ -13,7 +13,6 @@ import {
 import RadioSelect from "../../../../components/inputs/RadioSelect";
 import ActivityLoader from "../../../../components/ui/ActivityLoader";
 import Button from "../../../../components/ui/Button";
-import Info from "../../../../components/ui/Info";
 import { useLookupOptions } from "../../../../hooks/useLookupOptions";
 import { useProfileSetup } from "../../../../hooks/useProfileSetup";
 
@@ -22,6 +21,7 @@ import { useProfileSetup } from "../../../../hooks/useProfileSetup";
 
 const Drink = () => {
   const [drinking, setDrinking] = useState("");
+  const [submitting, setSubmitting] = useState(false);
   const { options: drinkingOptions, loading } = useLookupOptions("drinking-habits");
 
   const router = useRouter();
@@ -63,14 +63,17 @@ const Drink = () => {
                 title="Continue"
                 variant="primary"
                 disabled={!drinking}
+                loading={submitting}
                 onPress={async () => {
-                  await updateProfileStep({ drinking });
-                  router.push("/interests");
+                  setSubmitting(true);
+                  try {
+                    await updateProfileStep({ drinking });
+                    router.push("/interests");
+                  } finally {
+                    setSubmitting(false);
+                  }
                 }}
               />
-                          <View className="w-full items-center mt-4">
-  <Info title="You can change this details later from your profile" />
-              </View>
             </View>
           </View>
         </TouchableWithoutFeedback>

@@ -144,6 +144,7 @@ const About = () => {
   const [promptWords, setPromptWords] = useState("");
   const [generatedBio, setGeneratedBio] = useState("");
   const [loading, setLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [editing, setEditing] = useState(false);
   const router = useRouter();
   const { showAlert } = useAlert();
@@ -201,6 +202,7 @@ const About = () => {
       });
       return;
     }
+    setSubmitting(true);
     try {
       await updateProfileStep({ bio });
       router.push("/profile-answers");
@@ -211,6 +213,8 @@ const About = () => {
         title: 'Error',
         message: 'Failed to save bio.',
       });
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -297,11 +301,11 @@ const About = () => {
                     value={generatedBio}
                     onChangeText={setGeneratedBio}
                     multiline
-                    numberOfLines={6}
+                    numberOfLines={10}
                     style={{
                       backgroundColor: "#f1f1f1",
                       color: "#000",
-                      height: 120,
+                      height: 150,
                       padding: 16,
                       borderRadius: 12,
                       textAlignVertical: "top",
@@ -360,6 +364,7 @@ const About = () => {
                 variant="primary"
                 onPress={handleContinue}
                 disabled={!generatedBio.trim()}
+                loading={submitting}
               />
             </View>
           </View>

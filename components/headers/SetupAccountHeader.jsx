@@ -1,9 +1,8 @@
-import { View, Text, Pressable } from "react-native";
-import React from "react";
 import { useRouter } from "expo-router";
 import { ArrowLeft } from "lucide-react-native";
+import { Pressable, Text, View } from "react-native";
 
-const AccountSetupHeader = ({ title, rightText, showBack = true }) => {
+const AccountSetupHeader = ({ title, rightText, showBack = true, onSkip }) => {
   const router = useRouter();
 
   return (
@@ -19,7 +18,11 @@ const AccountSetupHeader = ({ title, rightText, showBack = true }) => {
 
       <Text className="text-app font-PlusJakartaSansBold text-[20px]">{title}</Text>
 
-      {rightText ? (
+      {onSkip ? (
+        <Pressable onPress={onSkip} hitSlop={8}>
+          <Text className="text-gray-400 font-PlusJakartaSansMedium text-[15px]">Skip</Text>
+        </Pressable>
+      ) : rightText ? (
         <Text className="text-app font-PlusJakartaSansMedium">{rightText}</Text>
       ) : (
         <View style={{ width: 24 }} />

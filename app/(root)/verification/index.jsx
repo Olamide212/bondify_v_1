@@ -218,10 +218,10 @@ const DoneStep = ({ onBack }) => (
     <View style={ds.iconWrap}>
       <CheckCircle size={52} color="#10B981" strokeWidth={1.5} />
     </View>
-    <Text style={ds.title}>Selfie Submitted!</Text>
+    <Text style={ds.title}>Verified!</Text>
     <Text style={ds.body}>
-      We&apos;re reviewing your photo now. You&apos;ll be notified once your profile is
-      verified — usually within a few minutes.
+      Your identity has been confirmed. Your profile now shows a verified badge
+      — others can trust it&apos;s really you.
     </Text>
     <TouchableOpacity style={ds.btn} onPress={onBack} activeOpacity={0.85}>
       <Text style={ds.btnText}>Back to Profile</Text>
@@ -292,7 +292,7 @@ export default function VerificationScreen() {
       });
 
       // Correct endpoint: verificationRoutes mounted at /api/verification
-      await apiClient.post("/verification/verify", formData, {
+      const response = await apiClient.post("/verification/verify", formData, {
         headers: {
           // force multipart; our instance previously defaulted to application/json
           "Content-Type": "multipart/form-data",
@@ -300,18 +300,46 @@ export default function VerificationScreen() {
         },
       });
 
-      setStep(STEP.DONE);
+      // If backend approved, go to Done step
+      if (response.data?.status === 'approved') {
+        setStep(STEP.DONE);
+      } else {
+        setStep(STEP.DONE);
+      }
     } catch (err) {
+      const code = err?.response?.data?.code;
       const message =
         err?.response?.data?.message ||
         err?.message ||
         "Could not submit your selfie. Please try again.";
-      showAlert({
-        icon: 'error',
-        title: 'Upload Failed',
-        message,
-        actions: [{ label: 'OK', style: 'primary' }],
-      });
+
+      if (code === 'FACE_MISMATCH' || code === 'LOW_CONFIDENCE') {
+        // Face didn't match — prompt retake
+        showAlert({
+          icon: 'error',
+          title: 'Verification Failed',
+          message: message,
+          actions: [
+            { label: 'Retake Selfie', style: 'primary', onPress: () => setStep(STEP.CAMERA) },
+          ],
+        });
+      } else if (code === 'NO_PROFILE_PHOTO') {
+        showAlert({
+          icon: 'error',
+          title: 'Profile Photo Required',
+          message: 'Please upload at least one profile photo before verifying.',
+          actions: [
+            { label: 'Go Back', style: 'primary', onPress: () => router.back() },
+          ],
+        });
+      } else {
+        showAlert({
+          icon: 'error',
+          title: 'Upload Failed',
+          message,
+          actions: [{ label: 'OK', style: 'primary' }],
+        });
+      }
     } finally {
       setSubmitting(false);
     }

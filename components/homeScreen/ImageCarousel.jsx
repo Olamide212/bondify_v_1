@@ -1,7 +1,7 @@
 // components/ImageCarousel.jsx
-import { Image } from "expo-image";
 import { useState } from "react";
 import { Dimensions, FlatList, StyleSheet, View } from "react-native";
+import LoadingImage from '../ui/LoadingImage';
 
 const { width, height } = Dimensions.get("window");
 
@@ -25,12 +25,14 @@ export default function ImageCarousel({ images }) {
         onViewableItemsChanged={onViewableItemsChanged}
         viewabilityConfig={{ itemVisiblePercentThreshold: 50 }}
         renderItem={({ item }) => (
-          <Image
+          <LoadingImage
             source={{ uri: item }}
             style={styles.image}
+            containerStyle={styles.image}
             contentFit="cover"
             cachePolicy="memory-disk"
             transition={200}
+            indicatorColor="#fff"
           />
         )}
       />

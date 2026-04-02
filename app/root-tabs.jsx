@@ -335,7 +335,7 @@
 
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { useEffect, useState } from "react";
-import { Image, Platform, StyleSheet, Text, View } from "react-native";
+import { Image, Platform, StyleSheet, View } from "react-native";
 import { useSelector } from "react-redux";
 
 import IceBreakerModal from "../components/modals/IceBreakerModal";
@@ -345,9 +345,9 @@ import { images } from "../constant/images";
 import ChatScreen from "./(root)/(tab)/chats";
 import HomeScreen from "./(root)/(tab)/home";
 // import MapScreen from "./(root)/(tab)/map";
+import FeedScreen from "./(root)/(tab)/feed";
 import MatchesScreen from "./(root)/(tab)/matches";
 import ProfileScreen from "./(root)/(tab)/profile";
-import FeedScreen from "./(root)/(tab)/feed";
 
 const Tab = createBottomTabNavigator();
 
@@ -363,9 +363,7 @@ const TabIcon = ({ focused, customImage, badge }) => {
         ]}
       />
       {badge > 0 && (
-        <View style={styles.notificationBadge}>
-          <Text style={styles.badgeText}>{badge > 99 ? "99+" : badge}</Text>
-        </View>
+        <View style={styles.notificationDot} />
       )}
     </View>
   );
@@ -537,25 +535,16 @@ const styles = StyleSheet.create({
   inactiveIconImage: {
     tintColor: colors.inactiveTab,
   },
-  notificationBadge: {
+  notificationDot: {
     position: "absolute",
-    top: -5,
-    right: -8,
+    top: -2,
+    right: -4,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
     backgroundColor: "#EF4444",
-    borderRadius: 10,
-    minWidth: 20,
-    height: 20,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: 5,
-    borderWidth: 2,
+    borderWidth: 1.5,
     borderColor: "#fff",
-  },
-  badgeText: {
-    color: "#fff",
-    fontSize: 11,
-    fontWeight: "bold",
-    textAlign: "center",
   },
   centerButtonWrapper: {
     top: -20,

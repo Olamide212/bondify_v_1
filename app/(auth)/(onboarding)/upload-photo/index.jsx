@@ -1,7 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
-import { Lightbulb } from 'lucide-react-native';
 import { useState } from "react";
 import {
   Image,
@@ -45,7 +44,7 @@ const UploadPhoto = () => {
 
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
+      allowsEditing: false,
       quality: 1,
     });
 
@@ -100,19 +99,19 @@ const UploadPhoto = () => {
                 <Text className="text-3xl font-PlusJakartaSansBold  mb-2">
                   Add your best photos
                 </Text>
-                {/* <TouchableOpacity
+                <TouchableOpacity
                   onPress={() => setShowGuidelines(true)}
                   className="bg-primary/10 p-2 rounded-full"
                 >
                   <Ionicons name="information-circle" size={24} color={colors.primary} />
-                </TouchableOpacity> */}
+                </TouchableOpacity>
               </View>
-              <View className="flex-row items-center gap-2 mb-4 bg-primary/5 p-4 rounded-lg border border-primary/30 mt-2">
+              <View className="">
               <View>
             
-                <Lightbulb size={20} color={colors.primary} style={{ marginTop: 2 }} />
+                {/* <Lightbulb size={20} color={colors.primary} style={{ marginTop: 2 }} /> */}
               </View>
-                <Text className='text-black font-PlusJakartaSansMedium text-base' numberOfLines={2}>High-quality, clear photos help you get 3x better connections and higher engagement.</Text>
+                <Text className='text-black font-PlusJakartaSansMedium text-base' numberOfLines={5}>Choose photos where your face is clearly visible,also try to avoid blurred and poor quality images for your profile. High-quality, clear photos help you get 3x better connections and higher engagement.</Text>
               </View>
              
             </View>

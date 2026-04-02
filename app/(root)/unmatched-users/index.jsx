@@ -6,17 +6,17 @@
  * Accessible from the chat header's UserX (unmatch) icon.
  */
 
+import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import { ArrowLeft, RefreshCw, User } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import {
-    ActivityIndicator,
-    FlatList,
-    Image,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  FlatList,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useSelector } from "react-redux";
@@ -75,7 +75,13 @@ export default function UnmatchedUsersScreen() {
         onPress={() => handleOpenChat(item)}
       >
         {item.user?.profileImage ? (
-          <Image source={{ uri: item.user.profileImage }} style={styles.avatar} />
+          <Image
+            source={{ uri: item.user.profileImage }}
+            style={styles.avatar}
+            cachePolicy="memory-disk"
+            transition={200}
+            placeholder={require("../../../assets/images/user.png")}
+          />
         ) : (
           <View style={[styles.avatar, styles.avatarFallback]}>
             <User size={20} color="#94A3B8" />

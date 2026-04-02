@@ -1,11 +1,11 @@
-import { Image } from "expo-image";
 import { Plus, X } from "lucide-react-native";
 import { useMemo, useState } from "react";
 import {
-  ActivityIndicator, StyleSheet,
-  Text, TouchableOpacity, View,
+    ActivityIndicator, StyleSheet,
+    Text, TouchableOpacity, View,
 } from "react-native";
 import { colors } from "../../constant/colors";
+import LoadingImage from '../ui/LoadingImage';
 
 /**
  * Grid layout (6 slots total):
@@ -54,12 +54,14 @@ const Slot = ({
   const uri = item?.url || item;
   return (
     <View style={[s.slot, featured && s.slotFeatured, s.filledSlot, featured && s.slotFeaturedFilled]}>
-      <Image
+      <LoadingImage
         source={{ uri }}
         style={StyleSheet.absoluteFill}
+        containerStyle={StyleSheet.absoluteFill}
         contentFit="cover"
         cachePolicy="memory-disk"
         transition={200}
+        indicatorColor={colors.primary}
       />
       {featured && (
         <View style={s.mainBadge}>

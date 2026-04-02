@@ -112,9 +112,9 @@ const Age = () => {
           <Text style={styles.ageText}>{age} years old</Text>
         )}
 
-        <View style={{ marginTop: 12 }}>
-          <Info title="This can't be changed later" />
-        </View>
+        {/* <View style={{ marginTop: 12 }}>
+          <Info title="This can be changed later" />
+        </View> */}
       </View>
 
       {/* Footer: disclaimer + button */}
