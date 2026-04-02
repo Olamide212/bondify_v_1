@@ -18,6 +18,7 @@ import { PanGestureHandler, PinchGestureHandler, State } from 'react-native-gest
 import AIService from '../../services/aiService';
 import LoadingImage from '../ui/LoadingImage';
 import VerifiedIcon from '../ui/VerifiedIcon';
+import {colors} from '../../constant/colors'
 
 const FALLBACK_IMAGE = 'https://via.placeholder.com/800x1200?text=No+Photo';
 
@@ -265,7 +266,7 @@ const AroundYouTab = ({ profile, onViewProfile, actionMessage }) => {
             {/* Location — "641km away · Lagos" */}
             {(distanceText || cityLabel || locationText) ? (
               <View style={styles.locationRow} className=''>
-                <MapPin size={16} color={'#fff'}  />
+                <MapPin size={16} color={colors.secondary}  />
                 <Text style={styles.locationText} numberOfLines={1}>
                   {[distanceText, cityLabel || locationText].filter(Boolean).join('  ·  ')}
                 </Text>
@@ -277,7 +278,7 @@ const AroundYouTab = ({ profile, onViewProfile, actionMessage }) => {
               {/* Occupation */}
               {occupationText ? (
                 <View className='px-6 py-2 flex-row items-center justify-center gap-1 bg-black/40 rounded-full'>
-                  <Briefcase size={16} color='#fff' />
+                  <Briefcase size={16} color={colors.secondary} />
                   <Text className='capitalize text-white font-PlusJakartaSansMedium'> {occupationText}</Text>
                 </View>
               ) : null}
@@ -285,7 +286,7 @@ const AroundYouTab = ({ profile, onViewProfile, actionMessage }) => {
               {/* Nationality */}
               {nationalityText ? (
                 <View className='px-6 py-2 flex-row items-center justify-center gap-1 bg-black/40 rounded-full'>
-                  <Globe size={16} color='#fff' />
+                  <Globe size={16} color={colors.secondary} />
                   <Text className='capitalize text-white font-PlusJakartaSansMedium'> {nationalityText}</Text>
                 </View>
               ) : null}
@@ -293,7 +294,7 @@ const AroundYouTab = ({ profile, onViewProfile, actionMessage }) => {
               {/* Ethnicity */}
               {ethnicityText ? (
                 <View className='px-6 py-2 flex-row items-center justify-center gap-1 bg-black/40 rounded-full'>
-                  <Users size={16} color='#fff' />
+                  <Users size={16} color={colors.secondary} />
                   <Text className='capitalize text-white font-PlusJakartaSansMedium'> {ethnicityText}</Text>
                 </View>
               ) : null}
@@ -301,7 +302,7 @@ const AroundYouTab = ({ profile, onViewProfile, actionMessage }) => {
               {/* Religion */}
               {religionText ? (
                 <View className='px-6 py-2 flex-row items-center justify-center gap-1 bg-black/40 rounded-full'>
-                  <MaterialCommunityIcons name="hands-pray" size={20} color="#fff" />
+                  <MaterialCommunityIcons name="hands-pray" size={20} color={colors.secondary} />
                   <Text className='capitalize text-white font-PlusJakartaSansMedium'> {religionText}</Text>
                 </View>
               ) : null}

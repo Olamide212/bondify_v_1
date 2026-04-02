@@ -91,20 +91,20 @@ const PrivacyPolicy = () => {
   const router = useRouter();
 
   return (
-    <SafeAreaView style={[s.safe, { backgroundColor: colors.surface }]} edges={["top"]}>
-      <StatusBar barStyle={colors.statusBarStyle} backgroundColor={colors.surface} />
+    <SafeAreaView style={[s.safe, { backgroundColor: '#fff' }]} edges={["top"]}>
+      <StatusBar barStyle={colors.statusBarStyle} backgroundColor={'#fff'} />
 
      <GeneralHeader title="Privacy Policy" onBack={() => router.back()} leftIcon={<ArrowLeft />} />
 
       <ScrollView
-        style={{ backgroundColor: colors.background }}
-        contentContainerStyle={[s.body, { backgroundColor: colors.background }]}
+        style={{ backgroundColor: '#fff' }}
+        contentContainerStyle={[s.body, { backgroundColor: '#fff' }]}
         showsVerticalScrollIndicator={false}
       >
         {/* Icon */}
-        <View style={[s.iconBubble, { backgroundColor: colors.primary + 10 }]}>
+        {/* <View style={[s.iconBubble, { backgroundColor: colors.primary + 10 }]}>
           <ShieldCheck size={28} color={colors.primary} strokeWidth={1.8} />
-        </View>
+        </View> */}
 
         <Text style={[s.pageTitle, { color: colors.textPrimary }]}>Your Privacy Matters</Text>
         <Text style={[s.pageIntro, { color: colors.textSecondary }]}>

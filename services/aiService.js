@@ -199,6 +199,17 @@ const AIService = {
     return response.data;
   },
 
+  /**
+   * AI Find My Matches — uses AI to analyze the user's profile and rank
+   * the best compatible matches from the discovery pool.
+   *
+   * @returns {{ message: string, matches: MatchProfile[], total: number }}
+   */
+  findMyMatches: async () => {
+    const response = await apiClient.get('/ai/find-my-matches');
+    return response.data?.data ?? response.data;
+  },
+
 };
 
 export default AIService;

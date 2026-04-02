@@ -1,15 +1,8 @@
-import { ShieldCheck } from "lucide-react-native";
-import { colors } from "../../constant/colors";
-import { Image } from "react-native";
-import { Icons } from "../../constant/icons";
+import { MaterialIcons } from '@expo/vector-icons';
 
-const VerifiedIcon = ({ style }) => {
+const VerifiedIcon = () => {
   return (
-    <Image
-      source={Icons.verifiedIcon}
-      style={[{ width: 24, height: 24 }, style]}
-      resizeMode="contain"
-    />
+    <MaterialIcons name="verified" size={20} color={"#F6CE71"}  style={{ marginLeft: 4 }} />
   );
 };
 

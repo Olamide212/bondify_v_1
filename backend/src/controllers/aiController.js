@@ -1051,6 +1051,220 @@ Do not list names. Just a warm intro line. Reply with ONLY the message text.`;
 };
 
 // ─────────────────────────────────────────────
+//  AI FIND MY MATCHES
+// ─────────────────────────────────────────────
+const findMyMatches = async (req, res, next) => {
+  try {
+    if (!process.env.OPENAI_API_KEY) {
+      return res.status(503).json({ success: false, message: 'AI service not configured' });
+    }
+
+    const Like  = require('../models/Like');
+    const Match = require('../models/Match');
+    const { mapImagesWithAccessUrls } = require('../utils/imageHelper');
+
+    const userId = req.user._id;
+
+    // ── 1. Load current user's full profile ───────────────────────────────
+    const me = await User.findById(userId)
+      .select(
+        'firstName age gender interests personalities religion lookingFor ' +
+        'loveLanguage communicationStyle occupation ethnicity location ' +
+        'drinking smoking children relationshipType bio'
+      )
+      .lean();
+
+    if (!me) return res.status(404).json({ success: false, message: 'User not found.' });
+
+    // ── 2. Build exclusion list (already liked / matched / passed) ────────
+    const [likedUserIds, matchedUserIds] = await Promise.all([
+      Like.find({ user: userId }).distinct('likedUser'),
+      Match.find({
+        $or: [{ user1: userId }, { user2: userId }],
+      }).then((matches) =>
+        matches.map((m) =>
+          m.user1.toString() === userId.toString() ? m.user2 : m.user1
+        )
+      ),
+    ]);
+
+    const excludedIds = [
+      userId,
+      ...likedUserIds.map(String),
+      ...matchedUserIds.map(String),
+    ];
+
+    // ── 3. Fetch candidate pool from DB ───────────────────────────────────
+    const dbQuery = {
+      _id:                 { $nin: excludedIds },
+      isActive:            true,
+      isDeleted:           { $ne: true },
+      onboardingCompleted: true,
+    };
+
+    // Prefer people with matching gender preference
+    if (me.gender === 'Male') dbQuery.gender = { $in: ['Female', 'Non-binary'] };
+    else if (me.gender === 'Female') dbQuery.gender = { $in: ['Male', 'Non-binary'] };
+
+    // Optional geo filter — within 200 km if user has coordinates
+    if (
+      me.location?.coordinates &&
+      me.location.coordinates[0] !== 0 &&
+      me.location.coordinates[1] !== 0
+    ) {
+      const MAX_KM = 200;
+      dbQuery['location.coordinates'] = {
+        $geoWithin: {
+          $centerSphere: [me.location.coordinates, (MAX_KM * 1000) / 6378137],
+        },
+      };
+    }
+
+    const candidates = await User.find(dbQuery)
+      .select(
+        'firstName age gender interests personalities religion lookingFor ' +
+        'loveLanguage communicationStyle occupation ethnicity location ' +
+        'drinking smoking children images bio verified'
+      )
+      .limit(80)
+      .lean();
+
+    if (candidates.length === 0) {
+      return res.json({
+        success: true,
+        data: {
+          message: 'No new profiles found right now. Try again later!',
+          matches: [],
+          total: 0,
+        },
+      });
+    }
+
+    // ── 4. Pre-score by interest overlap to narrow down to top 20 ─────────
+    const myInterests = new Set((me.interests || []).map((i) => i.toLowerCase()));
+
+    const preScored = candidates.map((c) => {
+      const theirInterests = (c.interests || []).map((i) => i.toLowerCase());
+      const shared = theirInterests.filter((i) => myInterests.has(i)).length;
+
+      let bonus = 0;
+      if (me.religion && c.religion && me.religion === c.religion) bonus += 3;
+      if (me.lookingFor && c.lookingFor && me.lookingFor === c.lookingFor) bonus += 3;
+      if (me.loveLanguage && c.loveLanguage && me.loveLanguage === c.loveLanguage) bonus += 2;
+      if (me.communicationStyle && c.communicationStyle && me.communicationStyle === c.communicationStyle) bonus += 1;
+      if (me.drinking && c.drinking && me.drinking === c.drinking) bonus += 1;
+      if (me.smoking && c.smoking && me.smoking === c.smoking) bonus += 1;
+      if (c.verified) bonus += 2;
+
+      return { profile: c, score: shared * 2 + bonus };
+    });
+
+    preScored.sort((a, b) => b.score - a.score);
+    const top20 = preScored.slice(0, 20);
+
+    // ── 5. AI ranking — ask GPT to pick the best 10 from top 20 ──────────
+    const ai = getOpenAI();
+
+    const candidateSummaries = top20.map((c, idx) => {
+      const p = c.profile;
+      return `${idx + 1}. ${p.firstName}, ${p.age || '?'}, ${p.occupation || 'N/A'}, interests: [${(p.interests || []).slice(0, 5).join(', ')}], looking for: ${p.lookingFor || 'N/A'}, religion: ${p.religion || 'N/A'}, love language: ${p.loveLanguage || 'N/A'}, communication: ${p.communicationStyle || 'N/A'}, ethnicity: ${p.ethnicity || 'N/A'}, city: ${p.location?.city || 'N/A'}`;
+    }).join('\n');
+
+    const prompt = `You are a dating matchmaker AI for Bondies, a dating app. Analyze compatibility between the user and these candidates, then rank the best matches.
+
+USER PROFILE:
+- Age: ${me.age || 'N/A'}
+- Interests: ${(me.interests || []).join(', ') || 'N/A'}
+- Personalities: ${(me.personalities || []).join(', ') || 'N/A'}
+- Looking for: ${me.lookingFor || 'N/A'}
+- Love language: ${me.loveLanguage || 'N/A'}
+- Communication style: ${me.communicationStyle || 'N/A'}
+- Religion: ${me.religion || 'N/A'}
+- Occupation: ${me.occupation || 'N/A'}
+- City: ${me.location?.city || 'N/A'}
+- Bio: ${me.bio || 'N/A'}
+
+CANDIDATES:
+${candidateSummaries}
+
+Rank the top 10 best matches in order of compatibility. For each, give a short reason why they're a good match.
+
+Respond ONLY with a JSON array (no extra text):
+[
+  { "index": 1, "score": 92, "reason": "Short reason..." },
+  ...
+]
+
+"index" is the candidate number from the list above. "score" is 0-100 compatibility score.`;
+
+    let aiRanking = [];
+    try {
+      const response = await ai.chat.completions.create({
+        model: 'gpt-4o-mini',
+        messages: [{ role: 'user', content: prompt }],
+        max_tokens: 800,
+        temperature: 0.5,
+      });
+
+      const raw = response.choices[0].message.content.trim();
+      const clean = raw.replace(/```json|```/g, '').trim();
+      aiRanking = JSON.parse(clean);
+    } catch {
+      // Fallback: just use pre-scored order
+      aiRanking = top20.slice(0, 10).map((c, idx) => ({
+        index: idx + 1,
+        score: Math.max(60, 95 - idx * 3),
+        reason: 'Based on shared interests and lifestyle compatibility.',
+      }));
+    }
+
+    // ── 6. Build final response with hydrated images ──────────────────────
+    const rankedMatches = await Promise.all(
+      aiRanking.slice(0, 10).map(async (item) => {
+        const candidateEntry = top20[item.index - 1];
+        if (!candidateEntry) return null;
+        const p = candidateEntry.profile;
+
+        const hydratedImages = await mapImagesWithAccessUrls(p.images || []);
+
+        return {
+          _id:         String(p._id),
+          firstName:   p.firstName,
+          age:         p.age,
+          gender:      p.gender,
+          occupation:  p.occupation,
+          interests:   (p.interests || []).slice(0, 5),
+          lookingFor:  p.lookingFor,
+          religion:    p.religion,
+          ethnicity:   p.ethnicity,
+          city:        p.location?.city || null,
+          bio:         p.bio || null,
+          verified:    p.verified || false,
+          images:      hydratedImages,
+          aiScore:     item.score,
+          aiReason:    item.reason,
+        };
+      })
+    );
+
+    const validMatches = rankedMatches.filter(Boolean);
+
+    return res.json({
+      success: true,
+      data: {
+        message: validMatches.length > 0
+          ? `I found ${validMatches.length} great match${validMatches.length > 1 ? 'es' : ''} for you! 💫`
+          : 'No strong matches found right now. Check back soon!',
+        matches: validMatches,
+        total: validMatches.length,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// ─────────────────────────────────────────────
 //  EXPORTS
 // ─────────────────────────────────────────────
 module.exports = {
@@ -1071,4 +1285,5 @@ module.exports = {
   suggestPhotoComment,
   suggestPost,
   searchProfiles,
+  findMyMatches,
 };

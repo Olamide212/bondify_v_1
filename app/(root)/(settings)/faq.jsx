@@ -223,7 +223,7 @@ const FAQs = () => {
             onPress={() => Linking.openURL("mailto:support@bondies.online")}
             activeOpacity={0.85}
           >
-            <Mail size={18} color={colors.primary} strokeWidth={2} />
+            <Mail size={18} color={'#fff'} strokeWidth={2} />
             <Text style={styles.ctaButtonText}>Contact Support</Text>
           </TouchableOpacity>
         </View>
@@ -401,7 +401,7 @@ const styles = StyleSheet.create({
   ctaButtonText: {
     fontSize: 15,
     fontFamily: "PlusJakartaSansBold",
-    color: colors.primary,
+    color: '#fff',
   },
 });
 

@@ -34,11 +34,11 @@ const AccountSettings = () => {
       description: "Change your account password",
       onPress: () => router.push("/change-password"),
     },
-    {
-      title: "Get Premium",
-      description: "Unlock all premium features for the best experience.",
-      onPress: () => setPremiumModalVisible(true),
-    },
+    // {
+    //   title: "Get Premium",
+    //   description: "Unlock all premium features for the best experience.",
+    //   onPress: () => setPremiumModalVisible(true),
+    // },
     {
       title: "Invite friends",
       description: "Get access to 5 free sparks when you invite a friend",

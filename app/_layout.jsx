@@ -101,7 +101,7 @@ const [fontsLoaded] = useFonts({
   if (!fontsLoaded) return null;
 
   return (
-    <GestureHandlerRootView style={{ flex: 1, backgroundColor: '#fff' }} onLayout={onLayoutRootView}>
+    <GestureHandlerRootView style={{ flex: 1, backgroundColor: '#000' }} onLayout={onLayoutRootView}>
       <StatusBar barStyle="dark-content" />
       <Provider store={store}>
         <PersistGate loading={null} persistor={persistor}>

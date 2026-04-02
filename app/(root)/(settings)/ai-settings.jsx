@@ -298,7 +298,7 @@ const AISettings = ({ onBack }) => {
           </View>
 
           {/* PRIVACY & DATA */}
-          <SectionLabel>PRIVACY & DATA</SectionLabel>
+          <SectionLabel>Privacy & Data</SectionLabel>
           <View style={styles.card}>
             <ToggleRow
               icon={Shield}
@@ -320,7 +320,7 @@ const AISettings = ({ onBack }) => {
           </View>
 
           {/* NOTIFICATIONS */}
-          <SectionLabel>NOTIFICATIONS</SectionLabel>
+          <SectionLabel>Notifications</SectionLabel>
           <View style={styles.card}>
             <ToggleRow
               icon={Bell}
@@ -362,7 +362,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  scroll: { flex: 1, backgroundColor: colors.background },
+  scroll: { flex: 1, backgroundColor: '#fff' },
   scrollContent: {
     paddingHorizontal: 16,
     paddingTop: 24,
@@ -371,12 +371,11 @@ const styles = StyleSheet.create({
 
   // Section label
   sectionLabel: {
-    fontSize: 11,
+    fontSize: 20,
     fontFamily: fonts.PlusJakartaSansBold,
-    color: BRAND_PRIMARY,
-    letterSpacing: 0.8,
     marginBottom: 8,
     marginLeft: 4,
+    textTransform: 'capitalize'
   },
 
   // Card

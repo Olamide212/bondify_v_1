@@ -53,7 +53,7 @@ const TermsOfService = () => {
   const router = useRouter();
 
   return (
-    <SafeAreaView style={[s.safe, { backgroundColor: colors.surface }]} edges={["top", "bottom"]}>
+    <SafeAreaView style={[s.safe, { backgroundColor: '#fff' }]} edges={["top", "bottom"]}>
       <StatusBar barStyle={colors.statusBarStyle} backgroundColor={colors.surface} />
 
      <GeneralHeader title="Legal" onBack={() => router.back()} leftIcon={<ArrowLeft />} />

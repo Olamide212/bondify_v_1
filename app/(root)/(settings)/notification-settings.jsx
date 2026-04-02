@@ -374,11 +374,11 @@ const styles = StyleSheet.create({
 
   // Section label
   sectionLabel: {
-    fontSize: 18,
+    fontSize: 20,
     fontFamily: fonts.PlusJakartaSansBold,
-    letterSpacing: 0.8,
     marginBottom: 8,
     marginLeft: 4,
+    textTransform: 'capitalize'
   },
 
   // Card

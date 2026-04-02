@@ -56,7 +56,7 @@ const SettingsSection = ({ title, items }) => {
                   </Text>
                 )}
                 {RightIcon ? (
-                  <RightIcon size={20} color="#000" />
+                  <RightIcon size={20} color="red" />
                 ) : (
                   <Ionicons
                     name="chevron-forward"

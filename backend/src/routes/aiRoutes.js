@@ -18,6 +18,7 @@ const {
   suggestPhotoComment,
   suggestPost,
   searchProfiles,
+  findMyMatches,
 } = require('../controllers/aiController');
 const { protect } = require('../middleware/auth');
 
@@ -43,5 +44,9 @@ router.post('/suggest-post', suggestPost);
 // ── BonBot profile search ───────────────────────────────────────────────────
 // Natural-language query → GPT extracts filters → DB query → ranked profiles
 router.post('/search-profiles', searchProfiles);
+
+// ── AI Find My Matches ─────────────────────────────────────────────────────
+// Analyzes user profile + candidate pool → AI-ranked top matches
+router.get('/find-my-matches', findMyMatches);
 
 module.exports = router;

@@ -59,7 +59,7 @@ const ReportProblem = () => {
       <StatusBar barStyle={colors.statusBarStyle} backgroundColor={colors.surface} />
 
       {/* Header */}
-      <View style={[s.header, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>
+      <View style={[s.header, { backgroundColor: '#fff', borderBottomColor: colors.border }]}>
         <TouchableOpacity onPress={() => router.back()} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
           <ArrowLeft size={22} color={colors.textPrimary} strokeWidth={2} />
         </TouchableOpacity>
@@ -68,8 +68,8 @@ const ReportProblem = () => {
       </View>
 
       <ScrollView
-        style={{ backgroundColor: colors.background }}
-        contentContainerStyle={[s.body, { backgroundColor: colors.background }]}
+        style={{ backgroundColor: '#fff' }}
+        contentContainerStyle={[s.body, { backgroundColor: '#fff' }]}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >

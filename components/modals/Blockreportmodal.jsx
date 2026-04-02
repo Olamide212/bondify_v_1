@@ -14,16 +14,9 @@
  */
 
 import { AlertTriangle, Ban, ChevronRight, X } from "lucide-react-native";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
-  Animated,
-  Dimensions,
-  Easing,
-  KeyboardAvoidingView,
-  Modal,
-  Platform,
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -34,9 +27,7 @@ import {
 import { colors } from "../../constant/colors";
 import { useAlert } from "../../context/AlertContext";
 import { settingsService } from "../../services/settingsService";
-
-
-const { height: SH } = Dimensions.get("window");
+import BaseModal from "./BaseModal";
 
 // ─── Report reasons — mirrors backend REPORT_REASONS enum ───────────────────
 
@@ -60,9 +51,8 @@ const REPORT_REASONS = [
 
 const BlockReportModal = ({ visible, mode = "block", profile, onClose, onSuccess }) => {
   const { showAlert } = useAlert();
-  const slideY = useRef(new Animated.Value(SH)).current;
 
-  const [screen, setScreen]             = useState(mode); // start at the passed mode
+  const [screen, setScreen]             = useState(mode);
   const [selectedReason, setReason]     = useState(null);
   const [details, setDetails]           = useState("");
   const [loading, setLoading]           = useState(false);
@@ -77,40 +67,12 @@ const BlockReportModal = ({ visible, mode = "block", profile, onClose, onSuccess
       setReason(null);
       setDetails("");
       setLoading(false);
-      Animated.spring(slideY, {
-        toValue: 0,
-        useNativeDriver: true,
-        bounciness: 3,
-        speed: 14,
-      }).start();
-    } else {
-      Animated.timing(slideY, {
-        toValue: SH,
-        duration: 260,
-        easing: Easing.in(Easing.ease),
-        useNativeDriver: true,
-      }).start();
     }
   }, [visible, mode]);
 
-  const close = () => {
-    Animated.timing(slideY, {
-      toValue: SH,
-      duration: 240,
-      easing: Easing.in(Easing.ease),
-      useNativeDriver: true,
-    }).start(() => onClose());
-  };
+  const close = () => onClose();
 
-  // Called from success screen "Done" button — animate closed then fire onSuccess
-  const handleDone = (resultMode) => {
-    Animated.timing(slideY, {
-      toValue: SH,
-      duration: 240,
-      easing: Easing.in(Easing.ease),
-      useNativeDriver: true,
-    }).start(() => onSuccess?.(resultMode));
-  };
+  const handleDone = (resultMode) => onSuccess?.(resultMode);
 
   // ── Block ───────────────────────────────────────────────────────────────────
 
@@ -330,67 +292,31 @@ const BlockReportModal = ({ visible, mode = "block", profile, onClose, onSuccess
   };
 
   return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="none"
-      onRequestClose={close}
-    >
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={{ flex: 1 }}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 0}
+    <BaseModal visible={visible} onClose={close}>
+      {/* Close button */}
+      <View style={styles.sheetHeader}>
+        <TouchableOpacity style={styles.closeCircle} onPress={close} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+          <X size={16} color="#6B7280" strokeWidth={2.5} />
+        </TouchableOpacity>
+      </View>
+
+      <ScrollView
+        contentContainerStyle={styles.body}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
       >
-        <Pressable style={styles.backdrop} onPress={close} />
-
-        <Animated.View
-          style={[styles.sheet, { transform: [{ translateY: slideY }] }]}
-        >
-        {/* Handle + close */}
-        <View style={styles.sheetHeader}>
-          <View style={styles.handle} />
-          <TouchableOpacity style={styles.closeCircle} onPress={close} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-            <X size={16} color="#6B7280" strokeWidth={2.5} />
-          </TouchableOpacity>
-        </View>
-
-        <ScrollView
-          contentContainerStyle={styles.body}
-          showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
-        >
-          {renderContent()}
-        </ScrollView>
-        </Animated.View>
-      </KeyboardAvoidingView>
-    </Modal>
+        {renderContent()}
+      </ScrollView>
+    </BaseModal>
   );
 };
 
 const styles = StyleSheet.create({
-  backdrop: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.45)",
-  },
-  sheet: {
-    backgroundColor: "#fff",
-    borderTopLeftRadius: 28,
-    borderTopRightRadius: 28,
-    maxHeight: SH * 0.85,
-    overflow: "hidden",
-  },
   sheetHeader: {
-    paddingTop: 14,
+    paddingTop: 4,
     paddingHorizontal: 20,
     paddingBottom: 4,
-    alignItems: "center",
-  },
-  handle: {
-    width: 36,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: "#E5E7EB",
-    marginBottom: 12,
+    alignItems: "flex-end",
   },
   closeCircle: {
     position: "absolute",

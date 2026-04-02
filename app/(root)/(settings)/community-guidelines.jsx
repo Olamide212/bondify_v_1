@@ -56,13 +56,13 @@ const CommunityGuidelines = () => {
   const router = useRouter();
 
   return (
-    <SafeAreaView style={[s.safe, { backgroundColor: colors.surface }]} edges={["top"]}>
+    <SafeAreaView style={[s.safe, { backgroundColor: '#fff' }]} edges={["top"]}>
       <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
 
       <GeneralHeader title="Community Guidelines" leftIcon={<ArrowLeft />} />
 
       <ScrollView
-        style={{ flex: 1, backgroundColor: colors.background }}
+        style={{ flex: 1, backgroundColor: '#fff' }}
         contentContainerStyle={{ paddingBottom: 100 }}
         showsVerticalScrollIndicator={false}
       >
@@ -100,17 +100,17 @@ const CommunityGuidelines = () => {
       </ScrollView>
 
       {/* Sticky CTA */}
-      <View style={[s.footer, { backgroundColor: colors.background, borderTopColor: colors.border }]}>
+      <View style={[s.footer, { backgroundColor: '#fff', borderTopColor: colors.border }]}>
         {/* <TouchableOpacity style={s.agreeBtn} activeOpacity={0.88} onPress={() => router.back()}>
           <Text style={s.agreeBtnText}>I Understand & Agree</Text>
         </TouchableOpacity> */}
         <Text style={[s.footerNote, { color: colors.textTertiary }]}>
           By tapping agree you confirm you&apos;ve read our{" "}
-          <Text style={{ color: colors.primary }} onPress={() => router.push("/terms-of-services")}>
+          <Text className='font-PlusJakartaSansBold' style={{ color: colors.primary }} onPress={() => router.push("/terms-of-services")}>
             Terms of Service
           </Text>
           {" "}and{" "}
-          <Text style={{ color:  colors.primary }} onPress={() => router.push("/privacy-policy")}>
+          <Text className='font-PlusJakartaSansBold' style={{ color:  colors.primary }} onPress={() => router.push("/privacy-policy")}>
             Privacy Policy
           </Text>
           .

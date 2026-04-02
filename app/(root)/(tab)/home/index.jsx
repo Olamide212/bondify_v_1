@@ -27,24 +27,24 @@
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
-import { ArrowUpDown, Rocket, SlidersHorizontal } from "lucide-react-native";
+import { ArrowUpDown, Rocket, SlidersHorizontal, Sparkles } from "lucide-react-native";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
-  AppState,
-  Pressable,
-  RefreshControl,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View
+    AppState,
+    Pressable,
+    RefreshControl,
+    ScrollView,
+    StyleSheet,
+    Text,
+    View
 } from "react-native";
 import Animated, {
-  interpolate,
-  runOnJS,
-  useAnimatedStyle,
-  useSharedValue,
-  withSequence,
-  withTiming,
+    interpolate,
+    runOnJS,
+    useAnimatedStyle,
+    useSharedValue,
+    withSequence,
+    withTiming,
 } from "react-native-reanimated";
 import { useDispatch, useSelector } from "react-redux";
 import ActionButtons from "../../../../components/homeScreen/ActionButtons";
@@ -52,6 +52,7 @@ import ActionTipsOverlay from "../../../../components/homeScreen/ActionTipsOverl
 import AroundYou from "../../../../components/homeScreen/AroundYouTab";
 import EmptyDeckSlider from "../../../../components/homeScreen/EmptyDeckSlider";
 import AIAssistantModal from "../../../../components/modals/AIAssistantModal";
+import AIMatchResultsModal from "../../../../components/modals/AIMatchResultsModal";
 import BoostModal from "../../../../components/modals/BoostModal";
 import CardFeedbackModal from "../../../../components/modals/CardFeedbackModal";
 import ComplimentModal from "../../../../components/modals/ComplimentModal";
@@ -63,6 +64,7 @@ import LogoLoader from "../../../../components/ui/LogoLoader";
 import { NotificationBanner } from "../../../../components/ui/NotificationBanner";
 import { colors } from "../../../../constant/colors";
 import { useProfile } from "../../../../context/ProfileContext";
+import AIService from "../../../../services/aiService";
 import { profileService } from "../../../../services/profileService";
 import SettingsService from "../../../../services/settingsService";
 import { socketService } from "../../../../services/socketService";
@@ -181,6 +183,10 @@ const Home = () => {
   const [showComplimentModal,    setShowComplimentModal]    = useState(false);
   const [showBoostModal,         setShowBoostModal]         = useState(false);
   const [showSortModal,          setShowSortModal]          = useState(false);
+  const [showAIMatchModal,       setShowAIMatchModal]       = useState(false);
+  const [aiMatches,              setAiMatches]              = useState([]);
+  const [aiMatchMessage,         setAiMatchMessage]         = useState('');
+  const [aiMatchLoading,         setAiMatchLoading]         = useState(false);
   const [selectedProfileId,      setSelectedProfileId]      = useState(null);
   const [isRefreshing,           setIsRefreshing]           = useState(false);
   const [notifications,          setNotifications]          = useState([]);
@@ -317,6 +323,23 @@ const Home = () => {
 
   const handleBoostProfile = () => {
     setShowBoostModal(true);
+  };
+
+  const handleFindMyMatches = async () => {
+    setShowAIMatchModal(true);
+    setAiMatchLoading(true);
+    setAiMatches([]);
+    setAiMatchMessage('');
+    try {
+      const result = await AIService.findMyMatches();
+      setAiMatches(result.matches || []);
+      setAiMatchMessage(result.message || '');
+    } catch (_err) {
+      setAiMatchMessage('Something went wrong. Please try again.');
+      setAiMatches([]);
+    } finally {
+      setAiMatchLoading(false);
+    }
   };
 
   const handleConfirmBoost = async () => {
@@ -608,6 +631,12 @@ const Home = () => {
               </View>
             </Pressable> */}
 
+            <Pressable onPress={handleFindMyMatches}>
+              <View className="justify-center items-center rounded-full">
+                <Sparkles size={20} color={colors.primary} />
+              </View>
+            </Pressable>
+
             <Pressable onPress={() => setShowSortModal(true)}>
               <View className="justify-center items-center rounded-full">
                 <ArrowUpDown size={20} color={homeSort ? colors.primary : '#000'} />
@@ -762,6 +791,14 @@ const Home = () => {
         onApply={(sort) => {
           setHomeSort(sort);
         }}
+      />
+
+      <AIMatchResultsModal
+        visible={showAIMatchModal}
+        onClose={() => setShowAIMatchModal(false)}
+        matches={aiMatches}
+        loading={aiMatchLoading}
+        message={aiMatchMessage}
       />
     </View>
   );
