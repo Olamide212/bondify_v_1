@@ -338,7 +338,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  scroll: { flex: 1, backgroundColor: colors.background },
+  scroll: { flex: 1, backgroundColor: '#fff' },
   scrollContent: {
     paddingHorizontal: 16,
     paddingTop: 24,
@@ -374,9 +374,8 @@ const styles = StyleSheet.create({
 
   // Section label
   sectionLabel: {
-    fontSize: 11,
+    fontSize: 18,
     fontFamily: fonts.PlusJakartaSansBold,
-    color: colors.activePrimary,
     letterSpacing: 0.8,
     marginBottom: 8,
     marginLeft: 4,

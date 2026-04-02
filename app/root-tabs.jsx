@@ -530,7 +530,7 @@ const styles = StyleSheet.create({
     resizeMode: "contain",
   },
   activeIconImage: {
-    tintColor: '#000',
+    tintColor: '#2A343D',
   },
   inactiveIconImage: {
     tintColor: colors.inactiveTab,
