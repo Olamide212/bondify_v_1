@@ -68,9 +68,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     borderRadius: 50,
     marginBottom: 8,
-    backgroundColor: '#1E1E1E',
+    backgroundColor: colors.whiteLight,
     borderWidth: 1,
-    borderColor: '#374151',
+    borderColor: colors.whiteLight,
   },
   optionSelected: {
     backgroundColor: colors.primary,

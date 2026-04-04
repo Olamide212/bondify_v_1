@@ -330,7 +330,7 @@ export default function SocialProfileTab() {
               <Text style={s.menuDesc}>{description}</Text>
             </View>
    
-              <Icon size={20} color='#000' />
+              <Icon size={20} color='#fff' />
 
           </TouchableOpacity>
         ))}
@@ -396,7 +396,7 @@ const s = StyleSheet.create({
   displayName: {
     fontSize: 20,
     fontFamily: "OutfitBold",
-    color: '#E5E5E5',
+    color: colors.white,
     textTransform: "capitalize",
   },
   handle: {
@@ -451,7 +451,7 @@ const s = StyleSheet.create({
   },
   menuItemBorder: {
     borderBottomWidth: 1,
-    borderBottomColor: "#F3F4F6",
+    borderBottomColor: colors.whiteLight,
   },
   menuIconWrap: {
     width: 36,

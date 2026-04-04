@@ -5,17 +5,17 @@ import { useRouter } from "expo-router";
 import { Copy, Edit2, Mail, MessageCircle, RefreshCw, Search, X } from "lucide-react-native";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
-  ActivityIndicator,
-  KeyboardAvoidingView,
-  Linking,
-  Platform,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View
+    ActivityIndicator,
+    KeyboardAvoidingView,
+    Linking,
+    Platform,
+    ScrollView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useSelector } from "react-redux";
@@ -740,9 +740,9 @@ const ChatScreen = ({ matchedUser, onBack, initialSearchMode = false, searchTrig
             </View>
           )}
         </ScrollView>
-        </ChatBackground>
 
-        {/* ── Input / Contact bar / Rematch bar ── */}
+        {/* ── Input / Contact bar / Rematch bar (absolute over background) ── */}
+        <View style={styles.inputWrapper}>
         {(isUnmatched && !rematchAccepted) ? (
           // ── Rematch bottom bar ──
           isRematchReceiver ? (
@@ -871,6 +871,8 @@ const ChatScreen = ({ matchedUser, onBack, initialSearchMode = false, searchTrig
             onCancelEdit={() => setEditMessage(null)}
           />
         )}
+        </View>
+        </ChatBackground>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -884,8 +886,15 @@ const styles = StyleSheet.create({
   messagesContainer: {
     flex:            1,
   },
+  inputWrapper: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+  },
   messagesContent: {
     paddingVertical: 16,
+    paddingBottom: 90,
   },
   matchBanner: {
     alignItems:   "center",
@@ -973,12 +982,14 @@ const styles = StyleSheet.create({
   },
   contactBar: {
     backgroundColor: "#121212",
-    borderTopWidth:   1,
-    borderTopColor: colors.whiteLight,
+    borderWidth:   1,
+    borderColor: colors.whiteLight,
     paddingHorizontal: 20,
     paddingVertical:  14,
     paddingBottom:    20,
     gap:              10,
+    marginHorizontal: 10,
+    borderRadius: 20
   },
   contactBarLabel: {
     fontSize:   13,

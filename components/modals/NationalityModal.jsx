@@ -30,7 +30,7 @@ const filteredNationalities = useMemo(() => {
         <SafeAreaView style={styles.container}>
           <GeneralHeader
             title="Select Nationality"
-            leftIcon={<X onPress={onClose} />}
+            leftIcon={<X onPress={onClose} color={'#fff'} />}
           />
 
           <TextInput
@@ -82,16 +82,17 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     borderWidth: 1,
-    borderColor: '#444',
+    borderColor: colors.whiteLight,
     borderRadius: 8,
     margin: 15,
     padding: 15,
+    color: '#fff'
   },
   item: {
     padding: 15,
     borderBottomWidth: 1,
-    borderBottomColor: "#eee",
+    borderBottomColor: colors.whiteLight,
     fontFamily: "OutfitMedium",
   },
-  itemText: { fontSize: 16 },
+  itemText: { fontSize: 16, color: '#fff' },
 });

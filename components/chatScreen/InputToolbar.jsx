@@ -268,17 +268,16 @@
 
 
 // components/InputToolbar.js
-import { AntDesign } from '@expo/vector-icons';
 import { Audio } from "expo-av";
 import * as ImagePicker from "expo-image-picker";
-import { Edit2, Mic, Reply, Send, X, Sparkles} from "lucide-react-native";
+import { Edit2, Mic, Reply, Send, Sparkles, X } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
 import {
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { colors } from "../../constant/colors";
 import { socketService } from "../../services/socketService";
@@ -476,7 +475,7 @@ const InputToolbar = ({ sendMessage, onSendImage, onSendVoice, matchId, currentU
 
       {/* ── Centre: text input + mic ── */}
       <View
-        className="border border-gray-600 flex-1 flex-row items-center rounded-full mr-3"
+        className="border border-whiteLight flex-1 flex-row items-center rounded-full mr-3"
         style={{ paddingHorizontal: 5 }}
       >
         <TextInput
@@ -521,9 +520,9 @@ const styles = StyleSheet.create({
     paddingTop: 10,
     paddingBottom: 10,
     paddingHorizontal: 16,
-    backgroundColor: "#121212",
-    borderTopWidth: 1,
-    borderTopColor: "#F1F5F9",
+    backgroundColor: "transparent",
+    borderTopWidth: 0,
+    borderTopColor: colors.whiteLight,
   },
   leftActions: {
     flexDirection: "row",
@@ -546,16 +545,17 @@ const styles = StyleSheet.create({
     maxHeight: 100,
     fontSize: 16,
     marginRight: 8,
+    color: '#fff'
   },
   // Reply / Edit context banner
   contextBanner: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: '#1E1E1E',
+    backgroundColor: 'rgba(30,30,30,0.85)',
     paddingHorizontal: 16,
     paddingVertical: 10,
-    borderTopWidth: 1,
-    borderTopColor: "#E5E7EB",
+    borderTopWidth: 0,
+    borderTopColor: colors.whiteLight,
     gap: 6,
   },
   contextLabel: {

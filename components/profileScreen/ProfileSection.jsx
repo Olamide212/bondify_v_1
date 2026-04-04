@@ -62,7 +62,7 @@ const ProfileSection = memo(({ profile, isUploading }) => {
   return (
     <TouchableOpacity
       activeOpacity={0.95}
-      onPress={() => router.push("/edit-profile")}
+      onPress={() => router.push("/edit-profiles")}
       style={styles.card}
     >
       {/* ── Circular progress ring + photo ── */}
@@ -127,7 +127,7 @@ const ProfileSection = memo(({ profile, isUploading }) => {
           { value: stats.likes,        label: "LIKES"         },
           { value: stats.profileViews, label: "PROFILE VIEWS" },
         ].map(({ value, label }, i) => (
-          <View key={label} style={[styles.statChip, appStyles.boxContainer, i > 0 && styles.statChipBorder]}>
+          <View key={label} style={[styles.statChip, , i > 0 && styles.statChipBorder]}>
             {statsLoading
               ? <ActivityIndicator size="small" color={PRIMARY} />
               : <Text style={styles.statValue}>{value}</Text>
@@ -247,9 +247,12 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
     alignItems:      "center",
     justifyContent:  "center",
-    borderRadius:    16,
+    borderRadius:    10,
     minHeight:       64,
     marginTop:       15,
+    backgroundColor: colors.whiteLight,
+    borderWidth:      1,
+    borderColor:      colors.whiteLight,
   },
   statChipBorder: { marginLeft: 10 },
   statValue: {

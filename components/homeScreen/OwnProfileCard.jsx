@@ -11,22 +11,7 @@
  *   ✗ Follow button
  */
 
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { Image } from "expo-image";
-import {
-    Baby,
-    Briefcase,
-    Cigarette,
-    Dog,
-    Droplet,
-    Dumbbell,
-    GraduationCap,
-    Heart,
-    MapPin,
-    Ruler,
-    Wallet,
-    Wine,
-} from "lucide-react-native";
 import { useMemo, useState } from "react";
 import {
     Animated,
@@ -36,7 +21,7 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
-import { Icons } from "../../constant/icons";
+import { styles as themeStyles } from "../../constant/colors";
 import { usePersistentUriCache } from "../../hooks/usePersistentUriCache";
 import ProfileHeroSection from "./profileCard/ProfileHeroSection";
 import ProfileImageModal from "./profileCard/ProfileImageModal";
@@ -47,20 +32,9 @@ const FALLBACK_PROFILE_IMAGE =
   "https://via.placeholder.com/800x1200?text=No+Photo";
 
 // ─── Reusable chip ────────────────────────────────────────────────────────────
-const Chip = ({ label, isMutual }) => (
-  <View
-    className={`rounded-full px-4 py-2 mr-2 mb-2 flex-row items-center gap-1 ${
-      isMutual ? "bg-primary/10 border border-primary/30" : "bg-gray-800"
-    }`}
-  >
-    {isMutual && <Text style={{ fontSize: 11 }}>✨</Text>}
-    <Text
-      className={`font-OutfitMedium text-base ${
-        isMutual ? "text-primary" : "text-white"
-      }`}
-    >
-      {label}
-    </Text>
+const Chip = ({ label }) => (
+  <View className="rounded-full px-4 py-2 mr-2 mb-2 flex-row items-center gap-1 bg-transparent border border-white">
+    <Text className="font-OutfitMedium text-base text-white">{label}</Text>
   </View>
 );
 
@@ -139,10 +113,10 @@ const OwnProfileCard = ({ profile }) => {
 
 
                     {/* ── Tagline ── */}
-                    <View>
+                    <View style={{backgroundColor: '#121212'}}>
    {profile?.tagline && (
-                      <View className="bg-[#121212] -mt-20 pt-10 px-4 pb-3 rounded-t-2xl mb-2">
-                        <Text className="text-3xl  font-OutfitSemiBold">
+                      <View className=" -mt-20 pt-10 px-4 pb-3 rounded-t-2xl mb-2" style={themeStyles.boxContainer}>
+                        <Text className="text-3xl  font-OutfitSemiBold ">
                          {profile.tagline}
                         </Text>
                       </View>
@@ -152,27 +126,28 @@ const OwnProfileCard = ({ profile }) => {
 
           <View className="py-3">
 
-            {/* ── Looking For ── */}
+            {/* ══════════════════════════════════════════════════════
+                 LOOKING FOR
+               ══════════════════════════════════════════════════════ */}
             {profile.lookingFor && (
-              <View className="bg-[#121212] p-5 mb-2 mx-2 rounded-2xl border border-gray-600">
-                <Text className="text-[18px] font-OutfitSemiBold text-app mb-2">
-                  Looking for
+              <View className=" p-5 mb-2 mx-2 rounded-2xl " style={themeStyles.boxContainer}>
+                <Text className="text-[20px] font-OutfitSemiBold text-primary ml-2 mb-3">
+                  Looking For
                 </Text>
-                <View className="self-start bg-gray-800 px-5 py-2 rounded-full">
-                  <Text className="text-white text-[18px] font-Outfit">
-                    {profile.lookingFor}
-                  </Text>
+                <View className="bg-gray-800 rounded-full px-4 py-2 flex-row items-center gap-3 self-start">
+                  <Text>💘</Text>
+                  <Text className="text-white text-base font-OutfitMedium">{profile.lookingFor}</Text>
                 </View>
               </View>
             )}
 
             {/* ── Bio ── */}
             {profile.bio && (
-              <View className="bg-[#121212] p-5 mb-2 mx-2 rounded-2xl border border-gray-600">
-                <Text className="text-[18px] font-OutfitSemiBold text-app mb-3">
+              <View className=" p-5 mb-2 mx-2 rounded-2xl " style={themeStyles.boxContainer}>
+                <Text className="text-[18px] font-OutfitSemiBold text-primary mb-3">
                   Bio
                 </Text>
-                <Text className="text-app font-Outfit text-[16px]">
+                <Text className="text-white font-Outfit text-[16px]">
                   {displayedBio}
                 </Text>
                 {isBioLong && (
@@ -187,36 +162,12 @@ const OwnProfileCard = ({ profile }) => {
 
             {/* ── Question 1 ── */}
             {profile.questions?.[0] && (
-              <View className="bg-[#121212] p-5 mb-2 mx-2 rounded-2xl border border-gray-600">
-                <Text className="text-app font-Outfit text-base">
+              <View className=" p-5 mb-2 mx-2 rounded-2xl " style={themeStyles.boxContainer}>
+                <Text className="text-white font-Outfit text-base">
                   {profile.questions[0].question}
                 </Text>
-                <Text className="text-app font-OutfitBold text-2xl leading-relaxed capitalize">
+                <Text className="text-white font-OutfitBold text-2xl leading-relaxed capitalize">
                   {profile.questions[0].answer}
-                </Text>
-              </View>
-            )}
-
-            {/* ── Religion Practice ── */}
-            {profile.religionPractice && (
-              <View className="bg-[#121212] p-5 mb-2 mx-2 rounded-2xl border border-gray-600">
-                <Text className="text-app font-Outfit text-base">
-                  How religious are you?
-                </Text>
-                <Text className="text-app font-OutfitBold text-2xl leading-relaxed capitalize">
-                  {profile.religionPractice}
-                </Text>
-              </View>
-            )}
-
-            {/* ── Relocation Plan ── */}
-            {profile.willRelocateForMarriage && (
-              <View className="bg-[#121212] p-5 mb-2 mx-2 rounded-2xl border border-gray-600">
-                <Text className="text-app font-Outfit text-base">
-                  Would you relocate for marriage?
-                </Text>
-                <Text className="text-app font-OutfitBold text-2xl leading-relaxed capitalize">
-                  {profile.willRelocateForMarriage}
                 </Text>
               </View>
             )}
@@ -226,147 +177,236 @@ const OwnProfileCard = ({ profile }) => {
               <TouchableOpacity
                 onPress={() => openImageModal(1)}
                 activeOpacity={0.9}
-                style={styles.imagePreview}
+                style={localStyles.imagePreview}
               >
                 <Image
                   source={{ uri: profileImages[1] }}
-                  style={styles.previewImg}
+                  style={localStyles.previewImg}
                   contentFit="cover"
                 />
               </TouchableOpacity>
             )}
 
-            {/* ── Essentials ── */}
-            <View className="bg-[#121212] p-5 mb-2 mx-3 rounded-2xl border border-gray-600">
-              <Text className="text-[20px] font-OutfitSemiBold text-app ml-2 mb-4">
-                Essentials
-              </Text>
-              <View className="flex-row flex-wrap -mx-1.5">
-                {profile.distance && (
-                  <View className="w-1/2 px-1.5 mb-3">
-                    <View className="bg-gray-800 rounded-full px-4 py-2 flex-row items-center gap-3">
-                      <MapPin color="black" size={18} />
-                      <Text className="text-app text-base font-OutfitMedium">{profile.distance}</Text>
-                    </View>
-                  </View>
-                )}
-                {profile.occupation && (
-                  <View className="w-1/2 px-1.5 mb-3">
-                    <View className="bg-gray-800 rounded-full px-4 py-2 flex-row items-center gap-3">
-                      <Briefcase color="black" size={18} />
-                      <Text className="text-app text-base font-OutfitMedium">{profile.occupation}</Text>
-                    </View>
-                  </View>
-                )}
-                {profile.height && (
-                  <View className="w-1/2 px-1.5 mb-3">
-                    <View className="bg-gray-800 rounded-full px-4 py-2 flex-row items-center gap-3">
-                      <Ruler color="black" size={18} />
-                      <Text className="text-app text-base font-OutfitMedium">{profile.height}cm</Text>
-                    </View>
-                  </View>
-                )}
-                {profile.religion && (
-                  <View className="w-1/2 px-1.5 mb-3">
-                    <View className="bg-gray-800 rounded-full px-4 py-2 flex-row items-center gap-3">
-                      <MaterialCommunityIcons name="hands-pray" size={20} color="black" />
-                      <Text className="text-app text-base font-OutfitMedium">{profile.religion}</Text>
-                    </View>
-                  </View>
-                )}
-                {profile.drinking && (
-                  <View className="w-1/2 px-1.5 mb-3">
-                    <View className="bg-gray-800 rounded-full px-4 py-2 flex-row items-center gap-3">
-                      <Wine color="black" size={18} />
-                      <Text className="text-app text-base font-OutfitMedium">{profile.drinking}</Text>
-                    </View>
-                  </View>
-                )}
-                {profile.smoking && (
-                  <View className="w-1/2 px-1.5 mb-3">
-                    <View className="bg-gray-800 rounded-full px-4 py-2 flex-row items-center gap-3">
-                      <Cigarette color="black" size={18} />
-                      <Text className="text-base font-OutfitMedium">{profile.smoking}</Text>
-                    </View>
-                  </View>
-                )}
-                {profile.children && (
-                  <View className="w-1/2 px-1.5 mb-3">
-                    <View className="bg-gray-800 rounded-full px-4 py-2 flex-row items-center gap-3">
-                      <Baby color="black" size={18} />
-                      <Text className="text-app text-base font-OutfitMedium">{profile.children}</Text>
-                    </View>
-                  </View>
-                )}
-                {profile.pets && (
-                  <View className="w-1/2 px-1.5 mb-3">
-                    <View className="bg-gray-800 rounded-full px-4 py-2 flex-row items-center gap-3">
-                      <Dog color="black" size={18} />
-                      <Text className="text-app text-base font-OutfitMedium">{profile.pets}</Text>
-                    </View>
-                  </View>
-                )}
-                {profile.exercise && (
-                  <View className="w-1/2 px-1.5 mb-3">
-                    <View className="bg-gray-800 rounded-full px-4 py-2 flex-row items-center gap-3">
-                      <Dumbbell color="black" size={18} />
-                      <Text className="text-app text-base font-OutfitMedium">{profile.exercise}</Text>
-                    </View>
-                  </View>
-                )}
-              </View>
-            </View>
-
-            {/* ── Basics ── */}
-            <View className="bg-[#121212] p-5 mb-2 mx-3 rounded-2xl border border-gray-600">
-              <Text className="text-[20px] font-OutfitSemiBold text-app ml-2 mb-4">
+            {/* ══════════════════════════════════════════════════════
+                 BASICS
+                 (zodiac, height, religion, nationality, ethnicity, distance)
+               ══════════════════════════════════════════════════════ */}
+            <View className=" p-5 mb-2 mx-3 rounded-2xl " style={themeStyles.boxContainer}>
+              <Text className="text-[20px] font-OutfitSemiBold text-primary ml-2 mb-4">
                 Basics
               </Text>
               <View className="flex-row flex-wrap -mx-1.5">
                 {profile.zodiac && (
                   <View className="w-1/2 px-1.5 mb-3">
                     <View className="bg-gray-800 rounded-full px-4 py-2 flex-row items-center gap-3">
-                      <Image source={Icons.zodiacSign} />
-                      <Text className="text-app text-base font-OutfitMedium">{profile.zodiac}</Text>
+                      <Text>♉️</Text>
+                      <Text className="text-white text-base font-OutfitMedium">{profile.zodiac}</Text>
                     </View>
                   </View>
                 )}
-                {profile.loveStyle && (
+                {profile.height && (
                   <View className="w-1/2 px-1.5 mb-3">
                     <View className="bg-gray-800 rounded-full px-4 py-2 flex-row items-center gap-3">
-                      <Heart color="black" size={18} />
-                      <Text className="text-app text-base font-OutfitMedium">{profile.loveStyle}</Text>
+                      <Text>📏</Text>
+                      <Text className="text-white text-base font-OutfitMedium">{profile.height}cm</Text>
                     </View>
                   </View>
                 )}
-                {profile.communicationStyle && (
+                {profile.religion && (
                   <View className="w-1/2 px-1.5 mb-3">
                     <View className="bg-gray-800 rounded-full px-4 py-2 flex-row items-center gap-3">
-                      <Heart color="black" size={18} />
-                      <Text className="text-app text-base font-OutfitMedium">{profile.communicationStyle}</Text>
+                      <Text>🙏</Text>
+                      <Text className="text-white text-base font-OutfitMedium">{profile.religion}</Text>
                     </View>
                   </View>
                 )}
-                {profile.financialStyle && (
+                {profile.nationality && (
                   <View className="w-1/2 px-1.5 mb-3">
                     <View className="bg-gray-800 rounded-full px-4 py-2 flex-row items-center gap-3">
-                      <Wallet size={20} color="black" />
-                      <Text className="text-app text-base font-OutfitMedium">{profile.financialStyle}</Text>
+                      <Text>🌍</Text>
+                      <Text className="text-white text-base capitalize font-OutfitMedium">{profile.nationality}</Text>
+                    </View>
+                  </View>
+                )}
+                {profile.ethnicity && (
+                  <View className="w-1/2 px-1.5 mb-3">
+                    <View className="bg-gray-800 rounded-full px-4 py-2 flex-row items-center gap-3">
+                      <Text>👤</Text>
+                      <Text className="text-white text-base capitalize font-OutfitMedium">{profile.ethnicity}</Text>
+                    </View>
+                  </View>
+                )}
+                {profile.distance && (
+                  <View className="w-1/2 px-1.5 mb-3">
+                    <View className="bg-gray-800 rounded-full px-4 py-2 flex-row items-center gap-3">
+                      <Text>📍</Text>
+                      <Text className="text-white text-base font-OutfitMedium">{profile.distance}</Text>
                     </View>
                   </View>
                 )}
               </View>
             </View>
 
-            {/* ── Personalities ── */}
+            {/* ══════════════════════════════════════════════════════
+                 LIFESTYLE
+                 (drinking, smoking, exercise, pets, children)
+               ══════════════════════════════════════════════════════ */}
+            {(profile.drinking || profile.smoking || profile.exercise || profile.pets || profile.children) && (
+              <View className=" p-5 mb-2 mx-3 rounded-2xl " style={themeStyles.boxContainer}>
+                <Text className="text-[20px] font-OutfitSemiBold text-primary ml-2 mb-4">
+                  Lifestyle
+                </Text>
+                <View className="flex-row flex-wrap -mx-1.5">
+                  {profile.drinking && (
+                    <View className="w-1/2 px-1.5 mb-3">
+                      <View className="bg-gray-800 rounded-full px-4 py-2 flex-row items-center gap-3">
+                        <Text>🍷</Text>
+                        <Text className="text-white text-base font-OutfitMedium">{profile.drinking}</Text>
+                      </View>
+                    </View>
+                  )}
+                  {profile.smoking && (
+                    <View className="w-1/2 px-1.5 mb-3">
+                      <View className="bg-gray-800 rounded-full px-4 py-2 flex-row items-center gap-3">
+                        <Text>🚬</Text>
+                        <Text className="text-white text-base font-OutfitMedium">{profile.smoking}</Text>
+                      </View>
+                    </View>
+                  )}
+                  {profile.exercise && (
+                    <View className="w-1/2 px-1.5 mb-3">
+                      <View className="bg-gray-800 rounded-full px-4 py-2 flex-row items-center gap-3">
+                        <Text>🏋️‍♂️</Text>
+                        <Text className="text-white text-base font-OutfitMedium">{profile.exercise}</Text>
+                      </View>
+                    </View>
+                  )}
+                  {profile.pets && (
+                    <View className="w-1/2 px-1.5 mb-3">
+                      <View className="bg-gray-800 rounded-full px-4 py-2 flex-row items-center gap-3">
+                        <Text>🐶</Text>
+                        <Text className="text-white text-base font-OutfitMedium">{profile.pets}</Text>
+                      </View>
+                    </View>
+                  )}
+                  {profile.children && (
+                    <View className="w-1/2 px-1.5 mb-3">
+                      <View className="bg-gray-800 rounded-full px-4 py-2 flex-row items-center gap-3">
+                        <Text>👶</Text>
+                        <Text className="text-white text-base font-OutfitMedium">{profile.children}</Text>
+                      </View>
+                    </View>
+                  )}
+                </View>
+              </View>
+            )}
+
+            {/* ══════════════════════════════════════════════════════
+                 RELATIONSHIP
+               ══════════════════════════════════════════════════════ */}
+            {profile.relationshipType && (
+              <View className=" p-5 mb-2 mx-3 rounded-2xl " style={themeStyles.boxContainer}>
+                <Text className="text-[20px] font-OutfitSemiBold text-primary ml-2 mb-3">
+                  Relationship
+                </Text>
+                <View className="bg-gray-800 rounded-full px-4 py-2 flex-row items-center gap-3 self-start">
+                  <Text>💍</Text>
+                  <Text className="text-white text-base font-OutfitMedium">{profile.relationshipType}</Text>
+                </View>
+              </View>
+            )}
+
+            {/* ══════════════════════════════════════════════════════
+                 RELIGION PRACTICE
+               ══════════════════════════════════════════════════════ */}
+            {profile.religionPractice && (
+              <View className=" p-5 mb-2 mx-3 rounded-2xl " style={themeStyles.boxContainer}>
+                <Text className="text-white font-Outfit text-base ml-2 mb-1">
+                  {profile.firstName || profile.name} says...
+                </Text>
+                <Text className="text-white font-OutfitBold text-2xl leading-relaxed capitalize ml-2">
+                  I'm {profile.religionPractice} religious
+                </Text>
+              </View>
+            )}
+
+            {/* ══════════════════════════════════════════════════════
+                 RELOCATE FOR MARRIAGE
+               ══════════════════════════════════════════════════════ */}
+            {profile.willRelocateForMarriage && (
+              <View className=" p-5 mb-2 mx-3 rounded-2xl " style={themeStyles.boxContainer}>
+                <Text className="text-white font-Outfit text-base ml-2 mb-1">
+                  {profile.firstName || profile.name} says...
+                </Text>
+                <Text className="text-white font-OutfitBold text-2xl leading-relaxed capitalize ml-2">
+                  {profile.willRelocateForMarriage} to relocating for marriage
+                </Text>
+              </View>
+            )}
+
+            {/* ══════════════════════════════════════════════════════
+                 SAME BELIEFS
+               ══════════════════════════════════════════════════════ */}
+            {profile.religionImportance && (
+              <View className=" p-5 mb-2 mx-3 rounded-2xl " style={themeStyles.boxContainer}>
+                <Text className="text-white font-Outfit text-base ml-2 mb-1">
+                  {profile.firstName || profile.name} says...
+                </Text>
+                <Text className="text-white font-OutfitBold text-2xl leading-relaxed capitalize ml-2">
+                  Same beliefs are {profile.religionImportance} to me
+                </Text>
+              </View>
+            )}
+
+            {/* ══════════════════════════════════════════════════════
+                 PERSONALITY
+                 (love language, communication style, financial style)
+               ══════════════════════════════════════════════════════ */}
+            {(profile.loveStyle || profile.communicationStyle || profile.financialStyle) && (
+              <View className=" p-5 mb-2 mx-3 rounded-2xl " style={themeStyles.boxContainer}>
+                <Text className="text-[20px] font-OutfitSemiBold text-primary ml-2 mb-4">
+                  Personality
+                </Text>
+                <View className="flex-row flex-wrap -mx-1.5">
+                  {profile.loveStyle && (
+                    <View className="w-1/2 px-1.5 mb-3">
+                      <View className="bg-gray-800 rounded-full px-4 py-2 flex-row items-center gap-3">
+                        <Text>❤️</Text>
+                        <Text className="text-white text-base font-OutfitMedium">{profile.loveStyle}</Text>
+                      </View>
+                    </View>
+                  )}
+                  {profile.communicationStyle && (
+                    <View className="w-1/2 px-1.5 mb-3">
+                      <View className="bg-gray-800 rounded-full px-4 py-2 flex-row items-center gap-3">
+                        <Text>💬</Text>
+                        <Text className="text-white text-base font-OutfitMedium">{profile.communicationStyle}</Text>
+                      </View>
+                    </View>
+                  )}
+                  {profile.financialStyle && (
+                    <View className="w-1/2 px-1.5 mb-3">
+                      <View className="bg-gray-800 rounded-full px-4 py-2 flex-row items-center gap-3">
+                        <Text>💰</Text>
+                        <Text className="text-white text-base font-OutfitMedium">{profile.financialStyle}</Text>
+                      </View>
+                    </View>
+                  )}
+                </View>
+              </View>
+            )}
+
+            {/* ══════════════════════════════════════════════════════
+                 PERSONALITIES (traits)
+               ══════════════════════════════════════════════════════ */}
             {profile.personalities?.length > 0 && (
-              <View className="bg-[#121212] p-6 mb-2">
-                <Text className="text-[20px] font-OutfitSemiBold text-app mb-3">
+              <View className=" p-6 mb-2" style={themeStyles.boxContainer}>
+                <Text className="text-[20px] font-OutfitSemiBold text-primary mb-3">
                   Personalities
                 </Text>
                 <View className="flex-row flex-wrap">
                   {profile.personalities.map((p, i) => (
-                    <Chip key={i} label={p} isMutual={false} />
+                    <Chip key={i} label={p} />
                   ))}
                 </View>
               </View>
@@ -377,81 +417,85 @@ const OwnProfileCard = ({ profile }) => {
               <TouchableOpacity
                 onPress={() => openImageModal(2)}
                 activeOpacity={0.9}
-                style={styles.imagePreview}
+                style={localStyles.imagePreview}
               >
                 <Image
                   source={{ uri: profileImages[2] }}
-                  style={styles.previewImg}
+                  style={localStyles.previewImg}
                   contentFit="cover"
                 />
               </TouchableOpacity>
             )}
 
-            {/* ── Education ── */}
-            {profile.school && (
-              <View className="bg-[#121212] mb-2 p-5 mx-3 rounded-2xl border border-gray-600">
-                <Text className="text-[20px] font-OutfitSemiBold text-app mb-3">
-                  School and education
+            {/* ══════════════════════════════════════════════════════
+                 EDUCATION & CAREER
+               ══════════════════════════════════════════════════════ */}
+            {(profile.school || profile.education || profile.occupation) && (
+              <View className=" p-5 mb-2 mx-3 rounded-2xl " style={themeStyles.boxContainer}>
+                <Text className="text-[20px] font-OutfitSemiBold text-primary mb-3">
+                  Education & Career
                 </Text>
                 <View style={{flex: 1}} className="flex-row flex-wrap gap-2">
-                  <View className="bg-gray-800 flex-row items-center gap-2 px-4 py-2 rounded-full">
-                    <GraduationCap color="black" size={18} />
-                    <Text className="text-app text-base font-OutfitMedium">{profile.school}</Text>
-                  </View>
+                  {profile.school && (
+                    <View className="bg-gray-800 flex-row items-center gap-2 px-4 py-2 rounded-full">
+                      <Text>🏫</Text>
+                      <Text className="text-white text-base font-OutfitMedium">{profile.school}</Text>
+                    </View>
+                  )}
                   {profile.education && (
                     <View className="bg-gray-800 flex-row items-center gap-2 px-4 py-2 rounded-full">
-                      <GraduationCap color="black" size={18} />
-                      <Text className="text-app text-base font-OutfitMedium">{profile.education}</Text>
+                      <Text>🎓</Text>
+                      <Text className="text-white text-base font-OutfitMedium">{profile.education}</Text>
+                    </View>
+                  )}
+                  {profile.occupation && (
+                    <View className="bg-gray-800 flex-row items-center gap-2 px-4 py-2 rounded-full">
+                      <Text>💼</Text>
+                      <Text className="text-white text-base font-OutfitMedium">{profile.occupation}</Text>
                     </View>
                   )}
                 </View>
               </View>
             )}
 
-            {/* ── Languages & Ethnicity ── */}
+            {/* ══════════════════════════════════════════════════════
+                 LANGUAGES
+               ══════════════════════════════════════════════════════ */}
             {profile.language?.length > 0 && (
-              <View className="bg-[#121212] mb-2 p-5 mx-3 rounded-2xl border border-gray-600">
-                <Text className="text-[20px] font-OutfitSemiBold text-app mb-3">
-                  Languages and ethnicity
+              <View className=" p-5 mb-2 mx-3 rounded-2xl " style={themeStyles.boxContainer}>
+                <Text className="text-[20px] font-OutfitSemiBold text-primary mb-3">
+                  Languages
                 </Text>
                 <View className="flex-row flex-wrap gap-2">
                   {profile.language.map((lang, i) => (
                     <View key={i} className="bg-gray-800 flex-row items-center gap-2 px-4 py-2 rounded-full">
-                      <Text className="text-app text-base font-OutfitMedium">{lang}</Text>
+                      <Text>🗣️</Text>
+                      <Text className="text-white text-base font-OutfitMedium">{lang}</Text>
                     </View>
                   ))}
                 </View>
-                {profile.nationality && (
-                  <View className="mt-2 flex-row flex-wrap gap-2">
-                    <View className="bg-gray-800 flex-row items-center gap-2 px-4 py-2 rounded-full">
-                      <Text className="text-app text-base font-OutfitMedium">{profile.nationality}</Text>
-                    </View>
-                    {profile.ethnicity && (
-                      <View className="bg-gray-800 flex-row items-center gap-2 px-4 py-2 rounded-full">
-                        <Text className="text-app text-base font-OutfitMedium">{profile.ethnicity}</Text>
-                      </View>
-                    )}
-                  </View>
-                )}
               </View>
             )}
 
-            {/* ── Health Information ── */}
+            {/* ══════════════════════════════════════════════════════
+                 BLOOD GROUP & GENOTYPE
+               ══════════════════════════════════════════════════════ */}
             {(profile.bloodGroup || profile.genotype) && (
-              <View className="bg-[#121212] mb-2 p-5 mx-3 rounded-2xl border border-gray-600">
-                <Text className="text-[20px] font-OutfitSemiBold text-app mb-3">
-                  Health Information
+              <View className=" p-5 mb-2 mx-3 rounded-2xl " style={themeStyles.boxContainer}>
+                <Text className="text-[20px] font-OutfitSemiBold text-primary mb-3">
+                  Blood Group & Genotype
                 </Text>
                 <View className="flex-row flex-wrap gap-2">
                   {profile.bloodGroup && (
                     <View className="bg-gray-800 flex-row items-center gap-2 px-4 py-2 rounded-full">
-                      <Droplet color="red" size={18} />
-                      <Text className="text-app text-base font-OutfitMedium">{profile.bloodGroup}</Text>
+                      <Text>🩸</Text>
+                      <Text className="text-white text-base font-OutfitMedium">{profile.bloodGroup}</Text>
                     </View>
                   )}
                   {profile.genotype && (
                     <View className="bg-gray-800 flex-row items-center gap-2 px-4 py-2 rounded-full">
-                      <Text className="text-app text-base font-OutfitMedium">{profile.genotype}</Text>
+                      <Text>🧬</Text>
+                      <Text className="text-white text-base font-OutfitMedium">{profile.genotype}</Text>
                     </View>
                   )}
                 </View>
@@ -460,11 +504,11 @@ const OwnProfileCard = ({ profile }) => {
 
             {/* ── Question 2 ── */}
             {profile.questions?.[1] && (
-              <View className="bg-[#121212] mb-2 p-5 mx-3 rounded-2xl border border-gray-600">
-                <Text className="text-app font-Outfit text-base">
+              <View className=" mb-2 p-5 mx-3 rounded-2xl " style={themeStyles.boxContainer}>
+                <Text className="text-white font-Outfit text-base">
                   {profile.questions[1].question}
                 </Text>
-                <Text className="text-app font-OutfitBold text-2xl leading-relaxed">
+                <Text className="text-white font-OutfitBold text-2xl leading-relaxed">
                   {profile.questions[1].answer}
                 </Text>
               </View>
@@ -475,34 +519,46 @@ const OwnProfileCard = ({ profile }) => {
               <TouchableOpacity
                 onPress={() => openImageModal(3)}
                 activeOpacity={0.9}
-                style={styles.imagePreview}
+                style={localStyles.imagePreview}
               >
                 <Image
                   source={{ uri: profileImages[3] }}
-                  style={styles.previewImg}
+                  style={localStyles.previewImg}
                   contentFit="cover"
                 />
               </TouchableOpacity>
             )}
 
+            {/* ── Question 3 ── */}
+            {profile.questions?.[2] && (
+              <View className=" mb-2 p-5 mx-3 rounded-2xl " style={themeStyles.boxContainer}>
+                <Text className="text-white font-Outfit text-base">
+                  {profile.questions[2].question}
+                </Text>
+                <Text className="text-white font-OutfitBold text-2xl leading-relaxed">
+                  {profile.questions[2].answer}
+                </Text>
+              </View>
+            )}
+
             {/* ── Interests ── */}
             {profile.interests?.length > 0 && (
-              <View className="bg-[#121212] mb-2 p-5 mx-3 rounded-2xl border border-gray-600">
-                <Text className="text-[20px] font-OutfitSemiBold text-app mb-3">
+              <View className=" mb-2 p-5 mx-3 rounded-2xl " style={themeStyles.boxContainer}>
+                <Text className="text-[20px] font-OutfitSemiBold text-primary mb-3">
                   Interests
                 </Text>
                 <View className="flex-row flex-wrap">
                   {profile.interests.map((interest, i) => (
-                    <Chip key={i} label={interest} isMutual={false} />
+                    <Chip key={i} label={interest} />
                   ))}
                 </View>
               </View>
             )}
 
             {/* ── Completion tip ── */}
-            <View style={styles.tipBox}>
-              <Text style={styles.tipEmoji}>✨</Text>
-              <Text style={styles.tipText}>
+            <View style={localStyles.tipBox}>
+              <Text style={localStyles.tipEmoji}>✨</Text>
+              <Text style={localStyles.tipText}>
                 This is how other users see your profile. Keep it updated to attract better matches!
               </Text>
             </View>
@@ -516,7 +572,7 @@ const OwnProfileCard = ({ profile }) => {
 
 export default OwnProfileCard;
 
-const styles = StyleSheet.create({
+const localStyles = StyleSheet.create({
   imagePreview: {
     marginHorizontal: 12,
     marginBottom: 8,

@@ -36,6 +36,10 @@ const webhookRoutes = require('./routes/webhookRoutes');
 
 // Initialize express app
 const app = express();
+
+// Trust the first proxy (Render, Railway, etc.)
+app.set('trust proxy', 1);
+
 const httpServer = http.createServer(app);
 
 // Connect to database

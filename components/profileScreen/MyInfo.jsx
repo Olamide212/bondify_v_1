@@ -361,7 +361,7 @@ const MyInfo = ({ profile, onUpdateField }) => {
           <SafeAreaView style={{ flex: 1, backgroundColor: '#121212', padding: 24 }}>
             <View style={s.modalHeader}>
               <TouchableOpacity onPress={() => setActiveModal(null)}>
-                <X color="#111" />
+                <X color="#fff" />
               </TouchableOpacity>
               <Text style={s.modalTitle}>{activeModal?.title}</Text>
               <View style={{ width: 24 }} />
@@ -514,11 +514,12 @@ const s = StyleSheet.create({
     fontFamily: 'OutfitMedium',
     color:      '#9CA3AF',
     flexShrink: 1,
+    textTransform: 'capitalize'
   },
   rowAdd: {
     fontSize:   13,
     fontFamily: 'OutfitMedium',
-    color:      colors.secondary,
+    color:      colors.primary,
   },
 
   // ── Interests ──
@@ -627,9 +628,9 @@ const s = StyleSheet.create({
     paddingHorizontal: 24,
     borderRadius:      99,
     marginBottom:      10,
-    backgroundColor: '#1E1E1E',
+    backgroundColor: colors.whiteLight,
     borderWidth:       1,
-    borderColor: '#374151',
+    borderColor: colors.whiteLight,
   },
   optionBtnSelected: {
     backgroundColor: colors.primary,

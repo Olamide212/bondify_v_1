@@ -1,17 +1,17 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
-  Ban,
-  Flag,
-  Share2,
+    Ban,
+    Flag,
+    Share2,
 } from "lucide-react-native";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
-  Animated,
-  Dimensions,
-  findNodeHandle, Share, Text,
-  TouchableOpacity,
-  UIManager,
-  View
+    Animated,
+    Dimensions,
+    findNodeHandle, Share, Text,
+    TouchableOpacity,
+    UIManager,
+    View
 } from "react-native";
 import { useSelector } from "react-redux";
 import { styles } from "../../constant/colors";
@@ -485,14 +485,12 @@ const ProfileCard = ({ profile, hideAiSuggestion = false }) => {
                ══════════════════════════════════════════════════════ */}
             {profile.religionPractice && (
               <View className=" p-5 mb-2 mx-3 rounded-2xl " style={styles.boxContainer}>
-                <Text className="text-[20px] font-OutfitSemiBold text-primary ml-2 mb-3">
-                  Religion Practice
+                <Text className="text-white font-Outfit text-base ml-2 mb-1">
+                  {profile.firstName || profile.name} says...
                 </Text>
-                <Text className="text-gray-400 font-Outfit text-sm ml-2 mb-1">How religious are you?</Text>
-                <View className="bg-gray-800 rounded-full px-4 py-2 flex-row items-center gap-3 self-start">
-                  <Text>🙏</Text>
-                  <Text className="text-white text-base font-OutfitMedium capitalize">{profile.religionPractice}</Text>
-                </View>
+                <Text className="text-white font-OutfitBold text-2xl leading-relaxed capitalize ml-2">
+                  I'm {profile.religionPractice} religious
+                </Text>
               </View>
             )}
 
@@ -501,14 +499,12 @@ const ProfileCard = ({ profile, hideAiSuggestion = false }) => {
                ══════════════════════════════════════════════════════ */}
             {profile.willRelocateForMarriage && (
               <View className=" p-5 mb-2 mx-3 rounded-2xl " style={styles.boxContainer}>
-                <Text className="text-[20px] font-OutfitSemiBold text-primary ml-2 mb-3">
-                  Relocate for Marriage
+                <Text className="text-white font-Outfit text-base ml-2 mb-1">
+                  {profile.firstName || profile.name} says...
                 </Text>
-                <Text className="text-gray-400 font-Outfit text-sm ml-2 mb-1">Would you relocate for marriage?</Text>
-                <View className="bg-gray-800 rounded-full px-4 py-2 flex-row items-center gap-3 self-start">
-                  <Text>✈️</Text>
-                  <Text className="text-white text-base font-OutfitMedium capitalize">{profile.willRelocateForMarriage}</Text>
-                </View>
+                <Text className="text-white font-OutfitBold text-2xl leading-relaxed capitalize ml-2">
+                  {profile.willRelocateForMarriage} to relocating for marriage
+                </Text>
               </View>
             )}
 
@@ -517,14 +513,12 @@ const ProfileCard = ({ profile, hideAiSuggestion = false }) => {
                ══════════════════════════════════════════════════════ */}
             {profile.religionImportance && (
               <View className=" p-5 mb-2 mx-3 rounded-2xl " style={styles.boxContainer}>
-                <Text className="text-[20px] font-OutfitSemiBold text-primary ml-2 mb-3">
-                  Same Beliefs
+                <Text className="text-white font-Outfit text-base ml-2 mb-1">
+                  {profile.firstName || profile.name} says...
                 </Text>
-                <Text className="text-gray-400 font-Outfit text-sm ml-2 mb-1">Same beliefs matter to me</Text>
-                <View className="bg-gray-800 rounded-full px-4 py-2 flex-row items-center gap-3 self-start">
-                  <Text>⛪</Text>
-                  <Text className="text-white text-base font-OutfitMedium capitalize">{profile.religionImportance}</Text>
-                </View>
+                <Text className="text-white font-OutfitBold text-2xl leading-relaxed capitalize ml-2">
+                  Same beliefs are {profile.religionImportance} to me
+                </Text>
               </View>
             )}
 

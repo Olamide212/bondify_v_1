@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import ModalHeader from "../headers/ModalHeader";
 import BaseModal from "./BaseModal";
+import { colors } from "../../constant/colors";
 
 const HEIGHT_OPTIONS = Array.from({ length: 151 }, (_, i) => ({
   value: i + 100,
@@ -68,15 +69,15 @@ const styles = StyleSheet.create({
   option: {
     paddingVertical: 16,
     paddingHorizontal: 20,
-    borderRadius: 12,
+    borderRadius: 40,
     marginBottom: 8,
-    backgroundColor: '#1E1E1E',
+    backgroundColor: colors.whiteLight,
     borderWidth: 1,
-    borderColor: '#374151',
+    borderColor: colors.whiteLight,
   },
   optionSelected: {
-    backgroundColor: '#111',
-    borderColor: '#111',
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
   },
   optionText: {
     fontSize: 16,
