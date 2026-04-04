@@ -24,10 +24,12 @@ import {
   useWindowDimensions,
 } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-import { colors }          from "../../constant/colors";
+import { colors, styles }          from "../../constant/colors";
 import { profileService }  from "../../services/profileService";
 import BaseModal           from "./BaseModal";
 import InterestsModal      from "./InterestsModal";
+import { LinearGradient } from "expo-linear-gradient";
+import ModalHeader         from "../headers/ModalHeader";
 
 const DEFAULT_FILTERS = {
   maxDistance:          100,   // km
@@ -128,10 +130,10 @@ const FilterModal = ({ visible, onClose, initialFilters, onApply }) => {
   return (
     <BaseModal visible={visible} onClose={onClose} fullScreen>
       <SafeAreaProvider>
-        <SafeAreaView style={{flex: 1}} className="bg-white rounded-t-3xl overflow-hidden">
+        <SafeAreaView style={{flex: 1}} className="bg-[#121212] rounded-t-3xl overflow-hidden">
 
           {/* ── Loading overlay — shown while fetching user interests ── */}
-          {interestsLoading && (
+          {/* {interestsLoading && (
             <View
               style={{
                 ...StyleSheet.absoluteFillObject,
@@ -143,20 +145,16 @@ const FilterModal = ({ visible, onClose, initialFilters, onApply }) => {
             >
               <ActivityIndicator size="large" color={colors.primary} />
             </View>
-          )}
+          )} */}
 
           {/* ── Header ── */}
-          <View className="flex-row items-center justify-between px-4 pb-4 border-b border-gray-200">
-            <TouchableOpacity onPress={onClose}>
-              <Text className="text-lg font-PlusJakartaSansMedium text-gray-800">Close</Text>
-            </TouchableOpacity>
-
-            <Text className="text-xl font-PlusJakartaSansBold">Show Me</Text>
-
-            <TouchableOpacity onPress={handleReset}>
-              <Text className="text-lg font-PlusJakartaSansBold text-primary">Reset</Text>
-            </TouchableOpacity>
-          </View>
+     <ModalHeader
+             onClose={onClose}
+             centerText="Filter"
+             rightText="Reset"
+             onRightPress={handleReset}
+           />
+          {/* ── Content ── */}
 
           <ScrollView
             style={{ flex: 1 }}
@@ -167,11 +165,11 @@ const FilterModal = ({ visible, onClose, initialFilters, onApply }) => {
           >
 
             {/* ── Maximum Distance ── */}
-            <View className="pb-10 border-b-gray-100 border-b mb-6">
+            <View className="pb-10 ">
               <View className="flex-row items-center justify-between mb-2">
-                <Text className="text-xl font-PlusJakartaSansBold">Maximum Distance</Text>
+                <Text className="text-xl font-OutfitBold text-white">Maximum Distance</Text>
                 <View className="flex-row items-center gap-1 bg-primary/5 px-3 py-2 rounded-full">
-                  <Text className="text-lg text-primary font-PlusJakartaSansBold">
+                  <Text className="text-lg text-primary font-OutfitBold">
                     {maxDistance} km
                   </Text>
                 </View>
@@ -190,8 +188,8 @@ const FilterModal = ({ visible, onClose, initialFilters, onApply }) => {
               />
 
               <View className="flex-row justify-between px-1 -mt-1 mb-3">
-                <Text className="text-xs text-gray-400 font-PlusJakartaSans">2 km</Text>
-                <Text className="text-xs text-gray-400 font-PlusJakartaSans">1,000 km</Text>
+                <Text className="text-xs text-white text-gray-400 font-Outfit">2 km</Text>
+                <Text className="text-xs text-white text-gray-400 font-Outfit">1,000 km</Text>
               </View>
 
               <View className="flex-row items-center gap-2">
@@ -206,24 +204,24 @@ const FilterModal = ({ visible, onClose, initialFilters, onApply }) => {
                     color={allowExtendedDistance ? colors.primary : "#9ca3af"}
                   />
                 </TouchableOpacity>
-                <Text className="text-base font-PlusJakartaSansMedium">
+                <Text className="text-base font-OutfitMedium text-white">
                   Show people further away if I run out
                 </Text>
               </View>
             </View>
 
             {/* ── Location ── */}
-            <View className="pb-10 border-b-gray-100 border-b mb-4">
-              <Text className="text-xl font-PlusJakartaSansBold mb-3">Location</Text>
+            <View className="pb-10  mb-4" style={styles.boxContainer}>
+              <Text className="text-xl font-OutfitBold text-white mb-3">Location</Text>
 
               <View
                 style={{
                   flexDirection:   "row",
                   alignItems:      "center",
-                  backgroundColor: "#F8F8F8",
+                  backgroundColor: "#1E1E1E",
                   borderRadius:    14,
                   borderWidth:     1,
-                  borderColor:     location.trim() ? colors.primary : "#E5E7EB",
+                  borderColor:     location.trim() ? colors.primary : "#4A4A4A",
                   paddingHorizontal: 14,
                   paddingVertical:   2,
                   gap:             10,
@@ -238,8 +236,8 @@ const FilterModal = ({ visible, onClose, initialFilters, onApply }) => {
                   style={{
                     flex:       1,
                     fontSize:   15,
-                    fontFamily: "PlusJakartaSans",
-                    color:      "#111",
+                    fontFamily: "Outfit",
+                    color: '#E5E5E5',
                     paddingVertical: 14,
                   }}
                   placeholder="Filter by city or country"
@@ -257,17 +255,17 @@ const FilterModal = ({ visible, onClose, initialFilters, onApply }) => {
                 )}
               </View>
 
-              <Text className="text-xs text-gray-400 font-PlusJakartaSans mt-2 ml-1">
+              <Text className="text-xs text-white font-Outfit mt-2 ml-1">
                 Leave blank to use your current location
               </Text>
             </View>
 
             {/* ── Age Range ── */}
-            <View className="border-b-gray-100 border-b pb-10">
+            <View className="pb-10" >
               <View className="flex-row items-center justify-between mt-6 mb-2">
-                <Text className="text-xl font-PlusJakartaSansBold">Age Range</Text>
+                <Text className="text-xl font-OutfitBold text-white">Age Range</Text>
                 <View className="flex-row items-center gap-1 bg-primary/5 px-3 rounded-full">
-                  <Text className="text-lg text-primary font-PlusJakartaSansBold">
+                  <Text className="text-lg text-primary font-OutfitBold">
                     {ageRange[0]} – {ageRange[1]}
                   </Text>
                 </View>
@@ -292,10 +290,10 @@ const FilterModal = ({ visible, onClose, initialFilters, onApply }) => {
             </View>
 
             {/* ── Show Me ── */}
-            <View className="flex-col w-full">
-              <Text className="text-xl font-PlusJakartaSansBold mt-6 mb-2">Show Me</Text>
-              <View className="w-full flex-col items-center mb-2 bg-[#F1F5F9] px-2 py-2 rounded-xl">
-                <View className="flex-row flex-wrap justify-between gap-10">
+            <View className="flex-col w-full" style={styles.boxContainer}>
+              <Text className="text-xl font-OutfitBold text-white  mb-2">Show Me</Text>
+              <View className="w-full flex-col items-center mb-2 bg-[#1E1E1E] px-2 py-2 rounded-xl">
+                <View className="flex-row flex-wrap justify-between gap-5">
                   {[
                     { label: "Men",      value: "men"      },
                     { label: "Women",    value: "women"    },
@@ -306,11 +304,11 @@ const FilterModal = ({ visible, onClose, initialFilters, onApply }) => {
                       <TouchableOpacity
                         key={option.value}
                         onPress={() => setShowMe(option.value)}
-                        className={`px-4 py-2 rounded-xl ${isSelected ? "bg-white" : ""}`}
+                        className={`px-4 py-2 rounded-xl ${isSelected ? "bg-[#121212]" : ""}`}
                       >
                         <Text
-                          className={`font-PlusJakartaSansBold text-lg ${
-                            isSelected ? "text-primary" : "text-gray-500"
+                          className={`font-OutfitBold text-lg ${
+                            isSelected ? "text-primary" : "text-white"
                           }`}
                         >
                           {option.label}
@@ -324,19 +322,20 @@ const FilterModal = ({ visible, onClose, initialFilters, onApply }) => {
 
             {/* ── Interests ── */}
             <TouchableOpacity
-              className="py-6 border-b border-gray-200"
+              className="py-6 mt-5"
               onPress={() => setVisibleModal("interests")}
+              style={styles.boxContainer}
             >
               <View className="flex-row items-center justify-between">
-                <Text className="text-xl font-PlusJakartaSansBold">Interests</Text>
-                <Text className="text-base font-PlusJakartaSansMedium text-primary">Edit All</Text>
+                <Text className="text-xl font-OutfitBold text-white">Interests</Text>
+                <Text className="text-base font-OutfitMedium text-primary">Edit All</Text>
               </View>
 
               {(() => {
                 const list = selectedInterests.length > 0 ? selectedInterests : myInterests;
                 if (!list.length) {
                   return (
-                    <Text className="text-gray-500 mt-2">
+                    <Text className="text-gray-400 mt-2">
                       Tap to choose the vibes you vibe with
                     </Text>
                   );
@@ -349,12 +348,12 @@ const FilterModal = ({ visible, onClose, initialFilters, onApply }) => {
                         <View
                           key={interest}
                           className={`px-3 py-1 rounded-full border ${
-                            isShared ? "bg-primary/10 border-primary" : "bg-gray-100 border-gray-200"
+                            isShared ? "bg-primary/10 border-primary" : "bg-transparent border-white"
                           }`}
                         >
                           <Text
-                            className={`text-lg font-PlusJakartaSansMedium ${
-                              isShared ? "text-primary" : "text-gray-700"
+                            className={`text-lg font-OutfitMedium ${
+                              isShared ? "text-primary" : "text-white"
                             }`}
                           >
                             {interest}
@@ -368,14 +367,14 @@ const FilterModal = ({ visible, onClose, initialFilters, onApply }) => {
             </TouchableOpacity>
 
             {/* ── Advanced Filters ── */}
-            <Text className="text-xl font-PlusJakartaSansBold mt-8 mb-4">Advanced filter</Text>
+            <Text className="text-xl text-white font-OutfitBold mt-8 mb-4">Advanced filter</Text>
 
             <View className="flex-row justify-between items-center py-4">
               <View className="flex-row items-center gap-3">
                 <View className="p-3 rounded-full bg-blue-100 items-center justify-center">
                   <Ionicons name="shield-checkmark" size={20} color="#2563EB" />
                 </View>
-                <Text className="text-[16px] font-PlusJakartaSansMedium">Verified user only</Text>
+                <Text className="text-[16px] font-OutfitMedium text-white">Verified user only</Text>
               </View>
               <Switch
                 value={verifiedOnly}
@@ -390,7 +389,7 @@ const FilterModal = ({ visible, onClose, initialFilters, onApply }) => {
                 <View className="p-3 rounded-full bg-green-100 items-center justify-center">
                   <Ionicons name="flash" size={20} color="#16A34A" />
                 </View>
-                <Text className="text-[16px] font-PlusJakartaSansMedium">Active today</Text>
+                <Text className="text-[16px] font-OutfitMedium text-white">Active today</Text>
               </View>
               <Switch
                 value={activeToday}
@@ -403,18 +402,21 @@ const FilterModal = ({ visible, onClose, initialFilters, onApply }) => {
           </ScrollView>
 
           {/* ── Apply button ── */}
-          <View className="px-4 py-3 border-t border-gray-100 bg-white">
+          <View className="px-4 py-3 border-t border-gray-700 bg-[#121212]">
+                    <LinearGradient colors={[colors.primary, colors.secondary]} style={{ borderRadius: 50 }}>
             <TouchableOpacity
-              className="bg-primary rounded-full py-4 items-center justify-center"
+              className="rounded-full py-4 items-center justify-center"
               onPress={handleApply}
             >
+      
               <View className="flex-row items-center gap-2">
                 <Ionicons name="sparkles" size={18} color="#fff" />
-                <Text className="text-white text-xl font-PlusJakartaSansMedium">
+                <Text className="text-white text-xl font-OutfitMedium">
                   Apply filters
                 </Text>
               </View>
             </TouchableOpacity>
+            </LinearGradient>
           </View>
 
           <InterestsModal

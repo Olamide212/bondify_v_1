@@ -180,7 +180,7 @@ const ProfileImageModal = ({
                 <View
                   key={index}
                   className={`h-2 w-2 rounded-full mx-1 ${
-                    index === modalImageIndex ? "bg-white" : "bg-gray-400"
+                    index === modalImageIndex ? "bg-[#121212]" : "bg-gray-400"
                   }`}
                 />
               ))}

@@ -6,12 +6,12 @@
 import { useRouter } from "expo-router";
 import { AlertTriangle, ArrowLeft, Camera, Heart, Lock, Scale, Shield } from "lucide-react-native";
 import {
-  Image,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  View
+    Image,
+    ScrollView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import GeneralHeader from "../../../components/headers/GeneralHeader";
@@ -56,13 +56,13 @@ const CommunityGuidelines = () => {
   const router = useRouter();
 
   return (
-    <SafeAreaView style={[s.safe, { backgroundColor: '#fff' }]} edges={["top"]}>
-      <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
+    <SafeAreaView style={[s.safe, { backgroundColor: '#121212' }]} edges={["top"]}>
+      <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
 
-      <GeneralHeader title="Community Guidelines" leftIcon={<ArrowLeft />} />
+      <GeneralHeader title="Community Guidelines" leftIcon={<ArrowLeft color={'#fff'} />} />
 
       <ScrollView
-        style={{ flex: 1, backgroundColor: '#fff' }}
+        style={{ flex: 1, backgroundColor: '#121212' }}
         contentContainerStyle={{ paddingBottom: 100 }}
         showsVerticalScrollIndicator={false}
       >
@@ -100,17 +100,17 @@ const CommunityGuidelines = () => {
       </ScrollView>
 
       {/* Sticky CTA */}
-      <View style={[s.footer, { backgroundColor: '#fff', borderTopColor: colors.border }]}>
+      <View style={[s.footer, { backgroundColor: '#121212', borderTopColor: colors.border }]}>
         {/* <TouchableOpacity style={s.agreeBtn} activeOpacity={0.88} onPress={() => router.back()}>
           <Text style={s.agreeBtnText}>I Understand & Agree</Text>
         </TouchableOpacity> */}
         <Text style={[s.footerNote, { color: colors.textTertiary }]}>
           By tapping agree you confirm you&apos;ve read our{" "}
-          <Text className='font-PlusJakartaSansBold' style={{ color: colors.primary }} onPress={() => router.push("/terms-of-services")}>
+          <Text className='font-OutfitBold' style={{ color: colors.primary }} onPress={() => router.push("/terms-of-services")}>
             Terms of Service
           </Text>
           {" "}and{" "}
-          <Text className='font-PlusJakartaSansBold' style={{ color:  colors.primary }} onPress={() => router.push("/privacy-policy")}>
+          <Text className='font-OutfitBold' style={{ color:  colors.primary }} onPress={() => router.push("/privacy-policy")}>
             Privacy Policy
           </Text>
           .
@@ -136,13 +136,13 @@ const s = StyleSheet.create({
   },
   title: {
     fontSize: 22, 
-    fontFamily: "PlusJakartaSansBold", 
+    fontFamily: "OutfitBold", 
     textAlign: "center", 
     marginBottom: 8, 
     paddingHorizontal: 24,
   },
   intro: {
-    fontSize: 14, fontFamily: "PlusJakartaSans",
+    fontSize: 14, fontFamily: "Outfit",
     lineHeight: 22, textAlign: "center", marginBottom: 28,
   },
   card: {
@@ -155,8 +155,8 @@ const s = StyleSheet.create({
     width: 42, height: 42, borderRadius: 12,
     alignItems: "center", justifyContent: "center", flexShrink: 0,
   },
-  cardTitle: { fontSize: 16, fontFamily: "PlusJakartaSansBold", marginBottom: 4 },
-  cardBody: { fontSize: 13, fontFamily: "PlusJakartaSans", lineHeight: 19 },
+  cardTitle: { fontSize: 16, fontFamily: "OutfitBold", marginBottom: 4 },
+  cardBody: { fontSize: 13, fontFamily: "Outfit", lineHeight: 19 },
   footer: {
     paddingHorizontal: 20, paddingTop: 16, paddingBottom: 28,
     borderTopWidth: StyleSheet.hairlineWidth,
@@ -165,8 +165,8 @@ const s = StyleSheet.create({
     backgroundColor: "#E8651A", borderRadius: 50,
     paddingVertical: 16, alignItems: "center", marginBottom: 12,
   },
-  agreeBtnText: { fontSize: 16, fontFamily: "PlusJakartaSansBold", color: "#fff" },
-  footerNote: { fontSize: 12, fontFamily: "PlusJakartaSans", textAlign: "center", lineHeight: 18 },
+  agreeBtnText: { fontSize: 16, fontFamily: "OutfitBold", color: "#fff" },
+  footerNote: { fontSize: 12, fontFamily: "Outfit", textAlign: "center", lineHeight: 18 },
 });
 
 export default CommunityGuidelines;

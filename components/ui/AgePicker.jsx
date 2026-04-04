@@ -26,7 +26,7 @@ export default AgePicker;
 const styles = StyleSheet.create({
   container: {
     width: "100%",
-    backgroundColor: "white",
+    backgroundColor: "#121212",
   },
   picker: {
     height: 50,

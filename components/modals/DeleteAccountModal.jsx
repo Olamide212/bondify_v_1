@@ -78,7 +78,7 @@ const CountdownRing = ({ seconds, total, colors }) => {
           opacity: seconds > 0 ? 1 : 0,
         }}
       />
-      <Text style={{ fontSize: 28, fontFamily: "PlusJakartaSansBold", color: "#E8651A" }}>
+      <Text style={{ fontSize: 28, fontFamily: "OutfitBold", color: "#E8651A" }}>
         {seconds}
       </Text>
     </View>
@@ -188,7 +188,7 @@ const DeleteAccountModal = ({ visible, onClose, onDeleted }) => {
                   <X size={16} color={colors.textSecondary} strokeWidth={2.5} />
                 </TouchableOpacity>
 
-                <View style={[s.warningBubble, { backgroundColor: "#FEF3EC" }]}>
+                <View style={[s.warningBubble, { backgroundColor: '#2A1F1A' }]}>
                   <AlertTriangle size={28} color="#E8651A" strokeWidth={2} />
                 </View>
 
@@ -269,7 +269,7 @@ const DeleteAccountModal = ({ visible, onClose, onDeleted }) => {
                 {/* Reason */}
                 <Text style={[s.fieldLabel, { color: colors.textPrimary, marginTop: 18 }]}>
                   Reason for leaving{" "}
-                  <Text style={{ color: colors.textTertiary, fontFamily: "PlusJakartaSans" }}>(optional)</Text>
+                  <Text style={{ color: colors.textTertiary, fontFamily: "Outfit" }}>(optional)</Text>
                 </Text>
                 <View style={s.reasonGrid}>
                   {REASONS.map((r) => {
@@ -368,48 +368,48 @@ const s = StyleSheet.create({
     alignItems: "center", justifyContent: "center", marginBottom: 16,
   },
   countdownTitle: {
-    fontSize: 24, fontFamily: "PlusJakartaSansBold", marginBottom: 10, textAlign: "center",
+    fontSize: 24, fontFamily: "OutfitBold", marginBottom: 10, textAlign: "center",
   },
   countdownSub: {
-    fontSize: 14, fontFamily: "PlusJakartaSans", lineHeight: 20,
+    fontSize: 14, fontFamily: "Outfit", lineHeight: 20,
     textAlign: "center", marginBottom: 28, paddingHorizontal: 8,
   },
   countdownHint: {
-    fontSize: 13, fontFamily: "PlusJakartaSans", marginTop: 12, marginBottom: 24,
+    fontSize: 13, fontFamily: "Outfit", marginTop: 12, marginBottom: 24,
   },
   keepBtn: {
     width: "100%", borderRadius: 50, borderWidth: 1.5,
     paddingVertical: 15, alignItems: "center", marginBottom: 12,
   },
-  keepBtnText: { fontSize: 16, fontFamily: "PlusJakartaSansBold" },
-  skipLink: { fontSize: 14, fontFamily: "PlusJakartaSans", paddingVertical: 8, textAlign: "center" },
+  keepBtnText: { fontSize: 16, fontFamily: "OutfitBold" },
+  skipLink: { fontSize: 14, fontFamily: "Outfit", paddingVertical: 8, textAlign: "center" },
 
   // ── Confirm ──
   confirmTitle: {
-    fontSize: 22, fontFamily: "PlusJakartaSansBold", marginBottom: 10, textAlign: "center",
+    fontSize: 22, fontFamily: "OutfitBold", marginBottom: 10, textAlign: "center",
   },
   confirmSub: {
-    fontSize: 14, fontFamily: "PlusJakartaSans", lineHeight: 20,
+    fontSize: 14, fontFamily: "Outfit", lineHeight: 20,
     textAlign: "center", marginBottom: 24, paddingHorizontal: 4,
   },
-  fieldLabel: { alignSelf: "flex-start", fontSize: 14, fontFamily: "PlusJakartaSansBold", marginBottom: 8 },
+  fieldLabel: { alignSelf: "flex-start", fontSize: 14, fontFamily: "OutfitBold", marginBottom: 8 },
   passwordRow: {
     flexDirection: "row", alignItems: "center",
     borderWidth: 1, borderRadius: 12,
     paddingHorizontal: 14, paddingVertical: 13,
     width: "100%", gap: 8,
   },
-  passwordInput: { flex: 1, fontSize: 15, fontFamily: "PlusJakartaSans", padding: 0 },
+  passwordInput: { flex: 1, fontSize: 15, fontFamily: "Outfit", padding: 0 },
   reasonGrid: {
     flexDirection: "row", flexWrap: "wrap", gap: 8, width: "100%", marginBottom: 16,
   },
   reasonChip: {
     borderWidth: 1, borderRadius: 50, paddingHorizontal: 14, paddingVertical: 8,
   },
-  reasonText: { fontSize: 13, fontFamily: "PlusJakartaSans" },
+  reasonText: { fontSize: 13, fontFamily: "Outfit" },
   otherInput: {
     width: "100%", borderWidth: 1, borderRadius: 12,
-    padding: 12, fontSize: 14, fontFamily: "PlusJakartaSans",
+    padding: 12, fontSize: 14, fontFamily: "Outfit",
     minHeight: 80, marginBottom: 16,
   },
   deleteBtn: {
@@ -417,9 +417,9 @@ const s = StyleSheet.create({
     borderRadius: 50, paddingVertical: 15,
     alignItems: "center", marginTop: 4, marginBottom: 12,
   },
-  deleteBtnText: { fontSize: 16, fontFamily: "PlusJakartaSansBold", color: "#fff" },
+  deleteBtnText: { fontSize: 16, fontFamily: "OutfitBold", color: "#fff" },
   cancelTouchable: { paddingVertical: 8 },
-  cancelText: { fontSize: 15, fontFamily: "PlusJakartaSans", textAlign: "center" },
+  cancelText: { fontSize: 15, fontFamily: "Outfit", textAlign: "center" },
 });
 
 export default DeleteAccountModal;

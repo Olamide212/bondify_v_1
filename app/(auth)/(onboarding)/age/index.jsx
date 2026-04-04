@@ -138,7 +138,7 @@ export default Age;
 const styles = StyleSheet.create({
   screen: {
     flex:            1,
-    backgroundColor: "#fff",
+    backgroundColor: "#121212",
   },
   content: {
     flex:            1,
@@ -148,15 +148,15 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize:    30,
-    fontFamily:  "PlusJakartaSansBold",
-    color:       "#111",
+    fontFamily:  "OutfitBold",
+    color: '#E5E5E5',
     textAlign:   "center",
     lineHeight:  40,
     marginBottom: 10,
   },
   subtitle: {
     fontSize:    15,
-    fontFamily:  "PlusJakartaSans",
+    fontFamily:  "Outfit",
     color:       "#888",
     textAlign:   "center",
     marginBottom: 32,
@@ -181,7 +181,7 @@ const styles = StyleSheet.create({
   ageText: {
     marginTop:   28,
     fontSize:    18,
-    fontFamily:  "PlusJakartaSansBold",
+    fontFamily:  "OutfitBold",
     color:       PRIMARY,
   },
 
@@ -194,7 +194,7 @@ const styles = StyleSheet.create({
   },
   disclaimer: {
     fontSize:   12,
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
     color:      "#aaa",
     textAlign:  "center",
   },

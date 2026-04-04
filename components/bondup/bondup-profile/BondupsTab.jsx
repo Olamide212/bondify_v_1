@@ -71,7 +71,7 @@ const s = StyleSheet.create({
   loadingText: {
     textAlign: 'center',
     fontSize: 14,
-    fontFamily: 'PlusJakartaSans',
+    fontFamily: 'Outfit',
     color: '#888',
     paddingVertical: 20,
   },
@@ -85,7 +85,7 @@ const s = StyleSheet.create({
   },
   emptyText: {
     fontSize: 14,
-    fontFamily: 'PlusJakartaSans',
+    fontFamily: 'Outfit',
     color: '#888',
   },
   daySection: {
@@ -93,11 +93,11 @@ const s = StyleSheet.create({
   },
   dayLabel: {
     fontSize: 16,
-    fontFamily: 'PlusJakartaSansBold',
-    color: '#111',
+    fontFamily: 'OutfitBold',
+    color: '#E5E5E5',
     paddingHorizontal: 16,
     paddingVertical: 8,
-    // backgroundColor: '#F8F9FA',
+    // backgroundColor: '#1E1E1E',
   },
 });
 

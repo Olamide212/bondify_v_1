@@ -27,7 +27,7 @@
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
-import { ArrowUpDown, Rocket, SlidersHorizontal, Sparkles } from "lucide-react-native";
+import { ArrowUpDown, Rocket, SlidersHorizontal, Wand2 } from "lucide-react-native";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
     AppState,
@@ -69,6 +69,7 @@ import { profileService } from "../../../../services/profileService";
 import SettingsService from "../../../../services/settingsService";
 import { socketService } from "../../../../services/socketService";
 import { updateCurrentUser } from "../../../../slices/authSlice";
+import { LinearGradient } from "expo-linear-gradient";
 
 // ─── Swipe badge assets ───────────────────────────────────────────────────────
 const BOND_BADGE = require("../../../../assets/images/Bond_Badge_Right.png");
@@ -601,14 +602,25 @@ const Home = () => {
       {/* ── Header ── */}
       <View style={styles.headerWrapper}>
         <View className="flex-row justify-between items-center ">
+
+
           {/* Left: Boost Icon with Count */}
           <Pressable onPress={handleBoostProfile} disabled={isBoosting}>
-            <View className="flex-row items-center rounded-full px-3 py-2 gap-1" style={{ backgroundColor: colors.secondary  }}>
+            <LinearGradient
+              colors={[colors.primary, colors.secondary]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              className="rounded-full"
+              style={{ borderRadius: 50 }}
+            >
+
+            <View className="flex-row items-center rounded-full px-3 py-2 gap-1">
               <Rocket size={15} fill={"#fff"} color={isBoosting ? '#ccc' : '#fff'} />
-              <Text className="text-sm font-PlusJakartaSansBold text-white">
+              <Text className="text-sm font-OutfitBold text-white">
                 {currentUser?.boostsToday || 0}/3
               </Text>
             </View>
+      </LinearGradient>
           </Pressable>
 
           {/* Center: Bondies Icon */}
@@ -617,7 +629,7 @@ const Home = () => {
           </View> */}
 
           {/* Right: Bell and Filter Icons */}
-          <View className="flex-row gap-4">
+          <View className="flex-row gap-2">
             {/* <Pressable onPress={handleOpenNotifications}>
               <View className="justify-center items-center rounded-full ">
                 <Bell size={20} color='#000' fill={"#000"} />
@@ -632,20 +644,20 @@ const Home = () => {
             </Pressable> */}
 
             <Pressable onPress={handleFindMyMatches}>
-              <View className="justify-center items-center rounded-full">
-                <Sparkles size={20} color={colors.primary} />
+              <View className="justify-center items-center p-4 bg-background/20 border border-[#f1f1f1]  rounded-full" style={{borderWidth: 1, borderColor: 'rgba(255,255,255,0.10)', backgroundColor: 'rgba(255,255,255,0.03)'}}>
+                <Wand2 size={20} color={colors.white} />
               </View>
             </Pressable>
 
             <Pressable onPress={() => setShowSortModal(true)}>
-              <View className="justify-center items-center rounded-full">
-                <ArrowUpDown size={20} color={homeSort ? colors.primary : '#000'} />
+              <View className="justify-center items-center p-4 bg-background/20 border border-[#f1f1f1]  rounded-full" style={{borderWidth: 1, borderColor: 'rgba(255,255,255,0.10)', backgroundColor: 'rgba(255,255,255,0.03)'}}>
+                <ArrowUpDown size={20} color={homeSort ? colors.primary : colors.white} />
               </View>
             </Pressable>
 
             <Pressable onPress={() => setShowFilterModal(true)}>
-              <View className="justify-center items-center rounded-full ">
-                <SlidersHorizontal size={20} color='#000' fill={"#000"} />
+              <View className="justify-center items-center p-4 bg-background/20 border border-[#f1f1f1]  rounded-full" style={{borderWidth: 1, borderColor: 'rgba(255,255,255,0.10)', backgroundColor: 'rgba(255,255,255,0.03)'}}>
+                <SlidersHorizontal size={20} color={colors.white} fill={colors.white} />
               </View>
             </Pressable>
           </View>
@@ -668,7 +680,7 @@ const Home = () => {
 
       <ScrollView
         style={styles.aroundYouContainer}
-        contentContainerStyle={{ flexGrow: 1, backgroundColor: "#fff" }}
+        contentContainerStyle={{ flexGrow: 1, backgroundColor: colors.background }}
         refreshControl={
           <RefreshControl
             refreshing={isRefreshing}
@@ -805,7 +817,7 @@ const Home = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fff" },
+  container: { flex: 1, backgroundColor: colors.background },
 
   headerWrapper: {
     position: "absolute",

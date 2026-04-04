@@ -74,7 +74,7 @@ const Interests = () => {
 
   return (
     <SafeAreaProvider>
-      <SafeAreaView style={{flex: 1, backgroundColor: 'white'}} className="bg-white">
+      <SafeAreaView style={{flex: 1, backgroundColor: '#121212'}} className="bg-[#121212]">
         <KeyboardAvoidingView
           style={{flex: 1}}
           behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -89,12 +89,12 @@ const Interests = () => {
                 }}
               >
                 <View style={{flex: 1}}>
-                  <Text className="text-3xl font-PlusJakartaSansBold  mt-8 mb-4">
+                  <Text className="text-3xl font-OutfitBold  mt-8 mb-4">
                     What are your interests?
                   </Text>
                   {INTEREST_CATEGORIES.map((category) => (
                     <View key={category.title} className="mb-6">
-                      <Text className="text-app font-PlusJakartaSansBold text-lg mb-3">
+                      <Text className="text-app font-OutfitBold text-lg mb-3">
                         {category.title}
                       </Text>
                       <View className="flex-row flex-wrap gap-2">
@@ -107,11 +107,11 @@ const Interests = () => {
                               className={`px-4 py-2 rounded-full border ${
                                 selected
                                   ? "bg-primary border-primary"
-                                  : "bg-white border-[#D1D1D1]"
+                                  : "bg-[#121212] border-[#D1D1D1]"
                               }`}
                             >
                               <Text
-                                className={`font-PlusJakartaSansMedium ${
+                                className={`font-OutfitMedium ${
                                   selected ? "text-white" : "text-app"
                                 }`}
                               >
@@ -126,7 +126,7 @@ const Interests = () => {
                 </View>
               </ScrollView>
 
-              <View className="w-full items-end mt-4 bg-white">
+              <View className="w-full items-end mt-4 bg-[#121212]">
                 <Button
                   title="Continue"
                   variant="primary"

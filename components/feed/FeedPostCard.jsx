@@ -157,7 +157,7 @@ export default FeedPostCard;
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: "#fff",
+    backgroundColor: "#121212",
     marginHorizontal: 12,
     marginBottom: 10,
     borderRadius: 16,
@@ -182,21 +182,21 @@ const styles = StyleSheet.create({
   avatarInitial: {
     color: "#fff",
     fontSize: 16,
-    fontFamily: "PlusJakartaSansBold",
+    fontFamily: "OutfitBold",
   },
   authorName: {
     fontSize: 14,
-    fontFamily: "PlusJakartaSansBold",
-    color: "#111",
+    fontFamily: "OutfitBold",
+    color: '#E5E5E5',
   },
   authorHandle: {
     fontSize: 12,
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
     color: "#999",
   },
   timeAgo: {
     fontSize: 12,
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
     color: "#BBB",
     marginRight: 8,
   },
@@ -205,7 +205,7 @@ const styles = StyleSheet.create({
   },
   content: {
     fontSize: 15,
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
     color: "#222",
     lineHeight: 22,
   },
@@ -226,7 +226,7 @@ const styles = StyleSheet.create({
   },
   analyticsText: {
     fontSize: 12,
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
     color: "#BBB",
   },
   actionRow: {
@@ -240,7 +240,7 @@ const styles = StyleSheet.create({
   actionBtn: { flexDirection: "row", alignItems: "center", gap: 5 },
   actionLabel: {
     fontSize: 13,
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
     color: "#888",
   },
 });

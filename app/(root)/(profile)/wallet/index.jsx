@@ -23,13 +23,13 @@ const WalletScreen = ({ navigation }) => {
   const [selectedBundle, setSelectedBundle] = useState(null);
 
   return (
-    <SafeAreaView style={{flex: 1}} className="bg-white">
+    <SafeAreaView style={{flex: 1}} className="bg-[#121212]">
       {/* Header */}
-      <View className="flex-row items-center p-4 border-b border-gray-200">
+      <View className="flex-row items-center p-4 border-b border-gray-600">
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <ArrowLeft size={24} color="black" />
         </TouchableOpacity>
-        <Text style={{flex: 1}} className="text-center text-lg font-PlusJakartaSansBold">
+        <Text style={{flex: 1}} className="text-center text-lg font-OutfitBold">
           My Wallet
         </Text>
         <View style={{ width: 24 }} />
@@ -38,16 +38,16 @@ const WalletScreen = ({ navigation }) => {
       {/* Balance Card */}
       <View className="m-5 p-6 rounded-2xl bg-purple-600 items-center">
         <Coins size={32} color="white" />
-        <Text className="text-white text-lg mt-2 font-PlusJakartaSans">
+        <Text className="text-white text-lg mt-2 font-Outfit">
           Current Balance
         </Text>
-        <Text className="text-white text-3xl font-PlusJakartaSansBold">
+        <Text className="text-white text-3xl font-OutfitBold">
           {balance} Coins
         </Text>
       </View>
 
       {/* Buy Coins */}
-      <Text className="px-5 mb-3 text-lg font-PlusJakartaSansBold text-black">
+      <Text className="px-5 mb-3 text-lg font-OutfitBold text-white">
         Buy Coins
       </Text>
 
@@ -63,14 +63,14 @@ const WalletScreen = ({ navigation }) => {
         renderItem={({ item }) => (
           <TouchableOpacity
             onPress={() => setSelectedBundle(item)}
-            className="bg-white border border-gray-200 rounded-2xl p-4 mb-4 flex-1 mx-1 shadow-sm"
+            className="bg-[#121212] border border-gray-600 rounded-2xl p-4 mb-4 flex-1 mx-1 shadow-sm"
           >
-            <Text className="text-xl font-PlusJakartaSansBold text-purple-600">
+            <Text className="text-xl font-OutfitBold text-purple-600">
               {item.coins} 💰
             </Text>
-            <Text className="text-base text-black mt-1">{item.price}</Text>
+            <Text className="text-base text-white mt-1">{item.price}</Text>
             {item.bonus > 0 && (
-              <Text className="text-sm text-green-600 font-PlusJakartaSans mt-1">
+              <Text className="text-sm text-green-600 font-Outfit mt-1">
                 +{item.bonus} bonus
               </Text>
             )}
@@ -85,10 +85,10 @@ const WalletScreen = ({ navigation }) => {
       >
         {selectedBundle && (
           <View className="p-5">
-            <Text className="text-xl font-PlusJakartaSansBold mb-2">
+            <Text className="text-xl font-OutfitBold mb-2">
               Confirm Purchase
             </Text>
-            <Text className="text-base text-black mb-4">
+            <Text className="text-base text-white mb-4">
               Buy {selectedBundle.coins} coins for {selectedBundle.price}?
             </Text>
 
@@ -101,7 +101,7 @@ const WalletScreen = ({ navigation }) => {
               }}
               className="bg-purple-600 py-3 rounded-xl"
             >
-              <Text className="text-white text-center font-PlusJakartaSansBold text-lg">
+              <Text className="text-white text-center font-OutfitBold text-lg">
                 Purchase
               </Text>
             </TouchableOpacity>
@@ -110,7 +110,7 @@ const WalletScreen = ({ navigation }) => {
               onPress={() => setSelectedBundle(null)}
               className="py-3 mt-3"
             >
-              <Text className="text-center text-gray-600 font-PlusJakartaSans">
+              <Text className="text-center text-gray-400 font-Outfit">
                 Cancel
               </Text>
             </TouchableOpacity>

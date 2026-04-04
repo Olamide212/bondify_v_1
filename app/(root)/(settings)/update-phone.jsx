@@ -92,17 +92,17 @@ const UpdatePhoneScreen = () => {
   };
 
   return (
-    <SafeAreaView style={{flex: 1}} className="bg-white" edges={["top", "left", "right"]}>
+    <SafeAreaView style={{flex: 1}} className="bg-[#121212]" edges={["top", "left", "right"]}>
       <KeyboardAvoidingView
         style={{flex: 1}}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
         {/* ── Header ── */}
-        <View className="flex-row items-center px-5 py-4 border-b border-gray-100">
+        <View className="flex-row items-center px-5 py-4 ">
           <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
-            <Ionicons name="arrow-back" size={24} color="#111" />
+            <Ionicons name="arrow-back" size={24} color="#E5E5E5" />
           </TouchableOpacity>
-          <Text style={{flex: 1}} className="text-center text-xl font-PlusJakartaSansMedium text-gray-900">
+          <Text style={{flex: 1}} className="text-center text-xl font-OutfitMedium text-white">
             {step === "phone" ? "Update Phone Number" : "Verify Number"}
           </Text>
           <View style={{ width: 24 }} />
@@ -113,10 +113,10 @@ const UpdatePhoneScreen = () => {
           {step === "phone" ? (
             <>
               {/* ── Phone input step ── */}
-              <Text className="text-2xl font-PlusJakartaSansBold text-gray-900 mb-2">
+              <Text className="text-2xl font-OutfitBold text-white mb-2">
                 New phone number
               </Text>
-              <Text className="text-base font-PlusJakartaSans text-gray-500 mb-8 leading-6">
+              <Text className="text-base font-Outfit text-white mb-8 leading-6">
                 We&apos;ll send a one-time code to your email to verify the phone number update.
               </Text>
 
@@ -139,7 +139,7 @@ const UpdatePhoneScreen = () => {
                 {loading ? (
                   <ActivityIndicator color="#fff" />
                 ) : (
-                  <Text className="text-white text-lg font-PlusJakartaSansBold">
+                  <Text className="text-white text-lg font-OutfitBold">
                     Send OTP
                   </Text>
                 )}
@@ -148,18 +148,18 @@ const UpdatePhoneScreen = () => {
           ) : (
             <>
               {/* ── OTP verification step ── */}
-              <Text className="text-2xl font-PlusJakartaSansBold text-gray-900 mb-2">
+              <Text className="text-2xl font-OutfitBold text-white mb-2">
                 Enter the code
               </Text>
-              <Text className="text-base font-PlusJakartaSans text-gray-500 mb-8 leading-6">
+              <Text className="text-base font-Outfit text-gwhite mb-8 leading-6 text-white">
                 We sent a verification code to your email to confirm the phone number change to{" "}
-                <Text className="font-PlusJakartaSansMedium text-gray-800">
+                <Text className="font-OutfitMedium text-primary">
                   {countryCode}{phoneNumber}
                 </Text>
               </Text>
 
               <TextInput
-                className="border border-gray-200 rounded-xl px-4 py-4 text-3xl font-PlusJakartaSansBold text-gray-900 text-center tracking-widest mb-6"
+                className="border border-white rounded-xl px-4 py-4 text-3xl font-OutfitBold text-white text-center tracking-widest mb-6"
                 placeholder="- - - - - -"
                 placeholderTextColor="#ccc"
                 value={otp}
@@ -177,7 +177,7 @@ const UpdatePhoneScreen = () => {
                 {loading ? (
                   <ActivityIndicator color="#fff" />
                 ) : (
-                  <Text className="text-white text-lg font-PlusJakartaSansBold">
+                  <Text className="text-white text-lg font-OutfitBold">
                     Confirm
                   </Text>
                 )}
@@ -191,7 +191,7 @@ const UpdatePhoneScreen = () => {
                 }}
               >
                 <Text
-                  className="text-base font-PlusJakartaSansMedium"
+                  className="text-base font-OutfitMedium"
                   style={{ color: colors.primary }}
                 >
                   ← Change number
@@ -204,10 +204,10 @@ const UpdatePhoneScreen = () => {
                 onPress={handleSendOtp}
                 disabled={loading}
               >
-                <Text className="text-base font-PlusJakartaSans text-gray-400">
+                <Text className="text-base font-Outfit text-white">
                   Didn&apos;t receive it?{" "}
                   <Text
-                    className="font-PlusJakartaSansMedium"
+                    className="font-OutfitMedium"
                     style={{ color: colors.primary }}
                   >
                     Resend

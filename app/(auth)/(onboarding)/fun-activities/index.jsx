@@ -69,7 +69,7 @@ const FunActivities = () => {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "white" }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#121212" }}>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -84,15 +84,15 @@ const FunActivities = () => {
               {/* Title */}
               <View style={{ paddingHorizontal: 16, marginTop: 32, marginBottom: 24 }}>
                 <Text style={{
-                  fontFamily: fonts.PlusJakartaSansBold,
+                  fontFamily: fonts.OutfitBold,
                   fontSize: 28,
-                  color: "#000",
+                  color: '#FFFFFF',
                   marginBottom: 8
                 }}>
                   What activities do you enjoy?
                 </Text>
                 <Text style={{
-                  fontFamily: fonts.PlusJakartaSans,
+                  fontFamily: fonts.Outfit,
                   fontSize: 16,
                   color: '#6b7280',
                   textAlign: 'center',
@@ -106,7 +106,7 @@ const FunActivities = () => {
               {selectedActivities.length > 0 && (
                 <View style={{ paddingHorizontal: 16, marginBottom: 20 }}>
                   <Text style={{
-                    fontFamily: fonts.PlusJakartaSansBold,
+                    fontFamily: fonts.OutfitBold,
                     fontSize: 16,
                     color: colors.primary,
                     marginBottom: 12,
@@ -132,9 +132,9 @@ const FunActivities = () => {
                       >
                         <Heart size={14} color={colors.primary} />
                         <Text style={{
-                          fontFamily: fonts.PlusJakartaSansMedium,
+                          fontFamily: fonts.OutfitMedium,
                           fontSize: 13,
-                          color: '#1a1a1a',
+                          color: '#E5E5E5',
                         }}>
                           {activity}
                         </Text>
@@ -175,7 +175,7 @@ const FunActivities = () => {
                   }}
                 >
                   <Text style={{
-                    fontFamily: fonts.PlusJakartaSansMedium,
+                    fontFamily: fonts.OutfitMedium,
                     fontSize: 16,
                     color: '#6b7280',
                   }}>

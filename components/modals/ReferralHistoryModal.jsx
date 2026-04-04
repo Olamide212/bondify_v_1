@@ -196,14 +196,14 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingHorizontal: 20,
     paddingVertical: 14,
-    backgroundColor: "#fff",
+    backgroundColor: "#121212",
     borderBottomWidth: 1,
-    borderBottomColor: "#F0F0F0",
+    borderBottomColor: '#333333',
   },
   headerTitle: {
     fontSize: 18,
-    fontFamily: "PlusJakartaSansBold",
-    color: "#111",
+    fontFamily: "OutfitBold",
+    color: '#E5E5E5',
   },
   closeBtn: {
     width: 36,
@@ -217,7 +217,7 @@ const styles = StyleSheet.create({
   // Summary bar
   summaryBar: {
     flexDirection: "row",
-    backgroundColor: "#fff",
+    backgroundColor: "#121212",
     marginHorizontal: 16,
     marginTop: 16,
     borderRadius: 16,
@@ -234,18 +234,18 @@ const styles = StyleSheet.create({
   },
   summaryValue: {
     fontSize: 22,
-    fontFamily: "PlusJakartaSansBold",
-    color: "#111",
+    fontFamily: "OutfitBold",
+    color: '#E5E5E5',
     marginBottom: 2,
   },
   summaryLabel: {
     fontSize: 12,
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
     color: "#999",
   },
   summaryDivider: {
     width: 1,
-    backgroundColor: "#F0F0F0",
+    backgroundColor: '#1E1E1E',
     marginVertical: 4,
   },
 
@@ -259,7 +259,7 @@ const styles = StyleSheet.create({
   },
   separator: {
     height: 1,
-    backgroundColor: "#F0F0F0",
+    backgroundColor: '#1E1E1E',
     marginLeft: 72,
   },
 
@@ -267,7 +267,7 @@ const styles = StyleSheet.create({
   itemRow: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#fff",
+    backgroundColor: "#121212",
     borderRadius: 16,
     padding: 14,
     marginBottom: 1,
@@ -289,7 +289,7 @@ const styles = StyleSheet.create({
   },
   avatarInitials: {
     fontSize: 16,
-    fontFamily: "PlusJakartaSansBold",
+    fontFamily: "OutfitBold",
     color: PRIMARY,
   },
   itemInfo: {
@@ -297,13 +297,13 @@ const styles = StyleSheet.create({
   },
   itemName: {
     fontSize: 15,
-    fontFamily: "PlusJakartaSansSemiBold",
-    color: "#111",
+    fontFamily: "OutfitSemiBold",
+    color: '#E5E5E5',
     marginBottom: 3,
   },
   itemDate: {
     fontSize: 12,
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
     color: "#999",
   },
   itemRight: {
@@ -320,7 +320,7 @@ const styles = StyleSheet.create({
   },
   statusText: {
     fontSize: 11,
-    fontFamily: "PlusJakartaSansSemiBold",
+    fontFamily: "OutfitSemiBold",
   },
   rewardRow: {
     flexDirection: "row",
@@ -329,7 +329,7 @@ const styles = StyleSheet.create({
   },
   rewardText: {
     fontSize: 11,
-    fontFamily: "PlusJakartaSansMedium",
+    fontFamily: "OutfitMedium",
     color: PRIMARY,
   },
 
@@ -351,14 +351,14 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     fontSize: 18,
-    fontFamily: "PlusJakartaSansBold",
-    color: "#111",
+    fontFamily: "OutfitBold",
+    color: '#E5E5E5',
     marginBottom: 8,
     textAlign: "center",
   },
   emptySubtitle: {
     fontSize: 14,
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
     color: "#999",
     textAlign: "center",
     lineHeight: 22,
@@ -373,7 +373,7 @@ const styles = StyleSheet.create({
   },
   loaderText: {
     fontSize: 14,
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
     color: "#999",
   },
 });

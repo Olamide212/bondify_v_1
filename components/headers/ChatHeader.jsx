@@ -78,7 +78,7 @@ const ChatHeader = ({ matchedUser, onBack, onOpenProfile, onOpenActions, onUnmat
   return (
     <View style={styles.header}>
       <TouchableOpacity style={styles.backButton} onPress={onBack} activeOpacity={0.8}>
-        <ArrowLeft color="#000" size={28} />
+        <ArrowLeft color="#fff" size={28} />
       </TouchableOpacity>
       <View style={styles.profileTapArea}>
         <TouchableOpacity
@@ -142,8 +142,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     padding: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: "#F3F4F6",
+    // borderBottomWidth: 1,
+    // borderBottomColor: colors.whiteLight,
   },
   backButton: {
     width: 36,
@@ -168,7 +168,7 @@ const styles = StyleSheet.create({
   avatarFallback: {
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#F8FAFC",
+    backgroundColor: '#1E1E1E',
     overflow: "hidden",
   },
   avatarLoadingOverlay: {
@@ -198,8 +198,8 @@ const styles = StyleSheet.create({
   },
   userName: {
     fontSize: 19,
-fontFamily: fonts.PlusJakartaSansBold,
-    color: "#1F2937",
+fontFamily: fonts.OutfitBold,
+    color: '#fff',
   },
   statusContainer: {
     flexDirection: "row",
@@ -208,18 +208,18 @@ fontFamily: fonts.PlusJakartaSansBold,
   },
   onlineText: {
     fontSize: 12,
-    fontFamily: fonts.PlusJakartaSansSemiBold,
+    fontFamily: fonts.OutfitSemiBold,
     marginLeft: 4,
   },
   offlineText: {
     color: "#9CA3AF",
     fontSize: 12,
-    fontFamily: fonts.PlusJakartaSansSemiBold,
+    fontFamily: fonts.OutfitSemiBold,
   },
   systemText: {
     color: "#1D9BF0",
     fontSize: 12,
-    fontFamily: fonts.PlusJakartaSansMedium,
+    fontFamily: fonts.OutfitMedium,
   },
 });
 

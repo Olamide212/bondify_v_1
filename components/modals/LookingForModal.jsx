@@ -31,13 +31,13 @@ const LookingForModal = ({
             <TouchableOpacity
               key={option.value}
               onPress={() => setSelectedOption(option.value)}
-              className={`py-3 px-3 border-b border-gray-200 ${
+              className={`py-3 px-3 border-b border-gray-600 ${
                 isSelected ? "bg-primary/10" : ""
               }`}
             >
               <Text
-                className={`text-[16px] font-PlusJakartaSansMedium ${
-                  isSelected ? "text-primary" : "text-black"
+                className={`text-[16px] font-OutfitMedium ${
+                  isSelected ? "text-primary" : "text-white"
                 }`}
               >
                 {option.label}

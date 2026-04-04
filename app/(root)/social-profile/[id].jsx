@@ -141,11 +141,11 @@ export default function SocialProfileScreen() {
           <View style={{ width: 36 }} />
         </View>
         <View style={s.loadingContainer}>
-          <Text style={{ fontSize: 16, color: '#888', textAlign: 'center', fontFamily: 'PlusJakartaSansMedium' }}>
+          <Text style={{ fontSize: 16, color: '#888', textAlign: 'center', fontFamily: 'OutfitMedium' }}>
             Could not load profile.{'\n'}Please try again.
           </Text>
           <TouchableOpacity onPress={() => { setLoading(true); loadProfile(); }} style={{ marginTop: 16, paddingHorizontal: 24, paddingVertical: 12, backgroundColor: BRAND, borderRadius: 12 }}>
-            <Text style={{ color: '#fff', fontFamily: 'PlusJakartaSansBold', fontSize: 14 }}>Retry</Text>
+            <Text style={{ color: '#fff', fontFamily: 'OutfitBold', fontSize: 14 }}>Retry</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -293,7 +293,7 @@ export default function SocialProfileScreen() {
 const s = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#121212',
   },
   loadingContainer: {
     flex: 1,
@@ -315,14 +315,14 @@ const s = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: '#1E1E1E',
     justifyContent: 'center',
     alignItems: 'center',
   },
   headerTitle: {
     fontSize: 17,
-    fontFamily: 'PlusJakartaSansBold',
-    color: '#111',
+    fontFamily: 'OutfitBold',
+    color: '#E5E5E5',
   },
 
   // Avatar
@@ -346,7 +346,7 @@ const s = StyleSheet.create({
   avatarInitial: {
     color: '#fff',
     fontSize: 34,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: 'OutfitBold',
   },
 
   // Name
@@ -357,20 +357,20 @@ const s = StyleSheet.create({
   },
   fullName: {
     fontSize: 22,
-    fontFamily: 'PlusJakartaSansBold',
-    color: '#111',
+    fontFamily: 'OutfitBold',
+    color: '#E5E5E5',
     marginBottom: 4,
   },
   userName: {
     fontSize: 14,
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: 'OutfitMedium',
     color: '#888',
     marginBottom: 6,
   },
   bio: {
     fontSize: 14,
-    fontFamily: 'PlusJakartaSans',
-    color: '#555',
+    fontFamily: 'Outfit',
+    color: '#9CA3AF',
     textAlign: 'center',
     lineHeight: 20,
   },
@@ -392,12 +392,12 @@ const s = StyleSheet.create({
   },
   statNumber: {
     fontSize: 20,
-    fontFamily: 'PlusJakartaSansBold',
-    color: '#111',
+    fontFamily: 'OutfitBold',
+    color: '#E5E5E5',
   },
   statLabel: {
     fontSize: 12,
-    fontFamily: 'PlusJakartaSans',
+    fontFamily: 'Outfit',
     color: '#888',
     marginTop: 2,
   },
@@ -425,7 +425,7 @@ const s = StyleSheet.create({
     elevation: 4,
   },
   followingBtn: {
-    backgroundColor: '#fff',
+    backgroundColor: '#121212',
     borderWidth: 1.5,
     borderColor: BRAND,
     shadowOpacity: 0,
@@ -433,12 +433,12 @@ const s = StyleSheet.create({
   },
   followBtnText: {
     fontSize: 15,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: 'OutfitBold',
     color: '#fff',
   },
   followingBtnText: {
     fontSize: 15,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: 'OutfitBold',
     color: BRAND,
   },
 
@@ -450,13 +450,13 @@ const s = StyleSheet.create({
     paddingHorizontal: 16,
     paddingBottom: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
+    borderBottomColor: '#333333',
     marginBottom: 2,
   },
   postsHeaderText: {
     fontSize: 15,
-    fontFamily: 'PlusJakartaSansBold',
-    color: '#111',
+    fontFamily: 'OutfitBold',
+    color: '#E5E5E5',
   },
   postsContent: {
     paddingBottom: 40,
@@ -469,7 +469,7 @@ const s = StyleSheet.create({
     flex: 1,
     aspectRatio: 1,
     margin: 1,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: '#1E1E1E',
     overflow: 'hidden',
   },
   postThumbImage: {
@@ -484,8 +484,8 @@ const s = StyleSheet.create({
   },
   postThumbTextContent: {
     fontSize: 12,
-    fontFamily: 'PlusJakartaSans',
-    color: '#444',
+    fontFamily: 'Outfit',
+    color: '#D1D5DB',
   },
 
   emptyPosts: {
@@ -495,7 +495,7 @@ const s = StyleSheet.create({
   emptyPostsEmoji: { fontSize: 40, marginBottom: 12 },
   emptyPostsText: {
     fontSize: 14,
-    fontFamily: 'PlusJakartaSans',
+    fontFamily: 'Outfit',
     color: '#888',
   },
 });

@@ -8,6 +8,7 @@ import {
   Dimensions,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
+import { colors } from "../../constant/colors";
 
 const { width } = Dimensions.get("window");
 
@@ -101,17 +102,17 @@ const styles = StyleSheet.create({
     flex: 1,
     borderRadius: 16,
     overflow: "hidden",
-    backgroundColor: "#fff",
-    borderWidth: 2,
-    borderColor: "#FFFFFF",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.15,
-    shadowRadius: 6,
-    elevation: 6,
+    backgroundColor: "#121212",
+    borderWidth: 1,
+    borderColor: colors.whiteLight,
+    // shadowColor: "#000",
+    // shadowOffset: {
+    //   width: 0,
+    //   height: 4,
+    // },
+    // shadowOpacity: 0.15,
+    // shadowRadius: 6,
+    // elevation: 6,
   },
   image: {
     flex: 1,
@@ -142,6 +143,7 @@ const styles = StyleSheet.create({
     textShadowColor: "rgba(0, 0, 0, 0.75)",
     textShadowOffset: { width: -1, height: 1 },
     textShadowRadius: 5,
+    textTransform: "capitalize",
   },
 });
 

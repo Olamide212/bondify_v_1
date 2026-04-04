@@ -5,7 +5,7 @@ import * as Progress from "react-native-progress";
 
 const UserProfileHeader = ({ progress }) => {
   return (
-    <View className="flex-row items-center justify-between p-4 bg-white">
+    <View className="flex-row items-center justify-between p-4 bg-[#121212]">
       <ArrowLeft size={24} />
       <View style={{flex: 1}} className="px-4">
         <Progress.Bar

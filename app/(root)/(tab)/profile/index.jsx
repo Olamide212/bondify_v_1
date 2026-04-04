@@ -93,10 +93,10 @@ const ProfileScreen = () => {
   return (
     <SafeAreaProvider>
      
-      <SafeAreaView style={{flex: 1}} className="bg-white ">
+      <SafeAreaView style={{flex: 1}} className="bg-[#121212] ">
             <GeneralHeader
           title="Profile"
-          icon={<Settings size={25} color={colors.textPrimary}
+          icon={<Settings size={25} color={colors.white}
            />}
            onPress={() => router.push("/settings")}
         />
@@ -176,7 +176,7 @@ const tabStyles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     borderBottomWidth: 1,
-    borderBottomColor: "#F0F0F0",
+    borderBottomColor: '#333333',
   },
   tab: {
     flex: 1,
@@ -189,10 +189,10 @@ const tabStyles = StyleSheet.create({
   },
   tabLabel: {
     fontSize: 15,
-    fontFamily: "PlusJakartaSansBold",
+    fontFamily: "OutfitBold",
   },
   tabLabelActive: {
-    color: "#111",
+    color: '#E5E5E5',
   },
   tabLabelInactive: {
     color: "#9CA3AF",

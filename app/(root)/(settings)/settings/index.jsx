@@ -18,14 +18,14 @@ const SettingScreen = () => {
   const { colors } = useTheme()
 
   return (
-    <SafeAreaView style={[styles.safe, { backgroundColor: '#fff' }]}>
-      <StatusBar barStyle={colors.statusBarStyle} backgroundColor={"#fff"} />
+    <SafeAreaView style={[styles.safe, { backgroundColor: '#121212' }]}>
+      <StatusBar barStyle={colors.statusBarStyle} backgroundColor={"#121212"} />
 
       <GeneralHeader title="Profile settings" leftIcon={<ArrowLeft color={colors.textPrimary} />} />
 
       <ScrollView
-        contentContainerStyle={[styles.scrollContent, { backgroundColor: '#fff' }]}
-        style={{ backgroundColor: '#fff' }}
+        contentContainerStyle={[styles.scrollContent, { backgroundColor: '#121212' }]}
+        style={{ backgroundColor: '#121212' }}
         showsVerticalScrollIndicator={false}
       >
         <AccountSection />
@@ -62,7 +62,7 @@ const styles = StyleSheet.create({
   },
   versionText: {
     fontSize: 13,
-    fontFamily: 'PlusJakartaSans',
+    fontFamily: 'Outfit',
     letterSpacing: 0.3,
   },
 })

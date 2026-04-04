@@ -64,7 +64,7 @@ const AccordionSection = ({ section, colors, defaultOpen = false }) => {
   return (
     <View style={[acc.wrapper, { borderBottomColor: colors.border }]}>
       <TouchableOpacity style={acc.header} onPress={() => setOpen((v) => !v)} activeOpacity={0.7}>
-        <Icon size={20} color={colors.secondary} strokeWidth={1.8} />
+        <Icon size={20} color={'#fff'} strokeWidth={1.8} />
         <Text style={[acc.title, { color: colors.textPrimary }]}>{section.title}</Text>
         {open
           ? <ChevronUp size={18} color={colors.textTertiary} />
@@ -91,14 +91,14 @@ const PrivacyPolicy = () => {
   const router = useRouter();
 
   return (
-    <SafeAreaView style={[s.safe, { backgroundColor: '#fff' }]} edges={["top"]}>
-      <StatusBar barStyle={colors.statusBarStyle} backgroundColor={'#fff'} />
+    <SafeAreaView style={[s.safe, { backgroundColor: '#121212' }]} edges={["top"]}>
+      <StatusBar barStyle={colors.statusBarStyle} backgroundColor={'#121212'} />
 
-     <GeneralHeader title="Privacy Policy" onBack={() => router.back()} leftIcon={<ArrowLeft />} />
+     <GeneralHeader title="Privacy Policy" onBack={() => router.back()} leftIcon={<ArrowLeft color={'#fff'} />} />
 
       <ScrollView
-        style={{ backgroundColor: '#fff' }}
-        contentContainerStyle={[s.body, { backgroundColor: '#fff' }]}
+        style={{ backgroundColor: '#121212' }}
+        contentContainerStyle={[s.body, { backgroundColor: '#121212' }]}
         showsVerticalScrollIndicator={false}
       >
         {/* Icon */}
@@ -149,15 +149,15 @@ const s = StyleSheet.create({
     flexDirection: "row", alignItems: "center", justifyContent: "space-between",
     paddingHorizontal: 16, paddingVertical: 14, borderBottomWidth: StyleSheet.hairlineWidth,
   },
-  headerTitle: { fontSize: 18, fontFamily: "PlusJakartaSansBold" },
+  headerTitle: { fontSize: 18, fontFamily: "OutfitBold" },
   body: { paddingHorizontal: 20, paddingTop: 28, paddingBottom: 60 },
   iconBubble: {
     width: 60, height: 60, borderRadius: 16,
     alignItems: "center", justifyContent: "center", marginBottom: 20,
   },
-  pageTitle: { fontSize: 26, fontFamily: "PlusJakartaSansBold", letterSpacing: -0.5, marginBottom: 12 },
-  pageIntro: { fontSize: 14, fontFamily: "PlusJakartaSans", lineHeight: 21, marginBottom: 10 },
-  lastUpdated: { fontSize: 11, fontFamily: "PlusJakartaSansBold", letterSpacing: 0.6, marginBottom: 24 },
+  pageTitle: { fontSize: 26, fontFamily: "OutfitBold", letterSpacing: -0.5, marginBottom: 12 },
+  pageIntro: { fontSize: 14, fontFamily: "Outfit", lineHeight: 21, marginBottom: 10 },
+  lastUpdated: { fontSize: 11, fontFamily: "OutfitBold", letterSpacing: 0.6, marginBottom: 24 },
   accordionCard: {
     borderRadius: 16, borderWidth: StyleSheet.hairlineWidth,
     overflow: "hidden", marginBottom: 20,
@@ -166,10 +166,10 @@ const s = StyleSheet.create({
     borderRadius: 16, borderWidth: StyleSheet.hairlineWidth,
     padding: 18,
   },
-  contactTitle: { fontSize: 16, fontFamily: "PlusJakartaSansBold", marginBottom: 8 },
-  contactBody: { fontSize: 13, fontFamily: "PlusJakartaSans", lineHeight: 19, marginBottom: 14 },
+  contactTitle: { fontSize: 16, fontFamily: "OutfitBold", marginBottom: 8 },
+  contactBody: { fontSize: 13, fontFamily: "Outfit", lineHeight: 19, marginBottom: 14 },
   contactLink: { flexDirection: "row", alignItems: "center", gap: 6 },
-  contactLinkText: { fontSize: 14, fontFamily: "PlusJakartaSansBold", color: colors.primary },
+  contactLinkText: { fontSize: 14, fontFamily: "OutfitBold", color: colors.primary },
 });
 
 const acc = StyleSheet.create({
@@ -178,12 +178,12 @@ const acc = StyleSheet.create({
     flexDirection: "row", alignItems: "center", gap: 12,
     paddingHorizontal: 16, paddingVertical: 16,
   },
-  title: { flex: 1, fontSize: 16, fontFamily: "PlusJakartaSansSemiBold" },
+  title: { flex: 1, fontSize: 16, fontFamily: "OutfitSemiBold" },
   body: { paddingHorizontal: 16, paddingBottom: 16 },
-  bodyText: { fontSize: 14, fontFamily: "PlusJakartaSansMedium", lineHeight: 19, marginBottom: 10 },
+  bodyText: { fontSize: 14, fontFamily: "OutfitMedium", lineHeight: 19, marginBottom: 10 },
   bulletRow: { flexDirection: "row", gap: 8, alignItems: "flex-start", marginBottom: 6 },
   dot: { width: 6, height: 6, borderRadius: 3, marginTop: 6, flexShrink: 0 },
-  bulletText: { flex: 1, fontSize: 13, fontFamily: "PlusJakartaSans", lineHeight: 19 },
+  bulletText: { flex: 1, fontSize: 13, fontFamily: "Outfit", lineHeight: 19 },
 });
 
 export default PrivacyPolicy;

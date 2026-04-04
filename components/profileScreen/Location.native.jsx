@@ -1,14 +1,14 @@
 import * as ExpoLocation from "expo-location";
-import { MapPin, Navigation, Search, X } from "lucide-react-native";
+import { Navigation, Search, X } from "lucide-react-native";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
-  ActivityIndicator,
-  Keyboard,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Keyboard,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import { colors } from "../../constant/colors";
@@ -213,7 +213,7 @@ const Location = ({ profile, onUpdateField }) => {
           <View style={s.modalHeader}>
             <Text style={s.modalTitle}>Set Location</Text>
             <TouchableOpacity onPress={() => setIsModalVisible(false)} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-              <X size={22} color="#111" />
+              <X size={22} color="#fff" />
             </TouchableOpacity>
           </View>
 
@@ -304,10 +304,10 @@ export default Location;
 const s = StyleSheet.create({
   // ── Trigger card ──
   card: {
-    backgroundColor:  '#fff',
-    borderRadius:     16,
+    backgroundColor: 'rgba(255,255,255,0.02)',
+    borderRadius:     12,
     borderWidth:      1,
-    borderColor:      '#F3F4F6',
+    borderColor:      'rgba(255,255,255,0.1)',
     marginHorizontal: 16,
     padding:          16,
   },
@@ -326,20 +326,20 @@ const s = StyleSheet.create({
   },
   cardLocation: {
     fontSize:   16,
-    fontFamily: 'PlusJakartaSansSemiBold',
-    color:      '#111',
+    fontFamily: 'OutfitSemiBold',
+    color: '#E5E5E5',
     marginBottom: 2,
   },
   cardCta: {
     fontSize:   13,
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: 'OutfitMedium',
     color:      colors.primary,
   },
 
   // ── Modal ──
   modal: {
     flex:             1,
-    backgroundColor:  '#fff',
+    backgroundColor: '#121212',
   },
   modalHeader: {
     flexDirection:    'row',
@@ -351,8 +351,8 @@ const s = StyleSheet.create({
   },
   modalTitle: {
     fontSize:   18,
-    fontFamily: 'PlusJakartaSansBold',
-    color:      '#111',
+    fontFamily: 'OutfitBold',
+    color: '#E5E5E5',
   },
 
   // ── Map ──
@@ -370,7 +370,7 @@ const s = StyleSheet.create({
   searchInputWrap: {
     flexDirection:     'row',
     alignItems:        'center',
-    backgroundColor:   '#fff',
+    backgroundColor: '#fff',
     borderRadius:      12,
     paddingHorizontal: 14,
     paddingVertical:   10,
@@ -384,8 +384,8 @@ const s = StyleSheet.create({
   searchInput: {
     flex:       1,
     fontSize:   15,
-    fontFamily: 'PlusJakartaSansMedium',
-    color:      '#111',
+    fontFamily: 'OutfitMedium',
+    color: '#121212',
     padding:    0,
   },
   gpsBtn: {
@@ -418,7 +418,7 @@ const s = StyleSheet.create({
   },
   geocodingText: {
     fontSize:   12,
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: 'OutfitMedium',
     color:      '#fff',
   },
   mapHint: {
@@ -432,7 +432,7 @@ const s = StyleSheet.create({
   },
   mapHintText: {
     fontSize:   12,
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: 'OutfitMedium',
     color:      '#fff',
   },
 
@@ -454,7 +454,7 @@ const s = StyleSheet.create({
   },
   saveBtnText: {
     fontSize:   16,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: 'OutfitBold',
     color:      '#fff',
   },
 });

@@ -1,16 +1,17 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { useEffect, useRef } from "react";
-import { StyleSheet, TouchableOpacity, View } from "react-native";
+import { StyleSheet, TouchableOpacity } from "react-native";
 import Animated, {
-    useAnimatedStyle,
-    useSharedValue,
-    withDelay,
-    withRepeat,
-    withSequence,
-    withSpring,
-    withTiming,
+  useAnimatedStyle,
+  useSharedValue,
+  withDelay,
+  withRepeat,
+  withSequence,
+  withSpring,
+  withTiming,
 } from "react-native-reanimated";
 import { useDispatch, useSelector } from "react-redux";
 import { colors } from "../../../constant/colors";
@@ -147,7 +148,12 @@ const SplashScreen = () => {
 
   // ── Render ───────────────────────────────────────────────────────────────────
   return (
-    <View style={styles.container}>
+    <LinearGradient
+      colors={[colors.secondary, colors.primary]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={styles.container}
+    >
       <TouchableOpacity
         style={styles.logoWrap}
         activeOpacity={1}
@@ -159,14 +165,13 @@ const SplashScreen = () => {
           resizeMode="contain"
         />
       </TouchableOpacity>
-    </View>
+    </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex:            1,
-    backgroundColor: colors.primary,
     alignItems:      "center",
     justifyContent:  "center",
   },

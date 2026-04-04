@@ -50,7 +50,7 @@ const InterestsModal = ({
         >
           {INTEREST_CATEGORIES.map((category) => (
             <View key={category.title} className="mb-6">
-              <Text className="text-black font-PlusJakartaSansBold text-lg mb-3">
+              <Text className="text-white font-OutfitBold text-lg mb-3">
                 {category.title}
               </Text>
               <View className="flex-row flex-wrap gap-2">
@@ -63,14 +63,14 @@ const InterestsModal = ({
                   const chipClassName = selected
                     ? "bg-primary border-primary"
                     : isHighlighted
-                      ? "bg-secondary border-secondary"
-                      : "bg-white border-[#D1D1D1]";
+                      ? "bg-primary border-primary"
+                      : "bg-[#121212] border-[#D1D1D1]";
 
                   const textClassName = selected
                     ? "text-white"
                     : isHighlighted
                       ? "text-white"
-                      : "text-black";
+                      : "text-white";
 
                   return (
                     <TouchableOpacity
@@ -78,7 +78,7 @@ const InterestsModal = ({
                       onPress={() => toggleInterest(interest)}
                       className={`px-4 py-2 rounded-full border ${chipClassName}`}
                     >
-                      <Text className={`font-PlusJakartaSansMedium text-lg ${textClassName}`}>
+                      <Text className={`font-OutfitMedium text-lg ${textClassName}`}>
                         {interest}
                       </Text>
                     </TouchableOpacity>

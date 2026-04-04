@@ -181,7 +181,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 18,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: 'OutfitBold',
     color: colors.secondary,
   },
   closeButton: {
@@ -206,8 +206,8 @@ const styles = StyleSheet.create({
   },
   imageLabel: {
     fontSize: 12,
-    fontFamily: 'PlusJakartaSansMedium',
-    color: '#666',
+    fontFamily: 'OutfitMedium',
+    color: '#9CA3AF',
     marginTop: 5,
     textAlign: 'center',
   },
@@ -227,7 +227,7 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 10,
     fontSize: 16,
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: 'OutfitMedium',
     color: '#fff',
   },
   errorContainer: {
@@ -236,7 +236,7 @@ const styles = StyleSheet.create({
   },
   errorText: {
     fontSize: 16,
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: 'OutfitMedium',
     color: '#EF4444',
     textAlign: 'center',
     marginBottom: 15,
@@ -250,7 +250,7 @@ const styles = StyleSheet.create({
   retryText: {
     color: '#fff',
     fontSize: 14,
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: 'OutfitMedium',
   },
   suggestionContainer: {
     gap: 15,
@@ -261,34 +261,34 @@ const styles = StyleSheet.create({
   },
   matchText: {
     fontSize: 18,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: 'OutfitBold',
     textAlign: 'center',
   },
   confidenceText: {
     fontSize: 14,
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: 'OutfitMedium',
     color: 'rgba(255,255,255,0.8)',
     marginTop: 5,
   },
   reasonTitle: {
     fontSize: 16,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: 'OutfitBold',
     color: '#fff',
   },
   reasonText: {
     fontSize: 14,
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: 'OutfitMedium',
     color: 'rgba(255,255,255,0.9)',
     lineHeight: 20,
   },
   suggestionTitle: {
     fontSize: 16,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: 'OutfitBold',
     color: '#fff',
   },
   suggestionText: {
     fontSize: 14,
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: 'OutfitMedium',
     color: 'rgba(255,255,255,0.9)',
     lineHeight: 20,
     fontStyle: 'italic',
@@ -298,7 +298,7 @@ const styles = StyleSheet.create({
   
   },
   closeModalButton: {
-    backgroundColor: '#fff',
+    backgroundColor: '#121212',
     paddingVertical: 20,
     borderRadius: 50,
     alignItems: 'center',
@@ -306,7 +306,7 @@ const styles = StyleSheet.create({
   closeModalText: {
     color: colors.tertiary,
     fontSize: 16,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: 'OutfitBold',
   },
 });
 

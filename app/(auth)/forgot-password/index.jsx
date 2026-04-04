@@ -61,7 +61,7 @@ const ForgotPassword = () => {
   };
 
   return (
-    <SafeAreaView style={{flex: 1}} className="bg-white" style={{flex: 1}}>
+    <SafeAreaView style={{flex: 1}} className="bg-[#121212]" style={{flex: 1}}>
       <KeyboardAvoidingView
         style={{flex: 1}}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -72,10 +72,10 @@ const ForgotPassword = () => {
          
 
             <View style={{flex: 1}} className="mt-4">
-              <Text className="text-3xl font-PlusJakartaSansSemiBold text-black">
+              <Text className="text-3xl font-OutfitSemiBold text-white">
                 Forgot password?
               </Text>
-              <Text className="mb-5 text-black text-lg font-PlusJakartaSans">
+              <Text className="mb-5 text-white text-lg font-Outfit">
                 Enter the email address associated with your account and
                 we&apos;ll send you a verification code to reset your password.
               </Text>
@@ -99,11 +99,11 @@ const ForgotPassword = () => {
               />
 
               <View className="flex-row justify-center items-center gap-1 mt-4 w-full">
-                <Text className="text-lg font-PlusJakartaSansMedium">
+                <Text className="text-lg font-OutfitMedium">
                   Remember your password?
                 </Text>
                 <Pressable onPress={() => router.back()}>
-                  <Text className="text-lg font-PlusJakartaSansMedium text-primary">
+                  <Text className="text-lg font-OutfitMedium text-primary">
                     Login
                   </Text>
                 </Pressable>

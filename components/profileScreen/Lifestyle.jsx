@@ -92,7 +92,7 @@ export default LifestyleCard;
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor:  '#fff',
+    backgroundColor: '#121212',
     borderRadius:     16,
     marginHorizontal: 16,
     marginTop:        16,
@@ -108,12 +108,12 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize:   20,
-    fontFamily: 'PlusJakartaSansBold',
-    color:      '#111',
+    fontFamily: 'OutfitBold',
+    color: '#E5E5E5',
   },
   editBtn: {
     fontSize:   15,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: 'OutfitBold',
     color:      '#E8651A',
   },
   grid: {
@@ -125,7 +125,7 @@ const styles = StyleSheet.create({
     flexDirection:     'row',
     alignItems:        'center',
     gap:               8,
-    backgroundColor:   '#F3F4F6',
+    backgroundColor: '#1E1E1E',
     paddingHorizontal: 14,
     paddingVertical:   10,
     borderRadius:      99,
@@ -135,8 +135,8 @@ const styles = StyleSheet.create({
   },
   chipText: {
     fontSize:   14,
-    fontFamily: 'PlusJakartaSansMedium',
-    color:      '#374151',
+    fontFamily: 'OutfitMedium',
+    color: '#D1D5DB',
     flexShrink: 1,
   },
   emptyState: {
@@ -145,7 +145,7 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize:   14,
-    fontFamily: 'PlusJakartaSans',
+    fontFamily: 'Outfit',
     color:      '#9CA3AF',
   },
 });

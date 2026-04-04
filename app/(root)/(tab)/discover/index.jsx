@@ -442,7 +442,7 @@ const AIChatScreen = ({ navigation }) => {
 
 // ─── Styles ───────────────────────────────────────────────────
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fff" },
+  container: { flex: 1, backgroundColor: "#121212" },
 
   // Header
   header: {
@@ -467,8 +467,8 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 16,
     fontWeight: "700",
-    color: "#111",
-    fontFamily: "PlusJakartaSans",
+    color: '#E5E5E5',
+    fontFamily: "Outfit",
   },
   onlineRow: { flexDirection: "row", alignItems: "center", gap: 5, marginTop: 2 },
   onlineDot: { width: 7, height: 7, borderRadius: 4, backgroundColor: "#22c55e" },
@@ -477,7 +477,7 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     color: PRIMARY,
     letterSpacing: 0.7,
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
   },
 
   // Messages list
@@ -512,9 +512,9 @@ const styles = StyleSheet.create({
   },
   aiBubbleText: {
     fontSize: 15,
-    color: "#111",
+    color: '#E5E5E5',
     lineHeight: 22,
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
   },
 
   // Suggestion card
@@ -523,7 +523,7 @@ const styles = StyleSheet.create({
     borderColor: PRIMARY_BORDER,
     borderRadius: 16,
     padding: 14,
-    backgroundColor: "#fff",
+    backgroundColor: "#121212",
     gap: 10,
     maxWidth: "96%",
   },
@@ -537,13 +537,13 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     color: PRIMARY,
     letterSpacing: 0.8,
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
   },
   suggestionQuote: {
     fontSize: 15,
-    color: "#111",
+    color: '#E5E5E5',
     lineHeight: 22,
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
   },
   copyBtn: {
     borderWidth: 1.5,
@@ -551,13 +551,13 @@ const styles = StyleSheet.create({
     borderRadius: 22,
     paddingVertical: 9,
     alignItems: "center",
-    backgroundColor: "#fff",
+    backgroundColor: "#121212",
   },
   copyBtnText: {
     fontSize: 14,
     color: PRIMARY,
     fontWeight: "600",
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
   },
 
   // Tip card
@@ -573,13 +573,13 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: "700",
     color: PRIMARY,
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
   },
   tipContent: {
     fontSize: 14,
-    color: "#444",
+    color: '#D1D5DB',
     lineHeight: 20,
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
   },
 
   // User bubble
@@ -603,7 +603,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: "#fff",
     lineHeight: 22,
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
   },
   userAvatarPlaceholder: {
     width: 36,
@@ -621,19 +621,19 @@ const styles = StyleSheet.create({
     color: "#aaa",
     marginTop: 4,
     alignSelf: "flex-end",
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
   },
   timestampUser: {
     fontSize: 11,
     color: "rgba(255,255,255,0.6)",
     marginTop: 4,
     alignSelf: "flex-end",
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
   },
 
   // Error bubble
   errorBubble: {
-    backgroundColor: "#FEF2F2",
+    backgroundColor: '#2A1A1A',
     borderWidth: 1,
     borderColor: "#fecaca",
     borderRadius: 14,
@@ -644,13 +644,13 @@ const styles = StyleSheet.create({
   errorText: {
     fontSize: 14,
     color: "#ef4444",
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
   },
   retryBtn: { flexDirection: "row", alignItems: "center", gap: 5 },
   retryText: {
     fontSize: 12,
     color: PRIMARY,
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
   },
 
   // Typing indicator
@@ -681,7 +681,7 @@ const styles = StyleSheet.create({
   chipsScroll: {
     borderTopWidth: 1,
     borderTopColor: "#f2f2f2",
-    backgroundColor: "#fff",
+    backgroundColor: "#121212",
   },
   chipsRow: {
     paddingHorizontal: 12,
@@ -699,14 +699,14 @@ const styles = StyleSheet.create({
     borderRadius: 22,
     paddingHorizontal: 14,
     paddingVertical:2,
-    backgroundColor: "#fff",
+    backgroundColor: "#121212",
     maxHeight: 32,
   },
   chipIcon: { fontSize: 14 },
   chipLabel: {
     fontSize: 13,
-    color: "#333",
-    fontFamily: "PlusJakartaSans",
+    color: '#D1D5DB',
+    fontFamily: "Outfit",
   },
 
   // Input bar
@@ -716,7 +716,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingTop: 8,
     paddingBottom: 14,
-    backgroundColor: "#fff",
+    backgroundColor: "#121212",
     gap: 10,
   },
   inputWrapper: {
@@ -734,9 +734,9 @@ const styles = StyleSheet.create({
   textInput: {
     flex: 1,
     fontSize: 15,
-    color: "#111",
+    color: '#E5E5E5',
     maxHeight: 100,
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
     paddingTop: 0,
     paddingBottom: 0,
   },

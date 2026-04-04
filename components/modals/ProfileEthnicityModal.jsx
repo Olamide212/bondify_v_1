@@ -57,7 +57,7 @@ export default EthnicityModal;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#121212',
   },
   scrollContent: {
     padding: 16,
@@ -68,9 +68,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     borderRadius: 50,
     marginBottom: 8,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: '#1E1E1E',
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: '#374151',
   },
   optionSelected: {
     backgroundColor: colors.primary,
@@ -78,8 +78,8 @@ const styles = StyleSheet.create({
   },
   optionText: {
     fontSize: 16,
-    fontFamily: 'PlusJakartaSansMedium',
-    color: '#111',
+    fontFamily: 'OutfitMedium',
+    color: '#E5E5E5',
     textAlign: 'center',
   },
   optionTextSelected: {

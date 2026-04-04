@@ -158,11 +158,11 @@
 
 //     <>
 //       {(replyTo || editMessage) && (
-//         <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#F3F4F6', borderRadius: 8, padding: 8, marginHorizontal: 16, marginBottom: 2 }}>
+//         <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#1E1E1E', borderRadius: 8, padding: 8, marginHorizontal: 16, marginBottom: 2 }}>
 //           {replyTo && <Reply size={18} color={colors.primary} style={{ marginRight: 6 }} />}
 //           {editMessage && <Edit2 size={18} color={colors.primary} style={{ marginRight: 6 }} />}
 //           <View style={{ flex: 1 }}>
-//             <Text style={{ color: '#111', fontWeight: '600' }} numberOfLines={1}>
+//             <Text style={{ color: '#E5E5E5', fontWeight: '600' }} numberOfLines={1}>
 //               {replyTo ? `Replying to: ${replyTo.text?.slice(0, 40)}` : `Editing: ${editMessage?.text?.slice(0, 40)}`}
 //             </Text>
 //           </View>
@@ -194,7 +194,7 @@
 //         </View>
 //         {/* ── Centre: text input + mic ── */}
 //         <View
-//           className="border border-gray-200 flex-1 flex-row items-center rounded-full mr-3"
+//           className="border border-gray-600 flex-1 flex-row items-center rounded-full mr-3"
 //           style={{ paddingHorizontal: 5 }}
 //         >
 //           <TextInput
@@ -236,7 +236,7 @@
 //     paddingTop: 16,
 //     paddingBottom: 10,
 //     paddingHorizontal: 16,
-//     backgroundColor: "#fff",
+//     backgroundColor: "#121212",
 //     borderTopWidth: 1,
 //     borderTopColor: "#F1F5F9",
 //   },
@@ -476,7 +476,7 @@ const InputToolbar = ({ sendMessage, onSendImage, onSendVoice, matchId, currentU
 
       {/* ── Centre: text input + mic ── */}
       <View
-        className="border border-gray-200 flex-1 flex-row items-center rounded-full mr-3"
+        className="border border-gray-600 flex-1 flex-row items-center rounded-full mr-3"
         style={{ paddingHorizontal: 5 }}
       >
         <TextInput
@@ -521,7 +521,7 @@ const styles = StyleSheet.create({
     paddingTop: 10,
     paddingBottom: 10,
     paddingHorizontal: 16,
-    backgroundColor: "#fff",
+    backgroundColor: "#121212",
     borderTopWidth: 1,
     borderTopColor: "#F1F5F9",
   },
@@ -551,7 +551,7 @@ const styles = StyleSheet.create({
   contextBanner: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#F3F4F6",
+    backgroundColor: '#1E1E1E',
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderTopWidth: 1,
@@ -560,7 +560,7 @@ const styles = StyleSheet.create({
   },
   contextLabel: {
     fontSize: 11,
-    fontFamily: "PlusJakartaSansBold",
+    fontFamily: "OutfitBold",
     color: colors.primary,
     marginBottom: 1,
     textTransform: "uppercase",
@@ -568,8 +568,8 @@ const styles = StyleSheet.create({
   },
   contextPreview: {
     fontSize: 13,
-    fontFamily: "PlusJakartaSans",
-    color: "#374151",
+    fontFamily: "Outfit",
+    color: '#D1D5DB',
   },
 });
 

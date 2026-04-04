@@ -87,7 +87,7 @@ const styles = StyleSheet.create({
     zIndex:          500,
   },
   card: {
-    backgroundColor:      "#fff",
+    backgroundColor: '#121212',
     borderTopLeftRadius:  28,
     borderTopRightRadius: 28,
     padding:              28,
@@ -96,8 +96,8 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize:   20,
-    fontFamily: "PlusJakartaSansBold",
-    color:      "#111",
+    fontFamily: "OutfitBold",
+    color: '#E5E5E5',
     marginBottom: 24,
   },
   tipsRow: {
@@ -112,8 +112,8 @@ const styles = StyleSheet.create({
     gap:         4,
   },
   tipIcon:  { fontSize: 34 },
-  tipLabel: { fontSize: 13, fontFamily: "PlusJakartaSansBold", color: "#111", textAlign: "center" },
-  tipDesc:  { fontSize: 12, fontFamily: "PlusJakartaSans",     color: "#888", textAlign: "center", lineHeight: 16 },
+  tipLabel: { fontSize: 13, fontFamily: "OutfitBold", color: '#E5E5E5', textAlign: "center" },
+  tipDesc:  { fontSize: 12, fontFamily: "Outfit",     color: "#888", textAlign: "center", lineHeight: 16 },
 
   gotItBtn: {
     backgroundColor: colors.primary,
@@ -121,7 +121,7 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     paddingHorizontal: 48,
   },
-  gotItText: { color: "#fff", fontSize: 16, fontFamily: "PlusJakartaSansBold" },
+  gotItText: { color: "#fff", fontSize: 16, fontFamily: "OutfitBold" },
 });
 
 export default ActionTipsOverlay;

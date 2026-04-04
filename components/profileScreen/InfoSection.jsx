@@ -1,24 +1,17 @@
-import React, { useState } from "react";
-import { View, Text, TouchableOpacity } from "react-native";
-import {
-  Crown,
-  BadgeCheck,
-  Plane,
-  Pencil,
-  Settings,
-  SlidersHorizontal,
-  HelpCircle,
-  Users,
-  CalendarHeart,
-  Coins
-} from "lucide-react-native";
 import { useRouter } from "expo-router";
-import SubscriptionModal from "../modals/SubscriptionModal";
+import {
+    CalendarHeart,
+    HelpCircle,
+    Pencil,
+    SlidersHorizontal,
+    Users
+} from "lucide-react-native";
+import { useState } from "react";
+import { Text, TouchableOpacity, View } from "react-native";
+import BondiesHobModal from "../modals/BondiesHopModal";
 import FilterModal from "../modals/FilterModal";
-import WalletModal from "../modals/WalletModal"; 
-import BondiesHobModal from "../modals/BondiesHopModal"
-import TextHeadingOne from "../ui/TextHeadingOne";
-import { colors } from "../../constant/colors";
+import SubscriptionModal from "../modals/SubscriptionModal";
+import WalletModal from "../modals/WalletModal";
 
 
 
@@ -95,7 +88,7 @@ const InfoSection = () => {
 
   return (
     <>
-      <View className="bg-white p-5 m-4 rounded-xl">
+      <View className="bg-[#121212] p-5 m-4 rounded-xl">
      
         {items.map(({ title, description, icon: Icon, link, modal }, index) => {
           const isLast = index === items.length - 1;
@@ -104,7 +97,7 @@ const InfoSection = () => {
             <TouchableOpacity
               key={index}
               className={`flex-row items-center justify-between py-5 ${
-                !isLast ? "border-b border-gray-200" : ""
+                !isLast ? "border-b border-whiteLight" : ""
               }`}
               onPress={() => {
                 if (modal === "subscription") {
@@ -123,15 +116,15 @@ const InfoSection = () => {
               <View className="flex-row items-center gap-3 flex-1">
               
                 <View style={{flex: 1}}>
-                  <Text className="text-[17px] text-black font-PlusJakartaSansBold">
+                  <Text className="text-[17px] text-white font-OutfitBold">
                     {title}
                   </Text>
-                  <Text className="text-base text-gray-500 font-PlusJakartaSansMedium">
+                  <Text className="text-base text-white font-OutfitMedium">
                     {description}
                   </Text>
                 </View>
 
-                  <Icon size={20} color='#000' />
+                  <Icon size={20} color='#fff' />
               </View>
             </TouchableOpacity>
           );

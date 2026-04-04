@@ -26,7 +26,7 @@ const MatchmakingTab = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "white",
+    backgroundColor: "#121212",
     justifyContent: "center",
     alignItems: "center",
     padding: 20,
@@ -45,7 +45,7 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 14,
     fontWeight: "600",
-    fontFamily: "PlusJakartaSansMedium",
+    fontFamily: "OutfitMedium",
   },
   matchmakingContent: {
     width: "100%",
@@ -54,16 +54,16 @@ const styles = StyleSheet.create({
   },
   matchmakingTitle: {
     fontSize: 24,
-    fontFamily: "PlusJakartaSansBold",
+    fontFamily: "OutfitBold",
     textAlign: "center",
     marginBottom: 16,
-    color: "#333",
+    color: '#D1D5DB',
   },
   matchmakingDescription: {
     fontSize: 16,
     textAlign: "center",
     marginBottom: 30,
-    color: "#666",
+    color: '#9CA3AF',
     lineHeight: 24,
   },
   matchmakingButton: {
@@ -80,7 +80,7 @@ const styles = StyleSheet.create({
   matchmakingButtonText: {
     color: "white",
     fontSize: 16,
-    fontFamily: "PlusJakartaSansMedium",
+    fontFamily: "OutfitMedium",
   },
 });
 

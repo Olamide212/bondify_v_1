@@ -56,7 +56,7 @@ export default function OnboardingLayout() {
   }, [skipTarget, router]);
 
   return (
-    <View style={{flex: 1}} className="bg-white">
+    <View style={{flex: 1}} className="bg-[#121212]">
       <AccountSetupHeader
         title="Account Setup"
         showBack={!isAgreement}

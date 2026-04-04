@@ -238,7 +238,7 @@ const SubscriptionModal = ({ visible, onClose }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#121212",
   },
 
   // Header
@@ -248,7 +248,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingHorizontal: 20,
     paddingVertical: 12,
-    backgroundColor: "#fff",
+    backgroundColor: "#121212",
   },
   backBtn: {
     width: 38,
@@ -256,7 +256,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   headerTitle: {
-    fontFamily: "PlusJakartaSansBold",
+    fontFamily: "OutfitBold",
     fontSize: 18,
     color: colors.primary,
   },
@@ -281,7 +281,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   premiumBadgeText: {
-    fontFamily: "PlusJakartaSansBold",
+    fontFamily: "OutfitBold",
     fontSize: 11,
     color: "#7C3AED",
     letterSpacing: 1,
@@ -289,9 +289,9 @@ const styles = StyleSheet.create({
 
   // Hero
   heroTitle: {
-    fontFamily: "PlusJakartaSansBold",
+    fontFamily: "OutfitBold",
     fontSize: 34,
-    color: "#111",
+    color: '#E5E5E5',
     textAlign: "center",
     marginBottom: 10,
   },
@@ -300,9 +300,9 @@ const styles = StyleSheet.create({
     fontStyle: "italic",
   },
   heroSub: {
-    fontFamily: "PlusJakartaSansMedium",
+    fontFamily: "OutfitMedium",
     fontSize: 15,
-    color: "#6B7280",
+    color: '#9CA3AF',
     textAlign: "center",
     lineHeight: 22,
     marginBottom: 28,
@@ -317,7 +317,7 @@ const styles = StyleSheet.create({
   featureCard: {
     flexDirection: "row",
     alignItems: "flex-start",
-    backgroundColor: "#fff",
+    backgroundColor: "#121212",
     borderRadius: 18,
     padding: 18,
     gap: 14,
@@ -346,22 +346,22 @@ const styles = StyleSheet.create({
     flexShrink: 0,
   },
   featureTitle: {
-    fontFamily: "PlusJakartaSansBold",
+    fontFamily: "OutfitBold",
     fontSize: 15,
-    color: "#111",
+    color: '#E5E5E5',
     marginBottom: 4,
   },
   featureDesc: {
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
     fontSize: 13,
-    color: "#6B7280",
+    color: '#9CA3AF',
     lineHeight: 19,
   },
 
   // Billing toggle
   toggleWrap: {
     flexDirection: "row",
-    backgroundColor: "#F3F4F6",
+    backgroundColor: '#1E1E1E',
     borderRadius: 50,
     padding: 4,
     width: "100%",
@@ -374,7 +374,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   toggleBtnActive: {
-    backgroundColor: "#fff",
+    backgroundColor: "#121212",
     shadowColor: "#000",
     shadowOpacity: 0.08,
     shadowOffset: { width: 0, height: 1 },
@@ -382,19 +382,19 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   toggleBtnText: {
-    fontFamily: "PlusJakartaSansMedium",
+    fontFamily: "OutfitMedium",
     fontSize: 15,
     color: "#9CA3AF",
   },
   toggleBtnTextActive: {
-    fontFamily: "PlusJakartaSansBold",
+    fontFamily: "OutfitBold",
     color: colors.primary,
   },
 
   // Pricing card
   pricingCard: {
     width: "100%",
-    backgroundColor: "#fff",
+    backgroundColor: "#121212",
     borderRadius: 20,
     padding: 24,
     overflow: "hidden",
@@ -416,7 +416,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   ribbonText: {
-    fontFamily: "PlusJakartaSansBold",
+    fontFamily: "OutfitBold",
     fontSize: 10,
     color: "#fff",
     letterSpacing: 0.8,
@@ -428,19 +428,19 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   priceAmount: {
-    fontFamily: "PlusJakartaSansBold",
+    fontFamily: "OutfitBold",
     fontSize: 40,
-    color: "#111",
+    color: '#E5E5E5',
     lineHeight: 46,
   },
   pricePeriod: {
-    fontFamily: "PlusJakartaSansMedium",
+    fontFamily: "OutfitMedium",
     fontSize: 18,
-    color: "#6B7280",
+    color: '#9CA3AF',
     marginBottom: 4,
   },
   priceSub: {
-    fontFamily: "PlusJakartaSansMedium",
+    fontFamily: "OutfitMedium",
     fontSize: 13,
     color: colors.primary,
     marginBottom: 16,
@@ -454,9 +454,9 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   perkText: {
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
     fontSize: 14,
-    color: "#374151",
+    color: '#D1D5DB',
   },
 
   // CTA
@@ -464,9 +464,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 12,
     paddingBottom: 24,
-    backgroundColor: "#fff",
+    backgroundColor: "#121212",
     borderTopWidth: 1,
-    borderTopColor: "#F0F0F0",
+    borderTopColor: '#333333',
     gap: 12,
   },
   ctaBtn: {
@@ -476,12 +476,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   ctaBtnText: {
-    fontFamily: "PlusJakartaSansBold",
+    fontFamily: "OutfitBold",
     fontSize: 17,
     color: "#fff",
   },
   legalText: {
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
     fontSize: 11,
     color: "#9CA3AF",
     textAlign: "center",
@@ -489,7 +489,7 @@ const styles = StyleSheet.create({
   },
   legalLink: {
     color: colors.primary,
-    fontFamily: "PlusJakartaSansMedium",
+    fontFamily: "OutfitMedium",
   },
 });
 

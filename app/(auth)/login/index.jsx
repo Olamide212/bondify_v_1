@@ -102,8 +102,8 @@ const EmailLogin = () => {
   }, [dispatch]);
 
   return (
-    <SafeAreaProvider style={{flex: 1}} className="bg-white">
-    <SafeAreaView style={{flex: 1}} className="bg-white" style={{flex: 1}}>
+    <SafeAreaProvider style={{flex: 1}} className="bg-[#121212]">
+    <SafeAreaView style={{flex: 1}} className="bg-[#121212]">
       <KeyboardAvoidingView
         style={{flex: 1}}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -112,10 +112,10 @@ const EmailLogin = () => {
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View style={{flex: 1}} className="px-2">
             <View style={{flex: 1}} className="mt-8">
-              <Text className="text-4xl font-PlusJakartaSansBold text-black">
+              <Text className="text-4xl font-OutfitBold text-white">
                 Welcome back!
               </Text>
-              <Text className="mb-5 text-black text-lg font-PlusJakartaSans">
+              <Text className="mb-5 text-white text-lg font-Outfit">
                 Login into your Bondies account
               </Text>
 
@@ -138,7 +138,7 @@ const EmailLogin = () => {
                 onPress={() => router.push("/forgot-password")}
                 className="self-end mt-1 mb-2"
               >
-                <Text className="text-base font-PlusJakartaSansMedium text-primary">
+                <Text className="text-base font-OutfitMedium text-primary">
                   Forgot password?
                 </Text>
               </Pressable>
@@ -153,11 +153,11 @@ const EmailLogin = () => {
               />
 
               <View className="flex-row justify-center items-center gap-1 mt-4 w-full">
-                <Text className="text-lg font-PlusJakartaSansMedium">
+                <Text className="text-lg text-white font-OutfitMedium">
                   Don&apos;t have an account?
                 </Text>
                 <Pressable onPress={() => router.push("/register")}>
-                  <Text className="text-lg font-PlusJakartaSansMedium text-primary">
+                  <Text className="text-lg font-OutfitMedium text-primary">
                     Sign up
                   </Text>
                 </Pressable>

@@ -40,7 +40,7 @@ const CategoryTab = ({ category, isActive, onPress }) => (
     <Text
       style={{
         fontSize: 14,
-        fontFamily: 'PlusJakartaSansSemiBold',
+        fontFamily: 'OutfitSemiBold',
         color: isActive ? '#fff' : '#6B7280',
       }}
     >
@@ -53,7 +53,7 @@ const CategoryTab = ({ category, isActive, onPress }) => (
 const AnswerCard = ({ item, onRemove }) => (
   <View
     style={{
-      backgroundColor: '#fff',
+      backgroundColor: '#121212',
       borderRadius: 12,
       borderWidth: 1,
       borderColor: '#F3F4F6',
@@ -79,7 +79,7 @@ const AnswerCard = ({ item, onRemove }) => (
         style={{
           flex: 1,
           fontSize: 12,
-          fontFamily: 'PlusJakartaSansSemiBold',
+          fontFamily: 'OutfitSemiBold',
           color: colors.primary,
           lineHeight: 17,
         }}
@@ -96,8 +96,8 @@ const AnswerCard = ({ item, onRemove }) => (
     <Text
       style={{
         fontSize: 16,
-        fontFamily: 'PlusJakartaSansBold',
-        color: '#111',
+        fontFamily: 'OutfitBold',
+        color: '#E5E5E5',
         lineHeight: 22,
       }}
     >
@@ -166,7 +166,7 @@ const ProfileAnswers = () => {
   const canContinue = answers.length > 0;
 
   return (
-    <SafeAreaView style={{flex: 1, backgroundColor: "white"}} className="bg-white">
+    <SafeAreaView style={{flex: 1, backgroundColor: "#121212"}} className="bg-[#121212]">
       <KeyboardAvoidingView
         style={{flex: 1}}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -179,10 +179,10 @@ const ProfileAnswers = () => {
         >
           <View style={{flex: 1}} className="px-4">
             <View style={{flex: 1}} className="mt-8">
-              <Text className="text-[25px] font-PlusJakartaSansBold text-app mb-2">
+              <Text className="text-[25px] font-OutfitBold text-app mb-2">
                 Write your profile answers
               </Text>
-              <Text className="text-black font-PlusJakartaSans">
+              <Text className="text-white font-Outfit">
                 Choose prompts from different categories and write your answers
               </Text>
 
@@ -206,10 +206,10 @@ const ProfileAnswers = () => {
                     flexDirection: 'row',
                     alignItems: 'center',
                     gap: 12,
-                    backgroundColor: '#fff',
+                    backgroundColor: '#121212',
                     borderRadius: 12,
                     borderWidth: 1.5,
-                    borderColor: '#E5E7EB',
+                    borderColor: '#374151',
                     borderStyle: 'dashed',
                     padding: 16,
                     marginTop: 4,
@@ -231,7 +231,7 @@ const ProfileAnswers = () => {
                     <Text
                       style={{
                         fontSize: 15,
-                        fontFamily: 'PlusJakartaSansBold',
+                        fontFamily: 'OutfitBold',
                         color: colors.primary,
                       }}
                     >
@@ -240,7 +240,7 @@ const ProfileAnswers = () => {
                     <Text
                       style={{
                         fontSize: 12,
-                        fontFamily: 'PlusJakartaSans',
+                        fontFamily: 'Outfit',
                         color: colors.secondary,
                         marginTop: 2,
                       }}
@@ -257,7 +257,7 @@ const ProfileAnswers = () => {
             </View>
 
             {/* ── Continue button ── */}
-            <View className="w-full items-end pb-6 mt-6 bg-white">
+            <View className="w-full items-end pb-6 mt-6 bg-[#121212]">
               <Button
                 title="Continue"
                 variant="primary"
@@ -283,7 +283,7 @@ const ProfileAnswers = () => {
         <SafeAreaView style={{flex: 1}}>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
 
-        <SAV style={{ flex: 1, backgroundColor: '#fff', paddingHorizontal: 20, paddingTop: 12 }}>
+        <SAV style={{ flex: 1, backgroundColor: '#121212', paddingHorizontal: 20, paddingTop: 12 }}>
 
           {/* ── Categories & Questions Step ── */}
           {modalStep === 'categories' && (
@@ -292,7 +292,7 @@ const ProfileAnswers = () => {
                 <TouchableOpacity onPress={() => setShowModal(false)}>
                   <X size={22} color="#111" />
                 </TouchableOpacity>
-                <Text style={{ fontSize: 18, fontFamily: 'PlusJakartaSansBold', color: '#111' }}>
+                <Text style={{ fontSize: 18, fontFamily: 'OutfitBold', color: '#E5E5E5' }}>
                   Choose a prompt
                 </Text>
                 <View style={{ width: 22 }} />
@@ -318,10 +318,10 @@ const ProfileAnswers = () => {
               <FlatList
                 data={currentCategoryQuestions}
                 keyExtractor={(q) => q}
-                ItemSeparatorComponent={() => <View style={{ height: 1, backgroundColor: '#F3F4F6' }} />}
+                ItemSeparatorComponent={() => <View style={{ height: 1, backgroundColor: '#1E1E1E' }} />}
                 ListEmptyComponent={() => (
                   <View style={{ paddingVertical: 40, alignItems: 'center' }}>
-                    <Text style={{ fontSize: 14, fontFamily: 'PlusJakartaSans', color: '#9CA3AF', textAlign: 'center' }}>
+                    <Text style={{ fontSize: 14, fontFamily: 'Outfit', color: '#9CA3AF', textAlign: 'center' }}>
                       All questions in this category have been used
                     </Text>
                   </View>
@@ -333,7 +333,7 @@ const ProfileAnswers = () => {
                     activeOpacity={0.7}
                   >
                     {/* <MessageCircle size={16} color={colors.primary} strokeWidth={2} /> */}
-                    <Text style={{ flex: 1, fontSize: 15, fontFamily: 'PlusJakartaSansMedium', color: '#111', lineHeight: 22 }}>
+                    <Text style={{ flex: 1, fontSize: 15, fontFamily: 'OutfitMedium', color: '#E5E5E5', lineHeight: 22 }}>
                       {q}
                     </Text>
                   </TouchableOpacity>
@@ -353,7 +353,7 @@ const ProfileAnswers = () => {
                 <TouchableOpacity onPress={handleBack}>
                   <X size={22} color="#111" />
                 </TouchableOpacity>
-                <Text style={{ fontSize: 18, fontFamily: 'PlusJakartaSansBold', color: '#111' }}>
+                <Text style={{ fontSize: 18, fontFamily: 'OutfitBold', color: '#E5E5E5' }}>
                   Your answer
                 </Text>
                 <View style={{ width: 22 }} />
@@ -375,7 +375,7 @@ const ProfileAnswers = () => {
                   style={{
                     flex: 1,
                     fontSize: 14,
-                    fontFamily: 'PlusJakartaSansSemiBold',
+                    fontFamily: 'OutfitSemiBold',
                     color: colors.primary,
                     lineHeight: 20,
                   }}
@@ -393,8 +393,8 @@ const ProfileAnswers = () => {
                   borderBottomWidth: 1.5,
                   borderBottomColor: '#E5E7EB',
                   fontSize: 17,
-                  fontFamily: 'PlusJakartaSansMedium',
-                  color: '#111',
+                  fontFamily: 'OutfitMedium',
+                  color: '#E5E5E5',
                   paddingVertical: 12,
                   marginBottom: 6,
                   minHeight: 80,
@@ -407,7 +407,7 @@ const ProfileAnswers = () => {
               <Text
                 style={{
                   fontSize: 12,
-                  fontFamily: 'PlusJakartaSans',
+                  fontFamily: 'Outfit',
                   color: '#9CA3AF',
                   textAlign: 'right',
                   marginBottom: 20,
@@ -420,7 +420,7 @@ const ProfileAnswers = () => {
                 <Text
                   style={{
                     fontSize: 14,
-                    fontFamily: 'PlusJakartaSansMedium',
+                    fontFamily: 'OutfitMedium',
                     color: colors.secondary,
                     marginBottom: 16,
                   }}

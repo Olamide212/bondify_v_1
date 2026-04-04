@@ -24,42 +24,42 @@ import { colors } from "../constant/colors";
 // ─── Palettes ────────────────────────────────────────────────────────────────
 
 export const LIGHT_COLORS = {
-  // Backgrounds
-  background: colors.background,
-  surface: "#FFFFFF",
-  surfaceElevated: "#FFFFFF",
+  // Backgrounds (all dark — permanent dark mode)
+  background: "#121212",
+  surface: "#1E1E1E",
+  surfaceElevated: "#2A2A2A",
 
   // Text
-  textPrimary: "#111827",
-  textSecondary: colors.gray,
-  textTertiary: "#9CA3AF",
-  textInverse: "#FFFFFF",
+  textPrimary: "#F2F2F7",
+  textSecondary: "#9CA3AF",
+  textTertiary: "#6B7280",
+  textInverse: "#000000",
 
   // Brand
   primary: colors.primary,
   primaryLight: colors.primaryLight,
   primaryBorder: colors.primaryBorder,
-  primaryDark: "#3730A3",
-  primaryMuted: "#6366F1",
+  primaryDark: "#C7D2FE",
+  primaryMuted: "#A5B4FC",
 
   // Borders & dividers
-  border: "#E5E7EB",
-  divider: "#F3F4F6",
+  border: "#333333",
+  divider: "#2A2A2A",
 
   // Interactive
-  backButton: "#F3F4F6",
-  switchTrackOff: "#E5E7EB",
-  inputBackground: "#F9FAFB",
+  backButton: "#2A2A2A",
+  switchTrackOff: "#39393D",
+  inputBackground: "#1E1E1E",
 
   // Status bar
-  statusBarStyle: "dark-content",
+  statusBarStyle: "light-content",
 };
 
 export const DARK_COLORS = {
   // Backgrounds
-  background: "#0F0F0F",
-  surface: "#1C1C1E",
-  surfaceElevated: "#2C2C2E",
+  background: "#121212",
+  surface: "#1E1E1E",
+  surfaceElevated: "#2A2A2A",
 
   // Text
   textPrimary: "#F2F2F7",
@@ -69,8 +69,8 @@ export const DARK_COLORS = {
 
   // Brand  (keep brand purple consistent)
   primary: colors.primary,
-  primaryLight: "#1E1B4B",
-  primaryBorder: "#3730A3",
+  primaryLight: "#1E1A2E",
+  primaryBorder: "#4A3D6E",
   primaryDark: "#C7D2FE",
   primaryMuted: "#A5B4FC",
 
@@ -92,23 +92,23 @@ export const DARK_COLORS = {
 const STORAGE_KEY = "@bondies/theme";
 
 const ThemeContext = createContext({
-  theme: "system",
-  resolvedScheme: "light",   // "light" | "dark" — always resolved, never "system"
-  colors: LIGHT_COLORS,
-  isDark: false,
+  theme: "dark",
+  resolvedScheme: "dark",   // "light" | "dark" — always resolved, never "system"
+  colors: DARK_COLORS,
+  isDark: true,
   setTheme: () => {},
 });
 
 // ─── Provider ────────────────────────────────────────────────────────────────
 
 export const ThemeProvider = ({ children }) => {
-  const [theme, setThemeState] = useState("system");
-  const systemScheme = Appearance.getColorScheme() ?? "light";
+  const [theme, setThemeState] = useState("dark");
+  const systemScheme = Appearance.getColorScheme() ?? "dark";
 
-  // Resolve the actual scheme
-  const resolvedScheme = theme === "system" ? systemScheme : theme;
-  const isDark = resolvedScheme === "dark";
-  const colors = isDark ? DARK_COLORS : LIGHT_COLORS;
+  // Resolve the actual scheme — always dark in permanent dark mode
+  const resolvedScheme = "dark";
+  const isDark = true;
+  const activeColors = DARK_COLORS;
 
   // Load persisted preference on mount
   useEffect(() => {
@@ -138,7 +138,7 @@ export const ThemeProvider = ({ children }) => {
   };
 
   return (
-    <ThemeContext.Provider value={{ theme, resolvedScheme, colors, isDark, setTheme }}>
+    <ThemeContext.Provider value={{ theme, resolvedScheme, colors: activeColors, isDark, setTheme }}>
       {children}
     </ThemeContext.Provider>
   );

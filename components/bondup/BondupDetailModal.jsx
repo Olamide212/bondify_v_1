@@ -256,7 +256,7 @@ export default function BondupDetailModal({
       {/* ── Header ── */}
       <View style={s.header}>
         <TouchableOpacity onPress={onClose} style={s.iconBtn} hitSlop={10}>
-          <ArrowLeft size={22} color="#333" />
+          <ArrowLeft size={22} color={colors.white} />
         </TouchableOpacity>
         <View style={s.headerRight}>
           <TouchableOpacity
@@ -276,7 +276,7 @@ export default function BondupDetailModal({
               }
             }}
           >
-            <Share2 size={20} color="#555" />
+            <Share2 size={20} color="#fff" />
           </TouchableOpacity>
           {isOwner && (
             <TouchableOpacity
@@ -419,8 +419,8 @@ export default function BondupDetailModal({
                         </View>
                       ) : null}
                     </View>
-                  </TouchableOpacity>
-                  
+
+                     
                   {/* DM button - only show for other users and if current user can chat */}
                   {!isCurrentUser && canChat && (
                     <TouchableOpacity 
@@ -431,6 +431,8 @@ export default function BondupDetailModal({
                       <Send size={16} color={BRAND} />
                     </TouchableOpacity>
                   )}
+                  </TouchableOpacity>
+                 
                 </View>
               );
             })}
@@ -531,20 +533,20 @@ const s = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F5F5F5',
+    // borderBottomWidth: 1,
+    // borderBottomColor: '#F5F5F5',
   },
   headerRight: {
     flexDirection: 'row',
     gap: 8,
   },
   iconBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: '#F3F4F6',
+    width: 40,
+    height: 40,
+    borderRadius: 30,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: colors.primaryLight
   },
 
   // Trending badge
@@ -562,7 +564,7 @@ const s = StyleSheet.create({
   },
   trendingText: {
     fontSize: 12,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: 'OutfitBold',
     color: BRAND,
     letterSpacing: 0.5,
   },
@@ -575,15 +577,15 @@ const s = StyleSheet.create({
   },
   title: {
     fontSize: 28,
-    fontFamily: 'PlusJakartaSansBold',
-    color: '#0F0F0F',
+    fontFamily: 'OutfitBold',
+    color: '#fff',
     lineHeight: 34,
     marginBottom: 8,
   },
   description: {
     fontSize: 15,
-    fontFamily: 'PlusJakartaSans',
-    color: '#555',
+    fontFamily: 'Outfit',
+    color: '#9CA3AF',
     lineHeight: 22,
   },
 
@@ -591,7 +593,7 @@ const s = StyleSheet.create({
   hostedCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: colors.primaryLight,
     marginHorizontal: 16,
     marginBottom: 14,
     borderRadius: 16,
@@ -618,7 +620,7 @@ const s = StyleSheet.create({
   hostedAvatarInitial: {
     color: '#fff',
     fontSize: 20,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: 'OutfitBold',
   },
   hostedInfo: {
     flex: 1,
@@ -626,19 +628,20 @@ const s = StyleSheet.create({
   },
   hostedLabel: {
     fontSize: 10,
-    fontFamily: 'PlusJakartaSansBold',
-    color: colors.secondary,
+    fontFamily: 'OutfitBold',
+    color: colors.primary,
     letterSpacing: 1,
     marginBottom: 2,
   },
   hostedName: {
     fontSize: 16,
-    fontFamily: 'PlusJakartaSansBold',
-    color: '#111',
+    fontFamily: 'OutfitBold',
+    color: '#E5E5E5',
+    textTransform: 'capitalize',
   },
   hostedSubtitle: {
     fontSize: 12,
-    fontFamily: 'PlusJakartaSans',
+    fontFamily: 'Outfit',
     color: '#888',
     marginTop: 1,
   },
@@ -661,7 +664,7 @@ const s = StyleSheet.create({
   },
   metaPairCard: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: colors.primaryLight,
     borderRadius: 16,
     padding: 14,
     shadowColor: '#000',
@@ -694,21 +697,21 @@ const s = StyleSheet.create({
   },
   metaPairLabel: {
     fontSize: 10,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: 'OutfitBold',
     color: '#999',
     letterSpacing: 1,
     marginBottom: 4,
   },
   metaPairValue: {
     fontSize: 13,
-    fontFamily: 'PlusJakartaSansBold',
-    color: '#111',
+    fontFamily: 'OutfitBold',
+    color: '#E5E5E5',
     lineHeight: 18,
   },
 
   // Location card
   locationCard: {
-    backgroundColor: '#fff',
+    backgroundColor: '#121212',
     marginHorizontal: 16,
     marginBottom: 14,
     borderRadius: 16,
@@ -727,15 +730,15 @@ const s = StyleSheet.create({
   },
   locationLabel: {
     fontSize: 10,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: 'OutfitBold',
     color: '#999',
     letterSpacing: 1,
     marginBottom: 4,
   },
   locationValue: {
     fontSize: 14,
-    fontFamily: 'PlusJakartaSansBold',
-    color: '#111',
+    fontFamily: 'OutfitBold',
+    color: '#E5E5E5',
   },
   navIconBtn: {
     width: 34,
@@ -753,7 +756,7 @@ const s = StyleSheet.create({
   mapPlaceholder: {
     height: 170,
     borderRadius: 12,
-    backgroundColor: '#F0F0F0',
+    backgroundColor: '#1E1E1E',
     justifyContent: 'center',
     alignItems: 'center',
     gap: 6,
@@ -764,7 +767,7 @@ const s = StyleSheet.create({
   },
   mapPlaceholderText: {
     fontSize: 13,
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: 'OutfitMedium',
     color: '#888',
     textAlign: 'center',
     paddingHorizontal: 20,
@@ -783,12 +786,12 @@ const s = StyleSheet.create({
   },
   whoTitle: {
     fontSize: 16,
-    fontFamily: 'PlusJakartaSansBold',
-    color: '#111',
+    fontFamily: 'OutfitBold',
+    color: '#E5E5E5',
   },
   whoCount: {
     color: '#888',
-    fontFamily: 'PlusJakartaSans',
+    fontFamily: 'Outfit',
   },
   
   // Participant list
@@ -827,15 +830,15 @@ const s = StyleSheet.create({
   participantListInitial: {
     color: '#fff',
     fontSize: 16,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: 'OutfitBold',
   },
   participantTextWrap: {
     flex: 1,
   },
   participantName: {
     fontSize: 15,
-    fontFamily: 'PlusJakartaSansSemiBold',
-    color: '#111',
+    fontFamily: 'OutfitSemiBold',
+    color: '#E5E5E5',
     marginBottom: 2,
   },
   participantLocationRow: {
@@ -845,7 +848,7 @@ const s = StyleSheet.create({
   },
   participantLocation: {
     fontSize: 12,
-    fontFamily: 'PlusJakartaSans',
+    fontFamily: 'Outfit',
     color: '#888',
   },
   dmBtn: {
@@ -858,7 +861,7 @@ const s = StyleSheet.create({
   },
   noParticipantsText: {
     fontSize: 14,
-    fontFamily: 'PlusJakartaSans',
+    fontFamily: 'Outfit',
     color: '#999',
     textAlign: 'center',
     paddingVertical: 20,
@@ -871,8 +874,8 @@ const s = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 14,
     borderTopWidth: 1,
-    borderTopColor: '#F0F0F0',
-    backgroundColor: '#fff',
+    borderTopColor: '#333333',
+    backgroundColor: '#121212',
   },
   primaryBtn: {
     flex: 1,
@@ -891,7 +894,7 @@ const s = StyleSheet.create({
   },
   primaryBtnText: {
     fontSize: 16,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: 'OutfitBold',
     color: '#fff',
   },
   secondaryBtn: {
@@ -899,31 +902,31 @@ const s = StyleSheet.create({
     paddingVertical: 15,
     borderRadius: 16,
     borderWidth: 1.5,
-    borderColor: '#E5E7EB',
+    borderColor: '#374151',
     justifyContent: 'center',
     alignItems: 'center',
   },
   secondaryBtnText: {
     fontSize: 15,
-    fontFamily: 'PlusJakartaSansBold',
-    color: '#555',
+    fontFamily: 'OutfitBold',
+    color: '#9CA3AF',
   },
   bookmarkBtn: {
     width: 52,
     height: 52,
     borderRadius: 16,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: '#1E1E1E',
     justifyContent: 'center',
     alignItems: 'center',
   },
   disabledBtn: {
-    backgroundColor: '#F3F4F6',
+    backgroundColor: '#1E1E1E',
     shadowOpacity: 0,
     elevation: 0,
   },
   disabledBtnText: {
     fontSize: 16,
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: 'OutfitMedium',
     color: '#9CA3AF',
   },
 });

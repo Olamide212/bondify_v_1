@@ -144,13 +144,13 @@ const OptionsModal = ({ visible, onReplace, onDelete, onCancel }) => (
 
 const om = StyleSheet.create({
   content:    { paddingHorizontal: 6, paddingBottom: 10, gap: 10 },
-  group:      { backgroundColor: '#F3F4F6', borderRadius: 16, overflow: 'hidden' },
+  group:      { backgroundColor: '#1E1E1E', borderRadius: 16, overflow: 'hidden' },
   row:        { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingVertical: 18, gap: 16 },
   iconWrap:   { width: 28, alignItems: 'center' },
-  rowText:    { fontSize: 17, fontFamily: 'PlusJakartaSansSemiBold', color: '#111' },
+  rowText:    { fontSize: 17, fontFamily: 'OutfitSemiBold', color: '#E5E5E5' },
   divider:    { height: 1, backgroundColor: '#E5E7EB', marginHorizontal: 16 },
-  cancelBtn:  { backgroundColor: '#F3F4F6', borderRadius: 16, alignItems: 'center', paddingVertical: 18 },
-  cancelText: { fontSize: 17, fontFamily: 'PlusJakartaSansSemiBold', color: '#111' },
+  cancelBtn:  { backgroundColor: '#1E1E1E', borderRadius: 16, alignItems: 'center', paddingVertical: 18 },
+  cancelText: { fontSize: 17, fontFamily: 'OutfitSemiBold', color: '#E5E5E5' },
 });
 
 // ─── Main Component ───────────────────────────────────────────────────────────
@@ -344,9 +344,9 @@ const s = StyleSheet.create({
     borderWidth:       1.5,
     borderStyle:       'dashed',
     marginHorizontal:  16,
-    backgroundColor:   '#fff',
+    backgroundColor: '#121212',
   },
-  emptyLabel: { fontSize: 16, fontFamily: 'PlusJakartaSansSemiBold' },
+  emptyLabel: { fontSize: 16, fontFamily: 'OutfitSemiBold' },
 
   // Player card
   playerCard: {

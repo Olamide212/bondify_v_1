@@ -55,11 +55,11 @@ const ReportProblem = () => {
   };
 
   return (
-    <SafeAreaView style={[s.safe, { backgroundColor: colors.surface }]} edges={["top"]}>
+    <SafeAreaView style={[s.safe, { backgroundColor: colors.background }]} edges={["top"]}>
       <StatusBar barStyle={colors.statusBarStyle} backgroundColor={colors.surface} />
 
       {/* Header */}
-      <View style={[s.header, { backgroundColor: '#fff', borderBottomColor: colors.border }]}>
+      <View style={[s.header, { backgroundColor: '#121212' }]}>
         <TouchableOpacity onPress={() => router.back()} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
           <ArrowLeft size={22} color={colors.textPrimary} strokeWidth={2} />
         </TouchableOpacity>
@@ -68,8 +68,8 @@ const ReportProblem = () => {
       </View>
 
       <ScrollView
-        style={{ backgroundColor: '#fff' }}
-        contentContainerStyle={[s.body, { backgroundColor: '#fff' }]}
+        style={{ backgroundColor: '#121212' }}
+        contentContainerStyle={[s.body, { backgroundColor: '#121212' }]}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
@@ -159,44 +159,44 @@ const s = StyleSheet.create({
     flexDirection: "row", alignItems: "center", justifyContent: "space-between",
     paddingHorizontal: 16, paddingVertical: 14, borderBottomWidth: StyleSheet.hairlineWidth,
   },
-  headerTitle: { fontSize: 18, fontFamily: "PlusJakartaSansBold" },
+  headerTitle: { fontSize: 18, fontFamily: "OutfitBold" },
   body: { paddingHorizontal: 20, paddingTop: 28, paddingBottom: 60 },
-  heroTitle: { fontSize: 26, fontFamily: "PlusJakartaSansBold", letterSpacing: -0.5, marginBottom: 10 },
-  heroSub: { fontSize: 14, fontFamily: "PlusJakartaSans", lineHeight: 21, marginBottom: 28 },
-  fieldLabel: { fontSize: 15, fontFamily: "PlusJakartaSansBold", marginBottom: 10 },
+  heroTitle: { fontSize: 26, fontFamily: "OutfitBold", letterSpacing: -0.5, marginBottom: 10 },
+  heroSub: { fontSize: 14, fontFamily: "Outfit", lineHeight: 21, marginBottom: 28 },
+  fieldLabel: { fontSize: 15, fontFamily: "OutfitBold", marginBottom: 10 },
   dropdown: {
     flexDirection: "row", alignItems: "center", justifyContent: "space-between",
     borderWidth: 1, borderRadius: 12, paddingHorizontal: 14, paddingVertical: 14,
   },
-  dropdownText: { fontSize: 15, fontFamily: "PlusJakartaSans" },
+  dropdownText: { fontSize: 15, fontFamily: "Outfit" },
   dropdownList: {
     borderWidth: 1, borderRadius: 12, marginTop: 4, overflow: "hidden",
   },
   dropdownItem: { paddingHorizontal: 14, paddingVertical: 13, borderBottomWidth: StyleSheet.hairlineWidth },
-  dropdownItemText: { fontSize: 14, fontFamily: "PlusJakartaSans" },
+  dropdownItemText: { fontSize: 14, fontFamily: "Outfit" },
   textarea: {
     borderWidth: 1, borderRadius: 12, padding: 14,
-    fontSize: 14, fontFamily: "PlusJakartaSans", minHeight: 120,
+    fontSize: 14, fontFamily: "Outfit", minHeight: 120,
   },
   imageRow: { flexDirection: "row", gap: 10, marginBottom: 8 },
   uploadSlot: {
     width: 72, height: 72, borderRadius: 12, borderWidth: 1.5,
     borderStyle: "dashed", alignItems: "center", justifyContent: "center", gap: 4,
   },
-  uploadLabel: { fontSize: 11, fontFamily: "PlusJakartaSans" },
-  imageHint: { fontSize: 12, fontFamily: "PlusJakartaSans", marginBottom: 20 },
+  uploadLabel: { fontSize: 11, fontFamily: "Outfit" },
+  imageHint: { fontSize: 12, fontFamily: "Outfit", marginBottom: 20 },
   infoBanner: {
     flexDirection: "row", gap: 10, borderRadius: 12, padding: 14,
     borderWidth: 1, marginBottom: 28,
   },
-  infoText: { flex: 1, fontSize: 13, fontFamily: "PlusJakartaSans", lineHeight: 19 },
+  infoText: { flex: 1, fontSize: 13, fontFamily: "Outfit", lineHeight: 19 },
   submitBtn: {
     backgroundColor: colors.primary, borderRadius: 50,
     paddingVertical: 16, alignItems: "center", marginBottom: 14,
   },
-  submitText: { fontSize: 16, fontFamily: "PlusJakartaSansBold", color: "#fff" },
+  submitText: { fontSize: 16, fontFamily: "OutfitBold", color: "#fff" },
   cancelBtn: { alignItems: "center", paddingVertical: 8 },
-  cancelText: { fontSize: 15, fontFamily: "PlusJakartaSans" },
+  cancelText: { fontSize: 15, fontFamily: "Outfit" },
 });
 
 export default ReportProblem;

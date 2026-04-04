@@ -175,7 +175,7 @@ const AISuggestionModal = ({
               disabled={loading}
             >
               <RotateCcw size={18} color={colors.primary} />
-              <Text style={styles.regenText}>Try again</Text>
+              <Text style={styles.regenText}>Try another</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -206,14 +206,14 @@ const styles = StyleSheet.create({
   card: {
     width: "100%",
     maxWidth: 400,
-    backgroundColor: "#fff",
+    backgroundColor: "#121212",
     borderRadius: 24,
     paddingBottom: 24,
   },
   header: {
     flexDirection: "row", alignItems: "center", justifyContent: "space-between",
     paddingHorizontal: 20, paddingVertical: 14,
-    borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: "#F3F4F6",
+    borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: "#333333",
   },
   headerLeft:    { flexDirection: "row", alignItems: "center", gap: 10 },
   sparkleCircle: {
@@ -221,23 +221,23 @@ const styles = StyleSheet.create({
     backgroundColor: `${colors.primary}18`,
     alignItems: "center", justifyContent: "center",
   },
-  headerTitle:   { fontSize: 17, fontFamily: "PlusJakartaSansBold", color: "#111827" },
-  closeText:     { fontSize: 15, fontFamily: "PlusJakartaSansMedium", color: "#6B7280" },
+  headerTitle:   { fontSize: 17, fontFamily: "OutfitBold", color: "#fff" },
+  closeText:     { fontSize: 15, fontFamily: "OutfitMedium", color: '#9CA3AF' },
   body:          { minHeight: 100, paddingHorizontal: 24, paddingVertical: 24, justifyContent: "center" },
   loadingWrap:   { alignItems: "center", gap: 10 },
-  loadingText:   { fontSize: 14, fontFamily: "PlusJakartaSans", color: "#9CA3AF" },
-  errorText:     { fontSize: 14, fontFamily: "PlusJakartaSans", color: "#EF4444", textAlign: "center" },
-  suggestionText:{ fontSize: 18, fontFamily: "PlusJakartaSansMedium", color: "#111827", lineHeight: 28, textAlign: "center" },
+  loadingText:   { fontSize: 14, fontFamily: "Outfit", color: "#9CA3AF" },
+  errorText:     { fontSize: 14, fontFamily: "Outfit", color: "#EF4444", textAlign: "center" },
+  suggestionText:{ fontSize: 18, fontFamily: "OutfitMedium", color: "#fff", lineHeight: 28, textAlign: "center" },
   actions:       { flexDirection: "row", gap: 12, paddingHorizontal: 20, paddingTop: 8 },
   regenBtn: {
     flexDirection: "row", alignItems: "center", gap: 6,
     paddingVertical: 14, paddingHorizontal: 18, borderRadius: 50,
-    borderWidth: 1, borderColor: "#E5E7EB", backgroundColor: `${colors.primary}10`,
+    borderWidth: 1, borderColor: '#374151', backgroundColor: `${colors.primary}10`,
   },
-  regenText:      { fontSize: 14, fontFamily: "PlusJakartaSansMedium", color: colors.primary },
+  regenText:      { fontSize: 14, fontFamily: "OutfitMedium", color: colors.primary },
   useBtn:         { flex: 1, alignItems: "center", justifyContent: "center", paddingVertical: 14, borderRadius: 50, backgroundColor: colors.primary },
   useBtnDisabled: { opacity: 0.45 },
-  useBtnText:     { color: "#fff", fontSize: 15, fontFamily: "PlusJakartaSansBold" },
+  useBtnText:     { color: "#fff", fontSize: 15, fontFamily: "OutfitBold" },
 });
 
 export default AISuggestionModal;

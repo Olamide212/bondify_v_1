@@ -80,7 +80,7 @@ const BlockedUserRow = ({ item, onUnblock, isUnblocking }) => (
 const EmptyState = () => (
   <View style={styles.emptyContainer}>
     <View style={styles.emptyIconWrap}>
-      <UserX size={36} color={"#000"} />
+      <UserX size={36} color={"#E5E5E5"} />
     </View>
     <Text style={styles.emptyTitle}>No blocked users</Text>
     <Text style={styles.emptySubtitle}>
@@ -185,7 +185,7 @@ const BlockedUsersScreen = () => {
       {/* Header */}
       <View style={styles.header}>
         <Pressable onPress={() => router.back()} hitSlop={8}>
-          <Ionicons name="arrow-back" size={24} color="#111" />
+          <Ionicons name="arrow-back" size={24} color="#E5E5E5" />
         </Pressable>
         <Text style={styles.headerTitle}>Blocked Users</Text>
         <View style={{ width: 24 }} />
@@ -251,7 +251,7 @@ const BlockedUsersScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fff" },
+  container: { flex: 1, backgroundColor: "#121212" },
 
   // Header
   header: {
@@ -260,34 +260,34 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingHorizontal: 20,
     paddingVertical: 14,
-    backgroundColor: "#fff",
-    borderBottomWidth: 1,
-    borderBottomColor: "#f0f0f0",
+    backgroundColor: "#121212",
+    // borderBottomWidth: 1,
+    // borderBottomColor: "#2A2A2A",
   },
   headerTitle: {
     fontSize: 18,
-    fontFamily: "PlusJakartaSansBold",
-    color: "#111",
+    fontFamily: "OutfitBold",
+    color: '#E5E5E5',
   },
 
   // Loaders / errors
   centeredLoader:   { flex: 1, alignItems: "center", justifyContent: "center" },
   errorContainer:   { flex: 1, alignItems: "center", justifyContent: "center", gap: 10, paddingHorizontal: 32 },
-  errorText:        { fontSize: 14, fontFamily: "PlusJakartaSans", color: "#666", textAlign: "center" },
-  retryText:        { fontSize: 13, fontFamily: "PlusJakartaSansMedium", color: PRIMARY },
+  errorText:        { fontSize: 14, fontFamily: "Outfit", color: '#9CA3AF', textAlign: "center" },
+  retryText:        { fontSize: 13, fontFamily: "OutfitMedium", color: PRIMARY },
 
   // List
   listContent:      { paddingBottom: 32 },
   listContentEmpty: { flex: 1 },
-  listHeader:       { fontSize: 12, fontFamily: "PlusJakartaSansMedium", color: "#aaa", paddingHorizontal: 20, paddingVertical: 12, letterSpacing: 0.4 },
-  separator:        { height: 1, backgroundColor: "#f2f2f2", marginLeft: 84 },
+  listHeader:       { fontSize: 12, fontFamily: "OutfitMedium", color: "#aaa", paddingHorizontal: 20, paddingVertical: 12, letterSpacing: 0.4 },
+  separator:        { height: 1, backgroundColor: "#2A2A2A", marginLeft: 84 },
   loadMoreIndicator:{ paddingVertical: 16, alignItems: "center" },
 
   // Row
   row: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#fff",
+    backgroundColor: "#121212",
     paddingHorizontal: 20,
     paddingVertical: 14,
     gap: 14,
@@ -298,7 +298,7 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 25,
-    backgroundColor: "#f0f0f0",
+    backgroundColor: '#1E1E1E',
   },
   avatarPlaceholder: {
     width: 50,
@@ -310,7 +310,7 @@ const styles = StyleSheet.create({
   },
   avatarInitials: {
     fontSize: 16,
-    fontFamily: "PlusJakartaSansBold",
+    fontFamily: "OutfitBold",
     color: PRIMARY,
   },
 
@@ -318,13 +318,13 @@ const styles = StyleSheet.create({
   rowInfo: { flex: 1 },
   rowName: {
     fontSize: 15,
-    fontFamily: "PlusJakartaSansSemiBold",
-    color: "#111",
+    fontFamily: "OutfitSemiBold",
+    color: '#E5E5E5',
     marginBottom: 3,
   },
   rowMeta: {
     fontSize: 12,
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
     color: "#aaa",
   },
 
@@ -338,13 +338,13 @@ const styles = StyleSheet.create({
     minWidth: 78,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#fff",
+    backgroundColor: "#121212",
   },
-  unblockBtnPressed:  { backgroundColor: PRIMARY_LIGHT },
-  unblockBtnDisabled: { borderColor: "#f0f0f0" },
+  unblockBtnPressed:  { backgroundColor: 'white' },
+  unblockBtnDisabled: { borderColor: "#333" },
   unblockBtnText: {
     fontSize: 13,
-    fontFamily: "PlusJakartaSansSemiBold",
+    fontFamily: "OutfitSemiBold",
     color: PRIMARY,
   },
 
@@ -360,19 +360,19 @@ const styles = StyleSheet.create({
     width: 72,
     height: 72,
     borderRadius: 36,
-    backgroundColor: "rgba(0, 0, 0, 0.05)",
+    backgroundColor: "rgba(255, 255, 255, 0.08)",
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 4,
   },
   emptyTitle: {
     fontSize: 18,
-    fontFamily: "PlusJakartaSansBold",
-    color: "#111",
+    fontFamily: "OutfitBold",
+    color: '#E5E5E5',
   },
   emptySubtitle: {
     fontSize: 14,
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
     color: "#888",
     textAlign: "center",
     lineHeight: 22,

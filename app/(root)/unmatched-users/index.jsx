@@ -111,7 +111,7 @@ export default function UnmatchedUsersScreen() {
     <SafeAreaView style={styles.container} edges={["top"]}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} hitSlop={10}>
-          <ArrowLeft size={24} color="#111" />
+          <ArrowLeft size={24} color="#fff" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Unmatched Users</Text>
         <View style={{ width: 24 }} />
@@ -138,7 +138,7 @@ export default function UnmatchedUsersScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fff" },
+  container: { flex: 1, backgroundColor: "#121212" },
   header: {
     flexDirection: "row",
     alignItems: "center",
@@ -146,12 +146,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: "#F0F0F0",
+    borderBottomColor: colors.whiteLight,
   },
   headerTitle: {
     fontSize: 17,
-    fontFamily: "PlusJakartaSansBold",
-    color: "#111",
+    fontFamily: "OutfitBold",
+    color: '#E5E5E5',
   },
   center: {
     flex: 1,
@@ -161,7 +161,7 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 15,
     color: "#9CA3AF",
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
   },
   row: {
     flexDirection: "row",
@@ -169,7 +169,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: "#F5F5F5",
+    borderBottomColor: colors.whiteLight,
     gap: 12,
   },
   avatar: {
@@ -178,21 +178,21 @@ const styles = StyleSheet.create({
     borderRadius: 24,
   },
   avatarFallback: {
-    backgroundColor: "#F8FAFC",
+    backgroundColor: '#1E1E1E',
     justifyContent: "center",
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "#E5E7EB",
+    borderColor: colors.whiteLight,
   },
   info: { flex: 1 },
   name: {
     fontSize: 15,
-    fontFamily: "PlusJakartaSansMedium",
-    color: "#111",
+    fontFamily: "OutfitMedium",
+    color: '#E5E5E5',
   },
   date: {
     fontSize: 12,
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
     color: "#9CA3AF",
     marginTop: 2,
   },
@@ -204,7 +204,7 @@ const styles = StyleSheet.create({
   },
   rematchBadgeText: {
     fontSize: 12,
-    fontFamily: "PlusJakartaSansMedium",
+    fontFamily: "OutfitMedium",
     color: colors.primary,
   },
   chevron: {

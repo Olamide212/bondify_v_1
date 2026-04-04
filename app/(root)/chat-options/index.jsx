@@ -301,7 +301,7 @@ export default function ChatOptionsScreen() {
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
 const s = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fff" },
+  container: { flex: 1, backgroundColor: "#121212" },
 
   header: {
     flexDirection: "row",
@@ -314,8 +314,8 @@ const s = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 17,
-    fontFamily: "PlusJakartaSansBold",
-    color: "#111",
+    fontFamily: "OutfitBold",
+    color: '#E5E5E5',
   },
 
   content: { paddingBottom: 40 },
@@ -338,14 +338,14 @@ const s = StyleSheet.create({
   },
   profileName: {
     fontSize: 20,
-    fontFamily: "PlusJakartaSansBold",
+    fontFamily: "OutfitBold",
     textTransform: "capitalize",
-    color: "#111",
+    color: '#E5E5E5',
     marginTop: 12,
   },
   verifiedTag: {
     fontSize: 13,
-    fontFamily: "PlusJakartaSansMedium",
+    fontFamily: "OutfitMedium",
     color: "#1D9BF0",
     marginTop: 4,
   },
@@ -353,7 +353,7 @@ const s = StyleSheet.create({
   // Sections
   sectionLabel: {
     fontSize: 13,
-    fontFamily: "PlusJakartaSansSemiBold",
+    fontFamily: "OutfitSemiBold",
     color: "#9CA3AF",
     textTransform: "uppercase",
     letterSpacing: 0.6,
@@ -373,25 +373,25 @@ const s = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 10,
-    backgroundColor: "#F3F4F6",
+    backgroundColor: '#1E1E1E',
     alignItems: "center",
     justifyContent: "center",
     marginRight: 14,
   },
   optionIconDanger: {
-    backgroundColor: "#FEF2F2",
+    backgroundColor: '#2A1A1A',
   },
   optionLabel: {
     fontSize: 15,
-    fontFamily: "PlusJakartaSansMedium",
-    color: "#1F2937",
+    fontFamily: "OutfitMedium",
+    color: '#E5E7EB',
     flex: 1,
   },
 
   // Divider
   divider: {
     height: 1,
-    backgroundColor: "#F3F4F6",
+    backgroundColor: '#1E1E1E',
     marginHorizontal: 20,
     marginVertical: 8,
   },
@@ -406,7 +406,7 @@ const s = StyleSheet.create({
   },
   exportingText: {
     fontSize: 13,
-    fontFamily: "PlusJakartaSans",
-    color: "#6B7280",
+    fontFamily: "Outfit",
+    color: '#9CA3AF',
   },
 });

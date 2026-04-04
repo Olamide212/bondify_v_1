@@ -26,10 +26,10 @@ import SettingsService from "../../../services/settingsService";
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 const RULES = [
-  { id: "length",  label: "At least 8 characters",          test: (v) => v.length >= 8 },
-  { id: "upper",   label: "One uppercase letter",            test: (v) => /[A-Z]/.test(v) },
-  { id: "number",  label: "One number",                      test: (v) => /[0-9]/.test(v) },
-  { id: "special", label: "One special character (!@#$…)",   test: (v) => /[^A-Za-z0-9]/.test(v) },
+  { id: "length", label: "At least 8 characters", test: (v) => v.length >= 8 },
+  { id: "upper", label: "One uppercase letter", test: (v) => /[A-Z]/.test(v) },
+  { id: "number", label: "One number", test: (v) => /[0-9]/.test(v) },
+  { id: "special", label: "One special character (!@#$…)", test: (v) => /[^A-Za-z0-9]/.test(v) },
 ];
 
 // ─── Screen ───────────────────────────────────────────────────────────────────
@@ -38,34 +38,34 @@ const ChangePassword = () => {
   const { colors } = useTheme();
   const router = useRouter();
 
-  const [current, setCurrent]         = useState("");
-  const [next, setNext]               = useState("");
-  const [confirm, setConfirm]         = useState("");
-  const [errors, setErrors]           = useState({});
-  const [loading, setLoading]         = useState(false);
-  const [success, setSuccess]         = useState(false);
+  const [current, setCurrent] = useState("");
+  const [next, setNext] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
 
   const shakeAnim = useRef(new Animated.Value(0)).current;
 
   const shake = () => {
     Animated.sequence([
-      Animated.timing(shakeAnim, { toValue: 8,  duration: 55, useNativeDriver: true }),
+      Animated.timing(shakeAnim, { toValue: 8, duration: 55, useNativeDriver: true }),
       Animated.timing(shakeAnim, { toValue: -8, duration: 55, useNativeDriver: true }),
-      Animated.timing(shakeAnim, { toValue: 6,  duration: 55, useNativeDriver: true }),
+      Animated.timing(shakeAnim, { toValue: 6, duration: 55, useNativeDriver: true }),
       Animated.timing(shakeAnim, { toValue: -6, duration: 55, useNativeDriver: true }),
-      Animated.timing(shakeAnim, { toValue: 0,  duration: 55, useNativeDriver: true }),
+      Animated.timing(shakeAnim, { toValue: 0, duration: 55, useNativeDriver: true }),
     ]).start();
   };
 
   // ── Client-side validation ────────────────────────────────────
   const validate = () => {
     const e = {};
-    if (!current.trim())        e.current = "Current password is required";
-    if (!next.trim())           e.next = "New password is required";
-    else if (next.length < 8)   e.next = "Must be at least 8 characters";
-    else if (next === current)  e.next = "Must differ from your current password";
-    if (!confirm.trim())        e.confirm = "Please confirm your new password";
-    else if (confirm !== next)  e.confirm = "Passwords do not match";
+    if (!current.trim()) e.current = "Current password is required";
+    if (!next.trim()) e.next = "New password is required";
+    else if (next.length < 8) e.next = "Must be at least 8 characters";
+    else if (next === current) e.next = "Must differ from your current password";
+    if (!confirm.trim()) e.confirm = "Please confirm your new password";
+    else if (confirm !== next) e.confirm = "Passwords do not match";
     return e;
   };
 
@@ -105,9 +105,9 @@ const ChangePassword = () => {
   // ── Success state ─────────────────────────────────────────────
   if (success) {
     return (
-      <SafeAreaView style={[s.safe, { backgroundColor: '#fff' }]} edges={["top"]}>
+      <SafeAreaView style={[s.safe, { backgroundColor: '#121212' }]} edges={["top"]}>
         <View style={s.successContainer}>
-          <View style={[s.successIcon, { backgroundColor: "#DCFCE7" }]}>
+          <View style={[s.successIcon, { backgroundColor: "rgba(34, 197, 94, 0.15)" }]}>
             <ShieldCheck size={36} color="#22C55E" strokeWidth={2} />
           </View>
           <Text style={[s.successTitle, { color: colors.textPrimary }]}>Password changed!</Text>
@@ -120,11 +120,11 @@ const ChangePassword = () => {
   }
 
   return (
-    <SafeAreaView style={[s.safe, { backgroundColor: '#fff' }]} edges={["top"]}>
+    <SafeAreaView style={[s.safe, { backgroundColor: '#121212' }]} edges={["top"]}>
       <StatusBar barStyle={colors.statusBarStyle} backgroundColor={colors.surface} />
 
       {/* Header */}
-      <View style={[s.header, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>
+      <View style={[s.header, { backgroundColor: colors.background }]}>
         <TouchableOpacity onPress={() => router.back()} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
           <ArrowLeft size={22} color={colors.textPrimary} strokeWidth={2} />
         </TouchableOpacity>
@@ -133,13 +133,13 @@ const ChangePassword = () => {
       </View>
 
       <ScrollView
-        style={{ backgroundColor: '#fff'}}
-        contentContainerStyle={[s.body, { backgroundColor: '#fff', paddingBottom: 40 }]}
+        style={{ backgroundColor: '#121212' }}
+        contentContainerStyle={[s.body, { backgroundColor: '#121212', paddingBottom: 40 }]}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-      
-        <Text style={[s.pageTitle, { color: colors.textPrimary }]}>Update your password</Text>
+
+        <Text style={[s.pageTitle, { color: '#fff' }]}>Update your password</Text>
         <Text style={[s.pageSub, { color: colors.textSecondary }]}>
           Choose a strong password you haven&apos;t used before.
         </Text>
@@ -147,7 +147,7 @@ const ChangePassword = () => {
         <Animated.View style={{ transform: [{ translateX: shakeAnim }] }}>
           {/* General error */}
           {errors.general && (
-            <View style={[s.generalError, { backgroundColor: "#FEE2E2", borderColor: "#FECACA" }]}>
+            <View style={[s.generalError, { backgroundColor: "rgba(239, 68, 68, 0.15)", borderColor: "rgba(239, 68, 68, 0.3)" }]}>
               <Text style={s.generalErrorText}>{errors.general}</Text>
             </View>
           )}
@@ -213,26 +213,26 @@ const s = StyleSheet.create({
     flexDirection: "row", alignItems: "center", justifyContent: "space-between",
     paddingHorizontal: 16, paddingVertical: 14, borderBottomWidth: StyleSheet.hairlineWidth,
   },
-  headerTitle: { fontSize: 18, fontFamily: "PlusJakartaSansBold" },
+  headerTitle: { fontSize: 18, fontFamily: "OutfitBold" },
   body: { paddingHorizontal: 20, paddingTop: 28, paddingBottom: 60 },
   iconBubble: {
     width: 60, height: 60, borderRadius: 16,
     alignItems: "center", justifyContent: "center", marginBottom: 16,
   },
-  pageTitle: { fontSize: 22, fontFamily: "PlusJakartaSansBold", letterSpacing: -0.4, marginBottom: 8 },
-  pageSub: { fontSize: 14, fontFamily: "PlusJakartaSans", lineHeight: 20, marginBottom: 28 },
+  pageTitle: { fontSize: 22, fontFamily: "OutfitBold", letterSpacing: -0.4, marginBottom: 8 },
+  pageSub: { fontSize: 14, fontFamily: "Outfit", lineHeight: 20, marginBottom: 28 },
 
   generalError: {
     borderRadius: 10, borderWidth: 1,
     padding: 12, marginBottom: 16,
   },
-  generalErrorText: { fontSize: 13, fontFamily: "PlusJakartaSans", color: "#EF4444" },
+  generalErrorText: { fontSize: 13, fontFamily: "Outfit", color: "#EF4444" },
 
   saveBtn: {
     backgroundColor: colors.primary, borderRadius: 50,
     paddingVertical: 16, alignItems: "center", marginTop: 8,
   },
-  saveBtnText: { fontSize: 16, fontFamily: "PlusJakartaSansBold", color: "#fff" },
+  saveBtnText: { fontSize: 16, fontFamily: "OutfitBold", color: "#fff" },
 
   // Success
   successContainer: { flex: 1, alignItems: "center", justifyContent: "center", padding: 32 },
@@ -240,8 +240,8 @@ const s = StyleSheet.create({
     width: 80, height: 80, borderRadius: 24,
     alignItems: "center", justifyContent: "center", marginBottom: 20,
   },
-  successTitle: { fontSize: 24, fontFamily: "PlusJakartaSansBold", marginBottom: 10 },
-  successSub: { fontSize: 15, fontFamily: "PlusJakartaSans", textAlign: "center", lineHeight: 22 },
+  successTitle: { fontSize: 24, fontFamily: "OutfitBold", marginBottom: 10 },
+  successSub: { fontSize: 15, fontFamily: "Outfit", textAlign: "center", lineHeight: 22 },
 });
 
 export default ChangePassword;

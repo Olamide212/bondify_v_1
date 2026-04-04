@@ -49,10 +49,10 @@ const Perks = () => {
           {/* Header row */}
           <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
             {perk.icon}
-            <Text style={{ fontFamily: "PlusJakartaSansBold", fontSize: 18 }}>
+            <Text style={{ fontFamily: "OutfitBold", fontSize: 18 }}>
               {perk.sparkQTY}
             </Text>
-            <Text style={{ fontFamily: "PlusJakartaSansBold", fontSize: 18 }}>
+            <Text style={{ fontFamily: "OutfitBold", fontSize: 18 }}>
               {perk.title}
             </Text>
           </View>
@@ -60,8 +60,8 @@ const Perks = () => {
           {/* Description */}
           <Text
             style={{
-              color: "#555",
-              fontFamily: "PlusJakartaSans",
+              color: '#9CA3AF',
+              fontFamily: "Outfit",
               fontSize: 14,
               marginTop: 8,
             }}
@@ -84,7 +84,7 @@ const Perks = () => {
             <Text
               style={{
                 color: "#fff",
-                fontFamily: "PlusJakartaSansMedium",
+                fontFamily: "OutfitMedium",
               }}
             >
               Go unlimited

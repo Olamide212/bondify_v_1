@@ -77,7 +77,7 @@ const DiscoverProfilesScreen = () => {
         </View>
       ) : filteredProfiles.length === 0 ? (
         <View style={styles.emptyContainer}>
-          <Text className="text-3xl font-PlusJakartaSansBold">No Profile </Text>
+          <Text className="text-3xl font-OutfitBold">No Profile </Text>
           <Text style={styles.emptyText}>
             No profiles found for this category.
           </Text>
@@ -104,7 +104,7 @@ const DiscoverProfilesScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#121212",
   },
   loadingContainer: {
     flex: 1,
@@ -125,7 +125,7 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 16,
-    color: "#666",
+    color: '#9CA3AF',
     textAlign: "center",
   },
   grid: {

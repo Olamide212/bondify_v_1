@@ -39,7 +39,7 @@ const RadioSelect = ({
   return (
     <View className={`mb-4 w-full ${className}`}>
       {label && (
-        <Text className="text-lg font-PlusJakartaSansMedium mb-2">{label}</Text>
+        <Text className="text-lg font-OutfitMedium mb-2">{label}</Text>
       )}
       <View
         className={`flex ${horizontal ? "flex-row flex-wrap gap-4" : "flex-col gap-3"}`}
@@ -55,14 +55,14 @@ const RadioSelect = ({
             <View className="flex-row justify-between items-center">
               <View style={{flex: 1}} className="pr-4">
                 <Text
-                  className={`text-app text-[16px] font-PlusJakartaSansBold 
-                  ${isSelected(option.value) ? "text-black" : ""} `}
+                  className={`text-app text-[16px] font-OutfitBold 
+                  ${isSelected(option.value) ? "text-white" : ""} `}
                   style={{ flexWrap: "wrap" }}
                 >
                   {option.label}
                 </Text>
                 {!!option.description && (
-                  <Text className="text-black text-base font-PlusJakartaSans mt-1">
+                  <Text className="text-white text-base font-Outfit mt-1">
                     {option.description}
                   </Text>
                 )}

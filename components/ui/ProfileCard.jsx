@@ -3,10 +3,10 @@ import React from 'react'
 
 const ProfileCard = ({profile, title, subTitle, name}) => {
   return (
-   <View className="px-6 py-4 bg-white mx-4 rounded-2xl">
-      <Text className="mb-2 font-PlusJakartaSansMedium text-lg text-gray-500">Basic Bio</Text>
+   <View className="px-6 py-4 bg-[#121212] mx-4 rounded-2xl">
+      <Text className="mb-2 font-OutfitMedium text-lg text-gray-400">Basic Bio</Text>
       <View className="flex-row items-center mb-1">
-        <Text className="text-black text-3xl font-PlusJakartaSansBold">
+        <Text className="text-white text-3xl font-OutfitBold">
           {name}
         </Text>
       </View>

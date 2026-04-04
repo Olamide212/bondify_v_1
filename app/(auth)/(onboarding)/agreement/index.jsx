@@ -11,10 +11,10 @@ const Agreement = () => {
   const router = useRouter()
 
   return (
-    <View className="bg-white flex-1 px-4 pt-8">
-      <Text className="text-3xl font-PlusJakartaSansBold">Welcome to Bondies!</Text>
+    <View className="bg-[#121212] flex-1 px-4 pt-8">
+      <Text className="text-3xl font-OutfitBold">Welcome to Bondies!</Text>
 
-      <Text className="mt-3 font-PlusJakartaSans text-lg text-gray-700">
+      <Text className="mt-3 font-Outfit text-lg text-gray-300">
         To ensure the best experience, please follow our community guidelines:
       </Text>
 
@@ -23,8 +23,8 @@ const Agreement = () => {
           <View key={index} className="flex-row items-start gap-3">
             <View className="mt-1">{item.icon}</View>
             <View>
-              <Text className="text-xl font-PlusJakartaSansBold">{item.title}</Text>
-              <Text className="text-lg font-PlusJakartaSans text-app pr-6">
+              <Text className="text-xl font-OutfitBold">{item.title}</Text>
+              <Text className="text-lg font-Outfit text-app pr-6">
                 {item.description}
               </Text>
             </View>

@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 32,
   },
   card: {
-    backgroundColor: "#fff",
+    backgroundColor: "#121212",
     borderRadius: 20,
     paddingHorizontal: 24,
     paddingVertical: 28,
@@ -108,15 +108,15 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 18,
-    fontFamily: "PlusJakartaSansBold",
-    color: "#111",
+    fontFamily: "OutfitBold",
+    color: '#E5E5E5',
     textAlign: "center",
     marginBottom: 8,
   },
   message: {
     fontSize: 14,
-    fontFamily: "PlusJakartaSans",
-    color: "#666",
+    fontFamily: "Outfit",
+    color: '#9CA3AF',
     textAlign: "center",
     lineHeight: 20,
     marginBottom: 20,
@@ -151,26 +151,28 @@ const styles = StyleSheet.create({
     paddingVertical: 13,
     borderRadius: 14,
     alignItems: "center",
-    backgroundColor: "#F3F4F6",
+    backgroundColor: '#1E1E1E',
   },
   actionBtnText: {
     fontSize: 15,
-    fontFamily: "PlusJakartaSansBold",
+    fontFamily: "OutfitBold",
+        color: "#fff",
+
   },
   actionBtnTextPrimary: {
     fontSize: 15,
-    fontFamily: "PlusJakartaSansBold",
+    fontFamily: "OutfitBold",
     color: "#fff",
   },
   actionBtnTextDestructive: {
     fontSize: 15,
-    fontFamily: "PlusJakartaSansBold",
+    fontFamily: "OutfitBold",
     color: "#fff",
   },
   actionBtnTextCancel: {
     fontSize: 15,
-    fontFamily: "PlusJakartaSansBold",
-    color: "#666",
+    fontFamily: "OutfitBold",
+    color: '#9CA3AF',
   },
 });
 

@@ -14,9 +14,9 @@ export default function FilterScreen() {
   const navigation = useNavigation();
 
   return (
-    <SafeAreaView style={{flex: 1}} className="bg-white">
+    <SafeAreaView style={{flex: 1}} className="bg-[#121212]">
       {/* Header */}
-      <View className="flex-row items-center justify-between p-4 border-b border-gray-200">
+      <View className="flex-row items-center justify-between p-4 border-b border-gray-600">
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons name="close" size={28} color="#000" />
         </TouchableOpacity>
@@ -28,20 +28,20 @@ export default function FilterScreen() {
 
       {/* Filter content */}
       <ScrollView contentContainerStyle={{ padding: 16 }}>
-        <Text className="text-gray-500 mb-4">Age Range</Text>
+        <Text className="text-gray-400 mb-4">Age Range</Text>
         {/* Add your sliders, toggles, selectors here */}
 
-        <Text className="text-gray-500 mt-6 mb-4">Distance</Text>
+        <Text className="text-gray-400 mt-6 mb-4">Distance</Text>
         {/* Example distance slider */}
 
-        <Text className="text-gray-500 mt-6 mb-4">Interests</Text>
+        <Text className="text-gray-400 mt-6 mb-4">Interests</Text>
         {/* Example tags */}
 
         <View style={{ height: 300 }} />
       </ScrollView>
 
       {/* Bottom Apply Button */}
-      <View className="p-4 border-t border-gray-200">
+      <View className="p-4 border-t border-gray-600">
         <TouchableOpacity
           onPress={() => navigation.goBack()}
           className="bg-blue-500 py-4 rounded-xl items-center"

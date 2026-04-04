@@ -3,28 +3,28 @@ import { StyleSheet } from "react-native";
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#121212",
   },
   header: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#121212",
     borderBottomWidth: 1,
-    borderBottomColor: "#E0E0E0",
+    borderBottomColor: '#333333',
   },
   headerTitle: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "#1A1A1A",
+    color: '#E5E5E5',
     marginBottom: 5,
   },
   headerSubtitle: {
     fontSize: 14,
-    color: "#666",
+    color: '#9CA3AF',
   },
   tabContainer: {
     flexDirection: "row",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#121212",
     borderBottomWidth: 1,
-    borderBottomColor: "#E0E0E0",
+    borderBottomColor: '#333333',
   },
   tab: {
     flex: 1,
@@ -37,7 +37,7 @@ export const styles = StyleSheet.create({
   },
   tabText: {
     fontSize: 14,
-    color: "#666",
+    color: '#9CA3AF',
     fontWeight: "500",
   },
   activeTabText: {
@@ -48,7 +48,7 @@ export const styles = StyleSheet.create({
     paddingBottom: 20,
   },
   discoverCard: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#121212",
     borderRadius: 12,
     padding: 15,
     marginBottom: 15,
@@ -73,7 +73,7 @@ export const styles = StyleSheet.create({
   categoryName: {
     fontSize: 18,
     fontWeight: "600",
-    color: "#1A1A1A",
+    color: '#E5E5E5',
     marginBottom: 4,
   },
   memberInfo: {
@@ -82,23 +82,23 @@ export const styles = StyleSheet.create({
   },
   categoryMembers: {
     fontSize: 14,
-    color: "#666",
+    color: '#9CA3AF',
     marginLeft: 4,
   },
   categoryDescription: {
     fontSize: 14,
-    color: "#333",
+    color: '#D1D5DB',
     lineHeight: 20,
     marginBottom: 10,
   },
   activityInfo: {
     paddingTop: 10,
     borderTopWidth: 1,
-    borderTopColor: "#F0F0F0",
+    borderTopColor: '#333333',
   },
   activityText: {
     fontSize: 12,
-    color: "#666",
+    color: '#9CA3AF',
   },
   profilesHeader: {
     flexDirection: "row",
@@ -106,19 +106,19 @@ export const styles = StyleSheet.create({
     justifyContent: "space-between",
     padding: 15,
     borderBottomWidth: 1,
-    borderBottomColor: "#E0E0E0",
-    backgroundColor: "#FFFFFF",
+    borderBottomColor: '#333333',
+    backgroundColor: "#121212",
   },
   profilesTitle: {
     fontSize: 18,
     fontWeight: "600",
-    color: "#1A1A1A",
+    color: '#E5E5E5',
   },
   profilesList: {
     padding: 15,
   },
   profileCard: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#121212",
     borderRadius: 12,
     marginBottom: 15,
     shadowColor: "#000",
@@ -144,7 +144,7 @@ export const styles = StyleSheet.create({
   profileName: {
     fontSize: 20,
     fontWeight: "bold",
-    color: "#1A1A1A",
+    color: '#E5E5E5',
     marginBottom: 4,
   },
   locationInfo: {
@@ -153,7 +153,7 @@ export const styles = StyleSheet.create({
   },
   profileDistance: {
     fontSize: 14,
-    color: "#666",
+    color: '#9CA3AF',
     marginLeft: 4,
   },
   profileOccupation: {
@@ -164,7 +164,7 @@ export const styles = StyleSheet.create({
   },
   profileBio: {
     fontSize: 15,
-    color: "#333",
+    color: '#D1D5DB',
     lineHeight: 20,
     marginBottom: 12,
   },
@@ -187,7 +187,7 @@ export const styles = StyleSheet.create({
     marginBottom: 15,
   },
   interestPill: {
-    backgroundColor: "#F0F2F5",
+    backgroundColor: '#1E1E1E',
     borderRadius: 16,
     paddingHorizontal: 12,
     paddingVertical: 6,
@@ -196,10 +196,10 @@ export const styles = StyleSheet.create({
   },
   interestText: {
     fontSize: 12,
-    color: "#666",
+    color: '#9CA3AF',
   },
   moreInterestsPill: {
-    backgroundColor: "#E0E7FF",
+    backgroundColor: '#1E1A2E',
     borderRadius: 16,
     paddingHorizontal: 10,
     paddingVertical: 6,
@@ -216,7 +216,7 @@ export const styles = StyleSheet.create({
   },
   passButton: {
     borderWidth: 1,
-    borderColor: "#E0E0E0",
+    borderColor: '#333333',
     borderRadius: 25,
     paddingVertical: 10,
     paddingHorizontal: 25,
@@ -226,7 +226,7 @@ export const styles = StyleSheet.create({
     marginRight: 10,
   },
   passButtonText: {
-    color: "#666",
+    color: '#9CA3AF',
     fontWeight: "600",
   },
   likeButton: {
@@ -258,13 +258,13 @@ export const styles = StyleSheet.create({
   noResultsText: {
     fontSize: 18,
     fontWeight: "600",
-    color: "#1A1A1A",
+    color: '#E5E5E5',
     marginBottom: 8,
     textAlign: "center",
   },
   noResultsSubtext: {
     fontSize: 14,
-    color: "#666",
+    color: '#9CA3AF',
     textAlign: "center",
   },
 });

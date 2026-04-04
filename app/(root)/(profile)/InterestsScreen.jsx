@@ -123,11 +123,11 @@ const InterestsScreen = () => {
   };
 
   return (
-    <SafeAreaView style={{flex: 1}} className="bg-white">
+    <SafeAreaView style={{flex: 1}} className="bg-[#121212]">
       <GeneralHeader
         title="Interests"
-        leftIcon={<ArrowLeft color={colors.textPrimary ?? "#111827"} />}
-        className="bg-white"
+        leftIcon={<ArrowLeft color={colors.white} />}
+        className="bg-[#121212]"
       />
 
       {loading ? (
@@ -142,14 +142,14 @@ const InterestsScreen = () => {
           contentContainerStyle={{ paddingBottom: 120, paddingTop: 16 }}
           showsVerticalScrollIndicator={false}
         >
-          <Text className="text-2xl font-PlusJakartaSansBold mb-6">
+          <Text className="text-2xl text-white font-OutfitBold mb-6">
             What are your interests?
           </Text>
 
           {/* ── Grouped categories ── */}
           {INTEREST_CATEGORIES.map((category) => (
             <View key={category.title} className="mb-6">
-              <Text className="font-PlusJakartaSansBold text-lg mb-3" style={{ color: colors.primary }}>
+              <Text className="font-OutfitBold text-lg mb-3" style={{ color: colors.primary }}>
                 {category.title}
               </Text>
               <View className="flex-row flex-wrap gap-2">
@@ -162,12 +162,12 @@ const InterestsScreen = () => {
                       className={`px-4 py-2 rounded-full border ${
                         selected
                           ? "bg-primary border-primary"
-                          : "bg-white border-[#D1D1D1]"
+                          : "bg-[#121212] border-whiteLight"
                       }`}
                     >
                       <Text
-                        className={`font-PlusJakartaSansMedium ${
-                          selected ? "text-white" : "text-black"
+                        className={`font-OutfitMedium ${
+                          selected ? "text-white" : "text-white"
                         }`}
                       >
                         {interest}
@@ -182,7 +182,7 @@ const InterestsScreen = () => {
           {/* ── Extra interests saved from API that don't appear in categories ── */}
           {extraInterests.length > 0 && (
             <View className="mb-6">
-              <Text className="font-PlusJakartaSansBold text-lg mb-3" style={{ color: colors.primary }}>
+              <Text className="font-OutfitBold text-lg mb-3" style={{ color: colors.primary }}>
                 ✨ Other
               </Text>
               <View className="flex-row flex-wrap gap-2">
@@ -195,12 +195,12 @@ const InterestsScreen = () => {
                       className={`px-4 py-2 rounded-full border ${
                         selected
                           ? "bg-primary border-primary"
-                          : "bg-white border-[#D1D1D1]"
+                          : "bg-[#121212] border-whiteLight"
                       }`}
                     >
                       <Text
-                        className={`font-PlusJakartaSansMedium ${
-                          selected ? "text-white" : "text-black"
+                        className={`font-OutfitMedium ${
+                          selected ? "text-white" : "text-white"
                         }`}
                       >
                         {interest
@@ -217,7 +217,7 @@ const InterestsScreen = () => {
 
           {/* Selection count */}
           {selectedInterests.length > 0 && (
-            <Text className="text-center font-PlusJakartaSans text-sm mt-2" style={{ color: colors.primary }}>
+            <Text className="text-center font-Outfit text-sm mt-2" style={{ color: colors.primary }}>
               {selectedInterests.length} selected
             </Text>
           )}
@@ -225,7 +225,7 @@ const InterestsScreen = () => {
       )}
 
       {/* Save button */}
-      <View className="px-4 py-3 bg-white border-t border-gray-100">
+      <View className="px-4 py-3 bg-[#121212] border-t border-gray-700">
         <Button
           title={saving ? "Saving..." : "Save"}
           variant="primary"

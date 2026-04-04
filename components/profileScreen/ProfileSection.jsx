@@ -2,19 +2,19 @@ import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import { memo, useEffect, useRef, useState } from "react";
 import {
-  ActivityIndicator,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import * as Progress from "react-native-progress";
-import { colors } from "../../constant/colors";
+import { styles as appStyles, colors } from "../../constant/colors";
 import { getProfileAge } from "../../utils/ageHelper";
 import apiClient from "../../utils/axiosInstance";
 import VerifiedIcon from "../ui/VerifiedIcon";
 
-const PRIMARY = colors.secondary;   // your orange e.g. '#E8521A' --- IGNORE ---
+const PRIMARY = colors.primary;   // your orange e.g. '#E8521A' --- IGNORE ---
 const PHOTO_SIZE     = 130;
 const RING_THICKNESS = 5;
 const RING_GAP       = 4;
@@ -127,7 +127,7 @@ const ProfileSection = memo(({ profile, isUploading }) => {
           { value: stats.likes,        label: "LIKES"         },
           { value: stats.profileViews, label: "PROFILE VIEWS" },
         ].map(({ value, label }, i) => (
-          <View key={label} style={[styles.statChip, i > 0 && styles.statChipBorder]}>
+          <View key={label} style={[styles.statChip, appStyles.boxContainer, i > 0 && styles.statChipBorder]}>
             {statsLoading
               ? <ActivityIndicator size="small" color={PRIMARY} />
               : <Text style={styles.statValue}>{value}</Text>
@@ -146,7 +146,9 @@ export default ProfileSection;
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor:   "#fff",
+
+    borderWidth:      1,
+    borderColor:      colors.whiteLight,
     borderRadius:      24,
     marginHorizontal:  16,
     marginTop:         16,
@@ -204,7 +206,7 @@ const styles = StyleSheet.create({
   percentBadgeText: {
     color:      "#fff",
     fontSize:   11,
-    fontFamily: "PlusJakartaSansBold",
+    fontFamily: "OutfitBold",
   },
 
   // Name
@@ -217,8 +219,8 @@ const styles = StyleSheet.create({
   },
   nameText: {
     fontSize:      28,
-    fontFamily:    "PlusJakartaSansBold",
-    color:         "#111",
+    fontFamily:    "OutfitBold",
+    color:         "#FFFFFF",
     textTransform: "capitalize",
     flexShrink:    1,
   },
@@ -226,7 +228,7 @@ const styles = StyleSheet.create({
   // Completion hint
   completionSub: {
     fontSize:     12,
-    fontFamily:   "PlusJakartaSans",
+    fontFamily:   "Outfit",
     color:        "#9CA3AF",
     marginTop:    10,
     marginBottom: 4,
@@ -245,23 +247,20 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
     alignItems:      "center",
     justifyContent:  "center",
-    backgroundColor: "#FAFAFA",
     borderRadius:    16,
-    borderWidth:     1,
-    borderColor:     "#F3F4F6",
     minHeight:       64,
     marginTop:       15,
   },
   statChipBorder: { marginLeft: 10 },
   statValue: {
     fontSize:     20,
-    fontFamily:   "PlusJakartaSansBold",
-    color:        "#111",
+    fontFamily:   "OutfitBold",
+    color:        "#FFFFFF",
     marginBottom: 2,
   },
   statLabel: {
     fontSize:      9,
-    fontFamily:    "PlusJakartaSansMedium",
+    fontFamily:    "OutfitMedium",
     color:         "#9CA3AF",
     letterSpacing: 0.8,
   },

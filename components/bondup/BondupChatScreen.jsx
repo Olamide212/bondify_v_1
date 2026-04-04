@@ -45,6 +45,7 @@ import bondupService from '../../services/bondupService';
 import settingsService from '../../services/settingsService';
 import { socketService } from '../../services/socketService';
 import cacheManager from '../../utils/cacheManager';
+import ChatBackground from '../common/ChatBackground';
 import BondupDetailModal from './BondupDetailModal';
 
 const BRAND = colors.primary;
@@ -505,7 +506,7 @@ export default function BondupChatScreen({ chatId, bondupId, bondupTitle, partic
             disabled={actionLoading}
             activeOpacity={0.7}
           >
-            <View style={[lrStyles.optionIcon, { backgroundColor: '#FEF2F2' }]}>
+            <View style={[lrStyles.optionIcon, { backgroundColor: '#2A1A1A' }]}>
               <LogOut size={18} color="#EF4444" />
             </View>
             <View style={lrStyles.optionTextWrap}>
@@ -519,7 +520,7 @@ export default function BondupChatScreen({ chatId, bondupId, bondupTitle, partic
             onPress={handleReportBondup}
             activeOpacity={0.7}
           >
-            <View style={[lrStyles.optionIcon, { backgroundColor: '#FFF7ED' }]}>
+            <View style={[lrStyles.optionIcon, { backgroundColor: '#2A2218' }]}>
               <AlertTriangle size={18} color="#F59E0B" />
             </View>
             <View style={lrStyles.optionTextWrap}>
@@ -755,6 +756,7 @@ export default function BondupChatScreen({ chatId, bondupId, bondupTitle, partic
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         keyboardVerticalOffset={0}
       >
+        <ChatBackground style={{ flex: 1 }}>
         <FlatList
           ref={flatListRef}
           data={messages}
@@ -774,6 +776,7 @@ export default function BondupChatScreen({ chatId, bondupId, bondupTitle, partic
             </View>
           }
         />
+        </ChatBackground>
 
         {/* Input bar */}
         <View style={cs.inputBar}>
@@ -828,7 +831,7 @@ export default function BondupChatScreen({ chatId, bondupId, bondupTitle, partic
 const cs = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#121212',
   },
   header: {
     flexDirection: 'row',
@@ -836,14 +839,14 @@ const cs = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
-    backgroundColor: '#fff',
+    borderBottomColor: '#333333',
+    backgroundColor: '#121212',
   },
   backBtn: {
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: '#1E1E1E',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -871,16 +874,16 @@ const cs = StyleSheet.create({
   headerAvatarInitial: {
     color: '#fff',
     fontSize: 14,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: 'OutfitBold',
   },
   headerTitle: {
     fontSize: 16,
-    fontFamily: 'PlusJakartaSansBold',
-    color: '#111',
+    fontFamily: 'OutfitBold',
+    color: '#E5E5E5',
   },
   headerSub: {
     fontSize: 12,
-    fontFamily: 'PlusJakartaSans',
+    fontFamily: 'Outfit',
     color: '#888',
     marginTop: 1,
   },
@@ -908,7 +911,7 @@ const cs = StyleSheet.create({
   emptyChatEmoji: { fontSize: 40, marginBottom: 12 },
   emptyChatText: {
     fontSize: 14,
-    fontFamily: 'PlusJakartaSans',
+    fontFamily: 'Outfit',
     color: '#888',
   },
 
@@ -918,19 +921,19 @@ const cs = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderTopWidth: 1,
-    borderTopColor: '#F0F0F0',
-    backgroundColor: '#fff',
+    borderTopColor: '#333333',
+    backgroundColor: '#121212',
     gap: 10,
   },
   input: {
     flex: 1,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: '#1E1E1E',
     borderRadius: 20,
     paddingHorizontal: 16,
     paddingVertical: 10,
     fontSize: 15,
-    fontFamily: 'PlusJakartaSans',
-    color: '#111',
+    fontFamily: 'Outfit',
+    color: '#E5E5E5',
     maxHeight: 100,
   },
   sendBtn: {
@@ -956,7 +959,7 @@ const cs = StyleSheet.create({
   },
   matchPromptText: {
     fontSize: 15,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: 'OutfitBold',
     color: '#fff',
   },
 });
@@ -970,7 +973,7 @@ const bs = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
+    borderBottomColor: '#333333',
   },
   bannerMatched: {
     backgroundColor: '#F0FDF4',
@@ -978,7 +981,7 @@ const bs = StyleSheet.create({
   },
   bannerMatchedText: {
     fontSize: 13,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: 'OutfitBold',
     color: colors.secondary,
   },
   bannerPending: {
@@ -987,22 +990,22 @@ const bs = StyleSheet.create({
   },
   bannerPendingText: {
     fontSize: 13,
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: 'OutfitMedium',
     color: BRAND,
     flex: 1,
   },
   bannerCounter: {
-    backgroundColor: '#FFFBEB',
+    backgroundColor: '#2A2518',
     borderBottomColor: '#FDE68A',
   },
   counterText: {
     fontSize: 13,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: 'OutfitBold',
     color: '#92400E',
   },
   counterSubText: {
     fontSize: 12,
-    fontFamily: 'PlusJakartaSans',
+    fontFamily: 'Outfit',
     color: '#B45309',
   },
 
@@ -1024,13 +1027,13 @@ const bs = StyleSheet.create({
   },
   matchRequestTitle: {
     fontSize: 16,
-    fontFamily: 'PlusJakartaSansBold',
-    color: '#111',
+    fontFamily: 'OutfitBold',
+    color: '#E5E5E5',
   },
   matchRequestSub: {
     fontSize: 13,
-    fontFamily: 'PlusJakartaSans',
-    color: '#666',
+    fontFamily: 'Outfit',
+    color: '#9CA3AF',
     marginBottom: 14,
     marginLeft: 26,
   },
@@ -1046,12 +1049,12 @@ const bs = StyleSheet.create({
     gap: 6,
     paddingVertical: 12,
     borderRadius: 14,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: '#1E1E1E',
   },
   matchDeclineText: {
     fontSize: 14,
-    fontFamily: 'PlusJakartaSansBold',
-    color: '#666',
+    fontFamily: 'OutfitBold',
+    color: '#9CA3AF',
   },
   matchAcceptBtn: {
     flex: 2,
@@ -1070,7 +1073,7 @@ const bs = StyleSheet.create({
   },
   matchAcceptText: {
     fontSize: 14,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: 'OutfitBold',
     color: '#fff',
   },
 
@@ -1079,7 +1082,7 @@ const bs = StyleSheet.create({
     margin: 16,
     marginBottom: 8,
     padding: 18,
-    backgroundColor: '#FFFBEB',
+    backgroundColor: '#2A2518',
     borderRadius: 16,
     borderWidth: 1.5,
     borderColor: '#FDE68A',
@@ -1087,14 +1090,14 @@ const bs = StyleSheet.create({
   },
   limitReachedTitle: {
     fontSize: 16,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: 'OutfitBold',
     color: '#92400E',
     marginTop: 8,
     marginBottom: 4,
   },
   limitReachedSub: {
     fontSize: 13,
-    fontFamily: 'PlusJakartaSans',
+    fontFamily: 'Outfit',
     color: '#B45309',
     textAlign: 'center',
     marginBottom: 14,
@@ -1116,7 +1119,7 @@ const bs = StyleSheet.create({
   },
   matchRequestBtnText: {
     fontSize: 15,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: 'OutfitBold',
     color: '#fff',
   },
 });
@@ -1150,7 +1153,7 @@ const ms = StyleSheet.create({
   senderAvatarInitial: {
     color: '#fff',
     fontSize: 12,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: 'OutfitBold',
   },
   avatarSpacer: {
     width: 38,
@@ -1161,7 +1164,7 @@ const ms = StyleSheet.create({
   },
   senderName: {
     fontSize: 11,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: 'OutfitBold',
     color: '#888',
     marginBottom: 3,
     marginLeft: 4,
@@ -1179,11 +1182,11 @@ const ms = StyleSheet.create({
   },
   bubbleMeText: {
     fontSize: 15,
-    fontFamily: 'PlusJakartaSans',
+    fontFamily: 'Outfit',
     color: '#fff',
   },
   bubbleOther: {
-    backgroundColor: '#F3F4F6',
+    backgroundColor: '#1E1E1E',
     borderBottomLeftRadius: 4,
     borderRadius: 18,
     paddingHorizontal: 14,
@@ -1191,12 +1194,12 @@ const ms = StyleSheet.create({
   },
   bubbleOtherText: {
     fontSize: 15,
-    fontFamily: 'PlusJakartaSans',
-    color: '#111',
+    fontFamily: 'Outfit',
+    color: '#E5E5E5',
   },
   timeText: {
     fontSize: 10,
-    fontFamily: 'PlusJakartaSans',
+    fontFamily: 'Outfit',
     color: 'rgba(255,255,255,0.7)',
     textAlign: 'right',
     marginTop: 3,
@@ -1231,8 +1234,8 @@ const infoStyles = StyleSheet.create({
   },
   title: {
     fontSize: 15,
-    fontFamily: 'PlusJakartaSansBold',
-    color: '#111',
+    fontFamily: 'OutfitBold',
+    color: '#E5E5E5',
     marginBottom: 4,
   },
   metaRow: {
@@ -1247,12 +1250,12 @@ const infoStyles = StyleSheet.create({
   },
   metaText: {
     fontSize: 11,
-    fontFamily: 'PlusJakartaSans',
+    fontFamily: 'Outfit',
     color: '#888',
   },
   tapHint: {
     fontSize: 10,
-    fontFamily: 'PlusJakartaSans',
+    fontFamily: 'Outfit',
     color: '#BBB',
     textAlign: 'right',
     marginTop: 6,
@@ -1267,7 +1270,7 @@ const lrStyles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   sheet: {
-    backgroundColor: '#fff',
+    backgroundColor: '#121212',
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     paddingHorizontal: 20,
@@ -1284,8 +1287,8 @@ const lrStyles = StyleSheet.create({
   },
   sheetTitle: {
     fontSize: 18,
-    fontFamily: 'PlusJakartaSansBold',
-    color: '#111',
+    fontFamily: 'OutfitBold',
+    color: '#E5E5E5',
     marginBottom: 18,
   },
   option: {
@@ -1308,12 +1311,12 @@ const lrStyles = StyleSheet.create({
   },
   optionLabel: {
     fontSize: 15,
-    fontFamily: 'PlusJakartaSansBold',
-    color: '#111',
+    fontFamily: 'OutfitBold',
+    color: '#E5E5E5',
   },
   optionDesc: {
     fontSize: 12,
-    fontFamily: 'PlusJakartaSans',
+    fontFamily: 'Outfit',
     color: '#888',
     marginTop: 2,
   },
@@ -1322,12 +1325,12 @@ const lrStyles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 14,
     borderRadius: 14,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: '#1E1E1E',
   },
   cancelText: {
     fontSize: 15,
-    fontFamily: 'PlusJakartaSansBold',
-    color: '#666',
+    fontFamily: 'OutfitBold',
+    color: '#9CA3AF',
   },
 });
 
@@ -1341,7 +1344,7 @@ const amStyles = StyleSheet.create({
     paddingHorizontal: 32,
   },
   card: {
-    backgroundColor: '#fff',
+    backgroundColor: '#121212',
     borderRadius: 20,
     paddingHorizontal: 24,
     paddingVertical: 28,
@@ -1359,15 +1362,15 @@ const amStyles = StyleSheet.create({
   },
   title: {
     fontSize: 18,
-    fontFamily: 'PlusJakartaSansBold',
-    color: '#111',
+    fontFamily: 'OutfitBold',
+    color: '#E5E5E5',
     textAlign: 'center',
     marginBottom: 8,
   },
   message: {
     fontSize: 14,
-    fontFamily: 'PlusJakartaSans',
-    color: '#666',
+    fontFamily: 'Outfit',
+    color: '#9CA3AF',
     textAlign: 'center',
     lineHeight: 20,
     marginBottom: 20,
@@ -1402,26 +1405,26 @@ const amStyles = StyleSheet.create({
     paddingVertical: 13,
     borderRadius: 14,
     alignItems: 'center',
-    backgroundColor: '#F3F4F6',
+    backgroundColor: '#1E1E1E',
   },
   actionBtnText: {
     fontSize: 15,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: 'OutfitBold',
   },
   actionBtnTextPrimary: {
     fontSize: 15,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: 'OutfitBold',
     color: '#fff',
   },
   actionBtnTextDestructive: {
     fontSize: 15,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: 'OutfitBold',
     color: '#fff',
   },
   actionBtnTextCancel: {
     fontSize: 15,
-    fontFamily: 'PlusJakartaSansBold',
-    color: '#666',
+    fontFamily: 'OutfitBold',
+    color: '#9CA3AF',
   },
 });
 
@@ -1429,13 +1432,13 @@ const amStyles = StyleSheet.create({
 const rpStyles = StyleSheet.create({
   input: {
     width: '100%',
-    backgroundColor: '#F3F4F6',
+    backgroundColor: '#1E1E1E',
     borderRadius: 14,
     paddingHorizontal: 16,
     paddingVertical: 12,
     fontSize: 15,
-    fontFamily: 'PlusJakartaSans',
-    color: '#111',
+    fontFamily: 'Outfit',
+    color: '#E5E5E5',
     minHeight: 80,
     textAlignVertical: 'top',
     marginBottom: 16,

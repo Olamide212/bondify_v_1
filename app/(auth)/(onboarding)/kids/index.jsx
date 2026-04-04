@@ -34,7 +34,7 @@ const Kids = () => {
   }
 
   return (
-    <SafeAreaView style={{flex: 1, backgroundColor: 'white'}} className="bg-white">
+    <SafeAreaView style={{flex: 1, backgroundColor: '#121212'}} className="bg-[#121212]">
       <KeyboardAvoidingView
         style={{flex: 1}}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -43,10 +43,10 @@ const Kids = () => {
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View style={{flex: 1}} className="px-2">
             <ScrollView style={{flex: 1}} showsVerticalScrollIndicator={false}>
-              <Text className="text-3xl font-PlusJakartaSansBold mt-8  mb-2">
+              <Text className="text-3xl font-OutfitBold mt-8  mb-2">
                 Do you want kids?
               </Text>
-              <Text className="text-lg font-PlusJakartaSans">
+              <Text className="text-lg font-Outfit">
                 Please select an option.
               </Text>
 
@@ -61,7 +61,7 @@ const Kids = () => {
             
             </ScrollView>
 
-            <View className="w-full items-end pb-6 bg-white">
+            <View className="w-full items-end pb-6 bg-[#121212]">
               <Button
                 title="Continue"
                 variant="primary"

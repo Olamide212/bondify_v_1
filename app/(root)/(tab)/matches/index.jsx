@@ -129,7 +129,7 @@ export default function ExploreTabComponents() {
   return (
     <SafeAreaProvider>
      
-      <SafeAreaView style={{ flex: 1 }} className="bg-white">
+      <SafeAreaView style={{ flex: 1 }} className="bg-[#121212]">
              <GeneralHeader title="Discover" />
     
         <View>

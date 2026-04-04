@@ -83,7 +83,7 @@ const s = StyleSheet.create({
   container: {
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: '#fff',
+    backgroundColor: '#121212',
   },
   buttonRow: {
     flexDirection: 'row',
@@ -125,7 +125,7 @@ const s = StyleSheet.create({
     minWidth: 120,
   },
   friendsBtn: {
-    backgroundColor: '#fff',
+    backgroundColor: '#121212',
     borderWidth: 1.5,
     borderColor: BRAND,
     shadowOpacity: 0,
@@ -142,22 +142,22 @@ const s = StyleSheet.create({
   },
   friendBtnText: {
     fontSize: 15,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: 'OutfitBold',
     color: '#fff',
   },
   friendsBtnText: {
     fontSize: 15,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: 'OutfitBold',
     color: BRAND,
   },
   requestsBtnText: {
     fontSize: 15,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: 'OutfitBold',
     color: '#fff',
   },
   editBtnText: {
     fontSize: 15,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: 'OutfitBold',
     color: '#fff',
   },
 });

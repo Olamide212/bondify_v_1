@@ -286,7 +286,7 @@ export default function FeedProfileScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fff" },
+  container: { flex: 1, backgroundColor: "#121212" },
   header: {
     flexDirection: "row",
     alignItems: "center",
@@ -294,12 +294,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: "#F0F0F0",
+    borderBottomColor: '#333333',
   },
   headerTitle: {
     fontSize: 17,
-    fontFamily: "PlusJakartaSansBold",
-    color: "#111",
+    fontFamily: "OutfitBold",
+    color: '#E5E5E5',
   },
   editButton: {
     width: 32,
@@ -326,7 +326,7 @@ const styles = StyleSheet.create({
   avatarInitial: {
     color: "#fff",
     fontSize: 30,
-    fontFamily: "PlusJakartaSansBold",
+    fontFamily: "OutfitBold",
   },
   cameraOverlay: {
     position: "absolute",
@@ -352,15 +352,15 @@ const styles = StyleSheet.create({
   profileInfo: { flex: 1 },
   realName: {
     fontSize: 18,
-    fontFamily: "PlusJakartaSansBold",
-    color: "#111",
+    fontFamily: "OutfitBold",
+    color: '#E5E5E5',
     marginBottom: 8,
     textAlign: 'center'
   },
   statsRow: { flexDirection: "row", gap: 40, marginTop: 20 },
   statItem: { alignItems: "center" },
-  statNum: { fontSize: 20, fontFamily: "PlusJakartaSansBold", color: "#111" },
-  statLabel: { fontSize: 12, fontFamily: "PlusJakartaSans", color: "#888" },
+  statNum: { fontSize: 20, fontFamily: "OutfitBold", color: '#E5E5E5' },
+  statLabel: { fontSize: 12, fontFamily: "Outfit", color: "#888" },
   usernameRow: {
     flexDirection: "row",
     gap: 10,
@@ -371,12 +371,12 @@ const styles = StyleSheet.create({
   usernameInput: {
     flex: 1,
     borderWidth: 1.5,
-    borderColor: "#E5E7EB",
+    borderColor: '#374151',
     borderRadius: 10,
     padding: 10,
     fontSize: 14,
-    fontFamily: "PlusJakartaSans",
-    color: "#111",
+    fontFamily: "Outfit",
+    color: '#E5E5E5',
   },
   saveBtn: {
     backgroundColor: BRAND,
@@ -388,24 +388,24 @@ const styles = StyleSheet.create({
   saveBtnText: {
     color: "#fff",
     fontSize: 14,
-    fontFamily: "PlusJakartaSansBold",
+    fontFamily: "OutfitBold",
   },
   tabRow: {
     flexDirection: "row",
     borderBottomWidth: 1,
-    borderBottomColor: "#F0F0F0",
+    borderBottomColor: '#333333',
     marginBottom: 12,
     paddingHorizontal: 20,
   },
   tab: { flex: 1, paddingVertical: 10, alignItems: "center" },
   tabActive: { borderBottomWidth: 2, borderBottomColor: BRAND },
-  tabText: { fontSize: 14, fontFamily: "PlusJakartaSans", color: "#888" },
-  tabTextActive: { fontFamily: "PlusJakartaSansBold", color: BRAND },
+  tabText: { fontSize: 14, fontFamily: "Outfit", color: "#888" },
+  tabTextActive: { fontFamily: "OutfitBold", color: BRAND },
   empty: {
     textAlign: "center",
     color: "#BBB",
     paddingVertical: 24,
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
   },
   miniPost: {
     paddingVertical: 10,
@@ -415,13 +415,13 @@ const styles = StyleSheet.create({
   },
   miniPostText: {
     fontSize: 14,
-    fontFamily: "PlusJakartaSans",
-    color: "#333",
+    fontFamily: "Outfit",
+    color: '#D1D5DB',
     lineHeight: 20,
   },
   miniPostMeta: {
     fontSize: 12,
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
     color: "#BBB",
     marginTop: 4,
   },

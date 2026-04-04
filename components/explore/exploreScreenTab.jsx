@@ -5,6 +5,7 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
+import {colors} from "../../constant/colors";
 
 const ExploreScreenTab = ({
   activeTab,
@@ -56,27 +57,28 @@ const ExploreScreenTab = ({
 const styles = StyleSheet.create({
   tabBarWrapper: {
     borderBottomWidth: 1,
-    borderBottomColor: "#F0F0F0",
+    borderBottomColor: colors.border,
   },
   tabBarContent: {
     flexDirection: "row",
     paddingHorizontal: 16,
-    gap: 24,
+    gap: 10,
   },
   tabItem: {
-    paddingVertical: 12,
+    padding: 12,
+   backgroundColor: 'rgba(255,255,255,0.20)',
+    borderRadius: 5,
   },
   tabItemActive: {
-    borderBottomWidth: 2,
-    borderBottomColor: "#111",
+  backgroundColor: colors.primary
   },
   tabLabel: {
     fontSize: 13,
-    fontFamily: "PlusJakartaSansBold",
+    fontFamily: "Outfit",
     whiteSpace: "nowrap",
   },
   tabLabelActive: {
-    color: "#111",
+    color: "#fff",
   },
   tabLabelInactive: {
     color: "#9CA3AF",

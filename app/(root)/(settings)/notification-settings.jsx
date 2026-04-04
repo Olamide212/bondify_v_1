@@ -1,14 +1,14 @@
 import { ArrowLeft, MessageCircle } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import {
-  ActivityIndicator,
-  Platform,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Switch,
-  Text,
-  View
+    ActivityIndicator,
+    Platform,
+    ScrollView,
+    StatusBar,
+    StyleSheet,
+    Switch,
+    Text,
+    View
 } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import GeneralHeader from "../../../components/headers/GeneralHeader";
@@ -94,11 +94,11 @@ const ToggleRow = ({ setting, value, onChange, disabled, isLast }) => (
         value={Boolean(value)}
         onValueChange={(v) => onChange(setting.key, v)}
         disabled={disabled}
-        trackColor={{ false: "#E5E7EB", true: colors.primary }}
+        trackColor={{ false: "#3A3A3A", true: colors.primary }}
         thumbColor={
           Platform.OS === "android" ? (value ? "#fff" : "#f4f3f4") : undefined
         }
-        ios_backgroundColor="#E5E7EB"
+        ios_backgroundColor="#3A3A3A"
       />
     </View>
     {!isLast && <View style={styles.divider} />}
@@ -207,14 +207,14 @@ const NotificationSettings = ({ onBack }) => {
   }
 
   return (
-    <SafeAreaProvider style={{flex: 1}} className="bg-white">
+    <SafeAreaProvider style={{flex: 1}} className="bg-[#121212]">
       <SafeAreaView style={styles.safe} edges={["top", "left", "right", "bottom"]}>
-        <StatusBar barStyle="dark-content" backgroundColor="#fff" />
+        <StatusBar barStyle="light-content" backgroundColor="#121212" />
 
         <GeneralHeader
           onBack={onBack}
           title="Notifications"
-          leftIcon={<ArrowLeft />}
+          leftIcon={<ArrowLeft color='#fff' />}
           className="bg-background"
         />
 
@@ -235,13 +235,13 @@ const NotificationSettings = ({ onBack }) => {
               value={allPushEnabled}
               onValueChange={handleMasterPush}
               disabled={savingKey !== null}
-              trackColor={{ false: "#E5E7EB", true: colors.primary }}
+              trackColor={{ false: "#3A3A3A", true: colors.primary }}
               thumbColor={
                 Platform.OS === "android"
                   ? allPushEnabled ? "#fff" : "#f4f3f4"
                   : undefined
               }
-              ios_backgroundColor="#E5E7EB"
+              ios_backgroundColor="#3A3A3A"
             />
           </View>
 
@@ -295,13 +295,13 @@ const NotificationSettings = ({ onBack }) => {
                   value={whatsappOptIn}
                   onValueChange={handleWhatsappToggle}
                   disabled={savingWhatsapp}
-                  trackColor={{ false: "#E5E7EB", true: "#25D366" }}
+                  trackColor={{ false: "#3A3A3A", true: "#25D366" }}
                   thumbColor={
                     Platform.OS === "android"
                       ? whatsappOptIn ? "#fff" : "#f4f3f4"
                       : undefined
                   }
-                  ios_backgroundColor="#E5E7EB"
+                  ios_backgroundColor="#3A3A3A"
                 />
               )}
             </View>
@@ -309,7 +309,7 @@ const NotificationSettings = ({ onBack }) => {
               <View style={styles.whatsappNote}>
                 <Text style={styles.whatsappNoteText}>
                   🔒 We only send notifications when you&apos;re offline. Reply{" "}
-                  <Text style={{ fontFamily: fonts.PlusJakartaSansBold }}>STOP</Text>{" "}
+                  <Text style={{ fontFamily: fonts.OutfitBold }}>STOP</Text>{" "}
                   to any message to unsubscribe at any time.
                 </Text>
               </View>
@@ -331,14 +331,14 @@ const NotificationSettings = ({ onBack }) => {
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#121212",
   },
   centered: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
   },
-  scroll: { flex: 1, backgroundColor: '#fff' },
+  scroll: { flex: 1, backgroundColor: '#121212' },
   scrollContent: {
     paddingHorizontal: 16,
     paddingTop: 24,
@@ -362,20 +362,21 @@ const styles = StyleSheet.create({
   masterTextBlock: { flex: 1 },
   masterLabel: {
     fontSize: 15,
-    fontFamily: fonts.PlusJakartaSansBold,
-    color: colors.activePrimary,
+    fontFamily: fonts.OutfitBold,
+    color: colors.white,
     marginBottom: 2,
   },
   masterDescription: {
     fontSize: 13,
-    color: colors.activePrimary,
+    color: colors.white,
     lineHeight: 18,
   },
 
   // Section label
   sectionLabel: {
     fontSize: 20,
-    fontFamily: fonts.PlusJakartaSansBold,
+    fontFamily: fonts.OutfitBold,
+    color: '#E5E5E5',
     marginBottom: 8,
     marginLeft: 4,
     textTransform: 'capitalize'
@@ -383,7 +384,7 @@ const styles = StyleSheet.create({
 
   // Card
   card: {
-    backgroundColor: "#fff",
+    backgroundColor: "#121212",
     borderRadius: 16,
     overflow: "hidden",
     marginBottom: 28,
@@ -395,7 +396,7 @@ const styles = StyleSheet.create({
   },
   divider: {
     height: StyleSheet.hairlineWidth,
-    backgroundColor: "#F3F4F6",
+    backgroundColor: colors.whiteLight,
     marginLeft: 16,
   },
 
@@ -411,13 +412,13 @@ const styles = StyleSheet.create({
   toggleTextBlock: { flex: 1 },
   toggleLabel: {
     fontSize: 15,
-    fontFamily: fonts.PlusJakartaSansBold,
-    color: "#111827",
+    fontFamily: fonts.OutfitBold,
+    color: "#E5E5E5",
     marginBottom: 2,
   },
   toggleDescription: {
     fontSize: 13,
-    fontFamily: fonts.PlusJakartaSansMedium,
+    fontFamily: fonts.OutfitMedium,
     color: "#9CA3AF",
     lineHeight: 18,
   },
@@ -427,12 +428,12 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 10,
-    backgroundColor: "#F0FDF4",
+    backgroundColor: "rgba(37, 211, 102, 0.12)",
     alignItems: "center",
     justifyContent: "center",
   },
   whatsappNote: {
-    backgroundColor: "#F0FDF4",
+    backgroundColor: "rgba(37, 211, 102, 0.12)",
     marginHorizontal: 16,
     marginBottom: 14,
     borderRadius: 10,
@@ -440,15 +441,15 @@ const styles = StyleSheet.create({
   },
   whatsappNoteText: {
     fontSize: 12,
-    fontFamily: fonts.PlusJakartaSansMedium,
-    color: "#166534",
+    fontFamily: fonts.OutfitMedium,
+    color: "#4ADE80",
     lineHeight: 18,
   },
 
   // Footer
   footerNote: {
     fontSize: 12,
-    fontFamily: fonts.PlusJakartaSansMedium,
+    fontFamily: fonts.OutfitMedium,
     color: "#9CA3AF",
     textAlign: "center",
     lineHeight: 18,

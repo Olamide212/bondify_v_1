@@ -145,7 +145,7 @@ export default Height;
 const styles = StyleSheet.create({
   screen: {
     flex:            1,
-    backgroundColor: "#fff",
+    backgroundColor: "#121212",
   },
   content: {
     flex:              1,
@@ -157,14 +157,14 @@ const styles = StyleSheet.create({
   // Heading
   title: {
     fontSize:    32,
-    fontFamily:  "PlusJakartaSansBold",
-    color:       "#111",
+    fontFamily:  "OutfitBold",
+    color: '#E5E5E5',
     textAlign:   "center",
     marginBottom: 8,
   },
   subtitle: {
     fontSize:    15,
-    fontFamily:  "PlusJakartaSans",
+    fontFamily:  "Outfit",
     color:       "#888",
     textAlign:   "center",
     marginBottom: 24,
@@ -173,7 +173,7 @@ const styles = StyleSheet.create({
   // Unit toggle
   unitToggle: {
     flexDirection:   "row",
-    backgroundColor: "#F3F4F6",
+    backgroundColor: '#1E1E1E',
     borderRadius:    50,
     padding:         4,
     marginBottom:    32,
@@ -186,7 +186,7 @@ const styles = StyleSheet.create({
     borderRadius:    50,
   },
   unitBtnActive: {
-    backgroundColor: "#fff",
+    backgroundColor: "#121212",
     shadowColor:     "#000",
     shadowOpacity:   0.08,
     shadowRadius:    6,
@@ -195,12 +195,12 @@ const styles = StyleSheet.create({
   },
   unitBtnText: {
     fontSize:   14,
-    fontFamily: "PlusJakartaSansMedium",
+    fontFamily: "OutfitMedium",
     color:      "#9CA3AF",
   },
   unitBtnTextActive: {
-    color:      "#111",
-    fontFamily: "PlusJakartaSansBold",
+    color: '#E5E5E5',
+    fontFamily: "OutfitBold",
   },
 
   // Wheel
@@ -218,7 +218,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 14,
     borderRadius:    16,
-    backgroundColor: "#FFF7F3",
+    backgroundColor: '#2A1F1A',
     width:           "100%",
     borderWidth:     1,
     borderColor:     "#FFE5D6",
@@ -230,12 +230,12 @@ const styles = StyleSheet.create({
   },
   toggleTitle: {
     fontSize:   14,
-    fontFamily: "PlusJakartaSansBold",
-    color:      "#111",
+    fontFamily: "OutfitBold",
+    color: '#E5E5E5',
   },
   toggleSub: {
     fontSize:   12,
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
     color:      "#999",
     marginTop:  2,
   },
@@ -254,7 +254,7 @@ const styles = StyleSheet.create({
     width:        20,
     height:       20,
     borderRadius: 10,
-    backgroundColor: "#fff",
+    backgroundColor: "#121212",
   },
   pillThumbOn:  { alignSelf: "flex-end" },
   pillThumbOff: { alignSelf: "flex-start" },

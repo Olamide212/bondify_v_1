@@ -3,29 +3,29 @@ import { StyleSheet } from "react-native";
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F8F9FA",
+    backgroundColor: '#1E1E1E',
   },
   header: {
     padding: 20,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#121212",
     borderBottomWidth: 1,
-    borderBottomColor: "#E0E0E0",
+    borderBottomColor: '#333333',
   },
   headerTitle: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "#1A1A1A",
+    color: '#E5E5E5',
     marginBottom: 5,
   },
   headerSubtitle: {
     fontSize: 14,
-    color: "#666",
+    color: '#9CA3AF',
   },
   tabContainer: {
     flexDirection: "row",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#121212",
     borderBottomWidth: 1,
-    borderBottomColor: "#E0E0E0",
+    borderBottomColor: '#333333',
   },
   tab: {
     flex: 1,
@@ -38,7 +38,7 @@ export const styles = StyleSheet.create({
   },
   tabText: {
     fontSize: 14,
-    color: "#666",
+    color: '#9CA3AF',
     fontWeight: "500",
   },
   activeTabText: {
@@ -49,7 +49,7 @@ export const styles = StyleSheet.create({
     paddingBottom: 80,
   },
   communityCard: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#121212",
     borderRadius: 12,
     padding: 15,
     marginBottom: 15,
@@ -69,7 +69,7 @@ export const styles = StyleSheet.create({
     height: 50,
     borderRadius: 25,
     marginRight: 12,
-    backgroundColor: "#F0F2F5",
+    backgroundColor: '#1E1E1E',
   },
   communityInfo: {
     flex: 1,
@@ -77,32 +77,32 @@ export const styles = StyleSheet.create({
   communityName: {
     fontSize: 18,
     fontWeight: "600",
-    color: "#1A1A1A",
+    color: '#E5E5E5',
     marginBottom: 3,
   },
   communityMembers: {
     fontSize: 14,
-    color: "#666",
+    color: '#9CA3AF',
   },
   communityDescription: {
     fontSize: 14,
-    color: "#333",
+    color: '#D1D5DB',
     marginBottom: 15,
     lineHeight: 20,
   },
   recentPost: {
-    backgroundColor: "#F7F9FC",
+    backgroundColor: '#1E1E1E',
     borderRadius: 8,
     padding: 12,
   },
   recentPostLabel: {
     fontSize: 12,
-    color: "#666",
+    color: '#9CA3AF',
     marginBottom: 5,
   },
   recentPostContent: {
     fontSize: 14,
-    color: "#333",
+    color: '#D1D5DB',
     marginBottom: 10,
     fontStyle: "italic",
   },
@@ -113,7 +113,7 @@ export const styles = StyleSheet.create({
   },
   postUser: {
     fontSize: 12,
-    color: "#666",
+    color: '#9CA3AF',
   },
   postStats: {
     flexDirection: "row",
@@ -126,27 +126,27 @@ export const styles = StyleSheet.create({
   },
   statText: {
     fontSize: 12,
-    color: "#666",
+    color: '#9CA3AF',
     marginLeft: 4,
   },
   postTime: {
     fontSize: 12,
-    color: "#666",
+    color: '#9CA3AF',
   },
   communityHeaderDetail: {
     flexDirection: "row",
     alignItems: "center",
     padding: 20,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#121212",
     borderBottomWidth: 1,
-    borderBottomColor: "#E0E0E0",
+    borderBottomColor: '#333333',
   },
   communityIconLarge: {
     width: 70,
     height: 70,
     borderRadius: 35,
     marginRight: 15,
-    backgroundColor: "#F0F2F5",
+    backgroundColor: '#1E1E1E',
   },
   communityInfoDetail: {
     flex: 1,
@@ -154,23 +154,23 @@ export const styles = StyleSheet.create({
   communityNameDetail: {
     fontSize: 22,
     fontWeight: "bold",
-    color: "#1A1A1A",
+    color: '#E5E5E5',
     marginBottom: 5,
   },
   communityMembersDetail: {
     fontSize: 14,
-    color: "#666",
+    color: '#9CA3AF',
     marginBottom: 8,
   },
   communityDescriptionDetail: {
     fontSize: 14,
-    color: "#333",
+    color: '#D1D5DB',
     lineHeight: 20,
   },
   topicCard: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#121212",
     borderRadius: 12,
     padding: 15,
     marginBottom: 12,
@@ -190,31 +190,31 @@ export const styles = StyleSheet.create({
   topicTitle: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#1A1A1A",
+    color: '#E5E5E5',
     marginBottom: 4,
   },
   topicPosts: {
     fontSize: 14,
-    color: "#666",
+    color: '#9CA3AF',
   },
   topicHeader: {
     padding: 20,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#121212",
     borderBottomWidth: 1,
-    borderBottomColor: "#E0E0E0",
+    borderBottomColor: '#333333',
   },
   topicTitleHeader: {
     fontSize: 22,
     fontWeight: "bold",
-    color: "#1A1A1A",
+    color: '#E5E5E5',
     marginBottom: 5,
   },
   topicPostsCount: {
     fontSize: 14,
-    color: "#666",
+    color: '#9CA3AF',
   },
   postCard: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#121212",
     borderRadius: 12,
     padding: 15,
     marginBottom: 15,
@@ -234,7 +234,7 @@ export const styles = StyleSheet.create({
     height: 40,
     borderRadius: 20,
     marginRight: 10,
-    backgroundColor: "#F0F2F5",
+    backgroundColor: '#1E1E1E',
   },
   postUserInfo: {
     flex: 1,
@@ -242,12 +242,12 @@ export const styles = StyleSheet.create({
   postUserName: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#1A1A1A",
+    color: '#E5E5E5',
     marginBottom: 2,
   },
   postTime: {
     fontSize: 12,
-    color: "#666",
+    color: '#9CA3AF',
   },
   verifiedIcon: {
     width: 16,
@@ -256,7 +256,7 @@ export const styles = StyleSheet.create({
   },
   postContent: {
     fontSize: 15,
-    color: "#333",
+    color: '#D1D5DB',
     lineHeight: 20,
     marginBottom: 15,
   },
@@ -264,7 +264,7 @@ export const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-around",
     borderTopWidth: 1,
-    borderTopColor: "#F0F0F0",
+    borderTopColor: '#333333',
     paddingTop: 12,
   },
   actionButton: {
@@ -273,7 +273,7 @@ export const styles = StyleSheet.create({
   },
   actionText: {
     marginLeft: 6,
-    color: "#666",
+    color: '#9CA3AF',
     fontSize: 14,
   },
   likedText: {
@@ -308,13 +308,13 @@ export const styles = StyleSheet.create({
     justifyContent: "space-between",
     padding: 15,
     borderBottomWidth: 1,
-    borderBottomColor: "#E0E0E0",
-    backgroundColor: "#FFFFFF",
+    borderBottomColor: '#333333',
+    backgroundColor: "#121212",
   },
   createPostTitle: {
     fontSize: 18,
     fontWeight: "600",
-    color: "#1A1A1A",
+    color: '#E5E5E5',
   },
   postButton: {
     backgroundColor: "#3B82F6",
@@ -335,7 +335,7 @@ export const styles = StyleSheet.create({
   },
   postContentInput: {
     fontSize: 16,
-    color: "#333",
+    color: '#D1D5DB',
     minHeight: 150,
     marginBottom: 15,
   },
@@ -362,7 +362,7 @@ export const styles = StyleSheet.create({
   createPostActions: {
     flexDirection: "row",
     borderTopWidth: 1,
-    borderTopColor: "#F0F0F0",
+    borderTopColor: '#333333',
     paddingTop: 15,
   },
   actionButton: {
@@ -372,7 +372,7 @@ export const styles = StyleSheet.create({
   },
   actionButtonText: {
     marginLeft: 5,
-    color: "#666",
+    color: '#9CA3AF',
     fontSize: 14,
   },
   postDetailHeader: {
@@ -381,16 +381,16 @@ export const styles = StyleSheet.create({
     justifyContent: "space-between",
     padding: 15,
     borderBottomWidth: 1,
-    borderBottomColor: "#E0E0E0",
-    backgroundColor: "#FFFFFF",
+    borderBottomColor: '#333333',
+    backgroundColor: "#121212",
   },
   postDetailTitle: {
     fontSize: 18,
     fontWeight: "600",
-    color: "#1A1A1A",
+    color: '#E5E5E5',
   },
   postDetailCard: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#121212",
     padding: 15,
     marginBottom: 1,
   },
@@ -404,10 +404,10 @@ export const styles = StyleSheet.create({
     paddingBottom: 70,
   },
   commentContainer: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#121212",
     padding: 15,
     borderBottomWidth: 1,
-    borderBottomColor: "#F0F0F0",
+    borderBottomColor: '#333333',
   },
   commentHeader: {
     flexDirection: "row",
@@ -426,16 +426,16 @@ export const styles = StyleSheet.create({
   commentUserName: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#1A1A1A",
+    color: '#E5E5E5',
     marginBottom: 2,
   },
   commentTime: {
     fontSize: 12,
-    color: "#666",
+    color: '#9CA3AF',
   },
   commentContent: {
     fontSize: 14,
-    color: "#333",
+    color: '#D1D5DB',
     lineHeight: 20,
     marginBottom: 10,
   },
@@ -449,7 +449,7 @@ export const styles = StyleSheet.create({
   },
   commentActionText: {
     marginLeft: 4,
-    color: "#666",
+    color: '#9CA3AF',
     fontSize: 12,
   },
   repliesContainer: {
@@ -466,7 +466,7 @@ export const styles = StyleSheet.create({
   },
   toggleRepliesText: {
     fontSize: 12,
-    color: "#666",
+    color: '#9CA3AF',
     marginRight: 5,
   },
   replyContainer: {
@@ -489,16 +489,16 @@ export const styles = StyleSheet.create({
   replyUserName: {
     fontSize: 13,
     fontWeight: "600",
-    color: "#1A1A1A",
+    color: '#E5E5E5',
     marginBottom: 2,
   },
   replyTime: {
     fontSize: 11,
-    color: "#666",
+    color: '#9CA3AF',
   },
   replyContent: {
     fontSize: 13,
-    color: "#333",
+    color: '#D1D5DB',
     lineHeight: 18,
     marginBottom: 5,
   },
@@ -512,7 +512,7 @@ export const styles = StyleSheet.create({
   },
   replyActionText: {
     marginLeft: 4,
-    color: "#666",
+    color: '#9CA3AF',
     fontSize: 11,
   },
   showMoreButton: {
@@ -527,23 +527,23 @@ export const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#121212",
     borderTopWidth: 1,
-    borderTopColor: "#E0E0E0",
+    borderTopColor: '#333333',
     padding: 10,
   },
   replyingToContainer: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: "#F7F9FC",
+    backgroundColor: '#1E1E1E',
     padding: 8,
     borderRadius: 5,
     marginBottom: 5,
   },
   replyingToText: {
     fontSize: 12,
-    color: "#666",
+    color: '#9CA3AF',
   },
   commentInputRow: {
     flexDirection: "row",
@@ -551,7 +551,7 @@ export const styles = StyleSheet.create({
   },
   commentInput: {
     flex: 1,
-    backgroundColor: "#F0F2F5",
+    backgroundColor: '#1E1E1E',
     borderRadius: 20,
     paddingHorizontal: 15,
     paddingVertical: 10,

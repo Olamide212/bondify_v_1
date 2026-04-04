@@ -1,17 +1,18 @@
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Image } from "expo-image";
+import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { User, UserX } from "lucide-react-native";
 import React, { useEffect, useRef } from "react";
 import {
-    ActivityIndicator,
-    Animated,
-    FlatList,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Animated,
+  FlatList,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { colors } from "../../constant/colors";
@@ -89,8 +90,13 @@ const BonBotCard = ({ onPress }) => {
       activeOpacity={0.92}
       style={bb.wrapper}
     >
-      {/* Gradient-feel background — deep indigo to warm orange */}
-      <View style={bb.card}>
+      {/* Gradient background — deep indigo to purple */}
+      <LinearGradient
+        colors={[colors.primary, colors.secondary]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={bb.card}
+      >
 
         {/* Decorative blobs */}
         <View style={bb.blobTL} />
@@ -140,7 +146,7 @@ const BonBotCard = ({ onPress }) => {
           pointerEvents="none"
           style={[bb.shimmer, { transform: [{ translateX: shimmerTranslate }] }]}
         />
-      </View>
+      </LinearGradient>
     </TouchableOpacity>
   );
 };
@@ -152,11 +158,11 @@ const bb = StyleSheet.create({
     marginTop: 4,
     borderRadius: 22,
     // Card shadow
-    shadowColor: '#6366F1',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.28,
-    shadowRadius: 16,
-    elevation: 10,
+    // shadowColor: '#6366F1',
+    // shadowOffset: { width: 0, height: 6 },
+    // shadowOpacity: 0.28,
+    // shadowRadius: 16,
+    // elevation: 10,
   },
   card: {
     borderRadius: 22,
@@ -169,13 +175,13 @@ const bb = StyleSheet.create({
   blobTL: {
     position: 'absolute', top: -30, left: -30,
     width: 120, height: 120, borderRadius: 60,
-    backgroundColor: '#6366F1',
+    backgroundColor: colors.primaryLight,
     opacity: 0.25,
   },
   blobBR: {
     position: 'absolute', bottom: -20, right: -10,
     width: 100, height: 100, borderRadius: 50,
-    backgroundColor: colors.secondary,
+    backgroundColor: colors.primaryLight,
     opacity: 0.22,
   },
 
@@ -217,7 +223,7 @@ const bb = StyleSheet.create({
   textBlock: { flex: 1 },
   nameRow: { flexDirection: 'row', alignItems: 'center', gap: 7, marginBottom: 4 },
   name: {
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: 'OutfitBold',
     fontSize: 17,
     color: '#fff',
     letterSpacing: -0.2,
@@ -228,25 +234,25 @@ const bb = StyleSheet.create({
     borderRadius: 6,
   },
   aiBadgeText: {
-    fontSize: 10, fontFamily: 'PlusJakartaSansBold',
+    fontSize: 10, fontFamily: 'OutfitBold',
     color: '#fff', letterSpacing: 0.5,
   },
   tagline: {
-    fontFamily: 'PlusJakartaSans',
+    fontFamily: 'Outfit',
     fontSize: 12,
-    color: '#A5B4FC',
+    color: '#fff',
     lineHeight: 17,
   },
 
   // CTA
   ctaChip: {
-    backgroundColor: colors.secondary,
+    backgroundColor: colors.white,
     paddingHorizontal: 16, paddingVertical: 8,
     borderRadius: 20,
   },
   ctaText: {
-    fontFamily: 'PlusJakartaSansBold',
-    fontSize: 13, color: '#fff',
+    fontFamily: 'OutfitBold',
+    fontSize: 13, color: colors.secondary,
   },
 
   // Shimmer
@@ -326,7 +332,7 @@ const ChatListScreen = ({
             onError={() => { setLoading(false); setFailed(true); }}
           />
         ) : (
-          <User size={iconSize} color="#94A3B8" />
+          <User size={iconSize} color="#fff" />
         )}
         {loading && (
           <View style={styles.avatarLoadingOverlay}>
@@ -339,7 +345,7 @@ const ChatListScreen = ({
 
   return (
     <SafeAreaView style={styles.listContainer} edges={['top']}>
-      <GeneralHeader title="Chats" className="text-black" icon={<UserX />} onPress={() => router.push('/unmatched-users')} />
+      <GeneralHeader title="Chats" className="text-white" icon={<UserX size={20} color="#fff" />} onPress={() => router.push('/unmatched-users')} />
 
       {/* ── Tabs ── */}
       <View style={styles.tabBar}>
@@ -491,13 +497,13 @@ const ChatListScreen = ({
 // ─── Styles ───────────────────────────────────────────────────────────────────
 
 const styles = StyleSheet.create({
-  listContainer: { flex: 1, backgroundColor: '#fff' },
+  listContainer: { flex: 1, backgroundColor: '#121212' },
 
   tabBar: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
+    // borderBottomWidth: 1,
+    // borderBottomColor: '#333333',
   },
   tabItem: {
     flex: 1,
@@ -510,27 +516,27 @@ const styles = StyleSheet.create({
   },
   tabLabel: {
     fontSize: 15,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: 'OutfitBold',
   },
   tabLabelActive: {
-    color: '#111',
+    color: '#E5E5E5',
   },
   tabLabelInactive: {
     color: '#9CA3AF',
   },
 
   sectionLabel: {
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: 'OutfitBold',
     fontSize: 15,
-    color: '#111827',
+    color: '#FFFFFF',
     paddingLeft: 20,
     paddingBottom: 8,
     paddingTop: 10,
   },
   sectionLabelDark: {
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: 'OutfitBold',
     fontSize: 15,
-    color: '#111827',
+    color: '#FFFFFF',
     paddingLeft: 20,
     paddingTop: 18,
     paddingBottom: 8,
@@ -547,7 +553,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 0,
     right: 0,
-    backgroundColor: '#fff',
+    backgroundColor: '#121212',
     borderRadius: 10,
     padding: 1,
   },
@@ -558,25 +564,25 @@ const styles = StyleSheet.create({
   },
   placeholderLabel: { fontSize: 11, color: '#94A3B8', marginTop: 6, textAlign: 'center' },
   newMatchName: {
-    fontSize: 12, fontFamily: 'PlusJakartaSansBold',
-    color: '#1F2937', marginTop: 5, textAlign: 'center',
+    fontSize: 12, fontFamily: 'OutfitBold',
+    color: '#E5E7EB', marginTop: 5, textAlign: 'center',
     textTransform: 'capitalize',
   },
 
   // Chats panel
-  chatsPanel: { flex: 1, backgroundColor: '#fff', borderTopLeftRadius: 28, borderTopRightRadius: 28 },
+  chatsPanel: { flex: 1, backgroundColor: '#121212', borderTopLeftRadius: 28, borderTopRightRadius: 28 },
 
   // Chat row
   matchItem: {
     flexDirection: 'row', alignItems: 'center',
     paddingVertical: 13, paddingHorizontal: 18,
-    borderBottomWidth: 1, borderBottomColor: '#F3F4F6',
+    borderBottomWidth: 0.2, borderBottomColor: '#333333',
   },
   profileContainer: { position: 'relative', marginRight: 14 },
   profileImage: { width: 54, height: 54, borderRadius: 27 },
   avatarFallback: {
     justifyContent: 'center', alignItems: 'center',
-    backgroundColor: '#F8FAFC', overflow: 'hidden',
+    backgroundColor: '#1E1E1E', overflow: 'hidden',
   },
   avatarLoadingOverlay: {
     ...StyleSheet.absoluteFillObject,
@@ -590,24 +596,24 @@ const styles = StyleSheet.create({
   },
   matchInfo: { flex: 1, justifyContent: 'center' },
   nameRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  matchName: { fontSize: 15, fontFamily: 'PlusJakartaSansBold', color: '#1F2937', textTransform: 'capitalize' },
+  matchName: { fontSize: 15, fontFamily: 'OutfitBold', color: '#E5E7EB', textTransform: 'capitalize' },
   verifiedBadge: { width: 15, height: 15 },
-  systemAvatar: { backgroundColor: '#F0F4FF', borderWidth: 1.5, borderColor: '#6366F1', justifyContent: 'center', alignItems: 'center' },
-  matchMessage: { fontSize: 13, color: '#9CA3AF', marginTop: 3, fontFamily: 'PlusJakartaSans' },
+  systemAvatar: { backgroundColor: colors.white, borderWidth: 1.5, borderColor: colors.primary, justifyContent: 'center', alignItems: 'center' },
+  matchMessage: { fontSize: 13, color: '#9CA3AF', marginTop: 3, fontFamily: 'Outfit' },
   matchMeta: { alignItems: 'flex-end' },
-  matchTime: { fontSize: 11, color: '#9CA3AF', fontFamily: 'PlusJakartaSans' },
+  matchTime: { fontSize: 11, color: '#9CA3AF', fontFamily: 'Outfit' },
   unreadBadge: {
     width: 20, height: 20, borderRadius: 10,
     backgroundColor: colors.primary,
     justifyContent: 'center', alignItems: 'center', marginTop: 5,
   },
-  unreadText: { color: '#fff', fontSize: 11, fontFamily: 'PlusJakartaSansBold' },
+  unreadText: { color: '#fff', fontSize: 11, fontFamily: 'OutfitBold' },
 
   // Empty / loading states
   emptyStateContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 24 },
-  emptyStateTitle: { fontSize: 18, fontFamily: 'PlusJakartaSansBold', color: '#111', marginBottom: 6 },
-  emptyStateSubtitle: { fontSize: 14, color: '#6B7280', textAlign: 'center', fontFamily: 'PlusJakartaSans' },
-  loadingLabel: { fontSize: 14, color: '#6B7280', marginTop: 10, textAlign: 'center', fontFamily: 'PlusJakartaSans' },
+  emptyStateTitle: { fontSize: 18, fontFamily: 'OutfitBold', color: '#E5E5E5', marginBottom: 6 },
+  emptyStateSubtitle: { fontSize: 14, color: '#9CA3AF', textAlign: 'center', fontFamily: 'Outfit' },
+  loadingLabel: { fontSize: 14, color: '#9CA3AF', marginTop: 10, textAlign: 'center', fontFamily: 'Outfit' },
 });
 
 export default ChatListScreen;

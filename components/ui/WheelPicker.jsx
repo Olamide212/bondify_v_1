@@ -94,8 +94,8 @@ const WheelPicker = ({
                 fontWeight,
                 color: isSelected ? PRIMARY : "#111",
                 fontFamily: isSelected
-                  ? "PlusJakartaSansBold"
-                  : "PlusJakartaSans",
+                  ? "OutfitBold"
+                  : "Outfit",
               },
             ]}
           >
@@ -105,7 +105,7 @@ const WheelPicker = ({
                 style={{
                   fontSize: 18,
                   color: PRIMARY,
-                  fontFamily: "PlusJakartaSans",
+                  fontFamily: "Outfit",
                 }}
               >
                 {" "}
@@ -174,7 +174,7 @@ const styles = StyleSheet.create({
     right:           20,
     borderTopWidth:  1.5,
     borderBottomWidth: 1.5,
-    borderColor:     "#E5E7EB",
+    borderColor: '#374151',
     zIndex:          10,
     pointerEvents:   "none",
   },

@@ -9,16 +9,16 @@ const ModalHeader = ({ onClose, centerText, rightText, onRightPress }) => {
       <View className="flex-row justify-between items-center px-4 pb-5 ">
         {/* Close Button */}
         <TouchableOpacity onPress={onClose}>
-          <Ionicons name="close" size={24} color="black" />
+          <Ionicons name="close" size={24} color="white" />
         </TouchableOpacity>
 
         {/* Title */}
-        <Text className="text-xl font-PlusJakartaSansBold">{centerText}</Text>
+        <Text className="text-xl font-OutfitBold text-white">{centerText}</Text>
 
         {/* Right Action */}
         {rightText ? (
           <TouchableOpacity onPress={onRightPress}>
-            <Text className="text-primary font-PlusJakartaSansBold">{rightText}</Text>
+            <Text className="text-primary font-OutfitBold">{rightText}</Text>
           </TouchableOpacity>
         ) : (
           <View style={{ width: 24 }} /> // placeholder for alignment

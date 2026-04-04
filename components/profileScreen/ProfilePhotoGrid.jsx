@@ -150,10 +150,10 @@ export default ProfilePhotoGrid;
 // ─── Styles ───────────────────────────────────────────────────────────────────
 const s = StyleSheet.create({
   card: {
-    backgroundColor:  '#fff',
-    borderRadius:     20,
+    backgroundColor: 'rgba(255,255,255,0.02)',
+    borderRadius:     12,
     borderWidth:      1,
-    borderColor:      '#F3F4F6',
+    borderColor:      'rgba(255,255,255,0.1)',
     marginHorizontal: 16,
     padding:          16,
   },
@@ -166,12 +166,12 @@ const s = StyleSheet.create({
   },
   title: {
     fontSize:   18,
-    fontFamily: 'PlusJakartaSansBold',
-    color:      '#111',
+    fontFamily: 'OutfitBold',
+    color: '#E5E5E5',
   },
   countText: {
     fontSize:   13,
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: 'OutfitMedium',
     color:      '#9CA3AF',
   },
 
@@ -218,9 +218,9 @@ const s = StyleSheet.create({
   },
   emptySlot: {
     borderWidth:     1.5,
-    borderColor:     '#E0E0E0',
+    borderColor: '#333333',
     borderStyle:     'dashed',
-    backgroundColor: '#F9FAFB',
+    backgroundColor: '#1E1E1E',
   },
   filledSlot: {
     borderWidth: 0,
@@ -257,7 +257,7 @@ const s = StyleSheet.create({
   },
   mainBadgeText: {
     fontSize:   11,
-    fontFamily: 'PlusJakartaSansSemiBold',
+    fontFamily: 'OutfitSemiBold',
     color:      '#fff',
   },
   removeBtn: {

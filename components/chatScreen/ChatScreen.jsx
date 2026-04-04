@@ -26,6 +26,7 @@ import { messageService } from "../../services/messageService";
 import { socketService } from "../../services/socketService";
 import cacheManager from "../../utils/cacheManager";
 import { formatRelativeDate } from "../../utils/helper";
+import ChatBackground from "../common/ChatBackground";
 import Header from "../headers/ChatHeader";
 import InputToolbar from "./InputToolbar";
 import MessageBubble from "./MessageBubble";
@@ -644,9 +645,10 @@ const ChatScreen = ({ matchedUser, onBack, initialSearchMode = false, searchTrig
         )}
 
         {/* ── Messages ── */}
+        <ChatBackground style={styles.messagesContainer}>
         <ScrollView
           ref={scrollViewRef}
-          style={styles.messagesContainer}
+          style={{ flex: 1 }}
           contentContainerStyle={styles.messagesContent}
           keyboardShouldPersistTaps="handled"
           keyboardDismissMode="interactive"
@@ -738,6 +740,7 @@ const ChatScreen = ({ matchedUser, onBack, initialSearchMode = false, searchTrig
             </View>
           )}
         </ScrollView>
+        </ChatBackground>
 
         {/* ── Input / Contact bar / Rematch bar ── */}
         {(isUnmatched && !rematchAccepted) ? (
@@ -876,11 +879,10 @@ const ChatScreen = ({ matchedUser, onBack, initialSearchMode = false, searchTrig
 const styles = StyleSheet.create({
   container: {
     flex:            1,
-    backgroundColor: "#fff",
+    backgroundColor: "#121212",
   },
   messagesContainer: {
     flex:            1,
-    backgroundColor: "#fff",
   },
   messagesContent: {
     paddingVertical: 16,
@@ -910,8 +912,8 @@ const styles = StyleSheet.create({
   },
   dateSeparatorText: {
     fontSize:   12,
-    color:      "#6B7280",
-    fontFamily: "PlusJakartaSansSemiBold",
+    color: '#9CA3AF',
+    fontFamily: "OutfitSemiBold",
   },
   loadingOlderContainer: {
     alignItems:    "center",
@@ -924,7 +926,7 @@ const styles = StyleSheet.create({
     marginBottom:  8,
   },
   typingText: {
-    color:      "#6B7280",
+    color: '#9CA3AF',
     fontStyle:  "italic",
   },
   emptyStateContainer: {
@@ -936,18 +938,18 @@ const styles = StyleSheet.create({
   emptyStateTitle: {
     fontSize:     20,
     fontWeight:   "700",
-    color:        "#111",
+    color: '#E5E5E5',
     marginBottom:  6,
   },
   emptyStateSubtitle: {
     fontSize:  14,
-    color:     "#6B7280",
+    color: '#9CA3AF',
     textAlign: "center",
   },
   searchBar: {
     flexDirection:     "row",
     alignItems:        "center",
-    backgroundColor:   "#F3F4F6",
+    backgroundColor: '#1E1E1E',
     marginHorizontal:  16,
     marginTop:          6,
     marginBottom:       4,
@@ -959,20 +961,20 @@ const styles = StyleSheet.create({
   searchInput: {
     flex:            1,
     fontSize:        14,
-    fontFamily:      "PlusJakartaSans",
-    color:           "#111",
+    fontFamily:      "Outfit",
+    color: '#E5E5E5',
     paddingVertical: 0,
   },
   searchCount: {
     fontSize:    12,
-    fontFamily:  "PlusJakartaSansMedium",
-    color:       "#6B7280",
+    fontFamily:  "OutfitMedium",
+    color: '#9CA3AF',
     marginRight:  4,
   },
   contactBar: {
-    backgroundColor: "#fff",
+    backgroundColor: "#121212",
     borderTopWidth:   1,
-    borderTopColor:  "#F3F4F6",
+    borderTopColor: colors.whiteLight,
     paddingHorizontal: 20,
     paddingVertical:  14,
     paddingBottom:    20,
@@ -980,8 +982,8 @@ const styles = StyleSheet.create({
   },
   contactBarLabel: {
     fontSize:   13,
-    fontFamily: "PlusJakartaSans",
-    color:      "#6B7280",
+    fontFamily: "Outfit",
+    color: '#9CA3AF',
     textAlign:  "center",
   },
   contactBarButtons: {
@@ -1006,7 +1008,7 @@ const styles = StyleSheet.create({
   },
   contactBtnText: {
     fontSize:   14,
-    fontFamily: "PlusJakartaSansBold",
+    fontFamily: "OutfitBold",
     color:      "#fff",
   },
   contactBtnTextWhite: {
@@ -1015,7 +1017,7 @@ const styles = StyleSheet.create({
 
   // ── Rematch bar ───────────────────────────────────────────────────────────
   rematchBar: {
-    backgroundColor: "#fff",
+    backgroundColor: "#121212",
     borderTopWidth:   1,
     borderTopColor:  "#F3F4F6",
     paddingHorizontal: 20,
@@ -1026,13 +1028,13 @@ const styles = StyleSheet.create({
   },
   rematchBarText: {
     fontSize:   14,
-    fontFamily: "PlusJakartaSansMedium",
-    color:      "#374151",
+    fontFamily: "OutfitMedium",
+    color: '#D1D5DB',
     textAlign:  "center",
   },
   rematchBarTextMuted: {
     fontSize:   14,
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
     color:      "#9CA3AF",
     textAlign:  "center",
   },
@@ -1053,7 +1055,7 @@ const styles = StyleSheet.create({
   },
   rematchRequestBtnText: {
     fontSize:   15,
-    fontFamily: "PlusJakartaSansBold",
+    fontFamily: "OutfitBold",
     color:      "#fff",
   },
   rematchAcceptBtn: {
@@ -1066,7 +1068,7 @@ const styles = StyleSheet.create({
   },
   rematchAcceptBtnText: {
     fontSize:   15,
-    fontFamily: "PlusJakartaSansBold",
+    fontFamily: "OutfitBold",
     color:      "#fff",
   },
   rematchDeclineBtn: {
@@ -1076,13 +1078,13 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderRadius:   50,
     borderWidth:    1.5,
-    borderColor:    "#E5E7EB",
-    backgroundColor: "#fff",
+    borderColor: colors.whiteLight,
+    backgroundColor: "#121212",
   },
   rematchDeclineBtnText: {
     fontSize:   15,
-    fontFamily: "PlusJakartaSansBold",
-    color:      "#6B7280",
+    fontFamily: "OutfitBold",
+    color: '#9CA3AF',
   },
 });
 

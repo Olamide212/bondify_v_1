@@ -1,7 +1,6 @@
-import { User } from "lucide-react-native";
 import { StyleSheet, Text, View } from "react-native";
-import { getProfileAge } from "../../utils/ageHelper";
 import { colors } from "../../constant/colors";
+import { getProfileAge } from "../../utils/ageHelper";
 
 const BasicInfo = ({ profile }) => {
   const fullName =
@@ -43,10 +42,10 @@ export default BasicInfo;
 
 const s = StyleSheet.create({
   card: {
-    backgroundColor:  "#fff",
-    borderRadius:     16,
+    backgroundColor: 'rgba(255,255,255,0.02)',
+    borderRadius:     12,
     borderWidth:      1,
-    borderColor:      "#F3F4F6",
+    borderColor:      'rgba(255,255,255,0.1)',
     marginHorizontal: 16,
     padding:          16,
   },
@@ -66,14 +65,14 @@ const s = StyleSheet.create({
   },
   name: {
     fontSize:     16,
-    fontFamily:   "PlusJakartaSansBold",
-    color:        "#111",
+    fontFamily:   "OutfitBold",
+    color: '#E5E5E5',
     marginBottom: 3,
     textTransform: "capitalize",
   },
   subtitle: {
     fontSize:      13,
-    fontFamily:    "PlusJakartaSansMedium",
+    fontFamily:    "OutfitMedium",
     color:         "#9CA3AF",
     textTransform: "capitalize",
   },

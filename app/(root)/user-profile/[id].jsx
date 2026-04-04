@@ -79,7 +79,7 @@ const ib = StyleSheet.create({
     elevation: 8,
   },
   emoji: { fontSize: 20 },
-  text:  { color: '#fff', fontFamily: 'PlusJakartaSansBold', fontSize: 14, flex: 1 },
+  text:  { color: '#fff', fontFamily: 'OutfitBold', fontSize: 14, flex: 1 },
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -326,7 +326,7 @@ const UserProfile = () => {
 
   if (loadingProfile) {
     return (
-      <View style={{flex: 1}} className="items-center justify-center bg-white">
+      <View style={{flex: 1}} className="items-center justify-center bg-[#121212]">
         <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
@@ -357,15 +357,15 @@ const UserProfile = () => {
       <Animated.View style={[styles.profileHeader, profileHeaderStyle]}>
         <View style={styles.headerRow}>
           <Pressable onPress={() => router.back()} style={styles.leftIcon}>
-            <BackArrow color="#000" />
+            <BackArrow color="#fff" />
           </Pressable>
           <View style={styles.centerContent}>
             <View className="flex-row items-center gap-1">
               <View className="flex-row items-center">
-                <Text className="text-black text-2xl font-PlusJakartaSansBold mr-2 capitalize" numberOfLines={1}>
+                <Text className="text-white text-2xl font-OutfitBold mr-2 capitalize" numberOfLines={1}>
                   {currentProfile.name}
                 </Text>
-                <Text className="text-black text-2xl font-PlusJakartaSans">
+                <Text className="text-white text-2xl font-Outfit">
                   {currentProfile.age}
                 </Text>
               </View>
@@ -388,7 +388,7 @@ const UserProfile = () => {
         ref={scrollRef}
         onScroll={scrollHandler}
         scrollEventThrottle={16}
-        contentContainerStyle={{ flexGrow: 1, paddingBottom: interactionStatus !== 'none' && interactionStatus !== 'unknown' ? 180 : shouldShowActions ? 120 : 0 }}
+        contentContainerStyle={{ flexGrow: 1, paddingBottom: interactionStatus !== 'none' && interactionStatus !== 'unknown' ? 180 : shouldShowActions ? 120 : 0, backgroundColor: '#121212' }}
         showsVerticalScrollIndicator={false}
       >
         <Animated.View style={{ flex: 1 }}>
@@ -437,9 +437,9 @@ const styles = StyleSheet.create({
   },
   profileHeader: {
     position: "absolute", top: 0, left: 0, right: 0,
-    backgroundColor: "white", paddingTop: 60, paddingBottom: 15,
+    backgroundColor: "#121212", paddingTop: 60, paddingBottom: 15,
     alignItems: "center", zIndex: 40,
-    borderBottomWidth: 1, borderBottomColor: "#f0f0f0",
+   
   },
   headerRow: {
     flexDirection: "row", alignItems: "center",

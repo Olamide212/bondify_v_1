@@ -48,7 +48,7 @@ const s = StyleSheet.create({
   },
   emptyText: {
     fontSize: 14,
-    fontFamily: 'PlusJakartaSans',
+    fontFamily: 'Outfit',
     color: '#888',
   },
 });

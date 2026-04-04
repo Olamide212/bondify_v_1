@@ -68,11 +68,11 @@ export default function CameraScreen() {
   if (!permission?.granted) {
     return (
       <View style={[styles.container, { alignItems: "center", justifyContent: "center" }]}>
-        <Text style={{ color: "#fff", fontFamily: "PlusJakartaSansMedium", fontSize: 15, textAlign: "center", paddingHorizontal: 32 }}>
+        <Text style={{ color: "#fff", fontFamily: "OutfitMedium", fontSize: 15, textAlign: "center", paddingHorizontal: 32 }}>
           Camera permission is required. Please allow camera access in your device settings.
         </Text>
         <TouchableOpacity style={[styles.shutter, { marginTop: 24, width: 48, height: 48 }]} onPress={() => router.back()}>
-          <Text style={{ fontFamily: "PlusJakartaSansBold", color: PRIMARY }}>Back</Text>
+          <Text style={{ fontFamily: "OutfitBold", color: PRIMARY }}>Back</Text>
         </TouchableOpacity>
       </View>
     );
@@ -131,8 +131,8 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#000" },
   overlay: { ...StyleSheet.absoluteFillObject, alignItems: "center", justifyContent: "center" },
   oval: { width: 230, height: 290, borderRadius: 999, borderWidth: 2.5, borderColor: "rgba(255,255,255,0.75)", borderStyle: "dashed" },
-  hint: { marginTop: 16, fontSize: 13, fontFamily: "PlusJakartaSansMedium", color: "rgba(255,255,255,0.85)" },
+  hint: { marginTop: 16, fontSize: 13, fontFamily: "OutfitMedium", color: "rgba(255,255,255,0.85)" },
   shutterRow: { position: "absolute", bottom: 48, width: "100%", alignItems: "center" },
-  shutter: { width: 72, height: 72, borderRadius: 99, backgroundColor: "#fff", alignItems: "center", justifyContent: "center", borderWidth: 4, borderColor: "rgba(255,255,255,0.4)" },
+  shutter: { width: 72, height: 72, borderRadius: 99, backgroundColor: "#121212", alignItems: "center", justifyContent: "center", borderWidth: 4, borderColor: "rgba(255,255,255,0.4)" },
   shutterInner: { width: 54, height: 54, borderRadius: 99, backgroundColor: PRIMARY },
 });

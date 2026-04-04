@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { View, TextInput, StyleSheet } from "react-native";
-import CountryPicker, { LIGHT_THEME } from "react-native-country-picker-modal";
+import CountryPicker, { DARK_THEME } from "react-native-country-picker-modal";
 
 const GlobalPhoneInput = ({
   phoneNumber,
@@ -49,7 +49,7 @@ const GlobalPhoneInput = ({
           withCallingCode
           withAlphaFilter
           onSelect={onSelect}
-          theme={LIGHT_THEME}
+          theme={DARK_THEME}
           containerButtonStyle={styles.countryPickerButton}
         />
       </View>
@@ -71,15 +71,15 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
     borderWidth: 1,
-    borderColor: "#dcdcdc",
+    borderColor: 'rgba(255,255,255,0.1)',
     borderRadius: 10,
     alignItems: "center",
-    height: 50,
+    height: 55,
     marginBottom: 17,
   },
   countryPickerContainer: {
     borderRightWidth: 1,
-    borderColor: "#dcdcdc",
+    borderColor: 'rgba(255,255,255,0.1)',
     paddingHorizontal: 10,
     justifyContent: "center",
   },
@@ -91,9 +91,9 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 12,
     fontSize: 16,
-    color: "#000",
+    color: '#FFFFFF',
     height: "100%",
-    fontFamily: "PlusJakartaSansMedium",
+    fontFamily: "OutfitMedium",
   },
 });
 

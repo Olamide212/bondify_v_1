@@ -214,13 +214,13 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: "700",
     color: "#FFFFFF",
-    fontFamily: "PlusJakartaSansBold",
+    fontFamily: "OutfitBold",
     marginBottom: 2,
   },
   body: {
     fontSize: 13,
     color: "rgba(255,255,255,0.72)",
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
     lineHeight: 17,
   },
   closeBtn: {
@@ -236,7 +236,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: colors.primary,
     fontWeight: "700",
-    fontFamily: "PlusJakartaSansBold",
+    fontFamily: "OutfitBold",
     marginTop: 3,
   },
 });

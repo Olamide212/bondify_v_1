@@ -61,11 +61,11 @@ const ToggleRow = ({ icon: Icon, iconColor, label, description, value, onChange,
         value={Boolean(value)}
         onValueChange={onChange}
         disabled={disabled}
-        trackColor={{ false: "#E5E7EB", true: BRAND_PRIMARY }}
+        trackColor={{ false: "#3A3A3A", true: BRAND_PRIMARY }}
         thumbColor={
           Platform.OS === "android" ? (value ? "#fff" : "#f4f3f4") : undefined
         }
-        ios_backgroundColor="#E5E7EB"
+        ios_backgroundColor="#3A3A3A"
       />
     </View>
     {!isLast && <View style={styles.divider} />}
@@ -205,10 +205,10 @@ const AISettings = ({ onBack }) => {
       title: 'Clear Chat History?',
       message: 'This will delete all your conversations with Bondies AI. This action cannot be undone.',
       actions: [
-        { label: 'Cancel', style: 'secondary' },
+        { label: 'Cancel', style: 'primary' },
         {
           label: 'Clear',
-          style: 'danger',
+          style: 'destructive',
           onPress: async () => {
             try {
               // Clear local storage chat history
@@ -247,14 +247,14 @@ const AISettings = ({ onBack }) => {
   }
 
   return (
-    <SafeAreaProvider style={{flex: 1}} className="bg-white">
+    <SafeAreaProvider style={{flex: 1}} className="bg-[#121212]">
       <SafeAreaView style={styles.safe} edges={["top", "left", "right", "bottom"]}>
-        <StatusBar barStyle="dark-content" backgroundColor="#fff" />
+        <StatusBar barStyle="light-content" backgroundColor="#121212" />
 
         <GeneralHeader
           onBack={onBack}
           title="AI Assistant Settings"
-          leftIcon={<ArrowLeft />}
+          leftIcon={<ArrowLeft color={'#fff'} />}
           className="bg-background"
         />
 
@@ -355,14 +355,14 @@ const AISettings = ({ onBack }) => {
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#121212",
   },
   centered: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
   },
-  scroll: { flex: 1, backgroundColor: '#fff' },
+  scroll: { flex: 1, backgroundColor: '#121212' },
   scrollContent: {
     paddingHorizontal: 16,
     paddingTop: 24,
@@ -372,7 +372,8 @@ const styles = StyleSheet.create({
   // Section label
   sectionLabel: {
     fontSize: 20,
-    fontFamily: fonts.PlusJakartaSansBold,
+    fontFamily: fonts.OutfitBold,
+    color: '#E5E5E5',
     marginBottom: 8,
     marginLeft: 4,
     textTransform: 'capitalize'
@@ -380,7 +381,7 @@ const styles = StyleSheet.create({
 
   // Card
   card: {
-    backgroundColor: "#fff",
+    backgroundColor: "#121212",
     borderRadius: 16,
     overflow: "hidden",
     marginBottom: 24,
@@ -392,7 +393,7 @@ const styles = StyleSheet.create({
   },
   divider: {
     height: StyleSheet.hairlineWidth,
-    backgroundColor: "#F3F4F6",
+    backgroundColor: colors.whiteLight,
     marginLeft: 16,
   },
 
@@ -417,13 +418,13 @@ const styles = StyleSheet.create({
   toggleTextBlock: { flex: 1 },
   toggleLabel: {
     fontSize: 15,
-    fontFamily: fonts.PlusJakartaSansBold,
-    color: "#111827",
+    fontFamily: fonts.OutfitBold,
+    color: "#E5E5E5",
     marginBottom: 2,
   },
   toggleDescription: {
     fontSize: 13,
-    fontFamily: fonts.PlusJakartaSansMedium,
+    fontFamily: fonts.OutfitMedium,
     color: "#9CA3AF",
     lineHeight: 18,
   },
@@ -452,7 +453,7 @@ const styles = StyleSheet.create({
   },
   styleValueText: {
     fontSize: 15,
-    fontFamily: fonts.PlusJakartaSansBold,
+    fontFamily: fonts.OutfitBold,
     color: BRAND_PRIMARY,
   },
   styleButtonsContainer: {
@@ -466,7 +467,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 16,
     borderRadius: 20,
-    backgroundColor: "#F3F4F6",
+    backgroundColor: '#1E1E1E',
     alignItems: "center",
     justifyContent: "center",
   },
@@ -475,18 +476,18 @@ const styles = StyleSheet.create({
   },
   styleButtonText: {
     fontSize: 14,
-    fontFamily: fonts.PlusJakartaSansMedium,
-    color: "#374151",
+    fontFamily: fonts.OutfitMedium,
+    color: '#D1D5DB',
   },
   styleButtonTextActive: {
     color: "#fff",
-    fontFamily: fonts.PlusJakartaSansBold,
+    fontFamily: fonts.OutfitBold,
   },
 
   // Footer
   footerNote: {
     fontSize: 12,
-    fontFamily: fonts.PlusJakartaSansMedium,
+    fontFamily: fonts.OutfitMedium,
     color: "#9CA3AF",
     textAlign: "center",
     lineHeight: 18,
@@ -495,7 +496,7 @@ const styles = StyleSheet.create({
   },
   footerLink: {
     color: BRAND_PRIMARY,
-    fontFamily: fonts.PlusJakartaSansBold,
+    fontFamily: fonts.OutfitBold,
   },
 });
 

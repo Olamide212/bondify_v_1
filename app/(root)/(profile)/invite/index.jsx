@@ -73,7 +73,7 @@ const InviteScreen = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.safe}>
-      <GeneralHeader title="Refer & Earn" leftIcon={<ArrowLeft />} />
+      <GeneralHeader title="Refer & Earn" leftIcon={<ArrowLeft color={'#fff'} />} />
 
       <ScrollView
         style={styles.scroll}
@@ -147,7 +147,7 @@ const InviteScreen = ({ navigation }) => {
           {/* Referral count badge */}
           {!isLoading && !fetchError && (
             <View style={styles.countBadge}>
-              <Users size={14} color={PRIMARY} />
+              <Users size={14} color={'white'} />
               <Text style={styles.countText}>
                 {referralCount === 0
                   ? "No referrals yet — share your code!"
@@ -188,54 +188,54 @@ const InviteScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  safe:          { flex: 1, backgroundColor: "#fff" },
+  safe:          { flex: 1, backgroundColor: "#121212" },
   scroll:        { flex: 1 },
   scrollContent: { paddingBottom: 40 },
 
   heroContainer: { marginHorizontal: 16, borderRadius: 20, overflow: "hidden", height: 220, marginBottom: 24 },
   heroImage:     { width: "100%", height: "100%" },
 
-  title:    { fontSize: 22, fontFamily: "PlusJakartaSansBold", color: "#111", textAlign: "center", marginBottom: 8, paddingHorizontal: 24 },
-  subtitle: { fontSize: 14, fontFamily: "PlusJakartaSans", color: "#666", textAlign: "center", lineHeight: 22, paddingHorizontal: 32, marginBottom: 24 },
+  title:    { fontSize: 22, fontFamily: "OutfitBold", color: '#E5E5E5', textAlign: "center", marginBottom: 8, paddingHorizontal: 24 },
+  subtitle: { fontSize: 14, fontFamily: "Outfit", color: '#9CA3AF', textAlign: "center", lineHeight: 22, paddingHorizontal: 32, marginBottom: 24 },
 
   rewardRow:     { flexDirection: "row", gap: 12, marginHorizontal: 16, marginBottom: 20 },
-  rewardCard:    { flex: 1, backgroundColor: "#fff", borderRadius: 16, padding: 16, alignItems: "center", shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 4, elevation: 2 },
+  rewardCard:    { flex: 1, backgroundColor: "#121212", borderRadius: 16, padding: 16, alignItems: "center", shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 4, elevation: 2 },
   rewardIconWrap:{ width: 48, height: 48, borderRadius: 24, backgroundColor: PRIMARY_LIGHT, justifyContent: "center", alignItems: "center", marginBottom: 10 },
-  rewardLabel:   { fontSize: 11, fontFamily: "PlusJakartaSansBold", color: PRIMARY, letterSpacing: 0.8, marginBottom: 4 },
-  rewardValue:   { fontSize: 13, fontFamily: "PlusJakartaSansSemiBold", color: "#111", textAlign: "center" },
+  rewardLabel:   { fontSize: 11, fontFamily: "OutfitBold", color: PRIMARY, letterSpacing: 0.8, marginBottom: 4 },
+  rewardValue:   { fontSize: 13, fontFamily: "OutfitSemiBold", color: '#E5E5E5', textAlign: "center" },
 
-  codeCard: { backgroundColor: "#fff", borderRadius: 20, marginHorizontal: 16, padding: 20, alignItems: "center", marginBottom: 28, shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 4, elevation: 2 },
-  codeLabel: { fontSize: 11, fontFamily: "PlusJakartaSansBold", color: "#999", letterSpacing: 1.2, marginBottom: 14 },
+  codeCard: { backgroundColor: "#121212", borderRadius: 20, marginHorizontal: 16, padding: 20, alignItems: "center", marginBottom: 28, shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 4, elevation: 2 },
+  codeLabel: { fontSize: 11, fontFamily: "OutfitBold", color: "#999", letterSpacing: 1.2, marginBottom: 14 },
 
   // Loading
   loadingBox:  { paddingVertical: 20, alignItems: "center", gap: 10 },
-  loadingText: { fontSize: 13, fontFamily: "PlusJakartaSans", color: "#999" },
+  loadingText: { fontSize: 13, fontFamily: "Outfit", color: "#999" },
 
   // Error
-  errorBox:  { borderWidth: 1.5, borderColor: "#FCA5A5", borderRadius: 12, paddingVertical: 14, paddingHorizontal: 18, width: "100%", alignItems: "center", backgroundColor: "#FEF2F2", marginBottom: 6, gap: 4 },
-  errorText: { fontSize: 13, fontFamily: "PlusJakartaSans", color: "#EF4444", textAlign: "center" },
-  retryText: { fontSize: 12, fontFamily: "PlusJakartaSansMedium", color: PRIMARY },
+  errorBox:  { borderWidth: 1.5, borderColor: "#FCA5A5", borderRadius: 12, paddingVertical: 14, paddingHorizontal: 18, width: "100%", alignItems: "center", backgroundColor: '#2A1A1A', marginBottom: 6, gap: 4 },
+  errorText: { fontSize: 13, fontFamily: "Outfit", color: "#EF4444", textAlign: "center" },
+  retryText: { fontSize: 12, fontFamily: "OutfitMedium", color: PRIMARY },
 
   // Code box
   codeBox:    { flexDirection: "row", alignItems: "center", justifyContent: "space-between", borderWidth: 1.5, borderColor: PRIMARY, borderStyle: "dashed", borderRadius: 12, paddingVertical: 14, paddingHorizontal: 18, width: "100%", marginBottom: 6, backgroundColor: PRIMARY_LIGHT },
-  codeText:   { fontSize: 18, fontFamily: "PlusJakartaSansBold", color: PRIMARY, letterSpacing: 1.5 },
+  codeText:   { fontSize: 18, fontFamily: "OutfitBold", color: PRIMARY, letterSpacing: 1.5 },
   copyIcon:   { padding: 4 },
-  copiedText: { fontSize: 12, color: "#4CAF50", fontFamily: "PlusJakartaSansMedium", marginBottom: 6 },
+  copiedText: { fontSize: 12, color: "#4CAF50", fontFamily: "OutfitMedium", marginBottom: 6 },
 
   // Referral count
   countBadge: { flexDirection: "row", alignItems: "center", gap: 6, backgroundColor: PRIMARY_LIGHT, borderRadius: 20, paddingHorizontal: 14, paddingVertical: 7, marginBottom: 16, marginTop: 6 },
-  countText:  { fontSize: 12, fontFamily: "PlusJakartaSansMedium", color: PRIMARY },
+  countText:  { fontSize: 12, fontFamily: "OutfitMedium", color: '#fff' },
 
   shareBtn:         { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10, backgroundColor: PRIMARY, borderRadius: 30, paddingVertical: 16, width: "100%", marginTop: 4 },
   shareBtnDisabled: { backgroundColor: "#A99BC4" },
-  shareBtnText:     { color: "#fff", fontSize: 16, fontFamily: "PlusJakartaSansSemiBold" },
+  shareBtnText:     { color: "#fff", fontSize: 16, fontFamily: "OutfitSemiBold" },
 
   howSection: { marginHorizontal: 16 },
-  howTitle:   { fontSize: 18, fontFamily: "PlusJakartaSansBold", color: "#111", marginBottom: 16 },
+  howTitle:   { fontSize: 18, fontFamily: "OutfitBold", color: '#E5E5E5', marginBottom: 16 },
   stepRow:    { flexDirection: "row", alignItems: "flex-start", gap: 14, marginBottom: 16 },
   stepBadge:  { width: 30, height: 30, borderRadius: 15, backgroundColor: PRIMARY_LIGHT, justifyContent: "center", alignItems: "center", flexShrink: 0, marginTop: 1 },
-  stepNumber: { fontSize: 13, fontFamily: "PlusJakartaSansBold", color: PRIMARY },
-  stepText:   { flex: 1, fontSize: 14, fontFamily: "PlusJakartaSans", color: "#444", lineHeight: 22 },
+  stepNumber: { fontSize: 13, fontFamily: "OutfitBold", color: PRIMARY },
+  stepText:   { flex: 1, fontSize: 14, fontFamily: "Outfit", color: '#D1D5DB', lineHeight: 22 },
 });
 
 export default InviteScreen;

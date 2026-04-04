@@ -1,8 +1,8 @@
-import { MessageCircle, Plus, X } from "lucide-react-native";
+import { Plus, X } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
 import {
-  FlatList, Modal, ScrollView, StyleSheet, Text, TextInput,
-  TouchableOpacity, View,
+    FlatList, Modal, ScrollView, StyleSheet, Text, TextInput,
+    TouchableOpacity, View,
 } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { colors } from "../../constant/colors";
@@ -188,7 +188,7 @@ const ProfileAnswers = ({ profile, onUpdateField }) => {
               <>
                 <View style={s.modalHeader}>
                   <TouchableOpacity onPress={closeModal}>
-                    <X size={22} color="#111" />
+                    <X size={22} color="#fff" />
                   </TouchableOpacity>
                   <Text style={s.modalTitle}>Choose a prompt</Text>
                   <View style={{ width: 22 }} />
@@ -243,7 +243,7 @@ const ProfileAnswers = ({ profile, onUpdateField }) => {
               <>
                 <View style={s.modalHeader}>
                   <TouchableOpacity onPress={handleBack}>
-                    <X size={22} color="#111" />
+                    <X size={22} color="#fff" />
                   </TouchableOpacity>
                   <Text style={s.modalTitle}>Your answer</Text>
                   <View style={{ width: 22 }} />
@@ -303,10 +303,10 @@ const s = StyleSheet.create({
 
   // ── Prompt card ──
   promptCard: {
-    backgroundColor: '#fff',
-    borderRadius:    16,
+    backgroundColor: 'rgba(255,255,255,0.02)',
+    borderRadius:    12,
     borderWidth:     1,
-    borderColor:     '#F3F4F6',
+    borderColor:     'rgba(255,255,255,0.1)',
     padding:         16,
   },
   promptHeader: {
@@ -328,7 +328,7 @@ const s = StyleSheet.create({
   promptQuestion: {
     flex:       1,
     fontSize:   13,
-    fontFamily: 'PlusJakartaSansSemiBold',
+    fontFamily: 'OutfitSemiBold',
     color:      colors.primary,
     lineHeight: 18,
   },
@@ -337,14 +337,14 @@ const s = StyleSheet.create({
   },
   promptAnswer: {
     fontSize:   18,
-    fontFamily: 'PlusJakartaSansBold',
-    color:      '#111',
+    fontFamily: 'OutfitBold',
+    color: '#E5E5E5',
     lineHeight: 26,
     marginBottom: 4,
   },
   editHint: {
     fontSize:   12,
-    fontFamily: 'PlusJakartaSans',
+    fontFamily: 'Outfit',
     color:      '#D1D5DB',
   },
 
@@ -353,10 +353,10 @@ const s = StyleSheet.create({
     flexDirection:   'row',
     alignItems:      'center',
     gap:             12,
-    backgroundColor: '#fff',
-    borderRadius:    16,
+    backgroundColor: 'rgba(255,255,255,0.02)',
+    borderRadius:    12,
     borderWidth:     1.5,
-    borderColor:     '#E5E7EB',
+    borderColor: 'rgba(255,255,255,0.1)',
     borderStyle:     'dashed',
     padding:         16,
   },
@@ -370,20 +370,20 @@ const s = StyleSheet.create({
   },
   addTitle: {
     fontSize:   15,
-    fontFamily: 'PlusJakartaSansBold',
-    color:      colors.primary,
+    fontFamily: 'OutfitBold',
+    color:      colors.white,
   },
   addSub: {
     fontSize:   12,
-    fontFamily: 'PlusJakartaSans',
-    color:      colors.secondary,
+    fontFamily: 'Outfit',
+    color:      colors.primary,
     marginTop:  2,
   },
 
   // ── Modal ──
   modal: {
     flex:            1,
-    backgroundColor: '#fff',
+    backgroundColor: '#121212',
     paddingHorizontal: 20,
     paddingTop:      12,
   },
@@ -395,12 +395,12 @@ const s = StyleSheet.create({
   },
   modalTitle: {
     fontSize:   18,
-    fontFamily: 'PlusJakartaSansBold',
-    color:      '#111',
+    fontFamily: 'OutfitBold',
+    color: '#E5E5E5',
   },
   separator: {
     height:          1,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: '#1E1E1E',
   },
   questionRow: {
     flexDirection:     'row',
@@ -412,8 +412,8 @@ const s = StyleSheet.create({
   questionText: {
     flex:       1,
     fontSize:   15,
-    fontFamily: 'PlusJakartaSansMedium',
-    color:      '#111',
+    fontFamily: 'OutfitMedium',
+    color: '#E5E5E5',
     lineHeight: 22,
   },
 
@@ -430,15 +430,15 @@ const s = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical:   10,
     borderRadius:      20,
-    backgroundColor:   '#F3F4F6',
+    backgroundColor: '#1E1E1E',
   },
   categoryTabActive: {
     backgroundColor: colors.primary,
   },
   categoryTabText: {
     fontSize:   14,
-    fontFamily: 'PlusJakartaSansSemiBold',
-    color:      '#6B7280',
+    fontFamily: 'OutfitSemiBold',
+    color: '#9CA3AF',
   },
   categoryTabTextActive: {
     color: '#fff',
@@ -449,7 +449,7 @@ const s = StyleSheet.create({
   },
   emptyText: {
     fontSize:   14,
-    fontFamily: 'PlusJakartaSans',
+    fontFamily: 'Outfit',
     color:      '#9CA3AF',
     textAlign:  'center',
   },
@@ -461,13 +461,13 @@ const s = StyleSheet.create({
     gap:             8,
     backgroundColor: colors.background,
     borderRadius:    12,
-    padding:         12,
+
     marginBottom:    16,
   },
   questionBubbleText: {
     flex:       1,
     fontSize:   14,
-    fontFamily: 'PlusJakartaSansSemiBold',
+    fontFamily: 'OutfitSemiBold',
     color:      colors.primary,
     lineHeight: 20,
   },
@@ -475,8 +475,8 @@ const s = StyleSheet.create({
     borderBottomWidth: 1.5,
     borderBottomColor: '#E5E7EB',
     fontSize:          17,
-    fontFamily:        'PlusJakartaSansMedium',
-    color:             '#111',
+    fontFamily:        'OutfitMedium',
+    color: '#E5E5E5',
     paddingVertical:   12,
     marginBottom:      6,
     minHeight:         80,
@@ -484,15 +484,15 @@ const s = StyleSheet.create({
   },
   charCount: {
     fontSize:     12,
-    fontFamily:   'PlusJakartaSans',
+    fontFamily:   'Outfit',
     color:        '#9CA3AF',
     textAlign:    'right',
     marginBottom: 20,
   },
   changeQuestion: {
     fontSize:   14,
-    fontFamily: 'PlusJakartaSansMedium',
-    color:      colors.secondary,
+    fontFamily: 'OutfitMedium',
+    color:      colors.white,
     marginBottom: 16,
   },
   modalActions: {

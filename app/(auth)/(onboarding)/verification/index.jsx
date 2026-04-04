@@ -95,21 +95,21 @@ const IntroStep = ({ onStart, onSkip, profilePhotoUrl }) => (
 const is = StyleSheet.create({
   container:   { paddingHorizontal: 24, paddingTop: 16, paddingBottom: 48 },
   iconWrap:    { width: 88, height: 88, borderRadius: 99, backgroundColor: "#EDE8F5", alignItems: "center", justifyContent: "center", alignSelf: "center", marginBottom: 20 },
-  title:       { fontSize: 24, fontFamily: "PlusJakartaSansBold", color: "#111", textAlign: "center", marginBottom: 10 },
-  body:        { fontSize: 14, fontFamily: "PlusJakartaSans", color: "#6B7280", textAlign: "center", lineHeight: 22, marginBottom: 28 },
+  title:       { fontSize: 24, fontFamily: "OutfitBold", color: '#E5E5E5', textAlign: "center", marginBottom: 10 },
+  body:        { fontSize: 14, fontFamily: "Outfit", color: '#9CA3AF', textAlign: "center", lineHeight: 22, marginBottom: 28 },
   photoWrap:   { width: 150, height: 150, borderRadius: 75, alignSelf: "center", marginBottom: 20, position: "relative" },
   profilePhoto:{ width: 150, height: 150, borderRadius: 75, borderWidth: 3, borderColor: PRIMARY },
   photoBadge:  { position: "absolute", bottom: 5, right: 15, width: 28, height: 28,   alignItems: "center", justifyContent: "center",  },
   steps:       { gap: 20, marginBottom: 32 },
   stepRow:     { flexDirection: "row", alignItems: "flex-start", gap: 14 },
   stepNum:     { width: 32, height: 32, borderRadius: 99, backgroundColor: "#EDE8F5", alignItems: "center", justifyContent: "center", flexShrink: 0 },
-  stepNumText: { fontSize: 15, fontFamily: "PlusJakartaSansBold", color: PRIMARY },
-  stepTitle:   { fontSize: 15, fontFamily: "PlusJakartaSansSemiBold", color: "#111", marginBottom: 2 },
-  stepDesc:    { fontSize: 13, fontFamily: "PlusJakartaSans", color: "#9CA3AF" },
+  stepNumText: { fontSize: 15, fontFamily: "OutfitBold", color: PRIMARY },
+  stepTitle:   { fontSize: 15, fontFamily: "OutfitSemiBold", color: '#E5E5E5', marginBottom: 2 },
+  stepDesc:    { fontSize: 13, fontFamily: "Outfit", color: "#9CA3AF" },
   btn:         { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, backgroundColor: PRIMARY, borderRadius: 99, paddingVertical: 16, marginBottom: 12 },
-  btnText:     { fontSize: 16, fontFamily: "PlusJakartaSansBold", color: "#fff" },
+  btnText:     { fontSize: 16, fontFamily: "OutfitBold", color: "#fff" },
   skipBtn:     { alignItems: "center", paddingVertical: 12 },
-  skipText:    { fontSize: 14, fontFamily: "PlusJakartaSansMedium", color: "#9CA3AF" },
+  skipText:    { fontSize: 14, fontFamily: "OutfitMedium", color: "#9CA3AF" },
 });
 
 // ─── Camera Step ──────────────────────────────────────────────────────────────
@@ -206,10 +206,10 @@ const cs = StyleSheet.create({
   ovalHole:     { width: OVAL_WIDTH, height: OVAL_HEIGHT, alignItems: "center", justifyContent: "center" },
   ovalBorder:   { width: OVAL_WIDTH, height: OVAL_HEIGHT, borderRadius: OVAL_HEIGHT / 2, borderWidth: 2.5, borderColor: "rgba(255,255,255,0.75)", borderStyle: "dashed" },
   hintRow:      { backgroundColor: "rgba(0,0,0,0.6)", alignItems: "center", paddingVertical: 12 },
-  hint:         { fontSize: 13, fontFamily: "PlusJakartaSansMedium", color: "rgba(255,255,255,0.85)" },
+  hint:         { fontSize: 13, fontFamily: "OutfitMedium", color: "rgba(255,255,255,0.85)" },
   overlayBottom:{ flex: 1, backgroundColor: "rgba(0,0,0,0.6)" },
   shutterRow:   { position: "absolute", bottom: 48, width: "100%", alignItems: "center" },
-  shutter:      { width: 72, height: 72, borderRadius: 99, backgroundColor: "#fff", alignItems: "center", justifyContent: "center", borderWidth: 4, borderColor: "rgba(255,255,255,0.4)" },
+  shutter:      { width: 72, height: 72, borderRadius: 99, backgroundColor: "#121212", alignItems: "center", justifyContent: "center", borderWidth: 4, borderColor: "rgba(255,255,255,0.4)" },
   shutterInner: { width: 54, height: 54, borderRadius: 99, backgroundColor: PRIMARY },
 });
 
@@ -253,13 +253,13 @@ const PreviewStep = ({ uri, onRetake, onSubmit, submitting }) => (
 const ps = StyleSheet.create({
   container:  { flex: 1, backgroundColor: "#000" },
   image:      { flex: 1 },
-  actions:    { backgroundColor: "#fff", paddingHorizontal: 24, paddingTop: 20, paddingBottom: 36 },
-  label:      { fontSize: 17, fontFamily: "PlusJakartaSansBold", color: "#111", textAlign: "center", marginBottom: 4 },
-  sublabel:   { fontSize: 13, fontFamily: "PlusJakartaSans", color: "#9CA3AF", textAlign: "center", marginBottom: 20 },
+  actions:    { backgroundColor: "#121212", paddingHorizontal: 24, paddingTop: 20, paddingBottom: 36 },
+  label:      { fontSize: 17, fontFamily: "OutfitBold", color: '#E5E5E5', textAlign: "center", marginBottom: 4 },
+  sublabel:   { fontSize: 13, fontFamily: "Outfit", color: "#9CA3AF", textAlign: "center", marginBottom: 20 },
   submitBtn:  { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, backgroundColor: PRIMARY, borderRadius: 99, paddingVertical: 16, marginBottom: 12 },
-  submitText: { fontSize: 16, fontFamily: "PlusJakartaSansBold", color: "#fff" },
+  submitText: { fontSize: 16, fontFamily: "OutfitBold", color: "#fff" },
   retakeBtn:  { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6, paddingVertical: 12 },
-  retakeText: { fontSize: 15, fontFamily: "PlusJakartaSansSemiBold", color: PRIMARY },
+  retakeText: { fontSize: 15, fontFamily: "OutfitSemiBold", color: PRIMARY },
 });
 
 // ─── Done Step ────────────────────────────────────────────────────────────────
@@ -280,12 +280,12 @@ const DoneStep = ({ onContinue }) => (
 );
 
 const ds = StyleSheet.create({
-  container: { flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 32, backgroundColor: "#fff" },
+  container: { flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 32, backgroundColor: "#121212" },
   iconWrap:  { width: 96, height: 96, borderRadius: 99, backgroundColor: "#D1FAE5", alignItems: "center", justifyContent: "center", marginBottom: 24 },
-  title:     { fontSize: 24, fontFamily: "PlusJakartaSansBold", color: "#111", marginBottom: 10, textAlign: "center" },
-  body:      { fontSize: 16, fontFamily: "PlusJakartaSans", color: "#6B7280", textAlign: "center", lineHeight: 22, marginBottom: 36 },
+  title:     { fontSize: 24, fontFamily: "OutfitBold", color: '#E5E5E5', marginBottom: 10, textAlign: "center" },
+  body:      { fontSize: 16, fontFamily: "Outfit", color: '#9CA3AF', textAlign: "center", lineHeight: 22, marginBottom: 36 },
   btn:       { backgroundColor: PRIMARY, borderRadius: 99, paddingVertical: 16, paddingHorizontal: 48 },
-  btnText:   { fontSize: 16, fontFamily: "PlusJakartaSansBold", color: "#fff" },
+  btnText:   { fontSize: 16, fontFamily: "OutfitBold", color: "#fff" },
 });
 
 // ─── Main Screen ──────────────────────────────────────────────────────────────
@@ -457,8 +457,8 @@ export default function VerificationScreen() {
 }
 
 const sc = StyleSheet.create({
-  safe:        { flex: 1, backgroundColor: "#fff" },
+  safe:        { flex: 1, backgroundColor: "#121212" },
   header:      { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 20, paddingVertical: 14, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: "#F3F4F6" },
-  headerTitle: { fontSize: 16, fontFamily: "PlusJakartaSansBold", color: "#111" },
+  headerTitle: { fontSize: 16, fontFamily: "OutfitBold", color: '#E5E5E5' },
   cameraBack:  { position: "absolute", top: 52, left: 16, zIndex: 10, padding: 8, backgroundColor: "rgba(0,0,0,0.35)", borderRadius: 99 },
 });

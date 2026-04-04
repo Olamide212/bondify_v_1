@@ -268,7 +268,7 @@ const styles = StyleSheet.create({
   avatarInitial: {
     color: "#fff",
     fontSize: 28,
-    fontFamily: "PlusJakartaSansBold",
+    fontFamily: "OutfitBold",
   },
   cameraOverlay: {
     position: "absolute",
@@ -297,20 +297,20 @@ const styles = StyleSheet.create({
   profileInfo: { flex: 1 },
   realName: {
     fontSize: 17,
-    fontFamily: "PlusJakartaSansBold",
-    color: "#111",
+    fontFamily: "OutfitBold",
+    color: '#E5E5E5',
     marginBottom: 8,
   },
   statsRow: { flexDirection: "row", gap: 20 },
   statItem: { alignItems: "center" },
   statNum: {
     fontSize: 16,
-    fontFamily: "PlusJakartaSansBold",
-    color: "#111",
+    fontFamily: "OutfitBold",
+    color: '#E5E5E5',
   },
   statLabel: {
     fontSize: 11,
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
     color: "#888",
   },
   usernameRow: {
@@ -323,12 +323,12 @@ const styles = StyleSheet.create({
   usernameInput: {
     flex: 1,
     borderWidth: 1.5,
-    borderColor: "#E5E7EB",
+    borderColor: '#374151',
     borderRadius: 10,
     padding: 10,
     fontSize: 14,
-    fontFamily: "PlusJakartaSans",
-    color: "#111",
+    fontFamily: "Outfit",
+    color: '#E5E5E5',
   },
   saveBtn: {
     backgroundColor: BRAND,
@@ -340,12 +340,12 @@ const styles = StyleSheet.create({
   saveBtnText: {
     color: "#fff",
     fontSize: 14,
-    fontFamily: "PlusJakartaSansBold",
+    fontFamily: "OutfitBold",
   },
   tabRow: {
     flexDirection: "row",
     borderBottomWidth: 1,
-    borderBottomColor: "#F0F0F0",
+    borderBottomColor: '#333333',
     marginBottom: 12,
     paddingHorizontal: 20,
   },
@@ -353,11 +353,11 @@ const styles = StyleSheet.create({
   tabActive: { borderBottomWidth: 2, borderBottomColor: BRAND },
   tabText: {
     fontSize: 14,
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
     color: "#888",
   },
   tabTextActive: {
-    fontFamily: "PlusJakartaSansBold",
+    fontFamily: "OutfitBold",
     color: BRAND,
   },
   empty: {
@@ -373,13 +373,13 @@ const styles = StyleSheet.create({
   },
   miniPostText: {
     fontSize: 14,
-    fontFamily: "PlusJakartaSans",
-    color: "#333",
+    fontFamily: "Outfit",
+    color: '#D1D5DB',
     lineHeight: 20,
   },
   miniPostMeta: {
     fontSize: 12,
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
     color: "#BBB",
     marginTop: 4,
   },

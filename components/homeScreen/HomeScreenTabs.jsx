@@ -47,7 +47,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     padding: 10,
-    backgroundColor: "#fff",
+    backgroundColor: "#121212",
     marginHorizontal: 20,
     borderRadius: 100,
     alignSelf: "center",
@@ -84,11 +84,11 @@ const styles = StyleSheet.create({
   tabText: {
     fontSize: 13,
     color: "#888",
-    fontFamily: "PlusJakartaSansMedium",
+    fontFamily: "OutfitMedium",
   },
   activeTabText: {
     color: "#fff",
-    fontFamily: "PlusJakartaSansBold",
+    fontFamily: "OutfitBold",
   },
   aiBadge: {
     backgroundColor: "#000",

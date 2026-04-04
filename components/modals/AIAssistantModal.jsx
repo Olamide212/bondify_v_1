@@ -165,7 +165,7 @@ const AIAssistantModal = ({ visible, onClose }) => {
 const styles = StyleSheet.create({
   aiModalContainer: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#121212",
   },
   aiHeader: {
     flexDirection: "row",
@@ -184,14 +184,14 @@ const styles = StyleSheet.create({
   aiTitle: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "#000",
+    color: '#FFFFFF',
   },
   closeButton: {
     padding: 4,
   },
   messagesContainer: {
     flex: 1,
-    backgroundColor: "#f8f8f8",
+    backgroundColor: '#1E1E1E',
   },
   messagesContent: {
     padding: 16,
@@ -210,7 +210,7 @@ const styles = StyleSheet.create({
   },
   aiMessage: {
     alignSelf: "flex-start",
-    backgroundColor: "#fff",
+    backgroundColor: "#121212",
     borderBottomLeftRadius: 4,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
@@ -223,7 +223,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   aiMessageText: {
-    color: "#000",
+    color: '#FFFFFF',
     fontSize: 16,
   },
   timestamp: {
@@ -238,12 +238,12 @@ const styles = StyleSheet.create({
     padding: 16,
     borderTopWidth: 1,
     borderTopColor: "#f0f0f0",
-    backgroundColor: "#fff",
+    backgroundColor: "#121212",
   },
   textInput: {
     flex: 1,
     borderWidth: 1,
-    borderColor: "#ddd",
+    borderColor: '#444',
     borderRadius: 24,
     paddingHorizontal: 16,
     paddingVertical: 10,
@@ -253,7 +253,7 @@ const styles = StyleSheet.create({
   sendButton: {
     padding: 10,
     borderRadius: 20,
-    backgroundColor: "#f0f0f0",
+    backgroundColor: '#1E1E1E',
   },
 });
 

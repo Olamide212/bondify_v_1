@@ -1,12 +1,12 @@
 import { Globe, X } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import {
-  ActivityIndicator,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { colors } from "../../constant/colors";
 import { useLookupOptions } from "../../hooks/useLookupOptions";
@@ -42,7 +42,7 @@ const LanguageSelection = ({ profile, onUpdateField }) => {
   }
 
   return (
-    <View style={s.container} className='mx-3 border border-gray-100'>
+    <View style={s.container} className='mx-3 border border-white/10'>
       {/* Display selected languages */}
       <View style={s.selectedContainer}>
         {selected.length > 0 ? (
@@ -124,8 +124,8 @@ const LanguageSelection = ({ profile, onUpdateField }) => {
 
 const s = StyleSheet.create({
   container: {
-    backgroundColor: "#fff",
-    borderRadius: 16,
+    backgroundColor: 'rgba(255,255,255,0.02)',
+    borderRadius: 12,
     padding: 16,
     marginBottom: 8,
   },
@@ -145,20 +145,20 @@ const s = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 6,
-    backgroundColor: "#F3F4F6",
+    backgroundColor: '#1E1E1E',
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 20,
   },
   chipText: {
     fontSize: 14,
-    color: "#333",
-    fontFamily: "PlusJakartaSansMedium",
+    color: '#D1D5DB',
+    fontFamily: "OutfitMedium",
   },
   placeholder: {
     fontSize: 14,
     color: "#999",
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
   },
   addButton: {
     paddingVertical: 10,
@@ -171,7 +171,7 @@ const s = StyleSheet.create({
   addButtonText: {
     fontSize: 14,
     color: colors.primary,
-    fontFamily: "PlusJakartaSansSemiBold",
+    fontFamily: "OutfitSemiBold",
   },
   pickerContainer: {
     marginTop: 12,
@@ -196,12 +196,12 @@ const s = StyleSheet.create({
   },
   optionText: {
     fontSize: 15,
-    color: "#333",
-    fontFamily: "PlusJakartaSansMedium",
+    color: '#D1D5DB',
+    fontFamily: "OutfitMedium",
   },
   optionTextSelected: {
     color: colors.primary,
-    fontFamily: "PlusJakartaSansBold",
+    fontFamily: "OutfitBold",
   },
   checkmark: {
     width: 24,
@@ -226,7 +226,7 @@ const s = StyleSheet.create({
   saveButtonText: {
     color: "#fff",
     fontSize: 15,
-    fontFamily: "PlusJakartaSansBold",
+    fontFamily: "OutfitBold",
   },
 });
 

@@ -4,7 +4,7 @@ import { colors } from '../../constant/colors'
 
 const ActivityLoader = () => {
   return (
-    <View className='w-full h-full bg-white'>
+    <View className='w-full h-full bg-[#121212]'>
       <ActivityIndicator color={colors.primary} size="large" style={{ flex: 1, justifyContent: "center", alignItems: "center" }} />
     </View>
   )

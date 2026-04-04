@@ -51,8 +51,8 @@ const TopPicksTab = ({ profile }) => {
       onPress={() => handleNavigateToProfile(item.id)}
     >
       <LoadingImage source={{ uri: item.images[0] }} style={styles.gridImage} containerStyle={styles.gridImage} contentFit="cover" cachePolicy="memory-disk" transition={200} indicatorColor="#999" />
-      <View className='flex-1 flex-row gap-1  px-3 items-center absolute bg-white/70 left-0 right-0  bottom-2 py-2 mx-2 rounded-full'>
-        <Text className='text-lg font-PlusJakartaSansBold '>{item.name}</Text>
+      <View className='flex-1 flex-row gap-1  px-3 items-center absolute bg-[#121212]/70 left-0 right-0  bottom-2 py-2 mx-2 rounded-full'>
+        <Text className='text-lg font-OutfitBold '>{item.name}</Text>
         {item.verified && (
           <View style={styles.gridVerified}>
             <Star size={12} color="white" fill="white" />
@@ -81,7 +81,7 @@ const TopPicksTab = ({ profile }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "white",
+    backgroundColor: "#121212",
     marginHorizontal: 14
   },
   topPicksTitle: {
@@ -89,8 +89,8 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     textAlign: "center",
     marginVertical: 16,
-    color: "#333",
-    fontFamily: "PlusJakartaSansBold",
+    color: '#D1D5DB',
+    fontFamily: "OutfitBold",
   },
   gridContent: {
     paddingBottom: 20,
@@ -101,7 +101,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     overflow: "hidden",
     aspectRatio: 0.8,
-    backgroundColor: "#f8f8f8",
+    backgroundColor: '#1E1E1E',
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -119,7 +119,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     padding: 8,
-    backgroundColor: "white",
+    backgroundColor: "#121212",
     position: "absolute",
     bottom: 10,
     left: 0,
@@ -132,7 +132,7 @@ const styles = StyleSheet.create({
   gridName: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#333",
+    color: '#D1D5DB',
     marginRight: 4,
   },
   gridVerified: {

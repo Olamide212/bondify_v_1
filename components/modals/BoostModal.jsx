@@ -130,7 +130,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   container: {
-    backgroundColor: '#fff',
+    backgroundColor: '#121212',
     borderRadius: 20,
     padding: 24,
     margin: 20,
@@ -152,15 +152,15 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    fontFamily: 'PlusJakartaSansBold',
-    color: '#000',
+    fontFamily: 'OutfitBold',
+    color: '#FFFFFF',
     marginBottom: 12,
     textAlign: 'center',
   },
   description: {
     fontSize: 16,
-    fontFamily: 'PlusJakartaSans',
-    color: '#666',
+    fontFamily: 'Outfit',
+    color: '#fff',
     textAlign: 'center',
     lineHeight: 22,
     marginBottom: 20,
@@ -171,14 +171,14 @@ const styles = StyleSheet.create({
   },
   benefitsTitle: {
     fontSize: 18,
-    fontFamily: 'PlusJakartaSansBold',
-    color: '#000',
+    fontFamily: 'OutfitBold',
+    color: '#FFFFFF',
     marginBottom: 8,
   },
   benefit: {
     fontSize: 14,
-    fontFamily: 'PlusJakartaSans',
-    color: '#666',
+    fontFamily: 'Outfit',
+    color: '#fff',
     marginBottom: 4,
   },
   buttonContainer: {
@@ -198,12 +198,12 @@ const styles = StyleSheet.create({
   cancelButton: {
     alignItems: 'center',
 
-    borderColor: '#e5e7eb',
+    borderColor: '#fff',
   },
   cancelButtonText: {
     fontSize: 16,
-    fontFamily: 'PlusJakartaSansBold',
-    color: '#374151',
+    fontFamily: 'OutfitBold',
+    color: '#fff',
     textAlign: 'center',
   },
   gradientButton: {
@@ -217,7 +217,7 @@ const styles = StyleSheet.create({
   },
   boostButtonText: {
     fontSize: 16,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: 'OutfitBold',
     color: '#fff',
   },
   disabledButton: {

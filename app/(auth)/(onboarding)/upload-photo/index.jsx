@@ -89,14 +89,14 @@ const UploadPhoto = () => {
   };
 
   return (
-    <SafeAreaView style={{flex: 1, backgroundColor: "white"}} className="bg-white">
+    <SafeAreaView style={{flex: 1, backgroundColor: "#121212"}} className="bg-[#121212]">
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={{flex: 1}} className="px-2">
           <View className='flex-1'>
             {/* Title + Subtitle */}
             <View className="mb-6 mt-8">
               <View className="flex-row items-center justify-between">
-                <Text className="text-3xl font-PlusJakartaSansBold  mb-2">
+                <Text className="text-3xl font-OutfitBold  mb-2">
                   Add your best photos
                 </Text>
                 <TouchableOpacity
@@ -111,7 +111,7 @@ const UploadPhoto = () => {
             
                 {/* <Lightbulb size={20} color={colors.primary} style={{ marginTop: 2 }} /> */}
               </View>
-                <Text className='text-black font-PlusJakartaSansMedium text-base' numberOfLines={5}>Choose photos where your face is clearly visible,also try to avoid blurred and poor quality images for your profile. High-quality, clear photos help you get 3x better connections and higher engagement.</Text>
+                <Text className='text-white font-OutfitMedium text-base' numberOfLines={5}>Choose photos where your face is clearly visible,also try to avoid blurred and poor quality images for your profile. High-quality, clear photos help you get 3x better connections and higher engagement.</Text>
               </View>
              
             </View>
@@ -123,7 +123,7 @@ const UploadPhoto = () => {
                 return (
                 <View key={index} className="w-[30%] h-[35%]  relative">
                   <TouchableOpacity
-                    className={`w-full h-full rounded-xl items-center justify-center bg-gray-50 border-2 ${isMain ? 'border-primary' : 'border-dashed border-gray-300'}`}
+                    className={`w-full h-full rounded-xl items-center justify-center bg-gray-900 border-2 ${isMain ? 'border-primary' : 'border-dashed border-gray-600'}`}
                     onPress={() => pickImage(index)}
                     activeOpacity={0.7}
                   >
@@ -140,7 +140,7 @@ const UploadPhoto = () => {
 
                   {isMain && (
                     <View className="absolute top-2 left-2 bg-primary/90 px-2 py-1 rounded-full">
-                      <Text className="text-white text-[10px] font-PlusJakartaSansBold tracking-wide uppercase">Main photo</Text>
+                      <Text className="text-white text-[10px] font-OutfitBold tracking-wide uppercase">Main photo</Text>
                     </View>
                   )}
 
@@ -166,7 +166,7 @@ const UploadPhoto = () => {
                   color="gray"
                   style={{ marginTop: 2 }}
                 />
-                <Text className="ml-2 font-PlusJakartaSans text-gray-600 text-sm">
+                <Text className="ml-2 font-Outfit text-gray-400 text-sm">
                   Add photos of you where you can clearly see your face.
                 </Text>
               </View>
@@ -177,7 +177,7 @@ const UploadPhoto = () => {
                   color="gray"
                   style={{ marginTop: 2 }}
                 />
-                <Text className="ml-2 font-PlusJakartaSans text-gray-600 text-sm">
+                <Text className="ml-2 font-Outfit text-gray-400 text-sm">
                   Photos that don’t clearly show you will be removed.
                 </Text>
               </View>

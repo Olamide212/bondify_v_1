@@ -1,8 +1,7 @@
-import { Briefcase } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import OccupationModal from "../modals/ProfileOccupationModal";
 import { colors } from "../../constant/colors";
+import OccupationModal from "../modals/ProfileOccupationModal";
 
 const Occupation = ({ profile, onUpdateField }) => {
   const [selectedOccupation, setSelectedOccupation] = useState(profile?.occupation || null);
@@ -48,10 +47,10 @@ export default Occupation;
 
 const s = StyleSheet.create({
   card: {
-    backgroundColor:  "#fff",
-    borderRadius:     16,
+    backgroundColor: 'rgba(255,255,255,0.02)',
+    borderRadius:     12,
     borderWidth:      1,
-    borderColor:      "#F3F4F6",
+    borderColor:      'rgba(255,255,255,0.1)',
     marginHorizontal: 16,
     padding:          16,
   },
@@ -70,13 +69,13 @@ const s = StyleSheet.create({
   },
   cardValue: {
     fontSize:     16,
-    fontFamily:   "PlusJakartaSansSemiBold",
-    color:        "#111",
+    fontFamily:   "OutfitSemiBold",
+    color: '#E5E5E5',
     marginBottom: 2,
   },
   cardCta: {
     fontSize:   13,
-    fontFamily: "PlusJakartaSansMedium",
+    fontFamily: "OutfitMedium",
     color:      colors.primary,
   },
 });

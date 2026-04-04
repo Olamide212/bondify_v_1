@@ -25,13 +25,13 @@ const mockHangouts = [
 
 export default function HangoutsScreen() {
   return (
-    <SafeAreaView style={{flex: 1}} className="bg-white">
+    <SafeAreaView style={{flex: 1}} className="bg-[#121212]">
       <GeneralHeader title="Nearby Hangouts" />
       <ScrollView className="px-4 mt-2">
         {mockHangouts.map((event) => (
           <TouchableOpacity
             key={event.id}
-            className="bg-white rounded-xl mb-4 overflow-hidden shadow-md"
+            className="bg-[#121212] rounded-xl mb-4 overflow-hidden shadow-md"
           >
             <Image
               source={event.image}
@@ -39,10 +39,10 @@ export default function HangoutsScreen() {
               resizeMode="cover"
             />
             <View className="p-4">
-              <Text className="text-lg font-bold text-gray-900">
+              <Text className="text-lg font-bold text-gray-100">
                 {event.title}
               </Text>
-              <Text className="text-sm text-gray-600 mt-1">
+              <Text className="text-sm text-gray-400 mt-1">
                 {event.description}
               </Text>
               <Text className="text-xs text-gray-400 mt-2">

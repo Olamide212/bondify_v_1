@@ -38,7 +38,7 @@ const s = StyleSheet.create({
   tabNavigation: {
     flexDirection: 'row',
     borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
+    borderBottomColor: '#333333',
     // marginHorizontal: 16,
     marginBottom: 16,
     marginTop: 20
@@ -59,12 +59,12 @@ const s = StyleSheet.create({
   },
   tabButtonText: {
     fontSize: 14,
-    fontFamily: 'PlusJakartaSansMedium',
-    color: '#666',
+    fontFamily: 'OutfitMedium',
+    color: '#9CA3AF',
   },
   activeTabButtonText: {
-    color: '#000',
-    fontFamily: 'PlusJakartaSansBold',
+    color: '#FFFFFF',
+    fontFamily: 'OutfitBold',
   },
 });
 

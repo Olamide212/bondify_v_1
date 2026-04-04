@@ -70,7 +70,7 @@ const BaseModal = ({ visible, onClose, children, fullScreen = false, contentBack
       onRequestClose={onClose}
     >
       <SafeAreaProvider>
-      <SafeAreaView style={{ flex: 1 }}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: fullScreen ? contentBackground?.backgroundColor || "#121212" : "transparent" }}>
       {!fullScreen && (
         <TouchableWithoutFeedback onPress={onClose}>
           <Animated.View style={[styles.overlay, { opacity: fadeAnim }]} />
@@ -112,7 +112,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: "#fff",
+    backgroundColor: "#121212",
     maxHeight: "100%",
     width: "100%",
     paddingVertical: 20,
@@ -129,7 +129,7 @@ const styles = StyleSheet.create({
   },
   fullScreenContent: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#121212",
     paddingHorizontal: 10,
   },
 });

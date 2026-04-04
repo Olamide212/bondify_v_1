@@ -167,10 +167,10 @@ const UserProfileModal = ({ visible, onClose, profileId }) => {
             {/* Center: Name & Age */}
             <View style={styles.centerContent}>
               <View className="flex-row items-center">
-                <Text className="text-black text-xl font-PlusJakartaSansBold mr-2">
+                <Text className="text-white text-xl font-OutfitBold mr-2">
                   {currentProfile.name}
                 </Text>
-                <Text className="text-black text-xl font-PlusJakartaSans">
+                <Text className="text-white text-xl font-Outfit">
                   {currentProfile.age}
                 </Text>
                 {currentProfile.verified && (
@@ -218,7 +218,7 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     height: SCREEN_HEIGHT,
-    backgroundColor: "white",
+    backgroundColor: "#121212",
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     overflow: "hidden",
@@ -274,7 +274,7 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     right: 0,
-    backgroundColor: "white",
+    backgroundColor: "#121212",
     paddingTop: 60,
     paddingBottom: 15,
     alignItems: "center",

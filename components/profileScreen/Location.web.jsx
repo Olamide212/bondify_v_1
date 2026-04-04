@@ -2,12 +2,12 @@ import * as ExpoLocation from "expo-location";
 import { MapPin, Navigation, X } from "lucide-react-native";
 import { useEffect, useMemo, useState } from "react";
 import {
-  ActivityIndicator,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { colors } from "../../constant/colors";
 import { useAlert } from "../../context/AlertContext";
@@ -212,10 +212,10 @@ export default Location;
 const s = StyleSheet.create({
   // ── Trigger card ──
   card: {
-    backgroundColor:  '#fff',
-    borderRadius:     16,
+    backgroundColor: 'rgba(255,255,255,0.02)',
+    borderRadius:     12,
     borderWidth:      1,
-    borderColor:      '#F3F4F6',
+    borderColor:      'rgba(255,255,255,0.1)',
     marginHorizontal: 16,
     padding:          16,
   },
@@ -228,26 +228,26 @@ const s = StyleSheet.create({
     width:           40,
     height:          40,
     borderRadius:    99,
-    backgroundColor: '#FEF3EC',
+    backgroundColor: '#2A1F1A',
     alignItems:      'center',
     justifyContent:  'center',
   },
   cardLocation: {
     fontSize:   16,
-    fontFamily: 'PlusJakartaSansSemiBold',
-    color:      '#111',
+    fontFamily: 'OutfitSemiBold',
+    color: '#E5E5E5',
     marginBottom: 2,
   },
   cardCta: {
     fontSize:   13,
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: 'OutfitMedium',
     color:      colors.primary,
   },
 
   // ── Modal ──
   modal: {
     flex:             1,
-    backgroundColor:  '#fff',
+    backgroundColor: '#121212',
   },
   modalHeader: {
     flexDirection:    'row',
@@ -259,8 +259,8 @@ const s = StyleSheet.create({
   },
   modalTitle: {
     fontSize:   18,
-    fontFamily: 'PlusJakartaSansBold',
-    color:      '#111',
+    fontFamily: 'OutfitBold',
+    color: '#E5E5E5',
   },
 
   // ── GPS row ──
@@ -272,12 +272,12 @@ const s = StyleSheet.create({
     marginBottom:     16,
     paddingVertical:  12,
     paddingHorizontal: 16,
-    backgroundColor:  '#FEF3EC',
+    backgroundColor: '#2A1F1A',
     borderRadius:     12,
   },
   gpsText: {
     fontSize:   14,
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: 'OutfitMedium',
     color:      colors.primary,
   },
 
@@ -296,19 +296,19 @@ const s = StyleSheet.create({
   },
   label: {
     fontSize:   13,
-    fontFamily: 'PlusJakartaSansSemiBold',
-    color:      '#374151',
+    fontFamily: 'OutfitSemiBold',
+    color: '#D1D5DB',
   },
   input: {
     borderWidth:   1,
-    borderColor:   '#E5E7EB',
+    borderColor: '#374151',
     borderRadius:  12,
     paddingHorizontal: 14,
     paddingVertical:   12,
     fontSize:      15,
-    fontFamily:    'PlusJakartaSansMedium',
-    color:         '#111',
-    backgroundColor: '#FAFAFA',
+    fontFamily:    'OutfitMedium',
+    color: '#E5E5E5',
+    backgroundColor: '#1E1E1E',
   },
 
   // ── Save button ──
@@ -323,7 +323,7 @@ const s = StyleSheet.create({
   },
   saveBtnText: {
     fontSize:   16,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: 'OutfitBold',
     color:      '#fff',
   },
 });

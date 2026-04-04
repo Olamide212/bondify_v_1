@@ -68,7 +68,7 @@ const styles = StyleSheet.create({
     marginHorizontal: CARD_MARGIN / 2,
   },
   card: {
-    backgroundColor: "#fff",
+    backgroundColor: "#121212",
     borderRadius: 16,
     overflow: "hidden",
     elevation: 2,

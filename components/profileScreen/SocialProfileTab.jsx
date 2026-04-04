@@ -367,7 +367,7 @@ const s = StyleSheet.create({
   avatarInitial: {
     color: "#fff",
     fontSize: 32,
-    fontFamily: "PlusJakartaSansBold",
+    fontFamily: "OutfitBold",
   },
   cameraBadge: {
     position: "absolute",
@@ -395,20 +395,20 @@ const s = StyleSheet.create({
   },
   displayName: {
     fontSize: 20,
-    fontFamily: "PlusJakartaSansBold",
-    color: "#111",
+    fontFamily: "OutfitBold",
+    color: '#E5E5E5',
     textTransform: "capitalize",
   },
   handle: {
     fontSize: 14,
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
     color: "#888",
     marginTop: 2,
   },
   bio: {
     fontSize: 14,
-    fontFamily: "PlusJakartaSans",
-    color: "#555",
+    fontFamily: "Outfit",
+    color: '#9CA3AF',
     textAlign: "center",
     marginTop: 8,
     lineHeight: 20,
@@ -422,18 +422,18 @@ const s = StyleSheet.create({
   statItem: { alignItems: "center" },
   statNum: {
     fontSize: 18,
-    fontFamily: "PlusJakartaSansBold",
-    color: "#111",
+    fontFamily: "OutfitBold",
+    color: '#E5E5E5',
   },
   statLabel: {
     fontSize: 12,
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
     color: "#888",
   },
 
   // Menu
   menuCard: {
-    backgroundColor: "#fff",
+    backgroundColor: "#121212",
     marginHorizontal: 16,
     borderRadius: 16,
     padding: 4,
@@ -465,19 +465,19 @@ const s = StyleSheet.create({
   menuTextWrap: { flex: 1 },
   menuLabel: {
     fontSize: 16,
-    fontFamily: "PlusJakartaSansBold",
-    color: "#111",
+    fontFamily: "OutfitBold",
+    color: '#E5E5E5',
   },
   menuDesc: {
     fontSize: 12,
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
     color: "#999",
     marginTop: 2,
   },
 
   // Bondup Section
   bondupSection: {
-    backgroundColor: "#fff",
+    backgroundColor: "#121212",
     marginHorizontal: 16,
     marginBottom: 16,
     borderRadius: 16,
@@ -496,8 +496,8 @@ const s = StyleSheet.create({
   },
   bondupSectionTitle: {
     fontSize: 16,
-    fontFamily: "PlusJakartaSansBold",
-    color: "#111",
+    fontFamily: "OutfitBold",
+    color: '#E5E5E5',
   },
   bondupStatsBadges: {
     flexDirection: "row",
@@ -512,17 +512,17 @@ const s = StyleSheet.create({
   },
   bondupStatBadgeNum: {
     fontSize: 16,
-    fontFamily: "PlusJakartaSansBold",
+    fontFamily: "OutfitBold",
     color: BRAND,
   },
   bondupStatBadgeLabel: {
     fontSize: 10,
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
     color: BRAND,
   },
   bondupEmptyText: {
     fontSize: 13,
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
     color: "#999",
     textAlign: "center",
     paddingVertical: 12,
@@ -540,12 +540,12 @@ const s = StyleSheet.create({
   },
   bondupItemTitle: {
     fontSize: 14,
-    fontFamily: "PlusJakartaSansBold",
-    color: "#111",
+    fontFamily: "OutfitBold",
+    color: '#E5E5E5',
   },
   bondupItemSub: {
     fontSize: 12,
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
     color: "#888",
     marginTop: 2,
   },

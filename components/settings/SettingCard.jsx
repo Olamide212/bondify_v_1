@@ -1,6 +1,6 @@
-import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { styles as appStyles } from "../../constant/colors";
 import { useTheme } from "../../context/ThemeContext";
 
 const SettingsSection = ({ title, items }) => {
@@ -10,11 +10,11 @@ const SettingsSection = ({ title, items }) => {
     <View
       style={[
         styles.container,
-        { backgroundColor: colors.surface },
+        appStyles.boxContainer,
       ]}
     >
       {title && (
-        <Text style={[styles.title, { color: '#000' }]}>
+        <Text style={[styles.title, { color: '#FFFFFF' }]}>
           {title}
         </Text>
       )}
@@ -29,7 +29,7 @@ const SettingsSection = ({ title, items }) => {
               styles.row,
               !isLast && {
                 borderBottomWidth: StyleSheet.hairlineWidth,
-                borderBottomColor: '#dadada',
+                borderBottomColor: 'rgba(255,255,255,0.1)',
               },
             ]}
             onPress={onPress}
@@ -38,11 +38,11 @@ const SettingsSection = ({ title, items }) => {
             <View style={styles.rowInner}>
               {/* Left: title + optional description */}
               <View style={styles.textBlock}>
-                <Text style={[styles.rowTitle, { color: '#000' }]}>
+                <Text style={[styles.rowTitle, { color: '#FFFFFF' }]}>
                   {title}
                 </Text>
                 {description && (
-                  <Text style={[styles.rowDescription, { color: '#6B7280' }]}>
+                  <Text style={[styles.rowDescription, { color: '#9CA3AF' }]}>
                     {description}
                   </Text>
                 )}
@@ -61,7 +61,7 @@ const SettingsSection = ({ title, items }) => {
                   <Ionicons
                     name="chevron-forward"
                     size={20}
-                    color='#000'
+                    color='#fff'
                   />
                 )}
               </View>
@@ -89,7 +89,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    fontFamily: "PlusJakartaSansBold",
+    fontFamily: "OutfitBold",
     marginBottom: 8,
   },
   row: {
@@ -106,11 +106,11 @@ const styles = StyleSheet.create({
   },
   rowTitle: {
     fontSize: 17,
-    fontFamily: "PlusJakartaSansSemiBold",
+    fontFamily: "OutfitSemiBold",
   },
   rowDescription: {
     fontSize: 14,
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
     marginTop: 2,
     lineHeight: 19,
   },
@@ -122,7 +122,7 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 14,
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
   },
 });
 

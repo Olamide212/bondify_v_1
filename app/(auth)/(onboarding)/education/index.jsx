@@ -34,7 +34,7 @@ const Education = () => {
   }
 
   return (
-    <SafeAreaView style={{flex: 1, backgroundColor: 'white'}} className="bg-white">
+    <SafeAreaView style={{flex: 1, backgroundColor: '#121212'}} className="bg-[#121212]">
       <KeyboardAvoidingView
         style={{flex: 1}}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -43,7 +43,7 @@ const Education = () => {
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View style={{flex: 1}} className="px-2">
             <View style={{flex: 1}} className="">
-              <Text className="text-3xl font-PlusJakartaSansBold mt-8  mb-2">
+              <Text className="text-3xl font-OutfitBold mt-8  mb-2">
                 Highest Education Obtained
               </Text>
 

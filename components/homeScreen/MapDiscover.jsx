@@ -239,7 +239,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 40,
     right: 20,
-    backgroundColor: "white",
+    backgroundColor: "#121212",
     padding: 10,
     borderRadius: 20,
     elevation: 5,
@@ -258,7 +258,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   modalContent: {
-    backgroundColor: "white",
+    backgroundColor: "#121212",
     padding: 20,
     borderRadius: 10,
     width: "80%",

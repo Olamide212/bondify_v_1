@@ -34,7 +34,7 @@ const Occupation = () => {
   }
 
   return (
-    <SafeAreaView style={{flex: 1, backgroundColor: 'white'}} className="bg-white">
+    <SafeAreaView style={{flex: 1, backgroundColor: '#121212'}} className="bg-[#121212]">
       <KeyboardAvoidingView
         style={{flex: 1}}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -43,7 +43,7 @@ const Occupation = () => {
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View style={{flex: 1}} className="px-2">
             <View style={{flex: 1}} className="mt-8">
-              <Text className="text-3xl font-PlusJakartaSansBold  mb-4">
+              <Text className="text-3xl font-OutfitBold  mb-4">
                 What&apos;s your occupation?
               </Text>
 
@@ -62,15 +62,15 @@ const Occupation = () => {
                     className={`px-4 py-2 rounded-full  border ${
                       selectedOccupation === item.value
                         ? "bg-primary border-primary"
-                        : "bg-white border-[#D1D1D1]"
+                        : "bg-[#121212] border-[#D1D1D1]"
                     }`}
                   >
                     <Text
                       className={`${
                         selectedOccupation === item.value
                           ? "text-white"
-                          : "text-black"
-                      } font-PlusJakartaSansMedium text-lg`}
+                          : "text-white"
+                      } font-OutfitMedium text-lg`}
                     >
                       {item.label}
                     </Text>
@@ -79,7 +79,7 @@ const Occupation = () => {
               </ScrollView>
             </View>
 
-            <View className="w-full items-end pb-6 bg-white">
+            <View className="w-full items-end pb-6 bg-[#121212]">
               <Button
                 title="Continue"
                 variant="primary"

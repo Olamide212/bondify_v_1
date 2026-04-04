@@ -14,7 +14,6 @@ import {
   ActivityIndicator,
   Animated,
   Dimensions,
-  Image,
   Keyboard,
   KeyboardAvoidingView,
   Modal,
@@ -25,7 +24,7 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 import { colors } from "../../constant/colors";
 import AIService from "../../services/aiService";
@@ -335,7 +334,7 @@ const ComplimentModal = ({
             >
               <ChevronLeft size={26} color="#fff" />
             </TouchableOpacity>
-            <Text style={styles.topTitle} className="font-PlusJakartaSansBold">
+            <Text style={styles.topTitle} className="font-OutfitBold">
               Send Compliment
             </Text>
             <View style={{ width: 40 }} />
@@ -374,13 +373,13 @@ const ComplimentModal = ({
                   </Animated.Text>
                   <Text
                     style={styles.successTitle}
-                    className="font-PlusJakartaSansBold"
+                    className="font-OutfitBold"
                   >
                     {matched ? "It's a match!" : "Compliment sent!"}
                   </Text>
                   <Text
                     style={styles.successSub}
-                    className="font-PlusJakartaSans"
+                    className="font-Outfit"
                   >
                     {matched
                       ? `You and ${firstName} both showed interest — you're now matched! 🔥`
@@ -394,7 +393,7 @@ const ComplimentModal = ({
                   >
                     <Text
                       style={styles.viewNextBtnText}
-                      className="font-PlusJakartaSansBold"
+                      className="font-OutfitBold"
                     >
                       View Other Profiles
                     </Text>
@@ -406,7 +405,7 @@ const ComplimentModal = ({
                   {/* Name label */}
                   <Text
                     style={styles.composeLabel}
-                    className="font-PlusJakartaSansBold"
+                    className="font-OutfitBold"
                   >
                     Send a compliment to {firstName}
                   </Text>
@@ -424,7 +423,7 @@ const ComplimentModal = ({
                         >
                           <Text
                             style={styles.suggestionText}
-                            className="font-PlusJakartaSans"
+                            className="font-Outfit"
                           >
                             {s}
                           </Text>
@@ -438,7 +437,7 @@ const ComplimentModal = ({
                     <View style={styles.errorContainer}>
                       <Text
                         style={styles.errorText}
-                        className="font-PlusJakartaSans"
+                        className="font-Outfit"
                       >
                         {error}
                       </Text>
@@ -487,12 +486,12 @@ const ComplimentModal = ({
                       {loading ? (
                         <ActivityIndicator size="small" color={colors.primary} />
                       ) : (
-                        <Send size={20} color={colors.primary} />
+                        <Send size={20} color={colors.white} />
                       )}
                     </TouchableOpacity>
                   </View>
 
-                  <Text style={styles.charCount} className="font-PlusJakartaSans">
+                  <Text style={styles.charCount} className="font-Outfit">
                     {text.length}/300
                   </Text>
                 </View>
@@ -571,7 +570,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "rgba(255,255,255,0.15)",
+    backgroundColor: "#1E1E1E",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -580,7 +579,7 @@ const styles = StyleSheet.create({
     minHeight: 40,
     maxHeight: 100,
     fontSize: 15,
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
     color: "#fff",
     paddingVertical: 8,
     textAlignVertical: "top",
@@ -589,7 +588,7 @@ const styles = StyleSheet.create({
     width: 42,
     height: 42,
     borderRadius: 21,
-    backgroundColor: colors.secondary,
+    backgroundColor: colors.primary,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -621,7 +620,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   errorText: {
-    color: "#FFCDD2",
+    color: "#fff",
     fontSize: 13,
     textAlign: "center",
   },
@@ -640,7 +639,7 @@ const styles = StyleSheet.create({
   },
   successSub: {
     fontSize: 15,
-    color: "rgba(255,255,255,0.75)",
+    color: "#fff",
     textAlign: "center",
     paddingHorizontal: 20,
     lineHeight: 22,

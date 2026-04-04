@@ -1,12 +1,12 @@
-import { FileText, X } from "lucide-react-native";
+import { X } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import {
-  Modal, StyleSheet, Text, TextInput,
-  TouchableOpacity, View,
+    Modal, StyleSheet, Text, TextInput,
+    TouchableOpacity, View,
 } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-import Button from "../ui/Button";
 import { colors } from "../../constant/colors";
+import Button from "../ui/Button";
 
 const MAX_CHARS = 500;
 
@@ -113,10 +113,10 @@ export default AboutMe;
 const s = StyleSheet.create({
   // ── Card ──
   card: {
-    backgroundColor:  "#fff",
-    borderRadius:     16,
+    backgroundColor: 'rgba(255,255,255,0.02)',
+    borderRadius:     12,
     borderWidth:      1,
-    borderColor:      "#F3F4F6",
+    borderColor:      'rgba(255,255,255,0.1)',
     marginHorizontal: 16,
     padding:          16,
   },
@@ -136,21 +136,21 @@ const s = StyleSheet.create({
   },
   cardValue: {
     fontSize:     15,
-    fontFamily:   "PlusJakartaSansMedium",
-    color:        "#374151",
+    fontFamily:   "OutfitMedium",
+    color: '#D1D5DB',
     lineHeight:   22,
     marginBottom: 4,
   },
   cardCta: {
     fontSize:   13,
-    fontFamily: "PlusJakartaSansMedium",
+    fontFamily: "OutfitMedium",
     color:      colors.primary,
   },
 
   // ── Modal ──
   modal: {
     flex:              1,
-    backgroundColor:   "#fff",
+    backgroundColor: '#121212',
     paddingHorizontal: 20,
     paddingTop:        12,
   },
@@ -162,26 +162,26 @@ const s = StyleSheet.create({
   },
   modalTitle: {
     fontSize:   18,
-    fontFamily: "PlusJakartaSansBold",
-    color:      "#111",
+    fontFamily: "OutfitBold",
+    color: '#E5E5E5',
   },
   inputWrap: {
     borderWidth:     1,
-    borderColor:     "#E5E7EB",
+    borderColor: '#374151',
     borderRadius:    14,
-    backgroundColor: "#FAFAFA",
+    backgroundColor: '#1E1E1E',
     padding:         16,
   },
   input: {
     fontSize:   15,
-    fontFamily: "PlusJakartaSansMedium",
-    color:      "#111",
+    fontFamily: "OutfitMedium",
+    color: '#E5E5E5',
     minHeight:  140,
     lineHeight: 24,
   },
   charCount: {
     fontSize:   12,
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
     color:      "#9CA3AF",
     textAlign:  "right",
     marginTop:  8,

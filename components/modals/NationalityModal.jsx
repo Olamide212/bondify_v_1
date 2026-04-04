@@ -72,7 +72,7 @@ export default NationalityModal;
 
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "white" },
+  container: { flex: 1, backgroundColor: "#121212" },
   header: {
     flexDirection: "row",
     alignItems: "center",
@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     borderWidth: 1,
-    borderColor: "#ddd",
+    borderColor: '#444',
     borderRadius: 8,
     margin: 15,
     padding: 15,
@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
     padding: 15,
     borderBottomWidth: 1,
     borderBottomColor: "#eee",
-    fontFamily: "PlusJakartaSansMedium",
+    fontFamily: "OutfitMedium",
   },
   itemText: { fontSize: 16 },
 });

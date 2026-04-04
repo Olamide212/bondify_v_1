@@ -1,18 +1,18 @@
 import React from "react";
 import { View, Text, Pressable, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
-import { useTheme } from "../../context/ThemeContext";
+import {colors} from "../../constant/colors";
 
 const GeneralHeader = ({ title, icon, onPress, leftIcon, style, textStyle }) => {
   const router = useRouter();
-  const { colors } = useTheme();
+
 
   return (
     <View
       style={[
         styles.container,
         {
-          backgroundColor: colors.surface,
+          backgroundColor: colors.background,
         
         },
         style,
@@ -26,7 +26,7 @@ const GeneralHeader = ({ title, icon, onPress, leftIcon, style, textStyle }) => 
         {leftIcon}
       </Pressable>
 
-      <Text style={[styles.title, { color: colors.textPrimary }, textStyle]}>
+      <Text style={[styles.title, { color: colors.white }, textStyle]}>
         {title}
       </Text>
 
@@ -52,7 +52,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-    fontFamily: "PlusJakartaSansBold",
+    fontFamily: "OutfitBold",
   },
   // Keeps title centred when one side is empty
   side: {

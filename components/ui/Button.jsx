@@ -22,7 +22,7 @@ const Button = ({
       <ActivityIndicator color={colors.primary} />
     ) : (
       <Text
-        className={`text-xl font-PlusJakartaSansMedium text-white ${textClassName}`}
+        className={`text-xl font-OutfitMedium text-white ${textClassName}`}
       >
         {title}
       </Text>
@@ -36,7 +36,7 @@ const Button = ({
         style={[styles.buttonWrapper, disabled && { opacity: 0.5 }]}
       >
         <LinearGradient
-          colors={["#EE5F2B", "#EE5F2B"]}
+          colors={[colors.primary, colors.secondary]}
           start={{ x: 1, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={styles.gradientButton}
@@ -63,14 +63,14 @@ const Button = ({
 
   const textStyle =
     variant === "primary"
-      ? "text-white font-PlusJakartaSansSemiBold"
+      ? "text-white font-OutfitSemiBold"
       : variant === "white"
-        ? "text-black font-PlusJakartaSansSemiBold"
+        ? "text-black font-OutfitSemiBold"
         : variant === "secondary"
-          ? "text-primary font-PlusJakartaSansSemiBold"
+          ? "text-primary font-OutfitSemiBold"
           : variant === "neutral"
-            ? "text-[#1E4234] font-PlusJakartaSansSemiBold"
-            : "text-white font-PlusJakartaSansSemiBold";
+            ? "text-[#1E4234] font-OutfitSemiBold"
+            : "text-white font-OutfitSemiBold";
 
   return (
     <TouchableOpacity
@@ -83,12 +83,12 @@ const Button = ({
       {loading ? (
         <View className="flex-row items-center gap-2">
  <ActivityIndicator color={"#fff"} />
-        {/* <Text className='text-xl font-PlusJakartaSansSemiBold text-white'>Loading...</Text> */}
+        {/* <Text className='text-xl font-OutfitSemiBold text-white'>Loading...</Text> */}
         </View>
        
       ) : (
         <Text
-          className={`text-xl font-PlusJakartaSansSemiBold ${textStyle} ${textClassName}`}
+          className={`text-xl font-OutfitSemiBold ${textStyle} ${textClassName}`}
         >
           {title}
         </Text>

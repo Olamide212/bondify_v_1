@@ -56,13 +56,13 @@ export default function AuthLayout() {
   ]);
 
   return (
-    <SafeAreaView className={"flex-1  px-4"} style={{backgroundColor: '#fff'}}>
+    <SafeAreaView className={"flex-1  px-4"} style={{backgroundColor: '#121212'}}>
       {!isOnboarding && <HeaderWithLogo showBackButton={!isLogin} />}
-      <StatusBar style="dark" />
+      <StatusBar style="light" />
       <Stack screenOptions={{
     headerShown: false,
     gestureEnabled: false,
-    contentStyle: { backgroundColor: "#fff" },
+    contentStyle: { backgroundColor: "#121212" },
     cardOverlayEnabled: false,
   }}>
         <Stack.Screen name="login/index" />

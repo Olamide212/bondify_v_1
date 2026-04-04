@@ -6,9 +6,9 @@ import { Icons } from "../../constant/icons";
 
 const Card = ({ title, items }) => {
   return (
-    <View className="bg-white mt-4 p-6 border border-gray-200 rounded-xl">
+    <View className="bg-[#121212] mt-4 p-6 border border-whiteLight rounded-xl">
       {title && (
-        <Text className="text-xl font-PlusJakartaSansSemiBold mb-3">
+        <Text className="text-white text-xl font-OutfitSemiBold mb-3">
           {title}
         </Text>
       )}
@@ -21,25 +21,25 @@ const Card = ({ title, items }) => {
           <TouchableOpacity
             key={index}
             className={`flex-row items-center justify-between py-4 gap-4 ${
-              !isLast ? "border-b border-gray-200" : ""
+              !isLast ? "border-b border-whiteLight" : ""
             }`}
             onPress={onPress}
           >
 
               {RightIcon ? (
-                <RightIcon size={20} color={'#000'} />
+                <RightIcon size={20} color={'#fff'} />
               ) : isTiktok ? (
                 <Image source={Icons.TikTok} style={{ width: 20, height: 20 }} />
               ) : (
-                <Ionicons name="chevron-forward" size={20} color="#000" />
+                <Ionicons name="chevron-forward" size={20} color="#fff" />
               )}
             <View className="flex-row items-center gap-3 flex-1">
               <View style={{flex: 1}}>
-                <Text className="text-xl text-black font-PlusJakartaSansSemiBold">
+                <Text className="text-xl text-white font-OutfitSemiBold">
                   {title}
                 </Text>
                 {description && (
-                  <Text className="text-lg text-gray-500 font-PlusJakartaSans mt-0.5">
+                  <Text className="text-lg  text-white font-Outfit mt-0.5">
                     {description}
                   </Text>
                 )}

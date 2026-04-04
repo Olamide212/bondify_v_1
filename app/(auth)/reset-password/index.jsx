@@ -71,7 +71,7 @@ const ResetPassword = () => {
   };
 
   return (
-    <SafeAreaView style={{flex: 1}} className="bg-white">
+    <SafeAreaView style={{flex: 1}} className="bg-[#121212]">
       <KeyboardAvoidingView
         style={{flex: 1}}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -88,10 +88,10 @@ const ResetPassword = () => {
             </Pressable>
 
             <View style={{flex: 1}} className="mt-4">
-              <Text className="text-3xl font-PlusJakartaSansSemiBold text-black">
+              <Text className="text-3xl font-OutfitSemiBold text-white">
                 Create new password
               </Text>
-              <Text className="mb-5 text-black text-lg font-PlusJakartaSans">
+              <Text className="mb-5 text-white text-lg font-Outfit">
                 Your new password must be at least 8 characters long. Choose
                 something strong that you haven&apos;t used before.
               </Text>

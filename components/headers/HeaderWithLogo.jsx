@@ -13,7 +13,7 @@ const router = useRouter()
     <View className="flex-row items-center justify-between pt-3">
       {showBackButton ? (
         <Pressable onPress={() => router.back()}>
-          <ArrowLeft />
+          <ArrowLeft color="#fff" />
         </Pressable>
       ) : (
         <View style={{ width: 24 }} />
@@ -24,7 +24,7 @@ const router = useRouter()
         style={{ width: 60, height: 40 }}
         contentFit="contain"
       />
-      <Text className="text-white font-PlusJakartaSansMedium">{title}</Text>
+      <Text className="text-white font-OutfitMedium">{title}</Text>
     </View>
   );
 };

@@ -23,7 +23,7 @@ const CheckboxSelect = ({
   return (
     <View className={`mb-4 w-full ${className}`}>
       {label && (
-        <Text className="text-lg font-PlusJakartaSansMedium mb-2">{label}</Text>
+        <Text className="text-lg font-OutfitMedium mb-2">{label}</Text>
       )}
       <View
         className={`flex ${horizontal ? "flex-row flex-wrap gap-4" : "flex-col gap-3"}`}
@@ -37,11 +37,11 @@ const CheckboxSelect = ({
             style={{ borderRadius: 10 }}
           >
             <View style={{flex: 1}} className="pr-2">
-              <Text className="text-black text-xl font-PlusJakartaSansBold">
+              <Text className="text-white text-xl font-OutfitBold">
                 {option.label}
               </Text>
               {!!option.description && (
-                <Text className="text-black text-base font-PlusJakartaSans mt-1">
+                <Text className="text-white text-base font-Outfit mt-1">
                   {option.description}
                 </Text>
               )}

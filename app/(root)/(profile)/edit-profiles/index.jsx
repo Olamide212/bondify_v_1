@@ -68,7 +68,7 @@ const tb = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
+    borderBottomColor: C.whiteLight,
   },
   tabItem: {
     flex: 1,
@@ -79,8 +79,8 @@ const tb = StyleSheet.create({
     borderBottomWidth: 2,
     borderBottomColor: '#111',
   },
-  label: { fontFamily: 'PlusJakartaSansBold', fontSize: 15 },
-  labelActive: { color: '#111' },
+  label: { fontFamily: 'OutfitBold', fontSize: 15 },
+  labelActive: { color: '#E5E5E5' },
   labelInactive: { color: '#9CA3AF' },
 });
 
@@ -273,13 +273,13 @@ export default function ProfileDetails() {
   // ── Render ────────────────────────────────────────────────────────────────
 
   return (
-    <SafeAreaProvider style={{ backgroundColor: '#fff' }}>
-      <SafeAreaView style={[s.safe, { backgroundColor: '#fff' }]}>
+    <SafeAreaProvider style={{ backgroundColor: '#121212' }}>
+      <SafeAreaView style={[s.safe, { backgroundColor: '#121212' }]}>
 
         <GeneralHeader
           title="Edit Profile"
-          leftIcon={<ArrowLeft />}
-          style={{ backgroundColor: '#fff' }}
+          leftIcon={<ArrowLeft color={C.white} />}
+          style={{ backgroundColor: '#121212' }}
         />
 
         {/* Tab bar */}

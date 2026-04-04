@@ -150,10 +150,10 @@ const RizzModal = ({ visible, onClose, onSend, matchId }) => {
         </View>
 
         {/* Title */}
-        <Text style={styles.title} className="font-PlusJakartaSansBold">
+        <Text style={styles.title} className="font-OutfitBold">
        BonSpark
         </Text>
-        <Text style={styles.subtitle} className="font-PlusJakartaSans">
+        <Text style={styles.subtitle} className="font-Outfit">
           {matchId
             ? "Personalised just for your match ✨"
             : "Great conversation starters"}
@@ -164,14 +164,14 @@ const RizzModal = ({ visible, onClose, onSend, matchId }) => {
           {loading ? (
             <View style={styles.loadingContainer}>
               <ActivityIndicator size="small" color={colors.activePrimary} />
-              <Text style={styles.loadingText} className="font-PlusJakartaSans">
+              <Text style={styles.loadingText} className="font-Outfit">
                 Crafting the perfect line...
               </Text>
             </View>
           ) : (
             <Text
               style={styles.rizzText}
-              className="font-PlusJakartaSansSemiBold"
+              className="font-OutfitSemiBold"
             >
               {currentSuggestion}
             </Text>
@@ -180,14 +180,14 @@ const RizzModal = ({ visible, onClose, onSend, matchId }) => {
 
         {/* Soft error notice (non-blocking) */}
         {error && !loading && (
-          <Text style={styles.errorHint} className="font-PlusJakartaSans">
+          <Text style={styles.errorHint} className="font-Outfit">
             {error}
           </Text>
         )}
 
         {/* Suggestion counter e.g. "1 / 3" */}
         {/* {!loading && (
-          <Text style={styles.counter} className="font-PlusJakartaSans">
+          <Text style={styles.counter} className="font-Outfit">
             {currentIdx + 1} / {suggestions.length}
           </Text>
         )} */}
@@ -220,7 +220,7 @@ const RizzModal = ({ visible, onClose, onSend, matchId }) => {
           >
             <Text
               style={styles.primaryBtnText}
-              className="font-PlusJakartaSansBold"
+              className="font-OutfitBold"
             >
               Use This
             </Text>
@@ -246,7 +246,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
   },
   card: {
-    backgroundColor: "#fff",
+    backgroundColor: "#121212",
     borderRadius: 20,
     width: "100%",
     maxWidth: 380,
@@ -260,7 +260,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    color: "#1F2937",
+    color: '#E5E7EB',
     marginBottom: 4,
   },
   subtitle: {
@@ -279,7 +279,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   rizzText: {
-    color: "#1F2937",
+    color: '#E5E7EB',
     fontSize: 18,
     textAlign: "center",
     lineHeight: 26,

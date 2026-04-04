@@ -132,7 +132,7 @@ export default function BadgesScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16, backgroundColor: "#fff" },
+  container: { flex: 1, padding: 16, backgroundColor: "#121212" },
   sectionTitle: { fontSize: 18, fontWeight: "600", marginVertical: 12 },
   grid: {
     flexDirection: "row",
@@ -156,7 +156,7 @@ const styles = StyleSheet.create({
   unlocked: { opacity: 1 },
   locked: { opacity: 0.5 },
   badgeTitle: { fontSize: 16, fontWeight: "600" },
-  badgeDesc: { fontSize: 12, color: "#666", marginTop: 4 },
+  badgeDesc: { fontSize: 12, color: '#9CA3AF', marginTop: 4 },
   progressContainer: {
     marginTop: 8,
     height: 6,
@@ -176,7 +176,7 @@ const styles = StyleSheet.create({
   },
   modalBox: {
     width: "85%",
-    backgroundColor: "#fff",
+    backgroundColor: "#121212",
     borderRadius: 16,
     padding: 20,
   },
@@ -188,11 +188,11 @@ const styles = StyleSheet.create({
   },
   modalDesc: {
     fontSize: 14,
-    color: "#555",
+    color: '#9CA3AF',
     marginVertical: 8,
     textAlign: "center",
   },
-  modalTips: { fontSize: 13, color: "#333", marginTop: 6, fontStyle: "italic" },
+  modalTips: { fontSize: 13, color: '#D1D5DB', marginTop: 6, fontStyle: "italic" },
   closeBtn: {
     backgroundColor: "#FF3B30",
     padding: 12,

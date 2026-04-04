@@ -69,7 +69,7 @@ const PLACEHOLDER_INTERESTS = ['Art', 'Gaming', 'Cooking', 'Travel', 'Music'];
 export default InterestsCard;
 const styles = StyleSheet.create({
   card: {
-    backgroundColor:  '#fff',
+    backgroundColor: '#121212',
     borderRadius:     16,
     marginHorizontal: 16,
     marginTop:        16,
@@ -85,18 +85,18 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize:   20,
-    fontFamily: 'PlusJakartaSansBold',
-    color:      '#111',
+    fontFamily: 'OutfitBold',
+    color: '#E5E5E5',
   },
   subtitle: {
     fontSize:   13,
-    fontFamily: 'PlusJakartaSans',
+    fontFamily: 'Outfit',
     color:      '#9CA3AF',
     marginTop:  2,
   },
   viewAll: {
     fontSize:   15,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: 'OutfitBold',
     color:      '#E8651A',
   },
   chipsRow: {
@@ -115,23 +115,23 @@ const styles = StyleSheet.create({
   },
   chipSelectedText: {
     fontSize:   15,
-    fontFamily: 'PlusJakartaSansSemiBold',
+    fontFamily: 'OutfitSemiBold',
     color:      '#fff',
   },
   chipEmpty: {
     flexDirection:     'row',
     alignItems:        'center',
     gap:               6,
-    backgroundColor:   '#F9FAFB',
+    backgroundColor: '#1E1E1E',
     paddingHorizontal: 16,
     paddingVertical:   12,
     borderRadius:      99,
     borderWidth:       1,
-    borderColor:       '#E5E7EB',
+    borderColor: '#374151',
   },
   chipEmptyText: {
     fontSize:   15,
-    fontFamily: 'PlusJakartaSansMedium',
-    color:      '#374151',
+    fontFamily: 'OutfitMedium',
+    color: '#D1D5DB',
   },
 });

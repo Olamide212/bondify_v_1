@@ -111,7 +111,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: FRONT_CARD_HEIGHT,
-    backgroundColor: "#fff",
+    backgroundColor: "#121212",
     borderRadius: 20,
     padding: 20,
     shadowOffset: { width: 0, height: 5 },
@@ -144,11 +144,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: "700",
-    color: "#000",
+    color: '#FFFFFF',
   },
   subtitle: {
     fontSize: 15,
-    color: "#444",
+    color: '#D1D5DB',
     marginTop: 6,
     lineHeight: 20,
   },

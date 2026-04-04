@@ -55,17 +55,17 @@
 //     fontSize: 13,
 //     letterSpacing: 1,
 //     textTransform: 'uppercase',
-//     fontFamily: 'PlusJakartaSansBold',
+//     fontFamily: 'OutfitBold',
 //   },
 //   title: {
 //     fontSize: 22,
 //     lineHeight: 30,
-//     fontFamily: 'PlusJakartaSansBold',
+//     fontFamily: 'OutfitBold',
 //   },
 //   body: {
 //     fontSize: 15,
 //     lineHeight: 22,
-//     fontFamily: 'PlusJakartaSans',
+//     fontFamily: 'Outfit',
 //   },
 //   button: {
 //     marginTop: 8,
@@ -76,7 +76,7 @@
 //   buttonText: {
 //     color: '#fff',
 //     fontSize: 15,
-//     fontFamily: 'PlusJakartaSansBold',
+//     fontFamily: 'OutfitBold',
 //   },
 // });
 

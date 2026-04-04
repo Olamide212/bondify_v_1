@@ -19,7 +19,7 @@ const NextButton = ({
       ) : (
         <View className="flex-row">
           <Text
-            className={`text-xl font-PlusJakartaSansBold text-white ${textClassName}`}
+            className={`text-xl font-OutfitBold text-white ${textClassName}`}
           >
             {title}
           </Text>
@@ -33,20 +33,20 @@ const NextButton = ({
     variant === "primary"
       ? "bg-primary"
       : variant === "white"
-        ? "bg-white"
+        ? "bg-[#121212]"
         : variant === "secondary"
           ? "bg-secondary"
           : variant === "danger"
             ? "bg-red-700"
             : variant === "neutral"
-              ? "bg-white border border-[#E8E8E8] "
+              ? "bg-[#121212] border border-[#E8E8E8] "
               : "bg-black";
 
   const textStyle =
     variant === "primary"
       ? "text-white"
       : variant === "white"
-        ? "text-black"
+        ? "text-white"
         : variant === "secondary"
           ? "text-primary"
           : variant === "neutral"
@@ -88,7 +88,7 @@ const NextButton = ({
         <View className="flex-row items-center justify-center">
           {title !== "" && (
             <Text
-              className={`text-lg font-PlusJakartaSansMedium ml-2 ${textStyle} ${textClassName}`}
+              className={`text-lg font-OutfitMedium ml-2 ${textStyle} ${textClassName}`}
             >
               {title}
             </Text>

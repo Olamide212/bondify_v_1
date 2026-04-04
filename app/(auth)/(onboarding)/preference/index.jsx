@@ -34,7 +34,7 @@ const Preference = () => {
   }
 
   return (
-    <SafeAreaView style={{flex: 1, backgroundColor: 'white'}} className="bg-white">
+    <SafeAreaView style={{flex: 1, backgroundColor: '#121212'}} className="bg-[#121212]">
       <KeyboardAvoidingView
         style={{flex: 1}}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -43,10 +43,10 @@ const Preference = () => {
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View style={{flex: 1}} className="px-2">
             <ScrollView style={{flex: 1}} className="mt-8" showsVerticalScrollIndicator={false}>
-              <Text className="text-3xl font-PlusJakartaSansBold  mb-2">
+              <Text className="text-3xl font-OutfitBold  mb-2">
                 What are you hoping to find on Bondies?
               </Text>
-              <Text className="text-lg font-PlusJakartaSans">
+              <Text className="text-lg font-Outfit">
                 Provide us with further insights into your preferences
               </Text>
 

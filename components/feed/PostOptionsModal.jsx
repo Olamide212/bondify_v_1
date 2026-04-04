@@ -12,16 +12,16 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import BaseModal from "../modals/BaseModal";
 
 const OPTIONS = [
-  { key: "share",  label: "Share",     icon: Share2,    color: "#333" },
-  { key: "save",   label: "Save",      icon: Bookmark,  color: "#333" },
-  { key: "follow", label: "Follow",    icon: UserPlus,  color: "#333" },
-  { key: "mute",   label: "Mute post", icon: VolumeX,   color: "#333" },
+  { key: "share",  label: "Share",     icon: Share2,    color: '#D1D5DB' },
+  { key: "save",   label: "Save",      icon: Bookmark,  color: '#D1D5DB' },
+  { key: "follow", label: "Follow",    icon: UserPlus,  color: '#D1D5DB' },
+  { key: "mute",   label: "Mute post", icon: VolumeX,   color: '#D1D5DB' },
   { key: "report", label: "Report",    icon: Flag,      color: "#E53935" },
   { key: "block",  label: "Block",     icon: UserMinus, color: "#E53935" },
 ];
 
 const OWN_POST_OPTIONS = [
-  { key: "share",  label: "Share",     icon: Share2,    color: "#333" },
+  { key: "share",  label: "Share",     icon: Share2,    color: '#D1D5DB' },
   { key: "delete", label: "Delete",    icon: Trash2,    color: "#E53935" },
 ];
 
@@ -78,6 +78,6 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 16,
-    fontFamily: "PlusJakartaSansMedium",
+    fontFamily: "OutfitMedium",
   },
 });

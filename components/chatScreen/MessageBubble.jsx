@@ -41,7 +41,7 @@ const highlightText = (text, term, textStyle) => {
     <Text style={textStyle}>
       {parts.map((part, i) =>
         regex.test(part)
-          ? <Text key={i} style={{ backgroundColor: "#FBBF24", color: "#000", borderRadius: 2 }}>{part}</Text>
+          ? <Text key={i} style={{ backgroundColor: "#FBBF24", color: '#FFFFFF', borderRadius: 2 }}>{part}</Text>
           : part
       )}
     </Text>
@@ -166,7 +166,7 @@ const MessageBubble = ({ message, onReply, onEdit, onResend, highlight, isSystem
 
       {message.replyTo && (
         <View style={{
-          backgroundColor: '#F3F4F6',
+          backgroundColor: '#1E1E1E',
           borderLeftWidth: 3,
           borderLeftColor: colors.primary,
           paddingVertical: 4,
@@ -182,15 +182,15 @@ const MessageBubble = ({ message, onReply, onEdit, onResend, highlight, isSystem
           {message.replyTo.type === 'image' && message.replyTo.imageUrl ? (
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
               <User size={14} color={'#9CA3AF'} />
-              <Text style={{ color: '#6B7280', fontSize: 13 }}>[Image]</Text>
+              <Text style={{ color: '#9CA3AF', fontSize: 13 }}>[Image]</Text>
             </View>
           ) : message.replyTo.type === 'voice' ? (
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
               <Mic size={14} color={'#9CA3AF'} />
-              <Text style={{ color: '#6B7280', fontSize: 13 }}>[Voice note]</Text>
+              <Text style={{ color: '#9CA3AF', fontSize: 13 }}>[Voice note]</Text>
             </View>
           ) : (
-            <Text style={{ color: '#6B7280', fontSize: 13 }} numberOfLines={2}>
+            <Text style={{ color: '#9CA3AF', fontSize: 13 }} numberOfLines={2}>
               {message.replyTo.text}
             </Text>
           )}
@@ -385,7 +385,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 4,
   },
   theirBubble: {
-    backgroundColor: '#f1f1f1',
+    backgroundColor: '#1E1E1E',
     borderTopLeftRadius: 4,
   },
   failedBubble: {
@@ -394,17 +394,17 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: 15,
-    fontFamily: fonts.PlusJakartaSans,
+    fontFamily: fonts.Outfit,
     lineHeight: 20,
   },
   myText: {
     color: "#fff",
-    fontFamily: fonts.PlusJakartaSans,
+    fontFamily: fonts.Outfit,
     lineHeight: 20,
   },
   theirText: {
-    color: "#1F2937",
-        fontFamily: fonts.PlusJakartaSans,
+    color: '#E5E7EB',
+        fontFamily: fonts.Outfit,
         lineHeight: 20,
   },
   image: {
@@ -417,7 +417,7 @@ const styles = StyleSheet.create({
     height: 150,
     borderRadius: 12,
     overflow: "hidden",
-    backgroundColor: "#F8FAFC",
+    backgroundColor: '#1E1E1E',
   },
   failedImageWrapper: {
     borderWidth: 1,
@@ -426,7 +426,7 @@ const styles = StyleSheet.create({
   imagePlaceholder: {
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#F8FAFC",
+    backgroundColor: '#1E1E1E',
   },
   imageLoadingOverlay: {
     ...StyleSheet.absoluteFillObject,
@@ -445,9 +445,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
   },
   theirVoice: {
-    backgroundColor: "#fff",
+    backgroundColor: "#121212",
     borderWidth: 1,
-    borderColor: "#E5E7EB",
+    borderColor: '#374151',
   },
   failedVoice: {
     borderWidth: 1,
@@ -464,7 +464,7 @@ const styles = StyleSheet.create({
     color: "#fff",
   },
   theirDuration: {
-    color: "#6B7280",
+    color: '#9CA3AF',
   },
   meta: {
     flexDirection: "row",
@@ -489,7 +489,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
   },
   menuSheet: {
-    backgroundColor: "#fff",
+    backgroundColor: "#121212",
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     paddingTop: 16,
@@ -509,7 +509,7 @@ const styles = StyleSheet.create({
   },
   menuDivider: {
     height: 1,
-    backgroundColor: "#F0F0F0",
+    backgroundColor: '#1E1E1E',
     marginVertical: 8,
   },
   menuItem: {
@@ -518,19 +518,19 @@ const styles = StyleSheet.create({
   },
   menuItemText: {
     fontSize: 16,
-    color: "#111",
-    fontFamily: fonts.PlusJakartaSans,
+    color: '#E5E5E5',
+    fontFamily: fonts.Outfit,
   },
   reactionBadge: {
     position: "absolute",
     bottom: -6,
     zIndex: 10,
-    backgroundColor: "#fff",
+    backgroundColor: "#121212",
     borderRadius: 12,
     paddingHorizontal: 4,
     paddingVertical: 2,
     borderWidth: 1,
-    borderColor: "#E5E7EB",
+    borderColor: '#374151',
   },
   reactionBadgeLeft: {
     left: 20,

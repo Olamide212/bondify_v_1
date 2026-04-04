@@ -1,15 +1,15 @@
 import { useRouter } from "expo-router";
 import {
-  Baby, BookOpen, ChevronRight, Cigarette, Dumbbell,
-  Flag,
-  Globe, Heart, HeartHandshake, MessageCircleHeart,
-  PawPrint,
-  Ruler, Sparkles, Users, Wallet, Wine, X
+    Baby, BookOpen, ChevronRight, Cigarette, Dumbbell,
+    Flag,
+    Globe, Heart, HeartHandshake, MessageCircleHeart,
+    PawPrint,
+    Ruler, Sparkles, Users, Wallet, Wine, X
 } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import {
-  ActivityIndicator, ScrollView, StyleSheet,
-  Text, TouchableOpacity, View,
+    ActivityIndicator, ScrollView, StyleSheet,
+    Text, TouchableOpacity, View,
 } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import NationalityModal from "../../components/modals/NationalityModal";
@@ -53,7 +53,7 @@ const InfoRow = ({ icon: Icon, title, displayValue, isLast, onPress }) => (
     activeOpacity={0.7}
   >
     <View style={s.rowLeft}>
-      <Icon size={18} color="#000" />
+      <Icon size={18} color="#fff" />
       <Text style={s.rowTitle}>{title}</Text>
     </View>
     <View style={s.rowRight}>
@@ -62,7 +62,7 @@ const InfoRow = ({ icon: Icon, title, displayValue, isLast, onPress }) => (
       ) : (
         <Text style={s.rowAdd}>Add</Text>
       )}
-      <ChevronRight size={15} color="#ccc" />
+      <ChevronRight size={15} color="#fff" />
     </View>
   </TouchableOpacity>
 );
@@ -154,11 +154,11 @@ const MyInfo = ({ profile, onUpdateField }) => {
 
   return (
     <View style={s.container}>
-      {anyLoading && (
+      {/* {anyLoading && (
         <View style={s.loadingRow}>
           <ActivityIndicator color={colors.primary} />
         </View>
-      )}
+      )} */}
 
       {/* ── INTERESTS ───────────────────────────────────────────────────── */}
      
@@ -177,7 +177,7 @@ const MyInfo = ({ profile, onUpdateField }) => {
           <View style={s.lifestyleGrid}>
             {lifestyleItems.map(({ label, icon: Icon }, i) => (
               <View key={i} style={s.lifestyleChip}>
-                <Icon size={15} color="#000" strokeWidth={1.8} />
+                <Icon size={15} color="#fff" strokeWidth={1.8} />
                 <Text style={s.lifestyleChipText}>{label}</Text>
               </View>
             ))}
@@ -358,7 +358,7 @@ const MyInfo = ({ profile, onUpdateField }) => {
       {/* ── OPTION PICKER MODAL ──────────────────────────────────────────── */}
       <BaseModal visible={!!activeModal} onClose={() => setActiveModal(null)} fullScreen>
         <SafeAreaProvider>
-          <SafeAreaView style={{ flex: 1, backgroundColor: '#fff', padding: 24 }}>
+          <SafeAreaView style={{ flex: 1, backgroundColor: '#121212', padding: 24 }}>
             <View style={s.modalHeader}>
               <TouchableOpacity onPress={() => setActiveModal(null)}>
                 <X color="#111" />
@@ -461,7 +461,7 @@ const s = StyleSheet.create({
   // Section title above each card
   sectionTitle: {
     fontSize:   13,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: 'OutfitBold',
     color:      '#9CA3AF',
     textTransform: 'uppercase',
     letterSpacing: 0.8,
@@ -472,10 +472,10 @@ const s = StyleSheet.create({
 
   // White card
   card: {
-    backgroundColor: '#fff',
-    borderRadius:    16,
+    backgroundColor: 'rgba(255,255,255,0.02)',
+    borderRadius:    12,
     borderWidth:     1,
-    borderColor:     '#F3F4F6',
+    borderColor:     'rgba(255,255,255,0.1)',
     overflow:        'hidden',
     paddingHorizontal: 16,
   },
@@ -489,7 +489,7 @@ const s = StyleSheet.create({
   },
   rowBorder: {
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#F3F4F6',
+    borderBottomColor: colors.whiteLight,
   },
   rowLeft: {
     flexDirection: 'row',
@@ -499,8 +499,8 @@ const s = StyleSheet.create({
   },
   rowTitle: {
     fontSize:   16,
-    fontFamily: 'PlusJakartaSansSemiBold',
-    color:      '#111',
+    fontFamily: 'OutfitSemiBold',
+    color: '#E5E5E5',
     flexShrink: 1,
   },
   rowRight: {
@@ -511,13 +511,13 @@ const s = StyleSheet.create({
   },
   rowValue: {
     fontSize:   13,
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: 'OutfitMedium',
     color:      '#9CA3AF',
     flexShrink: 1,
   },
   rowAdd: {
     fontSize:   13,
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: 'OutfitMedium',
     color:      colors.secondary,
   },
 
@@ -530,12 +530,12 @@ const s = StyleSheet.create({
   },
   interestsSub: {
     fontSize:   13,
-    fontFamily: 'PlusJakartaSans',
+    fontFamily: 'Outfit',
     color:      '#9CA3AF',
   },
   viewAll: {
     fontSize:   14,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: 'OutfitBold',
     color:      '#E8651A',
   },
   chipsRow: {
@@ -555,24 +555,24 @@ const s = StyleSheet.create({
   },
   chipSelectedText: {
     fontSize:   14,
-    fontFamily: 'PlusJakartaSansSemiBold',
+    fontFamily: 'OutfitSemiBold',
     color:      '#fff',
   },
   chipEmpty: {
     flexDirection:     'row',
     alignItems:        'center',
     gap:               5,
-    backgroundColor:   '#F9FAFB',
+    backgroundColor: '#1E1E1E',
     paddingHorizontal: 12,
     paddingVertical:   10,
     borderRadius:      99,
     borderWidth:       1,
-    borderColor:       '#E5E7EB',
+    borderColor: '#374151',
   },
   chipEmptyText: {
     fontSize:   14,
-    fontFamily: 'PlusJakartaSansMedium',
-    color:      '#374151',
+    fontFamily: 'OutfitMedium',
+    color: '#D1D5DB',
   },
 
   // ── Lifestyle preview grid ──
@@ -586,7 +586,7 @@ const s = StyleSheet.create({
     flexDirection:     'row',
     alignItems:        'center',
     gap:               7,
-    backgroundColor:   '#F3F4F6',
+    backgroundColor: '#1E1E1E',
     paddingHorizontal: 12,
     paddingVertical:   9,
     borderRadius:      99,
@@ -595,8 +595,8 @@ const s = StyleSheet.create({
   },
   lifestyleChipText: {
     fontSize:   13,
-    fontFamily: 'PlusJakartaSansMedium',
-    color:      '#374151',
+    fontFamily: 'OutfitMedium',
+    color: '#D1D5DB',
     flexShrink: 1,
   },
 
@@ -606,7 +606,7 @@ const s = StyleSheet.create({
   },
   emptyText: {
     fontSize:   13,
-    fontFamily: 'PlusJakartaSans',
+    fontFamily: 'Outfit',
     color:      '#9CA3AF',
   },
 
@@ -619,17 +619,17 @@ const s = StyleSheet.create({
   },
   modalTitle: {
     fontSize:   17,
-    fontFamily: 'PlusJakartaSansBold',
-    color:      '#111',
+    fontFamily: 'OutfitBold',
+    color: '#E5E5E5',
   },
   optionBtn: {
     paddingVertical:   14,
     paddingHorizontal: 24,
     borderRadius:      99,
     marginBottom:      10,
-    backgroundColor:   '#F3F4F6',
+    backgroundColor: '#1E1E1E',
     borderWidth:       1,
-    borderColor:       '#E5E7EB',
+    borderColor: '#374151',
   },
   optionBtnSelected: {
     backgroundColor: colors.primary,
@@ -637,8 +637,8 @@ const s = StyleSheet.create({
   },
   optionText: {
     fontSize:   16,
-    fontFamily: 'PlusJakartaSansMedium',
-    color:      '#111',
+    fontFamily: 'OutfitMedium',
+    color: '#E5E5E5',
     textAlign:  'center',
     textTransform: 'capitalize',
   },

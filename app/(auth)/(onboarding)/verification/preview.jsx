@@ -96,11 +96,11 @@ export default function PreviewScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#000" },
   image: { flex: 1 },
-  actions: { backgroundColor: "#fff", paddingHorizontal: 24, paddingTop: 20, paddingBottom: 36 },
-  label: { fontSize: 17, fontFamily: "PlusJakartaSansBold", color: "#111", textAlign: "center", marginBottom: 4 },
-  sublabel: { fontSize: 13, fontFamily: "PlusJakartaSans", color: "#9CA3AF", textAlign: "center", marginBottom: 20 },
+  actions: { backgroundColor: "#121212", paddingHorizontal: 24, paddingTop: 20, paddingBottom: 36 },
+  label: { fontSize: 17, fontFamily: "OutfitBold", color: '#E5E5E5', textAlign: "center", marginBottom: 4 },
+  sublabel: { fontSize: 13, fontFamily: "Outfit", color: "#9CA3AF", textAlign: "center", marginBottom: 20 },
   submitBtn: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, backgroundColor: PRIMARY, borderRadius: 99, paddingVertical: 16, marginBottom: 12 },
-  submitText: { fontSize: 16, fontFamily: "PlusJakartaSansBold", color: "#fff" },
+  submitText: { fontSize: 16, fontFamily: "OutfitBold", color: "#fff" },
   retakeBtn: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6, paddingVertical: 12 },
-  retakeText: { fontSize: 15, fontFamily: "PlusJakartaSansSemiBold", color: PRIMARY },
+  retakeText: { fontSize: 15, fontFamily: "OutfitSemiBold", color: PRIMARY },
 });

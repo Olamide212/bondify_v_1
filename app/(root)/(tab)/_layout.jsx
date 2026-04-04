@@ -188,7 +188,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: 92,
-    backgroundColor: "#fff",
+    backgroundColor: "#121212",
     borderTopWidth: 0,
     elevation: 8,
     paddingBottom: Platform.OS === "ios" ? 0 : 6,

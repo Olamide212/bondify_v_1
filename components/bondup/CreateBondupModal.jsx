@@ -218,7 +218,7 @@ function ActivitySelectionModal({ visible, onClose, selectedActivity, onSelectAc
 const asm = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#121212',
   },
   header: {
     flexDirection: 'row',
@@ -226,8 +226,8 @@ const asm = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
+    // borderBottomWidth: 1,
+    // borderBottomColor: '#333333',
   },
   cancelBtn: {
     paddingVertical: 8,
@@ -235,13 +235,13 @@ const asm = StyleSheet.create({
   },
   cancelText: {
     fontSize: 16,
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: 'OutfitMedium',
     color: BRAND,
   },
   headerTitle: {
     fontSize: 18,
-    fontFamily: 'PlusJakartaSansBold',
-    color: '#111',
+    fontFamily: 'OutfitBold',
+    color: '#E5E5E5',
   },
   scrollContent: {
     padding: 16,
@@ -249,8 +249,8 @@ const asm = StyleSheet.create({
   },
   subtitle: {
     fontSize: 20,
-    fontFamily: 'PlusJakartaSansBold',
-    color: '#111',
+    fontFamily: 'OutfitBold',
+    color: '#E5E5E5',
     marginBottom: 24,
     textAlign: 'center',
   },
@@ -259,7 +259,7 @@ const asm = StyleSheet.create({
   },
   categoryTitle: {
     fontSize: 16,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: 'OutfitBold',
     color: BRAND,
     marginBottom: 12,
   },
@@ -274,7 +274,7 @@ const asm = StyleSheet.create({
     borderRadius: 20,
     borderWidth: 1,
     borderColor: '#D1D1D1',
-    backgroundColor: '#fff',
+    backgroundColor: '#121212',
     minWidth: 80,
     alignItems: 'center',
   },
@@ -284,12 +284,12 @@ const asm = StyleSheet.create({
   },
   activityLabel: {
     fontSize: 14,
-    fontFamily: 'PlusJakartaSansMedium',
-    color: '#111',
+    fontFamily: 'OutfitMedium',
+    color: '#E5E5E5',
   },
   activityLabelSelected: {
     color: '#fff',
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: 'OutfitBold',
   },
 });
 
@@ -789,9 +789,9 @@ const s = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
-    backgroundColor: '#fff',
+    // borderBottomWidth: 1,
+    // borderBottomColor: '#333333',
+    backgroundColor: '#121212',
   },
   cancelBtn: {
     paddingHorizontal: 4,
@@ -799,13 +799,13 @@ const s = StyleSheet.create({
   },
   cancelText: {
     fontSize: 15,
-    fontFamily: 'PlusJakartaSansMedium',
-    color: '#555',
+    fontFamily: 'OutfitMedium',
+    color: '#9CA3AF',
   },
   headerTitle: {
     fontSize: 17,
-    fontFamily: 'PlusJakartaSansBold',
-    color: '#111',
+    fontFamily: 'OutfitBold',
+    color: '#E5E5E5',
   },
   postBtn: {
     backgroundColor: BRAND,
@@ -818,19 +818,19 @@ const s = StyleSheet.create({
   },
   postBtnText: {
     fontSize: 14,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: 'OutfitBold',
     color: '#fff',
   },
 
   scrollContent: {
     paddingHorizontal: 16,
     paddingTop: 20,
-    backgroundColor: '#fff',
+    backgroundColor: '#121212',
   },
 
   sectionLabel: {
     fontSize: 11,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: 'OutfitBold',
     color: '#888',
     letterSpacing: 1.2,
     marginBottom: 8,
@@ -838,7 +838,7 @@ const s = StyleSheet.create({
   },
 
   card: {
-    backgroundColor: '#fff',
+    backgroundColor: '#121212',
     borderRadius: 16,
     paddingHorizontal: 14,
     paddingVertical: 4,
@@ -851,20 +851,20 @@ const s = StyleSheet.create({
   },
   titleInput: {
     fontSize: 15,
-    fontFamily: 'PlusJakartaSans',
-    color: '#111',
+    fontFamily: 'Outfit',
+    color: '#E5E5E5',
     paddingVertical: 14,
   },
   descInput: {
     fontSize: 14,
-    fontFamily: 'PlusJakartaSans',
-    color: '#111',
+    fontFamily: 'Outfit',
+    color: '#E5E5E5',
     paddingVertical: 12,
     minHeight: 72,
   },
   inputDivider: {
     height: 1,
-    backgroundColor: '#F0F0F0',
+    backgroundColor: '#1E1E1E',
   },
 
   // Activity grid
@@ -885,7 +885,7 @@ const s = StyleSheet.create({
   },
   requiredText: {
     fontSize: 10,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: 'OutfitBold',
     color: BRAND,
     letterSpacing: 0.5,
   },
@@ -898,15 +898,15 @@ const s = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 1.5,
     borderColor: BRAND,
-    backgroundColor: '#fff',
+    backgroundColor: '#121212',
     marginBottom: 18,
   },
   activitySelectButtonEmpty: {
-    borderColor: '#E5E7EB',
+    borderColor: '#374151',
   },
   activitySelectText: {
     fontSize: 16,
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: 'OutfitMedium',
     color: BRAND,
   },
   activitySelectTextEmpty: {
@@ -933,12 +933,12 @@ const s = StyleSheet.create({
   },
   whenDayText: {
     fontSize: 15,
-    fontFamily: 'PlusJakartaSansBold',
-    color: '#111',
+    fontFamily: 'OutfitBold',
+    color: '#E5E5E5',
   },
   whenTimeText: {
     fontSize: 13,
-    fontFamily: 'PlusJakartaSans',
+    fontFamily: 'Outfit',
     color: '#888',
     marginTop: 2,
   },
@@ -954,7 +954,7 @@ const s = StyleSheet.create({
   },
   changeTimeBtnText: {
     fontSize: 12,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: 'OutfitBold',
     color: BRAND,
   },
 
@@ -968,8 +968,8 @@ const s = StyleSheet.create({
   whereInput: {
     flex: 1,
     fontSize: 15,
-    fontFamily: 'PlusJakartaSans',
-    color: '#111',
+    fontFamily: 'Outfit',
+    color: '#E5E5E5',
     paddingVertical: 4,
   },
 
@@ -984,12 +984,12 @@ const s = StyleSheet.create({
   },
   mapToggleBtnText: {
     fontSize: 14,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: 'OutfitBold',
     color: BRAND,
   },
   mapContainer: {
     marginBottom: 18,
-    backgroundColor: '#fff',
+    backgroundColor: '#121212',
     borderRadius: 16,
     overflow: 'hidden',
     shadowColor: '#000',
@@ -1000,21 +1000,21 @@ const s = StyleSheet.create({
   },
   addressSearchInput: {
     fontSize: 14,
-    fontFamily: 'PlusJakartaSans',
-    color: '#111',
+    fontFamily: 'Outfit',
+    color: '#E5E5E5',
     paddingHorizontal: 12,
     paddingVertical: 10,
     borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
-    backgroundColor: '#fff',
+    borderBottomColor: '#333333',
+    backgroundColor: '#121212',
   },
   geocodingError: {
     fontSize: 12,
-    fontFamily: 'PlusJakartaSans',
+    fontFamily: 'Outfit',
     color: '#EF4444',
     paddingHorizontal: 12,
     paddingVertical: 6,
-    backgroundColor: '#FEF2F2',
+    backgroundColor: '#2A1A1A',
   },
   map: {
     width: '100%',
@@ -1022,11 +1022,11 @@ const s = StyleSheet.create({
   },
   mapHint: {
     fontSize: 11,
-    fontFamily: 'PlusJakartaSans',
+    fontFamily: 'Outfit',
     color: '#888',
     paddingHorizontal: 12,
     paddingVertical: 8,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: '#1E1E1E',
     textAlign: 'center',
   },
 
@@ -1038,10 +1038,10 @@ const s = StyleSheet.create({
   },
   visibilityCard: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#121212',
     borderRadius: 16,
     borderWidth: 1.5,
-    borderColor: '#E5E7EB',
+    borderColor: '#374151',
     padding: 14,
     alignItems: 'center',
     gap: 6,
@@ -1057,15 +1057,15 @@ const s = StyleSheet.create({
   },
   visibilityCardTitle: {
     fontSize: 14,
-    fontFamily: 'PlusJakartaSansBold',
-    color: '#555',
+    fontFamily: 'OutfitBold',
+    color: '#9CA3AF',
   },
   visibilityCardTitleActive: {
     color: BRAND,
   },
   visibilityCardDesc: {
     fontSize: 11,
-    fontFamily: 'PlusJakartaSans',
+    fontFamily: 'Outfit',
     color: '#999',
     textAlign: 'center',
   },
@@ -1081,7 +1081,7 @@ const s = StyleSheet.create({
   },
   advancedToggleText: {
     fontSize: 14,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: 'OutfitBold',
     color: BRAND,
   },
   advancedSection: {
@@ -1089,7 +1089,7 @@ const s = StyleSheet.create({
   },
   advancedLabel: {
     fontSize: 11,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: 'OutfitBold',
     color: '#888',
     letterSpacing: 1.2,
     marginBottom: 8,
@@ -1101,10 +1101,10 @@ const s = StyleSheet.create({
   },
   postTypeCard: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#121212',
     borderRadius: 14,
     borderWidth: 1.5,
-    borderColor: '#E5E7EB',
+    borderColor: '#374151',
     padding: 14,
     alignItems: 'center',
     gap: 4,
@@ -1116,13 +1116,13 @@ const s = StyleSheet.create({
   postTypeEmoji: { fontSize: 24 },
   postTypeLabel: {
     fontSize: 13,
-    fontFamily: 'PlusJakartaSansBold',
-    color: '#555',
+    fontFamily: 'OutfitBold',
+    color: '#9CA3AF',
   },
   postTypeLabelActive: { color: BRAND },
   postTypeDesc: {
     fontSize: 11,
-    fontFamily: 'PlusJakartaSans',
+    fontFamily: 'Outfit',
     color: '#999',
     textAlign: 'center',
   },
@@ -1132,7 +1132,7 @@ const s = StyleSheet.create({
 const tp = StyleSheet.create({
   sheet: {
     borderTopWidth: 1,
-    borderTopColor: '#F0F0F0',
+    borderTopColor: '#333333',
     paddingTop: 14,
     paddingBottom: 8,
   },
@@ -1144,20 +1144,20 @@ const tp = StyleSheet.create({
   },
   sheetTitle: {
     fontSize: 15,
-    fontFamily: 'PlusJakartaSansBold',
-    color: '#111',
+    fontFamily: 'OutfitBold',
+    color: '#E5E5E5',
   },
   sheetClose: {
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: '#1E1E1E',
     justifyContent: 'center',
     alignItems: 'center',
   },
   sheetLabel: {
     fontSize: 12,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: 'OutfitBold',
     color: '#888',
     marginBottom: 8,
     letterSpacing: 0.5,
@@ -1166,24 +1166,24 @@ const tp = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 10,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: '#1E1E1E',
     borderWidth: 1.5,
     borderColor: 'transparent',
   },
   dayChipActive: { borderColor: BRAND, backgroundColor: colors.primaryLight },
-  dayChipText: { fontSize: 12, fontFamily: 'PlusJakartaSansMedium', color: '#555' },
-  dayChipTextActive: { color: BRAND, fontFamily: 'PlusJakartaSansBold' },
+  dayChipText: { fontSize: 12, fontFamily: 'OutfitMedium', color: '#9CA3AF' },
+  dayChipTextActive: { color: BRAND, fontFamily: 'OutfitBold' },
   timeChip: {
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 10,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: '#1E1E1E',
     borderWidth: 1.5,
     borderColor: 'transparent',
   },
   timeChipActive: { borderColor: BRAND, backgroundColor: colors.primaryLight },
-  timeChipText: { fontSize: 12, fontFamily: 'PlusJakartaSansMedium', color: '#555' },
-  timeChipTextActive: { color: BRAND, fontFamily: 'PlusJakartaSansBold' },
+  timeChipText: { fontSize: 12, fontFamily: 'OutfitMedium', color: '#9CA3AF' },
+  timeChipTextActive: { color: BRAND, fontFamily: 'OutfitBold' },
   doneBtn: {
     marginTop: 14,
     backgroundColor: BRAND,
@@ -1193,7 +1193,7 @@ const tp = StyleSheet.create({
   },
   doneBtnText: {
     fontSize: 14,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: 'OutfitBold',
     color: '#fff',
   },
 });

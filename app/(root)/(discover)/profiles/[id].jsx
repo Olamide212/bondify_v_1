@@ -288,10 +288,10 @@ const ProfileScreen = () => {
           {/* Center: Name & Age */}
           <View style={styles.centerContent}>
             <View style={styles.nameContainer}>
-              <Text className="text-black text-xl font-PlusJakartaSansBold mr-2">
+              <Text className="text-white text-xl font-OutfitBold mr-2">
                 {currentProfile.name}
               </Text>
-              <Text className="text-black text-xl font-PlusJakartaSans">
+              <Text className="text-white text-xl font-Outfit">
                 {currentProfile.age}
               </Text>
               {currentProfile.verified && (
@@ -356,7 +356,7 @@ const ProfileScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#121212",
   },
   header: {
     flexDirection: "row",
@@ -385,7 +385,7 @@ const styles = StyleSheet.create({
   },
   noResultsSubtext: {
     fontSize: 16,
-    color: "#666",
+    color: '#9CA3AF',
     textAlign: "center",
   },
   staticHeader: {
@@ -421,7 +421,7 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     right: 0,
-    backgroundColor: "white",
+    backgroundColor: "#121212",
     paddingTop: 60,
     paddingBottom: 15,
     alignItems: "center",
@@ -476,7 +476,7 @@ const styles = StyleSheet.create({
     bottom: 30,
     left: 20,
     right: 20,
-    backgroundColor: "white",
+    backgroundColor: "#121212",
     borderRadius: 20,
     padding: 20,
     alignItems: "center",
@@ -500,7 +500,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 20,
     textAlign: "center",
-    color: "#666",
+    color: '#9CA3AF',
   },
   noMoreButtons: {
     flexDirection: "row",

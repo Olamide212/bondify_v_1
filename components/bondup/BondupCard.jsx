@@ -6,7 +6,8 @@ import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { Clock, MapPin, Users } from 'lucide-react-native';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { colors } from '../../constant/colors';
+import { colors, styles } from '../../constant/colors';
+
 
 const BRAND = colors.primary;
 
@@ -102,9 +103,9 @@ export default function BondupCard({
       activeOpacity={0.88}
     >
       {/* Background layers */}
-      <View style={s.cardBackground}>
-        <View style={s.cardGradient} />
-        <View style={s.cardPattern} />
+      <View style={styles.boxContainer}>
+        {/* <View style={s.cardGradient} />
+        <View style={s.cardPattern} /> */}
 
         {/* ── Top row: avatar | name + time | category badge ── */}
         <View style={s.topRow}>
@@ -170,11 +171,11 @@ export default function BondupCard({
       {/* ── Info chips: time + spots ── */}
       <View style={s.infoRow}>
         <View style={s.infoChip}>
-          <Clock size={13} color={BRAND} />
+          <Clock size={13} color={colors.white} />
           <Text style={s.infoChipText}>{formatDateTime(bondup.dateTime)}</Text>
         </View>
         <View style={[s.infoChip, s.infoChipRight]}>
-          <Users size={13} color={BRAND} />
+          <Users size={13} color={colors.white} />
           <Text style={s.infoChipText}>{spotsText}</Text>
         </View>
       </View>
@@ -236,13 +237,13 @@ const s = StyleSheet.create({
     shadowRadius: 16,
     elevation: 8,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: '#374151',
   },
-  cardBackground: {
-    backgroundColor: '#fff',
-    padding: 20,
-    position: 'relative',
-  },
+  // cardBackground: {
+  //   backgroundColor: '#121212',
+  //   padding: 20,
+  //   position: 'relative',
+  // },
   cardGradient: {
     position: 'absolute',
     top: 0,
@@ -274,7 +275,7 @@ const s = StyleSheet.create({
     height: 60,
     borderRadius: 30,
     borderWidth: 3,
-    borderColor: '#fff',
+    borderColor: colors.primary,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -289,7 +290,7 @@ const s = StyleSheet.create({
   creatorInitial: {
     color: '#fff',
     fontSize: 20,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: 'OutfitBold',
   },
   creatorMeta: {
     flex: 1,
@@ -297,17 +298,18 @@ const s = StyleSheet.create({
   },
   creatorName: {
     fontSize: 16,
-    fontFamily: 'PlusJakartaSansBold',
-    color: '#1f2937',
+    fontFamily: 'OutfitBold',
+    color: colors.white,
     marginBottom: 2,
+    textTransform: 'capitalize'
   },
   timeAgoText: {
     fontSize: 12,
-    fontFamily: 'PlusJakartaSans',
+    fontFamily: 'Outfit',
     color: '#6b7280',
   },
   categoryBadge: {
-    backgroundColor: colors.secondary,
+    backgroundColor: colors.primary,
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 12,
@@ -320,7 +322,7 @@ const s = StyleSheet.create({
   categoryText: {
     color: '#fff',
     fontSize: 10,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: 'OutfitBold',
     letterSpacing: 0.5,
   },
 
@@ -334,8 +336,8 @@ const s = StyleSheet.create({
   },
   locationText: {
     fontSize: 13,
-    fontFamily: 'PlusJakartaSansMedium',
-    color: '#6b7280',
+    fontFamily: 'OutfitMedium',
+    color: colors.white,
     flex: 1,
   },
 
@@ -344,7 +346,7 @@ const s = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 5,
-    backgroundColor: '#FFF7ED',
+    backgroundColor: colors.primaryLight,
     alignSelf: 'flex-start',
     paddingHorizontal: 10,
     paddingVertical: 4,
@@ -361,24 +363,24 @@ const s = StyleSheet.create({
   },
   liveText: {
     fontSize: 11,
-    fontFamily: 'PlusJakartaSansBold',
-    color: '#F97316',
+    fontFamily: 'OutfitBold',
+    color: '#fff',
     letterSpacing: 0.5,
   },
 
   // Title + description
   title: {
     fontSize: 20,
-    fontFamily: 'PlusJakartaSansBold',
-    color: '#1f2937',
+    fontFamily: 'OutfitBold',
+    color: colors.white,
     lineHeight: 26,
     marginBottom: 6,
     zIndex: 10,
   },
   description: {
     fontSize: 14,
-    fontFamily: 'PlusJakartaSans',
-    color: '#6b7280',
+    fontFamily: 'Outfit',
+    color: colors.white,
     lineHeight: 20,
     marginBottom: 12,
     zIndex: 10,
@@ -406,13 +408,13 @@ const s = StyleSheet.create({
   infoChipRight: {},
   infoChipText: {
     fontSize: 12,
-    fontFamily: 'PlusJakartaSansMedium',
-    color: BRAND,
+    fontFamily: 'OutfitMedium',
+    color: colors.white,
   },
 
   // Buttons
   joinBtn: {
-    backgroundColor: BRAND,
+    backgroundColor: colors.primary,
     paddingVertical: 14,
     borderRadius: 16,
     alignItems: 'center',
@@ -427,7 +429,7 @@ const s = StyleSheet.create({
   joinBtnText: {
     color: '#fff',
     fontSize: 15,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: 'OutfitBold',
   },
   joinedBtn: {
     paddingVertical: 14,
@@ -442,20 +444,20 @@ const s = StyleSheet.create({
   joinedBtnText: {
     color: '#059669',
     fontSize: 15,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: 'OutfitBold',
   },
   fullBtn: {
     paddingVertical: 14,
     borderRadius: 16,
     alignItems: 'center',
-    backgroundColor: '#F3F4F6',
+    backgroundColor: '#1E1E1E',
     width: 160,
     zIndex: 10,
   },
   fullBtnText: {
     color: '#9CA3AF',
     fontSize: 15,
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: 'OutfitMedium',
   },
   manageBtn: {
     paddingVertical: 14,
@@ -470,7 +472,7 @@ const s = StyleSheet.create({
   manageBtnText: {
     color: BRAND,
     fontSize: 15,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: 'OutfitBold',
   },
 
   // Joined buttons container
@@ -496,7 +498,7 @@ const s = StyleSheet.create({
   chatBtnText: {
     color: '#fff',
     fontSize: 14,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: 'OutfitBold',
   },
   exitBtn: {
     paddingVertical: 14,
@@ -504,12 +506,12 @@ const s = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 2,
     borderColor: '#EF4444',
-    backgroundColor: '#FEF2F2',
+    backgroundColor: '#2A1A1A',
     flex: 1,
   },
   exitBtnText: {
     color: '#EF4444',
     fontSize: 14,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: 'OutfitBold',
   },
 });

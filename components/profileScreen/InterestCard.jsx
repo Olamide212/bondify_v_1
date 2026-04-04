@@ -78,12 +78,12 @@ export default InterestsCard;
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor:  '#fff',
-    borderRadius:     16,
+    backgroundColor: 'rgba(255,255,255,0.02)',
+    borderRadius:     12,
     marginHorizontal: 16,
     padding:          20,
     borderWidth:      1,
-    borderColor:      '#F3F4F6',
+    borderColor:      'rgba(255,255,255,0.1)',
   },
   header: {
     flexDirection:  'row',
@@ -93,18 +93,18 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize:   20,
-    fontFamily: 'PlusJakartaSansBold',
-    color:      '#111',
+    fontFamily: 'OutfitBold',
+    color: '#E5E5E5',
   },
   subtitle: {
     fontSize:   13,
-    fontFamily: 'PlusJakartaSans',
+    fontFamily: 'Outfit',
     color:      '#9CA3AF',
     marginTop:  2,
   },
   viewAll: {
     fontSize:   15,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: 'OutfitBold',
     color:      colors.primary,
   },
   chipsRow: {
@@ -116,30 +116,30 @@ const styles = StyleSheet.create({
     flexDirection:     'row',
     alignItems:        'center',
     gap:               8,
-    backgroundColor:   colors.secondary,
+    backgroundColor:   colors.primary,
     paddingHorizontal: 18,
     paddingVertical:   12,
     borderRadius:      99,
   },
   chipSelectedText: {
     fontSize:   15,
-    fontFamily: 'PlusJakartaSansSemiBold',
+    fontFamily: 'OutfitSemiBold',
     color:      '#fff',
   },
   chipEmpty: {
     flexDirection:     'row',
     alignItems:        'center',
     gap:               6,
-    backgroundColor:   '#F9FAFB',
+    backgroundColor: '#1E1E1E',
     paddingHorizontal: 16,
     paddingVertical:   12,
     borderRadius:      99,
     borderWidth:       1,
-    borderColor:       '#E5E7EB',
+    borderColor: '#374151',
   },
   chipEmptyText: {
     fontSize:   15,
-    fontFamily: 'PlusJakartaSansMedium',
-    color:      '#374151',
+    fontFamily: 'OutfitMedium',
+    color: '#D1D5DB',
   },
 });

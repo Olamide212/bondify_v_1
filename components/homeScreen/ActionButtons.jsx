@@ -1,7 +1,9 @@
 import { BlurView } from "expo-blur";
+import { LinearGradient } from "expo-linear-gradient";
 import { Heart, RotateCcw, Sparkles, X } from "lucide-react-native";
 import { memo } from "react";
 import { TouchableOpacity, View } from "react-native";
+import { colors } from "../../constant/colors";
 
 /**
  * ActionButtons
@@ -22,7 +24,7 @@ const ActionButtons = ({ onSwipe, onCompliment, onRewind, Redo = false }) => (
       className="w-[60px] h-[60px] rounded-full overflow-hidden"
     >
       <BlurView
-        intensity={30}
+        intensity={15}
         tint="light"
         className="flex-1 items-center justify-center border border-white/20"
       >
@@ -55,13 +57,13 @@ const ActionButtons = ({ onSwipe, onCompliment, onRewind, Redo = false }) => (
         activeOpacity={0.8}
         className="w-[50px] h-[50px] rounded-full overflow-hidden"
       >
-        <View
-          intensity={25}
+        <BlurView
+          intensity={15}
           tint="light"
-          className="flex-1 items-center justify-center bg-white"
+          className="flex-1 items-center justify-center bg-[#121212] border border-white/20"
         >
-          <X size={26} color="#000" fill="#000" />
-        </View>
+          <X size={26} color="#fff" fill="#fff" />
+        </BlurView>
       </TouchableOpacity>
 
       {/* Like */}
@@ -70,13 +72,16 @@ const ActionButtons = ({ onSwipe, onCompliment, onRewind, Redo = false }) => (
         activeOpacity={0.8}
         className="w-[60px] h-[60px] rounded-full overflow-hidden"
       >
-        <View
+        <LinearGradient colors={[colors.primary, colors.secondary]} style={{flex: 1}}>
+  
+        <BlurView
           intensity={25}
           tint="light"
-          className="flex-1 items-center justify-center bg-primary"
+          className="flex-1 items-center justify-center "
         >
           <Heart size={26} color="#fff" fill="#fff" />
-        </View>
+        </BlurView>
+                </LinearGradient>
       </TouchableOpacity>
     </View>
 

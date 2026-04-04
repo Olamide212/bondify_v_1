@@ -3,23 +3,23 @@
  */
 
 import {
-  AudioModule,
-  RecordingPresets,
-  createAudioPlayer,
-  setAudioModeAsync,
-  useAudioRecorder,
-  useAudioRecorderState,
+    AudioModule,
+    RecordingPresets,
+    createAudioPlayer,
+    setAudioModeAsync,
+    useAudioRecorder,
+    useAudioRecorderState,
 } from 'expo-audio';
 import { File, Paths } from 'expo-file-system/next';
 import { Mic, Pause, Play, RefreshCw, Square, Trash2, Upload } from 'lucide-react-native';
 import { useEffect, useRef, useState } from 'react';
 import {
-  ActivityIndicator,
-  Animated,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View
+    ActivityIndicator,
+    Animated,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View
 } from 'react-native';
 import { colors } from '../../constant/colors';
 import { useAlert } from '../../context/AlertContext';
@@ -90,7 +90,7 @@ const Waveform = ({ isActive, progress = 0 }) => {
           key={i}
           style={[wv.bar, {
             height:          bar.height,
-            backgroundColor: i < filledCount ? colors.secondary : '#fff',
+            backgroundColor: i < filledCount ? colors.secondary : '#2A2A2A',
             transform:       [{ scaleY: bar.anim }],
           }]}
         />
@@ -467,18 +467,18 @@ const s = StyleSheet.create({
   outer:        { paddingHorizontal: 16, gap: 12 },
   card:         { borderRadius: 22, padding: 20, gap: 14, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 10, elevation: 3 },
   labelRow:     { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  labelText:    { fontSize: 11, fontFamily: 'PlusJakartaSansBold', color: colors.primary, letterSpacing: 1.2 },
-  promptText:   { fontSize: 22, fontFamily: 'PlusJakartaSansBold', lineHeight: 30 },
+  labelText:    { fontSize: 11, fontFamily: 'OutfitBold', color: colors.primary, letterSpacing: 1.2 },
+  promptText:   { fontSize: 22, fontFamily: 'OutfitBold', lineHeight: 30 },
   waveBox:      { backgroundColor: colors.primary, borderRadius: 14, paddingHorizontal: 14, paddingTop: 16, paddingBottom: 12, gap: 10 },
   progressTrack:{ height: 3, backgroundColor: colors.secondary, borderRadius: 2, overflow: 'hidden', opacity: 0.3 },
   progressFill: { height: 3, backgroundColor: colors.secondary, borderRadius: 2 },
   timeRow:      { flexDirection: 'row', justifyContent: 'space-between' },
-  timeLabel:    { fontSize: 11, fontFamily: 'PlusJakartaSansMedium', color: colors.secondary },
+  timeLabel:    { fontSize: 11, fontFamily: 'OutfitMedium', color: colors.secondary },
   controls:     { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 28, marginTop: 4 },
   iconBtn:      { width: 46, height: 46, borderRadius: 23, alignItems: 'center', justifyContent: 'center' },
   mainBtn:      { width: 66, height: 66, borderRadius: 33, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.primary, shadowColor: colors.primary, shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.38, shadowRadius: 12, elevation: 8 },
-  statusText:   { fontSize: 12, fontFamily: 'PlusJakartaSans', textAlign: 'center', marginTop: -4 },
+  statusText:   { fontSize: 12, fontFamily: 'Outfit', textAlign: 'center', marginTop: -4 },
   saveBtn:      { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: colors.primary, borderRadius: 50, paddingVertical: 13, marginTop: 2 },
-  saveBtnText:  { color: '#fff', fontFamily: 'PlusJakartaSansBold', fontSize: 14 },
+  saveBtnText:  { color: '#fff', fontFamily: 'OutfitBold', fontSize: 14 },
   uploadingRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
 });

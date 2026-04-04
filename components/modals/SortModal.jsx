@@ -165,12 +165,12 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-    fontFamily: "PlusJakartaSans-Bold",
-    color: "#1a1a1a",
+    fontFamily: "OutfitBold",
+    color: "#fff",
   },
   resetText: {
     fontSize: 14,
-    fontFamily: "PlusJakartaSans-Medium",
+    fontFamily: "OutfitMedium",
     color: colors.primary,
   },
   optionsContainer: {
@@ -183,7 +183,7 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     paddingHorizontal: 14,
     borderRadius: 12,
-    backgroundColor: "#f8f8f8",
+    backgroundColor: 'rgba(255,255,255,0.10)',
     borderWidth: 1.5,
     borderColor: "transparent",
   },
@@ -200,7 +200,7 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 10,
-    backgroundColor: colors.primaryLight,
+    backgroundColor: '#fff',
     alignItems: "center",
     justifyContent: "center",
   },
@@ -209,12 +209,12 @@ const styles = StyleSheet.create({
   },
   optionLabel: {
     fontSize: 15,
-    fontFamily: "PlusJakartaSans-Medium",
-    color: "#333",
+    fontFamily: "Outfit",
+    color: "#fff",
   },
   optionLabelSelected: {
     color: colors.primary,
-    fontFamily: "PlusJakartaSans-SemiBold",
+    fontFamily: "Outfit-SemiBold",
   },
   checkIcon: {
     marginRight: 4,
@@ -228,7 +228,7 @@ const styles = StyleSheet.create({
   },
   confirmButtonText: {
     fontSize: 16,
-    fontFamily: "PlusJakartaSans-Bold",
+    fontFamily: "Outfit-Bold",
     color: "#fff",
   },
 });

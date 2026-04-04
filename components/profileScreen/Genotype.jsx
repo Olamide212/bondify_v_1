@@ -27,7 +27,7 @@ const Genotype = ({ profile, onUpdateField }) => {
       <TouchableOpacity style={s.card} onPress={() => setShowModal(true)} activeOpacity={0.8} disabled={loading}>
         <View style={s.cardLeft}>
   
-            <Dna size={18} color={'#000'} strokeWidth={2} />
+            <Dna size={18} color={'#fff'} strokeWidth={2} />
 
           <View style={{ flex: 1 }}>
             <Text style={s.cardValue} numberOfLines={1}>
@@ -54,10 +54,10 @@ export default Genotype;
 
 const s = StyleSheet.create({
   card: {
-    backgroundColor:  "#fff",
-    borderRadius:     16,
+    backgroundColor: 'rgba(255,255,255,0.02)',
+    borderRadius:     12,
     borderWidth:      1,
-    borderColor:      "#F3F4F6",
+    borderColor:      'rgba(255,255,255,0.1)',
     marginHorizontal: 16,
     padding:          16,
   },
@@ -76,13 +76,13 @@ const s = StyleSheet.create({
   },
   cardValue: {
     fontSize:     16,
-    fontFamily:   "PlusJakartaSansSemiBold",
-    color:        "#111",
+    fontFamily:   "OutfitSemiBold",
+    color: '#E5E5E5',
     marginBottom: 2,
   },
   cardCta: {
     fontSize:   13,
-    fontFamily: "PlusJakartaSansMedium",
+    fontFamily: "OutfitMedium",
     color:      colors.primary,
   },
 });

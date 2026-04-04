@@ -260,11 +260,11 @@
 // const styles = StyleSheet.create({
 //   container: {
 //     flex: 1,
-//     backgroundColor: "#fff",
+//     backgroundColor: "#121212",
 //   },
 //   tabBar: {
 //     height:          80,
-//     backgroundColor: "#fff",
+//     backgroundColor: "#121212",
 //     paddingTop:      10,
 //     borderTopWidth:  1,
 //     borderColor:     "#F1F5F9",
@@ -329,7 +329,7 @@
 //     borderRadius:    14,
 //     alignItems:      "center",
 //     justifyContent:  "center",
-//     backgroundColor: "#F3F4F6",
+//     backgroundColor: '#1E1E1E',
 //   },
 // });
 
@@ -495,14 +495,14 @@ export default RootTabs;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#121212",
   },
   tabBar: {
     height: 80,
-    backgroundColor: "#fff",
+    backgroundColor: "#121212",
     paddingTop: 10,
     borderTopWidth: 1,
-    borderColor: "#F1F5F9",
+    borderColor: "#121212",
     paddingBottom: Platform.OS === "ios" ? 6 : 4,
     // elevation: 8,
     // ...Platform.select({
@@ -530,7 +530,7 @@ const styles = StyleSheet.create({
     resizeMode: "contain",
   },
   activeIconImage: {
-    tintColor: '#2A343D',
+    tintColor: '#fff',
   },
   inactiveIconImage: {
     tintColor: colors.inactiveTab,

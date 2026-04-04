@@ -45,9 +45,9 @@ const VoiceBioBenefits = () => {
   return (
     <View style={{ marginBottom: 20, paddingHorizontal: 20 }}>
       <Text style={{
-        fontFamily: fonts.PlusJakartaSansBold,
+        fontFamily: fonts.OutfitBold,
         fontSize: 18,
-        color: "#000",
+        color: '#FFFFFF',
         marginBottom: 12,
         textAlign: 'center'
       }}>
@@ -56,11 +56,11 @@ const VoiceBioBenefits = () => {
       <View style={{ gap: 8 }}>
         {benefits.map((benefit, index) => (
           <View key={index} style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8 }}>
-            <Text style={{ color: "#000", fontSize: 14, fontFamily: fonts.PlusJakartaSansBold }}>•</Text>
+            <Text style={{ color: '#FFFFFF', fontSize: 14, fontFamily: fonts.OutfitBold }}>•</Text>
             <Text style={{
-              fontFamily: fonts.PlusJakartaSansMedium,
+              fontFamily: fonts.OutfitMedium,
               fontSize: 15,
-              color: '#374151',
+              color: '#D1D5DB',
               flex: 1,
               lineHeight: 20
             }}>
@@ -268,10 +268,10 @@ const VoicePromptSection = ({ onUseVoice, showAlert }) => {
           <Mic size={16} color="#fff" strokeWidth={2} />
         </View>
         <View style={{ flex: 1 }}>
-          <Text style={{ fontFamily: fonts.PlusJakartaSansBold, fontSize: 15, color: "#1a1a1a" }}>
+          <Text style={{ fontFamily: fonts.OutfitBold, fontSize: 15, color: '#E5E5E5' }}>
             Voice Bio 🎤
           </Text>
-          <Text style={{ fontFamily: fonts.PlusJakartaSans, fontSize: 12, color: "#9CA3AF", marginTop: 1 }}>
+          <Text style={{ fontFamily: fonts.Outfit, fontSize: 12, color: "#9CA3AF", marginTop: 1 }}>
             Record yourself introducing yourself
           </Text>
         </View>
@@ -293,7 +293,7 @@ const VoicePromptSection = ({ onUseVoice, showAlert }) => {
           }}
         >
           <Mic size={16} color="#fff" strokeWidth={2} />
-          <Text style={{ color: "#fff", fontFamily: fonts.PlusJakartaSansBold, fontSize: 14 }}>
+          <Text style={{ color: "#fff", fontFamily: fonts.OutfitBold, fontSize: 14 }}>
             Start recording
           </Text>
         </TouchableOpacity>
@@ -303,7 +303,7 @@ const VoicePromptSection = ({ onUseVoice, showAlert }) => {
       {phase === "recording" && (
         <View style={{ gap: 12 }}>
           <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
-            <Text style={{ fontFamily: fonts.PlusJakartaSansMedium, fontSize: 14, color: "#1a1a1a" }}>
+            <Text style={{ fontFamily: fonts.OutfitMedium, fontSize: 14, color: '#E5E5E5' }}>
               Recording... {formatTime(recDurationS)}
             </Text>
             <View
@@ -333,7 +333,7 @@ const VoicePromptSection = ({ onUseVoice, showAlert }) => {
             }}
           >
             <Square size={16} color="#fff" strokeWidth={2} />
-            <Text style={{ color: "#fff", fontFamily: fonts.PlusJakartaSansBold, fontSize: 14 }}>Stop</Text>
+            <Text style={{ color: "#fff", fontFamily: fonts.OutfitBold, fontSize: 14 }}>Stop</Text>
           </TouchableOpacity>
         </View>
       )}
@@ -360,10 +360,10 @@ const VoicePromptSection = ({ onUseVoice, showAlert }) => {
               />
             </View>
             <View style={{ flexDirection: "row", justifyContent: "space-between", paddingHorizontal: 2 }}>
-              <Text style={{ fontFamily: fonts.PlusJakartaSans, fontSize: 11, color: "#9CA3AF" }}>
+              <Text style={{ fontFamily: fonts.Outfit, fontSize: 11, color: "#9CA3AF" }}>
                 {formatTime(playPos)}
               </Text>
-              <Text style={{ fontFamily: fonts.PlusJakartaSans, fontSize: 11, color: "#9CA3AF" }}>
+              <Text style={{ fontFamily: fonts.Outfit, fontSize: 11, color: "#9CA3AF" }}>
                 {formatTime(playDuration)}
               </Text>
             </View>
@@ -388,14 +388,14 @@ const VoicePromptSection = ({ onUseVoice, showAlert }) => {
               {phase === "playing" ? (
                 <>
                   <Pause size={15} color="#fff" strokeWidth={2.5} />
-                  <Text style={{ color: "#fff", fontFamily: fonts.PlusJakartaSansBold, fontSize: 13 }}>
+                  <Text style={{ color: "#fff", fontFamily: fonts.OutfitBold, fontSize: 13 }}>
                     Pause
                   </Text>
                 </>
               ) : (
                 <>
                   <Play size={15} color="#fff" strokeWidth={2.5} />
-                  <Text style={{ color: "#fff", fontFamily: fonts.PlusJakartaSansBold, fontSize: 13 }}>
+                  <Text style={{ color: "#fff", fontFamily: fonts.OutfitBold, fontSize: 13 }}>
                     Play
                   </Text>
                 </>
@@ -432,7 +432,7 @@ const VoicePromptSection = ({ onUseVoice, showAlert }) => {
             }}
           >
             <Check size={15} color={colors.primary} strokeWidth={2.5} />
-            <Text style={{ color: colors.primary, fontFamily: fonts.PlusJakartaSansBold, fontSize: 13 }}>
+            <Text style={{ color: colors.primary, fontFamily: fonts.OutfitBold, fontSize: 13 }}>
               Use this voice bio
             </Text>
           </TouchableOpacity>
@@ -461,7 +461,7 @@ const VoicePrompt = () => {
   };
 
   return (
-    <SafeAreaView style={{flex: 1}} className="bg-white">
+    <SafeAreaView style={{flex: 1}} className="bg-[#121212]">
       <KeyboardAvoidingView
         style={{flex: 1}}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -477,7 +477,7 @@ const VoicePrompt = () => {
               {/* Title */}
               <View className="mt-8 mb-6">
                 <View className="flex-row items-center justify-between mb-2">
-                  <Text className="text-3xl font-PlusJakartaSansBold">
+                  <Text className="text-3xl font-OutfitBold">
                     Add a voice bio
                   </Text>
                   <TouchableOpacity
@@ -487,7 +487,7 @@ const VoicePrompt = () => {
                     <Info size={20} color={"#000"} />
                   </TouchableOpacity>
                 </View>
-                <Text className="text-base font-PlusJakartaSansMedium">
+                <Text className="text-base font-OutfitMedium">
                   Record yourself introducing yourself to make your profile stand out.
                 </Text>
               </View>
@@ -528,7 +528,7 @@ const VoicePrompt = () => {
                 disabled={submitting}
               />
               <Pressable onPress={() => router.push("/profile-answers")} disabled={submitting} className="w-full items-center mt-4">
-              <Text className='text-center mt-3 font-PlusJakartaSansMedium text-lg'>Skip</Text>
+              <Text className='text-center mt-3 font-OutfitMedium text-lg'>Skip</Text>
               </Pressable>
             </View>
           </View>

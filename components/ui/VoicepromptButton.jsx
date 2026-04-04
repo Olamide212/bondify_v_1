@@ -87,7 +87,7 @@
 //     width: 3,
 //     height: 18,
 //     borderRadius: 2,
-//     backgroundColor: '#fff',
+//     backgroundColor: '#121212',
 //   },
 // });
 
@@ -216,7 +216,7 @@
 //     width: 34,
 //     height: 34,
 //     borderRadius: 20,
-//     backgroundColor: '#fff',
+//     backgroundColor: '#121212',
 //     alignItems: 'center',
 //     justifyContent: 'center',
 //   },

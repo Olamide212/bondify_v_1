@@ -97,7 +97,7 @@ const CategoryAccordion = ({ category, colors }) => {
           {category.label}
         </Text>
         {open
-          ? <ChevronUp size={18} color={colors.textTertiary} />
+          ? <ChevronUp size={18} color={'#fff'} />
           : <ChevronDown size={18} color={colors.textTertiary} />
         }
       </TouchableOpacity>
@@ -119,7 +119,7 @@ const CategoryAccordion = ({ category, colors }) => {
                     {item.q}
                   </Text>
                   {isExpanded
-                    ? <ChevronUp size={15} color="#E8651A" />
+                    ? <ChevronUp size={15} color={colors.primary} />
                     : <ChevronDown size={15} color={colors.textTertiary} />
                   }
                 </TouchableOpacity>
@@ -162,12 +162,12 @@ const FAQs = () => {
       })).filter((cat) => cat.items.length > 0);
 
   return (
-    <SafeAreaView style={[styles.safe, { backgroundColor: colors.surface }]} edges={["top"]}>
+    <SafeAreaView style={[styles.safe, { backgroundColor: colors.background }]} edges={["top"]}>
       <StatusBar barStyle={colors.statusBarStyle} backgroundColor={colors.surface} />
 
       {/* ── Header ── */}
       
-      <GeneralHeader title="Help & Support" onBack={() => router.back()} leftIcon={<ArrowLeft />} /> 
+      <GeneralHeader title="Help & Support" onBack={() => router.back()} leftIcon={<ArrowLeft color={'#fff'} />} /> 
       
 
       <ScrollView
@@ -248,7 +248,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 18,
-    fontFamily: "PlusJakartaSansBold",
+    fontFamily: "OutfitBold",
     letterSpacing: -0.2,
   },
 
@@ -263,13 +263,13 @@ const styles = StyleSheet.create({
   hero: { marginBottom: 20 },
   heroTitle: {
     fontSize: 26,
-    fontFamily: "PlusJakartaSansBold",
+    fontFamily: "OutfitBold",
     letterSpacing: -0.5,
     marginBottom: 6,
   },
   heroSubtitle: {
     fontSize: 14,
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
     lineHeight: 20,
   },
 
@@ -287,14 +287,14 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontSize: 15,
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
     padding: 0,
   },
 
   // Section label
   sectionLabel: {
     fontSize: 11,
-    fontFamily: "PlusJakartaSansBold",
+    fontFamily: "OutfitBold",
     letterSpacing: 1,
     marginBottom: 12,
     marginLeft: 2,
@@ -325,7 +325,7 @@ const styles = StyleSheet.create({
   categoryLabel: {
     flex: 1,
     fontSize: 17,
-    fontFamily: "PlusJakartaSansSemiBold",
+    fontFamily: "OutfitSemiBold",
   },
 
   // FAQ items
@@ -341,7 +341,7 @@ const styles = StyleSheet.create({
   },
   faqQuestion: {
     fontSize: 16,
-    fontFamily: "PlusJakartaSansMedium",
+    fontFamily: "OutfitMedium",
     lineHeight: 20,
   },
   faqAnswer: {
@@ -351,7 +351,7 @@ const styles = StyleSheet.create({
   },
   faqAnswerText: {
     fontSize: 14,
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
     lineHeight: 19,
   },
   faqDivider: {
@@ -361,7 +361,7 @@ const styles = StyleSheet.create({
   // Empty state
   emptyText: {
     fontSize: 14,
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
     textAlign: "center",
     marginTop: 24,
     marginBottom: 8,
@@ -377,13 +377,13 @@ const styles = StyleSheet.create({
   },
   ctaTitle: {
     fontSize: 18,
-    fontFamily: "PlusJakartaSansBold",
+    fontFamily: "OutfitBold",
     color: "#FFFFFF",
     marginBottom: 8,
   },
   ctaSubtitle: {
     fontSize: 13,
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
     color: "rgba(255,255,255,0.85)",
     textAlign: "center",
     lineHeight: 19,
@@ -393,15 +393,15 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
-    backgroundColor: colors.secondary,
+    backgroundColor: colors.white,
     borderRadius: 50,
     paddingVertical: 14,
     paddingHorizontal: 32,
   },
   ctaButtonText: {
     fontSize: 15,
-    fontFamily: "PlusJakartaSansBold",
-    color: '#fff',
+    fontFamily: "OutfitBold",
+    color: '#000',
   },
 });
 

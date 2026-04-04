@@ -9,7 +9,7 @@ const BackArrow = () => {
   return (
     <Pressable onPress={() => router.back()}>
       <View>
-        <ArrowLeft />
+        <ArrowLeft color={"#fff"} />
       </View>
     </Pressable>
   );

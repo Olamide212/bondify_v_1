@@ -198,7 +198,7 @@ const styles = StyleSheet.create({
     borderRadius: 32,
     overflow: "hidden",
     height: CARD_HEIGHT,
-    backgroundColor: "#f0f0f0",
+    backgroundColor: '#1E1E1E',
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.15,
@@ -233,10 +233,10 @@ const styles = StyleSheet.create({
     borderColor: "rgba(0,0,0,0.05)",
   },
   actionText: {
-    color: "#333",
+    color: '#D1D5DB',
     fontSize: 16,
     fontWeight: "600",
-    fontFamily: "PlusJakartaSansMedium",
+    fontFamily: "OutfitMedium",
   },
   pagination: {
     position: "absolute",
@@ -253,7 +253,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 3,
   },
   activeDot: {
-    backgroundColor: "white",
+    backgroundColor: "#121212",
     width: 10,
   },
   navButton: {
@@ -350,7 +350,7 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 28,
     fontWeight: "700",
-    fontFamily: "PlusJakartaSansBold",
+    fontFamily: "OutfitBold",
   },
   age: {
     color: "rgba(255,255,255,0.9)",
@@ -380,7 +380,7 @@ const styles = StyleSheet.create({
     color: "rgba(255,255,255,0.9)",
     fontSize: 16,
     marginLeft: 8,
-    fontFamily: "PlusJakartaSansMedium",
+    fontFamily: "OutfitMedium",
   },
   interestsContainer: {
     flexDirection: "row",
@@ -398,6 +398,6 @@ const styles = StyleSheet.create({
   interestText: {
     color: "white",
     fontSize: 14,
-    fontFamily: "PlusJakartaSansMedium",
+    fontFamily: "OutfitMedium",
   },
 });

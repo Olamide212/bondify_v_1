@@ -153,12 +153,12 @@ const s = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 14,
     borderBottomWidth: 1,
-    borderBottomColor: "#F0F0F0",
+    borderBottomColor: '#333333',
   },
   headerTitle: {
     fontSize: 17,
-    fontFamily: "PlusJakartaSansBold",
-    color: "#111",
+    fontFamily: "OutfitBold",
+    color: '#E5E5E5',
   },
   body: {
     padding: 16,
@@ -166,21 +166,21 @@ const s = StyleSheet.create({
   },
   label: {
     fontSize: 13,
-    fontFamily: "PlusJakartaSansBold",
-    color: "#555",
+    fontFamily: "OutfitBold",
+    color: '#9CA3AF',
     marginBottom: 6,
     marginTop: 14,
   },
   input: {
-    backgroundColor: "#F9FAFB",
+    backgroundColor: '#1E1E1E',
     borderRadius: 12,
     paddingHorizontal: 14,
     paddingVertical: 12,
     fontSize: 15,
-    fontFamily: "PlusJakartaSans",
-    color: "#111",
+    fontFamily: "Outfit",
+    color: '#E5E5E5',
     borderWidth: 1,
-    borderColor: "#E5E7EB",
+    borderColor: '#374151',
   },
   bioInput: {
     minHeight: 90,
@@ -188,7 +188,7 @@ const s = StyleSheet.create({
   },
   charCount: {
     fontSize: 11,
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
     color: "#BBB",
     textAlign: "right",
     marginTop: 4,
@@ -203,6 +203,6 @@ const s = StyleSheet.create({
   saveBtnText: {
     color: "#fff",
     fontSize: 15,
-    fontFamily: "PlusJakartaSansBold",
+    fontFamily: "OutfitBold",
   },
 });

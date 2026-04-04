@@ -76,7 +76,7 @@ const FriendRequestsModal = ({ visible, onClose }) => {
       <View style={s.header}>
         <Text style={s.headerTitle}>Friend Requests</Text>
         <TouchableOpacity onPress={onClose} style={s.closeBtn}>
-          <UserX size={24} color="#333" />
+          <UserX size={24} color="#fff" />
         </TouchableOpacity>
       </View>
 
@@ -88,7 +88,7 @@ const FriendRequestsModal = ({ visible, onClose }) => {
           </View>
         ) : requests.length === 0 ? (
           <View style={s.emptyContainer}>
-            <Users size={48} color="#ccc" />
+            <Users size={48} color="#fff" />
             <Text style={s.emptyText}>No friend requests</Text>
             <Text style={s.emptySubtext}>When someone sends you a friend request, it will appear here</Text>
           </View>
@@ -158,21 +158,21 @@ const s = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 20,
     paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
-    backgroundColor: '#fff',
+    // borderBottomWidth: 1,
+    // borderBottomColor: '#333333',
+    backgroundColor: '#121212',
   },
   headerTitle: {
     fontSize: 18,
-    fontFamily: 'PlusJakartaSansBold',
-    color: '#333',
+    fontFamily: 'OutfitBold',
+    color: '#D1D5DB',
   },
   closeBtn: {
     padding: 4,
   },
   content: {
     flex: 1,
-    backgroundColor: '#F8F9FA',
+    backgroundColor: '#121212',
   },
   loadingContainer: {
     flex: 1,
@@ -182,8 +182,8 @@ const s = StyleSheet.create({
   loadingText: {
     marginTop: 12,
     fontSize: 16,
-    fontFamily: 'PlusJakartaSans',
-    color: '#666',
+    fontFamily: 'Outfit',
+    color: '#9CA3AF',
   },
   emptyContainer: {
     flex: 1,
@@ -194,20 +194,20 @@ const s = StyleSheet.create({
   emptyText: {
     marginTop: 16,
     fontSize: 18,
-    fontFamily: 'PlusJakartaSansBold',
-    color: '#666',
+    fontFamily: 'OutfitBold',
+    color: '#9CA3AF',
     textAlign: 'center',
   },
   emptySubtext: {
     marginTop: 8,
     fontSize: 14,
-    fontFamily: 'PlusJakartaSans',
+    fontFamily: 'Outfit',
     color: '#999',
     textAlign: 'center',
     lineHeight: 20,
   },
   requestItem: {
-    backgroundColor: '#fff',
+    backgroundColor: '#121212',
     marginHorizontal: 16,
     marginVertical: 8,
     borderRadius: 12,
@@ -236,7 +236,7 @@ const s = StyleSheet.create({
   },
   avatarInitial: {
     fontSize: 20,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: 'OutfitBold',
     color: '#fff',
   },
   userDetails: {
@@ -244,13 +244,13 @@ const s = StyleSheet.create({
   },
   userName: {
     fontSize: 16,
-    fontFamily: 'PlusJakartaSansBold',
-    color: '#333',
+    fontFamily: 'OutfitBold',
+    color: '#D1D5DB',
     marginBottom: 2,
   },
   requestTime: {
     fontSize: 12,
-    fontFamily: 'PlusJakartaSans',
+    fontFamily: 'Outfit',
     color: '#999',
   },
   actionButtons: {
@@ -271,17 +271,17 @@ const s = StyleSheet.create({
     backgroundColor: BRAND,
   },
   declineBtn: {
-    backgroundColor: '#fff',
+    backgroundColor: '#121212',
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: '#333333',
   },
   actionBtnText: {
     fontSize: 14,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: 'OutfitBold',
     color: '#fff',
   },
   declineBtnText: {
-    color: '#666',
+    color: '#9CA3AF',
   },
 });
 

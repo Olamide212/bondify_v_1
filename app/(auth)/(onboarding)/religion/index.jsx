@@ -32,7 +32,7 @@ const Religion = () => {
     );
   }
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }} className="bg-white">
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#121212' }} className="bg-[#121212]">
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -42,7 +42,7 @@ const Religion = () => {
           <View style={{ flex: 1 }} className="px-2">
             <ScrollView showsVerticalScrollIndicator={false}>
               <View style={{ flex: 1 }} className="mt-8">
-                <Text className="text-3xl font-PlusJakartaSansBold text-app mb-2">
+                <Text className="text-3xl font-OutfitBold text-app mb-2">
                   Your religion or spiritual belief?
                 </Text>
 
@@ -57,7 +57,7 @@ const Religion = () => {
 
               </View>
             </ScrollView>
-            <View className="w-full items-end mt-4 bg-white">
+            <View className="w-full items-end mt-4 bg-[#121212]">
               <Button
                 title="Continue"
                 variant="primary"

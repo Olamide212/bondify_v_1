@@ -37,6 +37,7 @@ import CreateBondupModal from '../../../components/bondup/CreateBondupModal';
 import { colors } from '../../../constant/colors';
 import bondupService from '../../../services/bondupService';
 import profileService from '../../../services/profileService';
+import { LinearGradient } from 'expo-linear-gradient';
 
 const BRAND = colors.primary;
 
@@ -284,7 +285,7 @@ export default function BondupProfileScreen() {
       {/* Header */}
       <View style={s.header}>
         <TouchableOpacity onPress={() => router.back()} style={s.backBtn} hitSlop={10}>
-          <ArrowLeft size={22} color="#333" />
+          <ArrowLeft size={22} color="#fff" />
         </TouchableOpacity>
         <Text style={s.headerTitle}>Profile</Text>
         <View style={{ width: 36 }} />
@@ -354,13 +355,15 @@ export default function BondupProfileScreen() {
 
       {/* Floating Action Button - Only for current user */}
       {isOwnProfile && (
+        <LinearGradient  style={s.fab} colors={[colors.primary, colors.secondary]}>
         <TouchableOpacity
-          style={s.fab}
+
           onPress={() => setShowCreateBondup(true)}
           activeOpacity={0.8}
         >
           <Plus size={24} color="#fff" />
         </TouchableOpacity>
+        </LinearGradient>
       )}
 
       <FriendRequestsModal
@@ -385,7 +388,7 @@ export default function BondupProfileScreen() {
 const s = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#121212',
   },
   loadingWrap: {
     flex: 1,
@@ -394,7 +397,7 @@ const s = StyleSheet.create({
   },
   errorText: {
     fontSize: 16,
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: 'OutfitMedium',
     color: '#888',
     textAlign: 'center',
   },
@@ -407,7 +410,7 @@ const s = StyleSheet.create({
   },
   retryBtnText: {
     color: '#fff',
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: 'OutfitBold',
     fontSize: 14,
   },
 
@@ -418,21 +421,21 @@ const s = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F5F5F5',
+    // borderBottomWidth: 1,
+    // borderBottomColor: '#F5F5F5',
   },
   backBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: '#F3F4F6',
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: colors.primaryLight,
     justifyContent: 'center',
     alignItems: 'center',
   },
   headerTitle: {
     fontSize: 17,
-    fontFamily: 'PlusJakartaSansBold',
-    color: '#111',
+    fontFamily: 'OutfitBold',
+    color: '#E5E5E5',
   },
 
   scrollContent: {
@@ -463,7 +466,7 @@ const s = StyleSheet.create({
     elevation: 4,
   },
   friendsBtn: {
-    backgroundColor: '#fff',
+    backgroundColor: '#121212',
     borderWidth: 1.5,
     borderColor: BRAND,
     shadowOpacity: 0,
@@ -476,12 +479,12 @@ const s = StyleSheet.create({
   },
   friendBtnText: {
     fontSize: 15,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: 'OutfitBold',
     color: '#fff',
   },
   friendsBtnText: {
     fontSize: 15,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: 'OutfitBold',
     color: BRAND,
   },
 
@@ -491,8 +494,8 @@ const s = StyleSheet.create({
   },
   dayLabel: {
     fontSize: 16,
-    fontFamily: 'PlusJakartaSansBold',
-    color: '#111',
+    fontFamily: 'OutfitBold',
+    color: '#E5E5E5',
     marginHorizontal: 16,
     marginBottom: 8,
   },
@@ -508,7 +511,7 @@ const s = StyleSheet.create({
   },
   emptyText: {
     fontSize: 14,
-    fontFamily: 'PlusJakartaSans',
+    fontFamily: 'Outfit',
     color: '#888',
   },
 
@@ -533,7 +536,7 @@ const s = StyleSheet.create({
   avatarInitial: {
     color: '#fff',
     fontSize: 34,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: 'OutfitBold',
   },
 
   // Name + Location
@@ -544,8 +547,8 @@ const s = StyleSheet.create({
   },
   fullName: {
     fontSize: 22,
-    fontFamily: 'PlusJakartaSansBold',
-    color: '#111',
+    fontFamily: 'OutfitBold',
+    color: '#E5E5E5',
     marginBottom: 6,
     textTransform: 'capitalize',
   },
@@ -557,13 +560,13 @@ const s = StyleSheet.create({
   },
   locationText: {
     fontSize: 14,
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: 'OutfitMedium',
     color: '#888',
   },
   bio: {
     fontSize: 14,
-    fontFamily: 'PlusJakartaSans',
-    color: '#555',
+    fontFamily: 'Outfit',
+    color: '#9CA3AF',
     textAlign: 'center',
     lineHeight: 20,
     marginTop: 4,
@@ -574,13 +577,13 @@ const s = StyleSheet.create({
     paddingHorizontal: 16,
     paddingBottom: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
+    borderBottomColor: '#333333',
     marginBottom: 8,
   },
   sectionTitle: {
     fontSize: 16,
-    fontFamily: 'PlusJakartaSansBold',
-    color: '#111',
+    fontFamily: 'OutfitBold',
+    color: '#E5E5E5',
   },
 
   // Active bondup card
@@ -601,8 +604,8 @@ const s = StyleSheet.create({
   },
   bondupTitle: {
     fontSize: 15,
-    fontFamily: 'PlusJakartaSansBold',
-    color: '#111',
+    fontFamily: 'OutfitBold',
+    color: '#E5E5E5',
     marginBottom: 3,
   },
   bondupMeta: {
@@ -617,22 +620,22 @@ const s = StyleSheet.create({
   },
   bondupMetaText: {
     fontSize: 12,
-    fontFamily: 'PlusJakartaSans',
+    fontFamily: 'Outfit',
     color: '#888',
   },
   bondupParticipants: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: '#1E1E1E',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 10,
   },
   bondupParticipantCount: {
     fontSize: 12,
-    fontFamily: 'PlusJakartaSansBold',
-    color: '#666',
+    fontFamily: 'OutfitBold',
+    color: '#9CA3AF',
   },
 
   // Empty
@@ -644,7 +647,7 @@ const s = StyleSheet.create({
   // Floating Action Button
   fab: {
     position: 'absolute',
-    bottom: 20,
+    bottom: 60,
     right: 20,
     width: 56,
     height: 56,

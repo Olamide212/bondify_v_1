@@ -123,7 +123,7 @@ const PhotoGuidelinesModal = ({ visible, onClose }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#121212",
   },
   header: {
     flexDirection: "row",
@@ -136,8 +136,8 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 18,
-    fontFamily: "PlusJakartaSansBold",
-    color: "#111",
+    fontFamily: "OutfitBold",
+    color: '#E5E5E5',
   },
   closeBtn: {
     padding: 8,
@@ -148,8 +148,8 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 14,
-    fontFamily: "PlusJakartaSans",
-    color: "#6B7280",
+    fontFamily: "Outfit",
+    color: '#9CA3AF',
     marginBottom: 24,
     textAlign: "center",
   },
@@ -171,14 +171,14 @@ const styles = StyleSheet.create({
   },
   guidelineTitle: {
     fontSize: 14,
-    fontFamily: "PlusJakartaSansSemiBold",
-    color: "#111",
+    fontFamily: "OutfitSemiBold",
+    color: '#E5E5E5',
     marginBottom: 4,
   },
   guidelineDescription: {
     fontSize: 13,
-    fontFamily: "PlusJakartaSans",
-    color: "#6B7280",
+    fontFamily: "Outfit",
+    color: '#9CA3AF',
   },
   dosDonts: {
     flexDirection: "row",
@@ -195,19 +195,19 @@ const styles = StyleSheet.create({
   },
   dosTitle: {
     fontSize: 14,
-    fontFamily: "PlusJakartaSansBold",
+    fontFamily: "OutfitBold",
     color: "#10B981",
     marginBottom: 8,
   },
   dosText: {
     fontSize: 13,
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
     color: "#047857",
     lineHeight: 20,
   },
   dontsContainer: {
     flex: 1,
-    backgroundColor: "#FEF3EC",
+    backgroundColor: '#2A1F1A',
     borderRadius: 12,
     padding: 16,
     borderLeftWidth: 4,
@@ -215,19 +215,19 @@ const styles = StyleSheet.create({
   },
   dontsTitle: {
     fontSize: 14,
-    fontFamily: "PlusJakartaSansBold",
+    fontFamily: "OutfitBold",
     color: "#EF4444",
     marginBottom: 8,
   },
   dontsText: {
     fontSize: 13,
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
     color: "#DC2626",
     lineHeight: 20,
   },
   footer: {
     fontSize: 12,
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
     color: "#9CA3AF",
     textAlign: "center",
     marginBottom: 24,
@@ -243,7 +243,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     fontSize: 16,
-    fontFamily: "PlusJakartaSansBold",
+    fontFamily: "OutfitBold",
     color: "#fff",
   },
 });

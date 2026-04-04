@@ -7,18 +7,18 @@ import { useRouter } from 'expo-router';
 import { Briefcase, Eye, Globe, Heart, Info, MapPin, Users } from 'lucide-react-native';
 import { useEffect, useRef, useState } from 'react';
 import {
-    Animated,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    useWindowDimensions,
-    View,
+  Animated,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  useWindowDimensions,
+  View,
 } from 'react-native';
 import { PanGestureHandler, PinchGestureHandler, State } from 'react-native-gesture-handler';
+import { colors } from '../../constant/colors';
 import AIService from '../../services/aiService';
 import LoadingImage from '../ui/LoadingImage';
 import VerifiedIcon from '../ui/VerifiedIcon';
-import {colors} from '../../constant/colors'
 
 const FALLBACK_IMAGE = 'https://via.placeholder.com/800x1200?text=No+Photo';
 
@@ -222,7 +222,7 @@ const AroundYouTab = ({ profile, onViewProfile, actionMessage }) => {
               {compatibilityScore !== null && !loadingScore && (
                 <View className="flex-row items-center bg-pinkColor px-3 py-1 rounded-full">
                   <Heart size={14} color="#fff" fill="#fff" />
-                  <Text className="text-white text-sm font-PlusJakartaSansBold ml-1">
+                  <Text className="text-white text-sm font-OutfitBold ml-1">
                     {compatibilityScore}%
                   </Text>
                 </View>
@@ -266,7 +266,7 @@ const AroundYouTab = ({ profile, onViewProfile, actionMessage }) => {
             {/* Location — "641km away · Lagos" */}
             {(distanceText || cityLabel || locationText) ? (
               <View style={styles.locationRow} className=''>
-                <MapPin size={16} color={colors.secondary}  />
+                <MapPin size={16} color={colors.white}  />
                 <Text style={styles.locationText} numberOfLines={1}>
                   {[distanceText, cityLabel || locationText].filter(Boolean).join('  ·  ')}
                 </Text>
@@ -275,35 +275,35 @@ const AroundYouTab = ({ profile, onViewProfile, actionMessage }) => {
 
 
             <View className='flex-row flex-wrap items-center gap-2 mt-3'>
-              {/* Occupation */}
+             
               {occupationText ? (
-                <View className='px-6 py-2 flex-row items-center justify-center gap-1 bg-black/40 rounded-full'>
-                  <Briefcase size={16} color={colors.secondary} />
-                  <Text className='capitalize text-white font-PlusJakartaSansMedium'> {occupationText}</Text>
+                <View className='px-6 py-2 flex-row items-center justify-center gap-1 bg-black/40 rounded-lg' style={{  backgroundColor: 'rgba(255,255,255,0.20)'}}>
+                  <Briefcase size={16} color={colors.white} />
+                  <Text className='capitalize text-white font-OutfitMedium'> {occupationText}</Text>
                 </View>
               ) : null}
 
-              {/* Nationality */}
+           
               {nationalityText ? (
-                <View className='px-6 py-2 flex-row items-center justify-center gap-1 bg-black/40 rounded-full'>
-                  <Globe size={16} color={colors.secondary} />
-                  <Text className='capitalize text-white font-PlusJakartaSansMedium'> {nationalityText}</Text>
+                <View className='px-6 py-2 flex-row items-center justify-center gap-1 bg-black/40 rounded-lg' style={{  backgroundColor: 'rgba(255,255,255,0.20)'}}>
+                  <Globe size={16} color={colors.white} />
+                  <Text className='capitalize text-white font-OutfitMedium'> {nationalityText}</Text>
                 </View>
               ) : null}
 
-              {/* Ethnicity */}
+          
               {ethnicityText ? (
-                <View className='px-6 py-2 flex-row items-center justify-center gap-1 bg-black/40 rounded-full'>
-                  <Users size={16} color={colors.secondary} />
-                  <Text className='capitalize text-white font-PlusJakartaSansMedium'> {ethnicityText}</Text>
+                <View className='px-6 py-2 flex-row items-center justify-center gap-1 bg-black/40 rounded-lg' style={{  backgroundColor: 'rgba(255,255,255,0.20)'}}>
+                  <Users size={16} color={colors.white} />
+                  <Text className='capitalize text-white font-OutfitMedium'> {ethnicityText}</Text>
                 </View>
               ) : null}
 
-              {/* Religion */}
+         
               {religionText ? (
-                <View className='px-6 py-2 flex-row items-center justify-center gap-1 bg-black/40 rounded-full'>
-                  <MaterialCommunityIcons name="hands-pray" size={20} color={colors.secondary} />
-                  <Text className='capitalize text-white font-PlusJakartaSansMedium'> {religionText}</Text>
+                <View className='px-6 py-2 flex-row items-center justify-center gap-1 bg-black/40 rounded-lg' style={{  backgroundColor: 'rgba(255,255,255,0.20)'}}>
+                  <MaterialCommunityIcons name="hands-pray" size={20} color={colors.white} />
+                  <Text className='capitalize text-white font-OutfitMedium'> {religionText}</Text>
                 </View>
               ) : null}
             </View>
@@ -321,8 +321,8 @@ const AroundYouTab = ({ profile, onViewProfile, actionMessage }) => {
 const styles = StyleSheet.create({
   tabContent: {
     flex: 1,
-    marginTop: 100, // Add margin top to reduce visible height
-    backgroundColor: '#fff', // White background
+    marginTop: 115, // Add margin top to reduce visible height
+    backgroundColor: colors.background, // Dark background
 
   },
 
@@ -331,7 +331,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row', gap: 4, zIndex: 20, justifyContent: 'center',
   },
   dot: { width: 20, height: 3, borderRadius: 2 },
-  dotActive: { backgroundColor: '#fff' },
+  dotActive: { backgroundColor: '#121212' },
   dotInactive: { backgroundColor: 'rgba(255,255,255,0.35)' },
 
   imageContainer: {
@@ -353,25 +353,25 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20, paddingVertical: 10,
     borderRadius: 20, borderWidth: 1, borderColor: 'rgba(0,0,0,0.05)',
   },
-  actionText: { color: '#333', fontSize: 16, fontWeight: '600' },
+  actionText: { color: '#D1D5DB', fontSize: 16, fontWeight: '600' },
 
   profileInfo: { position: 'absolute', bottom: 120, left: 20, right: 20, zIndex: 10 },
 
   nameRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 },
   nameLeft: { flexDirection: 'row', alignItems: 'center', flex: 1 },
   nameAgeRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  nameText: { color: '#fff', fontSize: 36, fontFamily: 'PlusJakartaSansBold', textTransform: 'capitalize' },
-  ageText: { color: '#fff', fontSize: 30, fontFamily: 'PlusJakartaSansMedium' },
+  nameText: { color: '#fff', fontSize: 36, fontFamily: 'OutfitBold', textTransform: 'capitalize' },
+  ageText: { color: '#fff', fontSize: 30, fontFamily: 'OutfitMedium' },
 
   activeStatusBadge: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 8, marginTop: -2 },
   activeDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#10B981' },
-  activeStatusText: { color: 'rgba(255,255,255,0.85)', fontSize: 13, fontFamily: 'PlusJakartaSansMedium' },
+  activeStatusText: { color: 'rgba(255,255,255,0.85)', fontSize: 13, fontFamily: 'OutfitMedium' },
 
   locationRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  locationText: { color: 'rgba(255,255,255,0.9)', fontSize: 15, fontFamily: 'PlusJakartaSansMedium', flex: 1 },
+  locationText: { color: 'rgba(255,255,255,0.9)', fontSize: 15, fontFamily: 'OutfitMedium', flex: 1 },
 
   nationalityRow: { flexDirection: 'row', alignItems: 'center', marginTop: 4 },
-  nationalityText: { color: 'rgba(255,255,255,0.75)', fontSize: 13, fontFamily: 'PlusJakartaSansMedium' },
+  nationalityText: { color: 'rgba(255,255,255,0.75)', fontSize: 13, fontFamily: 'OutfitMedium' },
 
   profileButton: {
     width: 48, height: 48, borderRadius: 24,
@@ -395,7 +395,7 @@ const styles = StyleSheet.create({
   blurBadgeText: {
     color: '#fff',
     fontSize: 14,
-    fontFamily: 'PlusJakartaSansSemiBold',
+    fontFamily: 'OutfitSemiBold',
   },
 
   compatibilityScore: {
@@ -410,7 +410,7 @@ const styles = StyleSheet.create({
   compatibilityText: {
     color: '#fff',
     fontSize: 12,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: 'OutfitBold',
     marginLeft: 4,
   },
 });

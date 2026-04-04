@@ -30,7 +30,7 @@ export default function UsersChatScreen() {
       navigation.getParent()?.setOptions({
         tabBarStyle: {
           height: 80,
-          backgroundColor: "#fff",
+          backgroundColor: "#121212",
           paddingTop: 10,
           borderTopWidth: 1,
           borderColor: "#F1F5F9",
@@ -89,5 +89,5 @@ export default function UsersChatScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fff" },
+  container: { flex: 1, backgroundColor: "#121212" },
 });

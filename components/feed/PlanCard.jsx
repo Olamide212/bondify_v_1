@@ -242,7 +242,7 @@ export default function PlanCard({
 // ─── Styles ──────────────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: "#fff",
+    backgroundColor: "#121212",
     marginHorizontal: 12,
     marginBottom: 10,
     borderRadius: 16,
@@ -270,7 +270,7 @@ const styles = StyleSheet.create({
   avatarInitial: {
     color: "#fff",
     fontSize: 28,
-    fontFamily: "PlusJakartaSansBold",
+    fontFamily: "OutfitBold",
   },
   content: {
     flex: 1,
@@ -278,12 +278,12 @@ const styles = StyleSheet.create({
   },
   authorName: {
     fontSize: 16,
-    fontFamily: "PlusJakartaSansBold",
-    color: "#111",
+    fontFamily: "OutfitBold",
+    color: '#E5E5E5',
   },
   timeAgoText: {
     fontSize: 12,
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
     color: "#BBB",
     marginBottom: 6,
   },
@@ -298,18 +298,18 @@ const styles = StyleSheet.create({
   },
   statusText: {
     fontSize: 12,
-    fontFamily: "PlusJakartaSansBold",
+    fontFamily: "OutfitBold",
   },
   note: {
     fontSize: 14,
-    fontFamily: "PlusJakartaSans",
-    color: "#333",
+    fontFamily: "Outfit",
+    color: '#D1D5DB',
     lineHeight: 19,
     marginBottom: 6,
   },
   activityChip: {
     alignSelf: "flex-start",
-    backgroundColor: "#F1ECFF",
+    backgroundColor: '#1E1A2E',
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 10,
@@ -317,7 +317,7 @@ const styles = StyleSheet.create({
   },
   activityText: {
     fontSize: 12,
-    fontFamily: "PlusJakartaSansBold",
+    fontFamily: "OutfitBold",
     color: BRAND,
   },
   daysRow: {
@@ -327,15 +327,15 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   dayTag: {
-    backgroundColor: "#F3F4F6",
+    backgroundColor: '#1E1E1E',
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 8,
   },
   dayTagText: {
     fontSize: 11,
-    fontFamily: "PlusJakartaSansBold",
-    color: "#555",
+    fontFamily: "OutfitBold",
+    color: '#9CA3AF',
   },
   metaRow: {
     flexDirection: "row",
@@ -345,7 +345,7 @@ const styles = StyleSheet.create({
   },
   metaText: {
     fontSize: 12,
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
     color: "#888",
     flex: 1,
   },
@@ -377,7 +377,7 @@ const styles = StyleSheet.create({
   participantInitial: {
     color: "#fff",
     fontSize: 10,
-    fontFamily: "PlusJakartaSansBold",
+    fontFamily: "OutfitBold",
   },
   countBadge: {
     flexDirection: "row",
@@ -387,8 +387,8 @@ const styles = StyleSheet.create({
   },
   countText: {
     fontSize: 11,
-    fontFamily: "PlusJakartaSansMedium",
-    color: "#666",
+    fontFamily: "OutfitMedium",
+    color: '#9CA3AF',
   },
   actionBtn: {
     paddingHorizontal: 16,
@@ -399,16 +399,16 @@ const styles = StyleSheet.create({
     backgroundColor: BRAND,
   },
   leaveBtn: {
-    backgroundColor: "#F3F4F6",
+    backgroundColor: '#1E1E1E',
   },
   actionBtnText: {
     fontSize: 12,
-    fontFamily: "PlusJakartaSansBold",
+    fontFamily: "OutfitBold",
   },
   joinBtnText: {
     color: "#fff",
   },
   leaveBtnText: {
-    color: "#666",
+    color: '#9CA3AF',
   },
 });

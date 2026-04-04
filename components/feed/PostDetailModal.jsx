@@ -376,7 +376,7 @@ const PostDetailModal = ({
         {replyTo && (
           <View style={styles.replyIndicator}>
             <Text style={styles.replyText}>
-              Replying to <Text style={{ fontFamily: "PlusJakartaSansBold" }}>{displayName(replyTo.author)}</Text>
+              Replying to <Text style={{ fontFamily: "OutfitBold" }}>{displayName(replyTo.author)}</Text>
             </Text>
             <TouchableOpacity onPress={() => setReplyTo(null)}>
               <Text style={styles.replyCancelText}>Cancel</Text>
@@ -432,12 +432,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: "#F0F0F0",
+    borderBottomColor: '#333333',
   },
   topTitle: {
     fontSize: 17,
-    fontFamily: "PlusJakartaSansBold",
-    color: "#111",
+    fontFamily: "OutfitBold",
+    color: '#E5E5E5',
   },
   postContainer: {
     padding: 16,
@@ -456,7 +456,7 @@ const styles = StyleSheet.create({
   avatarInitial: {
     color: "#fff",
     fontSize: 18,
-    fontFamily: "PlusJakartaSansBold",
+    fontFamily: "OutfitBold",
   },
   nameFollowRow: {
     flexDirection: "row",
@@ -465,8 +465,8 @@ const styles = StyleSheet.create({
   },
   authorName: {
     fontSize: 15,
-    fontFamily: "PlusJakartaSansBold",
-    color: "#111",
+    fontFamily: "OutfitBold",
+    color: '#E5E5E5',
   },
   followBtn: {
     flexDirection: "row",
@@ -484,7 +484,7 @@ const styles = StyleSheet.create({
   },
   followBtnText: {
     fontSize: 11,
-    fontFamily: "PlusJakartaSansBold",
+    fontFamily: "OutfitBold",
     color: "#fff",
   },
   followBtnTextActive: {
@@ -492,17 +492,17 @@ const styles = StyleSheet.create({
   },
   authorHandle: {
     fontSize: 13,
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
     color: "#999",
   },
   timeAgo: {
     fontSize: 12,
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
     color: "#BBB",
   },
   content: {
     fontSize: 16,
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
     color: "#222",
     lineHeight: 24,
     marginBottom: 4,
@@ -524,7 +524,7 @@ const styles = StyleSheet.create({
   },
   analyticsText: {
     fontSize: 13,
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
     color: "#BBB",
   },
   actionRow: {
@@ -538,7 +538,7 @@ const styles = StyleSheet.create({
   actionBtn: { flexDirection: "row", alignItems: "center", gap: 6 },
   actionLabel: {
     fontSize: 14,
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
     color: "#888",
   },
   commentsHeader: {
@@ -549,14 +549,14 @@ const styles = StyleSheet.create({
   },
   commentsTitle: {
     fontSize: 16,
-    fontFamily: "PlusJakartaSansBold",
-    color: "#111",
+    fontFamily: "OutfitBold",
+    color: '#E5E5E5',
   },
   emptyComments: {
     color: "#BBB",
     textAlign: "center",
     paddingVertical: 20,
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
   },
   commentRow: {
     flexDirection: "row",
@@ -573,18 +573,18 @@ const styles = StyleSheet.create({
   commentAvatarInitial: {
     color: "#fff",
     fontSize: 13,
-    fontFamily: "PlusJakartaSansBold",
+    fontFamily: "OutfitBold",
   },
   commentBody: { flex: 1 },
   commentAuthor: {
     fontSize: 13,
-    fontFamily: "PlusJakartaSansBold",
-    color: "#111",
+    fontFamily: "OutfitBold",
+    color: '#E5E5E5',
   },
   commentText: {
     fontSize: 14,
-    fontFamily: "PlusJakartaSans",
-    color: "#444",
+    fontFamily: "Outfit",
+    color: '#D1D5DB',
     marginTop: 2,
     lineHeight: 20,
   },
@@ -596,7 +596,7 @@ const styles = StyleSheet.create({
   },
   commentTime: {
     fontSize: 11,
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
     color: "#BBB",
   },
   commentActionBtn: {
@@ -606,7 +606,7 @@ const styles = StyleSheet.create({
   },
   commentActionText: {
     fontSize: 11,
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
     color: "#BBB",
   },
   replyIndicator: {
@@ -615,23 +615,23 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 16,
     paddingVertical: 8,
-    backgroundColor: "#F7F7FB",
+    backgroundColor: '#1E1E1E',
     borderTopWidth: 1,
-    borderTopColor: "#F0F0F0",
+    borderTopColor: '#333333',
   },
   replyText: {
     fontSize: 13,
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
     color: "#888",
   },
   replyCancelText: {
     fontSize: 13,
-    fontFamily: "PlusJakartaSansBold",
+    fontFamily: "OutfitBold",
     color: BRAND,
   },
   replyRow: {
     paddingLeft: 38,
-    backgroundColor: "#FAFAFA",
+    backgroundColor: '#1E1E1E',
   },
   replyIconCol: {
     position: "absolute",
@@ -650,18 +650,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderTopWidth: 1,
-    borderTopColor: "#F0F0F0",
-    backgroundColor: "#fff",
+    borderTopColor: '#333333',
+    backgroundColor: "#121212",
   },
   input: {
     flex: 1,
     borderWidth: 1,
-    borderColor: "#E5E7EB",
+    borderColor: '#374151',
     borderRadius: 12,
     padding: 10,
     fontSize: 14,
-    fontFamily: "PlusJakartaSans",
-    color: "#111",
+    fontFamily: "Outfit",
+    color: '#E5E5E5',
     minHeight: 42,
     maxHeight: 100,
     textAlignVertical: "top",

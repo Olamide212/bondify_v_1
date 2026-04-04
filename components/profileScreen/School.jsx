@@ -1,13 +1,13 @@
-import { ArrowLeft, School as SchoolIcon } from "lucide-react-native";
+import { ArrowLeft } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import {
-  Pressable, StyleSheet, Text, TextInput,
-  TouchableOpacity, View,
+    Pressable, StyleSheet, Text, TextInput,
+    TouchableOpacity, View,
 } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+import { colors } from "../../constant/colors";
 import BaseModal from "../modals/BaseModal";
 import Button from "../ui/Button";
-import { colors } from "../../constant/colors";
 
 const School = ({ profile, onUpdateField }) => {
   const [modalVisible, setModalVisible] = useState(false);
@@ -43,7 +43,7 @@ const School = ({ profile, onUpdateField }) => {
           <SafeAreaView style={s.modal}>
             <View style={s.modalHeader}>
               <Pressable onPress={() => setModalVisible(false)} hitSlop={8}>
-                <ArrowLeft size={22} color="#111" />
+                <ArrowLeft size={22} color={colors.white} />
               </Pressable>
               <Text style={s.modalTitle}>School</Text>
               <View style={{ width: 22 }} />
@@ -70,10 +70,10 @@ export default School;
 
 const s = StyleSheet.create({
   card: {
-    backgroundColor:  "#fff",
-    borderRadius:     16,
+    backgroundColor: 'rgba(255,255,255,0.02)',
+    borderRadius:     12,
     borderWidth:      1,
-    borderColor:      "#F3F4F6",
+    borderColor:      'rgba(255,255,255,0.1)',
     marginHorizontal: 16,
     padding:          16,
   },
@@ -92,18 +92,18 @@ const s = StyleSheet.create({
   },
   cardValue: {
     fontSize:     16,
-    fontFamily:   "PlusJakartaSansSemiBold",
-    color:        "#111",
+    fontFamily:   "OutfitSemiBold",
+    color: '#E5E5E5',
     marginBottom: 2,
   },
   cardCta: {
     fontSize:   13,
-    fontFamily: "PlusJakartaSansMedium",
+    fontFamily: "OutfitMedium",
     color:      colors.primary,
   },
   modal: {
     flex:              1,
-    backgroundColor:   "#fff",
+    backgroundColor: '#121212',
     paddingHorizontal: 20,
     paddingTop:        12,
   },
@@ -115,17 +115,17 @@ const s = StyleSheet.create({
   },
   modalTitle: {
     fontSize:   18,
-    fontFamily: "PlusJakartaSansBold",
-    color:      "#111",
+    fontFamily: "OutfitBold",
+    color: '#E5E5E5',
   },
   input: {
     borderBottomWidth:       1,
-    borderColor:       "#000",
+    borderColor:       colors.whiteLight,
     paddingHorizontal: 16,
     paddingVertical:   20,
     fontSize:          15,
-    fontFamily:        "PlusJakartaSansMedium",
-    color:             "#111",
+    fontFamily:        "OutfitMedium",
+    color: '#E5E5E5',
     marginBottom:      20,
   },
   footer: {

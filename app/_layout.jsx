@@ -36,7 +36,7 @@ function RootLayoutInner() {
 
   return (
     <View style={{ flex: 1 }}>
-      <Stack screenOptions={{ headerShown: false }} className="bg-white">
+      <Stack screenOptions={{ headerShown: false }} className="bg-[#121212]">
         {/* Only keep these if you're customizing screen options */}
         <Stack.Screen name="index" />
         <Stack.Screen name="(root)" />
@@ -72,20 +72,13 @@ function RootLayoutInner() {
 
 export default function RootLayout() {
 const [fontsLoaded] = useFonts({
-  PlusJakartaSans: require("../assets/fonts/PlusJakartaSans_400Regular.ttf"),
-  PlusJakartaSansExtraLight: require("../assets/fonts/PlusJakartaSans_200ExtraLight.ttf"),
-  PlusJakartaSansLight: require("../assets/fonts/PlusJakartaSans_300Light.ttf"),
-  PlusJakartaSansMedium: require("../assets/fonts/PlusJakartaSans_500Medium.ttf"),
-  PlusJakartaSansSemiBold: require("../assets/fonts/PlusJakartaSans_600SemiBold.ttf"),
-  PlusJakartaSansBold: require("../assets/fonts/PlusJakartaSans_700Bold.ttf"),
-  PlusJakartaSansExtraBold: require("../assets/fonts/PlusJakartaSans_800ExtraBold.ttf"),
-  PlusJakartaSansItalic: require("../assets/fonts/PlusJakartaSans_400Regular_Italic.ttf"),
-  PlusJakartaSansExtraLightItalic: require("../assets/fonts/PlusJakartaSans_200ExtraLight_Italic.ttf"),
-  PlusJakartaSansLightItalic: require("../assets/fonts/PlusJakartaSans_300Light_Italic.ttf"),
-  PlusJakartaSansMediumItalic: require("../assets/fonts/PlusJakartaSans_500Medium_Italic.ttf"),
-  PlusJakartaSansSemiBoldItalic: require("../assets/fonts/PlusJakartaSans_600SemiBold_Italic.ttf"),
-  PlusJakartaSansBoldItalic: require("../assets/fonts/PlusJakartaSans_700Bold_Italic.ttf"),
-  PlusJakartaSansExtraBoldItalic: require("../assets/fonts/PlusJakartaSans_800ExtraBold_Italic.ttf"),
+  Outfit: require("../assets/fonts/Outfit_400Regular.ttf"),
+  OutfitExtraLight: require("../assets/fonts/Outfit_200ExtraLight.ttf"),
+  OutfitLight: require("../assets/fonts/Outfit_300Light.ttf"),
+  OutfitMedium: require("../assets/fonts/Outfit_500Medium.ttf"),
+  OutfitSemiBold: require("../assets/fonts/Outfit_600SemiBold.ttf"),
+  OutfitBold: require("../assets/fonts/Outfit_700Bold.ttf"),
+  OutfitExtraBold: require("../assets/fonts/Outfit_800ExtraBold.ttf"),
 });
 
   const onLayoutRootView = useCallback(async () => {
@@ -101,8 +94,8 @@ const [fontsLoaded] = useFonts({
   if (!fontsLoaded) return null;
 
   return (
-    <GestureHandlerRootView style={{ flex: 1, backgroundColor: '#000' }} onLayout={onLayoutRootView}>
-      <StatusBar barStyle="dark-content" />
+    <GestureHandlerRootView style={{ flex: 1, backgroundColor: '#121212' }} onLayout={onLayoutRootView}>
+      <StatusBar barStyle="light-content" backgroundColor="#121212" />
       <Provider store={store}>
         <PersistGate loading={null} persistor={persistor}>
           <ThemeProvider>

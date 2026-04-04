@@ -53,14 +53,14 @@ const TermsOfService = () => {
   const router = useRouter();
 
   return (
-    <SafeAreaView style={[s.safe, { backgroundColor: '#fff' }]} edges={["top", "bottom"]}>
+    <SafeAreaView style={[s.safe, { backgroundColor: '#121212' }]} edges={["top", "bottom"]}>
       <StatusBar barStyle={colors.statusBarStyle} backgroundColor={colors.surface} />
 
-     <GeneralHeader title="Legal" onBack={() => router.back()} leftIcon={<ArrowLeft />} />
+     <GeneralHeader title="Legal" onBack={() => router.back()} leftIcon={<ArrowLeft color={'#fff'} />} />
 
       <ScrollView
-        style={{ backgroundColor: "#fff" }}
-        contentContainerStyle={[s.body, { backgroundColor: '#fff' }]}
+        style={{ backgroundColor: "#121212" }}
+        contentContainerStyle={[s.body, { backgroundColor: '#121212' }]}
         showsVerticalScrollIndicator={false}
       >
         <Text style={[s.pageTitle, { color: colors.textPrimary }]}>Bondies Terms of{"\n"}Service</Text>
@@ -130,36 +130,36 @@ const s = StyleSheet.create({
     flexDirection: "row", alignItems: "center", justifyContent: "space-between",
     paddingHorizontal: 16, paddingVertical: 14, borderBottomWidth: StyleSheet.hairlineWidth,
   },
-  headerTitle: { fontSize: 18, fontFamily: "PlusJakartaSansBold" },
+  headerTitle: { fontSize: 18, fontFamily: "OutfitBold" },
   body: { paddingHorizontal: 20, paddingTop: 28, paddingBottom: 40 },
-  pageTitle: { fontSize: 28, fontFamily: "PlusJakartaSansBold", letterSpacing: -0.5, marginBottom: 12 },
+  pageTitle: { fontSize: 28, fontFamily: "OutfitBold", letterSpacing: -0.5, marginBottom: 12 },
   dateBadge: { flexDirection: "row", alignItems: "center", gap: 6, marginBottom: 16 },
-  dateText: { fontSize: 12, fontFamily: "PlusJakartaSansBold", letterSpacing: 0.2 },
-  intro: { fontSize: 14, fontFamily: "PlusJakartaSans", lineHeight: 21, marginBottom: 28 },
+  dateText: { fontSize: 12, fontFamily: "OutfitBold", letterSpacing: 0.2 },
+  intro: { fontSize: 14, fontFamily: "Outfit", lineHeight: 21, marginBottom: 28 },
   section: { marginBottom: 24 },
   sectionHeader: { flexDirection: "row", alignItems: "center", gap: 12, marginBottom: 10 },
   numberBadge: {
     width: 40, height: 40, borderRadius: 20,
     backgroundColor: colors.primary + 10, alignItems: "center", justifyContent: "center", flexShrink: 0,
   },
-  numberText: { fontSize: 16, fontFamily: "PlusJakartaSansBold", color: colors.primary },
-  sectionTitle: { fontSize: 17, fontFamily: "PlusJakartaSansBold" },
-  sectionBody: { fontSize: 14, fontFamily: "PlusJakartaSans", lineHeight: 21 },
+  numberText: { fontSize: 16, fontFamily: "OutfitBold", color: colors.primary },
+  sectionTitle: { fontSize: 17, fontFamily: "OutfitBold" },
+  sectionBody: { fontSize: 14, fontFamily: "Outfit", lineHeight: 21 },
   bulletRow: { flexDirection: "row", gap: 8, alignItems: "flex-start", marginBottom: 6 },
   dot: { width: 6, height: 6, borderRadius: 3, marginTop: 7, flexShrink: 0 },
-  bulletText: { flex: 1, fontSize: 14, fontFamily: "PlusJakartaSans", lineHeight: 21 },
-  contactNote: { fontSize: 13, fontFamily: "PlusJakartaSans", textAlign: "center", marginBottom: 14 },
+  bulletText: { flex: 1, fontSize: 14, fontFamily: "Outfit", lineHeight: 21 },
+  contactNote: { fontSize: 13, fontFamily: "Outfit", textAlign: "center", marginBottom: 14 },
   contactBtn: {
     backgroundColor: colors.primary, borderRadius: 50,
     paddingVertical: 15, alignItems: "center", marginBottom: 24,
   },
-  contactBtnText: { fontSize: 15, fontFamily: "PlusJakartaSansBold", color: "#fff" },
+  contactBtnText: { fontSize: 15, fontFamily: "OutfitBold", color: "#fff" },
   brandFooter: {
     backgroundColor: "#4A4A4A", borderRadius: 16,
     paddingVertical: 28, alignItems: "center", gap: 6,
   },
-  brandName: { fontSize: 22, fontFamily: "PlusJakartaSansBold", color: "#fff" },
-  brandTag: { fontSize: 10, fontFamily: "PlusJakartaSans", color: "rgba(255,255,255,0.6)", letterSpacing: 1.5 },
+  brandName: { fontSize: 22, fontFamily: "OutfitBold", color: "#fff" },
+  brandTag: { fontSize: 10, fontFamily: "Outfit", color: "rgba(255,255,255,0.6)", letterSpacing: 1.5 },
   bottomBar: {
     flexDirection: "row", gap: 12, paddingHorizontal: 20, paddingVertical: 16,
     borderTopWidth: StyleSheet.hairlineWidth,
@@ -168,12 +168,12 @@ const s = StyleSheet.create({
     flex: 1, borderRadius: 50, borderWidth: 1.5,
     paddingVertical: 14, alignItems: "center",
   },
-  declineBtnText: { fontSize: 15, fontFamily: "PlusJakartaSansBold" },
+  declineBtnText: { fontSize: 15, fontFamily: "OutfitBold" },
   agreeBtn: {
     flex: 1, backgroundColor: "#E8651A", borderRadius: 50,
     paddingVertical: 14, alignItems: "center",
   },
-  agreeBtnText: { fontSize: 15, fontFamily: "PlusJakartaSansBold", color: "#fff" },
+  agreeBtnText: { fontSize: 15, fontFamily: "OutfitBold", color: "#fff" },
 });
 
 export default TermsOfService;

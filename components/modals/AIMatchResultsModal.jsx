@@ -2,145 +2,152 @@
  * AIMatchResultsModal.jsx
  *
  * Full-screen modal shown when the user taps "AI Find My Match".
- * Displays a loading shimmer while AI processes, then a scrollable
- * list of AI-ranked match cards with compatibility scores and reasons.
+ * Displays a 2-column grid of AI-ranked match cards (same style as
+ * the Liked You / You Liked screens) with AI score badges.
  */
 
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import {
-    Briefcase,
-    ChevronRight,
-    Heart,
-    MapPin,
-    Sparkles,
-    X,
-} from "lucide-react-native";
+import { Wand2, X } from "lucide-react-native";
 import {
     ActivityIndicator,
     Dimensions,
-    ScrollView,
+    FlatList,
+    ImageBackground,
     StyleSheet,
     Text,
     TouchableOpacity,
     View,
 } from "react-native";
 import { colors } from "../../constant/colors";
-import LoadingImage from "../ui/LoadingImage";
 import BaseModal from "./BaseModal";
 
 const { width: SW } = Dimensions.get("window");
-const CARD_W = SW - 48;
+const CARD_W = (SW - 48) / 2;
 
 // ── Score colour helper ─────────────────────────────────────────────────────
 const getScoreColor = (score) => {
-  if (score >= 85) return "#22C55E"; // green
-  if (score >= 70) return "#F59E0B"; // amber
-  return "#EF4444"; // red
+  if (score >= 85) return "#22C55E";
+  if (score >= 70) return "#F59E0B";
+  return "#EF4444";
 };
 
-// ── Single match card ───────────────────────────────────────────────────────
-const MatchCard = ({ match, onViewProfile }) => {
-  const imageUrl = match.images?.[0]?.url || match.images?.[0]?.uri || null;
+// ── Extract image URL from image object or string ───────────────────────────
+const getImageUrl = (image) => {
+  if (typeof image === "string") return image;
+  if (image && typeof image === "object")
+    return image.url || image.uri || image.secure_url || null;
+  return null;
+};
+
+// ── Single grid card (matches UsersProfileCard style) ───────────────────────
+const AIGridCard = ({ match, onPress }) => {
+  const imageUrl =
+    match.images?.length > 0 ? getImageUrl(match.images[0]) : null;
+  const imageSource = imageUrl
+    ? { uri: imageUrl }
+    : { uri: "https://via.placeholder.com/150" };
+
+  const name = match.firstName || match.name || "Unknown";
+  const age = match.age;
+  const occupation = match.occupation;
+  const city =
+    match.city ||
+    (typeof match.location === "object" ? match.location?.city : null);
 
   return (
-    <TouchableOpacity
-      activeOpacity={0.85}
-      onPress={() => onViewProfile(match._id)}
-      style={styles.card}
-    >
-      {/* Image */}
-      <View style={styles.cardImageWrap}>
-        {imageUrl ? (
-          <LoadingImage
-            source={{ uri: imageUrl }}
-            style={styles.cardImage}
-            containerStyle={styles.cardImage}
-            contentFit="cover"
-            indicatorColor="#fff"
-          />
-        ) : (
-          <View style={[styles.cardImage, styles.cardImagePlaceholder]}>
-            <Heart size={32} color="#D1D5DB" />
+    <View style={styles.cardContainer}>
+      <TouchableOpacity
+        style={styles.touchable}
+        onPress={() => onPress(match._id)}
+        activeOpacity={0.9}
+      >
+        <ImageBackground
+          source={imageSource}
+          style={styles.image}
+          resizeMode="cover"
+        >
+          {/* AI Score badge */}
+          <View
+            style={[
+              styles.scoreBadge,
+              { backgroundColor: getScoreColor(match.aiScore) },
+            ]}
+          >
+            <Text style={styles.scoreText}>{match.aiScore}%</Text>
           </View>
-        )}
-        <LinearGradient
-          colors={["transparent", "rgba(0,0,0,0.65)"]}
-          style={styles.cardGradient}
-        />
 
-        {/* AI Score badge */}
-        <View style={[styles.scoreBadge, { backgroundColor: getScoreColor(match.aiScore) }]}>
-          <Sparkles size={12} color="#fff" />
-          <Text style={styles.scoreText}>{match.aiScore}%</Text>
-        </View>
+          <LinearGradient
+            colors={[
+              "transparent",
+              "rgba(0,0,0,0.1)",
+              "rgba(0,0,0,0.7)",
+              "rgba(0,0,0,0.9)",
+            ]}
+            locations={[0, 0.4, 0.7, 1]}
+            style={styles.gradient}
+          >
+            <View style={styles.infoContainer}>
+              <Text style={styles.name} numberOfLines={1}>
+                {name}
+                {age ? `, ${age}` : ""}
+              </Text>
 
-        {/* Name overlay */}
-        <View style={styles.cardNameOverlay}>
-          <Text style={styles.cardName}>
-            {match.firstName}{match.age ? `, ${match.age}` : ""}
-          </Text>
-          {match.verified && (
-            <View style={styles.verifiedDot} />
-          )}
-        </View>
-      </View>
+              {occupation && (
+                <Text style={styles.detail} numberOfLines={1}>
+                  {occupation}
+                </Text>
+              )}
 
-      {/* Info section */}
-      <View style={styles.cardBody}>
-        {/* Tags row */}
-        <View style={styles.tagsRow}>
-          {match.occupation && (
-            <View style={styles.tag}>
-              <Briefcase size={12} color={colors.primary} />
-              <Text style={styles.tagText} numberOfLines={1}>{match.occupation}</Text>
+              {city && (
+                <Text style={styles.detail} numberOfLines={1}>
+                  📍 {city}
+                </Text>
+              )}
+
+              {match.aiReason && (
+                <Text style={styles.aiReason} numberOfLines={2}>
+                  ✨ {match.aiReason}
+                </Text>
+              )}
             </View>
-          )}
-          {match.city && (
-            <View style={styles.tag}>
-              <MapPin size={12} color={colors.primary} />
-              <Text style={styles.tagText} numberOfLines={1}>{match.city}</Text>
-            </View>
-          )}
-        </View>
-
-        {/* AI reason */}
-        <Text style={styles.aiReason} numberOfLines={2}>
-          {match.aiReason}
-        </Text>
-
-        {/* View profile arrow */}
-        <View style={styles.viewRow}>
-          <Text style={styles.viewText}>View profile</Text>
-          <ChevronRight size={16} color={colors.primary} />
-        </View>
-      </View>
-    </TouchableOpacity>
+          </LinearGradient>
+        </ImageBackground>
+      </TouchableOpacity>
+    </View>
   );
 };
 
 // ── Main Modal ──────────────────────────────────────────────────────────────
-const AIMatchResultsModal = ({ visible, onClose, matches, loading, message }) => {
+const AIMatchResultsModal = ({
+  visible,
+  onClose,
+  matches,
+  loading,
+  message,
+}) => {
   const router = useRouter();
 
   const handleViewProfile = (profileId) => {
     onClose();
-    // Small delay so modal closes first
     setTimeout(() => {
-      router.push({ pathname: "/(root)/profile-detail", params: { id: profileId } });
+      router.push({
+        pathname: "/(root)/profile-detail",
+        params: { id: profileId },
+      });
     }, 300);
   };
 
   return (
-    <BaseModal visible={visible} onClose={onClose} fullScreen>
+    <BaseModal visible={visible} onClose={onClose} fullScreen contentBackground={{ backgroundColor: "#121212" }}>
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerLeft}>
-          <Sparkles size={22} color={colors.primary} />
+          <Wand2 size={22} color={colors.primary} />
           <Text style={styles.headerTitle}>AI Matches</Text>
         </View>
         <TouchableOpacity onPress={onClose} hitSlop={12}>
-          <X size={22} color="#6B7280" />
+          <X size={22} color="#fff" />
         </TouchableOpacity>
       </View>
 
@@ -150,44 +157,61 @@ const AIMatchResultsModal = ({ visible, onClose, matches, loading, message }) =>
           <ActivityIndicator size="large" color={colors.primary} />
           <Text style={styles.loadingTitle}>Finding your best matches…</Text>
           <Text style={styles.loadingSubtitle}>
-            Our AI is analyzing profiles to find people who are truly compatible with you.
+            Our AI is analyzing profiles to find people who are truly compatible
+            with you.
           </Text>
         </View>
       )}
 
       {/* Results */}
       {!loading && (
-        <ScrollView
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-        >
-          {/* Message banner */}
-          {message && (
-            <View style={styles.messageBanner}>
-              <Sparkles size={16} color={colors.primary} />
-              <Text style={styles.messageText}>{message}</Text>
-            </View>
-          )}
+        <View style={styles.tabContent}>
+          {/* Banner */}
+          <LinearGradient
+            colors={[colors.primary, "#A855F7"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={styles.banner}
+          >
+            <Text style={styles.bannerTitle}>
+              {message || `✨ ${matches?.length || 0} AI-picked matches for you!`}
+            </Text>
+            <Text style={styles.bannerSubtitle}>
+              Ranked by compatibility with your profile.
+            </Text>
+          </LinearGradient>
 
-          {/* Match cards */}
+          {/* Grid */}
           {matches?.length > 0 ? (
-            matches.map((match) => (
-              <MatchCard
-                key={match._id}
-                match={match}
-                onViewProfile={handleViewProfile}
-              />
-            ))
+            <FlatList
+              data={matches}
+              keyExtractor={(item) => item._id}
+              renderItem={({ item }) => (
+                <AIGridCard match={item} onPress={handleViewProfile} />
+              )}
+              numColumns={2}
+              contentContainerStyle={styles.listContent}
+              columnWrapperStyle={styles.columnWrapper}
+              showsVerticalScrollIndicator={false}
+            />
           ) : (
             <View style={styles.emptyContainer}>
-              <Text style={{ fontSize: 48, textAlign: "center", marginBottom: 12 }}>🔍</Text>
+              <Text
+                style={{
+                  fontSize: 48,
+                  textAlign: "center",
+                  marginBottom: 12,
+                }}
+              >
+                🔍
+              </Text>
               <Text style={styles.emptyTitle}>No matches found</Text>
               <Text style={styles.emptySubtitle}>
                 Try again later — new people join every day!
               </Text>
             </View>
           )}
-        </ScrollView>
+        </View>
       )}
     </BaseModal>
   );
@@ -202,8 +226,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 16,
     paddingBottom: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: "#F3F4F6",
+    // borderBottomWidth: 1,
+    // borderBottomColor: "#f1f1f1",
   },
   headerLeft: {
     flexDirection: "row",
@@ -212,8 +236,8 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 20,
-    fontFamily: "PlusJakartaSansBold",
-    color: "#111827",
+    fontFamily: "OutfitBold",
+    color: "#fff",
   },
 
   // Loading
@@ -226,157 +250,123 @@ const styles = StyleSheet.create({
   },
   loadingTitle: {
     fontSize: 18,
-    fontFamily: "PlusJakartaSansBold",
-    color: "#111827",
+    fontFamily: "OutfitBold",
+    color: "#fff",
     textAlign: "center",
     marginTop: 8,
   },
   loadingSubtitle: {
     fontSize: 14,
-    fontFamily: "PlusJakartaSans",
-    color: "#6B7280",
+    fontFamily: "Outfit",
+    color: "#fff",
     textAlign: "center",
     lineHeight: 20,
   },
 
-  // Scroll content
-  scrollContent: {
-    padding: 20,
-    paddingBottom: 40,
-    gap: 16,
+  // Content
+  tabContent: {
+    flex: 1,
+    padding: 16,
   },
-
-  // Message banner
-  messageBanner: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-    backgroundColor: `${colors.primary}10`,
-    borderRadius: 14,
-    padding: 14,
+  banner: {
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 16,
+  },
+  bannerTitle: {
+    color: "white",
+    fontSize: 16,
+    fontFamily: "OutfitBold",
     marginBottom: 4,
   },
-  messageText: {
-    flex: 1,
+  bannerSubtitle: {
+    color: "white",
     fontSize: 14,
-    fontFamily: "PlusJakartaSansMedium",
-    color: "#374151",
-    lineHeight: 20,
+    fontFamily: "OutfitMedium",
+  },
+  listContent: {
+    alignItems: "center",
+    paddingBottom: 100,
+  },
+  columnWrapper: {
+    justifyContent: "space-between",
+    marginBottom: 16,
   },
 
-  // Card
-  card: {
+  // Card — matches UsersProfileCard style
+  cardContainer: {
     width: CARD_W,
-    backgroundColor: "#fff",
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: "#F0F0F0",
+    height: 270,
+    marginHorizontal: 0,
+  },
+  touchable: {
+    flex: 1,
+    borderRadius: 16,
     overflow: "hidden",
+    backgroundColor: "#121212",
+    borderWidth: 2,
+    borderColor: "#FFFFFF",
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    elevation: 3,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    elevation: 6,
   },
-  cardImageWrap: {
-    width: "100%",
-    height: 260,
-    position: "relative",
-  },
-  cardImage: {
+  image: {
+    flex: 1,
     width: "100%",
     height: "100%",
+    justifyContent: "flex-end",
   },
-  cardImagePlaceholder: {
-    backgroundColor: "#F9FAFB",
-    justifyContent: "center",
-    alignItems: "center",
+  gradient: {
+    padding: 12,
   },
-  cardGradient: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: 100,
+  infoContainer: {
+    padding: 4,
   },
-  scoreBadge: {
-    position: "absolute",
-    top: 12,
-    right: 12,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 20,
+  name: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 4,
+    textShadowColor: "rgba(0, 0, 0, 0.75)",
+    textShadowOffset: { width: -1, height: 1 },
+    textShadowRadius: 5,
   },
-  scoreText: {
-    fontSize: 13,
-    fontFamily: "PlusJakartaSansBold",
-    color: "#fff",
-  },
-  cardNameOverlay: {
-    position: "absolute",
-    bottom: 12,
-    left: 14,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-  },
-  cardName: {
-    fontSize: 20,
-    fontFamily: "PlusJakartaSansBold",
-    color: "#fff",
-  },
-  verifiedDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: "#3B82F6",
-  },
-
-  // Card body
-  cardBody: {
-    padding: 14,
-    gap: 10,
-  },
-  tagsRow: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 8,
-  },
-  tag: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-    backgroundColor: `${colors.primary}10`,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 20,
-  },
-  tagText: {
+  detail: {
+    color: "white",
     fontSize: 12,
-    fontFamily: "PlusJakartaSansMedium",
-    color: "#374151",
-    maxWidth: 120,
+    opacity: 0.9,
+    marginBottom: 2,
+    textShadowColor: "rgba(0, 0, 0, 0.75)",
+    textShadowOffset: { width: -1, height: 1 },
+    textShadowRadius: 5,
   },
   aiReason: {
-    fontSize: 13,
-    fontFamily: "PlusJakartaSans",
-    color: "#6B7280",
-    lineHeight: 19,
+    color: "#fff",
+    fontSize: 10,
+    opacity: 0.85,
+    marginTop: 2,
+    fontStyle: "italic",
+    textShadowColor: "rgba(0, 0, 0, 0.75)",
+    textShadowOffset: { width: -1, height: 1 },
+    textShadowRadius: 5,
   },
-  viewRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "flex-end",
-    gap: 2,
-    paddingTop: 4,
+
+  // Score badge
+  scoreBadge: {
+    position: "absolute",
+    top: 8,
+    right: 8,
+    zIndex: 10,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 12,
   },
-  viewText: {
-    fontSize: 13,
-    fontFamily: "PlusJakartaSansMedium",
-    color: colors.primary,
+  scoreText: {
+    fontSize: 11,
+    fontFamily: "OutfitBold",
+    color: "#fff",
   },
 
   // Empty
@@ -387,15 +377,15 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     fontSize: 18,
-    fontFamily: "PlusJakartaSansBold",
-    color: "#111827",
+    fontFamily: "OutfitBold",
+    color: "#fff",
     textAlign: "center",
     marginBottom: 8,
   },
   emptySubtitle: {
     fontSize: 14,
-    fontFamily: "PlusJakartaSans",
-    color: "#6B7280",
+    fontFamily: "Outfit",
+    color: "#fff",
     textAlign: "center",
     lineHeight: 20,
   },

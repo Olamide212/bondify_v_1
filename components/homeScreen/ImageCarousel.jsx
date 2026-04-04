@@ -70,7 +70,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 3,
   },
   activeDot: {
-    backgroundColor: "#fff",
+    backgroundColor: "#121212",
     width: 12,
   },
   inactiveDot: {

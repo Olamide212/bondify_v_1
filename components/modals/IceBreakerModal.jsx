@@ -130,7 +130,7 @@ const IceBreakerModal = ({ visible, onClose, onSend }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#121212",
   },
   header: {
     flexDirection: "row",
@@ -143,8 +143,8 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-    fontFamily: "PlusJakartaSansBold",
-    color: "#000",
+    fontFamily: "OutfitBold",
+    color: '#FFFFFF',
   },
   closeButton: {
     padding: 4,
@@ -158,8 +158,8 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 15,
-    fontFamily: "PlusJakartaSans",
-    color: "#666",
+    fontFamily: "Outfit",
+    color: '#9CA3AF',
     marginBottom: 24,
     lineHeight: 22,
   },
@@ -174,8 +174,8 @@ const styles = StyleSheet.create({
   },
   sectionLabel: {
     fontSize: 16,
-    fontFamily: "PlusJakartaSansBold",
-    color: "#000",
+    fontFamily: "OutfitBold",
+    color: '#FFFFFF',
   },
   shuffleButton: {
     flexDirection: "row",
@@ -184,29 +184,29 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 20,
-    backgroundColor: "#FFF8F5",
+    backgroundColor: '#2A1F1A',
   },
   shuffleText: {
     fontSize: 14,
-    fontFamily: "PlusJakartaSansMedium",
+    fontFamily: "OutfitMedium",
     color: colors.primary,
   },
   suggestionItem: {
     padding: 14,
     borderRadius: 12,
-    backgroundColor: "#f8f8f8",
+    backgroundColor: '#1E1E1E',
     marginBottom: 8,
     borderWidth: 1.5,
     borderColor: "transparent",
   },
   selectedSuggestion: {
     borderColor: colors.primary,
-    backgroundColor: "#FFF8F5",
+    backgroundColor: '#2A1F1A',
   },
   suggestionText: {
     fontSize: 15,
-    fontFamily: "PlusJakartaSans",
-    color: "#333",
+    fontFamily: "Outfit",
+    color: '#D1D5DB',
     lineHeight: 22,
   },
   selectedSuggestionText: {
@@ -217,21 +217,21 @@ const styles = StyleSheet.create({
   },
   customInput: {
     borderWidth: 1,
-    borderColor: "#ddd",
+    borderColor: '#444',
     borderRadius: 12,
     padding: 14,
     marginTop: 10,
     minHeight: 80,
     fontSize: 15,
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
     textAlignVertical: "top",
-    color: "#000",
+    color: '#FFFFFF',
   },
   footer: {
     padding: 20,
     borderTopWidth: 1,
     borderTopColor: "#f0f0f0",
-    backgroundColor: "#fff",
+    backgroundColor: "#121212",
   },
   sendButton: {
     flexDirection: "row",
@@ -248,7 +248,7 @@ const styles = StyleSheet.create({
   sendButtonText: {
     color: "#fff",
     fontSize: 18,
-    fontFamily: "PlusJakartaSansSemiBold",
+    fontFamily: "OutfitSemiBold",
   },
 });
 

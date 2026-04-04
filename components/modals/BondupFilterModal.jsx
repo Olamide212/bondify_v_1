@@ -305,12 +305,12 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-    fontFamily: "PlusJakartaSansBold",
-    color: "#1a1a1a",
+    fontFamily: "OutfitBold",
+    color: '#E5E5E5',
   },
   resetText: {
     fontSize: 14,
-    fontFamily: "PlusJakartaSansMedium",
+    fontFamily: "OutfitMedium",
     color: colors.primary,
   },
   scrollBody: {
@@ -329,8 +329,8 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 16,
-    fontFamily: "PlusJakartaSansBold",
-    color: "#333",
+    fontFamily: "OutfitBold",
+    color: '#D1D5DB',
   },
   countBadge: {
     backgroundColor: colors.primary,
@@ -343,21 +343,21 @@ const styles = StyleSheet.create({
   },
   countBadgeText: {
     fontSize: 11,
-    fontFamily: "PlusJakartaSansBold",
+    fontFamily: "OutfitBold",
     color: "#fff",
   },
 
   // Text input
   textInput: {
     borderWidth: 1,
-    borderColor: "#E5E7EB",
+    borderColor: '#374151',
     borderRadius: 12,
     paddingHorizontal: 14,
     paddingVertical: 12,
     fontSize: 15,
-    fontFamily: "PlusJakartaSans",
-    color: "#1a1a1a",
-    backgroundColor: "#FAFAFA",
+    fontFamily: "Outfit",
+    color: '#E5E5E5',
+    backgroundColor: '#1E1E1E',
   },
 
   // Category chips
@@ -373,7 +373,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 20,
-    backgroundColor: "#F3F4F6",
+    backgroundColor: '#1E1E1E',
     borderWidth: 1.5,
     borderColor: "transparent",
   },
@@ -386,12 +386,12 @@ const styles = StyleSheet.create({
   },
   chipLabel: {
     fontSize: 13,
-    fontFamily: "PlusJakartaSansMedium",
-    color: "#555",
+    fontFamily: "OutfitMedium",
+    color: '#9CA3AF',
   },
   chipLabelActive: {
     color: colors.primary,
-    fontFamily: "PlusJakartaSansBold",
+    fontFamily: "OutfitBold",
   },
 
   // Distance
@@ -404,7 +404,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 20,
-    backgroundColor: "#F3F4F6",
+    backgroundColor: '#1E1E1E',
     borderWidth: 1.5,
     borderColor: "transparent",
   },
@@ -414,12 +414,12 @@ const styles = StyleSheet.create({
   },
   distanceChipText: {
     fontSize: 13,
-    fontFamily: "PlusJakartaSansMedium",
-    color: "#555",
+    fontFamily: "OutfitMedium",
+    color: '#9CA3AF',
   },
   distanceChipTextActive: {
     color: colors.primary,
-    fontFamily: "PlusJakartaSansBold",
+    fontFamily: "OutfitBold",
   },
 
   // Sort options
@@ -457,12 +457,12 @@ const styles = StyleSheet.create({
   },
   sortOptionLabel: {
     fontSize: 14,
-    fontFamily: "PlusJakartaSansMedium",
-    color: "#333",
+    fontFamily: "OutfitMedium",
+    color: '#D1D5DB',
   },
   sortOptionLabelActive: {
     color: colors.primary,
-    fontFamily: "PlusJakartaSansBold",
+    fontFamily: "OutfitBold",
   },
 
   // Apply button
@@ -475,7 +475,7 @@ const styles = StyleSheet.create({
   },
   applyButtonText: {
     fontSize: 16,
-    fontFamily: "PlusJakartaSansBold",
+    fontFamily: "OutfitBold",
     color: "#fff",
   },
 });

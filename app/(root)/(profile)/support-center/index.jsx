@@ -42,9 +42,9 @@ const SupportCenter = () => {
 
   return (
     <SafeAreaProvider>
-      <SafeAreaView style={{flex: 1}} className="bg-white">
-        <GeneralHeader title=" Support" leftIcon={<ArrowLeft />}
-          className="bg-white" />
+      <SafeAreaView style={{flex: 1}} className="bg-[#121212]">
+        <GeneralHeader title=" Support" leftIcon={<ArrowLeft color={'#fff'} />}
+          className="bg-[#121212]" />
         <ScrollView contentContainerStyle={styles.scrollContent} style={{flex: 1}} className="flex-col gap-6 bg-background">
           <Text style={styles.headerTitle}>Contact us</Text>
 
@@ -70,17 +70,17 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 20,
-    fontFamily: "PlusJakartaSansBold",
-    color: "#111",
+    fontFamily: "OutfitBold",
+    color: '#E5E5E5',
     marginBottom: 5,
     marginTop: 10,
   },
   infoText: {
     textAlign: "left",
-    color: "#555",
+    color: '#9CA3AF',
     fontSize: 14,
     marginBottom: 16,
     lineHeight: 20,
-    fontFamily: "PlusJakartaSansMedium",
+    fontFamily: "OutfitMedium",
   },
 });

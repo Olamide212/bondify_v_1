@@ -60,8 +60,8 @@ const SubscriptionBannerSlider = () => {
             <Text className="text-base text-white mb-3">{banner.desc}</Text>
 
             {/* CTA Button */}
-            <TouchableOpacity className="bg-white px-4 py-2 rounded-full">
-              <Text className="text-black font-semibold">{banner.cta}</Text>
+            <TouchableOpacity className="bg-[#121212] px-4 py-2 rounded-full">
+              <Text className="text-white font-semibold">{banner.cta}</Text>
             </TouchableOpacity>
           </View>
         ))}

@@ -1,9 +1,8 @@
-import { GraduationCap } from "lucide-react-native";
 import { useEffect, useMemo, useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { colors } from "../../constant/colors";
 import { useLookupOptions } from "../../hooks/useLookupOptions";
 import ProfileEducationModal from "../modals/ProfileEducationModal";
-import { colors } from "../../constant/colors";
 
 const Education = ({ profile, onUpdateField }) => {
   const [modalVisible, setModalVisible]         = useState(false);
@@ -61,10 +60,10 @@ export default Education;
 
 const s = StyleSheet.create({
   card: {
-    backgroundColor:  "#fff",
-    borderRadius:     16,
+    backgroundColor: 'rgba(255,255,255,0.02)',
+    borderRadius:     12,
     borderWidth:      1,
-    borderColor:      "#F3F4F6",
+    borderColor:      'rgba(255,255,255,0.1)',
     marginHorizontal: 16,
     padding:          16,
   },
@@ -83,13 +82,13 @@ const s = StyleSheet.create({
   },
   cardValue: {
     fontSize:     16,
-    fontFamily:   "PlusJakartaSansSemiBold",
-    color:        "#111",
+    fontFamily:   "OutfitSemiBold",
+    color: '#E5E5E5',
     marginBottom: 2,
   },
   cardCta: {
     fontSize:   13,
-    fontFamily: "PlusJakartaSansMedium",
+    fontFamily: "OutfitMedium",
     color:      colors.primary,
   },
 });

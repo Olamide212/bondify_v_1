@@ -240,13 +240,13 @@ export default function EditFeedProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#121212",
   },
   loadingContainer: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#fff",
+    backgroundColor: "#121212",
   },
   header: {
     flexDirection: "row",
@@ -259,8 +259,8 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 17,
-    fontFamily: "PlusJakartaSansBold",
-    color: "#111",
+    fontFamily: "OutfitBold",
+    color: '#E5E5E5',
   },
   saveIconButton: {
     width: 32,
@@ -288,7 +288,7 @@ const styles = StyleSheet.create({
   avatarInitial: {
     fontSize: 42,
     color: "#fff",
-    fontFamily: "PlusJakartaSansBold",
+    fontFamily: "OutfitBold",
   },
   avatarOverlay: {
     position: "absolute",
@@ -300,7 +300,7 @@ const styles = StyleSheet.create({
   },
   avatarOverlayText: {
     fontSize: 13,
-    fontFamily: "PlusJakartaSansMedium",
+    fontFamily: "OutfitMedium",
     color: BRAND,
   },
   formSection: {
@@ -309,17 +309,17 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 13,
-    fontFamily: "PlusJakartaSansMedium",
-    color: "#6B7280",
+    fontFamily: "OutfitMedium",
+    color: '#9CA3AF',
   },
   input: {
     borderWidth: 1.5,
-    borderColor: "#E5E7EB",
+    borderColor: '#374151',
     borderRadius: 12,
     padding: 14,
     fontSize: 15,
-    fontFamily: "PlusJakartaSans",
-    color: "#111",
+    fontFamily: "Outfit",
+    color: '#E5E5E5',
   },
   primaryButton: {
     marginTop: 10,
@@ -331,6 +331,6 @@ const styles = StyleSheet.create({
   primaryButtonText: {
     color: "#fff",
     fontSize: 15,
-    fontFamily: "PlusJakartaSansBold",
+    fontFamily: "OutfitBold",
   },
 });

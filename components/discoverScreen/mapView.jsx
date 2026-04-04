@@ -119,20 +119,20 @@ const { height } = Dimensions.get("window");
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F9FAFB",
+    backgroundColor: '#1E1E1E',
   },
   header: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     padding: 16,
-    backgroundColor: "white",
+    backgroundColor: "#121212",
     elevation: 2,
   },
   searchContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#F3F4F6",
+    backgroundColor: '#1E1E1E',
     borderRadius: 20,
     paddingHorizontal: 12,
     paddingVertical: 8,
@@ -140,7 +140,7 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   searchText: {
-    color: "#6B7280",
+    color: '#9CA3AF',
     marginLeft: 8,
     fontSize: 16,
   },
@@ -158,7 +158,7 @@ const styles = StyleSheet.create({
   userCard: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "white",
+    backgroundColor: "#121212",
     borderRadius: 12,
     padding: 12,
     marginBottom: 8,
@@ -185,7 +185,7 @@ const styles = StyleSheet.create({
   userName: {
     fontSize: 16,
     fontWeight: "bold",
-    color: "#1F2937",
+    color: '#E5E7EB',
     marginBottom: 4,
   },
   userDetails: {
@@ -194,14 +194,14 @@ const styles = StyleSheet.create({
   },
   userDistance: {
     fontSize: 14,
-    color: "#6B7280",
+    color: '#9CA3AF',
     marginLeft: 4,
   },
   bottomActions: {
     flexDirection: "row",
     justifyContent: "space-around",
     paddingVertical: 16,
-    backgroundColor: "white",
+    backgroundColor: "#121212",
     borderTopWidth: 1,
     borderTopColor: "#E5E7EB",
   },
@@ -209,7 +209,7 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: "#F3F4F6",
+    backgroundColor: '#1E1E1E',
     justifyContent: "center",
     alignItems: "center",
   },

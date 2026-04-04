@@ -1,4 +1,3 @@
-import { Quote } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { colors } from "../../constant/colors";
@@ -70,7 +69,7 @@ const Tagline = ({ profile, onUpdateField }) => {
             ) : (
               <Text style={s.placeholder}>Tap to add a tagline...</Text>
             )}
-            <Text style={s.editHint}>Tap to edit</Text>
+    
           </TouchableOpacity>
         )}
       </View>
@@ -85,10 +84,10 @@ const s = StyleSheet.create({
     paddingHorizontal: 16,
   },
   card: {
-    backgroundColor: "#fff",
-    borderRadius: 16,
+    backgroundColor: 'rgba(255,255,255,0.02)',
+    borderRadius: 12,
     borderWidth: 1,
-    borderColor: "#F3F4F6",
+    borderColor: 'rgba(255,255,255,0.1)',
     padding: 16,
   },
   header: {
@@ -110,30 +109,30 @@ const s = StyleSheet.create({
   },
   title: {
     fontSize: 16,
-    fontFamily: "PlusJakartaSansBold",
-    color: "#111",
+    fontFamily: "OutfitBold",
+    color: '#E5E5E5',
   },
   subtitle: {
     fontSize: 12,
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
     color: "#9CA3AF",
     marginTop: 2,
   },
   taglineText: {
     fontSize: 18,
-    fontFamily: "PlusJakartaSansSemiBold",
-    color: "#111",
+    fontFamily: "OutfitSemiBold",
+    color: '#E5E5E5',
     fontStyle: "italic",
     lineHeight: 26,
   },
   placeholder: {
     fontSize: 15,
-    fontFamily: "PlusJakartaSansMedium",
+    fontFamily: "OutfitMedium",
     color: "#9CA3AF",
   },
   editHint: {
     fontSize: 12,
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
     color: "#D1D5DB",
     marginTop: 4,
   },
@@ -144,13 +143,13 @@ const s = StyleSheet.create({
     borderBottomWidth: 1.5,
     borderBottomColor: colors.primary,
     fontSize: 16,
-    fontFamily: "PlusJakartaSansMedium",
-    color: "#111",
+    fontFamily: "OutfitMedium",
+    color: '#E5E5E5',
     paddingVertical: 10,
   },
   charCount: {
     fontSize: 12,
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
     color: "#9CA3AF",
     textAlign: "right",
     marginTop: 4,
@@ -165,12 +164,12 @@ const s = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 8,
-    backgroundColor: "#F3F4F6",
+    backgroundColor: '#1E1E1E',
   },
   cancelText: {
     fontSize: 14,
-    fontFamily: "PlusJakartaSansSemiBold",
-    color: "#6B7280",
+    fontFamily: "OutfitSemiBold",
+    color: '#9CA3AF',
   },
   saveBtn: {
     paddingVertical: 10,
@@ -180,7 +179,7 @@ const s = StyleSheet.create({
   },
   saveText: {
     fontSize: 14,
-    fontFamily: "PlusJakartaSansSemiBold",
+    fontFamily: "OutfitSemiBold",
     color: "#fff",
   },
 });

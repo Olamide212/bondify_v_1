@@ -124,9 +124,9 @@ const ToggleRow = ({ setting, value, onChange, disabled }) => (
       value={Boolean(value)}
       onValueChange={(v) => onChange(setting.key, v)}
       disabled={disabled}
-      trackColor={{ false: "#E5E7EB", true: colors.primary }}
+      trackColor={{ false: "#3A3A3A", true: colors.primary }}
       thumbColor={Platform.OS === "android" ? (value ? "#fff" : "#f4f3f4") : undefined}
-      ios_backgroundColor="#E5E7EB"
+      ios_backgroundColor="#3A3A3A"
     />
   </View>
 );
@@ -203,11 +203,11 @@ const PrivacySettings = ({ onBack }) => {
 
   return (
     <SafeAreaView style={styles.safe} edges={["top", "left", "right", "bottom"]}>
-      <StatusBar barStyle="dark-content" backgroundColor="#fff" />
+      <StatusBar barStyle="light-content" backgroundColor="#121212" />
 
       {/* Header */}
     
-     <GeneralHeader onBack={onBack} title="Privacy Settings" leftIcon={<ArrowLeft />} />
+     <GeneralHeader onBack={onBack} title="Privacy Settings" leftIcon={<ArrowLeft color={'white'} />} />
         {/* <View style={styles.headerRight}>
           {savingKey !== null && (
             <ActivityIndicator size="small" color="#6366F1" />
@@ -298,7 +298,7 @@ const PrivacySettings = ({ onBack }) => {
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#121212",
   },
   centered: {
     flex: 1,
@@ -311,9 +311,9 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingHorizontal: 16,
     paddingVertical: 14,
-    backgroundColor: "#fff",
+    backgroundColor: "#121212",
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: "#E5E7EB",
+    borderBottomColor: "#2A2A2A",
   },
   backBtn: {
     width: 36,
@@ -321,17 +321,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 18,
-    backgroundColor: "#F3F4F6",
+    backgroundColor: '#1E1E1E',
   },
   backIcon: {
     fontSize: 18,
-    color: "#111827",
+    color: "#E5E5E5",
     lineHeight: 22,
   },
   headerTitle: {
     fontSize: 17,
- fontFamily: fonts.PlusJakartaSansBold,
-    color: "#111827",
+ fontFamily: fonts.OutfitBold,
+    color: "#E5E5E5",
     letterSpacing: -0.3,
   },
   headerRight: {
@@ -347,15 +347,16 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   sectionLabel: {
-    fontSize: 11,
-    fontFamily: fonts.PlusJakartaSansBold,
-    color: colors.primary,
+    fontSize: 20,
+    fontFamily: fonts.OutfitBold,
+    color: colors.white,
     letterSpacing: 0.8,
     marginBottom: 8,
     marginLeft: 4,
+    textTransform: 'capitalize'
   },
   card: {
-    backgroundColor: "#fff",
+    backgroundColor: "#121212",
     borderRadius: 16,
     overflow: "hidden",
     marginBottom: 28,
@@ -367,7 +368,7 @@ const styles = StyleSheet.create({
   },
   divider: {
     height: StyleSheet.hairlineWidth,
-    backgroundColor: "#F3F4F6",
+    backgroundColor: colors.whiteLight,
     marginLeft: 16,
   },
   visibilityCard: {
@@ -406,8 +407,8 @@ const styles = StyleSheet.create({
   },
   visibilityLabel: {
     fontSize: 15,
-fontFamily: fonts.PlusJakartaSansBold,
-    color: "#374151",
+fontFamily: fonts.OutfitBold,
+    color: '#D1D5DB',
     marginBottom: 2,
   },
   visibilityLabelSelected: {
@@ -415,7 +416,7 @@ fontFamily: fonts.PlusJakartaSansBold,
   },
   visibilityDescription: {
     fontSize: 13,
-    fontFamily: fonts.PlusJakartaSansMedium,
+    fontFamily: fonts.OutfitMedium,
     color: colors.gray,
     lineHeight: 18,
   },
@@ -432,19 +433,19 @@ fontFamily: fonts.PlusJakartaSansBold,
   },
   toggleLabel: {
     fontSize: 15,
-    fontFamily: fonts.PlusJakartaSansBold,
-    color: "#111827",
+    fontFamily: fonts.OutfitBold,
+    color: "#E5E5E5",
     marginBottom: 2,
   },
   toggleDescription: {
     fontSize: 13,
-    fontFamily: fonts.PlusJakartaSansMedium,
-    color: colors.gray,
+    fontFamily: fonts.OutfitMedium,
+    color: "#9CA3AF",
     lineHeight: 18,
   },
   footerNote: {
     fontSize: 12,
-    fontFamily: fonts.PlusJakartaSans,
+    fontFamily: fonts.Outfit,
     color: colors.gray,
     textAlign: "center",
     lineHeight: 18,

@@ -169,10 +169,10 @@ const om = StyleSheet.create({
   group:      {  borderRadius: 16, overflow: 'hidden' },
   row:        { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingVertical: 18, gap: 16 },
   iconWrap:   { width: 28, alignItems: 'center' },
-  rowText:    { fontSize: 17, fontFamily: 'PlusJakartaSansSemiBold', color: '#111' },
+  rowText:    { fontSize: 17, fontFamily: 'OutfitSemiBold', color: '#E5E5E5' },
   divider:    { height: 1, backgroundColor: '#E5E7EB', marginHorizontal: 16 },
   cancelBtn:  {  borderRadius: 16, alignItems: 'center', paddingVertical: 18 },
-  cancelText: { fontSize: 17, fontFamily: 'PlusJakartaSansSemiBold', color: '#111' },
+  cancelText: { fontSize: 17, fontFamily: 'OutfitSemiBold', color: '#E5E5E5' },
 });
 
 // ─── Main Screen ──────────────────────────────────────────────────────────────
@@ -563,20 +563,20 @@ const s = StyleSheet.create({
   },
   backBtn:     { padding: 8 },
   moreBtn:     { padding: 8, width: 40, alignItems: 'center' },
-  headerTitle: { fontSize: 17, fontFamily: 'PlusJakartaSansBold' },
+  headerTitle: { fontSize: 17, fontFamily: 'OutfitBold' },
 
   body: { flex: 1, paddingHorizontal: 24, paddingTop: 36 },
 
   idleContent: { gap: 16, alignItems: 'center' },
   bigTitle: {
     fontSize:   26,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: 'OutfitBold',
     lineHeight: 34,
     textAlign:  'center',
   },
   subtitle: {
     fontSize:   15,
-    fontFamily: 'PlusJakartaSans',
+    fontFamily: 'Outfit',
     lineHeight: 22,
     textAlign:  'center',
   },
@@ -610,7 +610,7 @@ const s = StyleSheet.create({
     marginTop:      24,
   },
   redDot:        { width: 8, height: 8, borderRadius: 4, backgroundColor: '#EF4444' },
-  recordingText: { fontSize: 14, fontFamily: 'PlusJakartaSansMedium', color: '#EF4444' },
+  recordingText: { fontSize: 14, fontFamily: 'OutfitMedium', color: '#EF4444' },
 
   footer: {
     paddingHorizontal: 24,
@@ -619,7 +619,7 @@ const s = StyleSheet.create({
     gap:               16,
   },
 
-  tapHint: { fontSize: 15, fontFamily: 'PlusJakartaSansMedium' },
+  tapHint: { fontSize: 15, fontFamily: 'OutfitMedium' },
 
   micBtn: {
     width:           72,
@@ -635,7 +635,7 @@ const s = StyleSheet.create({
     elevation:       8,
   },
   stopBtn:    { backgroundColor: '#EF4444', shadowColor: '#EF4444' },
-  stopSquare: { width: 22, height: 22, borderRadius: 4, backgroundColor: '#fff' },
+  stopSquare: { width: 22, height: 22, borderRadius: 4, backgroundColor: '#121212' },
 
   recordedActions: { width: '100%', gap: 12 },
 
@@ -646,7 +646,7 @@ const s = StyleSheet.create({
     paddingVertical: 15,
     width:           '100%',
   },
-  saveBtnText: { color: '#fff', fontFamily: 'PlusJakartaSansBold', fontSize: 16 },
+  saveBtnText: { color: '#fff', fontFamily: 'OutfitBold', fontSize: 16 },
 
   rerecordBtn: {
     flexDirection:   'row',
@@ -658,7 +658,7 @@ const s = StyleSheet.create({
     paddingVertical: 13,
     width:           '100%',
   },
-  rerecordText: { fontSize: 15, fontFamily: 'PlusJakartaSansMedium' },
+  rerecordText: { fontSize: 15, fontFamily: 'OutfitMedium' },
 
   uploadingRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
 });

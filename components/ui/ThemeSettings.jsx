@@ -253,7 +253,7 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: "700",
     letterSpacing: -0.3,
-    fontFamily: "PlusJakartaSansBold",
+    fontFamily: "OutfitBold",
   },
   headerRight: {
     width: 36,
@@ -292,9 +292,9 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   previewLight: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#121212",
     borderWidth: 1,
-    borderColor: "#E5E7EB",
+    borderColor: '#374151',
   },
   previewDark: {
     backgroundColor: "#1C1C1E",
@@ -319,12 +319,12 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: "700",
     marginBottom: 3,
-    fontFamily: "PlusJakartaSansBold",
+    fontFamily: "OutfitBold",
   },
   heroDescription: {
     fontSize: 13,
     lineHeight: 18,
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
   },
 
   // Section label
@@ -334,7 +334,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.8,
     marginBottom: 8,
     marginLeft: 4,
-    fontFamily: "PlusJakartaSansBold",
+    fontFamily: "OutfitBold",
   },
 
   // Card
@@ -378,12 +378,12 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: "600",
     marginBottom: 2,
-    fontFamily: "PlusJakartaSansMedium",
+    fontFamily: "OutfitMedium",
   },
   optionDescription: {
     fontSize: 13,
     lineHeight: 18,
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
   },
 
   // Radio button
@@ -400,7 +400,7 @@ const styles = StyleSheet.create({
     width: 9,
     height: 9,
     borderRadius: 5,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#121212",
   },
 
   // Footer
@@ -409,7 +409,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     lineHeight: 18,
     paddingHorizontal: 8,
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
   },
 });
 

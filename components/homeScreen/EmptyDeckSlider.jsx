@@ -24,7 +24,7 @@ import { colors } from "../../constant/colors";
 import LogoLoader from "../ui/LogoLoader";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
-const BRAND = colors.secondary || "#EE5F2B";
+const BRAND = colors.primary || "#EE5F2B";
 
 const PRESETS = [5,10, 25, 50, 100, 250, 500];
 
@@ -175,7 +175,7 @@ const styles = StyleSheet.create({
     flex:              1,
     justifyContent:    "center",
     alignItems:        "center",
-    backgroundColor:   "#fff",
+    backgroundColor: '#121212',
     paddingHorizontal: 24,
     gap:               28,
   },
@@ -187,14 +187,14 @@ const styles = StyleSheet.create({
   },
   heading: {
     fontSize:     22,
-    fontFamily:   "PlusJakartaSansBold",
-    color:        "#111",
+    fontFamily:   "OutfitBold",
+    color: '#E5E5E5',
     textAlign:    "center",
     marginBottom: 6,
   },
   subheading: {
     fontSize:   14,
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
     color:      "#888",
     textAlign:  "center",
     lineHeight: 20,
@@ -203,16 +203,16 @@ const styles = StyleSheet.create({
   // Card
   card: {
     width:           CARD_W,
-    backgroundColor: "#FAFAFA",
-    borderRadius:    20,
-    borderWidth:     1,
-    borderColor:     "#F0F0F0",
-    padding:         20,
-    shadowColor:     "#000",
-    shadowOffset:    { width: 0, height: 2 },
-    shadowOpacity:   0.06,
-    shadowRadius:    10,
-    elevation:       3,
+     backgroundColor: 'rgba(255,255,255,0.02)',
+          borderRadius: 12,
+          padding: 16,
+          borderWidth: 1,
+          borderColor: 'rgba(255,255,255,0.1)',
+    // shadowColor:     "#000",
+    // shadowOffset:    { width: 0, height: 2 },
+    // shadowOpacity:   0.06,
+    // shadowRadius:    10,
+    // elevation:       3,
   },
 
   cardDisabled: {
@@ -228,8 +228,8 @@ const styles = StyleSheet.create({
   },
   readoutLabel: {
     fontSize:   15,
-    fontFamily: "PlusJakartaSansBold",
-    color:      "#111",
+    fontFamily: "OutfitBold",
+    color: '#E5E5E5',
   },
   readoutBadge: {
     backgroundColor:  `${BRAND}18`,
@@ -239,7 +239,7 @@ const styles = StyleSheet.create({
   },
   readoutValue: {
     fontSize:   15,
-    fontFamily: "PlusJakartaSansBold",
+    fontFamily: "OutfitBold",
     color:      BRAND,
   },
 
@@ -257,7 +257,7 @@ const styles = StyleSheet.create({
   },
   sliderEdgeText: {
     fontSize:   11,
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
     color:      "#ccc",
   },
 
@@ -272,9 +272,9 @@ const styles = StyleSheet.create({
     paddingVertical:   5,
     paddingHorizontal: 12,
     borderRadius:      99,
-    backgroundColor:   "#F3F4F6",
+    backgroundColor: '#1E1E1E',
     borderWidth:       1,
-    borderColor:       "#E5E7EB",
+    borderColor: '#374151',
   },
   chipActive: {
     backgroundColor: `${BRAND}18`,
@@ -282,17 +282,17 @@ const styles = StyleSheet.create({
   },
   chipText: {
     fontSize:   12,
-    fontFamily: "PlusJakartaSansMedium",
-    color:      "#666",
+    fontFamily: "OutfitMedium",
+    color: '#9CA3AF',
   },
   chipTextActive: {
     color:      BRAND,
-    fontFamily: "PlusJakartaSansBold",
+    fontFamily: "OutfitBold",
   },
 
   // CTA
   btn: {
-    backgroundColor: colors.secondary,
+    backgroundColor: colors.primary,
     borderRadius:    99,
     paddingVertical: 14,
     alignItems:      "center",
@@ -302,7 +302,7 @@ const styles = StyleSheet.create({
   },
   btnText: {
     fontSize:   15,
-    fontFamily: "PlusJakartaSansBold",
+    fontFamily: "OutfitBold",
     color:      "#fff",
   },
 

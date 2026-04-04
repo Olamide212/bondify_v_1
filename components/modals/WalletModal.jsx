@@ -21,8 +21,8 @@ const WalletModal = ({ visible, onClose }) => {
       <SafeAreaProvider>
       <SafeAreaView className='flex-1'>
         {/* Header */}
-        <View className="flex-row items-center justify-between px-5 py-4 border-b border-gray-200">
-          <Text className="text-2xl font-PlusJakartaSansBold text-black">My Wallet</Text>
+        <View className="flex-row items-center justify-between px-5 py-4 border-b border-gray-600">
+          <Text className="text-2xl font-OutfitBold text-white">My Wallet</Text>
           <TouchableOpacity onPress={onClose}>
             <X size={24} color="black" />
           </TouchableOpacity>
@@ -31,16 +31,16 @@ const WalletModal = ({ visible, onClose }) => {
         {/* Balance */}
         <View className="m-5 p-6 rounded-2xl bg-purple-600 items-center">
           <Coins size={32} color="white" />
-          <Text className="text-white text-lg mt-2 font-PlusJakartaSans">
+          <Text className="text-white text-lg mt-2 font-Outfit">
             Current Balance
           </Text>
-          <Text className="text-white text-3xl font-PlusJakartaSansBold">
+          <Text className="text-white text-3xl font-OutfitBold">
             {balance} Coins
           </Text>
         </View>
 
         {/* Buy Coins */}
-        <Text className="px-5 mb-3 text-xl font-PlusJakartaSansBold text-black">
+        <Text className="px-5 mb-3 text-xl font-OutfitBold text-white">
           Buy Coins
         </Text>
 
@@ -56,14 +56,14 @@ const WalletModal = ({ visible, onClose }) => {
           renderItem={({ item }) => (
             <TouchableOpacity
               onPress={() => setBalance(balance + item.coins + item.bonus)}
-              className="bg-white border border-gray-200 rounded-2xl p-4 mb-4 flex-1 mx-1 shadow-sm"
+              className="bg-[#121212] border border-gray-600 rounded-2xl p-4 mb-4 flex-1 mx-1 shadow-sm"
             >
-              <Text className="text-xl font-PlusJakartaSansBold text-purple-600">
+              <Text className="text-xl font-OutfitBold text-purple-600">
                 {item.coins} 💰
               </Text>
-              <Text className="text-base text-black mt-1">{item.price}</Text>
+              <Text className="text-base text-white mt-1">{item.price}</Text>
               {item.bonus > 0 && (
-                <Text className="text-sm text-green-600 font-PlusJakartaSans mt-1">
+                <Text className="text-sm text-green-600 font-Outfit mt-1">
                   +{item.bonus} bonus
                 </Text>
               )}

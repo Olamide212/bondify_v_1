@@ -83,8 +83,8 @@ const Register = () => {
   };
 
   return (
-    <SafeAreaView style={{flex: 1}} className="bg-white" style={{flex: 1}}>
-      <StatusBar style="dark" />
+    <SafeAreaView style={{flex: 1}} className="bg-[#121212]" >
+      <StatusBar style="light" />
       <KeyboardAvoidingView
         style={{flex: 1}}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -97,10 +97,10 @@ const Register = () => {
               contentContainerStyle={{ paddingBottom: 20 }}
               showsVerticalScrollIndicator={false}
             >
-              <Text className="text-3xl font-PlusJakartaSansBold text-black mt-4 mb-1">
+              <Text className="text-3xl font-OutfitBold text-white mt-4 mb-1">
                 Join Bondies
               </Text>
-              <Text className="text-black text-lg font-PlusJakartaSansMedium mb-7">
+              <Text className="text-white text-lg font-OutfitMedium mb-7">
                 Find your perfect match with just a few steps. Sign up now and
                 join millions of people finding love on Bondies.
               </Text>
@@ -161,11 +161,11 @@ const Register = () => {
                 />
 
                 <View className="flex-row justify-center items-center gap-1 mt-4">
-                  <Text className="text-lg font-PlusJakartaSansMedium">
+                  <Text className="text-lg text-white font-OutfitMedium">
                     Already have an account?
                   </Text>
                   <Pressable onPress={() => router.push("/login")}>
-                    <Text className="text-lg font-PlusJakartaSansMedium text-primary">
+                    <Text className="text-lg font-OutfitMedium text-primary">
                       Login
                     </Text>
                   </Pressable>

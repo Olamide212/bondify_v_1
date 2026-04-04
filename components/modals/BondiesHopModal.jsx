@@ -66,23 +66,23 @@ const BondiesHopModal = ({ visible, onClose }) => {
     <BaseModal visible={visible} onClose={onClose}>
       <View style={{flex: 1}} className="p-5">
         {/* Header */}
-        <Text className="text-2xl font-PlusJakartaSansBold mb-2">
+        <Text className="text-2xl font-OutfitBold mb-2">
           🌍 Bondies Hop
         </Text>
-        <Text className="text-base text-gray-600 mb-5">
+        <Text className="text-base text-gray-400 mb-5">
           Travel anywhere digitally and meet people worldwide.
         </Text>
 
         {/* Wallet Status */}
-        <View className="flex-row items-center justify-between bg-gray-100 p-3 rounded-lg mb-4">
-          <Text className="text-gray-800">Your Balance: {coins} coins</Text>
+        <View className="flex-row items-center justify-between bg-gray-800 p-3 rounded-lg mb-4">
+          <Text className="text-gray-200">Your Balance: {coins} coins</Text>
           <Text className="text-primary">{plan} Plan</Text>
         </View>
 
         {/* Current Location */}
-        <View className="flex-row items-center bg-gray-100 p-3 rounded-lg mb-4">
+        <View className="flex-row items-center bg-gray-800 p-3 rounded-lg mb-4">
           <MapPin size={18} className="text-primary mr-2" />
-          <Text style={{flex: 1}} className="text-gray-800">
+          <Text style={{flex: 1}} className="text-gray-200">
             Your Location: Lagos, Nigeria
           </Text>
         </View>
@@ -92,11 +92,11 @@ const BondiesHopModal = ({ visible, onClose }) => {
           placeholder="Search for a country or city..."
           value={search}
           onChangeText={setSearch}
-          className="border border-gray-300 rounded-lg px-4 py-2 mb-4"
+          className="border border-gray-600 rounded-lg px-4 py-2 mb-4"
         />
 
         {/* Popular Destinations */}
-        <Text className="text-lg font-PlusJakartaSansMedium mb-3">
+        <Text className="text-lg font-OutfitMedium mb-3">
           Popular Destinations
         </Text>
         <FlatList
@@ -107,11 +107,11 @@ const BondiesHopModal = ({ visible, onClose }) => {
               className={`flex-row items-center justify-between p-3 mb-2 rounded-lg border ${
                 selected?.id === item.id
                   ? "border-primary bg-primary/10"
-                  : "border-gray-200"
+                  : "border-gray-600"
               }`}
               onPress={() => setSelected(item)}
             >
-              <Text className="text-gray-800">{item.name}</Text>
+              <Text className="text-gray-200">{item.name}</Text>
               {selected?.id === item.id && (
                 <Globe size={18} className="text-primary" />
               )}
@@ -127,7 +127,7 @@ const BondiesHopModal = ({ visible, onClose }) => {
             selected ? "bg-primary" : "bg-gray-300"
           }`}
         >
-          <Text className="text-white text-lg font-PlusJakartaSansMedium mr-2">
+          <Text className="text-white text-lg font-OutfitMedium mr-2">
             {plan === "Gold" || plan === "Diamond"
               ? selected
                 ? `Hop to ${selected.name} (Free)`

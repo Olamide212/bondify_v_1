@@ -306,7 +306,7 @@ export default function UserFeedProfile() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#121212",
   },
   header: {
     flexDirection: "row",
@@ -319,8 +319,8 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 18,
-    fontFamily: "PlusJakartaSansBold",
-    color: "#111",
+    fontFamily: "OutfitBold",
+    color: '#E5E5E5',
   },
   errorContainer: {
     flex: 1,
@@ -330,7 +330,7 @@ const styles = StyleSheet.create({
   errorText: {
     fontSize: 16,
     color: "#999",
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
   },
 
   // Profile Section
@@ -346,7 +346,7 @@ const styles = StyleSheet.create({
     width: 70,
     height: 70,
     borderRadius: 50,
-    backgroundColor: "#f0f0f0",
+    backgroundColor: '#1E1E1E',
   },
   avatarFallback: {
     justifyContent: "center",
@@ -355,7 +355,7 @@ const styles = StyleSheet.create({
   },
   avatarInitial: {
     fontSize: 20,
-    fontFamily: "PlusJakartaSansBold",
+    fontFamily: "OutfitBold",
     color: "#fff",
   },
   profileInfo: {
@@ -369,12 +369,12 @@ const styles = StyleSheet.create({
   },
   profileName: {
     fontSize: 20,
-    fontFamily: "PlusJakartaSansBold",
-    color: "#111",
+    fontFamily: "OutfitBold",
+    color: '#E5E5E5',
   },
   profileHandle: {
     fontSize: 13,
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
     color: "#888",
   },
 
@@ -390,12 +390,12 @@ const styles = StyleSheet.create({
   },
   statNumber: {
     fontSize: 18,
-    fontFamily: "PlusJakartaSansBold",
-    color: "#111",
+    fontFamily: "OutfitBold",
+    color: '#E5E5E5',
   },
   statLabel: {
     fontSize: 12,
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
     color: "#888",
     marginTop: 4,
   },
@@ -407,8 +407,8 @@ const styles = StyleSheet.create({
   },
   bioText: {
     fontSize: 14,
-    fontFamily: "PlusJakartaSans",
-    color: "#555",
+    fontFamily: "Outfit",
+    color: '#9CA3AF',
     lineHeight: 20,
   },
 
@@ -430,7 +430,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
   },
   followingButton: {
-    backgroundColor: "#f0f0f0",
+    backgroundColor: '#1E1E1E',
   },
   messageButton: {
     flex: 1,
@@ -444,7 +444,7 @@ const styles = StyleSheet.create({
   },
   actionButtonText: {
     fontSize: 14,
-    fontFamily: "PlusJakartaSansBold",
+    fontFamily: "OutfitBold",
     color: "#fff",
   },
 
@@ -467,12 +467,12 @@ const styles = StyleSheet.create({
   },
   tabText: {
     fontSize: 14,
-    fontFamily: "PlusJakartaSansMedium",
+    fontFamily: "OutfitMedium",
     color: "#888",
   },
   tabTextActive: {
     color: BRAND,
-    fontFamily: "PlusJakartaSansBold",
+    fontFamily: "OutfitBold",
   },
 
   // Horizontal List
@@ -497,15 +497,15 @@ const styles = StyleSheet.create({
   noMediaBg: {
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#f0f0f0",
+    backgroundColor: '#1E1E1E',
   },
   horizontalContent: {
     padding: 10,
   },
   horizontalText: {
     fontSize: 12,
-    fontFamily: "PlusJakartaSans",
-    color: "#333",
+    fontFamily: "Outfit",
+    color: '#D1D5DB',
     marginBottom: 8,
   },
   horizontalMeta: {
@@ -514,7 +514,7 @@ const styles = StyleSheet.create({
   },
   metaLabel: {
     fontSize: 11,
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
     color: "#888",
   },
 
@@ -525,7 +525,7 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 14,
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
     color: "#ccc",
   },
 });

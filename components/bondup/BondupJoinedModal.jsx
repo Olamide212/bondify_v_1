@@ -148,7 +148,7 @@ export default function BondupJoinedModal({
       {/* Header */}
       <View style={s.header}>
         <TouchableOpacity onPress={onClose} style={s.iconBtn} hitSlop={10}>
-          <X size={22} color="#333" />
+          <X size={22} color="#fff" />
         </TouchableOpacity>
         <Text style={s.headerTitle}>Bondup 🔥</Text>
         <View  />
@@ -232,7 +232,7 @@ export default function BondupJoinedModal({
           onPress={handleAddToCalendar}
           activeOpacity={0.85}
         >
-          <CalendarDays size={20} color={BRAND} />
+          <CalendarDays size={20} color={colors.white} />
           <Text style={s.calendarBtnText}>Add to Calendar</Text>
         </TouchableOpacity>
 
@@ -254,20 +254,20 @@ const s = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F5F5F5',
+    // borderBottomWidth: 1,
+    // borderBottomColor: '#F5F5F5',
   },
   iconBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: '#F3F4F6',
+    width: 40,
+    height: 40,
+    borderRadius: 30,
+    backgroundColor: colors.primaryLight,
     justifyContent: 'center',
     alignItems: 'center',
   },
   headerTitle: {
     fontSize: 18,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: 'OutfitBold',
     color: BRAND,
   },
 
@@ -308,28 +308,28 @@ const s = StyleSheet.create({
 
   mainTitle: {
     fontSize: 28,
-    fontFamily: 'PlusJakartaSansBold',
-    color: '#111',
+    fontFamily: 'OutfitBold',
+    color: '#E5E5E5',
     marginBottom: 10,
     textAlign: 'center',
   },
   subtitle: {
     fontSize: 16,
-    fontFamily: 'PlusJakartaSans',
-    color: '#555',
+    fontFamily: 'Outfit',
+    color: '#9CA3AF',
     textAlign: 'center',
     lineHeight: 24,
     marginBottom: 28,
   },
   subtitleHighlight: {
     color: BRAND,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: 'OutfitBold',
   },
 
   // Squad card
   squadCard: {
     width: '100%',
-    backgroundColor: '#fff',
+    backgroundColor: '#121212',
     borderRadius: 20,
     padding: 16,
     marginBottom: 20,
@@ -347,22 +347,22 @@ const s = StyleSheet.create({
   },
   squadLabel: {
     fontSize: 12,
-    fontFamily: 'PlusJakartaSansBold',
-    color: '#333',
+    fontFamily: 'OutfitBold',
+    color: '#D1D5DB',
     letterSpacing: 1,
   },
   squadBadge: {
     backgroundColor: colors.primaryLight,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
+    paddingHorizontal: 15,
+    paddingVertical: 5,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: `${BRAND}30`,
+    borderColor: colors.primaryLight,
   },
   squadBadgeText: {
     fontSize: 12,
-    fontFamily: 'PlusJakartaSansBold',
-    color: BRAND,
+    fontFamily: 'OutfitBold',
+    color: colors.white,
   },
   avatarGrid: {
     flexDirection: 'row',
@@ -389,7 +389,7 @@ const s = StyleSheet.create({
   squadAvatarInitial: {
     color: '#fff',
     fontSize: 18,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: 'OutfitBold',
   },
   extraAvatar: {
     backgroundColor: '#E5E7EB',
@@ -398,13 +398,13 @@ const s = StyleSheet.create({
   },
   extraAvatarText: {
     fontSize: 14,
-    fontFamily: 'PlusJakartaSansBold',
-    color: '#555',
+    fontFamily: 'OutfitBold',
+    color: '#9CA3AF',
   },
   avatarName: {
     fontSize: 11,
-    fontFamily: 'PlusJakartaSansMedium',
-    color: '#666',
+    fontFamily: 'OutfitMedium',
+    color: '#9CA3AF',
     textAlign: 'center',
   },
 
@@ -427,7 +427,7 @@ const s = StyleSheet.create({
   },
   openChatBtnText: {
     fontSize: 16,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: 'OutfitBold',
     color: '#fff',
   },
   calendarBtn: {
@@ -444,13 +444,13 @@ const s = StyleSheet.create({
   },
   calendarBtnText: {
     fontSize: 16,
-    fontFamily: 'PlusJakartaSansBold',
-    color: BRAND,
+    fontFamily: 'OutfitBold',
+    color: colors.white,
   },
 
   // Location pill
   locationPill: {
-    backgroundColor: '#F3F4F6',
+    backgroundColor: '#1E1E1E',
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 20,
@@ -458,8 +458,8 @@ const s = StyleSheet.create({
   },
   locationPillText: {
     fontSize: 13,
-    fontFamily: 'PlusJakartaSansMedium',
-    color: '#555',
+    fontFamily: 'OutfitMedium',
+    color: '#9CA3AF',
     textAlign: 'center',
   },
 });

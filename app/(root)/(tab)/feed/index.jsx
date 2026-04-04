@@ -7,18 +7,19 @@
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Image } from 'expo-image';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import { ArrowUpDown, MapPin, Plus, User } from 'lucide-react-native';
+import { ArrowUpDown, Building2, Plus, User } from 'lucide-react-native';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
-    ActivityIndicator,
-    AppState,
-    RefreshControl,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  AppState,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useSelector } from 'react-redux';
@@ -37,7 +38,20 @@ import { socketService } from '../../../../services/socketService';
 // ─── Cache keys for persistence ──────────────────────────────────────────────
 const BONDUPS_CACHE_KEY = '@bondify/cache/bondups';
 const BONDUPS_CACHE_TIMESTAMP_KEY = '@bondify/cache/bondups_ts';
+const BONDUPS_FILTERS_KEY = '@bondify/cache/bondups_filters';
 const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
+// ─── Client-side sort helper ─────────────────────────────────────────────────
+const sortBondups = (items, sortBy) => {
+  const sorted = [...items];
+  if (sortBy === 'newest') {
+    sorted.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  } else {
+    // 'soonest' — by dateTime ascending
+    sorted.sort((a, b) => new Date(a.dateTime) - new Date(b.dateTime));
+  }
+  return sorted;
+};
 
 const safeParse = (value) => {
   try {
@@ -127,6 +141,7 @@ export default function BondupFeedScreen() {
     distance: null,
     sortBy: 'soonest',
   });
+  const filtersRestoredRef = useRef(false);
   const loadRequestRef = useRef(0);
   const midnightTimeoutRef = useRef(null);
   const appStateRef = useRef(AppState.currentState);
@@ -134,6 +149,28 @@ export default function BondupFeedScreen() {
 
   const [filterData, setFilterData] = useState(() => buildDayFilters());
   const { chips: filterChips, windows: filterWindows } = filterData;
+
+  // ── Restore persisted filters from AsyncStorage ──────────────────────────
+  useEffect(() => {
+    let isMounted = true;
+    (async () => {
+      try {
+        const raw = await AsyncStorage.getItem(BONDUPS_FILTERS_KEY);
+        const parsed = safeParse(raw);
+        if (isMounted && parsed && typeof parsed === 'object') {
+          setActiveFilters((prev) => ({ ...prev, ...parsed }));
+        }
+      } catch { /* silent */ }
+      if (isMounted) filtersRestoredRef.current = true;
+    })();
+    return () => { isMounted = false; };
+  }, []);
+
+  // ── Persist filters whenever they change ─────────────────────────────────
+  useEffect(() => {
+    if (!filtersRestoredRef.current) return; // don't persist the default before restore
+    AsyncStorage.setItem(BONDUPS_FILTERS_KEY, JSON.stringify(activeFilters)).catch(() => {});
+  }, [activeFilters]);
 
   const rebuildFilters = useCallback(() => {
     const next = buildDayFilters();
@@ -232,18 +269,40 @@ export default function BondupFeedScreen() {
 
       // Load both public and circle bondups
       const [publicRes, circleRes] = await Promise.all([
-        bondupService.getPublicBondups({ city: userCity, ...filterParams }).catch(() => ({ data: [] })),
-        bondupService.getCircleBondups({ ...filterParams }).catch(() => ({ data: [] })),
+        bondupService.getPublicBondups({ city: userCity, ...filterParams }).catch(() => null),
+        bondupService.getCircleBondups({ ...filterParams }).catch(() => null),
       ]);
 
-      const publicData = publicRes.data ?? [];
-      const circleData = circleRes.data ?? [];
-      const allData = [...publicData, ...circleData];
+      // If BOTH calls failed, keep existing data (stale-while-revalidate)
+      if (!publicRes && !circleRes) {
+        return;
+      }
+
+      const publicData = publicRes?.data ?? [];
+      const circleData = circleRes?.data ?? [];
+
+      // Deduplicate by _id, then apply client-side sort to maintain order
+      // after merging two separately-sorted arrays
+      const seen = new Set();
+      const merged = [];
+      for (const b of [...publicData, ...circleData]) {
+        if (!seen.has(b._id)) {
+          seen.add(b._id);
+          merged.push(b);
+        }
+      }
+      const allData = sortBondups(merged, activeFilters.sortBy);
 
       if (seq === loadRequestRef.current) {
-        setAllBondups(allData);
-        // Persist to AsyncStorage for offline/stale-while-revalidate
-        persistBondups(allData);
+        // Only replace with empty data if we DON'T already have data
+        // (prevents transient empty API responses from clearing the list)
+        if (allData.length > 0) {
+          setAllBondups(allData);
+          persistBondups(allData);
+        } else {
+          // If we have no cached data either, accept the empty result
+          setAllBondups((prev) => (prev.length > 0 ? prev : allData));
+        }
       }
     } catch {
       // On network error, keep existing data (stale-while-revalidate)
@@ -511,7 +570,7 @@ export default function BondupFeedScreen() {
               style={fStyles.filterIconBtn}
               activeOpacity={0.7}
             >
-              <ArrowUpDown size={20} color="#333" />
+              <ArrowUpDown size={20} color="#fff" />
               {hasActiveFilters && <View style={fStyles.filterDot} />}
             </TouchableOpacity>
             <TouchableOpacity onPress={() => router.push(`/bondup-profile/${currentUser?._id}`)}>
@@ -590,17 +649,17 @@ export default function BondupFeedScreen() {
         >
           {loading && !hasBondups ? (
             renderSkeleton()
-          ) : !hasBondups ? (
+          ) : !hasBondups ? (            
             <View style={fStyles.emptyState}>
               <Text style={fStyles.emptyEmoji}>🤝</Text>
               <Text style={fStyles.emptyTitle}>No plans yet!</Text>
               <Text style={fStyles.emptySub}>
-                Be the first to start a Bondup{'\n'}in
+                Be the first to start a Bondup in
               </Text>
               {/* Highlighted city with background and icon */}
               <View style={fStyles.cityHighlightContainer}>
-                <MapPin size={16} color={colors.primary} style={fStyles.cityIcon} />
-                <Text style={fStyles.cityHighlightText}>{userCity}</Text>
+                <Building2 size={28} color={colors.primary} style={fStyles.cityIcon} />
+                <Text style={fStyles.cityHighlightText} numberOfLines={1}>{userCity}</Text>
               </View>
               {/* <TouchableOpacity
                 style={fStyles.emptyBtn}
@@ -631,14 +690,15 @@ export default function BondupFeedScreen() {
         </ScrollView>
 
         {/* ── FAB ─────────────────────────────────────────────────────────── */}
+        <LinearGradient colors={[colors.primary, colors.secondary]}       style={fStyles.fab}>
         <TouchableOpacity
-          style={fStyles.fab}
           onPress={() => setShowCreate(true)}
           activeOpacity={0.85}
         >
           <Plus size={30} color="#fff" />
          
         </TouchableOpacity>
+        </LinearGradient>
 
         {/* ── Modals ──────────────────────────────────────────────────────── */}
         <CreateBondupModal
@@ -688,7 +748,7 @@ export default function BondupFeedScreen() {
 const fStyles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#121212',
   },
 
   // Header
@@ -698,9 +758,9 @@ const fStyles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 10,
-    backgroundColor: '#fff',
+    backgroundColor: '#121212',
     // borderBottomWidth: 1,
-    // borderBottomColor: '#F0F0F0',
+    // borderBottomColor: '#333333',
   },
   headerLogo: {
     height: 50,
@@ -734,7 +794,7 @@ const fStyles = StyleSheet.create({
     height: 38,
     borderRadius: 19,
     borderWidth: 1.5,
-    borderColor: '#E0E0E0',
+    borderColor: '#333333',
   },
   headerAvatarFallback: {
     backgroundColor: '#D1D5DB',
@@ -744,9 +804,9 @@ const fStyles = StyleSheet.create({
 
   // Filter chips
   filterBar: {
-    backgroundColor: '#fff',
+    backgroundColor: '#121212',
     // borderBottomWidth: 1,
-    // borderBottomColor: '#F0F0F0',
+    // borderBottomColor: '#333333',
   },
   filterContent: {
     flexDirection: 'row',
@@ -757,8 +817,8 @@ const fStyles = StyleSheet.create({
   filterChip: {
     paddingHorizontal: 12,
     paddingVertical: 6,
-    borderRadius: 18,
-    backgroundColor: '#F3F4F6',
+    borderRadius: 10,
+    backgroundColor: '#1E1E1E',
     borderWidth: 1.5,
     borderColor: 'transparent',
     marginRight: 8,
@@ -767,16 +827,16 @@ const fStyles = StyleSheet.create({
     marginLeft: 10,
   },
   filterChipActive: {
-    backgroundColor: '#000',
+    backgroundColor: '#fff',
   },
   filterChipText: {
     fontSize: 13,
-    fontFamily: 'PlusJakartaSansMedium',
-    color: '#666',
+    fontFamily: 'OutfitMedium',
+    color: '#9CA3AF',
   },
   filterChipTextActive: {
-    color: "#fff",
-    fontFamily: 'PlusJakartaSansBold',
+    color: "#121212",
+    fontFamily: 'OutfitBold',
   },
 
   // Type tabs (profile-style)
@@ -784,6 +844,7 @@ const fStyles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
+    marginBottom: 10
   },
   typeTab: {
     flex: 1,
@@ -793,15 +854,15 @@ const fStyles = StyleSheet.create({
     borderBottomColor: 'transparent',
   },
   typeTabActive: {
-    borderBottomColor: '#000',
+    borderBottomColor: '#fff',
   },
   typeTabText: {
     fontSize: 14,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: 'OutfitBold',
     color: '#9CA3AF',
   },
   typeTabTextActive: {
-    color: '#111',
+    color: '#E5E5E5',
   },
 
   // Empty state
@@ -816,14 +877,14 @@ const fStyles = StyleSheet.create({
   },
   emptyTitle: {
     fontSize: 20,
-    fontFamily: 'PlusJakartaSansBold',
-    color: '#111',
+    fontFamily: 'OutfitBold',
+    color: '#E5E5E5',
     marginBottom: 8,
     textAlign: 'center',
   },
   emptySub: {
     fontSize: 14,
-    fontFamily: 'PlusJakartaSans',
+    fontFamily: 'Outfit',
     color: '#888',
     textAlign: 'center',
     lineHeight: 22,
@@ -833,7 +894,7 @@ const fStyles = StyleSheet.create({
   cityHighlightContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F0F8FF', // Light blue background for highlight
+    // backgroundColor: '#F0F8FF', // Light blue background for highlight
     borderRadius: 10, // Pill shape
     paddingHorizontal: 16,
     paddingVertical: 8,
@@ -848,9 +909,10 @@ const fStyles = StyleSheet.create({
     marginRight: 8,
   },
   cityHighlightText: {
-    fontSize: 18, // Bigger font for emphasis
-    fontFamily: 'PlusJakartaSansBold',
+    fontSize: 28, // Bigger font for emphasis
+    fontFamily: 'OutfitBold',
     color: colors.primary, // Use primary color for prominence
+    textTransform: 'capitalize', // Capitalize city name
   },
   emptyBtn: {
     flexDirection: 'row',
@@ -869,7 +931,7 @@ const fStyles = StyleSheet.create({
   emptyBtnText: {
     color: '#fff',
     fontSize: 15,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: 'OutfitBold',
   },
 
   // FAB — pill button
@@ -883,17 +945,17 @@ const fStyles = StyleSheet.create({
     gap: 6,
     padding: 15,
     borderRadius: 50,
-    backgroundColor: colors.secondary,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.2,
-    shadowRadius: 10,
-    elevation: 10,
+    backgroundColor: colors.primary,
+    // shadowColor: '#000',
+    // shadowOffset: { width: 0, height: 6 },
+    // shadowOpacity: 0.2,
+    // shadowRadius: 10,
+    // elevation: 10,
   },
   fabText: {
     color: '#fff',
     fontSize: 15,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: 'OutfitBold',
   },
 });
 

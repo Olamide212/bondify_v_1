@@ -7,7 +7,7 @@ const Info = ({title}) => {
   return (
     <View className="flex-row items-center gap-1 ">
       <Feather name="info" size={14} color={colors.gray} />
-      <Text className="text-sm text-ash font-PlusJakartaSans">
+      <Text className="text-sm text-ash font-Outfit">
     {title}
       </Text>
     </View>

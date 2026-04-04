@@ -33,7 +33,7 @@ const OccupationModal = ({ visible, onClose, onSelect, initialSelected }) => {
       visible={visible}
 
     >
-      <SafeAreaView style={{flex: 1}} className="bg-white">
+      <SafeAreaView style={{flex: 1}} className="bg-[#121212]">
         <KeyboardAvoidingView
           style={{flex: 1}}
           behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -43,7 +43,7 @@ const OccupationModal = ({ visible, onClose, onSelect, initialSelected }) => {
             <View style={{flex: 1}} className="px-4">
               {/* Header */}
               <View className="mt-6 mb-6">
-                <Text className="text-3xl font-PlusJakartaSansBold">
+                <Text className="text-3xl font-OutfitBold text-white">
                   What&apos;s your occupation?
                 </Text>
               </View>
@@ -65,15 +65,15 @@ const OccupationModal = ({ visible, onClose, onSelect, initialSelected }) => {
                     className={`px-4 py-2 rounded-full border ${
                       selectedOccupation === item.value
                         ? "bg-primary border-primary"
-                        : "bg-white border-[#D1D1D1]"
+                        : "bg-[#121212] border-whiteLight"
                     }`}
                   >
                     <Text
                       className={`${
                         selectedOccupation === item.value
                           ? "text-white"
-                          : "text-gray-800"
-                      } font-PlusJakartaSansMedium`}
+                          : "text-white"
+                      } font-OutfitMedium`}
                     >
                       {item.label}
                     </Text>

@@ -157,14 +157,14 @@ const s = StyleSheet.create({
   },
   bondupTitle: {
     fontSize: 15,
-    fontFamily: 'PlusJakartaSansBold',
-    color: '#111',
+    fontFamily: 'OutfitBold',
+    color: '#E5E5E5',
     marginBottom: 3,
   },
   bondupDescription: {
     fontSize: 13,
-    fontFamily: 'PlusJakartaSans',
-    color: '#666',
+    fontFamily: 'Outfit',
+    color: '#9CA3AF',
     marginBottom: 6,
     lineHeight: 18,
   },
@@ -180,22 +180,22 @@ const s = StyleSheet.create({
   },
   bondupMetaText: {
     fontSize: 12,
-    fontFamily: 'PlusJakartaSans',
+    fontFamily: 'Outfit',
     color: '#888',
   },
   bondupParticipants: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: '#1E1E1E',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 10,
   },
   bondupParticipantCount: {
     fontSize: 12,
-    fontFamily: 'PlusJakartaSansBold',
-    color: '#666',
+    fontFamily: 'OutfitBold',
+    color: '#9CA3AF',
   },
 });
 

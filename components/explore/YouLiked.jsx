@@ -54,13 +54,13 @@ const styles = StyleSheet.create({
   bannerTitle: {
     color: "white",
     fontSize: 16,
-    fontFamily: "PlusJakartaSansBold",
+    fontFamily: "OutfitBold",
     marginBottom: 4,
   },
   bannerSubtitle: {
     color: "white",
     fontSize: 14,
-    fontFamily: "PlusJakartaSansMedium",
+    fontFamily: "OutfitMedium",
   },
   listContent: {
     alignItems: "center",

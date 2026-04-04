@@ -253,8 +253,8 @@ const s = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 18,
-    fontFamily: "PlusJakartaSansBold",
-    color: "#111",
+    fontFamily: "OutfitBold",
+    color: '#E5E5E5',
   },
   statusBadge: {
     alignSelf: "flex-start",
@@ -265,7 +265,7 @@ const s = StyleSheet.create({
   },
   statusText: {
     fontSize: 14,
-    fontFamily: "PlusJakartaSansBold",
+    fontFamily: "OutfitBold",
   },
   authorRow: {
     flexDirection: "row",
@@ -281,21 +281,21 @@ const s = StyleSheet.create({
   avatarInitial: {
     color: "#fff",
     fontSize: 16,
-    fontFamily: "PlusJakartaSansBold",
+    fontFamily: "OutfitBold",
   },
   authorName: {
     fontSize: 15,
-    fontFamily: "PlusJakartaSansBold",
-    color: "#111",
+    fontFamily: "OutfitBold",
+    color: '#E5E5E5',
   },
   authorSub: {
     fontSize: 12,
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
     color: "#999",
   },
   note: {
     fontSize: 15,
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
     color: "#222",
     lineHeight: 22,
     marginBottom: 12,
@@ -308,24 +308,24 @@ const s = StyleSheet.create({
   },
   metaLabel: {
     fontSize: 13,
-    fontFamily: "PlusJakartaSansBold",
-    color: "#555",
+    fontFamily: "OutfitBold",
+    color: '#9CA3AF',
   },
   metaValue: {
     fontSize: 13,
-    fontFamily: "PlusJakartaSans",
-    color: "#666",
+    fontFamily: "Outfit",
+    color: '#9CA3AF',
   },
   sectionTitle: {
     fontSize: 15,
-    fontFamily: "PlusJakartaSansBold",
-    color: "#111",
+    fontFamily: "OutfitBold",
+    color: '#E5E5E5',
     marginTop: 18,
     marginBottom: 10,
   },
   emptyParticipants: {
     fontSize: 13,
-    fontFamily: "PlusJakartaSans",
+    fontFamily: "Outfit",
     color: "#BBB",
     fontStyle: "italic",
   },
@@ -340,11 +340,11 @@ const s = StyleSheet.create({
   participantInitial: {
     color: "#fff",
     fontSize: 13,
-    fontFamily: "PlusJakartaSansBold",
+    fontFamily: "OutfitBold",
   },
   participantName: {
     fontSize: 14,
-    fontFamily: "PlusJakartaSansMedium",
+    fontFamily: "OutfitMedium",
     color: "#222",
     marginLeft: 10,
   },
@@ -358,13 +358,13 @@ const s = StyleSheet.create({
     borderRadius: 14,
   },
   joinBtn: { backgroundColor: BRAND },
-  leaveBtn: { backgroundColor: "#F3F4F6" },
+  leaveBtn: { backgroundColor: '#1E1E1E' },
   chatBtn: { backgroundColor: "#10B981" },
-  deleteBtn: { backgroundColor: "#FEF2F2" },
+  deleteBtn: { backgroundColor: '#2A1A1A' },
   actionBtnText: {
     fontSize: 14,
-    fontFamily: "PlusJakartaSansBold",
+    fontFamily: "OutfitBold",
   },
   joinBtnText: { color: "#fff" },
-  leaveBtnText: { color: "#666" },
+  leaveBtnText: { color: '#9CA3AF' },
 });

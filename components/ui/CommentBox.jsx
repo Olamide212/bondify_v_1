@@ -90,7 +90,7 @@ export default function CommentBox({
   if (!imageUri) return null;
 
   return (
-    <View style={styles.wrapper} className="mb-2 mx-2 rounded-2xl border border-gray-200">
+    <View style={styles.wrapper} className="mb-2 mx-2 rounded-2xl border border-gray-600">
       {/* Image */}
       <Pressable onPress={onPress} className="rounded-2xl">
         <Image
@@ -135,7 +135,7 @@ export default function CommentBox({
                 multiline
                 maxLength={200}
                 editable={!sending && !sent}
-                className='font-PlusJakartaSansMedium'
+                className='font-OutfitMedium text-white'
               />
               <TouchableOpacity
                 style={styles.inputSparkle}
@@ -195,7 +195,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
   },
   sparkBtn: {
-    backgroundColor: colors.activePrimary ?? colors.primary,
+    backgroundColor:  colors.primary,
     padding: 12,
     borderRadius: 30,
     shadowColor: "#000",
@@ -207,7 +207,7 @@ const styles = StyleSheet.create({
   composer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#F9FAFB",
+    backgroundColor: '#1E1E1E',
     borderRadius: 25,
     paddingHorizontal: 12,
     paddingVertical: 8,
@@ -217,18 +217,18 @@ const styles = StyleSheet.create({
     shadowRadius: 5,
     elevation: 3,
     borderWidth: 1,
-    borderColor: "#E5E7EB",
+    borderColor: '#374151',
   },
   closeBtn: { marginRight: 8, padding: 4 },
   inputContainer: {
     flex: 1,
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "white",
+    backgroundColor: "#121212",
     borderRadius: 20,
     paddingHorizontal: 12,
     borderWidth: 1,
-    borderColor: "#E5E7EB",
+    borderColor: '#374151',
     minHeight: 40,
   },
   inputContainerSent: {
@@ -240,12 +240,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
     paddingVertical: 6,
     maxHeight: 100,
-    color: "#111827",
+    color: "#fff",
   },
   inputSparkle: { padding: 4, marginLeft: 8 },
   sendBtn: {
     marginLeft: 8,
-    backgroundColor: colors.activePrimary ?? colors.primary,
+    backgroundColor: colors.primary,
     padding: 10,
     borderRadius: 20,
     alignItems: "center",

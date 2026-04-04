@@ -213,7 +213,7 @@ const s = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0.45)",
   },
   sheet: {
-    backgroundColor: "#fff",
+    backgroundColor: "#121212",
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     paddingHorizontal: 20,
@@ -229,14 +229,14 @@ const s = StyleSheet.create({
   },
   title: {
     fontSize: 18,
-    fontFamily: "PlusJakartaSansBold",
-    color: "#111",
+    fontFamily: "OutfitBold",
+    color: '#E5E5E5',
     textAlign: "center",
   },
   subtitle: {
     fontSize: 13,
-    fontFamily: "PlusJakartaSans",
-    color: "#6B7280",
+    fontFamily: "Outfit",
+    color: '#9CA3AF',
     textAlign: "center",
     marginBottom: 16,
   },
@@ -252,17 +252,17 @@ const s = StyleSheet.create({
   reasonLabel: {
     flex: 1,
     fontSize: 15,
-    fontFamily: "PlusJakartaSansMedium",
-    color: "#1F2937",
+    fontFamily: "OutfitMedium",
+    color: '#E5E7EB',
   },
   textInput: {
     borderWidth: 1,
-    borderColor: "#E5E7EB",
+    borderColor: '#374151',
     borderRadius: 12,
     padding: 14,
     fontSize: 14,
-    fontFamily: "PlusJakartaSans",
-    color: "#111",
+    fontFamily: "Outfit",
+    color: '#E5E5E5',
     minHeight: 90,
     textAlignVertical: "top",
     marginBottom: 16,
@@ -274,21 +274,21 @@ const s = StyleSheet.create({
   },
   confirmText: {
     fontSize: 14,
-    fontFamily: "PlusJakartaSans",
-    color: "#6B7280",
+    fontFamily: "Outfit",
+    color: '#9CA3AF',
     textAlign: "center",
     lineHeight: 20,
     marginBottom: 14,
   },
   reasonPill: {
-    backgroundColor: "#FEF2F2",
+    backgroundColor: '#2A1A1A',
     borderRadius: 20,
     paddingHorizontal: 14,
     paddingVertical: 6,
   },
   reasonPillText: {
     fontSize: 13,
-    fontFamily: "PlusJakartaSansMedium",
+    fontFamily: "OutfitMedium",
     color: "#DC2626",
   },
   confirmBtn: {
@@ -304,7 +304,7 @@ const s = StyleSheet.create({
   },
   confirmBtnText: {
     fontSize: 16,
-    fontFamily: "PlusJakartaSansBold",
+    fontFamily: "OutfitBold",
     color: "#fff",
   },
   cancelBtn: {
@@ -314,8 +314,8 @@ const s = StyleSheet.create({
   },
   cancelBtnText: {
     fontSize: 15,
-    fontFamily: "PlusJakartaSansSemiBold",
-    color: "#6B7280",
+    fontFamily: "OutfitSemiBold",
+    color: '#9CA3AF',
   },
 });
 
