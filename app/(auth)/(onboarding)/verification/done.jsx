@@ -24,7 +24,7 @@ export default function DoneScreen() {
       </View>
       <Text style={styles.title}>Selfie Submitted! 🎉</Text>
       <Text style={styles.body}>
-        We're reviewing your photo now. You'll receive your verified badge shortly
+        We&apos;re reviewing your photo now. You&apos;ll receive your verified badge shortly
         — usually within a few minutes.
       </Text>
       <TouchableOpacity style={styles.btn} onPress={handleContinue} activeOpacity={0.85}>

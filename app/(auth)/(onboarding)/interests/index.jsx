@@ -89,12 +89,12 @@ const Interests = () => {
                 }}
               >
                 <View style={{flex: 1}}>
-                  <Text className="text-3xl font-OutfitBold  mt-8 mb-4">
+                  <Text className="text-3xl text-white font-OutfitBold  mt-8 mb-4">
                     What are your interests?
                   </Text>
                   {INTEREST_CATEGORIES.map((category) => (
                     <View key={category.title} className="mb-6">
-                      <Text className="text-app font-OutfitBold text-lg mb-3">
+                      <Text className="text-white font-OutfitBold text-lg mb-3">
                         {category.title}
                       </Text>
                       <View className="flex-row flex-wrap gap-2">
@@ -104,15 +104,15 @@ const Interests = () => {
                             <TouchableOpacity
                               key={interest}
                               onPress={() => toggleInterest(interest)}
-                              className={`px-4 py-2 rounded-full border ${
+                              className={`px-4 py-2 text-white rounded-full border ${
                                 selected
                                   ? "bg-primary border-primary"
-                                  : "bg-[#121212] border-[#D1D1D1]"
+                                  : "bg-[#121212] border-whiteLight"
                               }`}
                             >
                               <Text
                                 className={`font-OutfitMedium ${
-                                  selected ? "text-white" : "text-app"
+                                  selected ? "text-white" : "text-white"
                                 }`}
                               >
                                 {interest}

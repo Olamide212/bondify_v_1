@@ -43,10 +43,10 @@ const Preference = () => {
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View style={{flex: 1}} className="px-2">
             <ScrollView style={{flex: 1}} className="mt-8" showsVerticalScrollIndicator={false}>
-              <Text className="text-3xl font-OutfitBold  mb-2">
+              <Text className="text-3xl text-white font-OutfitBold  mb-2">
                 What are you hoping to find on Bondies?
               </Text>
-              <Text className="text-lg font-Outfit">
+              <Text className="text-lg text-white font-Outfit">
                 Provide us with further insights into your preferences
               </Text>
 

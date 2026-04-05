@@ -39,7 +39,7 @@ const RadioSelect = ({
   return (
     <View className={`mb-4 w-full ${className}`}>
       {label && (
-        <Text className="text-lg font-OutfitMedium mb-2">{label}</Text>
+        <Text className="text-lg font-OutfitMedium text-white mb-2">{label}</Text>
       )}
       <View
         className={`flex ${horizontal ? "flex-row flex-wrap gap-4" : "flex-col gap-3"}`}
@@ -47,15 +47,15 @@ const RadioSelect = ({
         {options.map((option) => (
           <TouchableOpacity
             key={option.value}
-            className={`px-5 py-5 rounded-2xl border-[1px]  ${className}
-               ${isSelected(option.value) ? "border-primary bg-primary/10" : "border-[#dadada]"}`}
+            className={`px-5 py-5   rounded-2xl border-[1px]  ${className}
+               ${isSelected(option.value) ? "border-primary bg-primary/10" : "bg-whiteLight border-whiteLight"}`}
             onPress={() => handlePress(option.value)}
             style={{ borderRadius: 10 }}
           >
             <View className="flex-row justify-between items-center">
               <View style={{flex: 1}} className="pr-4">
                 <Text
-                  className={`text-app text-[16px] font-OutfitBold 
+                  className={`text-white text-[16px] font-OutfitBold 
                   ${isSelected(option.value) ? "text-white" : ""} `}
                   style={{ flexWrap: "wrap" }}
                 >

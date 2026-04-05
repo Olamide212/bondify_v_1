@@ -42,7 +42,7 @@ const Religion = () => {
           <View style={{ flex: 1 }} className="px-2">
             <ScrollView showsVerticalScrollIndicator={false}>
               <View style={{ flex: 1 }} className="mt-8">
-                <Text className="text-3xl font-OutfitBold text-app mb-2">
+                <Text className="text-3xl text-white font-OutfitBold text-app mb-2">
                   Your religion or spiritual belief?
                 </Text>
 

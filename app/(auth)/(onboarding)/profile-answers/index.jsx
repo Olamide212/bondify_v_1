@@ -31,7 +31,9 @@ const CategoryTab = ({ category, isActive, onPress }) => (
       paddingHorizontal: 16,
       paddingVertical: 10,
       borderRadius: 20,
-      backgroundColor: isActive ? colors.primary : '#F3F4F6',
+      backgroundColor: isActive ? colors.primary : colors.whiteLight,
+      borderWidth: 1,
+      borderColor: isActive ? '' : colors.whiteLight,
       marginRight: 8,
     }}
     onPress={onPress}
@@ -41,7 +43,7 @@ const CategoryTab = ({ category, isActive, onPress }) => (
       style={{
         fontSize: 14,
         fontFamily: 'OutfitSemiBold',
-        color: isActive ? '#fff' : '#6B7280',
+        color: '#fff',
       }}
     >
       {category.label}
@@ -53,16 +55,16 @@ const CategoryTab = ({ category, isActive, onPress }) => (
 const AnswerCard = ({ item, onRemove }) => (
   <View
     style={{
-      backgroundColor: '#121212',
+      backgroundColor: colors.whiteLight,
       borderRadius: 12,
       borderWidth: 1,
-      borderColor: '#F3F4F6',
+      borderColor: colors.whiteLight,
       padding: 14,
       marginBottom: 10,
     }}
   >
-    <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8, marginBottom: 8 }}>
-      <View
+    <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8, marginBottom: 8, }}>
+      {/* <View
         style={{
           width: 26,
           height: 26,
@@ -73,7 +75,7 @@ const AnswerCard = ({ item, onRemove }) => (
         }}
       >
         <MessageCircle size={13} color={colors.primary} strokeWidth={2} />
-      </View>
+      </View> */}
       <Text
         numberOfLines={2}
         style={{
@@ -90,14 +92,14 @@ const AnswerCard = ({ item, onRemove }) => (
         onPress={onRemove}
         hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
       >
-        <X size={15} color="#9CA3AF" strokeWidth={2.5} />
+        <X size={15} color={colors.white} strokeWidth={2.5} />
       </TouchableOpacity>
     </View>
     <Text
       style={{
         fontSize: 16,
         fontFamily: 'OutfitBold',
-        color: '#E5E5E5',
+        color: colors.white,
         lineHeight: 22,
       }}
     >
@@ -179,7 +181,7 @@ const ProfileAnswers = () => {
         >
           <View style={{flex: 1}} className="px-4">
             <View style={{flex: 1}} className="mt-8">
-              <Text className="text-[25px] font-OutfitBold text-app mb-2">
+              <Text className="text-[25px] text-white font-OutfitBold text-app mb-2">
                 Write your profile answers
               </Text>
               <Text className="text-white font-Outfit">
@@ -232,7 +234,7 @@ const ProfileAnswers = () => {
                       style={{
                         fontSize: 15,
                         fontFamily: 'OutfitBold',
-                        color: colors.primary,
+                        color: colors.white,
                       }}
                     >
                       Add a prompt
@@ -241,7 +243,7 @@ const ProfileAnswers = () => {
                       style={{
                         fontSize: 12,
                         fontFamily: 'Outfit',
-                        color: colors.secondary,
+                        color: colors.primary,
                         marginTop: 2,
                       }}
                     >
@@ -280,7 +282,7 @@ const ProfileAnswers = () => {
 
       {/* ── Modal ── */}
       <Modal visible={showModal} animationType="slide">
-        <SafeAreaView style={{flex: 1}}>
+        <SafeAreaView style={{flex: 1, backgroundColor: '#121212'}} className="bg-[#121212]">
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
 
         <SAV style={{ flex: 1, backgroundColor: '#121212', paddingHorizontal: 20, paddingTop: 12 }}>
@@ -290,9 +292,9 @@ const ProfileAnswers = () => {
             <>
               <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
                 <TouchableOpacity onPress={() => setShowModal(false)}>
-                  <X size={22} color="#111" />
+                  <X size={22} color={colors.white} />
                 </TouchableOpacity>
-                <Text style={{ fontSize: 18, fontFamily: 'OutfitBold', color: '#E5E5E5' }}>
+                <Text style={{ fontSize: 18, fontFamily: 'OutfitBold', color: colors.white }}>
                   Choose a prompt
                 </Text>
                 <View style={{ width: 22 }} />
@@ -321,7 +323,7 @@ const ProfileAnswers = () => {
                 ItemSeparatorComponent={() => <View style={{ height: 1, backgroundColor: '#1E1E1E' }} />}
                 ListEmptyComponent={() => (
                   <View style={{ paddingVertical: 40, alignItems: 'center' }}>
-                    <Text style={{ fontSize: 14, fontFamily: 'Outfit', color: '#9CA3AF', textAlign: 'center' }}>
+                    <Text style={{ fontSize: 14, fontFamily: 'Outfit', color: colors.white, textAlign: 'center' }}>
                       All questions in this category have been used
                     </Text>
                   </View>
@@ -333,7 +335,7 @@ const ProfileAnswers = () => {
                     activeOpacity={0.7}
                   >
                     {/* <MessageCircle size={16} color={colors.primary} strokeWidth={2} /> */}
-                    <Text style={{ flex: 1, fontSize: 15, fontFamily: 'OutfitMedium', color: '#E5E5E5', lineHeight: 22 }}>
+                    <Text style={{ flex: 1, fontSize: 15, fontFamily: 'OutfitMedium', color: colors.white, lineHeight: 22 }}>
                       {q}
                     </Text>
                   </TouchableOpacity>
@@ -408,7 +410,7 @@ const ProfileAnswers = () => {
                 style={{
                   fontSize: 12,
                   fontFamily: 'Outfit',
-                  color: '#9CA3AF',
+                  color: colors.white,
                   textAlign: 'right',
                   marginBottom: 20,
                 }}
@@ -421,7 +423,7 @@ const ProfileAnswers = () => {
                   style={{
                     fontSize: 14,
                     fontFamily: 'OutfitMedium',
-                    color: colors.secondary,
+                    color: colors.white,
                     marginBottom: 16,
                   }}
                 >

@@ -43,7 +43,7 @@ const Occupation = () => {
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View style={{flex: 1}} className="px-2">
             <View style={{flex: 1}} className="mt-8">
-              <Text className="text-3xl font-OutfitBold  mb-4">
+              <Text className="text-3xl font-OutfitBold text-white  mb-4">
                 What&apos;s your occupation?
               </Text>
 
@@ -62,7 +62,7 @@ const Occupation = () => {
                     className={`px-4 py-2 rounded-full  border ${
                       selectedOccupation === item.value
                         ? "bg-primary border-primary"
-                        : "bg-[#121212] border-[#D1D1D1]"
+                        : "bg-[#121212] border-whiteLight"
                     }`}
                   >
                     <Text

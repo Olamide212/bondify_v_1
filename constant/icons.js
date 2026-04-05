@@ -15,9 +15,8 @@ import deepConversationIcon from "../assets/icons/deep.png"
 import messageIcon from "../assets/icons/mess.png"
 import verifyIcon from "../assets/icons/verify.png"
 import mapIcon from "../assets/icons/Map.png"
-import verifiedBatch from "../assets/icons/verifiedBatch.png"
 import feedIcon from "../assets/icons/feed-icon.png"
-import verifiedIcon from "../assets/icons/verified-icon.png"
+import verifiedIcon from "../assets/icons/verifiedBatch.png"
 import TikTok from "../assets/icons/tiktok.png"
 
 
@@ -38,7 +37,6 @@ export const Icons = {
   messageIcon,
   verifyIcon,
   mapIcon,
-  verifiedBatch,
   feedIcon,
   verifiedIcon,
   TikTok

@@ -40,7 +40,7 @@ const PromptSuggestions = ({ onSelectPrompt }) => {
       <Text style={{
         fontFamily: fonts.OutfitBold,
         fontSize: 16,
-        color: colors.primary,
+        color: colors.white,
         marginBottom: 12,
         textAlign: 'center'
       }}>
@@ -52,10 +52,10 @@ const PromptSuggestions = ({ onSelectPrompt }) => {
             key={index}
             onPress={() => onSelectPrompt(suggestion)}
             style={{
-              backgroundColor: colors.primary + 20,
+              backgroundColor: colors.whiteLight,
               borderRadius: 20,
               borderWidth: 1,
-              borderColor: colors.primary,
+              borderColor: colors.whiteLight,
               paddingVertical: 8,
               paddingHorizontal: 12,
             }}
@@ -63,7 +63,7 @@ const PromptSuggestions = ({ onSelectPrompt }) => {
             <Text style={{
               fontFamily: fonts.OutfitMedium,
               fontSize: 13,
-              color: colors.primary,
+              color: colors.white,
             }}>
               {suggestion}
             </Text>
@@ -234,10 +234,10 @@ const About = () => {
             >
               {/* Title */}
               <View className="mt-8 mb-6">
-                <Text className="text-3xl font-OutfitBold mb-2">
+                <Text className="text-3xl text-white font-OutfitBold mb-2">
                   Create your bio
                 </Text>
-                <Text className="text-base font-Outfit text-gray-400">
+                <Text className="text-base text-white font-Outfit">
                   Describe yourself in 3 words, then let AI craft your perfect bio.
                 </Text>
               </View>
@@ -268,12 +268,12 @@ const About = () => {
                 />
                  {/* Generated Bio */}
               {generatedBio && (
-                <View className="my-6">
+                <View className="">
                   <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginVertical: 12 }}>
                     <Text style={{
                       fontFamily: fonts.OutfitBold,
                       fontSize: 16,
-                      color: '#E5E5E5',
+                      color: colors.white,
                     }}>
                       Your bio
                     </Text>
@@ -285,14 +285,14 @@ const About = () => {
                         paddingVertical: 6,
                         borderRadius: 20,
                         borderWidth: 1,
-                        borderColor: colors.primary,
+                        borderColor: colors.whiteLight,
                         flexDirection: 'row',
                         alignItems: 'center',
                         gap: 4,
                       }}
                     >
-                      <RefreshCw size={14} color={colors.primary} strokeWidth={2} />
-                      <Text style={{ fontFamily: fonts.OutfitBold, fontSize: 12, color: colors.primary }}>
+                      <RefreshCw size={14} color={colors.white} strokeWidth={2} />
+                      <Text style={{ fontFamily: fonts.OutfitBold, fontSize: 12, color: colors.white }}>
                         Regenerate
                       </Text>
                     </TouchableOpacity>
@@ -316,7 +316,7 @@ const About = () => {
                   <Text style={{
                     fontFamily: fonts.Outfit,
                     fontSize: 12,
-                    color: '#9CA3AF',
+                    color: colors.white,
                     textAlign: 'right',
                     marginTop: 4
                   }}>
@@ -346,11 +346,11 @@ const About = () => {
                 }}
               >
                 {loading ? (
-                  <ActivityIndicator size="small" color={colors.secondary} />
+                  <ActivityIndicator size="small" color={colors.primary} />
                 ) : (
-                  <Sparkles size={16} color={colors.secondary} strokeWidth={2} />
+                  <Sparkles size={16} color={colors.primary} strokeWidth={2} />
                 )}
-                <Text style={{ color: colors.secondary, fontFamily: fonts.OutfitBold, fontSize: 14 }}>
+                <Text style={{ color: colors.primary, fontFamily: fonts.OutfitBold, fontSize: 14 }}>
                   {loading ? "Generating bio..." : "Click to Generate bio"}
                 </Text>
               </TouchableOpacity>

@@ -1,8 +1,8 @@
-import { MaterialIcons } from '@expo/vector-icons';
+import { Image } from 'react-native';
 
 const VerifiedIcon = () => {
   return (
-    <MaterialIcons name="verified" size={20} color={"#F6CE71"}  style={{ marginLeft: 4 }} />
+    <Image source={require("../../assets/icons/verifiedBatch.png")} style={{ width: 20, height: 20 }} /> // Replace with your verified badge icon
   );
 };
 

@@ -128,7 +128,7 @@ export default function CameraScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#000" },
+  container: { flex: 1, backgroundColor: "#000"}, // counteract auth layout's vertical padding
   overlay: { ...StyleSheet.absoluteFillObject, alignItems: "center", justifyContent: "center" },
   oval: { width: 230, height: 290, borderRadius: 999, borderWidth: 2.5, borderColor: "rgba(255,255,255,0.75)", borderStyle: "dashed" },
   hint: { marginTop: 16, fontSize: 13, fontFamily: "OutfitMedium", color: "rgba(255,255,255,0.85)" },

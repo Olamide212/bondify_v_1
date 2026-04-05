@@ -92,7 +92,7 @@ const WheelPicker = ({
                 opacity,
                 fontSize,
                 fontWeight,
-                color: isSelected ? PRIMARY : "#111",
+                color: isSelected ? PRIMARY : "#fff",
                 fontFamily: isSelected
                   ? "OutfitBold"
                   : "Outfit",

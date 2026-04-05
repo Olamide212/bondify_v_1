@@ -42,10 +42,10 @@ const RelocationPreference = () => {
           <View style={{flex: 1}} className="px-2">
             <ScrollView style={{flex: 1}} className="" showsVerticalScrollIndicator={false}>
             <View style={{flex: 1}} className="mt-8">
-              <Text className="text-3xl font-OutfitBold text-app mb-2">
+              <Text className="text-3xl font-OutfitBold text-white mb-2">
                 Would you move for the right person?
               </Text>
-<Text className="text-lg font-Outfit">Are you willing to relocate, if you meet the right person on Bondies?</Text>
+<Text className="text-lg font-Outfit text-white">Are you willing to relocate, if you meet the right person on Bondies?</Text>
               <View>
                 <RadioSelect
                   value={relocationPreference}

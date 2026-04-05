@@ -16,7 +16,7 @@ const AccountSetupHeader = ({ title, rightText, showBack = true, onSkip }) => {
         <View style={{ width: 24 }} />
       )}
 
-      <Text className="text-app font-OutfitBold text-[20px]">{title}</Text>
+      <Text className="text-white font-OutfitBold text-[20px]">{title}</Text>
 
       {onSkip ? (
         <Pressable onPress={onSkip} hitSlop={8}>

@@ -182,7 +182,7 @@ const styles = StyleSheet.create({
     marginTop:   28,
     fontSize:    18,
     fontFamily:  "OutfitBold",
-    color:       PRIMARY,
+    color:       '#fff',
   },
 
   // Footer

@@ -42,10 +42,10 @@ const Gender = () => {
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View style={{flex: 1}} className="px-2">
             <View style={{flex: 1}} className="mt-8">
-              <Text className="text-3xl font-OutfitBold mb-2">
+              <Text className="text-3xl text-white font-OutfitBold mb-2">
                 How do you identify yourself?
               </Text>
-              <Text className="text-lg font-Outfit">
+              <Text className="text-lg text-white font-Outfit">
                 Tell us about your gender
               </Text>
 
@@ -59,7 +59,7 @@ const Gender = () => {
               </View>
             </View>
 
-            <View className="w-full items-end pb-6">
+            <View className="w-full items-end pb-6 bg-[#121212]">
               <Button
                 title="Continue"
                 variant="primary"

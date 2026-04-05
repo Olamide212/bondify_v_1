@@ -3,6 +3,7 @@ import { useCallback, useEffect } from "react";
 import { View } from "react-native";
 import AccountSetupHeader from "../../../components/headers/SetupAccountHeader";
 import { ProgressBar } from "../../../components/ui/ProgressBar";
+import { VerificationStepProvider, useVerificationStep } from "../../../context/VerificationStepContext";
 import { useProfileSetup } from "../../../hooks/useProfileSetup";
 
 // Screens that show Skip in the header → maps to the next screen
@@ -25,13 +26,23 @@ const SKIP_MAP = {
 };
 
 export default function OnboardingLayout() {
+  return (
+    <VerificationStepProvider>
+      <OnboardingContent />
+    </VerificationStepProvider>
+  );
+}
+
+function OnboardingContent() {
   const router = useRouter();
   const segments = useSegments();
   const currentStepSegment = segments[segments.length - 1];
   const isVerificationFlow = segments.includes("verification");
   const logicalStep = isVerificationFlow ? "verification" : currentStepSegment;
+  const { verificationStep } = useVerificationStep();
+  const hideHeader = isVerificationFlow && verificationStep === "camera";
 
-  const { steps, progress, resumeStep, setCurrentStep } = useProfileSetup({
+  const { steps, progress, resumed, resumeStep, setCurrentStep } = useProfileSetup({
     isOnboarding: true,
     trackStep: true,
   });
@@ -57,13 +68,17 @@ export default function OnboardingLayout() {
 
   return (
     <View style={{flex: 1}} className="bg-[#121212]">
-      <AccountSetupHeader
-        title="Account Setup"
-        showBack={!isAgreement}
-        onSkip={skipTarget ? handleSkip : undefined}
-      />
+      {!hideHeader && (
+        <View style={isVerificationFlow ? { paddingHorizontal: 16 } : undefined}>
+          <AccountSetupHeader
+            title="Account Setup"
+            showBack={!isAgreement}
+            onSkip={skipTarget ? handleSkip : undefined}
+          />
+        </View>
+      )}
 
-      {steps.includes(currentStepSegment) && (
+      {!hideHeader && resumed && steps.includes(currentStepSegment) && (
         <ProgressBar progress={progress} />
       )}
 

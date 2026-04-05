@@ -78,7 +78,7 @@ const OtpVerificationScreen = ({
       : "Please enter the verification code sent to your email");
 
   return (
-    <SafeAreaView style={{flex: 1}} className="bg-[#121212]" style={{ flex: 1 }}>
+    <SafeAreaView style={{flex: 1}} className="bg-[#121212]">
       <KeyboardAvoidingView
         style={{flex: 1}}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -92,7 +92,7 @@ const OtpVerificationScreen = ({
                 onPress={handleBack}
                 className="mb-4 w-10 h-10 items-center justify-center"
               >
-                <ChevronLeft size={24} color="#111" />
+                <ChevronLeft size={24} color="#fff" />
               </TouchableOpacity>
             )}
 
@@ -107,7 +107,7 @@ const OtpVerificationScreen = ({
               {email ? (
                 <>
                   {" "}
-                  <Text className="font-OutfitSemiBold">{email}</Text>
+                  <Text className="font-OutfitSemiBold text-white">{email}</Text>
                 </>
               ) : null}
             </Text>

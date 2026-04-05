@@ -75,7 +75,7 @@ const GlobalOtpInput = ({
               borderColor: errors && touched ? "#F04438" : "#D0D5DD",
             },
             filledPinCodeContainerStyle: {
-              borderColor: "#1D2939",
+              borderColor: colors.whiteLight,
             },
             pinCodeTextStyle: styles.pinCodeText,
             textProps: {
@@ -94,7 +94,7 @@ const GlobalOtpInput = ({
 
       <View className="flex-row justify-center mt-4">
         {timer > 0 ? (
-          <Text className="text-app font-OutfitMedium text-sm">
+          <Text className="text-white font-OutfitMedium text-sm">
             {timer} sec remaining
           </Text>
         ) : (

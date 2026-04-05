@@ -44,8 +44,8 @@ const UploadPhoto = () => {
 
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: false,
-      quality: 1,
+      allowsEditing: true,
+      // quality: 1,
     });
 
     if (!result.canceled) {
@@ -96,15 +96,15 @@ const UploadPhoto = () => {
             {/* Title + Subtitle */}
             <View className="mb-6 mt-8">
               <View className="flex-row items-center justify-between">
-                <Text className="text-3xl font-OutfitBold  mb-2">
+                <Text className="text-3xl font-OutfitBold text-white  mb-2">
                   Add your best photos
                 </Text>
-                <TouchableOpacity
+                {/* <TouchableOpacity
                   onPress={() => setShowGuidelines(true)}
                   className="bg-primary/10 p-2 rounded-full"
                 >
                   <Ionicons name="information-circle" size={24} color={colors.primary} />
-                </TouchableOpacity>
+                </TouchableOpacity> */}
               </View>
               <View className="">
               <View>
@@ -123,7 +123,7 @@ const UploadPhoto = () => {
                 return (
                 <View key={index} className="w-[30%] h-[35%]  relative">
                   <TouchableOpacity
-                    className={`w-full h-full rounded-xl items-center justify-center bg-gray-900 border-2 ${isMain ? 'border-primary' : 'border-dashed border-gray-600'}`}
+                    className={`w-full h-full rounded-xl items-center justify-center bg-gray-900 border-2 ${isMain ? 'border-primary' : 'border-dashed border-whiteLight'}`}
                     onPress={() => pickImage(index)}
                     activeOpacity={0.7}
                   >

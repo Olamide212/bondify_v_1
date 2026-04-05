@@ -2,7 +2,7 @@ import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useCallback, useEffect } from "react";
-import { StatusBar, View } from "react-native";
+import { StatusBar, TextInput, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Provider, useSelector } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
@@ -17,6 +17,10 @@ import "../global.css";
 import messageService from "../services/messageService";
 import { profileService } from "../services/profileService";
 import { persistor, store } from "../store/store";
+
+// Force dark keyboard globally
+if (TextInput.defaultProps == null) TextInput.defaultProps = {};
+TextInput.defaultProps.keyboardAppearance = "dark";
 
 
 SplashScreen.preventAutoHideAsync();

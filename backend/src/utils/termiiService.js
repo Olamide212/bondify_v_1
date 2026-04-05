@@ -150,12 +150,12 @@ const sendOtpEmail = async ({ email, firstName, otp }) => {
       html: `
         <div style="font-family:sans-serif;max-width:480px;margin:auto;padding:32px 24px;background:#ffffff;border-radius:16px;border:1px solid #F3F4F6">
           <h2 style="color:#FE01AA;margin-top:0;font-size:22px">Hey ${firstName || 'there'} 👋</h2>
-          <p style="color:#374151;font-size:15px;line-height:1.7;margin-bottom:24px">
+          <p style="color:#000;font-size:15px;line-height:1.7;margin-bottom:24px">
             Use the code below to verify your Bondies account.
             It expires in <strong>${EXPIRY} minutes</strong>.
           </p>
-          <div style="background:#1E1A2E;border-radius:12px;padding:28px;text-align:center;margin-bottom:24px">
-            <span style="font-size:40px;font-weight:700;letter-spacing:12px;color:#E8651A;font-family:monospace">
+          <div style="background:##FE01AA;border-radius:12px;padding:28px;text-align:center;margin-bottom:24px">
+            <span style="font-size:40px;font-weight:700;letter-spacing:12px;color:#fff;font-family:monospace">
               ${otp}
             </span>
           </div>

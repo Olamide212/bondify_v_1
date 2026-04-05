@@ -43,9 +43,10 @@ export const useProfileSetup = ({ isOnboarding = true, trackStep = false } = {})
   const steps = ONBOARDING_STEPS;
 
   const [currentStep, setCurrentStep] = useState(steps[0]);
-  const [progress, setProgress] = useState(1 / steps.length);
+  const [progress, setProgress] = useState(0);
   const [lookups, setLookups] = useState({});
   const [loading, setLoading] = useState(false);
+  const [resumed, setResumed] = useState(false);
 
   // -------------------------------
   // Restore saved onboarding step
@@ -56,12 +57,17 @@ export const useProfileSetup = ({ isOnboarding = true, trackStep = false } = {})
 
       if (savedStep && steps.includes(savedStep)) {
         setCurrentStep(savedStep);
+        setProgress((steps.indexOf(savedStep) + 1) / steps.length);
       } else {
         // Fallback to first onboarding step
         setCurrentStep(steps[0]);
+        setProgress(1 / steps.length);
       }
     } catch (err) {
       console.warn("Failed to restore onboarding step", err);
+      setProgress(1 / steps.length);
+    } finally {
+      setResumed(true);
     }
   }, [steps]);
 
@@ -158,6 +164,7 @@ export const useProfileSetup = ({ isOnboarding = true, trackStep = false } = {})
     progress,
     lookups,
     loading,
+    resumed,
 
     setCurrentStep,
     resumeStep,

@@ -32,7 +32,7 @@ const CheckboxSelect = ({
           <TouchableOpacity
             key={option.value}
             className={`flex-row items-center justify-between gap-2 px-5 py-5 rounded-2xl border-[1px]  ${className}
-               ${value.includes(option.value) ? "border-primary bg-primary/10" : "border-[#dadada]"}`}
+               ${value.includes(option.value) ? "border-primary bg-primary/10" : "border-whiteLight bg-whiteLight"}`}
             onPress={() => toggleSelection(option.value)}
             style={{ borderRadius: 10 }}
           >

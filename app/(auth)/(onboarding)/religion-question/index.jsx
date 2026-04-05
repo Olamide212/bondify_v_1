@@ -48,7 +48,7 @@ const ReligionQuestions = () => {
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View style={{flex: 1}} className="px-2">
             <View style={{flex: 1}} className="mt-8">
-              <Text className="text-3xl font-OutfitBold text-app mb-2">
+              <Text className="text-3xl font-OutfitBold text-white mb-2">
                 Dating someone with the same beliefs...
               </Text>
 

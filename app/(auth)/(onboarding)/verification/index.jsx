@@ -27,10 +27,11 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import VerifiedIcon from "../../../../components/ui/VerifiedIcon";
 import { colors } from "../../../../constant/colors";
 import { useAlert } from "../../../../context/AlertContext";
+import { useVerificationStep } from "../../../../context/VerificationStepContext";
 import { profileService } from "../../../../services/profileService"; // Add this import
 import apiClient from "../../../../utils/axiosInstance";
 import { tokenManager } from "../../../../utils/tokenManager";
@@ -93,7 +94,7 @@ const IntroStep = ({ onStart, onSkip, profilePhotoUrl }) => (
 );
 
 const is = StyleSheet.create({
-  container:   { paddingHorizontal: 24, paddingTop: 16, paddingBottom: 48 },
+  container:   { paddingHorizontal: 24, paddingTop: 16, paddingBottom: 40, marginTop: 60 },
   iconWrap:    { width: 88, height: 88, borderRadius: 99, backgroundColor: "#EDE8F5", alignItems: "center", justifyContent: "center", alignSelf: "center", marginBottom: 20 },
   title:       { fontSize: 24, fontFamily: "OutfitBold", color: '#E5E5E5', textAlign: "center", marginBottom: 10 },
   body:        { fontSize: 14, fontFamily: "Outfit", color: '#9CA3AF', textAlign: "center", lineHeight: 22, marginBottom: 28 },
@@ -198,16 +199,16 @@ const OVAL_WIDTH = 230;
 const OVAL_HEIGHT = 300;
 
 const cs = StyleSheet.create({
-  container:    { flex: 1, backgroundColor: "#000", padding: 0 },
+  container:    { flex: 1, backgroundColor: "#000", padding: 0, marginTop: 10 },
   overlayWrap:  { ...StyleSheet.absoluteFillObject },
-  overlayTop:   { flex: 1, backgroundColor: "rgba(0,0,0,0.6)" },
+  overlayTop:   { flex: 1,  },
   overlayMiddle:{ flexDirection: "row", height: OVAL_HEIGHT },
-  overlaySide:  { flex: 1, backgroundColor: "rgba(0,0,0,0.6)" },
-  ovalHole:     { width: OVAL_WIDTH, height: OVAL_HEIGHT, alignItems: "center", justifyContent: "center" },
+  overlaySide:  { flex: 1,  },
+  ovalHole:     { width: OVAL_WIDTH, height: OVAL_HEIGHT, alignItems: "center", justifyContent: "center", backgroundColor: "transparent", overflow: "hidden", borderRadius: OVAL_HEIGHT / 2 },
   ovalBorder:   { width: OVAL_WIDTH, height: OVAL_HEIGHT, borderRadius: OVAL_HEIGHT / 2, borderWidth: 2.5, borderColor: "rgba(255,255,255,0.75)", borderStyle: "dashed" },
-  hintRow:      { backgroundColor: "rgba(0,0,0,0.6)", alignItems: "center", paddingVertical: 12 },
+  hintRow:      {  alignItems: "center", paddingVertical: 12 },
   hint:         { fontSize: 13, fontFamily: "OutfitMedium", color: "rgba(255,255,255,0.85)" },
-  overlayBottom:{ flex: 1, backgroundColor: "rgba(0,0,0,0.6)" },
+  overlayBottom:{ flex: 1,  },
   shutterRow:   { position: "absolute", bottom: 48, width: "100%", alignItems: "center" },
   shutter:      { width: 72, height: 72, borderRadius: 99, backgroundColor: "#121212", alignItems: "center", justifyContent: "center", borderWidth: 4, borderColor: "rgba(255,255,255,0.4)" },
   shutterInner: { width: 54, height: 54, borderRadius: 99, backgroundColor: PRIMARY },
@@ -294,6 +295,12 @@ export default function VerificationScreen() {
   const { showAlert } = useAlert();
   const [permission, requestPermission] = useCameraPermissions();
   const [step,       setStep]           = useState(STEP.INTRO);
+  const { setVerificationStep } = useVerificationStep();
+
+  // Broadcast step changes to the layout so it can hide the header on camera
+  useEffect(() => {
+    setVerificationStep(step);
+  }, [step, setVerificationStep]);
   const [profilePhotoUrl, setProfilePhotoUrl] = useState(null);
 
   // Fetch the user's first uploaded profile photo to display on the intro
@@ -409,39 +416,36 @@ export default function VerificationScreen() {
     router.push("/(onboarding)/location-access");
   };
 
-  return (
-    <SafeAreaView style={sc.safe} edges={["top"]}>
-      {/* ── Header (hidden on camera/done steps) ── */}
-      {/* {step !== STEP.CAMERA && step !== STEP.DONE && (
-        <View style={sc.header}>
-          <TouchableOpacity
-            onPress={() =>
-              step === STEP.PREVIEW ? setStep(STEP.CAMERA) : router.back()
-            }
-            hitSlop={8}
-          >
-            <ChevronLeft size={26} color="#111" strokeWidth={2} />
-          </TouchableOpacity>
-          <Text style={sc.headerTitle}>
-            {step === STEP.INTRO ? "Verification" : "Preview Selfie"}
-          </Text>
-          <View style={{ width: 26 }} />
-        </View>
-      )} */}
+  const insets = useSafeAreaInsets();
+  const isCamera = step === STEP.CAMERA;
 
-      {/* ── Camera back button ── */}
-      {step === STEP.CAMERA && (
+  // Camera step renders fullscreen, breaking out of parent SafeAreaView
+  if (isCamera) {
+    return (
+      <View
+        style={[
+          sc.cameraFullscreen,
+          {
+            marginTop: -insets.top,
+            marginBottom: -insets.bottom,
+          },
+        ]}
+      >
         <TouchableOpacity
-          style={sc.cameraBack}
+          style={[sc.cameraBack, { top: insets.top + 20 }]}
           onPress={() => setStep(STEP.INTRO)}
         >
           <ChevronLeft size={26} color="#fff" strokeWidth={2} />
         </TouchableOpacity>
-      )}
+        <CameraStep onCapture={handleCapture} showAlert={showAlert} />
+      </View>
+    );
+  }
 
-      <View style={{ flex: 1, }}>
+  return (
+    <View style={sc.safe}>
+      <View style={{ flex: 1, paddingHorizontal: 16, paddingTop: 12 }}>
         {step === STEP.INTRO   && <IntroStep onStart={handleStart} onSkip={handleSkip} profilePhotoUrl={profilePhotoUrl} />}
-        {step === STEP.CAMERA  && <CameraStep onCapture={handleCapture} showAlert={showAlert} />}
         {step === STEP.PREVIEW && (
           <PreviewStep
             uri={photoUri}
@@ -452,13 +456,12 @@ export default function VerificationScreen() {
         )}
         {step === STEP.DONE && <DoneStep onContinue={handleDoneContinue} />}
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const sc = StyleSheet.create({
-  safe:        { flex: 1, backgroundColor: "#121212" },
-  header:      { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 20, paddingVertical: 14, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: "#F3F4F6" },
-  headerTitle: { fontSize: 16, fontFamily: "OutfitBold", color: '#E5E5E5' },
-  cameraBack:  { position: "absolute", top: 52, left: 16, zIndex: 10, padding: 8, backgroundColor: "rgba(0,0,0,0.35)", borderRadius: 99 },
+  safe:              { flex: 1, backgroundColor: "#121212" },
+  cameraFullscreen:  { flex: 1, backgroundColor: "#000" },
+  cameraBack:        { position: "absolute", left: 16, zIndex: 10, padding: 8, backgroundColor: "rgba(0,0,0,0.35)", borderRadius: 99 },
 });
