@@ -154,8 +154,8 @@ const sendOtpEmail = async ({ email, firstName, otp }) => {
             Use the code below to verify your Bondies account.
             It expires in <strong>${EXPIRY} minutes</strong>.
           </p>
-          <div style="background:##FE01AA;border-radius:12px;padding:28px;text-align:center;margin-bottom:24px">
-            <span style="font-size:40px;font-weight:700;letter-spacing:12px;color:#fff;font-family:monospace">
+          <div style="background:#FE01AA;border-radius:12px;padding:28px;text-align:center;margin-bottom:24px">
+            <span style="font-size:40px;font-weight:700;letter-spacing:12px;color:#ffffff;font-family:monospace">
               ${otp}
             </span>
           </div>

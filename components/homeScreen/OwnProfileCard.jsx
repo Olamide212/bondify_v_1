@@ -113,11 +113,11 @@ const OwnProfileCard = ({ profile }) => {
 
 
                     {/* ── Tagline ── */}
-                    <View style={{backgroundColor: '#121212'}}>
+                    <View style={{backgroundColor: '#121212', marginVertical: 20}}>
    {profile?.tagline && (
-                      <View className=" -mt-20 pt-10 px-4 pb-3 rounded-t-2xl mb-2" style={themeStyles.boxContainer}>
-                        <Text className="text-3xl  font-OutfitSemiBold ">
-                         {profile.tagline}
+                      <View className="px-4  rounded-t-2xl" >
+                        <Text className="text-3xl text-white italic font-OutfitSemiBold">
+                         &quot;{profile.tagline}&quot;
                         </Text>
                       </View>
                     )}
@@ -136,7 +136,7 @@ const OwnProfileCard = ({ profile }) => {
                 </Text>
                 <View className="bg-gray-800 rounded-full px-4 py-2 flex-row items-center gap-3 self-start">
                   <Text>💘</Text>
-                  <Text className="text-white text-base font-OutfitMedium">{profile.lookingFor}</Text>
+                  <Text className="text-white text-xl font-OutfitMedium">{profile.lookingFor}</Text>
                 </View>
               </View>
             )}
@@ -321,11 +321,11 @@ const OwnProfileCard = ({ profile }) => {
                ══════════════════════════════════════════════════════ */}
             {profile.religionPractice && (
               <View className=" p-5 mb-2 mx-3 rounded-2xl " style={themeStyles.boxContainer}>
-                <Text className="text-gray-400 font-Outfit text-base ml-2 mb-1">
+                <Text className="text-gray-400 font-Outfit text-white text-base ml-2 mb-1">
                   {profile.firstName || profile.name} says...
                 </Text>
                 <Text className="text-white font-OutfitBold text-2xl leading-relaxed capitalize ml-2">
-                  I'm {profile.religionPractice} religious
+                  I&apos;m {profile.religionPractice} 
                 </Text>
               </View>
             )}
@@ -335,7 +335,7 @@ const OwnProfileCard = ({ profile }) => {
                ══════════════════════════════════════════════════════ */}
             {profile.willRelocateForMarriage && (
               <View className=" p-5 mb-2 mx-3 rounded-2xl " style={themeStyles.boxContainer}>
-                <Text className="text-gray-400 font-Outfit text-base ml-2 mb-1">
+                <Text className="text-white font-Outfit  text-base ml-2 mb-1">
                   {profile.firstName || profile.name} says...
                 </Text>
                 <Text className="text-white font-OutfitBold text-2xl leading-relaxed capitalize ml-2">
@@ -349,11 +349,11 @@ const OwnProfileCard = ({ profile }) => {
                ══════════════════════════════════════════════════════ */}
             {profile.religionImportance && (
               <View className=" p-5 mb-2 mx-3 rounded-2xl " style={themeStyles.boxContainer}>
-                <Text className="text-gray-400 font-Outfit text-base ml-2 mb-1">
+                <Text className=" font-Outfit text-white text-base ml-2 mb-1">
                   {profile.firstName || profile.name} says...
                 </Text>
                 <Text className="text-white font-OutfitBold text-2xl leading-relaxed capitalize ml-2">
-                  Same beliefs are {profile.religionImportance} to me
+                  Same belief  {profile.religionImportance} to me
                 </Text>
               </View>
             )}

@@ -94,7 +94,7 @@ const IntroStep = ({ onStart, onSkip, profilePhotoUrl }) => (
 );
 
 const is = StyleSheet.create({
-  container:   { paddingHorizontal: 24, paddingTop: 16, paddingBottom: 40, marginTop: 60 },
+  container:   { paddingHorizontal: 24, paddingTop: 10, paddingBottom: 40, marginTop: 30 },
   iconWrap:    { width: 88, height: 88, borderRadius: 99, backgroundColor: "#EDE8F5", alignItems: "center", justifyContent: "center", alignSelf: "center", marginBottom: 20 },
   title:       { fontSize: 24, fontFamily: "OutfitBold", color: '#E5E5E5', textAlign: "center", marginBottom: 10 },
   body:        { fontSize: 14, fontFamily: "Outfit", color: '#9CA3AF', textAlign: "center", lineHeight: 22, marginBottom: 28 },

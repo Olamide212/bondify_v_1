@@ -256,12 +256,12 @@ const ProfileCard = ({ profile, hideAiSuggestion = false }) => {
             likesYou={profile?.likesYou}
           />
 
-                    {/* ── Tagline ── */}
-                    <View style={{backgroundColor: '#121212'}}>
+                 {/* ── Tagline ── */}
+                    <View style={{backgroundColor: '#121212', marginVertical: 20}}>
    {profile?.tagline && (
-                      <View className=" -mt-20 pt-10 px-4 pb-3 rounded-t-2xl mb-2" style={styles.boxContainer}>
-                        <Text className="text-3xl  font-OutfitSemiBold ">
-                         {profile.tagline}
+                      <View className="px-4  rounded-t-2xl" >
+                        <Text className="text-3xl text-white italic font-OutfitSemiBold">
+                         &quot;{profile.tagline}&quot;
                         </Text>
                       </View>
                     )}
@@ -302,7 +302,7 @@ const ProfileCard = ({ profile, hideAiSuggestion = false }) => {
                 </Text>
                 <View className="bg-gray-800 rounded-full px-4 py-2 flex-row items-center gap-3 self-start">
                   <Text>💘</Text>
-                  <Text className="text-white text-base font-OutfitMedium">{profile.lookingFor}</Text>
+                  <Text className="text-white text-xl font-OutfitMedium">{profile.lookingFor}</Text>
                 </View>
               </View>
             )}
@@ -489,7 +489,7 @@ const ProfileCard = ({ profile, hideAiSuggestion = false }) => {
                   {profile.firstName || profile.name} says...
                 </Text>
                 <Text className="text-white font-OutfitBold text-2xl leading-relaxed capitalize ml-2">
-                  I'm {profile.religionPractice} religious
+                  I&apos;m {profile.religionPractice} 
                 </Text>
               </View>
             )}
@@ -517,7 +517,7 @@ const ProfileCard = ({ profile, hideAiSuggestion = false }) => {
                   {profile.firstName || profile.name} says...
                 </Text>
                 <Text className="text-white font-OutfitBold text-2xl leading-relaxed capitalize ml-2">
-                  Same beliefs are {profile.religionImportance} to me
+                  Same belief is {profile.religionImportance} to me
                 </Text>
               </View>
             )}
