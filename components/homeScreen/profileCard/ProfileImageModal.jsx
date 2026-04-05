@@ -145,7 +145,7 @@ const ProfileImageModal = ({
                       <Image
                         source={{ uri }}
                         style={{ width: "100%", height: "100%" }}
-                        contentFit="cover"
+                        contentFit="contain"
                         cachePolicy="memory-disk"
                         blurRadius={blurPhotos ? 25 : 0}
                         onLoadStart={() => {

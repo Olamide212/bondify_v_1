@@ -45,7 +45,8 @@ const UploadPhoto = () => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
-      // quality: 1,
+      aspect: [3, 4],
+      quality: 1,
     });
 
     if (!result.canceled) {

@@ -1,7 +1,7 @@
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { StatusBar, TextInput, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Provider, useSelector } from "react-redux";
@@ -75,7 +75,9 @@ function RootLayoutInner() {
 }
 
 export default function RootLayout() {
-const [fontsLoaded] = useFonts({
+  const splashHidden = useRef(false);
+
+const [fontsLoaded, fontError] = useFonts({
   Outfit: require("../assets/fonts/Outfit_400Regular.ttf"),
   OutfitExtraLight: require("../assets/fonts/Outfit_200ExtraLight.ttf"),
   OutfitLight: require("../assets/fonts/Outfit_300Light.ttf"),
@@ -85,20 +87,36 @@ const [fontsLoaded] = useFonts({
   OutfitExtraBold: require("../assets/fonts/Outfit_800ExtraBold.ttf"),
 });
 
-  const onLayoutRootView = useCallback(async () => {
-    if (fontsLoaded) {
+  const hideSplash = useCallback(async () => {
+    if (splashHidden.current) return;
+    splashHidden.current = true;
+    try {
       await SplashScreen.hideAsync();
+    } catch (e) {
+      // Ignore — splash may already be hidden
     }
-  }, [fontsLoaded]);
+  }, []);
 
+  // Hide splash when fonts are ready (or failed)
   useEffect(() => {
-    onLayoutRootView();
-  }, [fontsLoaded]);
+    if (fontsLoaded || fontError) {
+      hideSplash();
+    }
+  }, [fontsLoaded, fontError, hideSplash]);
 
-  if (!fontsLoaded) return null;
+  // Safety net: force-hide splash after 5 seconds no matter what
+  // This prevents the app from being stuck on the native splash forever
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      hideSplash();
+    }, 5000);
+    return () => clearTimeout(timer);
+  }, [hideSplash]);
+
+  if (!fontsLoaded && !fontError) return null;
 
   return (
-    <GestureHandlerRootView style={{ flex: 1, backgroundColor: '#121212' }} onLayout={onLayoutRootView}>
+    <GestureHandlerRootView style={{ flex: 1, backgroundColor: '#121212' }}>
       <StatusBar barStyle="light-content" backgroundColor="#121212" />
       <Provider store={store}>
         <PersistGate loading={null} persistor={persistor}>

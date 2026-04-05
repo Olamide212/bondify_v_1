@@ -321,7 +321,7 @@ const OwnProfileCard = ({ profile }) => {
                ══════════════════════════════════════════════════════ */}
             {profile.religionPractice && (
               <View className=" p-5 mb-2 mx-3 rounded-2xl " style={themeStyles.boxContainer}>
-                <Text className="text-white font-Outfit text-base ml-2 mb-1">
+                <Text className="text-gray-400 font-Outfit text-base ml-2 mb-1">
                   {profile.firstName || profile.name} says...
                 </Text>
                 <Text className="text-white font-OutfitBold text-2xl leading-relaxed capitalize ml-2">
@@ -335,7 +335,7 @@ const OwnProfileCard = ({ profile }) => {
                ══════════════════════════════════════════════════════ */}
             {profile.willRelocateForMarriage && (
               <View className=" p-5 mb-2 mx-3 rounded-2xl " style={themeStyles.boxContainer}>
-                <Text className="text-white font-Outfit text-base ml-2 mb-1">
+                <Text className="text-gray-400 font-Outfit text-base ml-2 mb-1">
                   {profile.firstName || profile.name} says...
                 </Text>
                 <Text className="text-white font-OutfitBold text-2xl leading-relaxed capitalize ml-2">
@@ -349,7 +349,7 @@ const OwnProfileCard = ({ profile }) => {
                ══════════════════════════════════════════════════════ */}
             {profile.religionImportance && (
               <View className=" p-5 mb-2 mx-3 rounded-2xl " style={themeStyles.boxContainer}>
-                <Text className="text-white font-Outfit text-base ml-2 mb-1">
+                <Text className="text-gray-400 font-Outfit text-base ml-2 mb-1">
                   {profile.firstName || profile.name} says...
                 </Text>
                 <Text className="text-white font-OutfitBold text-2xl leading-relaxed capitalize ml-2">

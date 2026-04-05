@@ -22,7 +22,7 @@ export default function AuthLayout() {
 
   const isVerification = segments.includes("verification");
 
-  // Pre-auth screens that users explicitly navigate to 09021376474— these should
+  // Pre-auth screens that users explicitly navigate to  these should
   // never be interrupted by the onboarding-token redirect.
   const isPreAuthScreen = isLogin || isRegister || isForgotPassword || isResetPassword;
 

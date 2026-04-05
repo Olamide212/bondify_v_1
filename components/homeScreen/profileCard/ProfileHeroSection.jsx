@@ -92,7 +92,7 @@ const ProfileHeroSection = ({
               className="w-full h-full"
               contentFit="cover"
               cachePolicy="memory-disk"
-              style={{ width: '100%', height: 950 }}
+              style={{ width: '100%', height: 900 }}
               blurRadius={profile?.blurPhotos ? 25 : 0}
               onLoadStart={() => {
                 const uri = getImageUri(currentImageIndex);
@@ -148,9 +148,9 @@ const ProfileHeroSection = ({
                   {displayName}
                 </Text>
                 <View className="flex-row items-center gap-2">
-                  <Text className="text-white text-4xl font-Outfit">{profile.age}</Text>
+                  <Text className="text-white text-4xl font-OutfitLight">{profile.age}</Text>
                 {verified &&
-                                 <View style={{ marginLeft: 6 }}><VerifiedIcon /></View>
+                                 <View ><VerifiedIcon /></View>
                                }
                   
                 

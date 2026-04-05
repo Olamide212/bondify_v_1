@@ -8,7 +8,6 @@ import { useProfileSetup } from "../../../hooks/useProfileSetup";
 
 // Screens that show Skip in the header → maps to the next screen
 const SKIP_MAP = {
-  agreement:              "/age",
   ethnicity:              "/gender",
   "marital-status":       "/meet",
   meet:                   "/preference",
