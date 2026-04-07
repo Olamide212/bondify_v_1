@@ -344,11 +344,28 @@ const getBlockedUsers = async (req, res, next) => {
       .limit(limit);
 
     const total = await BlockedUser.countDocuments({ blocker: req.user._id });
+    const totalPages = Math.ceil(total / limit);
+
+    // Transform into the shape the frontend expects
+    const blockedUsers = blockedList.map((entry) => {
+      const user = entry.blocked;
+      return {
+        _id: entry._id,
+        userId: user?._id,
+        name: user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() : 'Unknown User',
+        profilePhoto: user?.images?.[0] || null,
+        verificationStatus: user?.verificationStatus,
+        blockedAt: entry.createdAt,
+        reason: entry.reason,
+      };
+    });
 
     res.json({
       success: true,
-      data: blockedList,
-      pagination: { total, page, pages: Math.ceil(total / limit) },
+      data: {
+        blockedUsers,
+        pagination: { total, page, totalPages, hasMore: page < totalPages },
+      },
     });
   } catch (error) {
     next(error);
