@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
-import { discoverService } from "../services/discoverService";
+import { rewindPass } from "../services/discoverService";
 import { profileService } from "../services/profileService";
 import { socketService } from "../services/socketService";
 import { tokenManager } from "../utils/tokenManager";
@@ -33,7 +33,7 @@ export const ProfileProvider = ({ children }) => {
 
   const DEFAULT_HOME_FILTERS = {
     showMe: userGenderPref,
-    ageRange: [18, 90],
+    ageRange: [18, 100],
     maxDistance: 1000,
     interests: [],
     verifiedOnly: false,
@@ -191,9 +191,10 @@ export const ProfileProvider = ({ children }) => {
 
   const buildApiParams = useCallback((filters) => {
     const params = {};
-    const [minAge, maxAge] = filters.ageRange || [18, 90];
-    if (minAge && minAge !== 18) params.minAge = minAge;
-    if (maxAge && maxAge !== 90) params.maxAge = maxAge;
+    const [minAge, maxAge] = filters.ageRange || [18, 100];
+    // Always send age params so the API filters correctly
+    if (minAge) params.minAge = minAge;
+    if (maxAge) params.maxAge = maxAge;
 
     if (filters.showMe && filters.showMe !== "everyone") {
       const genderMap = { men: "Male", women: "Female" };
@@ -313,6 +314,11 @@ export const ProfileProvider = ({ children }) => {
       }
       return null;
     };
+
+    // Clear swiped profiles and reset index whenever filters/sort change
+    // so users see the full filtered result set from scratch.
+    setHomeSwipedProfiles([]);
+    setHomeCurrentIndex(0);
 
     const loadProfiles = async () => {
       if (isMounted) setProfilesLoading(true);
@@ -465,7 +471,7 @@ export const ProfileProvider = ({ children }) => {
   const handleRewind = async () => {
     try {
       console.log(`[ProfileContext] handleRewind`);
-      const response = await discoverService.rewindPass();
+      const response = await rewindPass();
 
       if (response.success && response.data?.profile) {
         const rewoundProfile = response.data.profile;

@@ -353,7 +353,7 @@ const ProfileAnswers = () => {
             >
               <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
                 <TouchableOpacity onPress={handleBack}>
-                  <X size={22} color="#111" />
+                  <X size={22} color="#fff" />
                 </TouchableOpacity>
                 <Text style={{ fontSize: 18, fontFamily: 'OutfitBold', color: '#E5E5E5' }}>
                   Your answer

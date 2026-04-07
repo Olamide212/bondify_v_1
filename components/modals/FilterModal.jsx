@@ -8,32 +8,30 @@
  *   3. All distance values in km (was miles)
  */
 
-import { Ionicons }    from "@expo/vector-icons";
-import MultiSlider     from "@ptomasroos/react-native-multi-slider";
-import Slider          from "@react-native-community/slider";
+import { Ionicons } from "@expo/vector-icons";
+import MultiSlider from "@ptomasroos/react-native-multi-slider";
+import Slider from "@react-native-community/slider";
+import { LinearGradient } from "expo-linear-gradient";
 import { useEffect, useMemo, useState } from "react";
 import {
-  ActivityIndicator,
   ScrollView,
-  StyleSheet,
   Switch,
   Text,
   TextInput,
   TouchableOpacity,
   View,
-  useWindowDimensions,
+  useWindowDimensions
 } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-import { colors, styles }          from "../../constant/colors";
-import { profileService }  from "../../services/profileService";
-import BaseModal           from "./BaseModal";
-import InterestsModal      from "./InterestsModal";
-import { LinearGradient } from "expo-linear-gradient";
-import ModalHeader         from "../headers/ModalHeader";
+import { colors, styles } from "../../constant/colors";
+import { profileService } from "../../services/profileService";
+import ModalHeader from "../headers/ModalHeader";
+import BaseModal from "./BaseModal";
+import InterestsModal from "./InterestsModal";
 
 const DEFAULT_FILTERS = {
   maxDistance:          100,   // km
-  ageRange:             [18, 90],
+  ageRange:             [18, 100],
   showMe:               "everyone",
   interests:            [],
   verifiedOnly:         false,

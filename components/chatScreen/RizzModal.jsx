@@ -318,7 +318,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   primaryBtn: {
-    backgroundColor: colors.secondary,
+    backgroundColor: colors.white,
     borderRadius: 8,
     paddingVertical: 15,
     paddingHorizontal: 18,
@@ -326,11 +326,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   primaryBtnDisabled: {
-    backgroundColor: colors.secondary,
+    backgroundColor: colors.white,
     opacity: 0.6,
   },
   primaryBtnText: {
-    color: '#fff',
+    color: '#000',
     fontWeight: "bold",
     fontSize: 16,
   },

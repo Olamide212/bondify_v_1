@@ -347,7 +347,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontFamily: "OutfitBold",
-    color: "#111827",
+    color: "#fff",
     textAlign: "center",
     marginBottom: 10,
   },
@@ -379,7 +379,7 @@ const styles = StyleSheet.create({
     padding: 14,
     borderRadius: 14,
     borderWidth: 1.5,
-    borderColor: '#374151',
+    borderColor: colors.whiteLight,
     backgroundColor: "#121212",
     gap: 12,
   },

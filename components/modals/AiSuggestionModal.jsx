@@ -183,7 +183,7 @@ const AISuggestionModal = ({
               onPress={handleUse}
               disabled={!suggestion || loading}
             >
-              <Text style={styles.useBtnText}>Use this ✓</Text>
+              <Text style={styles.useBtnText}>Use this </Text>
             </TouchableOpacity>
           </View>
         </Animated.View>
@@ -213,7 +213,7 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: "row", alignItems: "center", justifyContent: "space-between",
     paddingHorizontal: 20, paddingVertical: 14,
-    borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: "#333333",
+    // borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: "#333333",
   },
   headerLeft:    { flexDirection: "row", alignItems: "center", gap: 10 },
   sparkleCircle: {

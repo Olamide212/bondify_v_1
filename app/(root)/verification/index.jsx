@@ -356,7 +356,7 @@ export default function VerificationScreen() {
             }
             hitSlop={8}
           >
-            <ChevronLeft size={26} color="#111" strokeWidth={2} />
+            <ChevronLeft size={26} color="#fff" strokeWidth={2} />
           </TouchableOpacity>
           <Text style={sc.headerTitle}>
             {step === STEP.INTRO ? "Verification" : "Preview Selfie"}
@@ -394,7 +394,7 @@ export default function VerificationScreen() {
 
 const sc = StyleSheet.create({
   safe:        { flex: 1, backgroundColor: "#121212" },
-  header:      { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 20, paddingVertical: 14, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: "#F3F4F6" },
+  header:      { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 20, paddingVertical: 14, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.whiteLight },
   headerTitle: { fontSize: 16, fontFamily: "OutfitBold", color: '#E5E5E5' },
   cameraBack:  { position: "absolute", top: 52, left: 16, zIndex: 10, padding: 8, backgroundColor: "rgba(0,0,0,0.35)", borderRadius: 99 },
 });

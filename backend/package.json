@@ -8,6 +8,7 @@
     "dev": "nodemon src/server.js",
     "seed": "node src/seeders/seedLookups.js",
     "migrate": "node src/seeders/migrateEnums.js",
+    "profiles": "node src/seeders/seedProfiles.js",
     "validate": "node validate.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

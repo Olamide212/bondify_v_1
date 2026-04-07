@@ -14,7 +14,7 @@ import { ThemeProvider } from "../context/ThemeContext";
 import { ToastProvider } from "../context/ToastContext";
 import { WalletProvider } from "../context/WalletContext";
 import "../global.css";
-import messageService from "../services/messageService";
+import { messageService } from "../services/messageService";
 import { profileService } from "../services/profileService";
 import { persistor, store } from "../store/store";
 

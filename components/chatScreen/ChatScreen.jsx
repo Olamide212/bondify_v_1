@@ -102,6 +102,10 @@ const ChatScreen = ({ matchedUser, onBack, initialSearchMode = false, searchTrig
     (state) => state.auth.user?.id || state.auth.user?._id
   );
 
+  const currentUserName = useSelector(
+    (state) => state.auth.user?.firstName || state.auth.user?.name?.split(' ')[0] || 'You'
+  );
+
   // ── Normalize ─────────────────────────────────────────────────────────────
 
   const normalizeMessages = useCallback(
@@ -134,6 +138,16 @@ const ChatScreen = ({ matchedUser, onBack, initialSearchMode = false, searchTrig
             : undefined,
           // failed is never set from server — only set locally
           failed: false,
+          // Reply threading
+          ...(message.replyTo ? {
+            replyTo: {
+              id:       message.replyTo._id ?? message.replyTo.id,
+              text:     message.replyTo.content ?? message.replyTo.text ?? '',
+              type:     message.replyTo.type || 'text',
+              sender:   message.replyTo.sender?._id === currentUserId ? 'me' : 'them',
+              imageUrl: message.replyTo.mediaUrl ?? message.replyTo.imageUrl,
+            },
+          } : {}),
         };
       }),
     [currentUserId]
@@ -370,10 +384,19 @@ const ChatScreen = ({ matchedUser, onBack, initialSearchMode = false, searchTrig
           : undefined,
       timestamp:     new Date(),
       sender:        "me",
-      status:        "sending",   // ← new intermediate status
+      status:        "sending",
       type:          messageType,
       mediaDuration,
       failed:        false,
+      ...(options.replyTo ? {
+        replyTo: {
+          id:     options.replyTo.id,
+          text:   options.replyTo.text,
+          type:   options.replyTo.type || 'text',
+          sender: options.replyTo.sender,
+          imageUrl: options.replyTo.imageUrl,
+        },
+      } : {}),
     };
 
     setMessages((prev) => [...prev, optimisticMessage]);
@@ -392,7 +415,7 @@ const ChatScreen = ({ matchedUser, onBack, initialSearchMode = false, searchTrig
         type:          messageType,
         mediaUrl:      imageUrl,
         mediaDuration,
-        ...(options.replyTo ? { replyTo: options.replyTo } : {}),
+        ...(options.replyToId ? { replyToId: options.replyToId } : {}),
       };
 
       const savedMessage      = await messageService.sendMessage(matchedUser.matchId, payload);
@@ -710,10 +733,12 @@ const ChatScreen = ({ matchedUser, onBack, initialSearchMode = false, searchTrig
                   highlight={searchQuery.trim()}
                   onReply={(msg)  => setReplyTo(msg)}
                   onEdit={(msg)   => setEditMessage(msg)}
-                  onResend={resendMessage}          // ← pass resend handler
+                  onResend={resendMessage}
                   EditIcon={Edit2}
                   CopyIcon={Copy}
                   isSystem={matchedUser?.isSystem}
+                  currentUserName={currentUserName}
+                  matchedUserName={matchedUser?.name?.split(' ')[0] || matchedUser?.name}
                 />
               </View>
             );
@@ -857,7 +882,7 @@ const ChatScreen = ({ matchedUser, onBack, initialSearchMode = false, searchTrig
                   text,
                   undefined,
                   undefined,
-                  opts?.replyTo ? { replyTo: opts.replyTo.id } : {}
+                  opts?.replyTo ? { replyToId: opts.replyTo.id, replyTo: opts.replyTo } : {}
                 );
               }
             }}
@@ -869,6 +894,7 @@ const ChatScreen = ({ matchedUser, onBack, initialSearchMode = false, searchTrig
             onCancelReply={() => setReplyTo(null)}
             editMessage={editMessage}
             onCancelEdit={() => setEditMessage(null)}
+            matchedUserName={matchedUser?.name?.split(' ')[0] || matchedUser?.name}
           />
         )}
         </View>

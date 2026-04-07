@@ -48,7 +48,7 @@ const highlightText = (text, term, textStyle) => {
   );
 };
 
-const MessageBubble = ({ message, onReply, onEdit, onResend, highlight, isSystem = false }) => {
+const MessageBubble = ({ message, onReply, onEdit, onResend, highlight, isSystem = false, currentUserName = 'You', matchedUserName = 'Them' }) => {
   const [isPlayingVoice, setIsPlayingVoice] = useState(false);
   const [isImageLoading, setIsImageLoading] = useState(Boolean(message.imageUrl));
   const [imageFailed, setImageFailed] = useState(!message.imageUrl);
@@ -177,7 +177,7 @@ const MessageBubble = ({ message, onReply, onEdit, onResend, highlight, isSystem
           alignSelf: message.sender === "me" ? 'flex-end' : 'flex-start',
         }}>
           <Text style={{ color: colors.primary, fontWeight: 'bold', fontSize: 12, marginBottom: 2 }} numberOfLines={1}>
-            {message.replyTo.senderName || (message.replyTo.sender === 'me' ? 'You' : 'Them')}
+            {message.replyTo.senderName || (message.replyTo.sender === 'me' ? currentUserName : matchedUserName)}
           </Text>
           {message.replyTo.type === 'image' && message.replyTo.imageUrl ? (
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>

@@ -86,7 +86,7 @@ const UnmatchReasonModal = ({ visible, name = "this person", onClose, onConfirm,
     <>
       <View style={s.header}>
         <TouchableOpacity onPress={onClose} hitSlop={10}>
-          <X size={22} color="#6B7280" />
+          <X size={22} color={colors.white} />
         </TouchableOpacity>
         <Text style={s.title}>Why unmatch?</Text>
         <View style={{ width: 22 }} />
@@ -246,7 +246,7 @@ const s = StyleSheet.create({
     alignItems: "center",
     paddingVertical: 14,
     borderBottomWidth: 1,
-    borderBottomColor: "#F3F4F6",
+    borderBottomColor: colors.whiteLight,
   },
   reasonEmoji: { fontSize: 20, marginRight: 12 },
   reasonLabel: {

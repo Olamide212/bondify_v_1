@@ -270,7 +270,7 @@
 // components/InputToolbar.js
 import { Audio } from "expo-av";
 import * as ImagePicker from "expo-image-picker";
-import { Edit2, Mic, Reply, Send, Sparkles, X } from "lucide-react-native";
+import { Edit2, Reply, Send, Sparkles, X } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
 import {
     StyleSheet,
@@ -285,7 +285,7 @@ import RizzModal from "./RizzModal";
 
 const VOICE_ICON_COLOR = "#64748B";
 
-const InputToolbar = ({ sendMessage, onSendImage, onSendVoice, matchId, currentUserId, replyTo, onCancelReply, editMessage, onCancelEdit }) => {
+const InputToolbar = ({ sendMessage, onSendImage, onSendVoice, matchId, currentUserId, replyTo, onCancelReply, editMessage, onCancelEdit, matchedUserName }) => {
   const [messageText, setMessageText] = useState("");
   const [showRizzModal, setShowRizzModal] = useState(false);
   const typingTimeoutRef = useRef(null);
@@ -407,7 +407,7 @@ const InputToolbar = ({ sendMessage, onSendImage, onSendVoice, matchId, currentU
       return;
     }
 
-    sendMessage(trimmed);
+    sendMessage(trimmed, replyTo ? { replyTo } : undefined);
     setMessageText("");
     if (replyTo) onCancelReply?.();
   };
@@ -435,7 +435,9 @@ const InputToolbar = ({ sendMessage, onSendImage, onSendVoice, matchId, currentU
           }
           <View style={{ flex: 1 }}>
             <Text style={styles.contextLabel}>
-              {replyTo ? "Replying to" : "Editing message"}
+              {replyTo
+                ? `Replying to ${replyTo.sender === 'me' ? 'yourself' : (matchedUserName || 'them')}`
+                : "Editing message"}
             </Text>
             <Text style={styles.contextPreview} numberOfLines={1}>
               {(replyTo?.text || editMessage?.text || "").slice(0, 60)}
@@ -445,7 +447,7 @@ const InputToolbar = ({ sendMessage, onSendImage, onSendVoice, matchId, currentU
             onPress={replyTo ? onCancelReply : onCancelEdit}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
-            <X size={18} color="#6B7280" />
+            <X size={18} color="#fff" />
           </TouchableOpacity>
         </View>
       )}
@@ -457,7 +459,7 @@ const InputToolbar = ({ sendMessage, onSendImage, onSendVoice, matchId, currentU
           style={styles.iconButton}
           onPress={() => setShowRizzModal(true)}
         >
-          <Sparkles color={colors.gray}  />
+          <Sparkles color={colors.white}  />
           
         </TouchableOpacity>
 
@@ -486,13 +488,13 @@ const InputToolbar = ({ sendMessage, onSendImage, onSendVoice, matchId, currentU
           multiline
           className="placeholder:text-gray-400 flex-1"
         />
-        <TouchableOpacity
+        {/* <TouchableOpacity
           style={styles.iconButton}
           onPress={handleVoicePress}
           disabled={isUploadingMedia}
         >
           <Mic color={isRecording ? colors.activePrimary : VOICE_ICON_COLOR} size={20} />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
 
       {/* ── Right: send button ── */}
@@ -545,7 +547,8 @@ const styles = StyleSheet.create({
     maxHeight: 100,
     fontSize: 16,
     marginRight: 8,
-    color: '#fff'
+    color: '#fff',
+
   },
   // Reply / Edit context banner
   contextBanner: {

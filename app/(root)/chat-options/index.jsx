@@ -197,7 +197,7 @@ export default function ChatOptionsScreen() {
       {/* ── Header ── */}
       <View style={s.header}>
         <TouchableOpacity onPress={() => router.back()} hitSlop={10}>
-          <ArrowLeft size={24} color="#111" />
+          <ArrowLeft size={24} color="#fff" />
         </TouchableOpacity>
         <Text style={s.headerTitle}>Chat Options</Text>
         <View style={{ width: 24 }} />
@@ -214,9 +214,10 @@ export default function ChatOptionsScreen() {
             )}
           </View>
           <Text style={s.profileName} className='capitalize' numberOfLines={1}>{getFirstName(name)}</Text>
-          {isVerified && (
+          {/* {isVerified && (
+            // <VerificationIcon />
             <Text style={s.verifiedTag}>✓ Verified</Text>
-          )}
+          )} */}
         </View>
 
         <Divider />
@@ -309,8 +310,8 @@ const s = StyleSheet.create({
     justifyContent: "space-between",
     paddingHorizontal: 20,
     paddingVertical: 14,
-    borderBottomWidth: 1,
-    borderBottomColor: "#F3F4F6",
+    // borderBottomWidth: 1,
+    // borderBottomColor: colors.whiteLight,
   },
   headerTitle: {
     fontSize: 17,

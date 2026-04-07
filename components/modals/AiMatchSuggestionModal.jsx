@@ -71,7 +71,7 @@ const AiMatchSuggestionModal = ({
   const profileImage = profile?.images?.[0] ? extractImageUri(profile.images[0]) : FALLBACK_IMAGE;
 
   return (
-    <BaseModal visible={visible} onClose={handleClose} fullScreen={false} contentBackground={colors.tertiary}>
+    <BaseModal visible={visible} onClose={handleClose} fullScreen={false} contentBackground={colors.background}>
       <ScrollView bounces={false} showsVerticalScrollIndicator={false}>
         {/* Header
         <View style={styles.header}>
@@ -298,13 +298,13 @@ const styles = StyleSheet.create({
   
   },
   closeModalButton: {
-    backgroundColor: '#121212',
+    backgroundColor: colors.primary,
     paddingVertical: 20,
     borderRadius: 50,
     alignItems: 'center',
   },
   closeModalText: {
-    color: colors.tertiary,
+    color: colors.white,
     fontSize: 16,
     fontFamily: 'OutfitBold',
   },

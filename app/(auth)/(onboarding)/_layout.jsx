@@ -22,6 +22,8 @@ const SKIP_MAP = {
   smoke:                  "/drink",
   drink:                  "/interests",
   interests:              "/about",
+  'profile-answers':        "/upload-photo",
+
 };
 
 export default function OnboardingLayout() {
