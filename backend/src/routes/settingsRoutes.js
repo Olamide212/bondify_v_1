@@ -14,6 +14,7 @@ const {
   blockUser,
   unblockUser,
   getBlockedUsers,
+  reportUser,
   deleteAccount,
   getReferralCode,
   updatePushToken,
@@ -42,6 +43,9 @@ router.patch('/privacy', protect, updatePrivacySettings); // PATCH /api/settings
 router.post('/block/:userId',   protect, blockUser);       // POST   /api/settings/block/:userId
 router.delete('/block/:userId', protect, unblockUser);     // DELETE /api/settings/block/:userId
 router.get('/blocked-users',    protect, getBlockedUsers); // GET    /api/settings/blocked-users
+
+// ── Report ────────────────────────────────────────────────────────────────────
+router.post('/report/:userId',  protect, reportUser);      // POST   /api/settings/report/:userId
 
 // ── Misc ──────────────────────────────────────────────────────────────────────
 router.get('/referral',     protect, getReferralCode); // GET   /api/settings/referral

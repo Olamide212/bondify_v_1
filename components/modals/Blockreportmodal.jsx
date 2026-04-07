@@ -26,7 +26,7 @@ import {
 } from "react-native";
 import { colors } from "../../constant/colors";
 import { useAlert } from "../../context/AlertContext";
-import { settingsService } from "../../services/settingsService";
+import SettingsService from "../../services/settingsService";
 import BaseModal from "./BaseModal";
 
 // ─── Report reasons — mirrors backend REPORT_REASONS enum ───────────────────
@@ -80,14 +80,17 @@ const BlockReportModal = ({ visible, mode = "block", profile, onClose, onSuccess
     if (!targetId) return;
     setLoading(true);
     try {
-      await settingsService.blockUser(targetId);
+      await SettingsService.blockUser(targetId);
       setScreen("success_block");
     } catch (err) {
-      showAlert({
-        icon: 'error',
-        title: 'Error',
-        message: err?.message || 'Could not block this user. Please try again.',
-      });
+      close();
+      setTimeout(() => {
+        showAlert({
+          icon: 'error',
+          title: 'Error',
+          message: err?.message || 'Could not block this user. Please try again.',
+        });
+      }, 300);
     } finally {
       setLoading(false);
     }
@@ -99,17 +102,20 @@ const BlockReportModal = ({ visible, mode = "block", profile, onClose, onSuccess
     if (!targetId || !selectedReason) return;
     setLoading(true);
     try {
-      await settingsService.reportUser(targetId, {
+      await SettingsService.reportUser(targetId, {
         reason:  selectedReason,
         details: details.trim(),
       });
       setScreen("success_report");
     } catch (err) {
-      showAlert({
-        icon: 'error',
-        title: 'Error',
-        message: err?.message || 'Could not submit report. Please try again.',
-      });
+      close();
+      setTimeout(() => {
+        showAlert({
+          icon: 'error',
+          title: 'Error',
+          message: err?.message || 'Could not submit report. Please try again.',
+        });
+      }, 300);
     } finally {
       setLoading(false);
     }
@@ -292,11 +298,11 @@ const BlockReportModal = ({ visible, mode = "block", profile, onClose, onSuccess
   };
 
   return (
-    <BaseModal visible={visible} onClose={close}>
+    <BaseModal visible={visible} onClose={close} fullScreen>
       {/* Close button */}
       <View style={styles.sheetHeader}>
         <TouchableOpacity style={styles.closeCircle} onPress={close} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-          <X size={16} color="#6B7280" strokeWidth={2.5} />
+          <X size={16} color="#fff" strokeWidth={2.5}  />
         </TouchableOpacity>
       </View>
 
@@ -313,15 +319,13 @@ const BlockReportModal = ({ visible, mode = "block", profile, onClose, onSuccess
 
 const styles = StyleSheet.create({
   sheetHeader: {
-    paddingTop: 4,
+    paddingTop: 14,
     paddingHorizontal: 20,
     paddingBottom: 4,
     alignItems: "flex-end",
+    zIndex: 10,
   },
   closeCircle: {
-    position: "absolute",
-    top: 14,
-    right: 20,
     width: 32,
     height: 32,
     borderRadius: 16,
@@ -408,7 +412,7 @@ const styles = StyleSheet.create({
     padding: 14,
     fontSize: 14,
     fontFamily: "Outfit",
-    color: "#111827",
+    color: "#fff",
     minHeight: 110,
     maxHeight: 180,
     textAlignVertical: "top",

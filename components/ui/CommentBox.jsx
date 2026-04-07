@@ -90,7 +90,7 @@ export default function CommentBox({
   if (!imageUri) return null;
 
   return (
-    <View style={styles.wrapper} className="mb-2 mx-2 rounded-2xl border border-gray-600">
+    <View style={styles.wrapper} className="mb-2 mx-3 rounded-2xl border border-gray-600">
       {/* Image */}
       <Pressable onPress={onPress} className="rounded-2xl">
         <Image

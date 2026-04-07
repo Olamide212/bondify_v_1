@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const BlockedUser = require('../models/BlockedUser');
+const Report = require('../models/Report');
 const { generateOTP, calculateOTPExpiry } = require('../config/otp');
 const { sendOtpEmail } = require('../utils/termiiService');
 
@@ -355,6 +356,42 @@ const getBlockedUsers = async (req, res, next) => {
 };
 
 // ─────────────────────────────────────────────
+//  REPORT USER
+// ─────────────────────────────────────────────
+const reportUser = async (req, res, next) => {
+  try {
+    const { userId } = req.params;
+    const { reason, details, matchId } = req.body;
+
+    if (userId === req.user._id.toString()) {
+      return res.status(400).json({ success: false, message: 'You cannot report yourself' });
+    }
+
+    const targetUser = await User.findById(userId);
+    if (!targetUser) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    const existing = await Report.findOne({ reporter: req.user._id, reported: userId });
+    if (existing) {
+      return res.status(400).json({ success: false, message: 'You have already reported this user' });
+    }
+
+    await Report.create({
+      reporter: req.user._id,
+      reported: userId,
+      reason: reason || 'other',
+      details: details || '',
+      matchId: matchId || null,
+    });
+
+    res.json({ success: true, message: 'Report submitted successfully' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// ─────────────────────────────────────────────
 //  DELETE ACCOUNT
 // ─────────────────────────────────────────────
 const deleteAccount = async (req, res, next) => {
@@ -517,6 +554,7 @@ module.exports = {
   blockUser,
   unblockUser,
   getBlockedUsers,
+  reportUser,
   deleteAccount,
   getReferralCode,
   updatePushToken,
