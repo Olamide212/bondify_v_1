@@ -34,6 +34,7 @@ import FriendsTab from '../../../components/bondup/bondup-profile/FriendsTab';
 import MutualFriendsTab from '../../../components/bondup/bondup-profile/MutualFriendsTab';
 import ProfileTabs from '../../../components/bondup/bondup-profile/ProfileTabs';
 import CreateBondupModal from '../../../components/bondup/CreateBondupModal';
+import EditSocialProfileModal from '../../../components/profileScreen/EditSocialProfileModal';
 import { colors } from '../../../constant/colors';
 import bondupService from '../../../services/bondupService';
 import profileService from '../../../services/profileService';
@@ -72,6 +73,7 @@ export default function BondupProfileScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [showFriendRequests, setShowFriendRequests] = useState(false);
   const [showCreateBondup, setShowCreateBondup] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   const isOwnProfile = String(id) === String(currentUser?._id);
 
@@ -223,7 +225,7 @@ export default function BondupProfileScreen() {
   };
 
   const handleEditProfile = () => {
-    router.push('/profile?tab=social');
+    setShowEditModal(true);
   };
 
   const handleBondupUpdate = (updatedBondup, bondupId) => {
@@ -241,11 +243,7 @@ export default function BondupProfileScreen() {
     return (
       <SafeAreaView style={s.container} edges={['top']}>
         <View style={s.header}>
-          <TouchableOpacity onPress={() => router.back()} style={s.backBtn} hitSlop={10}>
-            <ArrowLeft size={22} color="#333" />
-          </TouchableOpacity>
-          <Text style={s.headerTitle}>Profile</Text>
-          <View style={{ width: 36 }} />
+         
         </View>
         <View style={s.loadingWrap}>
           <ActivityIndicator size="large" color={BRAND} />
@@ -258,13 +256,7 @@ export default function BondupProfileScreen() {
   if (error || !profile) {
     return (
       <SafeAreaView style={s.container} edges={['top']}>
-        <View style={s.header}>
-          <TouchableOpacity onPress={() => router.back()} style={s.backBtn} hitSlop={10}>
-            <ArrowLeft size={22} color="#333" />
-          </TouchableOpacity>
-          <Text style={s.headerTitle}>Profile</Text>
-          <View style={{ width: 36 }} />
-        </View>
+    
         <View style={s.loadingWrap}>
           <Text style={s.errorText}>Could not load profile.</Text>
           <TouchableOpacity
@@ -380,6 +372,22 @@ export default function BondupProfileScreen() {
           setShowCreateBondup(false);
         }}
       />
+
+      {isOwnProfile && (
+        <EditSocialProfileModal
+          visible={showEditModal}
+          onClose={() => setShowEditModal(false)}
+          initialData={{
+            displayName: profile?.displayName || getFullName(profile),
+            userName: profile?.userName || '',
+            bio: stats?.bio || profile?.bio || '',
+          }}
+          onSaved={() => {
+            setShowEditModal(false);
+            loadProfile();
+          }}
+        />
+      )}
     </SafeAreaView>
   );
 }
@@ -428,7 +436,6 @@ const s = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: colors.primaryLight,
     justifyContent: 'center',
     alignItems: 'center',
   },

@@ -18,6 +18,7 @@
 const User    = require('../models/User');
 const Like    = require('../models/Like');
 const Match   = require('../models/Match');
+const BlockedUser = require('../models/BlockedUser');
 const { getIO } = require('../socket');
 const { mapImagesWithAccessUrls } = require('../utils/imageHelper');
 const { sendMatchNotification }   = require('../utils/whatsappService');
@@ -93,9 +94,10 @@ const getDiscoveryProfiles = async (req, res, next) => {
       }
     }
 
-    // Exclude users already liked/superliked (but allow passed users to reappear)
-    const [likedUsers, matchedUserIds] = await Promise.all([
-      Like.find({ user: userId, type: { $in: ['like', 'superlike'] } }).distinct('likedUser'),
+    // Exclude users already interacted with (liked, superliked, AND passed)
+    // Also exclude blocked users (both directions) and matched users
+    const [interactedUsers, matchedUserIds, blockedByMe, blockedMe] = await Promise.all([
+      Like.find({ user: userId }).distinct('likedUser'),
       Match.find({
         $or: [{ user1: userId }, { user2: userId }],
         status: 'matched',
@@ -104,12 +106,16 @@ const getDiscoveryProfiles = async (req, res, next) => {
           m.user1.toString() === userId.toString() ? m.user2 : m.user1
         )
       ),
+      BlockedUser.find({ blocker: userId }).distinct('blocked'),
+      BlockedUser.find({ blocked: userId }).distinct('blocker'),
     ]);
 
     const excludedIds = [
       userId,
-      ...likedUsers.map(String),
+      ...interactedUsers.map(String),
       ...matchedUserIds.map(String),
+      ...blockedByMe.map(String),
+      ...blockedMe.map(String),
     ];
 
     const query = {

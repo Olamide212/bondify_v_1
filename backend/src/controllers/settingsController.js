@@ -3,6 +3,27 @@ const BlockedUser = require('../models/BlockedUser');
 const Report = require('../models/Report');
 const { generateOTP, calculateOTPExpiry } = require('../config/otp');
 const { sendOtpEmail } = require('../utils/termiiService');
+const { getRedisClient, isRedisEnabled } = require('../config/redis');
+
+/**
+ * Invalidate all discovery cache entries for a given user.
+ */
+const invalidateDiscoveryCache = async (userId) => {
+  if (!isRedisEnabled()) return;
+  try {
+    const pattern = `discover:${userId}:*`;
+    let cursor = 0;
+    do {
+      const reply = await getRedisClient().scan(cursor, { MATCH: pattern, COUNT: 100 });
+      cursor = reply.cursor;
+      if (reply.keys.length > 0) {
+        await getRedisClient().del(reply.keys);
+      }
+    } while (cursor !== 0);
+  } catch (err) {
+    console.error('Settings: discovery cache invalidation error:', err.message);
+  }
+};
 
 // ─────────────────────────────────────────────
 //  UPDATE PHONE NUMBER
@@ -280,6 +301,9 @@ const updatePrivacySettings = async (req, res, next) => {
       { new: true, runValidators: true }
     ).select('privacySettings');
 
+    // Invalidate discovery cache so other users see updated blur/visibility
+    await invalidateDiscoveryCache(req.user._id);
+
     res.json({ success: true, message: 'Privacy settings updated', data: user.privacySettings });
   } catch (error) {
     next(error);
@@ -309,6 +333,12 @@ const blockUser = async (req, res, next) => {
     }
 
     await BlockedUser.create({ blocker: req.user._id, blocked: userId, reason: reason || 'other', notes });
+
+    // Invalidate discovery cache for both users so the blocked user disappears
+    await Promise.all([
+      invalidateDiscoveryCache(req.user._id),
+      invalidateDiscoveryCache(userId),
+    ]);
 
     res.json({ success: true, message: 'User blocked successfully' });
   } catch (error) {
