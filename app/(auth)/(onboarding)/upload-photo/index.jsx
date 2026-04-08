@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Keyboard,
   SafeAreaView,
@@ -16,7 +16,10 @@ import ProfileMediaView from "../../../../components/ui/ProfileMediaView";
 import { colors } from "../../../../constant/colors";
 import { useAlert } from "../../../../context/AlertContext";
 import { useProfileSetup } from "../../../../hooks/useProfileSetup";
-import { profileService } from "../../../../services/profileService";
+import {
+  getOnboardingProfileMediaDraft,
+  saveOnboardingProfileMediaDraft,
+} from "../../../../utils/onboardingProfileMediaDraft";
 
 // Define colors object
 const color = {
@@ -30,6 +33,21 @@ const UploadPhoto = () => {
   const [uploading, setUploading] = useState(false);
   const [showGuidelines, setShowGuidelines] = useState(false);
   const { updateProfileStep } = useProfileSetup({ isOnboarding: true });
+
+  useEffect(() => {
+    let mounted = true;
+    getOnboardingProfileMediaDraft().then((draft) => {
+      if (!mounted || !Array.isArray(draft) || draft.length === 0) return;
+      const restored = Array(6).fill(null);
+      draft.slice(0, 6).forEach((item, index) => {
+        restored[index] = item;
+      });
+      setPhotos(restored);
+    });
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const pickImage = async (index) => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -83,14 +101,14 @@ const UploadPhoto = () => {
 
     setUploading(true);
     try {
-      await profileService.uploadPhotos(selectedPhotos);
+      await saveOnboardingProfileMediaDraft(selectedPhotos);
       router.push("/verification");
     } catch (err) {
       console.error("Photo upload error:", err);
       showAlert({
         icon: 'error',
         title: 'Upload Failed',
-        message: String(err || 'Failed to upload media. Please try again.'),
+        message: String(err || 'Failed to save media. Please try again.'),
       });
     } finally {
       setUploading(false);
@@ -198,7 +216,7 @@ const UploadPhoto = () => {
           {/* Next button */}
           <View className="items-end">
             <Button
-              title={uploading ? "Uploading..." : "Continue"}
+              title={uploading ? "Saving..." : "Continue"}
               variant="primary"
               onPress={handleContinue}
               loading={uploading}

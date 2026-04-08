@@ -12,7 +12,14 @@ router.use(protect);
 
 // ── User ──────────────────────────────────────────────────────────────────────
 // POST /api/profile/verify   (called from the app — field name: "selfie")
-router.post('/verify', upload.single('selfie'), submitVerification);
+router.post(
+  '/verify',
+  upload.fields([
+    { name: 'selfie', maxCount: 1 },
+    { name: 'profileMedia', maxCount: 6 },
+  ]),
+  submitVerification
+);
 
 // ── Admin ─────────────────────────────────────────────────────────────────────
 // Add your admin middleware here before going to production

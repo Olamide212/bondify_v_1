@@ -5,6 +5,7 @@ import cacheManager from "../utils/cacheManager";
 let cachedProfile = null;
 let cachedAt = 0;
 let inFlightProfilePromise = null;
+const inFlightLookupPromises = new Map();
 const PROFILE_CACHE_MS = 60000;
 const PERSISTED_PROFILE_KEY = "@bondify/cache/profile";
 const PERSISTED_PROFILE_BY_ID_PREFIX = "@bondify/cache/profileById/";
@@ -259,6 +260,10 @@ const deletePhoto = async (publicId) => {
 
 const getLookups = async (type) => {
   const cacheKey = `${PERSISTED_LOOKUPS_PREFIX}${type}`;
+  const inFlight = inFlightLookupPromises.get(type);
+  if (inFlight) return inFlight;
+
+  const requestPromise = (async () => {
   try {
     const response = await apiClient.get(`/lookup?type=${type}`);
     const payload = response.data?.data?.lookups ?? response.data?.lookups;
@@ -275,6 +280,21 @@ const getLookups = async (type) => {
       err.response?.data?.message || err.message || "Failed to fetch lookups"
     );
   }
+  })();
+
+  inFlightLookupPromises.set(type, requestPromise);
+  try {
+    return await requestPromise;
+  } finally {
+    if (inFlightLookupPromises.get(type) === requestPromise) {
+      inFlightLookupPromises.delete(type);
+    }
+  }
+};
+
+const preloadLookups = async (types = []) => {
+  const uniqueTypes = [...new Set((Array.isArray(types) ? types : [types]).filter(Boolean))];
+  await Promise.all(uniqueTypes.map((type) => getLookups(type).catch(() => [])));
 };
 
 // ─── Discovery profiles caching ──────────────────────────────────────────────
@@ -534,6 +554,7 @@ export const profileService = {
   uploadPhotos,
   deletePhoto,
   getLookups,
+  preloadLookups,
   getDiscoveryProfiles,
   performSwipeAction,
   getLikedYou,

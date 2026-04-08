@@ -19,7 +19,7 @@
  *   router.post('/verify', protect, upload.single('selfie'), submitVerification);
  */
 
-const { PutObjectCommand } = require('@aws-sdk/client-s3');
+const { PutObjectCommand, DeleteObjectCommand } = require('@aws-sdk/client-s3');
 const s3      = require('../config/s3');
 const User    = require('../models/User');
 const OpenAI  = require('openai');
@@ -29,6 +29,14 @@ const openai  = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 const getS3Key = (userId) =>
   `bondies/verifications/${userId}/${Date.now()}-${Math.round(Math.random() * 1e9)}.jpg`;
+
+const getProfileMediaKey = (userId, originalname = 'photo.jpg') => {
+  const extension = originalname?.includes('.')
+    ? originalname.split('.').pop().toLowerCase()
+    : 'jpg';
+  const safeExtension = /^[a-z0-9]+$/.test(extension) ? extension : 'jpg';
+  return `bondify/users/${userId}/${Date.now()}-${Math.round(Math.random() * 1e9)}.${safeExtension}`;
+};
 
 const getPublicUrl = (bucket, key) => {
   const base = process.env.AWS_CLOUDFRONT_DOMAIN ||
@@ -41,6 +49,21 @@ const getPublicUrl = (bucket, key) => {
   }
   return `https://${bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`;
 };
+
+const getProfileMediaType = (file = {}) => {
+  const mimeType = file?.mimetype || '';
+  return mimeType.startsWith('video/') ? 'video' : 'image';
+};
+
+const sortProfileMedia = (items = []) =>
+  [...items]
+    .sort((a, b) => {
+      const aRank = a?.type === 'video' ? 1 : 0;
+      const bRank = b?.type === 'video' ? 1 : 0;
+      if (aRank !== bRank) return aRank - bRank;
+      return (a?.order ?? 0) - (b?.order ?? 0);
+    })
+    .map((item, index) => ({ ...item, order: index }));
 
 /**
  * Uses OpenAI Vision to check if a clear human face is present in the selfie.
@@ -67,8 +90,9 @@ Reply ONLY in this exact JSON format (no markdown):
 {"faceDetected": true/false, "reason": "one sentence explanation"}
 
 Rules:
-- faceDetected must be true ONLY if: single real human face, eyes visible, not obscured, not a photo of a photo, no mask/sunglasses, adequate lighting
-- faceDetected false if: no face, cartoon, multiple faces, covered face, too dark/blurry, document photo`,
+- faceDetected should be true if there is one real human face that is reasonably visible for selfie verification
+- allow natural differences in lighting, angle, hairstyle, and mild blur
+- faceDetected false only for: no face, multiple faces, cartoon/AI art, heavily covered face, extremely dark or unusable image`,
             },
           ],
         },
@@ -89,9 +113,22 @@ Rules:
  * Uses OpenAI Vision to compare a selfie with a profile photo.
  * Returns { match: boolean, confidence: string, reason: string }
  */
-const compareFacesWithAI = async (selfieBuffer, profilePhotoUrl, mimeType = 'image/jpeg') => {
+const compareFacesWithAI = async (selfieBuffer, profilePhoto, mimeType = 'image/jpeg') => {
   try {
     const selfieBase64 = selfieBuffer.toString('base64');
+    const profilePhotoContent = profilePhoto?.buffer
+      ? {
+          type: 'image_url',
+          image_url: {
+            url: `data:${profilePhoto.mimetype || 'image/jpeg'};base64,${profilePhoto.buffer.toString('base64')}`,
+            detail: 'low',
+          },
+        }
+      : {
+          type: 'image_url',
+          image_url: { url: profilePhoto?.url, detail: 'low' },
+        };
+
     const response = await openai.chat.completions.create({
       model: 'gpt-4o-mini',
       max_tokens: 150,
@@ -107,19 +144,15 @@ Reply ONLY in this exact JSON format (no markdown):
 {"match": true/false, "confidence": "high"/"medium"/"low", "reason": "one sentence explanation"}
 
 Rules:
-- match true ONLY if the two faces clearly belong to the same person (same facial structure, features)
-- Consider that lighting, angle, expression, and hairstyle may differ between photos
-- If uncertain, set match to false with confidence "low"
-- Be strict: we need to prevent catfishing`,
+- match true if the two photos likely show the same person, even when lighting, angle, expression, hairstyle, makeup, or camera quality differ
+- if the person looks likely the same but not perfectly certain, return match true with confidence "medium"
+- return match false only when the faces appear clearly different or the profile image is unusable`,
             },
             {
               type: 'image_url',
               image_url: { url: `data:${mimeType};base64,${selfieBase64}`, detail: 'low' },
             },
-            {
-              type: 'image_url',
-              image_url: { url: profilePhotoUrl, detail: 'low' },
-            },
+            profilePhotoContent,
           ],
         },
       ],
@@ -145,13 +178,16 @@ const submitVerification = async (req, res) => {
   try {
     const userId = req.user._id;
     const bucket = process.env.AWS_S3_USERS_VERIFICATION_BUCKET;
+    const profileBucket = process.env.AWS_S3_BUCKET;
+    const selfieFile = req.files?.selfie?.[0] || req.file;
+    const stagedProfileMedia = Array.isArray(req.files?.profileMedia) ? req.files.profileMedia : [];
 
     // ── Guards ──────────────────────────────────────────────────────────────
-    if (!bucket) {
+    if (!bucket || !profileBucket) {
       return res.status(500).json({ success: false, message: 'Storage not configured.' });
     }
 
-    if (!req.file) {
+    if (!selfieFile) {
       return res.status(400).json({ success: false, message: 'No selfie file provided.' });
     }
 
@@ -169,7 +205,7 @@ const submitVerification = async (req, res) => {
     }
 
     // ── AI face check ────────────────────────────────────────────────────────
-    const { faceDetected, reason } = await checkFaceWithAI(req.file.buffer, req.file.mimetype);
+    const { faceDetected, reason } = await checkFaceWithAI(selfieFile.buffer, selfieFile.mimetype);
 
     if (!faceDetected) {
       return res.status(422).json({
@@ -180,11 +216,12 @@ const submitVerification = async (req, res) => {
 
     // ── AI face comparison with profile photo (STRICT) ────────────────────────
     // Get the user's first profile photo for comparison
-    const profilePhotoUrl = Array.isArray(user.images) && user.images.length > 0
-      ? [...user.images].sort((a, b) => (a.order ?? 0) - (b.order ?? 0))[0]?.url
+    const stagedMainPhoto = stagedProfileMedia.find((file) => getProfileMediaType(file) === 'image');
+    const existingProfilePhoto = Array.isArray(user.images) && user.images.length > 0
+      ? [...user.images].sort((a, b) => (a.order ?? 0) - (b.order ?? 0)).find((item) => (item?.type || 'image') === 'image')
       : null;
 
-    if (!profilePhotoUrl) {
+    if (!stagedMainPhoto && !existingProfilePhoto?.url) {
       return res.status(422).json({
         success: false,
         message: 'You must upload at least one profile photo before verifying your identity.',
@@ -192,31 +229,19 @@ const submitVerification = async (req, res) => {
       });
     }
 
-    const faceMatch = await compareFacesWithAI(req.file.buffer, profilePhotoUrl, req.file.mimetype);
+    const faceMatch = await compareFacesWithAI(
+      selfieFile.buffer,
+      stagedMainPhoto ? { buffer: stagedMainPhoto.buffer, mimetype: stagedMainPhoto.mimetype } : { url: existingProfilePhoto.url },
+      selfieFile.mimetype
+    );
     console.log('[verification] Face comparison result:', faceMatch);
 
-    // STRICT: Reject immediately if faces don't match
-    if (!faceMatch.match) {
+    // Only reject on clear, high-confidence mismatches.
+    if (!faceMatch.match && faceMatch.confidence === 'high') {
       return res.status(422).json({
         success: false,
-        message: faceMatch.confidence === 'low' && faceMatch.reason?.includes('unavailable')
-          ? 'Face comparison service is temporarily unavailable. Please try again shortly.'
-          : `Verification failed: The selfie does not match your profile photo. ${faceMatch.reason || 'Please ensure you are taking a clear selfie of yourself.'}`,
+        message: `Verification failed: The selfie does not match your profile photo. ${faceMatch.reason || 'Please ensure you are taking a clear selfie of yourself.'}`,
         code: 'FACE_MISMATCH',
-        comparison: {
-          match:      faceMatch.match,
-          confidence: faceMatch.confidence,
-          reason:     faceMatch.reason,
-        },
-      });
-    }
-
-    // STRICT: Only accept high or medium confidence matches
-    if (faceMatch.confidence === 'low') {
-      return res.status(422).json({
-        success: false,
-        message: 'We could not confidently confirm your identity. Please retake the selfie in better lighting with your face clearly visible.',
-        code: 'LOW_CONFIDENCE',
         comparison: {
           match:      faceMatch.match,
           confidence: faceMatch.confidence,
@@ -230,25 +255,60 @@ const submitVerification = async (req, res) => {
     await s3.send(new PutObjectCommand({
       Bucket:      bucket,
       Key:         key,
-      Body:        req.file.buffer,
-      ContentType: req.file.mimetype,
+      Body:        selfieFile.buffer,
+      ContentType: selfieFile.mimetype,
     }));
 
     const selfieUrl = getPublicUrl(bucket, key);
 
     // ── Auto-approve: face detected + face matched with high/medium confidence ─
-    const updatePayload = {
-      verificationStatus:      'approved',
-      verificationSelfieUrl:   selfieUrl,
-      verificationSubmittedAt: new Date(),
-    };
+    let uploadedProfileMedia = null;
+    if (stagedProfileMedia.length > 0) {
+      const uploadResults = await Promise.all(
+        stagedProfileMedia.map(async (file, index) => {
+          const mediaKey = getProfileMediaKey(userId.toString(), file.originalname);
+          await s3.send(new PutObjectCommand({
+            Bucket: profileBucket,
+            Key: mediaKey,
+            Body: file.buffer,
+            ContentType: file.mimetype,
+          }));
 
-    await User.findByIdAndUpdate(userId, updatePayload);
+          return {
+            url: getPublicUrl(profileBucket, mediaKey),
+            publicId: mediaKey,
+            type: getProfileMediaType(file),
+            mimeType: file.mimetype,
+            order: index,
+          };
+        })
+      );
+      uploadedProfileMedia = sortProfileMedia(uploadResults);
+
+      await Promise.all(
+        (user.images || [])
+          .map((item) => item?.publicId)
+          .filter(Boolean)
+          .map((key) => s3.send(new DeleteObjectCommand({ Bucket: profileBucket, Key: key })).catch(() => {}))
+      );
+
+      user.images = uploadedProfileMedia;
+    }
+
+    user.verified = true;
+    user.verificationStatus = 'approved';
+    user.verificationSelfieUrl = selfieUrl;
+    user.verificationSubmittedAt = new Date();
+    user.calculateCompletion?.();
+    await user.save();
 
     return res.status(200).json({
       success: true,
       message: 'Verification approved! Your profile is now verified.',
       status: 'approved',
+      data: {
+        images: user.images,
+      },
       comparison: {
         match:      faceMatch.match,
         confidence: faceMatch.confidence,

@@ -4,6 +4,10 @@
 # dependencies
 node_modules/
 
+# VCS / editor
+.git/
+.vscode/
+
 # Expo
 .expo/
 dist/
@@ -12,6 +16,9 @@ expo-env.d.ts
 
 # Native temp / secrets
 .kotlin/
+android/.gradle/
+android/build/
+ios/build/
 *.orig.*
 *.jks
 *.p8
@@ -46,6 +53,8 @@ CLOUDFRONT_SETUP.md
 cloudfront-template.yaml
 deploy-cloudfront.sh
 test-cloudfront.sh
+AWSCLIV2.pkg
+bundle-analyzer.js
 
 # typescript
 *.tsbuildinfo

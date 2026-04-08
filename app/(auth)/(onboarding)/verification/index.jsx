@@ -32,7 +32,12 @@ import VerifiedIcon from "../../../../components/ui/VerifiedIcon";
 import { colors } from "../../../../constant/colors";
 import { useAlert } from "../../../../context/AlertContext";
 import { useVerificationStep } from "../../../../context/VerificationStepContext";
-import { profileService } from "../../../../services/profileService"; // Add this import
+import { profileService } from "../../../../services/profileService";
+import {
+  clearOnboardingProfileMediaDraft,
+  getOnboardingProfileMediaDraft,
+  getOnboardingDraftMainPhotoUrl,
+} from "../../../../utils/onboardingProfileMediaDraft";
 import apiClient from "../../../../utils/axiosInstance";
 import { tokenManager } from "../../../../utils/tokenManager";
 
@@ -302,11 +307,25 @@ export default function VerificationScreen() {
     setVerificationStep(step);
   }, [step, setVerificationStep]);
   const [profilePhotoUrl, setProfilePhotoUrl] = useState(null);
+  const [draftMedia, setDraftMedia] = useState([]);
 
-  // Fetch the user's first uploaded profile photo to display on the intro
+  // Prefer staged onboarding media so verification compares against the latest main photo.
   useEffect(() => {
     (async () => {
       try {
+        const [draft, draftMainPhotoUrl] = await Promise.all([
+          getOnboardingProfileMediaDraft(),
+          getOnboardingDraftMainPhotoUrl(),
+        ]);
+        if (Array.isArray(draft)) {
+          setDraftMedia(draft);
+        }
+
+        if (draftMainPhotoUrl) {
+          setProfilePhotoUrl(draftMainPhotoUrl);
+          return;
+        }
+
         const profile = await profileService.getMyProfile({ force: true });
         const firstImage = Array.isArray(profile?.images) && profile.images.length > 0
           ? profile.images.sort((a, b) => (a.order ?? 0) - (b.order ?? 0))[0]
@@ -355,6 +374,15 @@ export default function VerificationScreen() {
         type: "image/jpeg",
       });
 
+      draftMedia.forEach((item, index) => {
+        if (!item?.uri) return;
+        formData.append("profileMedia", {
+          uri: item.uri,
+          name: item.fileName || `profile-media-${index}.${item.type === 'video' ? 'mp4' : 'jpg'}`,
+          type: item.mimeType || (item.type === 'video' ? 'video/mp4' : 'image/jpeg'),
+        });
+      });
+
       const response = await apiClient.post("/verification/verify", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
@@ -364,9 +392,11 @@ export default function VerificationScreen() {
 
       // If backend approved, go to Done step
       if (response.data?.status === 'approved') {
+        await clearOnboardingProfileMediaDraft();
         setStep(STEP.DONE);
       } else {
         // Shouldn't happen with strict mode, but handle gracefully
+        await clearOnboardingProfileMediaDraft();
         setStep(STEP.DONE);
       }
     } catch (err) {
@@ -384,6 +414,7 @@ export default function VerificationScreen() {
           message: message,
           actions: [
             { label: 'Retake Selfie', style: 'primary', onPress: () => setStep(STEP.CAMERA) },
+            { label: 'Change Main Photo', style: 'secondary', onPress: () => router.push('/upload-photo') },
           ],
         });
       } else if (code === 'NO_PROFILE_PHOTO') {
@@ -392,7 +423,7 @@ export default function VerificationScreen() {
           title: 'Profile Photo Required',
           message: 'Please upload at least one profile photo before verifying.',
           actions: [
-            { label: 'OK', style: 'primary', onPress: () => router.back() },
+            { label: 'Go to Photos', style: 'primary', onPress: () => router.push('/upload-photo') },
           ],
         });
       } else {

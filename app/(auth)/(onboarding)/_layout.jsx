@@ -26,6 +26,30 @@ const SKIP_MAP = {
 
 };
 
+const NEXT_ROUTE_MAP = {
+  agreement: "/age",
+  age: "/ethnicity",
+  ethnicity: "/gender",
+  gender: "/marital-status",
+  "marital-status": "/meet",
+  meet: "/preference",
+  preference: "/religion",
+  religion: "/religion-question",
+  "religion-question": "/religion-practice",
+  "religion-practice": "/relocation-preference",
+  "relocation-preference": "/kids",
+  kids: "/education",
+  education: "/occupation",
+  occupation: "/smoke",
+  smoke: "/drink",
+  drink: "/interests",
+  interests: "/about",
+  about: "/profile-answers",
+  "profile-answers": "/upload-photo",
+  "upload-photo": "/verification",
+  verification: "/location-access",
+};
+
 export default function OnboardingLayout() {
   return (
     <VerificationStepProvider>
@@ -59,6 +83,13 @@ function OnboardingContent() {
       setCurrentStep(stepToPersist);
     }
   }, [logicalStep, setCurrentStep, steps]);
+
+  useEffect(() => {
+    const nextRoute = NEXT_ROUTE_MAP[logicalStep];
+    if (nextRoute) {
+      router.prefetch(nextRoute);
+    }
+  }, [logicalStep, router]);
 
   const isAgreement = currentStepSegment === "agreement";
   const skipTarget = SKIP_MAP[currentStepSegment];
