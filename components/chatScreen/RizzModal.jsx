@@ -14,6 +14,7 @@ import {
 import { colors } from "../../constant/colors";
 import { Icons } from "../../constant/icons";
 import AIService from "../../services/aiService";
+import {Sparkles} from "lucide-react-native"
 
 // ─── Fallback suggestions (used if API fails or no matchId) ───
 const FALLBACK_SUGGESTIONS = [
@@ -145,8 +146,11 @@ const RizzModal = ({ visible, onClose, onSend, matchId }) => {
 
         {/* Bot icon header */}
         <View style={styles.header}>
-
-          <Image source={Icons.BotIcon} style={{ width: 40, height: 40 }} />
+<View className='p-5 bg-primary/10 rounded-xl'>
+      <Sparkles color={colors.primary} fill={colors.primary} />
+</View>
+    
+          {/* <Image source={Icons.BotIcon} style={{ width: 40, height: 40 }} /> */}
         </View>
 
         {/* Title */}
@@ -163,7 +167,7 @@ const RizzModal = ({ visible, onClose, onSend, matchId }) => {
         <View style={styles.rizzItem}>
           {loading ? (
             <View style={styles.loadingContainer}>
-              <ActivityIndicator size="small" color={colors.activePrimary} />
+              <ActivityIndicator size="small" color={colors.white} />
               <Text style={styles.loadingText} className="font-Outfit">
                 Crafting the perfect line...
               </Text>

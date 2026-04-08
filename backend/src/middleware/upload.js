@@ -3,10 +3,11 @@ const multer = require('multer');
 const storage = multer.memoryStorage();
 
 const fileFilter = (req, file, cb) => {
-  if (file.mimetype.startsWith('image/')) {
+  const mimeType = file?.mimetype || '';
+  if (mimeType.startsWith('image/') || mimeType.startsWith('video/')) {
     cb(null, true);
   } else {
-    cb(new Error('Only image files are allowed'), false);
+    cb(new Error('Only image and video files are allowed'), false);
   }
 };
 
@@ -14,7 +15,7 @@ const upload = multer({
   storage,
   fileFilter,
   limits: {
-    fileSize: 5 * 1024 * 1024, // 5MB max
+    fileSize: 20 * 1024 * 1024, // 20MB max
   },
 });
 

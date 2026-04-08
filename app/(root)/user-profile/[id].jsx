@@ -334,14 +334,14 @@ const UserProfile = () => {
 
   if (!currentProfile) {
     return (
-      <View style={{flex: 1}} className="items-center justify-center bg-black">
+      <View style={{flex: 1}} className="items-center justify-center bg-[#121212]">
         <Text className="text-white">Profile not found.</Text>
       </View>
     );
   }
 
   return (
-    <View style={{flex: 1}}>
+    <View style={{flex: 1, backgroundColor: "#121212"}}>
       {/* Static header (fades out on scroll) */}
       <Animated.View style={[styles.staticHeader, staticHeaderStyle]}>
         <View style={styles.staticHeaderRow}>

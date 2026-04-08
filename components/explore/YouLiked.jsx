@@ -1,14 +1,17 @@
 import React from "react";
 import { View, Text, FlatList, StyleSheet, Dimensions } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
+import ExploreEmptyState from "./ExploreEmptyState";
 import UsersProfileCard from "../ui/UsersProfileCard"; // Update path as needed
 
 const { width } = Dimensions.get("window");
 
 const YouLiked = ({ data, onUserPress }) => {
+  const likedByYou = Array.isArray(data) ? data : [];
+
   return (
     <View style={styles.tabContent}>
-      <LinearGradient
+      {/* <LinearGradient
         colors={["#0EA5E9", "#06B6D4"]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 0 }}
@@ -20,22 +23,32 @@ const YouLiked = ({ data, onUserPress }) => {
         <Text style={styles.bannerSubtitle}>
           Stay calm while they like you back.
         </Text>
-      </LinearGradient>
+      </LinearGradient> */}
 
       <FlatList
-        data={data}
+        data={likedByYou}
         keyExtractor={(item) => (item.id || item._id || "").toString()}
         renderItem={({ item }) => (
           <UsersProfileCard
             profile={item}
             onPress={() => onUserPress(item)}
-            height={270}
+            height={280}
           />
         )}
         numColumns={2}
-        contentContainerStyle={styles.listContent}
-        columnWrapperStyle={styles.columnWrapper}
+        contentContainerStyle={[
+          styles.listContent,
+          likedByYou.length === 0 && styles.emptyListContent,
+        ]}
+        columnWrapperStyle={likedByYou.length > 0 ? styles.columnWrapper : undefined}
         showsVerticalScrollIndicator={false}
+        ListEmptyComponent={
+          <ExploreEmptyState
+            emoji="💖"
+            title="You haven’t liked anyone yet"
+            subtitle="Profiles you like will appear here so you can keep track of who caught your eye."
+          />
+        }
       />
     </View>
   );
@@ -63,8 +76,12 @@ const styles = StyleSheet.create({
     fontFamily: "OutfitMedium",
   },
   listContent: {
+    flexGrow: 1,
     alignItems: "center",
     paddingBottom: 100,
+  },
+  emptyListContent: {
+    justifyContent: "center",
   },
   columnWrapper: {
     justifyContent: "space-between",

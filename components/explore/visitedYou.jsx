@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Text, FlatList, StyleSheet, Dimensions, TouchableOpacity, ImageBackground } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
+import ExploreEmptyState from "./ExploreEmptyState";
 
 const { width } = Dimensions.get("window");
 
@@ -88,9 +89,11 @@ const UsersProfileCard = ({ profile, height = 200, onPress }) => {
 
 // VisitedYou component with proper layout
 const VisitedYou = ({ data, onUserPress }) => {
+  const visitors = Array.isArray(data) ? data : [];
+
   return (
     <View style={styles.tabContent}>
-      <LinearGradient
+      {/* <LinearGradient
         colors={["#4F46E5", "#7C3AED"]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 0 }}
@@ -102,22 +105,32 @@ const VisitedYou = ({ data, onUserPress }) => {
         <Text style={styles.bannerSubtitle}>
           Check out who's interested in you.
         </Text>
-      </LinearGradient>
+      </LinearGradient> */}
 
       <FlatList
-        data={data}
+        data={visitors}
         keyExtractor={(item) => (item.id || item._id || "").toString()}
         renderItem={({ item }) => (
           <UsersProfileCard
             profile={item}
             onPress={() => onUserPress(item)}
-            height={270}
+            height={280}
           />
         )}
         numColumns={2}
-        contentContainerStyle={styles.listContent}
-        columnWrapperStyle={styles.columnWrapper}
+        contentContainerStyle={[
+          styles.listContent,
+          visitors.length === 0 && styles.emptyListContent,
+        ]}
+        columnWrapperStyle={visitors.length > 0 ? styles.columnWrapper : undefined}
         showsVerticalScrollIndicator={false}
+        ListEmptyComponent={
+          <ExploreEmptyState
+            emoji="👀"
+            title="No profile visits yet"
+            subtitle="When someone checks out your profile, you will see them here."
+          />
+        }
       />
     </View>
   );
@@ -144,8 +157,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   listContent: {
+    flexGrow: 1,
     alignItems: "center",
     paddingBottom: 100,
+  },
+  emptyListContent: {
+    justifyContent: "center",
   },
   columnWrapper: {
     justifyContent: "space-between",

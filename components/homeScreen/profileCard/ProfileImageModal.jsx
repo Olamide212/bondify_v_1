@@ -1,4 +1,3 @@
-import { Image } from "expo-image";
 import { X } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -10,12 +9,13 @@ import {
     Pressable,
     View,
 } from "react-native";
-import { PanGestureHandler, State } from "react-native-gesture-handler";
 import { colors } from "../../../constant/colors";
+import { getProfileMediaType } from "../../../utils/profileMedia";
+import ProfileMediaView from "../../ui/ProfileMediaView";
 
 const { width, height } = Dimensions.get("window");
 
-const SWIPE_DOWN_THRESHOLD = 120;
+const SWIPE_DOWN_THRESHOLD = 80;
 
 const ProfileImageModal = ({
   visible,
@@ -24,6 +24,7 @@ const ProfileImageModal = ({
   modalImageIndex,
   onChangeImageIndex,
   getImageUri,
+  getMediaItem,
   isImageCacheHydrated,
   isUriCached,
   onMarkUriLoaded,
@@ -55,30 +56,6 @@ const ProfileImageModal = ({
     });
   }, [modalImageIndex, visible]);
 
-  const onGestureEvent = Animated.event(
-    [{ nativeEvent: { translationY: translateY } }],
-    { useNativeDriver: true }
-  );
-
-  const onHandlerStateChange = ({ nativeEvent }) => {
-    if (nativeEvent.state === State.END) {
-      if (nativeEvent.translationY > SWIPE_DOWN_THRESHOLD) {
-        // Animate out, then close
-        Animated.parallel([
-          Animated.timing(translateY,     { toValue: height, duration: 250, useNativeDriver: true }),
-          Animated.timing(backdropOpacity, { toValue: 0,      duration: 250, useNativeDriver: true }),
-        ]).start(() => {
-          translateY.setValue(0);
-          backdropOpacity.setValue(1);
-          onClose();
-        });
-      } else {
-        // Snap back
-        Animated.spring(translateY, { toValue: 0, useNativeDriver: true, bounciness: 6 }).start();
-      }
-    }
-  };
-
   // Clamp translateY so it only moves downward
   const clampedY = translateY.interpolate({
     inputRange:  [-20, 0, height],
@@ -101,12 +78,12 @@ const ProfileImageModal = ({
     >
       {/* Backdrop */}
       <Animated.View style={{ flex: 1, backgroundColor: "#000", opacity: backdropOpacity }}>
-        <PanGestureHandler
+        {/* <PanGestureHandler
           onGestureEvent={onGestureEvent}
           onHandlerStateChange={onHandlerStateChange}
           activeOffsetY={[0, 10]}
           failOffsetX={[-30, 30]}
-        >
+        > */}
           <Animated.View
             style={{ flex: 1, transform: [{ translateY: clampedY }], opacity: dynamicOpacity }}
           >
@@ -120,7 +97,7 @@ const ProfileImageModal = ({
 
             {/* Swipe hint */}
             <View style={{ position: 'absolute', top: 10, alignSelf: 'center', zIndex: 50 }}>
-              <View style={{ width: 36, height: 4, borderRadius: 2, backgroundColor: 'rgba(255,255,255,0.4)' }} />
+              <View style={{ width: 36, height: 4, borderRadius: 2, backgroundColor: '#fff' }} />
             </View>
 
             <View style={{flex: 1}} className="justify-center">
@@ -139,22 +116,29 @@ const ProfileImageModal = ({
                 })}
                 renderItem={({ item: index }) => {
                   const uri = getImageUri(index);
+                  const mediaItem = getMediaItem?.(index) ?? { url: uri, type: 'image' };
+                  const mediaType = getProfileMediaType(mediaItem);
 
                   return (
                     <View style={{ width, height: "100%" }}>
-                      <Image
-                        source={{ uri }}
+                      <ProfileMediaView
+                        media={mediaItem}
+                        containerStyle={{ width: "100%", height: "100%" }}
                         style={{ width: "100%", height: "100%" }}
-                        contentFit="contain"
-                        cachePolicy="memory-disk"
-                        blurRadius={blurPhotos ? 25 : 0}
+                        contentFit="cover"
+                        blurRadius={mediaType === 'image' ? blurPhotos ? 25 : 0 : 0}
+                        shouldPlayVideo={visible && index === modalImageIndex}
+                        isMuted={false}
+                        maxPreviewMs={mediaType === 'video' ? 5000 : undefined}
                         onLoadStart={() => {
-                          if (isImageCacheHydrated && !isUriCached(uri)) {
+                          if (mediaType === 'image' && isImageCacheHydrated && !isUriCached(uri)) {
                             setIsImageLoading(true);
                           }
                         }}
                         onLoad={async () => {
-                          await onMarkUriLoaded(uri);
+                          if (mediaType === 'image') {
+                            await onMarkUriLoaded(uri);
+                          }
                           setIsImageLoading(false);
                         }}
                         onError={() => setIsImageLoading(false)}
@@ -186,7 +170,7 @@ const ProfileImageModal = ({
               ))}
             </View>
           </Animated.View>
-        </PanGestureHandler>
+        {/* </PanGestureHandler> */}
       </Animated.View>
     </Modal>
   );

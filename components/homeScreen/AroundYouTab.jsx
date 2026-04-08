@@ -5,9 +5,10 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { Briefcase, Eye, Globe, Heart, Info, MapPin, Users } from 'lucide-react-native';
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Animated,
+  InteractionManager,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -21,6 +22,7 @@ import LoadingImage from '../ui/LoadingImage';
 import VerifiedIcon from '../ui/VerifiedIcon';
 
 const FALLBACK_IMAGE = 'https://via.placeholder.com/800x1200?text=No+Photo';
+const compatibilityScoreCache = new Map();
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -77,13 +79,26 @@ const AroundYouTab = ({ profile, onViewProfile, actionMessage }) => {
 
   useEffect(() => {
     const fetchCompatibilityScore = async () => {
-      if (!profile?._id && !profile?.id) return;
+      if (!profile?._id && !profile?.id) {
+        setCompatibilityScore(null);
+        setLoadingScore(false);
+        return;
+      }
+
+      const userId = profile._id || profile.id;
+
+      if (compatibilityScoreCache.has(userId)) {
+        setCompatibilityScore(compatibilityScoreCache.get(userId));
+        setLoadingScore(false);
+        return;
+      }
 
       setLoadingScore(true);
       try {
-        const userId = profile._id || profile.id;
         const scoreData = await AIService.getCompatibilityScore(userId);
-        setCompatibilityScore(scoreData.score);
+        const score = scoreData?.score ?? null;
+        compatibilityScoreCache.set(userId, score);
+        setCompatibilityScore(score);
       } catch (error) {
         console.error('Failed to fetch compatibility score:', error);
         setCompatibilityScore(null);
@@ -92,7 +107,17 @@ const AroundYouTab = ({ profile, onViewProfile, actionMessage }) => {
       }
     };
 
-    fetchCompatibilityScore();
+    let isCancelled = false;
+
+    const task = InteractionManager.runAfterInteractions(() => {
+      if (isCancelled) return;
+      fetchCompatibilityScore();
+    });
+
+    return () => {
+      isCancelled = true;
+      task?.cancel?.();
+    };
   }, [profile?._id, profile?.id]);
 
   if (!profile) return null;
@@ -415,4 +440,13 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AroundYouTab;
+export default React.memo(AroundYouTab, (prevProps, nextProps) => {
+  const prevId = prevProps.profile?._id || prevProps.profile?.id;
+  const nextId = nextProps.profile?._id || nextProps.profile?.id;
+
+  return (
+    prevId === nextId &&
+    prevProps.profile?.blurPhotos === nextProps.profile?.blurPhotos &&
+    prevProps.profile?.distance === nextProps.profile?.distance
+  );
+});

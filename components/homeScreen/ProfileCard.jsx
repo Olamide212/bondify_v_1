@@ -17,10 +17,12 @@ import { useSelector } from "react-redux";
 import { styles } from "../../constant/colors";
 import { usePersistentUriCache } from "../../hooks/usePersistentUriCache";
 import AIService from "../../services/aiService";
+import { getProfileMediaUrl, isProfileVideo, normalizeProfileMedia } from "../../utils/profileMedia";
 import AiMatchSuggestionModal from "../modals/AiMatchSuggestionModal";
 import BlockReportModal from "../modals/Blockreportmodal";
 import CommentBox from "../ui/CommentBox";
 import DirectMessageBox from "../ui/DirectMessageBox";
+import ProfileMediaView from "../ui/ProfileMediaView";
 import ProfileHeroSection from "./profileCard/ProfileHeroSection";
 import ProfileImageModal from "./profileCard/ProfileImageModal";
 
@@ -146,10 +148,11 @@ const ProfileCard = ({ profile, hideAiSuggestion = false }) => {
 
   const totalImages = profile?.images?.length || 1;
   const profileImages = useMemo(
-    () => (Array.isArray(profile?.images) ? profile.images : []),
+    () => normalizeProfileMedia(profile?.images),
     [profile?.images]
   );
-  const getImageUri = (index) => profileImages[index] || FALLBACK_PROFILE_IMAGE;
+  const getImageUri = (index) => getProfileMediaUrl(profileImages[index]) || FALLBACK_PROFILE_IMAGE;
+  const getMediaItem = (index) => profileImages[index] || null;
 
   // Normalise mutualInterests to a Set for O(1) lookup
   const mutualSet = useMemo(
@@ -219,6 +222,43 @@ const ProfileCard = ({ profile, hideAiSuggestion = false }) => {
   // Count for the section header badge
   const mutualInterestCount = profile?.mutualInterests?.length ?? 0;
 
+  const renderSecondaryMedia = (mediaIndex, commentIndex) => {
+    const mediaItem = profileImages[mediaIndex];
+    if (!mediaItem) return null;
+
+    if (!isProfileVideo(mediaItem)) {
+      return (
+        <View ref={(ref) => setCommentBoxRef(commentIndex, ref)}>
+          <CommentBox
+            imageUri={getImageUri(mediaIndex)}
+            index={mediaIndex}
+            onPress={() => openImageModal(mediaIndex)}
+            showComposer={visibleCommentBoxIndex === commentIndex}
+            profile={profile}
+            blurPhotos={profile?.blurPhotos}
+          />
+        </View>
+      );
+    }
+
+    return (
+      <TouchableOpacity
+        onPress={() => openImageModal(mediaIndex)}
+        activeOpacity={0.9}
+        style={styles.mediaPreview}
+      >
+        <ProfileMediaView
+          media={mediaItem}
+          containerStyle={styles.mediaPreviewInner}
+          style={styles.mediaPreviewInner}
+          showVideoBadge
+          shouldPlayVideo
+          maxPreviewMs={5000}
+        />
+      </TouchableOpacity>
+    );
+  };
+
   return (
     <View className="relative">
       <ProfileImageModal
@@ -228,6 +268,7 @@ const ProfileCard = ({ profile, hideAiSuggestion = false }) => {
         modalImageIndex={modalImageIndex}
         onChangeImageIndex={setModalImageIndex}
         getImageUri={getImageUri}
+        getMediaItem={getMediaItem}
         isImageCacheHydrated={isImageCacheHydrated}
         isUriCached={isUriCached}
         onMarkUriLoaded={touchUri}
@@ -258,7 +299,7 @@ const ProfileCard = ({ profile, hideAiSuggestion = false }) => {
 
                  {/* ── Tagline ── */}
                     <View style={{backgroundColor: '#121212', marginVertical: 20}}>
-   {profile?.tagline && (
+   {profile.tagline && (
                       <View className="px-4  rounded-t-2xl" >
                         <Text className="text-3xl text-white italic font-OutfitSemiBold">
                          &quot;{profile.tagline}&quot;
@@ -295,6 +336,7 @@ const ProfileCard = ({ profile, hideAiSuggestion = false }) => {
             {/* ══════════════════════════════════════════════════════
                  LOOKING FOR
                ══════════════════════════════════════════════════════ */}
+          
             {profile.lookingFor && (
               <View className=" p-5 mb-2 mx-2 rounded-2xl " style={styles.boxContainer}>
                 <Text className="text-[20px] font-OutfitSemiBold text-primary ml-2 mb-3">
@@ -339,16 +381,7 @@ const ProfileCard = ({ profile, hideAiSuggestion = false }) => {
             )}
 
             {/* ── Image 2 comment box ── */}
-            <View ref={(ref) => setCommentBoxRef(0, ref)}>
-              <CommentBox
-                imageUri={profile?.images?.[1]}
-                index={1}
-                onPress={() => openImageModal(1)}
-                showComposer={visibleCommentBoxIndex === 0}
-                profile={profile}
-                blurPhotos={profile?.blurPhotos}
-              />
-            </View>
+            {renderSecondaryMedia(1, 0)}
 
             {/* ══════════════════════════════════════════════════════
                  BASICS
@@ -564,7 +597,7 @@ const ProfileCard = ({ profile, hideAiSuggestion = false }) => {
                  PERSONALITIES (traits — highlighted if mutual)
                ══════════════════════════════════════════════════════ */}
             {profile.personalities?.length > 0 && (
-              <View className=" p-6 mb-2" style={styles.boxContainer}>
+              <View className=" p-6 mx-3 mb-2" style={styles.boxContainer}>
                 <View className="flex-row items-center justify-between mb-3">
                   <Text className="text-[20px] font-OutfitSemiBold text-primary">
                     Personalities
@@ -590,16 +623,7 @@ const ProfileCard = ({ profile, hideAiSuggestion = false }) => {
             )}
 
             {/* ── Image 3 comment box ── */}
-            <View ref={(ref) => setCommentBoxRef(1, ref)}>
-              <CommentBox
-                imageUri={profile?.images?.[2]}
-                index={2}
-                onPress={() => openImageModal(2)}
-                showComposer={visibleCommentBoxIndex === 1}
-                profile={profile}
-                blurPhotos={profile?.blurPhotos}
-              />
-            </View>
+            {renderSecondaryMedia(2, 1)}
 
             {/* ══════════════════════════════════════════════════════
                  EDUCATION & CAREER
@@ -690,16 +714,7 @@ const ProfileCard = ({ profile, hideAiSuggestion = false }) => {
             )}
 
             {/* ── Image 4 comment box ── */}
-            <View ref={(ref) => setCommentBoxRef(2, ref)}>
-              <CommentBox
-                imageUri={profile?.images?.[3]}
-                index={3}
-                onPress={() => openImageModal(3)}
-                showComposer={visibleCommentBoxIndex === 2}
-                profile={profile}
-                blurPhotos={profile?.blurPhotos}
-              />
-            </View>
+            {renderSecondaryMedia(3, 2)}
 
               {/* ── Question 3 ── */}
             {profile.questions?.[2] && (
@@ -808,3 +823,15 @@ const ProfileCard = ({ profile, hideAiSuggestion = false }) => {
 };
 
 export default ProfileCard;
+
+styles.mediaPreview = {
+  marginHorizontal: 12,
+  marginBottom: 8,
+  borderRadius: 16,
+  overflow: "hidden",
+};
+
+styles.mediaPreviewInner = {
+  width: "100%",
+  height: height * 0.55,
+};

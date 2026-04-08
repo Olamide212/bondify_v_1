@@ -9,6 +9,7 @@ import {
     View,
 } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
+  import { getProfileMediaUrl } from "../../utils/profileMedia";
 import LoadingImage from '../ui/LoadingImage';
 
 const TopPicksTab = ({ profile }) => {
@@ -50,7 +51,7 @@ const TopPicksTab = ({ profile }) => {
       style={styles.gridItem}
       onPress={() => handleNavigateToProfile(item.id)}
     >
-      <LoadingImage source={{ uri: item.images[0] }} style={styles.gridImage} containerStyle={styles.gridImage} contentFit="cover" cachePolicy="memory-disk" transition={200} indicatorColor="#999" />
+      <LoadingImage source={{ uri: getProfileMediaUrl(item.images[0]) }} style={styles.gridImage} containerStyle={styles.gridImage} contentFit="cover" cachePolicy="memory-disk" transition={200} indicatorColor="#999" />
       <View className='flex-1 flex-row gap-1  px-3 items-center absolute bg-[#121212]/70 left-0 right-0  bottom-2 py-2 mx-2 rounded-full'>
         <Text className='text-lg font-OutfitBold '>{item.name}</Text>
         {item.verified && (

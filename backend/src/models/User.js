@@ -591,7 +591,7 @@ const userSchema = new mongoose.Schema(
     personalities: [{ type: String }],
 
     // Profile Media
-    images: [{ url: String, publicId: String, order: Number }],
+    images: [{ url: String, publicId: String, order: Number, type: { type: String, enum: ['image', 'video'], default: 'image' }, mimeType: String }],
 
     // Profile Questions & Answers
     questions: [{ question: String, answer: String }],

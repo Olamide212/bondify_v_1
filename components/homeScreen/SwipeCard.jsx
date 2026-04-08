@@ -18,6 +18,7 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
+  import { getProfileMediaUrl } from "../../utils/profileMedia";
 import LoadingImage from '../ui/LoadingImage';
 
 const { width } = Dimensions.get("window");
@@ -28,6 +29,7 @@ const SwipeCard = ({ profile, actionMessage }) => {
   const [fadeAnim] = useState(new Animated.Value(1));
   const totalImages = profile?.images?.length || 1;
   const router = useRouter();
+  const currentImageUri = getProfileMediaUrl(profile?.images?.[currentImageIndex]);
 
   const handleImageChange = (newIndex) => {
     Animated.timing(fadeAnim, {
@@ -68,7 +70,7 @@ const SwipeCard = ({ profile, actionMessage }) => {
       {/* Main Image with Fade Animation */}
       <Animated.View style={[styles.imageContainer, { opacity: fadeAnim }]}>
         <LoadingImage
-          source={{ uri: profile?.images?.[currentImageIndex] }}
+          source={{ uri: currentImageUri }}
           style={styles.image}
           containerStyle={StyleSheet.absoluteFillObject}
           contentFit="cover"

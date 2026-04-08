@@ -1,0 +1,53 @@
+# EAS Build upload ignore rules
+# This file controls which files are uploaded to Expo/EAS for app builds.
+
+# dependencies
+node_modules/
+
+# Expo
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+
+# Native temp / secrets
+.kotlin/
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.pem
+
+# Metro
+.metro-health-check*
+
+# debug
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# macOS
+.DS_Store
+
+# local env files
+.env*.local
+
+# Backend - exclude from mobile app build upload
+backend/
+
+# Project docs / ops files not needed for native app builds
+README.md
+CHANGES_SUMMARY.md
+FIXES_APPLIED.md
+QUICK_REFERENCE.md
+CLOUDFRONT_SETUP.md
+cloudfront-template.yaml
+deploy-cloudfront.sh
+test-cloudfront.sh
+
+# typescript
+*.tsbuildinfo
+
+app-example

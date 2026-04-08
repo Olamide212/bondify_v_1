@@ -10,19 +10,20 @@ import {
 } from "react-native";
 import { colors } from "../../constant/colors";
 import { useAlert } from "../../context/AlertContext";
+import { useToast } from "../../context/ToastContext";
 import { messageService } from "../../services/messageService";
 import AISuggestionModal from "../modals/AiSuggestionModal";
 
 export default function DirectMessageBox({ profile }) {
   const { showAlert } = useAlert();
+  const { showToast } = useToast();
   const [message, setMessage]               = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [sending, setSending]               = useState(false);
-  const [sent, setSent]                     = useState(false);
 
   const handleSend = async () => {
     const trimmed = message.trim();
-    if (!trimmed || sending || sent) return;
+    if (!trimmed || sending) return;
 
     const profileId = String(profile?.id ?? profile?._id ?? "");
     if (!profileId) {
@@ -41,10 +42,11 @@ export default function DirectMessageBox({ profile }) {
       await messageService.sendDirectMessage(profileId, trimmed);
 
       setMessage("");
-      setSent(true);
-
-      // Reset sent state after 3 seconds so they can send again
-      setTimeout(() => setSent(false), 3000);
+      setShowSuggestions(false);
+      showToast({
+        message: "Message sent successfully",
+        variant: "success",
+      });
     } catch (err) {
       console.error("DirectMessageBox send error:", err);
       showAlert({
@@ -66,16 +68,16 @@ export default function DirectMessageBox({ profile }) {
       </Text>
 
       {/* Input */}
-      <View style={[styles.inputWrap, sent && styles.inputWrapSent]}>
+      <View style={styles.inputWrap}>
         <TextInput
-          placeholder={sent ? "Message sent! 🎉" : "Type a message…"}
-          placeholderTextColor={sent ? "#22C55E" : "#9CA3AF"}
+          placeholder="Type a message…"
+          placeholderTextColor="#9CA3AF"
           style={styles.input}
           className="font-OutfitMedium text-white"
           multiline
           value={message}
           onChangeText={setMessage}
-          editable={!sending && !sent}
+          editable={!sending}
         />
       </View>
 
@@ -94,16 +96,14 @@ export default function DirectMessageBox({ profile }) {
         <TouchableOpacity
           style={[
             styles.sendBtn,
-            (!message.trim() || sending || sent) && styles.sendBtnDisabled,
+            (!message.trim() || sending) && styles.sendBtnDisabled,
           ]}
           onPress={handleSend}
-          disabled={!message.trim() || sending || sent}
+          disabled={!message.trim() || sending}
           activeOpacity={0.85}
         >
           {sending ? (
             <ActivityIndicator size="small" color="#fff" />
-          ) : sent ? (
-            <Text style={styles.sendBtnText}>Sent ✓</Text>
           ) : (
             <View style={styles.sendBtnInner}>
               <Text style={styles.sendBtnText}>Send a BonSpark</Text>
@@ -120,7 +120,6 @@ export default function DirectMessageBox({ profile }) {
         profile={profile}
         onSelectSuggestion={(text) => {
           setMessage(text);
-          setSent(false);
         }}
       />
     </View>
@@ -134,10 +133,6 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     padding: 14,
     marginBottom: 12,
-  },
-  inputWrapSent: {
-    borderColor: "#22C55E",
-    backgroundColor: "#F0FDF4",
   },
   input: {
     fontSize: 15,

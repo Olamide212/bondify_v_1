@@ -10,12 +10,13 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import {images} from "../../constant/images"
+import {colors} from "../../constant/colors";
 
 const { width, height } = Dimensions.get("window");
 
 const VARIANT_STYLES = {
   success: {
-    bg: "#22C55E",
+    bg: colors.primary,
     icon: "checkmark-circle-outline",
   },
   error: {

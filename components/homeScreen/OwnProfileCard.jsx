@@ -11,7 +11,6 @@
  *   ✗ Follow button
  */
 
-import { Image } from "expo-image";
 import { useMemo, useState } from "react";
 import {
     Animated,
@@ -23,6 +22,8 @@ import {
 } from "react-native";
 import { styles as themeStyles } from "../../constant/colors";
 import { usePersistentUriCache } from "../../hooks/usePersistentUriCache";
+import { normalizeProfileMedia, isProfileVideo, getProfileMediaUrl } from "../../utils/profileMedia";
+import ProfileMediaView from "../ui/ProfileMediaView";
 import ProfileHeroSection from "./profileCard/ProfileHeroSection";
 import ProfileImageModal from "./profileCard/ProfileImageModal";
 
@@ -49,11 +50,12 @@ const OwnProfileCard = ({ profile }) => {
 
   const totalImages = profile?.images?.length || 1;
   const profileImages = useMemo(
-    () => (Array.isArray(profile?.images) ? profile.images : []),
+    () => normalizeProfileMedia(profile?.images),
     [profile?.images]
   );
   const getImageUri = (index) =>
-    profileImages[index] || FALLBACK_PROFILE_IMAGE;
+    getProfileMediaUrl(profileImages[index]) || FALLBACK_PROFILE_IMAGE;
+  const getMediaItem = (index) => profileImages[index] || null;
 
   const { isHydrated: isImageCacheHydrated, isUriCached, touchUri } =
     usePersistentUriCache({
@@ -89,6 +91,7 @@ const OwnProfileCard = ({ profile }) => {
         modalImageIndex={modalImageIndex}
         onChangeImageIndex={setModalImageIndex}
         getImageUri={getImageUri}
+        getMediaItem={getMediaItem}
         isImageCacheHydrated={isImageCacheHydrated}
         isUriCached={isUriCached}
         onMarkUriLoaded={touchUri}
@@ -179,10 +182,13 @@ const OwnProfileCard = ({ profile }) => {
                 activeOpacity={0.9}
                 style={localStyles.imagePreview}
               >
-                <Image
-                  source={{ uri: profileImages[1] }}
+                <ProfileMediaView
+                  media={profileImages[1]}
+                  containerStyle={localStyles.previewImg}
                   style={localStyles.previewImg}
-                  contentFit="cover"
+                  showVideoBadge={isProfileVideo(profileImages[1])}
+                  shouldPlayVideo
+                  maxPreviewMs={5000}
                 />
               </TouchableOpacity>
             )}
@@ -419,10 +425,13 @@ const OwnProfileCard = ({ profile }) => {
                 activeOpacity={0.9}
                 style={localStyles.imagePreview}
               >
-                <Image
-                  source={{ uri: profileImages[2] }}
+                <ProfileMediaView
+                  media={profileImages[2]}
+                  containerStyle={localStyles.previewImg}
                   style={localStyles.previewImg}
-                  contentFit="cover"
+                  showVideoBadge={isProfileVideo(profileImages[2])}
+                  shouldPlayVideo
+                  maxPreviewMs={5000}
                 />
               </TouchableOpacity>
             )}
@@ -521,10 +530,13 @@ const OwnProfileCard = ({ profile }) => {
                 activeOpacity={0.9}
                 style={localStyles.imagePreview}
               >
-                <Image
-                  source={{ uri: profileImages[3] }}
+                <ProfileMediaView
+                  media={profileImages[3]}
+                  containerStyle={localStyles.previewImg}
                   style={localStyles.previewImg}
-                  contentFit="cover"
+                  showVideoBadge={isProfileVideo(profileImages[3])}
+                  shouldPlayVideo
+                  maxPreviewMs={5000}
                 />
               </TouchableOpacity>
             )}

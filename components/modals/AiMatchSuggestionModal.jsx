@@ -136,7 +136,7 @@ const AiMatchSuggestionModal = ({
               <View style={styles.matchIndicator}>
                 <Text style={[
                   styles.matchText,
-                  { color: suggestion.isGoodMatch ? colors.secondary : "#EF4444" }
+                  { color: suggestion.isGoodMatch ? colors.primary : "#EF4444" }
                 ]}>
                   {suggestion.isGoodMatch ? "Great Match Potential!" : "Maybe Not the Best Match"}
                 </Text>

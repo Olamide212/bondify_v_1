@@ -1,5 +1,5 @@
-import { LinearGradient } from "expo-linear-gradient";
-import { FlatList, StyleSheet, Text, View } from "react-native";
+import { FlatList, StyleSheet, View } from "react-native";
+import ExploreEmptyState from "./ExploreEmptyState";
 import UsersProfileCard from "../ui/UsersProfileCard"; // Update path as needed
 
 
@@ -9,7 +9,7 @@ const LikedYou = ({ data, onUserPress, selectedUsers }) => {
 
   return (
     <View style={styles.tabContent}>
-      <LinearGradient
+      {/* <LinearGradient
         colors={["#FD465C", "#A80EC1"]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 0 }}
@@ -21,7 +21,7 @@ const LikedYou = ({ data, onUserPress, selectedUsers }) => {
         <Text style={styles.bannerSubtitle}>
           Like them back to start a conversation.
         </Text>
-      </LinearGradient>
+      </LinearGradient> */}
 
       <FlatList
         data={likedUsers}
@@ -36,9 +36,19 @@ const LikedYou = ({ data, onUserPress, selectedUsers }) => {
           />
         )}
         numColumns={2}
-        contentContainerStyle={styles.listContent}
-        columnWrapperStyle={styles.columnWrapper}
+        contentContainerStyle={[
+          styles.listContent,
+          likedUsers.length === 0 && styles.emptyListContent,
+        ]}
+        columnWrapperStyle={likedUsers.length > 0 ? styles.columnWrapper : undefined}
         showsVerticalScrollIndicator={false}
+        ListEmptyComponent={
+          <ExploreEmptyState
+            emoji="💘"
+            title="No likes yet"
+            subtitle="When people like your profile, they will appear here so you can like them back."
+          />
+        }
       />
     </View>
   );
@@ -65,8 +75,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   listContent: {
+    flexGrow: 1,
     alignItems: "center",
     paddingBottom: 100,
+  },
+  emptyListContent: {
+    justifyContent: "center",
   },
   columnWrapper: {
     justifyContent: "space-between",

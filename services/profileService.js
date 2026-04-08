@@ -180,23 +180,59 @@ const compressImage = async (uri) => {
   }
 };
 
+const MAX_PROFILE_VIDEO_DURATION_MS = 5000;
+
+const getUploadAssetMeta = async (item, index) => {
+  const asset = typeof item === "string" ? { uri: item, type: "image" } : item;
+  const isVideo = asset?.type === "video" || asset?.mimeType?.startsWith?.("video/");
+
+  if (!asset?.uri) {
+    throw new Error("Invalid media selected");
+  }
+
+  const durationMs = Number(asset?.duration ?? 0);
+  if (isVideo) {
+    if (!durationMs) {
+      throw new Error("Unable to verify video length. Please choose a video that is 5 seconds or less.");
+    }
+
+    if (durationMs > MAX_PROFILE_VIDEO_DURATION_MS) {
+      throw new Error("Profile videos must be 5 seconds or less.");
+    }
+  }
+
+  const uploadUri = isVideo ? asset.uri : await compressImage(asset.uri);
+  const fallbackName = isVideo ? `video_${index}.mp4` : `photo_${index}.jpg`;
+  const filename = asset.fileName || uploadUri.split("/").pop() || fallbackName;
+  const match = /\.([a-zA-Z0-9]+)$/.exec(filename);
+  const inferredType = isVideo
+    ? `video/${match?.[1]?.toLowerCase() || "mp4"}`
+    : `image/${match?.[1]?.toLowerCase() || "jpeg"}`;
+
+  return {
+    uri: uploadUri,
+    name: filename,
+    type: asset.mimeType || inferredType,
+    durationMs: isVideo ? durationMs : null,
+  };
+};
+
 const uploadPhotos = async (photoUris) => {
   try {
     const formData = new FormData();
+    const durations = [];
     
-    // Compress all images before uploading
     for (let i = 0; i < photoUris.length; i++) {
-      const compressedUri = await compressImage(photoUris[i]);
-      const filename = compressedUri.split("/").pop() || `photo_${i}.jpg`;
-      const match = /\.(\w+)$/.exec(filename);
-      const type = match ? `image/${match[1]}` : "image/jpeg";
-      
+      const fileMeta = await getUploadAssetMeta(photoUris[i], i);
+      durations.push(fileMeta.durationMs);
       formData.append("photos", {
-        uri: compressedUri,
-        name: filename,
-        type,
+        uri: fileMeta.uri,
+        name: fileMeta.name,
+        type: fileMeta.type,
       });
     }
+
+    formData.append("durations", JSON.stringify(durations));
 
     const response = await apiClient.post("/upload/photos", formData, {
       headers: { "Content-Type": "multipart/form-data" },
@@ -205,7 +241,7 @@ const uploadPhotos = async (photoUris) => {
     return payload?.images ?? [];
   } catch (err) {
     throw (
-      err.response?.data?.message || err.message || "Photo upload failed"
+      err.response?.data?.message || err.message || "Profile media upload failed"
     );
   }
 };

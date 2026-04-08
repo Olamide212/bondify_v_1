@@ -5,7 +5,8 @@ import {
     Text, TouchableOpacity, View,
 } from "react-native";
 import { colors } from "../../constant/colors";
-import LoadingImage from '../ui/LoadingImage';
+import { isProfileVideo } from "../../utils/profileMedia";
+import ProfileMediaView from '../ui/ProfileMediaView';
 
 /**
  * Grid layout (6 slots total):
@@ -51,17 +52,16 @@ const Slot = ({
     );
   }
 
-  const uri = item?.url || item;
+  const isVideo = isProfileVideo(item);
   return (
     <View style={[s.slot, featured && s.slotFeatured, s.filledSlot, featured && s.slotFeaturedFilled]}>
-      <LoadingImage
-        source={{ uri }}
-        style={StyleSheet.absoluteFill}
+      <ProfileMediaView
+        media={item}
         containerStyle={StyleSheet.absoluteFill}
+        style={StyleSheet.absoluteFillObject}
         contentFit="cover"
-        cachePolicy="memory-disk"
-        transition={200}
-        indicatorColor={colors.primary}
+        showVideoBadge={isVideo}
+        shouldPlayVideo={false}
       />
       {featured && (
         <View style={s.mainBadge}>
@@ -108,7 +108,7 @@ const ProfilePhotoGrid = ({ photos: initialPhotos = [], onAddPhoto, onRemovePhot
 
       {/* Header */}
       <View style={s.header}>
-        <Text style={s.title}>Photos</Text>
+        <Text style={s.title}>Media</Text>
         <Text style={s.countText}>{initialPhotos.length} of {MAX_PHOTOS}</Text>
       </View>
 

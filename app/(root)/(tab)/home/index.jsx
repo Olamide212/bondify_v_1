@@ -31,6 +31,7 @@ import { ArrowUpDown, Rocket, SlidersHorizontal, Wand2 } from "lucide-react-nati
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
     AppState,
+  Image,
     Pressable,
     RefreshControl,
     ScrollView,
@@ -40,7 +41,6 @@ import {
 } from "react-native";
 import Animated, {
     interpolate,
-    runOnJS,
     useAnimatedStyle,
     useSharedValue,
     withSequence,
@@ -78,6 +78,7 @@ const NOPE_BADGE = require("../../../../assets/images/Nope_Badge_Left.png");
 const NOTIFICATIONS_STORAGE_KEY  = "@bondify/cache/home/notifications";
 const NOTIF_SETTINGS_STORAGE_KEY = "@bondify/cache/notificationSettings";
 const MAX_NOTIFICATIONS = 100;
+const SWIPE_BADGE_LEAD_MS = 60;
 
 const DEFAULT_NOTIF_SETTINGS = {
   newMatch:           true,
@@ -142,6 +143,15 @@ const Home = () => {
   const currentProfile = hasProfiles
     ? homeProfiles[homeCurrentProfileIndex % homeProfiles.length]
     : null;
+  const upcomingProfiles = useMemo(
+    () => (hasProfiles && homeProfiles.length > 1
+      ? Array.from(
+          { length: Math.min(3, Math.max(homeProfiles.length - 1, 0)) },
+          (_, offset) => homeProfiles[(homeCurrentProfileIndex + offset + 1) % homeProfiles.length]
+        ).filter(Boolean)
+      : []),
+    [hasProfiles, homeCurrentProfileIndex, homeProfiles]
+  );
 
   // ─── hasEverLoaded: used only to decide empty-deck vs "still loading" ─────
   // We still track it so we never show EmptyDeckSlider before the first fetch
@@ -150,6 +160,30 @@ const Home = () => {
   useEffect(() => {
     if (!profilesLoading) hasEverLoaded.current = true;
   }, [profilesLoading]);
+
+  useEffect(() => {
+    const getImageUri = (image) => {
+      if (!image) return null;
+      if (typeof image === "string") return image;
+      return image.url || image.uri || image.secure_url || image.imageUrl || null;
+    };
+
+    const uniqueImageUris = [
+      ...new Set(
+        upcomingProfiles.flatMap((profile) =>
+          (Array.isArray(profile?.images) ? profile.images : [])
+            .slice(0, 2)
+            .map(getImageUri)
+            .filter(Boolean)
+        )
+      ),
+    ];
+    if (uniqueImageUris.length === 0) return;
+
+    uniqueImageUris.forEach((uri) => {
+      Image.prefetch(uri).catch(() => {});
+    });
+  }, [homeCurrentProfileIndex, homeProfiles, upcomingProfiles]);
 
   // ─── Handle openNotifications param from navigation ───────────────────────
   useEffect(() => {
@@ -176,7 +210,6 @@ const Home = () => {
   }, [refreshProfiles]);
 
   // ─── UI state ─────────────────────────────────────────────────────────────
-  const [swipeBadgeDirection,    setSwipeBadgeDirection]    = useState(null);
   const [showFilterModal,        setShowFilterModal]        = useState(false);
   const [showProfileModal,       setShowProfileModal]       = useState(false);
   const [showNotificationsModal, setShowNotificationsModal] = useState(false);
@@ -192,6 +225,7 @@ const Home = () => {
   const [isRefreshing,           setIsRefreshing]           = useState(false);
   const [notifications,          setNotifications]          = useState([]);
   const [isBoosting,             setIsBoosting]             = useState(false);
+  const swipeAdvanceTimeoutRef = useRef(null);
 
   // ─── First-time tips ──────────────────────────────────────────────────────
   const [showActionTips, setShowActionTips] = useState(false);
@@ -276,40 +310,61 @@ const Home = () => {
   }, [homeCurrentProfileIndex, animation]);
 
   // ─── Swipe badge stamp ────────────────────────────────────────────────────
-  const badgeOpacity = useSharedValue(0);
-  const badgeScale   = useSharedValue(0.6);
+  const badgeScale        = useSharedValue(0.6);
+  const rightBadgeOpacity = useSharedValue(0);
+  const leftBadgeOpacity  = useSharedValue(0);
 
   const showSwipeBadge = (direction) => {
-    setSwipeBadgeDirection(direction);
-    badgeScale.value   = 0.5;
-    badgeOpacity.value = 0;
-    badgeScale.value   = withTiming(1.08, { duration: 160 }, () => {
+    rightBadgeOpacity.value = 0;
+    leftBadgeOpacity.value = 0;
+    badgeScale.value = 0.5;
+    badgeScale.value = withTiming(1.08, { duration: 160 }, () => {
       badgeScale.value = withTiming(1, { duration: 100 });
     });
-    badgeOpacity.value = withSequence(
+
+    const targetOpacity = direction === "right" ? rightBadgeOpacity : leftBadgeOpacity;
+    targetOpacity.value = withSequence(
       withTiming(1, { duration: 80  }),
       withTiming(1, { duration: 580 }),
-      withTiming(0, { duration: 220 }, () => {
-        runOnJS(setSwipeBadgeDirection)(null);
-      })
+      withTiming(0, { duration: 220 })
     );
   };
 
-  const badgeAnimStyle = useAnimatedStyle(() => ({
-    opacity:   badgeOpacity.value,
+  const rightBadgeAnimStyle = useAnimatedStyle(() => ({
+    opacity: rightBadgeOpacity.value,
+    transform: [{ scale: badgeScale.value }],
+  }));
+
+  const leftBadgeAnimStyle = useAnimatedStyle(() => ({
+    opacity: leftBadgeOpacity.value,
     transform: [{ scale: badgeScale.value }],
   }));
 
   // ─── Swipe handlers ───────────────────────────────────────────────────────
   const handleSwipe = (direction) => {
     if (!currentProfile) return;
+
+    if (swipeAdvanceTimeoutRef.current) {
+      clearTimeout(swipeAdvanceTimeoutRef.current);
+      swipeAdvanceTimeoutRef.current = null;
+    }
+
     showSwipeBadge(direction);
-    handleHomeSwipe(direction, currentProfile);
+    swipeAdvanceTimeoutRef.current = setTimeout(() => {
+      handleHomeSwipe(direction, currentProfile);
+      swipeAdvanceTimeoutRef.current = null;
+    }, SWIPE_BADGE_LEAD_MS);
     // Only show CardFeedbackModal for "nope" (pass) — for "like" the Bond badge stamp is sufficient
     // if (direction !== "right") {
     //   triggerFeedback("nope");
     // }
   };
+
+  useEffect(() => () => {
+    if (swipeAdvanceTimeoutRef.current) {
+      clearTimeout(swipeAdvanceTimeoutRef.current);
+    }
+  }, []);
 
   const handleComplimentPress = () => {
     if (!currentProfile) return;
@@ -665,18 +720,27 @@ const Home = () => {
       </View>
 
       {/* ── BOND / NOPE stamp badge ── */}
-      {swipeBadgeDirection !== null && (
-        <Animated.Image
-          source={swipeBadgeDirection === "right" ? BOND_BADGE : NOPE_BADGE}
-          style={[
-            styles.swipeBadge,
-            swipeBadgeDirection === "right" ? styles.swipeBadgeRight : styles.swipeBadgeLeft,
-            badgeAnimStyle,
-          ]}
-          resizeMode="contain"
-          pointerEvents="none"
-        />
-      )}
+      <Animated.Image
+        source={BOND_BADGE}
+        style={[
+          styles.swipeBadge,
+          styles.swipeBadgeRight,
+          rightBadgeAnimStyle,
+        ]}
+        resizeMode="contain"
+        pointerEvents="none"
+      />
+
+      <Animated.Image
+        source={NOPE_BADGE}
+        style={[
+          styles.swipeBadge,
+          styles.swipeBadgeLeft,
+          leftBadgeAnimStyle,
+        ]}
+        resizeMode="contain"
+        pointerEvents="none"
+      />
 
       <ScrollView
         style={styles.aroundYouContainer}

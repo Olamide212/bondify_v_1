@@ -24,7 +24,7 @@ import { useAlert } from "../../context/AlertContext";
 import { matchService } from "../../services/matchService";
 import { messageService } from "../../services/messageService";
 import { socketService } from "../../services/socketService";
-import cacheManager from "../../utils/cacheManager";
+import { cacheManager } from "../../utils/cacheManager";
 import { formatRelativeDate } from "../../utils/helper";
 import ChatBackground from "../common/ChatBackground";
 import Header from "../headers/ChatHeader";
@@ -507,8 +507,6 @@ const ChatScreen = ({ matchedUser, onBack, initialSearchMode = false, searchTrig
 
   // ── Helpers ───────────────────────────────────────────────────────────────
 
-  if (!matchedUser) return null;
-
   const getDateKey = (dateValue) => {
     const date = dateValue instanceof Date ? dateValue : new Date(dateValue);
     if (Number.isNaN(date.getTime())) return "";
@@ -627,10 +625,12 @@ const ChatScreen = ({ matchedUser, onBack, initialSearchMode = false, searchTrig
     if (searchTrigger) openSearch();
   }, [searchTrigger]);
 
+  if (!matchedUser) return null;
+
   // ── Render ────────────────────────────────────────────────────────────────
 
   return (
-    <SafeAreaView className="flex-1" edges={["top", "left", "right", "bottom"]}>
+    <SafeAreaView className="flex-1" edges={["top", "left", "right"]}>
       <KeyboardAvoidingView
         style={styles.container}
         behavior={Platform.OS === "ios" ? "padding" : "padding"}
@@ -917,6 +917,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
+    backgroundColor: colors.background,
   },
   messagesContent: {
     paddingVertical: 16,
@@ -1008,14 +1009,14 @@ const styles = StyleSheet.create({
   },
   contactBar: {
     backgroundColor: "#121212",
-    borderWidth:   1,
-    borderColor: colors.whiteLight,
+    borderTopWidth:   1,
+    borderTopColor: colors.whiteLight,
     paddingHorizontal: 20,
     paddingVertical:  14,
-    paddingBottom:    20,
+    paddingBottom:    40,
     gap:              10,
-    marginHorizontal: 10,
-    borderRadius: 20
+    // marginHorizontal: 10,
+    // borderRadius: 20
   },
   contactBarLabel: {
     fontSize:   13,

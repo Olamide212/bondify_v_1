@@ -3,7 +3,6 @@ import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
-  Image,
   Keyboard,
   SafeAreaView,
   Text,
@@ -13,6 +12,7 @@ import {
 } from "react-native";
 import PhotoGuidelinesModal from "../../../../components/modals/PhotoGuidelinesModal";
 import Button from "../../../../components/ui/Button";
+import ProfileMediaView from "../../../../components/ui/ProfileMediaView";
 import { colors } from "../../../../constant/colors";
 import { useAlert } from "../../../../context/AlertContext";
 import { useProfileSetup } from "../../../../hooks/useProfileSetup";
@@ -43,15 +43,14 @@ const UploadPhoto = () => {
     }
 
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [3, 4],
+      mediaTypes: index === 0 ? ImagePicker.MediaTypeOptions.Images : ImagePicker.MediaTypeOptions.All,
+      allowsEditing: false,
       quality: 1,
     });
 
     if (!result.canceled) {
       const updatedPhotos = [...photos];
-      updatedPhotos[index] = result.assets[0].uri;
+      updatedPhotos[index] = result.assets[0];
       setPhotos(updatedPhotos);
     }
   };
@@ -67,8 +66,17 @@ const UploadPhoto = () => {
     if (selectedPhotos.length === 0) {
       showAlert({
         icon: 'warning',
-        title: 'Photos Required',
-        message: 'Please add at least one photo to continue.',
+        title: 'Media Required',
+        message: 'Please add at least one photo or video to continue.',
+      });
+      return;
+    }
+
+    if (!selectedPhotos.some((item) => item?.type === 'image')) {
+      showAlert({
+        icon: 'warning',
+        title: 'Photo Required',
+        message: 'Please include at least one photo as part of your profile media.',
       });
       return;
     }
@@ -82,7 +90,7 @@ const UploadPhoto = () => {
       showAlert({
         icon: 'error',
         title: 'Upload Failed',
-        message: 'Failed to upload photos. Please try again.',
+        message: String(err || 'Failed to upload media. Please try again.'),
       });
     } finally {
       setUploading(false);
@@ -98,7 +106,7 @@ const UploadPhoto = () => {
             <View className="mb-6 mt-8">
               <View className="flex-row items-center justify-between">
                 <Text className="text-3xl font-OutfitBold text-white  mb-2">
-                  Add your best photos
+                  Add your best photos and videos
                 </Text>
                 {/* <TouchableOpacity
                   onPress={() => setShowGuidelines(true)}
@@ -112,7 +120,7 @@ const UploadPhoto = () => {
             
                 {/* <Lightbulb size={20} color={colors.primary} style={{ marginTop: 2 }} /> */}
               </View>
-                <Text className='text-white font-OutfitMedium text-base' numberOfLines={5}>Choose photos where your face is clearly visible,also try to avoid blurred and poor quality images for your profile. High-quality, clear photos help you get 3x better connections and higher engagement.</Text>
+                <Text className='text-white font-OutfitMedium text-base' numberOfLines={5}>Choose clear photos and short videos where your face is visible. Keep your main slot as a photo, and avoid blurry or poor-quality uploads for better matches.</Text>
               </View>
              
             </View>
@@ -129,10 +137,12 @@ const UploadPhoto = () => {
                     activeOpacity={0.7}
                   >
                     {photo ? (
-                      <Image
-                        source={{ uri: photo }}
-                        className="w-full h-full rounded-xl"
-                        resizeMode="cover"
+                      <ProfileMediaView
+                        media={photo}
+                        containerStyle={{ width: '100%', height: '100%' }}
+                        style={{ width: '100%', height: '100%' }}
+                        showVideoBadge
+                        shouldPlayVideo={false}
                       />
                     ) : (
                       <Ionicons name="add" size={32} color={colors.primary} />

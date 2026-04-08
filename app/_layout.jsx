@@ -43,9 +43,25 @@ function RootLayoutInner() {
       <Stack screenOptions={{ headerShown: false }} className="bg-[#121212]">
         {/* Only keep these if you're customizing screen options */}
         <Stack.Screen name="index" />
-        <Stack.Screen name="(root)" />
-        <Stack.Screen name="(auth)" />
-        <Stack.Screen name="root-tabs" />
+        <Stack.Screen
+          name="(root)"
+          options={{
+            gestureEnabled: false,
+          }}
+        />
+        <Stack.Screen
+          name="(auth)"
+          options={{
+            gestureEnabled: false,
+            animation: "none",
+          }}
+        />
+        <Stack.Screen
+          name="root-tabs"
+          options={{
+            gestureEnabled: false,
+          }}
+        />
       </Stack>
       {/* <OfflineBanner /> */}
 
@@ -92,7 +108,7 @@ const [fontsLoaded, fontError] = useFonts({
     splashHidden.current = true;
     try {
       await SplashScreen.hideAsync();
-    } catch (e) {
+    } catch (_e) {
       // Ignore — splash may already be hidden
     }
   }, []);

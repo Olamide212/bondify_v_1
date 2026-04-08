@@ -433,7 +433,7 @@ const ComplimentModal = ({
                   activeOpacity={0.85}
                 >
                   {loading ? (
-                    <ActivityIndicator size="small" color={colors.primary} />
+                    <ActivityIndicator size="small" color={colors.white} />
                   ) : (
                     <Send size={20} color={colors.white} />
                   )}
@@ -465,7 +465,7 @@ const styles = StyleSheet.create({
   card: {
     width: "100%",
     maxWidth: 400,
-    backgroundColor: "#1A1A2E",
+    backgroundColor: "#121212",
     borderRadius: 20,
     borderWidth: 1,
     borderColor: "rgba(255,255,255,0.1)",
@@ -588,7 +588,7 @@ const styles = StyleSheet.create({
   },
   viewNextBtn: {
     marginTop: 20,
-    backgroundColor: colors.secondary,
+    backgroundColor: colors.white,
     borderRadius: 99,
     paddingVertical: 15,
     paddingHorizontal: 36,

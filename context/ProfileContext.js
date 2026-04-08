@@ -3,6 +3,7 @@ import { useSelector } from "react-redux";
 import { rewindPass } from "../services/discoverService";
 import { profileService } from "../services/profileService";
 import { socketService } from "../services/socketService";
+import { normalizeProfileMedia } from "../utils/profileMedia";
 import { tokenManager } from "../utils/tokenManager";
 
 const ProfileContext = createContext();
@@ -67,25 +68,6 @@ export const ProfileProvider = ({ children }) => {
 
   const normalizeProfileRef = useRef(null);
 
-  const normalizeImages = (images) => {
-    if (!Array.isArray(images)) return [];
-    return images
-      .map((image) => {
-        if (typeof image === "string") return image;
-        if (!image || typeof image !== "object") return null;
-        return (
-          image.url ||
-          image.uri ||
-          image.secure_url ||
-          image.imageUrl ||
-          image.image ||
-          image.src ||
-          null
-        );
-      })
-      .filter(Boolean);
-  };
-
   const formatLocation = (location) => {
     if (!location || typeof location !== "object") return location || "";
     const parts = [location.city, location.state, location.country].filter(Boolean);
@@ -93,7 +75,7 @@ export const ProfileProvider = ({ children }) => {
   };
 
   const normalizeProfile = useCallback((profile) => {
-    const normalizedImages = normalizeImages(profile?.images);
+    const normalizedImages = normalizeProfileMedia(profile?.images);
     const normalizedName =
       profile?.name ||
       [profile?.firstName, profile?.lastName].filter(Boolean).join(" ") ||
@@ -123,6 +105,10 @@ export const ProfileProvider = ({ children }) => {
       financialStyle: profile?.financialStyle,
       lookingFor: profile?.lookingFor,
       relationshipType: profile?.relationshipType,
+      religionPractice: profile?.religionPractice ?? "",
+      religionImportance: profile?.religionImportance ?? "",
+      willRelocateForMarriage:
+        profile?.willRelocateForMarriage ?? profile?.relocateForMarriage ?? "",
       drinking: profile?.drinking,
       smoking: profile?.smoking,
       exercise: profile?.exercise,
@@ -138,11 +124,11 @@ export const ProfileProvider = ({ children }) => {
       interests: profile?.interests ?? [],
       personalities: profile?.personalities ?? [],
       bio: profile?.bio ?? "",
-      tagline: profile?.tagline ?? "",
+      tagline: profile?.tagline ?? profile?.tagLine ?? "",
       bloodGroup: profile?.bloodGroup ?? "",
       genotype: profile?.genotype ?? "",
       questions: profile?.questions ?? [],
-      images: normalizedImages.length > 0 ? normalizedImages : [],
+      images: normalizedImages,
       likesYou: profile?.likesYou ?? false,
       blurPhotos: profile?.blurPhotos ?? profile?.privacySettings?.blurPhotos ?? false,
       verificationStatus: profile?.verificationStatus ?? "unverified",
@@ -440,8 +426,8 @@ export const ProfileProvider = ({ children }) => {
     const profileId = profile?.id;
     console.log(`[ProfileContext] handleHomeSwipe: ${direction} on profile ${profileId}`);
     const type = direction === "right" ? "like" : "pass";
-    const actionResponse = await recordSwipeAction(profileId, type);
-    updateStatsForSwipe(type, actionResponse, profile);
+
+    // Optimistically advance the deck immediately so network latency doesn't block swiping.
     addHomeSwipedProfile(profileId);
 
     // Set rewind available if this was a pass
@@ -456,16 +442,22 @@ export const ProfileProvider = ({ children }) => {
       console.log(`[ProfileContext] homeCurrentIndex: ${prev} -> ${nextIndex}, total profiles: ${profilesData.length}`);
       return nextIndex;
     });
+
+    const actionResponse = await recordSwipeAction(profileId, type);
+    updateStatsForSwipe(type, actionResponse, profile);
   };
 
   const handleHomeSuperLike = async (profile) => {
     const profileId = profile?.id;
     console.log(`[ProfileContext] handleHomeSuperLike on profile ${profileId}`);
-    const actionResponse = await recordSwipeAction(profileId, "superlike");
-    updateStatsForSwipe("superlike", actionResponse, profile);
+
+    // Optimistically move on before the request completes.
     addHomeSwipedProfile(profileId);
     setRewindAvailable(false); // Super like also disables rewind
     setHomeCurrentIndex((prev) => (prev + 1) % profilesData.length);
+
+    const actionResponse = await recordSwipeAction(profileId, "superlike");
+    updateStatsForSwipe("superlike", actionResponse, profile);
   };
 
   const handleRewind = async () => {
@@ -501,18 +493,24 @@ export const ProfileProvider = ({ children }) => {
   const handleDiscoverSwipe = async (direction, profile) => {
     const profileId = profile?.id;
     const type = direction === "right" ? "like" : "pass";
-    const actionResponse = await recordSwipeAction(profileId, type);
-    updateStatsForSwipe(type, actionResponse, profile);
+
+    // Optimistically move the discover stack immediately.
     addDiscoverSwipedProfile(profileId);
     setDiscoverCurrentIndex((prev) => (prev + 1) % profilesData.length);
+
+    const actionResponse = await recordSwipeAction(profileId, type);
+    updateStatsForSwipe(type, actionResponse, profile);
   };
 
   const handleDiscoverSuperLike = async (profile) => {
     const profileId = profile?.id;
-    const actionResponse = await recordSwipeAction(profileId, "superlike");
-    updateStatsForSwipe("superlike", actionResponse, profile);
+
+    // Optimistically move the discover stack immediately.
     addDiscoverSwipedProfile(profileId);
     setDiscoverCurrentIndex((prev) => (prev + 1) % profilesData.length);
+
+    const actionResponse = await recordSwipeAction(profileId, "superlike");
+    updateStatsForSwipe("superlike", actionResponse, profile);
   };
 
   const parseDistance = (distance) => {

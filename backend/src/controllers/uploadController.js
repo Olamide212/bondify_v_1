@@ -7,6 +7,23 @@ const User = require('../models/User');
 
 const getContentType = (file) => file?.mimetype || 'image/jpeg';
 
+const getProfileMediaType = (file = {}) => {
+  const mimeType = file?.mimetype || '';
+  return mimeType.startsWith('video/') ? 'video' : 'image';
+};
+
+const MAX_PROFILE_VIDEO_DURATION_MS = 5000;
+
+const parseDurations = (value) => {
+  if (!value) return [];
+  try {
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+};
+
 const getObjectKey = (userId, originalname) => {
   const extension = originalname?.includes('.')
     ? originalname.split('.').pop().toLowerCase()
@@ -16,6 +33,19 @@ const getObjectKey = (userId, originalname) => {
     Math.random() * 1e9
   )}.${safeExtension}`;
 };
+
+const sortProfileMedia = (items = []) =>
+  [...items]
+    .sort((a, b) => {
+      const aRank = a?.type === 'video' ? 1 : 0;
+      const bRank = b?.type === 'video' ? 1 : 0;
+      if (aRank !== bRank) return aRank - bRank;
+      return (a?.order ?? 0) - (b?.order ?? 0);
+    })
+    .map((item, index) => ({ ...item, order: index }));
+
+const countImages = (items = []) =>
+  items.filter((item) => (item?.type || 'image') === 'image').length;
 
 const getPublicUrl = (bucket, key) => {
   const baseUrl = process.env.AWS_CLOUDFRONT_DOMAIN ||
@@ -49,7 +79,7 @@ const getChatObjectKey = (userId, originalname, mimeType = '') => {
   )}.${safeExtension}`;
 };
 
-// @desc    Upload profile photos
+// @desc    Upload profile media
 // @route   POST /api/upload/photos
 // @access  Private
 const uploadPhotos = async (req, res, next) => {
@@ -81,16 +111,41 @@ const uploadPhotos = async (req, res, next) => {
 
     const existingCount = Array.isArray(user.images) ? user.images.length : 0;
     const incomingCount = Array.isArray(req.files) ? req.files.length : 0;
+    const durations = parseDurations(req.body?.durations);
 
     if (existingCount + incomingCount > 6) {
       return res.status(400).json({
         success: false,
-        message: 'You can upload up to 6 photos only',
+        message: 'You can upload up to 6 media items only',
+      });
+    }
+
+    const existingImageCount = countImages(user.images || []);
+    const incomingImageCount = req.files.filter((file) => getProfileMediaType(file) === 'image').length;
+
+    if (existingImageCount === 0 && incomingImageCount === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please upload at least one photo for your profile',
+      });
+    }
+
+    const invalidVideo = req.files.find((file, index) => {
+      if (getProfileMediaType(file) !== 'video') return false;
+      const durationMs = Number(durations[index] ?? 0);
+      return !durationMs || durationMs > MAX_PROFILE_VIDEO_DURATION_MS;
+    });
+
+    if (invalidVideo) {
+      return res.status(400).json({
+        success: false,
+        message: 'Profile videos must be 5 seconds or less.',
       });
     }
 
     const uploadPromises = req.files.map(async (file, index) => {
       const objectKey = getObjectKey(userId, file.originalname);
+      const mediaType = getProfileMediaType(file);
 
       await s3.send(
         new PutObjectCommand({
@@ -104,20 +159,21 @@ const uploadPhotos = async (req, res, next) => {
       return {
         url: getPublicUrl(bucket, objectKey),
         publicId: objectKey,
+        type: mediaType,
+        mimeType: getContentType(file),
         order: (user.images?.length || 0) + index,
       };
     });
 
     const uploadedImages = await Promise.all(uploadPromises);
 
-    // Append new images to existing ones
-    user.images = [...(user.images || []), ...uploadedImages];
+    user.images = sortProfileMedia([...(user.images || []), ...uploadedImages]);
     user.calculateCompletion();
     await user.save();
 
     res.json({
       success: true,
-      message: 'Photos uploaded successfully',
+      message: 'Profile media uploaded successfully',
       data: { images: user.images },
     });
   } catch (error) {
@@ -125,7 +181,7 @@ const uploadPhotos = async (req, res, next) => {
   }
 };
 
-// @desc    Delete a profile photo
+// @desc    Delete a profile media item
 // @route   DELETE /api/upload/photos/:publicId
 // @access  Private
 const deletePhoto = async (req, res, next) => {
@@ -164,16 +220,24 @@ const deletePhoto = async (req, res, next) => {
       })
     );
 
-    // Remove from user's images array
-    user.images = (user.images || []).filter(
+    const remainingMedia = (user.images || []).filter(
       (img) => img.publicId !== publicId
     );
+
+    if (remainingMedia.length > 0 && countImages(remainingMedia) === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Keep at least one photo on your profile',
+      });
+    }
+
+    user.images = sortProfileMedia(remainingMedia);
     user.calculateCompletion();
     await user.save();
 
     res.json({
       success: true,
-      message: 'Photo deleted successfully',
+      message: 'Profile media deleted successfully',
       data: { images: user.images },
     });
   } catch (error) {

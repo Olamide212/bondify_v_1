@@ -56,8 +56,8 @@ const ExploreScreenTab = ({
 
 const styles = StyleSheet.create({
   tabBarWrapper: {
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    // borderBottomWidth: 1,
+    // borderBottomColor: colors.border,
   },
   tabBarContent: {
     flexDirection: "row",

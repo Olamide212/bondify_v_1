@@ -1,14 +1,17 @@
 import React from "react";
 import { View, Text, FlatList, StyleSheet, Dimensions } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
+import ExploreEmptyState from "./ExploreEmptyState";
 import UsersProfileCard from "../ui/UsersProfileCard";
 
 const { width } = Dimensions.get("window");
 
 const Passed = ({ data, onUserPress }) => {
+  const passedUsers = Array.isArray(data) ? data : [];
+
   return (
     <View style={styles.tabContent}>
-      <LinearGradient
+      {/* <LinearGradient
         colors={["#6B7280", "#9CA3AF"]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 0 }}
@@ -20,22 +23,32 @@ const Passed = ({ data, onUserPress }) => {
         <Text style={styles.bannerSubtitle}>
           You can revisit profiles you previously passed on.
         </Text>
-      </LinearGradient>
+      </LinearGradient> */}
 
       <FlatList
-        data={data}
+        data={passedUsers}
         keyExtractor={(item) => (item.id || item._id || "").toString()}
         renderItem={({ item }) => (
           <UsersProfileCard
             profile={item}
             onPress={() => onUserPress(item)}
-            height={270}
+            height={280}
           />
         )}
         numColumns={2}
-        contentContainerStyle={styles.listContent}
-        columnWrapperStyle={styles.columnWrapper}
+        contentContainerStyle={[
+          styles.listContent,
+          passedUsers.length === 0 && styles.emptyListContent,
+        ]}
+        columnWrapperStyle={passedUsers.length > 0 ? styles.columnWrapper : undefined}
         showsVerticalScrollIndicator={false}
+        ListEmptyComponent={
+          <ExploreEmptyState
+            emoji="👋"
+            title="No passed profiles"
+            subtitle="Profiles you pass on will show up here in case you want to revisit them later."
+          />
+        }
       />
     </View>
   );
@@ -63,8 +76,12 @@ const styles = StyleSheet.create({
     fontFamily: "OutfitMedium",
   },
   listContent: {
+    flexGrow: 1,
     alignItems: "center",
     paddingBottom: 100,
+  },
+  emptyListContent: {
+    justifyContent: "center",
   },
   columnWrapper: {
     justifyContent: "space-between",

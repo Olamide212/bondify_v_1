@@ -40,6 +40,7 @@ import { useAlert } from '../../../../context/AlertContext';
 import { useTheme } from '../../../../context/ThemeContext';
 import { profileService } from '../../../../services/profileService';
 import { voiceIntroStore } from '../../../../store/voiceIntroStore';
+import { normalizeProfileMedia } from '../../../../utils/profileMedia';
 
 const TABS = ['Edit', 'View Profile'];
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -89,9 +90,7 @@ const tb = StyleSheet.create({
 const ViewProfileTab = ({ profile }) => {
   const normalizedProfile = {
     ...profile,
-    images: Array.isArray(profile?.images)
-      ? profile.images.map((img) => (typeof img === 'string' ? img : img?.url ?? img))
-      : [],
+    images: normalizeProfileMedia(profile?.images),
     name: [profile?.firstName, profile?.lastName].filter(Boolean).join(' ') || profile?.name || '',
   };
 
@@ -236,8 +235,8 @@ export default function ProfileDetails() {
       if (existingPhotoCount >= 6) {
         showAlert({
           icon: 'camera',
-          title: 'Photo Limit Reached',
-          message: 'You can upload up to 6 photos only.',
+          title: 'Media Limit Reached',
+          message: 'You can upload up to 6 photos or videos only.',
           actions: [{ label: 'OK', style: 'primary' }],
         });
         return;
@@ -246,16 +245,22 @@ export default function ProfileDetails() {
       if (permission.status !== 'granted') return;
 
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        mediaTypes: existingPhotoCount === 0 ? ImagePicker.MediaTypeOptions.Images : ImagePicker.MediaTypeOptions.All,
         allowsEditing: false,
         quality: 1,
       });
       if (result.canceled) return;
 
-      await profileService.uploadPhotos([result.assets[0].uri]);
+      await profileService.uploadPhotos([result.assets[0]]);
       await loadProfile();
     } catch (error) {
       console.error('Failed to add photo:', error);
+      showAlert({
+        icon: 'error',
+        title: 'Upload Failed',
+        message: String(error || 'Failed to upload media.'),
+        actions: [{ label: 'OK', style: 'primary' }],
+      });
     }
   };
 
@@ -311,7 +316,7 @@ export default function ProfileDetails() {
               {/* Photos */}
               <View>
                 <ProfilePhotoGrid
-                  photos={profile?.images || []}
+                  photos={normalizeProfileMedia(profile.images || [])}
                   onAddPhoto={handleAddPhoto}
                   onRemovePhoto={handleRemovePhoto}
                   title="My Photos"

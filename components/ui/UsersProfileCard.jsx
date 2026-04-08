@@ -95,8 +95,8 @@ const UsersProfileCard = ({ profile, height = 200, onPress }) => {
 
 const styles = StyleSheet.create({
   cardContainer: {
-    width: (width - 48) / 2,
-    marginHorizontal: 8,
+    width: (width - 44) / 2,
+    marginHorizontal: 6,
   },
   touchable: {
     flex: 1,

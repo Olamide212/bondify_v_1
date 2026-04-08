@@ -279,6 +279,7 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { colors } from "../../constant/colors";
 import { socketService } from "../../services/socketService";
 import RizzModal from "./RizzModal";
@@ -286,6 +287,7 @@ import RizzModal from "./RizzModal";
 const VOICE_ICON_COLOR = "#64748B";
 
 const InputToolbar = ({ sendMessage, onSendImage, onSendVoice, matchId, currentUserId, replyTo, onCancelReply, editMessage, onCancelEdit, matchedUserName }) => {
+  const insets = useSafeAreaInsets();
   const [messageText, setMessageText] = useState("");
   const [showRizzModal, setShowRizzModal] = useState(false);
   const typingTimeoutRef = useRef(null);
@@ -425,7 +427,7 @@ const InputToolbar = ({ sendMessage, onSendImage, onSendVoice, matchId, currentU
   };
 
   return (
-    <>
+    <View style={[styles.toolbarShell, { paddingBottom: Math.max(insets.bottom, 10) }]}>
       {/* ── Reply / Edit context banner ── */}
       {(replyTo || editMessage) && (
         <View style={styles.contextBanner}>
@@ -451,80 +453,82 @@ const InputToolbar = ({ sendMessage, onSendImage, onSendVoice, matchId, currentU
           </TouchableOpacity>
         </View>
       )}
+
       <View style={styles.container}>
+        {/* ── Left: AI Rizz button ── */}
+        <View style={styles.leftActions}>
+          <TouchableOpacity
+            style={styles.iconButton}
+            onPress={() => setShowRizzModal(true)}
+          >
+            <Sparkles color={colors.white} />
+          </TouchableOpacity>
 
-      {/* ── Left: AI Rizz button ── */}
-      <View style={styles.leftActions}>
-        <TouchableOpacity
-          style={styles.iconButton}
-          onPress={() => setShowRizzModal(true)}
+          <RizzModal
+            visible={showRizzModal}
+            matchId={matchId}
+            onClose={() => setShowRizzModal(false)}
+            onSend={(rizz) => {
+              sendMessage(rizz);
+              setShowRizzModal(false);
+            }}
+          />
+        </View>
+
+        {/* ── Centre: text input + mic ── */}
+        <View
+          className="border border-whiteLight flex-1 flex-row items-center rounded-full mr-3"
+          style={{ paddingHorizontal: 5 }}
         >
-          <Sparkles color={colors.white}  />
-          
-        </TouchableOpacity>
+          <TextInput
+            style={styles.input}
+            placeholder="Type a message..."
+            placeholderTextColor="#9CA3AF"
+            value={messageText}
+            onChangeText={handleTyping}
+            multiline
+            className="flex-1"
+          />
+          {/* <TouchableOpacity
+            style={styles.iconButton}
+            onPress={handleVoicePress}
+            disabled={isUploadingMedia}
+          >
+            <Mic color={isRecording ? colors.activePrimary : VOICE_ICON_COLOR} size={20} />
+          </TouchableOpacity> */}
+        </View>
 
-        {/* ✅ matchId is now passed so AI fetches personalised icebreakers */}
-        <RizzModal
-          visible={showRizzModal}
-          matchId={matchId}
-          onClose={() => setShowRizzModal(false)}
-          onSend={(rizz) => {
-            sendMessage(rizz);
-            setShowRizzModal(false);
-          }}
-        />
-      </View>
-
-      {/* ── Centre: text input + mic ── */}
-      <View
-        className="border border-whiteLight flex-1 flex-row items-center rounded-full mr-3"
-        style={{ paddingHorizontal: 5 }}
-      >
-        <TextInput
-          style={styles.input}
-          placeholder="Type a message..."
-          value={messageText}
-          onChangeText={handleTyping}
-          multiline
-          className="placeholder:text-gray-400 flex-1"
-        />
-        {/* <TouchableOpacity
-          style={styles.iconButton}
-          onPress={handleVoicePress}
-          disabled={isUploadingMedia}
-        >
-          <Mic color={isRecording ? colors.activePrimary : VOICE_ICON_COLOR} size={20} />
-        </TouchableOpacity> */}
-      </View>
-
-      {/* ── Right: send button ── */}
-      <View style={styles.rightActions}>
-        <TouchableOpacity
-          style={styles.iconButton}
-          onPress={handleSend}
-          disabled={!isSendEnabled}
-          className="bg-primary rounded-full p-2"
-        >
-          <Send color={"#fff"} size={20} />
-        </TouchableOpacity>
+        {/* ── Right: send button ── */}
+        <View style={styles.rightActions}>
+          <TouchableOpacity
+            style={styles.iconButton}
+            onPress={handleSend}
+            disabled={!isSendEnabled}
+            className="bg-primary rounded-full p-2"
+          >
+            <Send color={"#fff"} size={20} />
+          </TouchableOpacity>
+        </View>
       </View>
 
     </View>
   );
-    </>
-  );
 };
 
 const styles = StyleSheet.create({
+  toolbarShell: {
+    backgroundColor: colors.background,
+    
+  },
   container: {
     flexDirection: "row",
     alignItems: "center",
     paddingTop: 10,
-    paddingBottom: 10,
-    paddingHorizontal: 16,
-    backgroundColor: "transparent",
-    borderTopWidth: 0,
-    borderTopColor: colors.whiteLight,
+    paddingBottom: 0,
+    paddingHorizontal: 10,
+    backgroundColor: colors.background,
+    // borderTopWidth: 1,
+    // borderTopColor: colors.whiteLight,
   },
   leftActions: {
     flexDirection: "row",
@@ -542,7 +546,7 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     borderRadius: 15,
-    paddingVertical: 14,
+    paddingVertical: 10,
     paddingHorizontal: 16,
     maxHeight: 100,
     fontSize: 16,
@@ -554,10 +558,10 @@ const styles = StyleSheet.create({
   contextBanner: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: 'rgba(30,30,30,0.85)',
+    backgroundColor: colors.background,
     paddingHorizontal: 16,
     paddingVertical: 10,
-    borderTopWidth: 0,
+    borderTopWidth: 1,
     borderTopColor: colors.whiteLight,
     gap: 6,
   },
