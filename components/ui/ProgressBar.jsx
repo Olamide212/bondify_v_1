@@ -20,7 +20,7 @@ export const ProgressBar = ({ progress }) => {
   }));
 
   return (
-    <View className="h-1 w-full bg-white rounded-full mt-4 overflow-hidden">
+    <View className="h-1 w-full bg-white rounded-full mt-4 overflow-hidden ">
       <Animated.View
         className="h-full bg-primary rounded-full"
         style={barStyle}

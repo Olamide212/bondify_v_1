@@ -172,7 +172,7 @@ const LocationAccess = () => {
     <View className="bg-[#121212] flex-1 px-6 justify-center items-center">
       <Image
         source={require("../../../../assets/images/location.png")}
-        style={{ width: 150, height: 150 }}
+        style={{ width: 180, height: 180 }}
         resizeMode="contain"
       />
 

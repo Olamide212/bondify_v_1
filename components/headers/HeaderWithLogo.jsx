@@ -10,7 +10,7 @@ const HeaderWithLogo = ({ title, showBackButton = true }) => {
 const router = useRouter()    
 
   return (
-    <View className="flex-row items-center justify-between pt-3">
+    <View className="flex-row items-center justify-between pt-3 px-5">
       {showBackButton ? (
         <Pressable onPress={() => router.back()}>
           <ArrowLeft color="#fff" />

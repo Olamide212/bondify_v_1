@@ -1,8 +1,9 @@
 import * as SecureStore from "expo-secure-store";
 import { useCallback, useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { profileService } from "../services/profileService";
 import { clearOnboardingToken } from "../slices/authSlice";
+import { clearOnboardingStep, getStoredOnboardingStep, saveOnboardingStep } from "../utils/onboardingProgress";
 import { tokenManager } from "../utils/tokenManager";
 
 const ONBOARDING_STEPS = [
@@ -40,6 +41,7 @@ const ONBOARDING_STEPS = [
 
 export const useProfileSetup = ({ isOnboarding = true, trackStep = false } = {}) => {
   const dispatch = useDispatch();
+  const { token, onboardingToken } = useSelector((state) => state.auth);
   const steps = ONBOARDING_STEPS;
 
   const [currentStep, setCurrentStep] = useState(steps[0]);
@@ -53,7 +55,11 @@ export const useProfileSetup = ({ isOnboarding = true, trackStep = false } = {})
   // -------------------------------
   const resumeStep = useCallback(async () => {
     try {
-      const savedStep = await SecureStore.getItemAsync("onboardingStep");
+      const savedStep = await getStoredOnboardingStep({
+        steps,
+        token,
+        onboardingToken,
+      });
 
       if (savedStep && steps.includes(savedStep)) {
         setCurrentStep(savedStep);
@@ -69,7 +75,7 @@ export const useProfileSetup = ({ isOnboarding = true, trackStep = false } = {})
     } finally {
       setResumed(true);
     }
-  }, [steps]);
+  }, [onboardingToken, steps, token]);
 
   // -----------------------------------
   // Persist step & update progress
@@ -79,7 +85,11 @@ export const useProfileSetup = ({ isOnboarding = true, trackStep = false } = {})
 
     const persistStep = async () => {
       try {
-        await SecureStore.setItemAsync("onboardingStep", currentStep);
+        await saveOnboardingStep({
+          step: currentStep,
+          token,
+          onboardingToken,
+        });
         setProgress((steps.indexOf(currentStep) + 1) / steps.length);
       } catch (err) {
         console.warn("Failed to persist onboarding step", err);
@@ -87,7 +97,7 @@ export const useProfileSetup = ({ isOnboarding = true, trackStep = false } = {})
     };
 
     persistStep();
-  }, [currentStep, trackStep, steps]);
+  }, [currentStep, onboardingToken, token, trackStep, steps]);
 
   // -----------------------------------
   // Helpers
@@ -131,7 +141,7 @@ export const useProfileSetup = ({ isOnboarding = true, trackStep = false } = {})
   const finalizeOnboarding = useCallback(async () => {
     await profileService.completeOnboarding();
     await SecureStore.setItemAsync("onboardingComplete", "true");
-    await SecureStore.deleteItemAsync("onboardingStep");
+    await clearOnboardingStep();
     await tokenManager.setToken({ onboardingToken: null });
     dispatch(clearOnboardingToken());
   }, [dispatch]);

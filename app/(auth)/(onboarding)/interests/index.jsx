@@ -80,7 +80,7 @@ const Interests = () => {
           behavior={Platform.OS === "ios" ? "padding" : "height"}
         >
           <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-            <View style={{flex: 1}} className="px-4">
+            <View style={{flex: 1}} className="px-5">
               <ScrollView
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={{

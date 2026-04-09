@@ -41,7 +41,7 @@ const Preference = () => {
         keyboardVerticalOffset={Platform.OS === "ios" ? 20 : 0}
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <View style={{flex: 1}} className="px-2">
+          <View style={{flex: 1}} className="px-5">
             <ScrollView style={{flex: 1}} className="mt-8" showsVerticalScrollIndicator={false}>
               <Text className="text-3xl text-white font-OutfitBold  mb-2">
                 What are you hoping to find on Bondies?

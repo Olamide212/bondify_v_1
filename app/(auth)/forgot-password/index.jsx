@@ -61,14 +61,14 @@ const ForgotPassword = () => {
   };
 
   return (
-    <SafeAreaView style={{flex: 1}} className="bg-[#121212]" style={{flex: 1}}>
+    <SafeAreaView style={{flex: 1}} className="bg-[#121212]">
       <KeyboardAvoidingView
         style={{flex: 1}}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 0}
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <View style={{flex: 1}} className="px-2">
+          <View style={{flex: 1}} className="px-5">
          
 
             <View style={{flex: 1}} className="mt-4">
@@ -99,7 +99,7 @@ const ForgotPassword = () => {
               />
 
               <View className="flex-row justify-center items-center gap-1 mt-4 w-full">
-                <Text className="text-lg font-OutfitMedium">
+                <Text className="text-lg font-OutfitMedium text-white">
                   Remember your password?
                 </Text>
                 <Pressable onPress={() => router.back()}>

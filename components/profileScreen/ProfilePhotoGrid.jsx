@@ -1,4 +1,4 @@
-import { Plus, X } from "lucide-react-native";
+import { Pencil, Plus, X } from "lucide-react-native";
 import { useMemo, useState } from "react";
 import {
     ActivityIndicator, StyleSheet,
@@ -32,7 +32,8 @@ const RADIUS     = 14;
 const Slot = ({
   item, index, featured,
   isAdding, removingIndex,
-  onAdd, onRemove,
+  editingIndex,
+  onAdd, onEdit, onRemove,
 }) => {
   if (!item) {
     return (
@@ -69,6 +70,16 @@ const Slot = ({
         </View>
       )}
       <TouchableOpacity
+        style={s.editBtn}
+        onPress={() => onEdit?.(item, index)}
+        disabled={editingIndex === index}
+        hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+      >
+        {editingIndex === index
+          ? <ActivityIndicator size={12} color="#fff" />
+          : <Pencil size={13} color="#fff" strokeWidth={2.8} />}
+      </TouchableOpacity>
+      <TouchableOpacity
         style={s.removeBtn}
         onPress={() => onRemove(item, index)}
         disabled={removingIndex === index}
@@ -84,8 +95,9 @@ const Slot = ({
 };
 
 // ─── Component ────────────────────────────────────────────────────────────────
-const ProfilePhotoGrid = ({ photos: initialPhotos = [], onAddPhoto, onRemovePhoto }) => {
+const ProfilePhotoGrid = ({ photos: initialPhotos = [], onAddPhoto, onEditPhoto, onRemovePhoto }) => {
   const [isAdding,      setIsAdding]      = useState(false);
+  const [editingIndex,  setEditingIndex]  = useState(null);
   const [removingIndex, setRemovingIndex] = useState(null);
 
   const slots = useMemo(() => {
@@ -95,11 +107,12 @@ const ProfilePhotoGrid = ({ photos: initialPhotos = [], onAddPhoto, onRemovePhot
   }, [initialPhotos]);
 
   const handleAdd    = async () => { setIsAdding(true); try { await onAddPhoto?.(); } finally { setIsAdding(false); } };
+  const handleEdit   = async (item, i) => { setEditingIndex(i); try { await onEditPhoto?.(item, i); } finally { setEditingIndex(null); } };
   const handleRemove = async (item, i) => { setRemovingIndex(i); try { await onRemovePhoto?.(item); } finally { setRemovingIndex(null); } };
 
   const sp = (index, extra = {}) => ({
-    item: slots[index], index, isAdding, removingIndex,
-    onAdd: handleAdd, onRemove: handleRemove,
+    item: slots[index], index, isAdding, editingIndex, removingIndex,
+    onAdd: handleAdd, onEdit: handleEdit, onRemove: handleRemove,
     ...extra,
   });
 
@@ -263,6 +276,14 @@ const s = StyleSheet.create({
   removeBtn: {
     position:        'absolute',
     bottom:          8,
+    right:           8,
+    backgroundColor: 'rgba(0,0,0,0.46)',
+    borderRadius:    99,
+    padding:         5,
+  },
+  editBtn: {
+    position:        'absolute',
+    top:             8,
     right:           8,
     backgroundColor: 'rgba(0,0,0,0.46)',
     borderRadius:    99,

@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import * as SecureStore from "expo-secure-store";
 import { authAPI } from "../services/authService";
+import { clearOnboardingStep } from "../utils/onboardingProgress";
 import { tokenManager } from "../utils/tokenManager";
 
 const isInvalidAuthError = (error) => {
@@ -160,7 +160,7 @@ export const restoreAuth = createAsyncThunk(
 
       if (token) {
         try {
-          const response = await authAPI.getMe();
+          const response = await authAPI.getMe({ allowCachedFallback: false });
           const payload = response.data?.data ?? response.data;
           currentUser = payload?.user ?? payload ?? null;
 
@@ -171,7 +171,7 @@ export const restoreAuth = createAsyncThunk(
             if (currentUser.onboardingCompleted) {
               console.log("🧹 Clearing stale onboarding token — onboarding is completed");
               await tokenManager.setToken({ onboardingToken: null });
-              await SecureStore.deleteItemAsync("onboardingStep");
+              await clearOnboardingStep();
               onboardingToken = null;
             } else {
               console.log("📋 User has onboarding token and onboarding NOT completed — preserving");
@@ -180,6 +180,19 @@ export const restoreAuth = createAsyncThunk(
         } catch (error) {
           if (isInvalidAuthError(error)) {
             await tokenManager.removeTokens();
+            await authAPI.clearCachedMe();
+            return {
+              token: null,
+              onboardingToken: null,
+              user: null,
+              isAuthenticated: false,
+              hasOnboardingSession: false,
+            };
+          }
+
+          if (onboardingToken) {
+            await tokenManager.removeTokens();
+            await authAPI.clearCachedMe();
             return {
               token: null,
               onboardingToken: null,
@@ -205,7 +218,7 @@ export const restoreAuth = createAsyncThunk(
       if (!token && onboardingToken) {
         console.log("🧹 Clearing orphaned onboarding token — no auth token");
         await tokenManager.setToken({ onboardingToken: null });
-        await SecureStore.deleteItemAsync("onboardingStep");
+        await clearOnboardingStep();
         onboardingToken = null;
       }
 
@@ -267,6 +280,7 @@ const authSlice = createSlice({
       state.hasOnboardingSession = false;
 
       tokenManager.removeTokens(); // updated
+      authAPI.clearCachedMe();
     },
 
     clearError: (state) => {

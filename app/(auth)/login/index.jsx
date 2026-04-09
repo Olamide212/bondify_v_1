@@ -110,7 +110,7 @@ const EmailLogin = () => {
         keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 0}
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <View style={{flex: 1}} className="px-2">
+          <View style={{flex: 1}} className="px-5">
             <View style={{flex: 1}} className="mt-8">
               <Text className="text-4xl font-OutfitBold text-white">
                 Welcome back!

@@ -50,6 +50,15 @@ const readCachedMe = async () => {
   }
 };
 
+const clearCachedMe = async () => {
+  cachedMe = null;
+  try {
+    await AsyncStorage.removeItem(AUTH_ME_CACHE_KEY);
+  } catch (error) {
+    console.warn("Failed to clear auth me cache:", error?.message || error);
+  }
+};
+
 const maybeCacheUserFromResponse = async (response) => {
   const payload = response?.data?.data ?? response?.data;
   const user = payload?.user;
@@ -79,13 +88,13 @@ export const authAPI = {
   forgotPassword: (data) => apiClient.post("/auth/forgot-password", data, { skipAuth: true }),
   verifyForgotPasswordOtp: (data) => apiClient.post("/auth/verify-forgot-password-otp", data, { skipAuth: true }),
   resetPassword: (data) => apiClient.post("/auth/reset-password", data, { skipAuth: true }),
-  getMe: async () => {
+  getMe: async ({ allowCachedFallback = true } = {}) => {
     try {
       const response = await apiClient.get("/auth/me");
       await maybeCacheUserFromResponse(response);
       return response;
     } catch (error) {
-      if (isNetworkLikeError(error)) {
+      if (allowCachedFallback && isNetworkLikeError(error)) {
         const cachedUser = await readCachedMe();
         if (cachedUser) {
           return {
@@ -100,4 +109,5 @@ export const authAPI = {
       throw error;
     }
   },
+  clearCachedMe,
 };

@@ -222,11 +222,6 @@ export default function ProfileDetails() {
 
   };
 
-  // Add this handler alongside handleUpdateField in ProfileDetails.js:
-  const handleVoiceDelete = useCallback(() => {
-    setProfile((prev) => ({ ...prev, voicePrompt: null }));
-  }, []);
-
   // ── Photo handlers ────────────────────────────────────────────────────────
 
   const handleAddPhoto = async () => {
@@ -246,7 +241,7 @@ export default function ProfileDetails() {
 
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: existingPhotoCount === 0 ? ImagePicker.MediaTypeOptions.Images : ImagePicker.MediaTypeOptions.All,
-        allowsEditing: false,
+        allowsEditing: true,
         quality: 1,
       });
       if (result.canceled) return;
@@ -259,6 +254,71 @@ export default function ProfileDetails() {
         icon: 'error',
         title: 'Upload Failed',
         message: String(error || 'Failed to upload media.'),
+        actions: [{ label: 'OK', style: 'primary' }],
+      });
+    }
+  };
+
+  const handleEditPhoto = async (imageItem, index) => {
+    try {
+      if (!imageItem) return;
+
+      const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (permission.status !== 'granted') return;
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: index === 0 ? ImagePicker.MediaTypeOptions.Images : ImagePicker.MediaTypeOptions.All,
+        allowsEditing: true,
+        quality: 1,
+      });
+
+      if (result.canceled || !result.assets?.[0]) return;
+
+      const currentImages = normalizeProfileMedia(profile.images || []);
+      const remainingImages = currentImages.filter((_, imageIndex) => imageIndex !== index);
+
+      await profileService.updateProfile({ images: remainingImages });
+
+      let didRebuildImages = false;
+
+      try {
+        const uploadedImages = normalizeProfileMedia(
+          await profileService.uploadPhotos([result.assets[0]])
+        );
+
+        const newImage = uploadedImages.find(
+          (uploaded) => uploaded?.publicId && !remainingImages.some((existing) => existing?.publicId === uploaded.publicId)
+        );
+
+        if (!newImage) {
+          throw new Error('Failed to identify the edited media after upload.');
+        }
+
+        const rebuiltImages = [...remainingImages];
+        rebuiltImages.splice(index, 0, newImage);
+
+        await profileService.updateProfile({ images: rebuiltImages });
+        didRebuildImages = true;
+      } catch (error) {
+        await profileService.updateProfile({ images: currentImages });
+        throw error;
+      }
+
+      if (didRebuildImages && imageItem?.publicId) {
+        try {
+          await profileService.deletePhoto(imageItem.publicId);
+        } catch (cleanupError) {
+          console.warn('Failed to remove replaced image from storage:', cleanupError);
+        }
+      }
+
+      await loadProfile({ force: true, showLoading: false });
+    } catch (error) {
+      console.error('Failed to edit photo:', error);
+      showAlert({
+        icon: 'error',
+        title: 'Edit Failed',
+        message: String(error || 'Failed to edit media.'),
         actions: [{ label: 'OK', style: 'primary' }],
       });
     }
@@ -318,6 +378,7 @@ export default function ProfileDetails() {
                 <ProfilePhotoGrid
                   photos={normalizeProfileMedia(profile.images || [])}
                   onAddPhoto={handleAddPhoto}
+                  onEditPhoto={handleEditPhoto}
                   onRemovePhoto={handleRemovePhoto}
                   title="My Photos"
                 />

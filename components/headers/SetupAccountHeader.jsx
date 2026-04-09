@@ -6,7 +6,7 @@ const AccountSetupHeader = ({ title, rightText, showBack = true, onSkip }) => {
   const router = useRouter();
 
   return (
-    <View className="flex-row items-center justify-between pt-3 ">
+    <View className="flex-row items-center justify-between pt-3 px-5">
       {showBack ? (
         <Pressable onPress={() => router.back()}>
           <ArrowLeft color="#fff" />

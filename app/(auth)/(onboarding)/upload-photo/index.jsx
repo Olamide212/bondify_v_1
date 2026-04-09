@@ -15,16 +15,10 @@ import Button from "../../../../components/ui/Button";
 import ProfileMediaView from "../../../../components/ui/ProfileMediaView";
 import { colors } from "../../../../constant/colors";
 import { useAlert } from "../../../../context/AlertContext";
-import { useProfileSetup } from "../../../../hooks/useProfileSetup";
 import {
   getOnboardingProfileMediaDraft,
   saveOnboardingProfileMediaDraft,
 } from "../../../../utils/onboardingProfileMediaDraft";
-
-// Define colors object
-const color = {
-  primary: colors.primary, // Replace with your app's primary color if different
-};
 
 const UploadPhoto = () => {
   const router = useRouter();
@@ -32,7 +26,6 @@ const UploadPhoto = () => {
   const [photos, setPhotos] = useState(Array(6).fill(null));
   const [uploading, setUploading] = useState(false);
   const [showGuidelines, setShowGuidelines] = useState(false);
-  const { updateProfileStep } = useProfileSetup({ isOnboarding: true });
 
   useEffect(() => {
     let mounted = true;
@@ -62,7 +55,7 @@ const UploadPhoto = () => {
 
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: index === 0 ? ImagePicker.MediaTypeOptions.Images : ImagePicker.MediaTypeOptions.All,
-      allowsEditing: false,
+      allowsEditing: true,
       quality: 1,
     });
 
@@ -150,15 +143,15 @@ const UploadPhoto = () => {
                 return (
                 <View key={index} className="w-[30%] h-[35%]  relative">
                   <TouchableOpacity
-                    className={`w-full h-full rounded-xl items-center justify-center bg-gray-900 border-2 ${isMain ? 'border-primary' : 'border-dashed border-whiteLight'}`}
+                    className={`w-full h-full rounded-2xl items-center justify-center bg-gray-900 border-2 ${isMain ? 'border-primary' : 'border-dashed border-white'}`}
                     onPress={() => pickImage(index)}
                     activeOpacity={0.7}
                   >
                     {photo ? (
                       <ProfileMediaView
                         media={photo}
-                        containerStyle={{ width: '100%', height: '100%' }}
-                        style={{ width: '100%', height: '100%' }}
+                        containerStyle={{ width: '100%', height: '100%', borderRadius: 16 }}
+                        style={{ width: '100%', height: '100%', borderRadius: 12 }}
                         showVideoBadge
                         shouldPlayVideo={false}
                       />

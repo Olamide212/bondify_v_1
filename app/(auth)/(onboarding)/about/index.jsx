@@ -226,7 +226,7 @@ const About = () => {
         keyboardVerticalOffset={Platform.OS === "ios" ? 20 : 0}
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <View style={{flex: 1}} className="px-3">
+          <View style={{flex: 1}} className="px-5">
             <ScrollView
               style={{flex: 1}}
               showsVerticalScrollIndicator={false}

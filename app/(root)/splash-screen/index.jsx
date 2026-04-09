@@ -1,7 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import * as SecureStore from "expo-secure-store";
 import { useEffect, useRef } from "react";
 import { StyleSheet, TouchableOpacity } from "react-native";
 import Animated, {
@@ -74,13 +73,12 @@ const SplashScreen = () => {
   useEffect(() => {
     const id = setTimeout(async () => {
       if (!hasNavigated.current) {
-        const persistedToken          = await tokenManager.getToken();
+        const persistedToken = await tokenManager.getToken();
         const persistedOnboardingToken = await tokenManager.getOnboardingToken();
 
         if (persistedOnboardingToken) {
-          const lastStep = await SecureStore.getItemAsync("onboardingStep");
-          console.warn("[SplashScreen] Hard timeout — onboarding incomplete, redirecting");
-          navigate(lastStep ? `/(onboarding)/${lastStep}` : "/(onboarding)/agreement");
+          console.warn("[SplashScreen] Hard timeout — onboarding session pending, going to /onboarding");
+          navigate("/onboarding");
         } else if (persistedToken) {
           console.warn("[SplashScreen] Hard timeout — token exists, going to /root-tabs");
           navigate("/root-tabs");

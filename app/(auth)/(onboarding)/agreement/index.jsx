@@ -11,7 +11,7 @@ const Agreement = () => {
   const router = useRouter()
 
   return (
-    <View className="bg-[#121212] flex-1 px-4 pt-8">
+    <View className="bg-[#121212] flex-1 px-5 pt-8">
       <Text className="text-3xl font-OutfitBold text-white">Welcome to Bondies!</Text>
 
       <Text className="mt-3 font-Outfit text-lg text-gray-300 text-white">

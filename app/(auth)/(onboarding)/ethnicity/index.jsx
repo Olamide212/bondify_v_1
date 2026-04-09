@@ -50,7 +50,7 @@ const Ethnicity = () => {
         keyboardVerticalOffset={Platform.OS === "ios" ? 20 : 0}
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <View style={{flex: 1, backgroundColor: '#121212'}} className="">
+          <View style={{flex: 1, backgroundColor: '#121212'}} className="px-5">
             <ScrollView style={{flex: 1}} className=" bg-[#121212]" showsVerticalScrollIndicator={false}>
             <View style={{flex: 1}} className="mt-8">
               <Text className="text-3xl text-white font-OutfitBold mb-2">

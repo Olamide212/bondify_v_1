@@ -76,7 +76,7 @@ const Button = ({
     <TouchableOpacity
       onPress={onPress}
       disabled={loading || disabled}
-      className={`w-full py-5 rounded-full items-center justify-center ${baseStyle} ${
+      className={`w-full py-4 rounded-full items-center justify-center ${baseStyle} ${
         disabled ? "opacity-50" : ""
       } ${className}`}
     >

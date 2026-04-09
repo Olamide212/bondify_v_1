@@ -96,7 +96,7 @@ export default function PreviewScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#000" },
   image: { flex: 1 },
-  actions: { backgroundColor: "#121212", paddingHorizontal: 24, paddingTop: 20, paddingBottom: 36 },
+  actions: { backgroundColor: "#121212", paddingHorizontal: 20, paddingTop: 20, paddingBottom: 36 },
   label: { fontSize: 17, fontFamily: "OutfitBold", color: '#E5E5E5', textAlign: "center", marginBottom: 4 },
   sublabel: { fontSize: 13, fontFamily: "Outfit", color: "#9CA3AF", textAlign: "center", marginBottom: 20 },
   submitBtn: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, backgroundColor: PRIMARY, borderRadius: 99, paddingVertical: 16, marginBottom: 12 },

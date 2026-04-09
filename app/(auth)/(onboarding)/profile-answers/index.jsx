@@ -179,7 +179,7 @@ const ProfileAnswers = () => {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 20 }}
         >
-          <View style={{flex: 1}} className="px-4">
+          <View style={{flex: 1}} className="px-5">
             <View style={{flex: 1}} className="mt-8">
               <Text className="text-[25px] text-white font-OutfitBold text-app mb-2">
                 Write your profile answers

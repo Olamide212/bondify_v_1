@@ -1,4 +1,30 @@
 import * as SecureStore from "expo-secure-store";
+import { getOnboardingResumeRoute } from "./onboardingProgress";
+
+const ONBOARDING_STEPS = [
+  "agreement",
+  "age",
+  "ethnicity",
+  "gender",
+  "marital-status",
+  "meet",
+  "preference",
+  "religion",
+  "religion-question",
+  "religion-practice",
+  "relocation-preference",
+  "kids",
+  "education",
+  "occupation",
+  "smoke",
+  "drink",
+  "interests",
+  "about",
+  "profile-answers",
+  "upload-photo",
+  "verification",
+  "location-access",
+];
 
 // navigationHelper.js
 export const determineNextRoute = async ({
@@ -24,17 +50,13 @@ export const determineNextRoute = async ({
   if (onboardingToken) {
     console.log("Checking onboarding step...");
     try {
-      const lastStep = await SecureStore.getItemAsync("onboardingStep");
-      console.log("Last step from SecureStore:", lastStep);
-
-      if (lastStep) {
-        const route = `/(onboarding)/${lastStep}`;
-        console.log("Returning:", route);
-        return route;
-      }
-
-      console.log("Returning /(onboarding)/agreement as default");
-      return "/(onboarding)/agreement";
+      const route = await getOnboardingResumeRoute({
+        steps: ONBOARDING_STEPS,
+        token,
+        onboardingToken,
+      });
+      console.log("Returning:", route);
+      return route;
     } catch (error) {
       console.error("Error reading SecureStore:", error);
       return "/(onboarding)/agreement";

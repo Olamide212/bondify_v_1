@@ -78,7 +78,7 @@ const ResetPassword = () => {
         keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 0}
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <View style={{flex: 1}} className="px-2">
+          <View style={{flex: 1}} className="px-5">
             {/* Back */}
             <Pressable
               onPress={() => router.back()}

@@ -1,8 +1,33 @@
 import { Stack, useRouter, useSegments } from "expo-router";
-import * as SecureStore from "expo-secure-store";
 import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useAuthRestore } from "../../hooks/useAuthRestore";
+import { getOnboardingResumeRoute } from "../../utils/onboardingProgress";
+
+const ONBOARDING_STEPS = [
+  "agreement",
+  "age",
+  "ethnicity",
+  "gender",
+  "marital-status",
+  "meet",
+  "preference",
+  "religion",
+  "religion-question",
+  "religion-practice",
+  "relocation-preference",
+  "kids",
+  "education",
+  "occupation",
+  "smoke",
+  "drink",
+  "interests",
+  "about",
+  "profile-answers",
+  "upload-photo",
+  "verification",
+  "location-access",
+];
 
 export default function RootLayout() {
   const router = useRouter();
@@ -21,8 +46,6 @@ export default function RootLayout() {
     const publicRoutes = new Set(["splash-screen", "welcome", "onboarding"]);
     const isProtectedRoute = !publicRoutes.has(currentRoute);
 
-    if (!isProtectedRoute) return;
-
     if (pendingEmail) {
       router.replace("/validation");
       return;
@@ -31,15 +54,21 @@ export default function RootLayout() {
     // If user has an onboarding token, they haven't completed onboarding.
     // Redirect them back to their last onboarding step — even if they
     // also have an auth token (verifyOtp gives both tokens).
-    if (onboardingToken) {
+    if (onboardingToken && isAuthenticated && currentRoute !== "splash-screen") {
       const redirectToOnboarding = async () => {
-        const lastStep = await SecureStore.getItemAsync("onboardingStep");
-        router.replace(lastStep ? `/(onboarding)/${lastStep}` : "/(onboarding)/agreement");
+        const route = await getOnboardingResumeRoute({
+          steps: ONBOARDING_STEPS,
+          token: null,
+          onboardingToken,
+        });
+        router.replace(route);
       };
 
       redirectToOnboarding();
       return;
     }
+
+    if (!isProtectedRoute) return;
 
     if (!isAuthenticated) {
       router.replace("/onboarding");

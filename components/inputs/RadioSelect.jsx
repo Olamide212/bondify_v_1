@@ -55,14 +55,14 @@ const RadioSelect = ({
             <View className="flex-row justify-between items-center">
               <View style={{flex: 1}} className="pr-4">
                 <Text
-                  className={`text-white text-[16px] font-OutfitBold 
-                  ${isSelected(option.value) ? "text-white" : ""} `}
+                  className={`text-[16px] font-OutfitBold 
+                  ${isSelected(option.value) ? "text-primary" : "text-white "} `}
                   style={{ flexWrap: "wrap" }}
                 >
                   {option.label}
                 </Text>
                 {!!option.description && (
-                  <Text className="text-white text-base font-Outfit mt-1">
+                  <Text className={`text-base font-Outfit mt-1 ${isSelected(option.value) ? "text-primary" : "text-white"}`}>
                     {option.description}
                   </Text>
                 )}

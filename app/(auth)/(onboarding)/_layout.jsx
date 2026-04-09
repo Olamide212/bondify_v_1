@@ -101,7 +101,7 @@ function OnboardingContent() {
   return (
     <View style={{flex: 1}} className="bg-[#121212]">
       {!hideHeader && (
-        <View style={isVerificationFlow ? { paddingHorizontal: 16 } : undefined}>
+        <View style={isVerificationFlow ? { paddingHorizontal: 0 } : undefined}>
           <AccountSetupHeader
             title="Account Setup"
             showBack={!isAgreement}

@@ -1,11 +1,36 @@
 import { Stack, useRouter, useSegments } from "expo-router";
-import * as SecureStore from "expo-secure-store";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useSelector } from "react-redux";
 import HeaderWithLogo from "../../components/headers/HeaderWithLogo";
 import { useAuthRestore } from "../../hooks/useAuthRestore";
+import { getOnboardingResumeRoute } from "../../utils/onboardingProgress";
+
+const ONBOARDING_STEPS = [
+  "agreement",
+  "age",
+  "ethnicity",
+  "gender",
+  "marital-status",
+  "meet",
+  "preference",
+  "religion",
+  "religion-question",
+  "religion-practice",
+  "relocation-preference",
+  "kids",
+  "education",
+  "occupation",
+  "smoke",
+  "drink",
+  "interests",
+  "about",
+  "profile-answers",
+  "upload-photo",
+  "verification",
+  "location-access",
+];
 
 export default function AuthLayout() {
   const router = useRouter();
@@ -20,8 +45,6 @@ export default function AuthLayout() {
   const isForgotPassword = segments.includes("forgot-password");
   const isResetPassword = segments.includes("reset-password");
 
-  const isVerification = segments.includes("verification");
-
   // Pre-auth screens that users explicitly navigate to  these should
   // never be interrupted by the onboarding-token redirect.
   const isPreAuthScreen = isLogin || isRegister || isForgotPassword || isResetPassword;
@@ -34,10 +57,14 @@ export default function AuthLayout() {
       return;
     }
 
-    if (onboardingToken && !isOnboarding && !isPreAuthScreen) {
+    if (onboardingToken && isAuthenticated && !isOnboarding && !isPreAuthScreen) {
       const redirectToOnboarding = async () => {
-        const lastStep = await SecureStore.getItemAsync("onboardingStep");
-        router.replace(lastStep ? `/(onboarding)/${lastStep}` : "/(onboarding)/agreement");
+        const route = await getOnboardingResumeRoute({
+          steps: ONBOARDING_STEPS,
+          token: null,
+          onboardingToken,
+        });
+        router.replace(route);
       };
 
       redirectToOnboarding();
@@ -58,7 +85,7 @@ export default function AuthLayout() {
   ]);
 
   return (
-    <SafeAreaView className={`flex-1 ${isVerification ? '' : 'px-4'}`} style={{backgroundColor: '#121212'}}>
+    <SafeAreaView className="flex-1" style={{backgroundColor: '#121212'}}>
       {!isOnboarding && <HeaderWithLogo showBackButton={!isLogin} />}
       <StatusBar style="light" />
       <Stack screenOptions={{

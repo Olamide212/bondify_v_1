@@ -1,16 +1,15 @@
-import { useRouter } from "expo-router";
 import { useDispatch, useSelector } from "react-redux";
 import OtpVerificationScreen from "../../../components/common/OtpVerificationScreen";
 import { useToast } from "../../../context/ToastContext";
 import { resendOtp, verifyOtp } from "../../../slices/authSlice";
+import { saveOnboardingStep } from "../../../utils/onboardingProgress";
 import { tokenManager } from "../../../utils/tokenManager";
 
 const Validation = () => {
   const dispatch = useDispatch();
-  const router = useRouter();
   const { showToast } = useToast();
 
-  const { loading, pendingEmail, onboardingToken } = useSelector(
+  const { loading, pendingEmail } = useSelector(
     (state) => state.auth
   );
 
@@ -45,9 +44,11 @@ const Validation = () => {
       // We do NOT navigate here — the auth layout guard will detect the
       // onboardingToken change and redirect to the correct onboarding step,
       // preventing the agreement screen from showing twice.
-      await import("expo-secure-store").then((SecureStore) =>
-        SecureStore.setItemAsync("onboardingStep", "agreement")
-      );
+      await saveOnboardingStep({
+        step: "agreement",
+        token: response?.token,
+        onboardingToken: response?.onboardingToken,
+      });
 
       console.log("✅ OTP verified — auth layout guard will redirect to onboarding");
     } catch (err) {

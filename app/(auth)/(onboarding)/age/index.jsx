@@ -143,7 +143,7 @@ const styles = StyleSheet.create({
   content: {
     flex:            1,
     paddingTop:      36,
-    paddingHorizontal: 24,
+    paddingHorizontal: 20,
     alignItems:      "center",
   },
   title: {
@@ -187,7 +187,7 @@ const styles = StyleSheet.create({
 
   // Footer
   footer: {
-    paddingHorizontal: 24,
+    paddingHorizontal: 20,
     paddingBottom:     36,
     alignItems:        "center",
     gap:               10,

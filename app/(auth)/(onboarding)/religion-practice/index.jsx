@@ -39,7 +39,7 @@ const ReligionPractice = () => {
         keyboardVerticalOffset={Platform.OS === "ios" ? 20 : 0}
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <View style={{flex: 1}} className="px-2">
+          <View style={{flex: 1}} className="px-5">
             <ScrollView style={{flex: 1}} className="mt-8" showsVerticalScrollIndicator={false}>
             <View style={{flex: 1}} className="">
               <Text className="text-3xl font-OutfitBold text-white mb-2">

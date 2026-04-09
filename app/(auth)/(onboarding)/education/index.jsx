@@ -41,7 +41,7 @@ const Education = () => {
         keyboardVerticalOffset={Platform.OS === "ios" ? 20 : 0}
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <View style={{flex: 1}} className="px-2">
+          <View style={{flex: 1}} className="px-5">
             <View style={{flex: 1}} className="">
               <Text className="text-3xl text-white font-OutfitBold mt-8  mb-2">
                 Highest Education Obtained
