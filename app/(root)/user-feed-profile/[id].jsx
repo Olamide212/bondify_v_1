@@ -319,7 +319,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 18,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     color: '#E5E5E5',
   },
   errorContainer: {
@@ -330,7 +330,7 @@ const styles = StyleSheet.create({
   errorText: {
     fontSize: 16,
     color: "#999",
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
   },
 
   // Profile Section
@@ -355,7 +355,7 @@ const styles = StyleSheet.create({
   },
   avatarInitial: {
     fontSize: 20,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     color: "#fff",
   },
   profileInfo: {
@@ -369,12 +369,12 @@ const styles = StyleSheet.create({
   },
   profileName: {
     fontSize: 20,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     color: '#E5E5E5',
   },
   profileHandle: {
     fontSize: 13,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     color: "#888",
   },
 
@@ -390,12 +390,12 @@ const styles = StyleSheet.create({
   },
   statNumber: {
     fontSize: 18,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     color: '#E5E5E5',
   },
   statLabel: {
     fontSize: 12,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     color: "#888",
     marginTop: 4,
   },
@@ -407,7 +407,7 @@ const styles = StyleSheet.create({
   },
   bioText: {
     fontSize: 14,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     color: '#9CA3AF',
     lineHeight: 20,
   },
@@ -444,7 +444,7 @@ const styles = StyleSheet.create({
   },
   actionButtonText: {
     fontSize: 14,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     color: "#fff",
   },
 
@@ -467,12 +467,12 @@ const styles = StyleSheet.create({
   },
   tabText: {
     fontSize: 14,
-    fontFamily: "OutfitMedium",
+    fontFamily: "PlusJakartaSansMedium",
     color: "#888",
   },
   tabTextActive: {
     color: BRAND,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
   },
 
   // Horizontal List
@@ -504,7 +504,7 @@ const styles = StyleSheet.create({
   },
   horizontalText: {
     fontSize: 12,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     color: '#D1D5DB',
     marginBottom: 8,
   },
@@ -514,7 +514,7 @@ const styles = StyleSheet.create({
   },
   metaLabel: {
     fontSize: 11,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     color: "#888",
   },
 
@@ -525,7 +525,7 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 14,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     color: "#ccc",
   },
 });

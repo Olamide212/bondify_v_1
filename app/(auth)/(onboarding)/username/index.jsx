@@ -32,10 +32,10 @@ const Username = () => {
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View style={{flex: 1}} className="px-2">
             <View style={{flex: 1}} className="mt-8">
-              <Text className="text-[25px] font-OutfitBold text-app mb-2">
+              <Text className="text-[25px] font-PlusJakartaSansBold text-app mb-2">
                 What is your name?
               </Text>
-              <Text className="text-app font-Outfit">
+              <Text className="text-app font-PlusJakartaSans">
                 Let&apos;s Get to Know Each Other
               </Text>
               <View>

@@ -121,14 +121,14 @@
 //     width: 48, height: 48, borderRadius: 24,
 //     backgroundColor: '#EEF2FF', alignItems: 'center', justifyContent: 'center',
 //   },
-//   initial:  { fontSize: 18, fontFamily: 'OutfitBold', color: '#6366F1' },
+//   initial:  { fontSize: 18, fontFamily: 'PlusJakartaSansBold', color: '#6366F1' },
 //   label:    {
 //     marginTop: 5, backgroundColor: '#121212',
 //     paddingHorizontal: 9, paddingVertical: 3, borderRadius: 10,
 //     shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
 //     shadowOpacity: 0.14, shadowRadius: 3, elevation: 3,
 //   },
-//   labelText: { fontSize: 11, fontFamily: 'OutfitBold', color: '#E5E5E5' },
+//   labelText: { fontSize: 11, fontFamily: 'PlusJakartaSansBold', color: '#E5E5E5' },
 // });
 
 // // ─────────────────────────────────────────────────────────────────────────────
@@ -212,17 +212,17 @@
 //   avatarWrap:     { position: 'relative' },
 //   avatar:         { width: 66, height: 66, borderRadius: 18 },
 //   avatarFallback: { backgroundColor: '#EEF2FF', alignItems: 'center', justifyContent: 'center' },
-//   avatarInitial:  { fontSize: 26, fontFamily: 'OutfitBold', color: '#6366F1' },
+//   avatarInitial:  { fontSize: 26, fontFamily: 'PlusJakartaSansBold', color: '#6366F1' },
 //   onlineDot: {
 //     position: 'absolute', bottom: 2, right: 2,
 //     width: 13, height: 13, borderRadius: 7,
 //     backgroundColor: '#22C55E', borderWidth: 2, borderColor: '#fff',
 //   },
 //   info:    { flex: 1 },
-//   name:    { fontSize: 17, fontFamily: 'OutfitBold', color: '#111827', marginBottom: 4 },
-//   sub:     { fontSize: 12, fontFamily: 'Outfit', color: '#9CA3AF' },
+//   name:    { fontSize: 17, fontFamily: 'PlusJakartaSansBold', color: '#111827', marginBottom: 4 },
+//   sub:     { fontSize: 12, fontFamily: 'PlusJakartaSans', color: '#9CA3AF' },
 //   btn:     { backgroundColor: '#E8651A', paddingHorizontal: 16, paddingVertical: 11, borderRadius: 50 },
-//   btnText: { color: '#fff', fontFamily: 'OutfitBold', fontSize: 13 },
+//   btnText: { color: '#fff', fontFamily: 'PlusJakartaSansBold', fontSize: 13 },
 //   closeBtn: { position: 'absolute', top: 10, right: 12, padding: 4 },
 // });
 
@@ -359,20 +359,20 @@
 //     paddingHorizontal: 20, paddingVertical: 16,
 //     borderBottomWidth: StyleSheet.hairlineWidth,
 //   },
-//   title:    { fontSize: 19, fontFamily: 'OutfitBold' },
-//   subtitle: { fontSize: 12, fontFamily: 'Outfit', marginTop: 2 },
+//   title:    { fontSize: 19, fontFamily: 'PlusJakartaSansBold' },
+//   subtitle: { fontSize: 12, fontFamily: 'PlusJakartaSans', marginTop: 2 },
 //   closeCircle: {
 //     width: 34, height: 34, borderRadius: 17,
 //     alignItems: 'center', justifyContent: 'center',
 //   },
 //   sectionLabel: {
-//     fontSize: 12, fontFamily: 'OutfitBold',
+//     fontSize: 12, fontFamily: 'PlusJakartaSansBold',
 //     letterSpacing: 0.6, textTransform: 'uppercase',
 //     marginBottom: 10, marginTop: 4,
 //   },
 //   chips:   { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
 //   chip:    { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 99, borderWidth: 1 },
-//   chipText: { fontSize: 13, fontFamily: 'OutfitMedium' },
+//   chipText: { fontSize: 13, fontFamily: 'PlusJakartaSansMedium' },
 //   divider: { height: StyleSheet.hairlineWidth, marginVertical: 16 },
 //   footer: {
 //     flexDirection: 'row', gap: 12,
@@ -383,12 +383,12 @@
 //     flex: 1, borderRadius: 50, paddingVertical: 14,
 //     alignItems: 'center', borderWidth: 1,
 //   },
-//   resetText:  { fontSize: 15, fontFamily: 'OutfitMedium' },
+//   resetText:  { fontSize: 15, fontFamily: 'PlusJakartaSansMedium' },
 //   applyBtn:   {
 //     flex: 2, borderRadius: 50, paddingVertical: 14,
 //     alignItems: 'center', backgroundColor: '#E8651A',
 //   },
-//   applyText:  { color: '#fff', fontSize: 15, fontFamily: 'OutfitBold' },
+//   applyText:  { color: '#fff', fontSize: 15, fontFamily: 'PlusJakartaSansBold' },
 // });
 
 // // ─────────────────────────────────────────────────────────────────────────────
@@ -692,7 +692,7 @@
 
 // const s = StyleSheet.create({
 //   mapLoading:     { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 12 },
-//   mapLoadingText: { fontFamily: 'Outfit', fontSize: 14 },
+//   mapLoadingText: { fontFamily: 'PlusJakartaSans', fontSize: 14 },
 
 //   topSafe: { position: 'absolute', top: 0, left: 0, right: 0 },
 
@@ -708,7 +708,7 @@
 //     shadowOpacity: 0.1, shadowRadius: 6, elevation: 4,
 //   },
 //   searchInput: {
-//     flex: 1, fontSize: 13, fontFamily: 'Outfit', padding: 0,
+//     flex: 1, fontSize: 13, fontFamily: 'PlusJakartaSans', padding: 0,
 //   },
 //   iconRow: { flexDirection: 'row', gap: 8 },
 //   iconBtn: {
@@ -717,13 +717,13 @@
 //     shadowColor: '#000', shadowOffset: { width: 0, height: 2 },
 //     shadowOpacity: 0.12, shadowRadius: 6, elevation: 5,
 //   },
-//   iconBtnLabel: { fontFamily: 'OutfitBold', fontSize: 13 },
+//   iconBtnLabel: { fontFamily: 'PlusJakartaSansBold', fontSize: 13 },
 //   badge: {
 //     position: 'absolute', top: 5, right: 5,
 //     width: 14, height: 14, borderRadius: 7,
 //     alignItems: 'center', justifyContent: 'center',
 //   },
-//   badgeText: { color: '#fff', fontSize: 9, fontFamily: 'OutfitBold' },
+//   badgeText: { color: '#fff', fontSize: 9, fontFamily: 'PlusJakartaSansBold' },
 
 //   // Row 2
 //   row2: {
@@ -736,13 +736,13 @@
 //     shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
 //     shadowOpacity: 0.1, shadowRadius: 4, elevation: 3,
 //   },
-//   nearbyText:  { fontFamily: 'OutfitBold', fontSize: 12 },
+//   nearbyText:  { fontFamily: 'PlusJakartaSansBold', fontSize: 12 },
 
 //   // Chips
 //   chip:         { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 99, flexDirection: 'row', alignItems: 'center' },
 //   chipActive:   { backgroundColor: '#E8651A' },
 //   chipInactive: { borderWidth: 0 },
-//   chipText:     { fontFamily: 'OutfitMedium', fontSize: 12 },
+//   chipText:     { fontFamily: 'PlusJakartaSansMedium', fontSize: 12 },
 
 //   // FABs
 //   fabs: { position: 'absolute', right: 16, bottom: 130, gap: 10 },

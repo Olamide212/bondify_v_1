@@ -286,7 +286,7 @@ import RizzModal from "./RizzModal";
 
 const VOICE_ICON_COLOR = "#64748B";
 
-const InputToolbar = ({ sendMessage, onSendImage, onSendVoice, matchId, currentUserId, replyTo, onCancelReply, editMessage, onCancelEdit, matchedUserName }) => {
+const InputToolbar = ({ sendMessage, onSendImage, onSendVoice, matchId, currentUserId, replyTo, onCancelReply, editMessage, onCancelEdit, matchedUserName, suggestedReplyText, onClearSuggestedReply }) => {
   const insets = useSafeAreaInsets();
   const [messageText, setMessageText] = useState("");
   const [showRizzModal, setShowRizzModal] = useState(false);
@@ -312,6 +312,14 @@ const InputToolbar = ({ sendMessage, onSendImage, onSendVoice, matchId, currentU
       setMessageText("");
     }
   }, [editMessage]);
+
+  // Pre-fill input when AI suggestion is selected
+  useEffect(() => {
+    if (suggestedReplyText) {
+      setMessageText(suggestedReplyText);
+      onClearSuggestedReply?.();
+    }
+  }, [suggestedReplyText, onClearSuggestedReply]);
 
   const handleImagePicker = async () => {
     if (!onSendImage || isUploadingMedia) return;
@@ -567,7 +575,7 @@ const styles = StyleSheet.create({
   },
   contextLabel: {
     fontSize: 11,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     color: colors.primary,
     marginBottom: 1,
     textTransform: "uppercase",
@@ -575,7 +583,7 @@ const styles = StyleSheet.create({
   },
   contextPreview: {
     fontSize: 13,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     color: '#D1D5DB',
   },
 });

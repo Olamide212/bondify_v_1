@@ -19,6 +19,7 @@ const {
   suggestPost,
   searchProfiles,
   findMyMatches,
+  suggestReplies,
 } = require('../controllers/aiController');
 const { protect } = require('../middleware/auth');
 
@@ -40,6 +41,7 @@ router.post('/chat', chat);
 router.post('/suggest-message', suggestMessage);
 router.post('/suggest-photo-comment', suggestPhotoComment);
 router.post('/suggest-post', suggestPost);
+router.post('/suggest-replies', suggestReplies);
 
 // ── BonBot profile search ───────────────────────────────────────────────────
 // Natural-language query → GPT extracts filters → DB query → ranked profiles

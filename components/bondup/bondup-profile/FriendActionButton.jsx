@@ -142,22 +142,22 @@ const s = StyleSheet.create({
   },
   friendBtnText: {
     fontSize: 15,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#fff',
   },
   friendsBtnText: {
     fontSize: 15,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: BRAND,
   },
   requestsBtnText: {
     fontSize: 15,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#fff',
   },
   editBtnText: {
     fontSize: 15,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#fff',
   },
 });

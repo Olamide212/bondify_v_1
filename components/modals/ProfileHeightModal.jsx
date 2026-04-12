@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
   },
   optionText: {
     fontSize: 16,
-    fontFamily: 'OutfitMedium',
+    fontFamily: 'PlusJakartaSansMedium',
     color: '#E5E5E5',
     textAlign: 'center',
   },

@@ -187,14 +187,14 @@ const styles = StyleSheet.create({
   },
   heading: {
     fontSize:     22,
-    fontFamily:   "OutfitBold",
+    fontFamily:   "PlusJakartaSansBold",
     color: '#E5E5E5',
     textAlign:    "center",
     marginBottom: 6,
   },
   subheading: {
     fontSize:   14,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     color:      "#888",
     textAlign:  "center",
     lineHeight: 20,
@@ -228,7 +228,7 @@ const styles = StyleSheet.create({
   },
   readoutLabel: {
     fontSize:   15,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     color: '#E5E5E5',
   },
   readoutBadge: {
@@ -239,7 +239,7 @@ const styles = StyleSheet.create({
   },
   readoutValue: {
     fontSize:   15,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     color:      BRAND,
   },
 
@@ -257,7 +257,7 @@ const styles = StyleSheet.create({
   },
   sliderEdgeText: {
     fontSize:   11,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     color:      "#ccc",
   },
 
@@ -282,12 +282,12 @@ const styles = StyleSheet.create({
   },
   chipText: {
     fontSize:   12,
-    fontFamily: "OutfitMedium",
+    fontFamily: "PlusJakartaSansMedium",
     color: '#9CA3AF',
   },
   chipTextActive: {
     color:      BRAND,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
   },
 
   // CTA
@@ -302,7 +302,7 @@ const styles = StyleSheet.create({
   },
   btnText: {
     fontSize:   15,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     color:      "#fff",
   },
 

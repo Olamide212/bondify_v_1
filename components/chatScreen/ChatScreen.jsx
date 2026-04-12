@@ -3,24 +3,25 @@
 import { Audio } from "expo-av";
 import { useRouter } from "expo-router";
 import { Copy, Edit2, Mail, MessageCircle, RefreshCw, Search, X } from "lucide-react-native";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
-    ActivityIndicator,
-    KeyboardAvoidingView,
-    Linking,
-    Platform,
-    ScrollView,
-    StatusBar,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Linking,
+  Platform,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useSelector } from "react-redux";
 import { colors } from "../../constant/colors";
 import { useAlert } from "../../context/AlertContext";
+import { shouldPromptFeedback as checkShouldPrompt, getCommunicationScore } from "../../services/communicationService";
 import { matchService } from "../../services/matchService";
 import { messageService } from "../../services/messageService";
 import { socketService } from "../../services/socketService";
@@ -28,8 +29,10 @@ import { cacheManager } from "../../utils/cacheManager";
 import { formatRelativeDate } from "../../utils/helper";
 import ChatBackground from "../common/ChatBackground";
 import Header from "../headers/ChatHeader";
+import CommunicationFeedbackModal from "./CommunicationFeedbackModal";
 import InputToolbar from "./InputToolbar";
 import MessageBubble from "./MessageBubble";
+import SuggestedReplies from "./SuggestedReplies";
 
 const MESSAGE_PAGE_SIZE      = 20;
 const LOAD_OLDER_TRIGGER_PX  = 140;
@@ -52,6 +55,42 @@ const ChatScreen = ({ matchedUser, onBack, initialSearchMode = false, searchTrig
   // Reply / Edit state
   const [replyTo,      setReplyTo]      = useState(null);
   const [editMessage,  setEditMessage]  = useState(null);
+
+  // AI Suggested reply state
+  const [suggestedReplyText, setSuggestedReplyText] = useState(null);
+
+  // Communication score/feedback state
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const [canShowFeedback, setCanShowFeedback] = useState(false);
+  const [communicationScore, setCommunicationScore] = useState(null);
+  const feedbackCheckedRef = useRef(false);
+
+  // Communication score and feedback prompt check
+  useEffect(() => {
+    if (!matchedUser?.matchId || !matchedUser?.id || matchedUser?.isSystem || feedbackCheckedRef.current) return;
+    
+    const checkFeedbackAndScore = async () => {
+      try {
+        // Fetch user's communication score
+        const scoreResult = await getCommunicationScore(matchedUser.id);
+        if (scoreResult.success) {
+          setCommunicationScore(scoreResult.data.communicationScore);
+        }
+        
+        // Check if we should prompt for feedback
+        const promptResult = await checkShouldPrompt(matchedUser.matchId);
+        if (promptResult.success && promptResult.shouldPrompt) {
+          setCanShowFeedback(true);
+        }
+        
+        feedbackCheckedRef.current = true;
+      } catch (err) {
+        console.log('Feedback check error:', err.message);
+      }
+    };
+    
+    checkFeedbackAndScore();
+  }, [matchedUser?.matchId, matchedUser?.id, matchedUser?.isSystem]);
 
   // Typing indicator
   useEffect(() => {
@@ -83,6 +122,33 @@ const ChatScreen = ({ matchedUser, onBack, initialSearchMode = false, searchTrig
       if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
     };
   }, [matchedUser?.matchId, currentUserId]);
+
+  // Communication score and feedback prompt check
+  useEffect(() => {
+    if (!matchedUser?.matchId || !matchedUser?.id || matchedUser?.isSystem || feedbackCheckedRef.current) return;
+    
+    const checkFeedbackAndScore = async () => {
+      try {
+        // Fetch user's communication score
+        const scoreResult = await getCommunicationScore(matchedUser.id);
+        if (scoreResult.success) {
+          setCommunicationScore(scoreResult.data.communicationScore);
+        }
+        
+        // Check if we should prompt for feedback
+        const promptResult = await checkShouldPrompt(matchedUser.matchId);
+        if (promptResult.success && promptResult.shouldPrompt) {
+          setCanShowFeedback(true);
+        }
+        
+        feedbackCheckedRef.current = true;
+      } catch (err) {
+        console.log('Feedback check error:', err.message);
+      }
+    };
+    
+    checkFeedbackAndScore();
+  }, [matchedUser?.matchId, matchedUser?.id, matchedUser?.isSystem]);
 
   const router = useRouter();
 
@@ -621,6 +687,31 @@ const ChatScreen = ({ matchedUser, onBack, initialSearchMode = false, searchTrig
       )
     : messages;
 
+  // ── AI Reply Suggestions ─────────────────────────────────────────────────
+  // Get the last message from the other person (for suggesting replies)
+  const lastMessageFromThem = useMemo(() => {
+    if (!messages.length) return null;
+    const lastMsg = messages[messages.length - 1];
+    // Only show suggestions if the last message is from them and it's a text message
+    if (lastMsg?.sender === 'them' && lastMsg?.type !== 'image' && lastMsg?.type !== 'voice') {
+      return lastMsg.text || null;
+    }
+    return null;
+  }, [messages]);
+
+  // Build conversation context for AI (last 6 messages)
+  const conversationContext = useMemo(() => {
+    return messages.slice(-6).map((m) => ({
+      sender: m.sender,
+      text: m.text || '[media]',
+    }));
+  }, [messages]);
+
+  // Handle when user selects a suggested reply
+  const handleSelectSuggestedReply = useCallback((suggestion) => {
+    setSuggestedReplyText(suggestion);
+  }, []);
+
   useEffect(() => {
     if (searchTrigger) openSearch();
   }, [searchTrigger]);
@@ -642,6 +733,8 @@ const ChatScreen = ({ matchedUser, onBack, initialSearchMode = false, searchTrig
           onOpenProfile={openProfile}
           onOpenActions={openChatOptions}
           onOpenSearch={openSearch}
+          communicationScore={communicationScore}
+          onShowFeedback={canShowFeedback ? () => setShowFeedbackModal(true) : undefined}
         />
 
         {/* ── Search bar ── */}
@@ -857,7 +950,16 @@ const ChatScreen = ({ matchedUser, onBack, initialSearchMode = false, searchTrig
             </View>
           </View>
         ) : (
-          <InputToolbar
+          <>
+            {/* AI Reply Suggestions */}
+            <SuggestedReplies
+              matchId={matchedUser?.matchId}
+              lastMessage={lastMessageFromThem}
+              conversationContext={conversationContext}
+              onSelectSuggestion={handleSelectSuggestedReply}
+              visible={!!lastMessageFromThem && !replyTo && !editMessage}
+            />
+            <InputToolbar
             sendMessage={async (text, opts) => {
               if (opts?.edit && editMessage) {
                 try {
@@ -895,11 +997,30 @@ const ChatScreen = ({ matchedUser, onBack, initialSearchMode = false, searchTrig
             editMessage={editMessage}
             onCancelEdit={() => setEditMessage(null)}
             matchedUserName={matchedUser?.name?.split(' ')[0] || matchedUser?.name}
+            suggestedReplyText={suggestedReplyText}
+            onClearSuggestedReply={() => setSuggestedReplyText(null)}
           />
+          </>
         )}
         </View>
         </ChatBackground>
       </KeyboardAvoidingView>
+      
+      {/* Communication Feedback Modal */}
+      <CommunicationFeedbackModal
+        visible={showFeedbackModal}
+        onClose={() => setShowFeedbackModal(false)}
+        aboutUserId={matchedUser?.id}
+        aboutUserName={matchedUser?.name?.split(' ')[0] || matchedUser?.name}
+        matchId={matchedUser?.matchId}
+        messagesExchanged={messages.length}
+        onSubmitSuccess={(data) => {
+          setCanShowFeedback(false);
+          if (data?.updatedScore) {
+            setCommunicationScore(data.updatedScore);
+          }
+        }}
+      />
     </SafeAreaView>
   );
 };
@@ -949,7 +1070,7 @@ const styles = StyleSheet.create({
   dateSeparatorText: {
     fontSize:   12,
     color: '#9CA3AF',
-    fontFamily: "OutfitSemiBold",
+    fontFamily: "PlusJakartaSansSemiBold",
   },
   loadingOlderContainer: {
     alignItems:    "center",
@@ -997,13 +1118,13 @@ const styles = StyleSheet.create({
   searchInput: {
     flex:            1,
     fontSize:        14,
-    fontFamily:      "Outfit",
+    fontFamily:      "PlusJakartaSans",
     color: '#E5E5E5',
     paddingVertical: 0,
   },
   searchCount: {
     fontSize:    12,
-    fontFamily:  "OutfitMedium",
+    fontFamily:  "PlusJakartaSansMedium",
     color: '#9CA3AF',
     marginRight:  4,
   },
@@ -1020,7 +1141,7 @@ const styles = StyleSheet.create({
   },
   contactBarLabel: {
     fontSize:   13,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     color: '#9CA3AF',
     textAlign:  "center",
   },
@@ -1046,7 +1167,7 @@ const styles = StyleSheet.create({
   },
   contactBtnText: {
     fontSize:   14,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     color:      "#fff",
   },
   contactBtnTextWhite: {
@@ -1066,13 +1187,13 @@ const styles = StyleSheet.create({
   },
   rematchBarText: {
     fontSize:   14,
-    fontFamily: "OutfitMedium",
+    fontFamily: "PlusJakartaSansMedium",
     color: '#D1D5DB',
     textAlign:  "center",
   },
   rematchBarTextMuted: {
     fontSize:   14,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     color:      "#9CA3AF",
     textAlign:  "center",
   },
@@ -1093,7 +1214,7 @@ const styles = StyleSheet.create({
   },
   rematchRequestBtnText: {
     fontSize:   15,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     color:      "#fff",
   },
   rematchAcceptBtn: {
@@ -1106,7 +1227,7 @@ const styles = StyleSheet.create({
   },
   rematchAcceptBtnText: {
     fontSize:   15,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     color:      "#fff",
   },
   rematchDeclineBtn: {
@@ -1121,7 +1242,7 @@ const styles = StyleSheet.create({
   },
   rematchDeclineBtnText: {
     fontSize:   15,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     color: '#9CA3AF',
   },
 });

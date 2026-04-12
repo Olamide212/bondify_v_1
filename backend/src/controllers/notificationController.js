@@ -1,4 +1,5 @@
 const Notification = require('../models/Notification');
+const { sendPushToUser } = require('../utils/pushDispatchService');
 
 // ─────────────────────────────────────────────
 //  GET MY NOTIFICATIONS
@@ -81,6 +82,26 @@ const deleteNotification = async (req, res, next) => {
 const createNotification = async ({ recipient, sender, type, title, body, data }) => {
   try {
     await Notification.create({ recipient, sender, type, title, body, data });
+
+    const normalizedType = String(type || '').toLowerCase();
+    const settingKey =
+      normalizedType.includes('message') ? 'newMessage'
+      : normalizedType.includes('match') ? 'newMatch'
+      : normalizedType.includes('like') || normalizedType.includes('comment') ? 'newLike'
+      : null;
+
+    sendPushToUser({
+      userId: recipient,
+      title,
+      body,
+      data: {
+        ...(data || {}),
+        type: type || 'notification',
+        action: 'open_notifications',
+      },
+      settingKey,
+      onlyWhenOffline: true,
+    }).catch(() => {});
   } catch (err) {
     console.error('Notification creation error:', err);
   }

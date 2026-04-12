@@ -157,7 +157,7 @@ const s = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 17,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     color: '#E5E5E5',
   },
   body: {
@@ -166,7 +166,7 @@ const s = StyleSheet.create({
   },
   label: {
     fontSize: 13,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     color: '#9CA3AF',
     marginBottom: 6,
     marginTop: 14,
@@ -177,7 +177,7 @@ const s = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 12,
     fontSize: 15,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     color: '#E5E5E5',
     borderWidth: 1,
     borderColor: '#374151',
@@ -188,7 +188,7 @@ const s = StyleSheet.create({
   },
   charCount: {
     fontSize: 11,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     color: "#BBB",
     textAlign: "right",
     marginTop: 4,
@@ -203,6 +203,6 @@ const s = StyleSheet.create({
   saveBtnText: {
     color: "#fff",
     fontSize: 15,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
   },
 });

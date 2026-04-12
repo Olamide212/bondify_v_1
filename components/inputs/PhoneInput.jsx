@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { View, TextInput, StyleSheet } from "react-native";
+import { useEffect, useState } from "react";
+import { StyleSheet, Text, TextInput, View } from "react-native";
 import CountryPicker, { DARK_THEME } from "react-native-country-picker-modal";
 
 const GlobalPhoneInput = ({
@@ -7,6 +7,7 @@ const GlobalPhoneInput = ({
   countryCode,
   onChangePhoneNumber,
   onChangeCountryCode,
+  error,
 }) => {
   const [cca2, setCca2] = useState("NG");
   const [callingCode, setCallingCode] = useState("234");
@@ -39,30 +40,33 @@ const GlobalPhoneInput = ({
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.countryPickerContainer}>
-        <CountryPicker
-          countryCode={cca2}
-          withFlag
-          withCallingCodeButton
-          withFilter
-          withCallingCode
-          withAlphaFilter
-          onSelect={onSelect}
-          theme={DARK_THEME}
-          containerButtonStyle={styles.countryPickerButton}
+    <View style={{ marginBottom: 10 }}>
+      <View style={[styles.container, error && styles.containerError]}>
+        <View style={styles.countryPickerContainer}>
+          <CountryPicker
+            countryCode={cca2}
+            withFlag
+            withCallingCodeButton
+            withFilter
+            withCallingCode
+            withAlphaFilter
+            onSelect={onSelect}
+            theme={DARK_THEME}
+            containerButtonStyle={styles.countryPickerButton}
+          />
+        </View>
+
+        <TextInput
+          style={styles.input}
+          placeholder="WhatsApp number"
+          placeholderTextColor="#929292"
+          keyboardType="number-pad"
+          value={phoneNumber}
+          onChangeText={handlePhoneChange}
+          maxLength={15}
         />
       </View>
-
-      <TextInput
-        style={styles.input}
-        placeholder="WhatsApp number"
-        placeholderTextColor="#929292"
-        keyboardType="number-pad"
-        value={phoneNumber}
-        onChangeText={handlePhoneChange}
-        maxLength={15}
-      />
+      {error && <Text style={styles.errorText}>{error}</Text>}
     </View>
   );
 };
@@ -75,7 +79,9 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: "center",
     height: 55,
-    marginBottom: 17,
+  },
+  containerError: {
+    borderColor: '#EF4444',
   },
   countryPickerContainer: {
     borderRightWidth: 1,
@@ -93,7 +99,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#FFFFFF',
     height: "100%",
-    fontFamily: "OutfitMedium",
+    fontFamily: "PlusJakartaSansMedium",
+  },
+  errorText: {
+    color: '#EF4444',
+    fontSize: 12,
+    marginTop: 4,
+    marginLeft: 4,
   },
 });
 

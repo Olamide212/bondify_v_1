@@ -259,7 +259,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 17,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     color: '#E5E5E5',
   },
   saveIconButton: {
@@ -288,7 +288,7 @@ const styles = StyleSheet.create({
   avatarInitial: {
     fontSize: 42,
     color: "#fff",
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
   },
   avatarOverlay: {
     position: "absolute",
@@ -300,7 +300,7 @@ const styles = StyleSheet.create({
   },
   avatarOverlayText: {
     fontSize: 13,
-    fontFamily: "OutfitMedium",
+    fontFamily: "PlusJakartaSansMedium",
     color: BRAND,
   },
   formSection: {
@@ -309,7 +309,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 13,
-    fontFamily: "OutfitMedium",
+    fontFamily: "PlusJakartaSansMedium",
     color: '#9CA3AF',
   },
   input: {
@@ -318,7 +318,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 14,
     fontSize: 15,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     color: '#E5E5E5',
   },
   primaryButton: {
@@ -331,6 +331,6 @@ const styles = StyleSheet.create({
   primaryButtonText: {
     color: "#fff",
     fontSize: 15,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
   },
 });

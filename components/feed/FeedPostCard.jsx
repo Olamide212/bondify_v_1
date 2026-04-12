@@ -182,21 +182,21 @@ const styles = StyleSheet.create({
   avatarInitial: {
     color: "#fff",
     fontSize: 16,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
   },
   authorName: {
     fontSize: 14,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     color: '#E5E5E5',
   },
   authorHandle: {
     fontSize: 12,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     color: "#999",
   },
   timeAgo: {
     fontSize: 12,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     color: "#BBB",
     marginRight: 8,
   },
@@ -205,7 +205,7 @@ const styles = StyleSheet.create({
   },
   content: {
     fontSize: 15,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     color: "#222",
     lineHeight: 22,
   },
@@ -226,7 +226,7 @@ const styles = StyleSheet.create({
   },
   analyticsText: {
     fontSize: 12,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     color: "#BBB",
   },
   actionRow: {
@@ -240,7 +240,7 @@ const styles = StyleSheet.create({
   actionBtn: { flexDirection: "row", alignItems: "center", gap: 5 },
   actionLabel: {
     fontSize: 13,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     color: "#888",
   },
 });

@@ -94,7 +94,7 @@ const FavoriteMusic = () => {
               {/* Title */}
               <View style={{ paddingHorizontal: 16, marginTop: 32, marginBottom: 24 }}>
                 <Text style={{
-                  fontFamily: fonts.OutfitBold,
+                  fontFamily: fonts.PlusJakartaSansBold,
                   fontSize: 28,
                   color: '#FFFFFF',
                   marginBottom: 8
@@ -102,7 +102,7 @@ const FavoriteMusic = () => {
                   What&apos;s your favorite music?
                 </Text>
                 <Text style={{
-                  fontFamily: fonts.Outfit,
+                  fontFamily: fonts.PlusJakartaSans,
                   fontSize: 16,
                   color: '#6b7280',
                   textAlign: 'center',
@@ -116,7 +116,7 @@ const FavoriteMusic = () => {
               {selectedMusic.length > 0 && (
                 <View style={{ paddingHorizontal: 16, marginBottom: 20 }}>
                   <Text style={{
-                    fontFamily: fonts.OutfitBold,
+                    fontFamily: fonts.PlusJakartaSansBold,
                     fontSize: 16,
                     color: colors.primary,
                     marginBottom: 12,
@@ -142,7 +142,7 @@ const FavoriteMusic = () => {
                       >
                         <Music size={14} color={colors.primary} />
                         <Text style={{
-                          fontFamily: fonts.OutfitMedium,
+                          fontFamily: fonts.PlusJakartaSansMedium,
                           fontSize: 13,
                           color: '#E5E5E5',
                         }}>
@@ -185,7 +185,7 @@ const FavoriteMusic = () => {
                   }}
                 >
                   <Text style={{
-                    fontFamily: fonts.OutfitMedium,
+                    fontFamily: fonts.PlusJakartaSansMedium,
                     fontSize: 16,
                     color: '#6b7280',
                   }}>

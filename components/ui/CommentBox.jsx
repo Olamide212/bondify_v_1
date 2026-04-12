@@ -238,7 +238,7 @@ export default function CommentBox({
                   maxLength={200}
                   editable={!sending}
                   textAlignVertical="top"
-                  className="font-OutfitMedium text-white"
+                  className="font-PlusJakartaSansMedium text-white"
                 />
                 <TouchableOpacity
                   style={styles.inputSparkle}
@@ -344,7 +344,7 @@ const styles = StyleSheet.create({
   blurBadgeText: {
     color: "#fff",
     fontSize: 12,
-    fontFamily: "OutfitSemiBold",
+    fontFamily: "PlusJakartaSansSemiBold",
   },
   collapsedPrompt: {
     flexDirection: "row",
@@ -378,13 +378,13 @@ const styles = StyleSheet.create({
   promptEyebrow: {
     color: "#9CA3AF",
     fontSize: 12,
-    fontFamily: "OutfitMedium",
+    fontFamily: "PlusJakartaSansMedium",
     marginBottom: 2,
   },
   promptTitle: {
     color: "#fff",
     fontSize: 15,
-    fontFamily: "OutfitSemiBold",
+    fontFamily: "PlusJakartaSansSemiBold",
   },
   sparkBtn: {
     width: 48,
@@ -423,13 +423,13 @@ const styles = StyleSheet.create({
   composerTitle: {
     color: "#fff",
     fontSize: 16,
-    fontFamily: "OutfitSemiBold",
+    fontFamily: "PlusJakartaSansSemiBold",
     marginBottom: 2,
   },
   composerSubtitle: {
     color: "#9CA3AF",
     fontSize: 13,
-    fontFamily: "OutfitMedium",
+    fontFamily: "PlusJakartaSansMedium",
   },
   closeBtn: {
     width: 32,
@@ -478,7 +478,7 @@ const styles = StyleSheet.create({
   helperText: {
     color: "#9CA3AF",
     fontSize: 12,
-    fontFamily: "OutfitMedium",
+    fontFamily: "PlusJakartaSansMedium",
   },
   sendBtn: {
     minWidth: 104,
@@ -494,7 +494,7 @@ const styles = StyleSheet.create({
   sendBtnText: {
     color: "#fff",
     fontSize: 14,
-    fontFamily: "OutfitSemiBold",
+    fontFamily: "PlusJakartaSansSemiBold",
   },
   sendBtnDisabled: { opacity: 0.5 },
 });

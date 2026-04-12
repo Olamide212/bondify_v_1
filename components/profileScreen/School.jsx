@@ -92,13 +92,13 @@ const s = StyleSheet.create({
   },
   cardValue: {
     fontSize:     16,
-    fontFamily:   "OutfitSemiBold",
+    fontFamily:   "PlusJakartaSansSemiBold",
     color: '#E5E5E5',
     marginBottom: 2,
   },
   cardCta: {
     fontSize:   13,
-    fontFamily: "OutfitMedium",
+    fontFamily: "PlusJakartaSansMedium",
     color:      colors.primary,
   },
   modal: {
@@ -115,7 +115,7 @@ const s = StyleSheet.create({
   },
   modalTitle: {
     fontSize:   18,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     color: '#E5E5E5',
   },
   input: {
@@ -124,7 +124,7 @@ const s = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical:   20,
     fontSize:          15,
-    fontFamily:        "OutfitMedium",
+    fontFamily:        "PlusJakartaSansMedium",
     color: '#E5E5E5',
     marginBottom:      20,
   },

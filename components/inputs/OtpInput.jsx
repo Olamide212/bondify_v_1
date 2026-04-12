@@ -94,12 +94,12 @@ const GlobalOtpInput = ({
 
       <View className="flex-row justify-center mt-4">
         {timer > 0 ? (
-          <Text className="text-white font-OutfitMedium text-sm">
+          <Text className="text-white font-PlusJakartaSansMedium text-sm">
             {timer} sec remaining
           </Text>
         ) : (
           <TouchableOpacity onPress={handleResend}>
-            <Text className="text-primary font-OutfitMedium text-lg">
+            <Text className="text-primary font-PlusJakartaSansMedium text-lg">
               Couldn&apos;t get OTP? <Text className="underline">Resend</Text>
             </Text>
           </TouchableOpacity>
@@ -123,6 +123,6 @@ const styles = StyleSheet.create({
   pinCodeText: {
     fontSize: 24,
     color: '#FFFFFF',
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
   },
 });

@@ -43,10 +43,10 @@ const Kids = () => {
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View style={{flex: 1}} className="px-5">
             <ScrollView style={{flex: 1}} showsVerticalScrollIndicator={false}>
-              <Text className="text-3xl font-OutfitBold mt-8 text-white  mb-2">
+              <Text className="text-3xl font-PlusJakartaSansBold mt-8 text-white  mb-2">
                 Do you want kids?
               </Text>
-              <Text className="text-lg text-white font-Outfit">
+              <Text className="text-lg text-white font-PlusJakartaSans">
                 Please select an option.
               </Text>
 

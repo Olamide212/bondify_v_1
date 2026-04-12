@@ -372,7 +372,7 @@ const styles = StyleSheet.create({
   // Section label
   sectionLabel: {
     fontSize: 20,
-    fontFamily: fonts.OutfitBold,
+    fontFamily: fonts.PlusJakartaSansBold,
     color: '#E5E5E5',
     marginBottom: 8,
     marginLeft: 4,
@@ -418,13 +418,13 @@ const styles = StyleSheet.create({
   toggleTextBlock: { flex: 1 },
   toggleLabel: {
     fontSize: 15,
-    fontFamily: fonts.OutfitBold,
+    fontFamily: fonts.PlusJakartaSansBold,
     color: "#E5E5E5",
     marginBottom: 2,
   },
   toggleDescription: {
     fontSize: 13,
-    fontFamily: fonts.OutfitMedium,
+    fontFamily: fonts.PlusJakartaSansMedium,
     color: "#9CA3AF",
     lineHeight: 18,
   },
@@ -453,7 +453,7 @@ const styles = StyleSheet.create({
   },
   styleValueText: {
     fontSize: 15,
-    fontFamily: fonts.OutfitBold,
+    fontFamily: fonts.PlusJakartaSansBold,
     color: BRAND_PRIMARY,
   },
   styleButtonsContainer: {
@@ -476,18 +476,18 @@ const styles = StyleSheet.create({
   },
   styleButtonText: {
     fontSize: 14,
-    fontFamily: fonts.OutfitMedium,
+    fontFamily: fonts.PlusJakartaSansMedium,
     color: '#D1D5DB',
   },
   styleButtonTextActive: {
     color: "#fff",
-    fontFamily: fonts.OutfitBold,
+    fontFamily: fonts.PlusJakartaSansBold,
   },
 
   // Footer
   footerNote: {
     fontSize: 12,
-    fontFamily: fonts.OutfitMedium,
+    fontFamily: fonts.PlusJakartaSansMedium,
     color: "#9CA3AF",
     textAlign: "center",
     lineHeight: 18,
@@ -496,7 +496,7 @@ const styles = StyleSheet.create({
   },
   footerLink: {
     color: BRAND_PRIMARY,
-    fontFamily: fonts.OutfitBold,
+    fontFamily: fonts.PlusJakartaSansBold,
   },
 });
 

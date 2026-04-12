@@ -1,23 +1,23 @@
-import React, { useState } from "react";
-import {
-  SafeAreaView,
-  Text,
-  View,
-  KeyboardAvoidingView,
-  Platform,
-  TouchableWithoutFeedback,
-  Keyboard,
-  Pressable,
-} from "react-native";
-import GlobalPhoneInput from "../../../components/inputs/PhoneInput";
-import TextInput from "../../../components/inputs/TextInput";
-import { useDispatch, useSelector } from "react-redux";
-import { signup } from "../../../slices/authSlice";
-import { useToast } from "../../../context/ToastContext";
-import Button from "../../../components/ui/Button";
-import { ScrollView } from "react-native-gesture-handler";
 import { useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
+import { useState } from "react";
+import {
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  SafeAreaView,
+  Text,
+  TouchableWithoutFeedback,
+  View,
+} from "react-native";
+import { ScrollView } from "react-native-gesture-handler";
+import { useDispatch, useSelector } from "react-redux";
+import GlobalPhoneInput from "../../../components/inputs/PhoneInput";
+import TextInput from "../../../components/inputs/TextInput";
+import Button from "../../../components/ui/Button";
+import { useToast } from "../../../context/ToastContext";
+import { signup } from "../../../slices/authSlice";
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -28,7 +28,11 @@ const Register = () => {
     userName: "",
     email: "",
     password: "",
+    confirmPassword: "",
   });
+  const [errors, setErrors] = useState({});
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const dispatch = useDispatch();
   const { loading } = useSelector((state) => state.auth);
@@ -37,28 +41,42 @@ const Register = () => {
 
   const handleChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+    // Clear error when user starts typing
+    if (errors[field]) {
+      setErrors((prev) => ({ ...prev, [field]: null }));
+    }
+  };
+
+  const validateForm = () => {
+    const { firstName, lastName, userName, phone, email, password, confirmPassword } = formData;
+    const newErrors = {};
+
+    if (!firstName.trim()) newErrors.firstName = "First name is required";
+    if (!lastName.trim()) newErrors.lastName = "Last name is required";
+    if (!userName.trim()) newErrors.userName = "Username is required";
+    if (!email.trim()) newErrors.email = "Email is required";
+    else if (!/\S+@\S+\.\S+/.test(email)) newErrors.email = "Enter a valid email";
+    if (!phone) newErrors.phone = "Phone number is required";
+    else if (!/^\d{10}$/.test(phone)) newErrors.phone = "Must be exactly 10 digits";
+    if (!password) newErrors.password = "Password is required";
+    else if (password.length < 8) newErrors.password = "Minimum 8 characters";
+    if (!confirmPassword) newErrors.confirmPassword = "Please confirm your password";
+    else if (password !== confirmPassword) newErrors.confirmPassword = "Passwords do not match";
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSignup = async () => {
-    const { firstName, lastName, userName, phone, countryCode, email, password } =
-      formData;
-
-    if (!firstName || !lastName || !userName || !phone || !email || !password) {
+    if (!validateForm()) {
       showToast({
-        message: "All fields including password are required",
+        message: "Please fix the errors above",
         variant: "error",
       });
       return;
     }
 
-    // ✅ Enforce 10-digit local number
-    if (!/^\d{10}$/.test(phone)) {
-      showToast({
-        message: "Phone number must be exactly 10 digits",
-        variant: "error",
-      });
-      return;
-    }
+    const { firstName, lastName, userName, phone, countryCode, email, password } = formData;
 
     try {
       await dispatch(
@@ -97,10 +115,10 @@ const Register = () => {
               contentContainerStyle={{ paddingBottom: 20 }}
               showsVerticalScrollIndicator={false}
             >
-              <Text className="text-3xl font-OutfitBold text-white mt-4 mb-1">
+              <Text className="text-3xl font-PlusJakartaSansBold text-white mt-4 mb-1">
                 Join Bondies
               </Text>
-              <Text className="text-white text-lg font-OutfitMedium mb-7">
+              <Text className="text-white text-lg font-PlusJakartaSansMedium mb-7">
                 Find your perfect match with just a few steps. Sign up now and
                 join millions of people finding love on Bondies.
               </Text>
@@ -112,12 +130,14 @@ const Register = () => {
                 placeholder="First name"
                 value={formData.firstName}
                 onChangeText={(text) => handleChange("firstName", text)}
+                error={errors.firstName}
               />
 
               <TextInput
                 placeholder="Last name"
                 value={formData.lastName}
                 onChangeText={(text) => handleChange("lastName", text)}
+                error={errors.lastName}
               />
 
               <View>
@@ -125,6 +145,7 @@ const Register = () => {
                   placeholder="Username/Display name"
                   value={formData.userName}
                   onChangeText={(text) => handleChange("userName", text)}
+                  error={errors.userName}
                 />
               </View>
               {/* 📱 Phone Input */}
@@ -135,6 +156,7 @@ const Register = () => {
                 onChangeCountryCode={(code) =>
                   handleChange("countryCode", code)
                 }
+                error={errors.phone}
               />
 
               <TextInput
@@ -143,13 +165,23 @@ const Register = () => {
                 autoCapitalize="none"
                 value={formData.email}
                 onChangeText={(text) => handleChange("email", text)}
+                error={errors.email}
               />
 
               <TextInput
-                placeholder="Create a password"
+                placeholder="Create a password (min 8 characters)"
                 value={formData.password}
                 onChangeText={(text) => handleChange("password", text)}
                 secureTextEntry
+                error={errors.password}
+              />
+
+              <TextInput
+                placeholder="Confirm password"
+                value={formData.confirmPassword}
+                onChangeText={(text) => handleChange("confirmPassword", text)}
+                secureTextEntry
+                error={errors.confirmPassword}
               />
               {/* Footer */}
               <View className="pb-6">
@@ -161,11 +193,11 @@ const Register = () => {
                 />
 
                 <View className="flex-row justify-center items-center gap-1 mt-4">
-                  <Text className="text-lg text-white font-OutfitMedium">
+                  <Text className="text-lg text-white font-PlusJakartaSansMedium">
                     Already have an account?
                   </Text>
                   <Pressable onPress={() => router.push("/login")}>
-                    <Text className="text-lg font-OutfitMedium text-primary">
+                    <Text className="text-lg font-PlusJakartaSansMedium text-primary">
                       Login
                     </Text>
                   </Pressable>

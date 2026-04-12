@@ -255,7 +255,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 17,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     color: '#E5E5E5',
   },
   postBtn: {
@@ -268,7 +268,7 @@ const styles = StyleSheet.create({
   postBtnText: {
     color: "#fff",
     fontSize: 15,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
   },
   body: {
     flex: 1,
@@ -277,7 +277,7 @@ const styles = StyleSheet.create({
   input: {
     minHeight: 140,
     fontSize: 16,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     color: '#E5E5E5',
     textAlignVertical: "top",
     marginBottom: 16,
@@ -293,7 +293,7 @@ const styles = StyleSheet.create({
   },
   chipText: {
     fontSize: 14,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     color: '#D1D5DB',
   },
   error: { color: "red", fontSize: 13, marginBottom: 8 },
@@ -319,7 +319,7 @@ const styles = StyleSheet.create({
   },
   mediaCount: {
     fontSize: 12,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     color: colors.primary,
   },
   mediaPreviewRow: {
@@ -348,7 +348,7 @@ const styles = StyleSheet.create({
   charCount: {
     fontSize: 12,
     color: "#CCC",
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     textAlign: "right",
   },
 });

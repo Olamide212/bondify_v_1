@@ -8,7 +8,7 @@ const Card = ({ title, items }) => {
   return (
     <View className="bg-[#121212] mt-4 p-6 border border-whiteLight rounded-xl">
       {title && (
-        <Text className="text-white text-xl font-OutfitSemiBold mb-3">
+        <Text className="text-white text-xl font-PlusJakartaSansSemiBold mb-3">
           {title}
         </Text>
       )}
@@ -35,11 +35,11 @@ const Card = ({ title, items }) => {
               )}
             <View className="flex-row items-center gap-3 flex-1">
               <View style={{flex: 1}}>
-                <Text className="text-xl text-white font-OutfitSemiBold">
+                <Text className="text-xl text-white font-PlusJakartaSansSemiBold">
                   {title}
                 </Text>
                 {description && (
-                  <Text className="text-lg  text-white font-Outfit mt-0.5">
+                  <Text className="text-lg  text-white font-PlusJakartaSans mt-0.5">
                     {description}
                   </Text>
                 )}

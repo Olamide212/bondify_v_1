@@ -59,12 +59,12 @@ const s = StyleSheet.create({
   },
   tabButtonText: {
     fontSize: 14,
-    fontFamily: 'OutfitMedium',
+    fontFamily: 'PlusJakartaSansMedium',
     color: '#9CA3AF',
   },
   activeTabButtonText: {
     color: '#FFFFFF',
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
   },
 });
 

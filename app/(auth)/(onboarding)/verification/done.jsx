@@ -37,8 +37,8 @@ export default function DoneScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 32, backgroundColor: "#121212" },
   iconWrap: { width: 96, height: 96, borderRadius: 99, backgroundColor: "#D1FAE5", alignItems: "center", justifyContent: "center", marginBottom: 24 },
-  title: { fontSize: 24, fontFamily: "OutfitBold", color: '#E5E5E5', marginBottom: 10, textAlign: "center" },
-  body: { fontSize: 16, fontFamily: "Outfit", color: '#9CA3AF', textAlign: "center", lineHeight: 22, marginBottom: 36 },
+  title: { fontSize: 24, fontFamily: "PlusJakartaSansBold", color: '#E5E5E5', marginBottom: 10, textAlign: "center" },
+  body: { fontSize: 16, fontFamily: "PlusJakartaSans", color: '#9CA3AF', textAlign: "center", lineHeight: 22, marginBottom: 36 },
   btn: { backgroundColor: PRIMARY, borderRadius: 99, paddingVertical: 16, paddingHorizontal: 48 },
-  btnText: { fontSize: 16, fontFamily: "OutfitBold", color: "#fff" },
+  btnText: { fontSize: 16, fontFamily: "PlusJakartaSansBold", color: "#fff" },
 });

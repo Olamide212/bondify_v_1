@@ -42,7 +42,7 @@ const MySelf = () => {
 
   return (
     <View className="px-6 py-4 bg-[#121212] mx-4 rounded-2xl mt-4">
-      <Text className="mb-2 font-OutfitMedium text-lg text-gray-400">
+      <Text className="mb-2 font-PlusJakartaSansMedium text-lg text-gray-400">
         My Answers
       </Text>
 
@@ -50,22 +50,22 @@ const MySelf = () => {
       {answers.length > 0 ? (
         answers.map((item, index) => (
           <View key={index} className="mb-4">
-            <Text className="text-white text-2xl font-OutfitMedium mb-1">
+            <Text className="text-white text-2xl font-PlusJakartaSansMedium mb-1">
               {item.question}
             </Text>
-            <Text className="font-Outfit text-lg text-gray-300">
+            <Text className="font-PlusJakartaSans text-lg text-gray-300">
               {item.answer}
             </Text>
           </View>
         ))
       ) : (
-        <Text className="text-gray-400  font-OutfitMedium">No answers yet.</Text>
+        <Text className="text-gray-400  font-PlusJakartaSansMedium">No answers yet.</Text>
       )}
 
       {/* Add Question Button */}
       <TouchableOpacity onPress={() => setShowModal(true)}>
         <View className="flex-row justify-between items-center mt-2">
-          <Text className="font-OutfitBold text-primary text-lg">
+          <Text className="font-PlusJakartaSansBold text-primary text-lg">
             Add a question...
           </Text>
           <View className="w-6 h-6 rounded-full bg-primary items-center justify-center">
@@ -80,7 +80,7 @@ const MySelf = () => {
           {!selectedQuestion ? (
             <>
               
-              <Text className="text-xl text-center font-OutfitBold mb-4">
+              <Text className="text-xl text-center font-PlusJakartaSansBold mb-4">
                 Choose a question
               </Text>
               <FlatList
@@ -91,28 +91,28 @@ const MySelf = () => {
                     className="p-3 pb-4 border-b border-gray-600"
                     onPress={() => setSelectedQuestion(item)}
                   >
-                    <Text className="text-lg font-OutfitMedium">{item}</Text>
+                    <Text className="text-lg font-PlusJakartaSansMedium">{item}</Text>
                   </TouchableOpacity>
                 )}
               />
             </>
           ) : (
             <>
-              <Text className="text-xl text-center font-OutfitBold mb-4">
+              <Text className="text-xl text-center font-PlusJakartaSansBold mb-4">
                 {selectedQuestion}
               </Text>
               <TextInput
                 placeholder="Type your answer..."
                 value={answer}
                 onChangeText={setAnswer}
-                className="border border-gray-600 rounded-lg p-3 text-lg font-OutfitMedium mb-4"
+                className="border border-gray-600 rounded-lg p-3 text-lg font-PlusJakartaSansMedium mb-4"
                 multiline
               />
               <TouchableOpacity
                 onPress={() => setSelectedQuestion(null)}
                 className="mt-3"
               >
-                <Text className="text-primary font-OutfitMedium text-center">
+                <Text className="text-primary font-PlusJakartaSansMedium text-center">
                   Choose another question
                 </Text>
               </TouchableOpacity>

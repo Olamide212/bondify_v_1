@@ -725,6 +725,29 @@ verificationSubmittedAt: { type: Date },
       default: null,
     },
 
+    // ── Communication Score ─────────────────────────────────────────────────
+    // Aggregate score based on user feedback and system metrics
+    communicationScore: {
+      // Overall computed score: 'excellent', 'good', 'average', 'slow', 'unresponsive', 'suspicious', 'new'
+      level: { type: String, enum: ['excellent', 'good', 'average', 'slow', 'unresponsive', 'suspicious', 'new'], default: 'new' },
+      // Numerical score (1-100) for more granular tracking
+      score: { type: Number, default: 50, min: 0, max: 100 },
+      // Total feedback received
+      totalFeedback: { type: Number, default: 0 },
+      // Breakdown of feedback types received
+      feedbackBreakdown: {
+        responsive: { type: Number, default: 0 },
+        friendly: { type: Number, default: 0 },
+        genuine: { type: Number, default: 0 },
+        slowToReply: { type: Number, default: 0 },
+        unresponsive: { type: Number, default: 0 },
+        suspicious: { type: Number, default: 0 },
+        inappropriate: { type: Number, default: 0 },
+      },
+      // Last time score was updated
+      lastUpdated: { type: Date, default: Date.now },
+    },
+
     // Account Status
     isActive:     { type: Boolean, default: true  },
     isDeleted:    { type: Boolean, default: false },

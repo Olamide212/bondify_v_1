@@ -213,26 +213,26 @@ const s = StyleSheet.create({
     flexDirection: "row", alignItems: "center", justifyContent: "space-between",
     paddingHorizontal: 16, paddingVertical: 14, borderBottomWidth: StyleSheet.hairlineWidth,
   },
-  headerTitle: { fontSize: 18, fontFamily: "OutfitBold" },
+  headerTitle: { fontSize: 18, fontFamily: "PlusJakartaSansBold" },
   body: { paddingHorizontal: 20, paddingTop: 28, paddingBottom: 60 },
   iconBubble: {
     width: 60, height: 60, borderRadius: 16,
     alignItems: "center", justifyContent: "center", marginBottom: 16,
   },
-  pageTitle: { fontSize: 22, fontFamily: "OutfitBold", letterSpacing: -0.4, marginBottom: 8 },
-  pageSub: { fontSize: 14, fontFamily: "Outfit", lineHeight: 20, marginBottom: 28 },
+  pageTitle: { fontSize: 22, fontFamily: "PlusJakartaSansBold", letterSpacing: -0.4, marginBottom: 8 },
+  pageSub: { fontSize: 14, fontFamily: "PlusJakartaSans", lineHeight: 20, marginBottom: 28 },
 
   generalError: {
     borderRadius: 10, borderWidth: 1,
     padding: 12, marginBottom: 16,
   },
-  generalErrorText: { fontSize: 13, fontFamily: "Outfit", color: "#EF4444" },
+  generalErrorText: { fontSize: 13, fontFamily: "PlusJakartaSans", color: "#EF4444" },
 
   saveBtn: {
     backgroundColor: colors.primary, borderRadius: 50,
     paddingVertical: 16, alignItems: "center", marginTop: 8,
   },
-  saveBtnText: { fontSize: 16, fontFamily: "OutfitBold", color: "#fff" },
+  saveBtnText: { fontSize: 16, fontFamily: "PlusJakartaSansBold", color: "#fff" },
 
   // Success
   successContainer: { flex: 1, alignItems: "center", justifyContent: "center", padding: 32 },
@@ -240,8 +240,8 @@ const s = StyleSheet.create({
     width: 80, height: 80, borderRadius: 24,
     alignItems: "center", justifyContent: "center", marginBottom: 20,
   },
-  successTitle: { fontSize: 24, fontFamily: "OutfitBold", marginBottom: 10 },
-  successSub: { fontSize: 15, fontFamily: "Outfit", textAlign: "center", lineHeight: 22 },
+  successTitle: { fontSize: 24, fontFamily: "PlusJakartaSansBold", marginBottom: 10 },
+  successSub: { fontSize: 15, fontFamily: "PlusJakartaSans", textAlign: "center", lineHeight: 22 },
 });
 
 export default ChangePassword;

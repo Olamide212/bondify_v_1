@@ -468,7 +468,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "700",
     color: '#E5E5E5',
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
   },
   onlineRow: { flexDirection: "row", alignItems: "center", gap: 5, marginTop: 2 },
   onlineDot: { width: 7, height: 7, borderRadius: 4, backgroundColor: "#22c55e" },
@@ -477,7 +477,7 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     color: PRIMARY,
     letterSpacing: 0.7,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
   },
 
   // Messages list
@@ -514,7 +514,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: '#E5E5E5',
     lineHeight: 22,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
   },
 
   // Suggestion card
@@ -537,13 +537,13 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     color: PRIMARY,
     letterSpacing: 0.8,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
   },
   suggestionQuote: {
     fontSize: 15,
     color: '#E5E5E5',
     lineHeight: 22,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
   },
   copyBtn: {
     borderWidth: 1.5,
@@ -557,7 +557,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: PRIMARY,
     fontWeight: "600",
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
   },
 
   // Tip card
@@ -573,13 +573,13 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: "700",
     color: PRIMARY,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
   },
   tipContent: {
     fontSize: 14,
     color: '#D1D5DB',
     lineHeight: 20,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
   },
 
   // User bubble
@@ -603,7 +603,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: "#fff",
     lineHeight: 22,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
   },
   userAvatarPlaceholder: {
     width: 36,
@@ -621,14 +621,14 @@ const styles = StyleSheet.create({
     color: "#aaa",
     marginTop: 4,
     alignSelf: "flex-end",
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
   },
   timestampUser: {
     fontSize: 11,
     color: "rgba(255,255,255,0.6)",
     marginTop: 4,
     alignSelf: "flex-end",
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
   },
 
   // Error bubble
@@ -644,13 +644,13 @@ const styles = StyleSheet.create({
   errorText: {
     fontSize: 14,
     color: "#ef4444",
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
   },
   retryBtn: { flexDirection: "row", alignItems: "center", gap: 5 },
   retryText: {
     fontSize: 12,
     color: PRIMARY,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
   },
 
   // Typing indicator
@@ -706,7 +706,7 @@ const styles = StyleSheet.create({
   chipLabel: {
     fontSize: 13,
     color: '#D1D5DB',
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
   },
 
   // Input bar
@@ -736,7 +736,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: '#E5E5E5',
     maxHeight: 100,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     paddingTop: 0,
     paddingBottom: 0,
   },

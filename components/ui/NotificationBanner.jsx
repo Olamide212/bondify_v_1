@@ -6,7 +6,7 @@
  */
 
 import { useEffect, useRef } from "react";
-import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Dimensions, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
   runOnJS,
@@ -137,7 +137,15 @@ const NotificationBanner = ({ notification, onDismiss, onPress }) => {
         >
           {/* Icon */}
           <View style={styles.iconContainer}>
-            <Text style={styles.iconText}>{meta.icon}</Text>
+            {notification.image ? (
+              <Image
+                source={{ uri: notification.image }}
+                style={styles.avatarImage}
+                resizeMode="cover"
+              />
+            ) : (
+              <Text style={styles.iconText}>{meta.icon}</Text>
+            )}
           </View>
 
           {/* Text */}
@@ -196,13 +204,19 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   iconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     backgroundColor: "rgba(255,255,255,0.1)",
     alignItems: "center",
     justifyContent: "center",
     flexShrink: 0,
+    overflow: "hidden",
+  },
+  avatarImage: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
   },
   iconText: {
     fontSize: 18,
@@ -214,13 +228,13 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: "700",
     color: "#FFFFFF",
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     marginBottom: 2,
   },
   body: {
     fontSize: 13,
     color: "rgba(255,255,255,0.72)",
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     lineHeight: 17,
   },
   closeBtn: {
@@ -236,7 +250,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: colors.primary,
     fontWeight: "700",
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     marginTop: 3,
   },
 });

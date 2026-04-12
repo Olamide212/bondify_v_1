@@ -84,11 +84,11 @@ const styles = StyleSheet.create({
   tabText: {
     fontSize: 13,
     color: "#888",
-    fontFamily: "OutfitMedium",
+    fontFamily: "PlusJakartaSansMedium",
   },
   activeTabText: {
     color: "#fff",
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
   },
   aiBadge: {
     backgroundColor: "#000",

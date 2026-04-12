@@ -234,13 +234,13 @@ const s = StyleSheet.create({
   },
   cardLocation: {
     fontSize:   16,
-    fontFamily: 'OutfitSemiBold',
+    fontFamily: 'PlusJakartaSansSemiBold',
     color: '#E5E5E5',
     marginBottom: 2,
   },
   cardCta: {
     fontSize:   13,
-    fontFamily: 'OutfitMedium',
+    fontFamily: 'PlusJakartaSansMedium',
     color:      colors.primary,
   },
 
@@ -259,7 +259,7 @@ const s = StyleSheet.create({
   },
   modalTitle: {
     fontSize:   18,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#E5E5E5',
   },
 
@@ -277,7 +277,7 @@ const s = StyleSheet.create({
   },
   gpsText: {
     fontSize:   14,
-    fontFamily: 'OutfitMedium',
+    fontFamily: 'PlusJakartaSansMedium',
     color:      colors.primary,
   },
 
@@ -296,7 +296,7 @@ const s = StyleSheet.create({
   },
   label: {
     fontSize:   13,
-    fontFamily: 'OutfitSemiBold',
+    fontFamily: 'PlusJakartaSansSemiBold',
     color: '#D1D5DB',
   },
   input: {
@@ -306,7 +306,7 @@ const s = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical:   12,
     fontSize:      15,
-    fontFamily:    'OutfitMedium',
+    fontFamily:    'PlusJakartaSansMedium',
     color: '#E5E5E5',
     backgroundColor: '#1E1E1E',
   },
@@ -323,7 +323,7 @@ const s = StyleSheet.create({
   },
   saveBtnText: {
     fontSize:   16,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color:      '#fff',
   },
 });

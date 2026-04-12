@@ -106,7 +106,7 @@ const UpdateEmailScreen = () => {
           <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
             <Ionicons name="arrow-back" size={24} color="#fff" />
           </TouchableOpacity>
-          <Text style={{flex: 1}} className="text-center text-xl font-OutfitMedium text-white">
+          <Text style={{flex: 1}} className="text-center text-xl font-PlusJakartaSansMedium text-white">
             {step === "email" ? "Update Email" : "Verify Email"}
           </Text>
           <View style={{ width: 24 }} />
@@ -117,10 +117,10 @@ const UpdateEmailScreen = () => {
           {step === "email" ? (
             <>
               {/* ── Email input step ── */}
-              <Text className="text-2xl font-OutfitBold text-white mb-2">
+              <Text className="text-2xl font-PlusJakartaSansBold text-white mb-2">
                 New email address
               </Text>
-              <Text className="text-base font-Outfit text-white mb-8 leading-6">
+              <Text className="text-base font-PlusJakartaSans text-white mb-8 leading-6">
                 We&apos;ll send a verification code to confirm your new email.
               </Text>
 
@@ -140,7 +140,7 @@ const UpdateEmailScreen = () => {
                 {loading ? (
                   <ActivityIndicator color="#fff" />
                 ) : (
-                  <Text className="text-white text-lg font-OutfitBold">
+                  <Text className="text-white text-lg font-PlusJakartaSansBold">
                     Send Code
                   </Text>
                 )}
@@ -149,12 +149,12 @@ const UpdateEmailScreen = () => {
           ) : (
             <>
               {/* ── OTP verification step ── */}
-              <Text className="text-2xl font-OutfitBold text-gray-100 mb-2">
+              <Text className="text-2xl font-PlusJakartaSansBold text-gray-100 mb-2">
                 Check your inbox
               </Text>
-              <Text className="text-base font-Outfit text-gray-400 mb-8 leading-6">
+              <Text className="text-base font-PlusJakartaSans text-gray-400 mb-8 leading-6">
                 We sent a code to{" "}
-                <Text className="font-OutfitMedium text-gray-200">
+                <Text className="font-PlusJakartaSansMedium text-gray-200">
                   {email}
                 </Text>
               </Text>
@@ -176,7 +176,7 @@ const UpdateEmailScreen = () => {
                 {loading ? (
                   <ActivityIndicator color="#fff" />
                 ) : (
-                  <Text className="text-white text-lg font-OutfitBold">
+                  <Text className="text-white text-lg font-PlusJakartaSansBold">
                     Confirm
                   </Text>
                 )}
@@ -190,7 +190,7 @@ const UpdateEmailScreen = () => {
                 }}
               >
                 <Text
-                  className="text-base font-OutfitMedium"
+                  className="text-base font-PlusJakartaSansMedium"
                   style={{ color: colors.primary }}
                 >
                   ← Change email
@@ -203,10 +203,10 @@ const UpdateEmailScreen = () => {
                 onPress={handleSendCode}
                 disabled={loading}
               >
-                <Text className="text-base font-Outfit text-gray-400">
+                <Text className="text-base font-PlusJakartaSans text-gray-400">
                   Didn&apos;t receive it?{" "}
                   <Text
-                    className="font-OutfitMedium"
+                    className="font-PlusJakartaSansMedium"
                     style={{ color: colors.primary }}
                   >
                     Resend

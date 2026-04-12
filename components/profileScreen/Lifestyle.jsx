@@ -108,12 +108,12 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize:   20,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#E5E5E5',
   },
   editBtn: {
     fontSize:   15,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color:      '#E8651A',
   },
   grid: {
@@ -135,7 +135,7 @@ const styles = StyleSheet.create({
   },
   chipText: {
     fontSize:   14,
-    fontFamily: 'OutfitMedium',
+    fontFamily: 'PlusJakartaSansMedium',
     color: '#D1D5DB',
     flexShrink: 1,
   },
@@ -145,7 +145,7 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize:   14,
-    fontFamily: 'Outfit',
+    fontFamily: 'PlusJakartaSans',
     color:      '#9CA3AF',
   },
 });

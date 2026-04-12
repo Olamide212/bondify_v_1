@@ -298,7 +298,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 17,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     color: '#E5E5E5',
   },
   editButton: {
@@ -326,7 +326,7 @@ const styles = StyleSheet.create({
   avatarInitial: {
     color: "#fff",
     fontSize: 30,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
   },
   cameraOverlay: {
     position: "absolute",
@@ -352,15 +352,15 @@ const styles = StyleSheet.create({
   profileInfo: { flex: 1 },
   realName: {
     fontSize: 18,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     color: '#E5E5E5',
     marginBottom: 8,
     textAlign: 'center'
   },
   statsRow: { flexDirection: "row", gap: 40, marginTop: 20 },
   statItem: { alignItems: "center" },
-  statNum: { fontSize: 20, fontFamily: "OutfitBold", color: '#E5E5E5' },
-  statLabel: { fontSize: 12, fontFamily: "Outfit", color: "#888" },
+  statNum: { fontSize: 20, fontFamily: "PlusJakartaSansBold", color: '#E5E5E5' },
+  statLabel: { fontSize: 12, fontFamily: "PlusJakartaSans", color: "#888" },
   usernameRow: {
     flexDirection: "row",
     gap: 10,
@@ -375,7 +375,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 10,
     fontSize: 14,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     color: '#E5E5E5',
   },
   saveBtn: {
@@ -388,7 +388,7 @@ const styles = StyleSheet.create({
   saveBtnText: {
     color: "#fff",
     fontSize: 14,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
   },
   tabRow: {
     flexDirection: "row",
@@ -399,13 +399,13 @@ const styles = StyleSheet.create({
   },
   tab: { flex: 1, paddingVertical: 10, alignItems: "center" },
   tabActive: { borderBottomWidth: 2, borderBottomColor: BRAND },
-  tabText: { fontSize: 14, fontFamily: "Outfit", color: "#888" },
-  tabTextActive: { fontFamily: "OutfitBold", color: BRAND },
+  tabText: { fontSize: 14, fontFamily: "PlusJakartaSans", color: "#888" },
+  tabTextActive: { fontFamily: "PlusJakartaSansBold", color: BRAND },
   empty: {
     textAlign: "center",
     color: "#BBB",
     paddingVertical: 24,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
   },
   miniPost: {
     paddingVertical: 10,
@@ -415,13 +415,13 @@ const styles = StyleSheet.create({
   },
   miniPostText: {
     fontSize: 14,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     color: '#D1D5DB',
     lineHeight: 20,
   },
   miniPostMeta: {
     fontSize: 12,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     color: "#BBB",
     marginTop: 4,
   },

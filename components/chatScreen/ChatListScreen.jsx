@@ -223,7 +223,7 @@ const bb = StyleSheet.create({
   textBlock: { flex: 1 },
   nameRow: { flexDirection: 'row', alignItems: 'center', gap: 7, marginBottom: 4 },
   name: {
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     fontSize: 17,
     color: '#fff',
     letterSpacing: -0.2,
@@ -234,11 +234,11 @@ const bb = StyleSheet.create({
     borderRadius: 6,
   },
   aiBadgeText: {
-    fontSize: 10, fontFamily: 'OutfitBold',
+    fontSize: 10, fontFamily: 'PlusJakartaSansBold',
     color: '#fff', letterSpacing: 0.5,
   },
   tagline: {
-    fontFamily: 'Outfit',
+    fontFamily: 'PlusJakartaSans',
     fontSize: 12,
     color: '#fff',
     lineHeight: 17,
@@ -251,7 +251,7 @@ const bb = StyleSheet.create({
     borderRadius: 20,
   },
   ctaText: {
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     fontSize: 13, color: colors.secondary,
   },
 
@@ -516,7 +516,7 @@ const styles = StyleSheet.create({
   },
   tabLabel: {
     fontSize: 15,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
   },
   tabLabelActive: {
     color: '#E5E5E5',
@@ -526,7 +526,7 @@ const styles = StyleSheet.create({
   },
 
   sectionLabel: {
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     fontSize: 15,
     color: '#FFFFFF',
     paddingLeft: 20,
@@ -534,7 +534,7 @@ const styles = StyleSheet.create({
     paddingTop: 10,
   },
   sectionLabelDark: {
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     fontSize: 15,
     color: '#FFFFFF',
     paddingLeft: 20,
@@ -564,7 +564,7 @@ const styles = StyleSheet.create({
   },
   placeholderLabel: { fontSize: 11, color: '#94A3B8', marginTop: 6, textAlign: 'center' },
   newMatchName: {
-    fontSize: 12, fontFamily: 'OutfitBold',
+    fontSize: 12, fontFamily: 'PlusJakartaSansBold',
     color: '#E5E7EB', marginTop: 5, textAlign: 'center',
     textTransform: 'capitalize',
   },
@@ -596,24 +596,24 @@ const styles = StyleSheet.create({
   },
   matchInfo: { flex: 1, justifyContent: 'center' },
   nameRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  matchName: { fontSize: 15, fontFamily: 'OutfitBold', color: '#E5E7EB', textTransform: 'capitalize' },
+  matchName: { fontSize: 15, fontFamily: 'PlusJakartaSansBold', color: '#E5E7EB', textTransform: 'capitalize' },
   verifiedBadge: { width: 15, height: 15 },
   systemAvatar: { backgroundColor: colors.white, borderWidth: 1.5, borderColor: colors.primary, justifyContent: 'center', alignItems: 'center' },
-  matchMessage: { fontSize: 13, color: '#9CA3AF', marginTop: 3, fontFamily: 'Outfit' },
+  matchMessage: { fontSize: 13, color: '#9CA3AF', marginTop: 3, fontFamily: 'PlusJakartaSans' },
   matchMeta: { alignItems: 'flex-end' },
-  matchTime: { fontSize: 11, color: '#9CA3AF', fontFamily: 'Outfit' },
+  matchTime: { fontSize: 11, color: '#9CA3AF', fontFamily: 'PlusJakartaSans' },
   unreadBadge: {
     width: 20, height: 20, borderRadius: 10,
     backgroundColor: colors.primary,
     justifyContent: 'center', alignItems: 'center', marginTop: 5,
   },
-  unreadText: { color: '#fff', fontSize: 11, fontFamily: 'OutfitBold' },
+  unreadText: { color: '#fff', fontSize: 11, fontFamily: 'PlusJakartaSansBold' },
 
   // Empty / loading states
   emptyStateContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 24 },
-  emptyStateTitle: { fontSize: 18, fontFamily: 'OutfitBold', color: '#E5E5E5', marginBottom: 6 },
-  emptyStateSubtitle: { fontSize: 14, color: '#9CA3AF', textAlign: 'center', fontFamily: 'Outfit' },
-  loadingLabel: { fontSize: 14, color: '#9CA3AF', marginTop: 10, textAlign: 'center', fontFamily: 'Outfit' },
+  emptyStateTitle: { fontSize: 18, fontFamily: 'PlusJakartaSansBold', color: '#E5E5E5', marginBottom: 6 },
+  emptyStateSubtitle: { fontSize: 14, color: '#9CA3AF', textAlign: 'center', fontFamily: 'PlusJakartaSans' },
+  loadingLabel: { fontSize: 14, color: '#9CA3AF', marginTop: 10, textAlign: 'center', fontFamily: 'PlusJakartaSans' },
 });
 
 export default ChatListScreen;

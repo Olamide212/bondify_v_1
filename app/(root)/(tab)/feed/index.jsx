@@ -831,12 +831,12 @@ const fStyles = StyleSheet.create({
   },
   filterChipText: {
     fontSize: 13,
-    fontFamily: 'OutfitMedium',
+    fontFamily: 'PlusJakartaSansMedium',
     color: '#9CA3AF',
   },
   filterChipTextActive: {
     color: "#121212",
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
   },
 
   // Type tabs (profile-style)
@@ -858,7 +858,7 @@ const fStyles = StyleSheet.create({
   },
   typeTabText: {
     fontSize: 14,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#9CA3AF',
   },
   typeTabTextActive: {
@@ -877,14 +877,14 @@ const fStyles = StyleSheet.create({
   },
   emptyTitle: {
     fontSize: 20,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#E5E5E5',
     marginBottom: 8,
     textAlign: 'center',
   },
   emptySub: {
     fontSize: 14,
-    fontFamily: 'Outfit',
+    fontFamily: 'PlusJakartaSans',
     color: '#888',
     textAlign: 'center',
     lineHeight: 22,
@@ -910,7 +910,7 @@ const fStyles = StyleSheet.create({
   },
   cityHighlightText: {
     fontSize: 28, // Bigger font for emphasis
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: colors.primary, // Use primary color for prominence
     textTransform: 'capitalize', // Capitalize city name
   },
@@ -931,7 +931,7 @@ const fStyles = StyleSheet.create({
   emptyBtnText: {
     color: '#fff',
     fontSize: 15,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
   },
 
   // FAB — pill button
@@ -955,7 +955,7 @@ const fStyles = StyleSheet.create({
   fabText: {
     color: '#fff',
     fontSize: 15,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
   },
 });
 

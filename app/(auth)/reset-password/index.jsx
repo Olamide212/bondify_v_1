@@ -88,10 +88,10 @@ const ResetPassword = () => {
             </Pressable>
 
             <View style={{flex: 1}} className="mt-4">
-              <Text className="text-3xl font-OutfitSemiBold text-white">
+              <Text className="text-3xl font-PlusJakartaSansSemiBold text-white">
                 Create new password
               </Text>
-              <Text className="mb-5 text-white text-lg font-Outfit">
+              <Text className="mb-5 text-white text-lg font-PlusJakartaSans">
                 Your new password must be at least 8 characters long. Choose
                 something strong that you haven&apos;t used before.
               </Text>

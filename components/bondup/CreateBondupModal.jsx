@@ -4,25 +4,25 @@
 
 import * as Location from 'expo-location';
 import {
-  Calendar,
-  ChevronRight,
-  Clock,
-  Globe,
-  Lock,
-  MapPin,
-  X,
+    Calendar,
+    ChevronRight,
+    Clock,
+    Globe,
+    Lock,
+    MapPin,
+    X,
 } from 'lucide-react-native';
 import { useState } from 'react';
 import {
-  ActivityIndicator,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { useSelector } from 'react-redux';
@@ -30,6 +30,10 @@ import { colors } from '../../constant/colors';
 import { useAlert } from '../../context/AlertContext';
 import bondupService from '../../services/bondupService';
 import BaseModal from '../modals/BaseModal';
+
+// Only use PROVIDER_GOOGLE on iOS - Android uses Google Maps by default and may crash
+// with PROVIDER_GOOGLE if Google Play Services isn't properly configured
+const MAP_PROVIDER = Platform.OS === 'ios' ? PROVIDER_GOOGLE : undefined;
 
 const BRAND = colors.primary;
 
@@ -235,12 +239,12 @@ const asm = StyleSheet.create({
   },
   cancelText: {
     fontSize: 16,
-    fontFamily: 'OutfitMedium',
+    fontFamily: 'PlusJakartaSansMedium',
     color: BRAND,
   },
   headerTitle: {
     fontSize: 18,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#E5E5E5',
   },
   scrollContent: {
@@ -249,7 +253,7 @@ const asm = StyleSheet.create({
   },
   subtitle: {
     fontSize: 20,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#E5E5E5',
     marginBottom: 24,
     textAlign: 'center',
@@ -259,7 +263,7 @@ const asm = StyleSheet.create({
   },
   categoryTitle: {
     fontSize: 16,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: BRAND,
     marginBottom: 12,
   },
@@ -284,12 +288,12 @@ const asm = StyleSheet.create({
   },
   activityLabel: {
     fontSize: 14,
-    fontFamily: 'OutfitMedium',
+    fontFamily: 'PlusJakartaSansMedium',
     color: '#E5E5E5',
   },
   activityLabelSelected: {
     color: '#fff',
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
   },
 });
 
@@ -678,7 +682,7 @@ export default function CreateBondupModal({ visible, onClose, onCreated }) {
               ) : null}
               <MapView
                 style={s.map}
-                provider={PROVIDER_GOOGLE}
+                provider={MAP_PROVIDER}
                 initialRegion={{
                   latitude: mapLocation.latitude,
                   longitude: mapLocation.longitude,
@@ -799,12 +803,12 @@ const s = StyleSheet.create({
   },
   cancelText: {
     fontSize: 15,
-    fontFamily: 'OutfitMedium',
+    fontFamily: 'PlusJakartaSansMedium',
     color: '#9CA3AF',
   },
   headerTitle: {
     fontSize: 17,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#E5E5E5',
   },
   postBtn: {
@@ -818,7 +822,7 @@ const s = StyleSheet.create({
   },
   postBtnText: {
     fontSize: 14,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#fff',
   },
 
@@ -830,7 +834,7 @@ const s = StyleSheet.create({
 
   sectionLabel: {
     fontSize: 11,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#888',
     letterSpacing: 1.2,
     marginBottom: 8,
@@ -851,13 +855,13 @@ const s = StyleSheet.create({
   },
   titleInput: {
     fontSize: 15,
-    fontFamily: 'Outfit',
+    fontFamily: 'PlusJakartaSans',
     color: '#E5E5E5',
     paddingVertical: 14,
   },
   descInput: {
     fontSize: 14,
-    fontFamily: 'Outfit',
+    fontFamily: 'PlusJakartaSans',
     color: '#E5E5E5',
     paddingVertical: 12,
     minHeight: 72,
@@ -885,7 +889,7 @@ const s = StyleSheet.create({
   },
   requiredText: {
     fontSize: 10,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: BRAND,
     letterSpacing: 0.5,
   },
@@ -906,7 +910,7 @@ const s = StyleSheet.create({
   },
   activitySelectText: {
     fontSize: 16,
-    fontFamily: 'OutfitMedium',
+    fontFamily: 'PlusJakartaSansMedium',
     color: BRAND,
   },
   activitySelectTextEmpty: {
@@ -933,12 +937,12 @@ const s = StyleSheet.create({
   },
   whenDayText: {
     fontSize: 15,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#E5E5E5',
   },
   whenTimeText: {
     fontSize: 13,
-    fontFamily: 'Outfit',
+    fontFamily: 'PlusJakartaSans',
     color: '#888',
     marginTop: 2,
   },
@@ -954,7 +958,7 @@ const s = StyleSheet.create({
   },
   changeTimeBtnText: {
     fontSize: 12,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: BRAND,
   },
 
@@ -968,7 +972,7 @@ const s = StyleSheet.create({
   whereInput: {
     flex: 1,
     fontSize: 15,
-    fontFamily: 'Outfit',
+    fontFamily: 'PlusJakartaSans',
     color: '#E5E5E5',
     paddingVertical: 4,
   },
@@ -984,7 +988,7 @@ const s = StyleSheet.create({
   },
   mapToggleBtnText: {
     fontSize: 14,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: BRAND,
   },
   mapContainer: {
@@ -1000,7 +1004,7 @@ const s = StyleSheet.create({
   },
   addressSearchInput: {
     fontSize: 14,
-    fontFamily: 'Outfit',
+    fontFamily: 'PlusJakartaSans',
     color: '#E5E5E5',
     paddingHorizontal: 12,
     paddingVertical: 10,
@@ -1010,7 +1014,7 @@ const s = StyleSheet.create({
   },
   geocodingError: {
     fontSize: 12,
-    fontFamily: 'Outfit',
+    fontFamily: 'PlusJakartaSans',
     color: '#EF4444',
     paddingHorizontal: 12,
     paddingVertical: 6,
@@ -1022,7 +1026,7 @@ const s = StyleSheet.create({
   },
   mapHint: {
     fontSize: 11,
-    fontFamily: 'Outfit',
+    fontFamily: 'PlusJakartaSans',
     color: '#888',
     paddingHorizontal: 12,
     paddingVertical: 8,
@@ -1057,7 +1061,7 @@ const s = StyleSheet.create({
   },
   visibilityCardTitle: {
     fontSize: 14,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#9CA3AF',
   },
   visibilityCardTitleActive: {
@@ -1065,7 +1069,7 @@ const s = StyleSheet.create({
   },
   visibilityCardDesc: {
     fontSize: 11,
-    fontFamily: 'Outfit',
+    fontFamily: 'PlusJakartaSans',
     color: '#999',
     textAlign: 'center',
   },
@@ -1081,7 +1085,7 @@ const s = StyleSheet.create({
   },
   advancedToggleText: {
     fontSize: 14,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: BRAND,
   },
   advancedSection: {
@@ -1089,7 +1093,7 @@ const s = StyleSheet.create({
   },
   advancedLabel: {
     fontSize: 11,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#888',
     letterSpacing: 1.2,
     marginBottom: 8,
@@ -1116,13 +1120,13 @@ const s = StyleSheet.create({
   postTypeEmoji: { fontSize: 24 },
   postTypeLabel: {
     fontSize: 13,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#9CA3AF',
   },
   postTypeLabelActive: { color: BRAND },
   postTypeDesc: {
     fontSize: 11,
-    fontFamily: 'Outfit',
+    fontFamily: 'PlusJakartaSans',
     color: '#999',
     textAlign: 'center',
   },
@@ -1144,7 +1148,7 @@ const tp = StyleSheet.create({
   },
   sheetTitle: {
     fontSize: 15,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#E5E5E5',
   },
   sheetClose: {
@@ -1157,7 +1161,7 @@ const tp = StyleSheet.create({
   },
   sheetLabel: {
     fontSize: 12,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#888',
     marginBottom: 8,
     letterSpacing: 0.5,
@@ -1171,8 +1175,8 @@ const tp = StyleSheet.create({
     borderColor: 'transparent',
   },
   dayChipActive: { borderColor: BRAND, backgroundColor: colors.primaryLight },
-  dayChipText: { fontSize: 12, fontFamily: 'OutfitMedium', color: '#9CA3AF' },
-  dayChipTextActive: { color: BRAND, fontFamily: 'OutfitBold' },
+  dayChipText: { fontSize: 12, fontFamily: 'PlusJakartaSansMedium', color: '#9CA3AF' },
+  dayChipTextActive: { color: BRAND, fontFamily: 'PlusJakartaSansBold' },
   timeChip: {
     paddingHorizontal: 12,
     paddingVertical: 8,
@@ -1182,8 +1186,8 @@ const tp = StyleSheet.create({
     borderColor: 'transparent',
   },
   timeChipActive: { borderColor: BRAND, backgroundColor: colors.primaryLight },
-  timeChipText: { fontSize: 12, fontFamily: 'OutfitMedium', color: '#9CA3AF' },
-  timeChipTextActive: { color: BRAND, fontFamily: 'OutfitBold' },
+  timeChipText: { fontSize: 12, fontFamily: 'PlusJakartaSansMedium', color: '#9CA3AF' },
+  timeChipTextActive: { color: BRAND, fontFamily: 'PlusJakartaSansBold' },
   doneBtn: {
     marginTop: 14,
     backgroundColor: BRAND,
@@ -1193,7 +1197,7 @@ const tp = StyleSheet.create({
   },
   doneBtnText: {
     fontSize: 14,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#fff',
   },
 });

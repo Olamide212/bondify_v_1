@@ -256,7 +256,9 @@ Write ONLY the bio text, no labels or extra commentary.`;
     });
 
     const bio = response.choices[0].message.content.trim();
-    res.json({ success: true, data: { bio } });
+    // Enforce 500-character limit on AI output to match client field constraints
+    const limitedBio = bio.substring(0, 500);
+    res.json({ success: true, data: { bio: limitedBio } });
   } catch (error) {
     next(error);
   }
@@ -533,14 +535,16 @@ Write ONLY the bio text, no labels or extra commentary. Make it warm, engaging, 
     });
 
     const bio = response.choices[0].message.content.trim();
-    res.json({ success: true, data: { bio } });
+    // Enforce 500-character limit on AI output
+    const limitedBio = bio.substring(0, 500);
+    res.json({ success: true, data: { bio: limitedBio } });
   } catch (error) {
     next(error);
   }
 };
 
 // ─────────────────────────────────────────────
-//  AI PROMPT SUGGESTIONS GENERATOR
+//  AI PROMPTS GENERATOR
 // ─────────────────────────────────────────────
 const generatePrompts = async (req, res, next) => {
   try {
@@ -1265,6 +1269,104 @@ Respond ONLY with a JSON array (no extra text):
 };
 
 // ─────────────────────────────────────────────
+//  AI REPLY SUGGESTIONS
+// ─────────────────────────────────────────────
+/**
+ * Generate quick reply suggestions based on the last message from the other person.
+ * POST /api/ai/suggest-replies
+ * Body: { matchId, lastMessage, conversationContext? }
+ * Returns: { suggestions: string[] }
+ */
+const suggestReplies = async (req, res, next) => {
+  try {
+    if (!process.env.OPENAI_API_KEY) {
+      return res.status(503).json({ success: false, message: 'AI service not configured' });
+    }
+
+    const { matchId, lastMessage, conversationContext = [] } = req.body;
+
+    if (!matchId || !lastMessage) {
+      return res.status(400).json({
+        success: false,
+        message: 'matchId and lastMessage are required',
+      });
+    }
+
+    // Get match with user profiles
+    const Match = require('../models/Match');
+    const match = await Match.findById(matchId)
+      .populate('user1', 'firstName interests personalities occupation lookingFor')
+      .populate('user2', 'firstName interests personalities occupation lookingFor');
+
+    if (!match) {
+      return res.status(404).json({ success: false, message: 'Match not found' });
+    }
+
+    const isUser1 = match.user1._id.toString() === req.user._id.toString();
+    const me = isUser1 ? match.user1 : match.user2;
+    const them = isUser1 ? match.user2 : match.user1;
+
+    if (!me || !them) {
+      return res.status(403).json({ success: false, message: 'Not authorized' });
+    }
+
+    // Build conversation context string from recent messages
+    const contextStr = conversationContext.length > 0
+      ? conversationContext.map(m => `${m.sender === 'me' ? me.firstName : them.firstName}: ${m.text}`).join('\n')
+      : '';
+
+    const prompt = `You are helping someone respond in a dating app chat. Generate 3-4 short, natural reply suggestions.
+
+About me:
+- Name: ${me.firstName}
+- Interests: ${(me.interests || []).slice(0, 5).join(', ') || 'Not specified'}
+- Looking for: ${(me.lookingFor || []).slice(0, 2).join(', ') || 'connection'}
+
+About them:
+- Name: ${them.firstName}
+- Interests: ${(them.interests || []).slice(0, 5).join(', ') || 'Not specified'}
+
+${contextStr ? `Recent conversation:\n${contextStr}\n` : ''}
+Their last message: "${lastMessage}"
+
+Generate 3-4 reply suggestions that are:
+- Short (under 25 words each)
+- Varied in tone (mix of playful, genuine, curious, flirty)
+- Natural and conversational (no cheesy pickup lines)
+- Show interest and keep the conversation going
+
+Return ONLY a JSON array of strings like: ["reply1", "reply2", "reply3"]`;
+
+    const ai = getOpenAI();
+    const response = await ai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [{ role: 'user', content: prompt }],
+      max_tokens: 300,
+      temperature: 0.85,
+    });
+
+    let suggestions = [];
+    try {
+      const raw = response.choices[0].message.content.trim();
+      const clean = raw.replace(/```json|```/g, '').trim();
+      suggestions = JSON.parse(clean);
+      // Ensure array format
+      if (!Array.isArray(suggestions)) {
+        suggestions = [raw];
+      }
+    } catch {
+      // Fallback: try to extract any quoted strings
+      const matches = response.choices[0].message.content.match(/"([^"]+)"/g);
+      suggestions = matches ? matches.map(m => m.replace(/"/g, '')) : [];
+    }
+
+    res.json({ success: true, data: { suggestions } });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// ─────────────────────────────────────────────
 //  EXPORTS
 // ─────────────────────────────────────────────
 module.exports = {
@@ -1286,4 +1388,5 @@ module.exports = {
   suggestPost,
   searchProfiles,
   findMyMatches,
+  suggestReplies,
 };

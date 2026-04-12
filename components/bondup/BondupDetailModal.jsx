@@ -5,34 +5,38 @@
 import * as ExpoLocation from 'expo-location';
 import { useRouter } from 'expo-router';
 import {
-  ArrowLeft,
-  Bookmark,
-  Clock,
-  MapPin,
-  MessageCircle,
-  Navigation,
-  Send,
-  Share2,
-  Trash2,
-  Users
+    ArrowLeft,
+    Bookmark,
+    Clock,
+    MapPin,
+    MessageCircle,
+    Navigation,
+    Send,
+    Share2,
+    Trash2,
+    Users
 } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
 import {
-  ActivityIndicator,
-  Image,
-  Linking,
-  Platform,
-  ScrollView,
-  Share,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Image,
+    Linking,
+    Platform,
+    ScrollView,
+    Share,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { colors } from '../../constant/colors';
 import AlertModal from '../modals/AlertModal';
 import BaseModal from '../modals/BaseModal';
+
+// Only use PROVIDER_GOOGLE on iOS - Android uses Google Maps by default and may crash
+// with PROVIDER_GOOGLE if Google Play Services isn't properly configured
+const MAP_PROVIDER = Platform.OS === 'ios' ? PROVIDER_GOOGLE : undefined;
 
 const BRAND = colors.primary;
 
@@ -148,7 +152,7 @@ function LocationCard({ bondup }) {
         <View style={s.mapContainer}>
           <MapView
             style={StyleSheet.absoluteFill}
-            provider={PROVIDER_GOOGLE}
+            provider={MAP_PROVIDER}
             initialRegion={{
               ...coords,
               latitudeDelta: 0.01,
@@ -564,7 +568,7 @@ const s = StyleSheet.create({
   },
   trendingText: {
     fontSize: 12,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: BRAND,
     letterSpacing: 0.5,
   },
@@ -577,14 +581,14 @@ const s = StyleSheet.create({
   },
   title: {
     fontSize: 28,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#fff',
     lineHeight: 34,
     marginBottom: 8,
   },
   description: {
     fontSize: 15,
-    fontFamily: 'Outfit',
+    fontFamily: 'PlusJakartaSans',
     color: '#9CA3AF',
     lineHeight: 22,
   },
@@ -620,7 +624,7 @@ const s = StyleSheet.create({
   hostedAvatarInitial: {
     color: '#fff',
     fontSize: 20,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
   },
   hostedInfo: {
     flex: 1,
@@ -628,20 +632,20 @@ const s = StyleSheet.create({
   },
   hostedLabel: {
     fontSize: 10,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: colors.primary,
     letterSpacing: 1,
     marginBottom: 2,
   },
   hostedName: {
     fontSize: 16,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#E5E5E5',
     textTransform: 'capitalize',
   },
   hostedSubtitle: {
     fontSize: 12,
-    fontFamily: 'Outfit',
+    fontFamily: 'PlusJakartaSans',
     color: '#888',
     marginTop: 1,
   },
@@ -697,14 +701,14 @@ const s = StyleSheet.create({
   },
   metaPairLabel: {
     fontSize: 10,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#999',
     letterSpacing: 1,
     marginBottom: 4,
   },
   metaPairValue: {
     fontSize: 13,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#E5E5E5',
     lineHeight: 18,
   },
@@ -730,14 +734,14 @@ const s = StyleSheet.create({
   },
   locationLabel: {
     fontSize: 10,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#999',
     letterSpacing: 1,
     marginBottom: 4,
   },
   locationValue: {
     fontSize: 14,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#E5E5E5',
   },
   navIconBtn: {
@@ -767,7 +771,7 @@ const s = StyleSheet.create({
   },
   mapPlaceholderText: {
     fontSize: 13,
-    fontFamily: 'OutfitMedium',
+    fontFamily: 'PlusJakartaSansMedium',
     color: '#888',
     textAlign: 'center',
     paddingHorizontal: 20,
@@ -786,12 +790,12 @@ const s = StyleSheet.create({
   },
   whoTitle: {
     fontSize: 16,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#E5E5E5',
   },
   whoCount: {
     color: '#888',
-    fontFamily: 'Outfit',
+    fontFamily: 'PlusJakartaSans',
   },
   
   // Participant list
@@ -830,14 +834,14 @@ const s = StyleSheet.create({
   participantListInitial: {
     color: '#fff',
     fontSize: 16,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
   },
   participantTextWrap: {
     flex: 1,
   },
   participantName: {
     fontSize: 15,
-    fontFamily: 'OutfitSemiBold',
+    fontFamily: 'PlusJakartaSansSemiBold',
     color: '#E5E5E5',
     marginBottom: 2,
   },
@@ -848,7 +852,7 @@ const s = StyleSheet.create({
   },
   participantLocation: {
     fontSize: 12,
-    fontFamily: 'Outfit',
+    fontFamily: 'PlusJakartaSans',
     color: '#888',
   },
   dmBtn: {
@@ -861,7 +865,7 @@ const s = StyleSheet.create({
   },
   noParticipantsText: {
     fontSize: 14,
-    fontFamily: 'Outfit',
+    fontFamily: 'PlusJakartaSans',
     color: '#999',
     textAlign: 'center',
     paddingVertical: 20,
@@ -894,7 +898,7 @@ const s = StyleSheet.create({
   },
   primaryBtnText: {
     fontSize: 16,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#fff',
   },
   secondaryBtn: {
@@ -908,7 +912,7 @@ const s = StyleSheet.create({
   },
   secondaryBtnText: {
     fontSize: 15,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#9CA3AF',
   },
   bookmarkBtn: {
@@ -926,7 +930,7 @@ const s = StyleSheet.create({
   },
   disabledBtnText: {
     fontSize: 16,
-    fontFamily: 'OutfitMedium',
+    fontFamily: 'PlusJakartaSansMedium',
     color: '#9CA3AF',
   },
 });

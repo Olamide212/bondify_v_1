@@ -410,12 +410,13 @@ export default function BondupChatScreen({ chatId, bondupId, bondupTitle, partic
     setReportLoading(true);
     try {
       const creatorId = bondupData?.createdBy?._id || bondupData?.createdBy;
-      if (creatorId) {
-        await settingsService.reportUser(creatorId, {
-          reason,
-          context: `Bondup: ${bondupTitle || bondupId}`,
-        });
+      if (!creatorId) {
+        throw new Error('Unable to identify content owner');
       }
+      await settingsService.reportUser(creatorId, {
+        reason,
+        context: `Bondup: ${bondupTitle || bondupId}`,
+      });
       setReportModalVisible(false);
       showActionModal({
         icon: 'success',
@@ -423,12 +424,12 @@ export default function BondupChatScreen({ chatId, bondupId, bondupTitle, partic
         message: 'Thank you. We will review this shortly.',
         actions: [{ label: 'OK', style: 'primary', onPress: closeActionModal }],
       });
-    } catch {
+    } catch (err) {
       setReportModalVisible(false);
       showActionModal({
         icon: 'error',
         title: 'Error',
-        message: 'Could not submit report. Try again.',
+        message: err?.message || 'Could not submit report. Try again.',
         actions: [{ label: 'OK', style: 'cancel', onPress: closeActionModal }],
       });
     } finally {
@@ -596,42 +597,47 @@ export default function BondupChatScreen({ chatId, bondupId, bondupTitle, partic
       animationType="fade"
       onRequestClose={() => setReportModalVisible(false)}
     >
-      <View style={amStyles.overlay}>
-        <View style={amStyles.card}>
-          <Text style={amStyles.iconEmoji}>🚩</Text>
-          <Text style={amStyles.title}>Report Bondup</Text>
-          <Text style={amStyles.message}>Please describe the issue:</Text>
-          <TextInput
-            style={rpStyles.input}
-            placeholder="What went wrong?"
-            placeholderTextColor="#BBB"
-            value={reportText}
-            onChangeText={setReportText}
-            multiline
-            maxLength={500}
-            autoFocus
-          />
-          <View style={amStyles.actions}>
-            <TouchableOpacity
-              style={amStyles.actionBtnCancel}
-              onPress={() => setReportModalVisible(false)}
-              activeOpacity={0.8}
-            >
-              <Text style={amStyles.actionBtnTextCancel}>Cancel</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[amStyles.actionBtnDestructive, !reportText.trim() && { opacity: 0.4 }]}
-              onPress={submitReport}
-              disabled={!reportText.trim() || reportLoading}
-              activeOpacity={0.8}
-            >
-              <Text style={amStyles.actionBtnTextDestructive}>
-                {reportLoading ? 'Submitting...' : 'Submit Report'}
-              </Text>
-            </TouchableOpacity>
+      <KeyboardAvoidingView 
+        style={{ flex: 1 }} 
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
+        <View style={amStyles.overlay}>
+          <View style={amStyles.card}>
+            <Text style={amStyles.iconEmoji}>🚩</Text>
+            <Text style={amStyles.title}>Report Bondup</Text>
+            <Text style={amStyles.message}>Please describe the issue:</Text>
+            <TextInput
+              style={rpStyles.input}
+              placeholder="What went wrong?"
+              placeholderTextColor="#BBB"
+              value={reportText}
+              onChangeText={setReportText}
+              multiline
+              maxLength={500}
+              autoFocus
+            />
+            <View style={amStyles.actions}>
+              <TouchableOpacity
+                style={amStyles.actionBtnCancel}
+                onPress={() => setReportModalVisible(false)}
+                activeOpacity={0.8}
+              >
+                <Text style={amStyles.actionBtnTextCancel}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[amStyles.actionBtnDestructive, !reportText.trim() && { opacity: 0.4 }]}
+                onPress={submitReport}
+                disabled={!reportText.trim() || reportLoading}
+                activeOpacity={0.8}
+              >
+                <Text style={amStyles.actionBtnTextDestructive}>
+                  {reportLoading ? 'Submitting...' : 'Submit Report'}
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
-      </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 
@@ -753,8 +759,8 @@ export default function BondupChatScreen({ chatId, bondupId, bondupTitle, partic
       {/* Messages */}
       <KeyboardAvoidingView
         style={{ flex: 1 }}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        keyboardVerticalOffset={0}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
       >
         <ChatBackground style={{ flex: 1 }}>
         <FlatList
@@ -874,16 +880,16 @@ const cs = StyleSheet.create({
   headerAvatarInitial: {
     color: '#fff',
     fontSize: 14,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
   },
   headerTitle: {
     fontSize: 16,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#E5E5E5',
   },
   headerSub: {
     fontSize: 12,
-    fontFamily: 'Outfit',
+    fontFamily: 'PlusJakartaSans',
     color: '#888',
     marginTop: 1,
   },
@@ -911,7 +917,7 @@ const cs = StyleSheet.create({
   emptyChatEmoji: { fontSize: 40, marginBottom: 12 },
   emptyChatText: {
     fontSize: 14,
-    fontFamily: 'Outfit',
+    fontFamily: 'PlusJakartaSans',
     color: '#888',
   },
 
@@ -932,7 +938,7 @@ const cs = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 10,
     fontSize: 15,
-    fontFamily: 'Outfit',
+    fontFamily: 'PlusJakartaSans',
     color: '#E5E5E5',
     maxHeight: 100,
   },
@@ -959,7 +965,7 @@ const cs = StyleSheet.create({
   },
   matchPromptText: {
     fontSize: 15,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#fff',
   },
 });
@@ -981,7 +987,7 @@ const bs = StyleSheet.create({
   },
   bannerMatchedText: {
     fontSize: 13,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: colors.secondary,
   },
   bannerPending: {
@@ -990,7 +996,7 @@ const bs = StyleSheet.create({
   },
   bannerPendingText: {
     fontSize: 13,
-    fontFamily: 'OutfitMedium',
+    fontFamily: 'PlusJakartaSansMedium',
     color: BRAND,
     flex: 1,
   },
@@ -1000,12 +1006,12 @@ const bs = StyleSheet.create({
   },
   counterText: {
     fontSize: 13,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#92400E',
   },
   counterSubText: {
     fontSize: 12,
-    fontFamily: 'Outfit',
+    fontFamily: 'PlusJakartaSans',
     color: '#B45309',
   },
 
@@ -1027,12 +1033,12 @@ const bs = StyleSheet.create({
   },
   matchRequestTitle: {
     fontSize: 16,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#E5E5E5',
   },
   matchRequestSub: {
     fontSize: 13,
-    fontFamily: 'Outfit',
+    fontFamily: 'PlusJakartaSans',
     color: '#9CA3AF',
     marginBottom: 14,
     marginLeft: 26,
@@ -1053,7 +1059,7 @@ const bs = StyleSheet.create({
   },
   matchDeclineText: {
     fontSize: 14,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#9CA3AF',
   },
   matchAcceptBtn: {
@@ -1073,7 +1079,7 @@ const bs = StyleSheet.create({
   },
   matchAcceptText: {
     fontSize: 14,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#fff',
   },
 
@@ -1090,14 +1096,14 @@ const bs = StyleSheet.create({
   },
   limitReachedTitle: {
     fontSize: 16,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#92400E',
     marginTop: 8,
     marginBottom: 4,
   },
   limitReachedSub: {
     fontSize: 13,
-    fontFamily: 'Outfit',
+    fontFamily: 'PlusJakartaSans',
     color: '#B45309',
     textAlign: 'center',
     marginBottom: 14,
@@ -1119,7 +1125,7 @@ const bs = StyleSheet.create({
   },
   matchRequestBtnText: {
     fontSize: 15,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#fff',
   },
 });
@@ -1153,7 +1159,7 @@ const ms = StyleSheet.create({
   senderAvatarInitial: {
     color: '#fff',
     fontSize: 12,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
   },
   avatarSpacer: {
     width: 38,
@@ -1164,7 +1170,7 @@ const ms = StyleSheet.create({
   },
   senderName: {
     fontSize: 11,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#888',
     marginBottom: 3,
     marginLeft: 4,
@@ -1182,7 +1188,7 @@ const ms = StyleSheet.create({
   },
   bubbleMeText: {
     fontSize: 15,
-    fontFamily: 'Outfit',
+    fontFamily: 'PlusJakartaSans',
     color: '#fff',
   },
   bubbleOther: {
@@ -1194,12 +1200,12 @@ const ms = StyleSheet.create({
   },
   bubbleOtherText: {
     fontSize: 15,
-    fontFamily: 'Outfit',
+    fontFamily: 'PlusJakartaSans',
     color: '#E5E5E5',
   },
   timeText: {
     fontSize: 10,
-    fontFamily: 'Outfit',
+    fontFamily: 'PlusJakartaSans',
     color: 'rgba(255,255,255,0.7)',
     textAlign: 'right',
     marginTop: 3,
@@ -1234,7 +1240,7 @@ const infoStyles = StyleSheet.create({
   },
   title: {
     fontSize: 15,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#E5E5E5',
     marginBottom: 4,
   },
@@ -1250,12 +1256,12 @@ const infoStyles = StyleSheet.create({
   },
   metaText: {
     fontSize: 11,
-    fontFamily: 'Outfit',
+    fontFamily: 'PlusJakartaSans',
     color: '#888',
   },
   tapHint: {
     fontSize: 10,
-    fontFamily: 'Outfit',
+    fontFamily: 'PlusJakartaSans',
     color: '#BBB',
     textAlign: 'right',
     marginTop: 6,
@@ -1287,7 +1293,7 @@ const lrStyles = StyleSheet.create({
   },
   sheetTitle: {
     fontSize: 18,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#E5E5E5',
     marginBottom: 18,
   },
@@ -1311,12 +1317,12 @@ const lrStyles = StyleSheet.create({
   },
   optionLabel: {
     fontSize: 15,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#E5E5E5',
   },
   optionDesc: {
     fontSize: 12,
-    fontFamily: 'Outfit',
+    fontFamily: 'PlusJakartaSans',
     color: '#888',
     marginTop: 2,
   },
@@ -1329,7 +1335,7 @@ const lrStyles = StyleSheet.create({
   },
   cancelText: {
     fontSize: 15,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#9CA3AF',
   },
 });
@@ -1362,14 +1368,14 @@ const amStyles = StyleSheet.create({
   },
   title: {
     fontSize: 18,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#E5E5E5',
     textAlign: 'center',
     marginBottom: 8,
   },
   message: {
     fontSize: 14,
-    fontFamily: 'Outfit',
+    fontFamily: 'PlusJakartaSans',
     color: '#9CA3AF',
     textAlign: 'center',
     lineHeight: 20,
@@ -1409,21 +1415,21 @@ const amStyles = StyleSheet.create({
   },
   actionBtnText: {
     fontSize: 15,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
   },
   actionBtnTextPrimary: {
     fontSize: 15,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#fff',
   },
   actionBtnTextDestructive: {
     fontSize: 15,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#fff',
   },
   actionBtnTextCancel: {
     fontSize: 15,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#9CA3AF',
   },
 });
@@ -1437,7 +1443,7 @@ const rpStyles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     fontSize: 15,
-    fontFamily: 'Outfit',
+    fontFamily: 'PlusJakartaSans',
     color: '#E5E5E5',
     minHeight: 80,
     textAlignVertical: 'top',

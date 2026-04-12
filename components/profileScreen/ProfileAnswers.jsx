@@ -328,7 +328,7 @@ const s = StyleSheet.create({
   promptQuestion: {
     flex:       1,
     fontSize:   13,
-    fontFamily: 'OutfitSemiBold',
+    fontFamily: 'PlusJakartaSansSemiBold',
     color:      colors.primary,
     lineHeight: 18,
   },
@@ -337,14 +337,14 @@ const s = StyleSheet.create({
   },
   promptAnswer: {
     fontSize:   18,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#E5E5E5',
     lineHeight: 26,
     marginBottom: 4,
   },
   editHint: {
     fontSize:   12,
-    fontFamily: 'Outfit',
+    fontFamily: 'PlusJakartaSans',
     color:      '#D1D5DB',
   },
 
@@ -370,12 +370,12 @@ const s = StyleSheet.create({
   },
   addTitle: {
     fontSize:   15,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color:      colors.white,
   },
   addSub: {
     fontSize:   12,
-    fontFamily: 'Outfit',
+    fontFamily: 'PlusJakartaSans',
     color:      colors.primary,
     marginTop:  2,
   },
@@ -395,7 +395,7 @@ const s = StyleSheet.create({
   },
   modalTitle: {
     fontSize:   18,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#E5E5E5',
   },
   separator: {
@@ -412,7 +412,7 @@ const s = StyleSheet.create({
   questionText: {
     flex:       1,
     fontSize:   15,
-    fontFamily: 'OutfitMedium',
+    fontFamily: 'PlusJakartaSansMedium',
     color: '#E5E5E5',
     lineHeight: 22,
   },
@@ -437,7 +437,7 @@ const s = StyleSheet.create({
   },
   categoryTabText: {
     fontSize:   14,
-    fontFamily: 'OutfitSemiBold',
+    fontFamily: 'PlusJakartaSansSemiBold',
     color: '#9CA3AF',
   },
   categoryTabTextActive: {
@@ -449,7 +449,7 @@ const s = StyleSheet.create({
   },
   emptyText: {
     fontSize:   14,
-    fontFamily: 'Outfit',
+    fontFamily: 'PlusJakartaSans',
     color:      '#9CA3AF',
     textAlign:  'center',
   },
@@ -467,7 +467,7 @@ const s = StyleSheet.create({
   questionBubbleText: {
     flex:       1,
     fontSize:   14,
-    fontFamily: 'OutfitSemiBold',
+    fontFamily: 'PlusJakartaSansSemiBold',
     color:      colors.primary,
     lineHeight: 20,
   },
@@ -475,7 +475,7 @@ const s = StyleSheet.create({
     borderBottomWidth: 1.5,
     borderBottomColor: '#E5E7EB',
     fontSize:          17,
-    fontFamily:        'OutfitMedium',
+    fontFamily:        'PlusJakartaSansMedium',
     color: '#E5E5E5',
     paddingVertical:   12,
     marginBottom:      6,
@@ -484,14 +484,14 @@ const s = StyleSheet.create({
   },
   charCount: {
     fontSize:     12,
-    fontFamily:   'Outfit',
+    fontFamily:   'PlusJakartaSans',
     color:        '#9CA3AF',
     textAlign:    'right',
     marginBottom: 20,
   },
   changeQuestion: {
     fontSize:   14,
-    fontFamily: 'OutfitMedium',
+    fontFamily: 'PlusJakartaSansMedium',
     color:      colors.white,
     marginBottom: 16,
   },

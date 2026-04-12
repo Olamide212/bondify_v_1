@@ -141,11 +141,11 @@ export default function SocialProfileScreen() {
           <View style={{ width: 36 }} />
         </View>
         <View style={s.loadingContainer}>
-          <Text style={{ fontSize: 16, color: '#888', textAlign: 'center', fontFamily: 'OutfitMedium' }}>
+          <Text style={{ fontSize: 16, color: '#888', textAlign: 'center', fontFamily: 'PlusJakartaSansMedium' }}>
             Could not load profile.{'\n'}Please try again.
           </Text>
           <TouchableOpacity onPress={() => { setLoading(true); loadProfile(); }} style={{ marginTop: 16, paddingHorizontal: 24, paddingVertical: 12, backgroundColor: BRAND, borderRadius: 12 }}>
-            <Text style={{ color: '#fff', fontFamily: 'OutfitBold', fontSize: 14 }}>Retry</Text>
+            <Text style={{ color: '#fff', fontFamily: 'PlusJakartaSansBold', fontSize: 14 }}>Retry</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -321,7 +321,7 @@ const s = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 17,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#E5E5E5',
   },
 
@@ -346,7 +346,7 @@ const s = StyleSheet.create({
   avatarInitial: {
     color: '#fff',
     fontSize: 34,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
   },
 
   // Name
@@ -357,19 +357,19 @@ const s = StyleSheet.create({
   },
   fullName: {
     fontSize: 22,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#E5E5E5',
     marginBottom: 4,
   },
   userName: {
     fontSize: 14,
-    fontFamily: 'OutfitMedium',
+    fontFamily: 'PlusJakartaSansMedium',
     color: '#888',
     marginBottom: 6,
   },
   bio: {
     fontSize: 14,
-    fontFamily: 'Outfit',
+    fontFamily: 'PlusJakartaSans',
     color: '#9CA3AF',
     textAlign: 'center',
     lineHeight: 20,
@@ -392,12 +392,12 @@ const s = StyleSheet.create({
   },
   statNumber: {
     fontSize: 20,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#E5E5E5',
   },
   statLabel: {
     fontSize: 12,
-    fontFamily: 'Outfit',
+    fontFamily: 'PlusJakartaSans',
     color: '#888',
     marginTop: 2,
   },
@@ -433,12 +433,12 @@ const s = StyleSheet.create({
   },
   followBtnText: {
     fontSize: 15,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#fff',
   },
   followingBtnText: {
     fontSize: 15,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: BRAND,
   },
 
@@ -455,7 +455,7 @@ const s = StyleSheet.create({
   },
   postsHeaderText: {
     fontSize: 15,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#E5E5E5',
   },
   postsContent: {
@@ -484,7 +484,7 @@ const s = StyleSheet.create({
   },
   postThumbTextContent: {
     fontSize: 12,
-    fontFamily: 'Outfit',
+    fontFamily: 'PlusJakartaSans',
     color: '#D1D5DB',
   },
 
@@ -495,7 +495,7 @@ const s = StyleSheet.create({
   emptyPostsEmoji: { fontSize: 40, marginBottom: 12 },
   emptyPostsText: {
     fontSize: 14,
-    fontFamily: 'Outfit',
+    fontFamily: 'PlusJakartaSans',
     color: '#888',
   },
 });

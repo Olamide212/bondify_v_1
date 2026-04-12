@@ -5,7 +5,7 @@ const Questions = () => {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#121212' }}>
       <View style={{ flex: 1, backgroundColor: '#121212' }} className="px-4 pt-8">
-        <Text className="text-white text-2xl font-OutfitBold">Questions</Text>
+        <Text className="text-white text-2xl font-PlusJakartaSansBold">Questions</Text>
       </View>
     </SafeAreaView>
   )

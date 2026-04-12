@@ -153,12 +153,12 @@ const s = StyleSheet.create({
   chipText: {
     fontSize: 14,
     color: '#D1D5DB',
-    fontFamily: "OutfitMedium",
+    fontFamily: "PlusJakartaSansMedium",
   },
   placeholder: {
     fontSize: 14,
     color: "#999",
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
   },
   addButton: {
     paddingVertical: 10,
@@ -171,7 +171,7 @@ const s = StyleSheet.create({
   addButtonText: {
     fontSize: 14,
     color: colors.primary,
-    fontFamily: "OutfitSemiBold",
+    fontFamily: "PlusJakartaSansSemiBold",
   },
   pickerContainer: {
     marginTop: 12,
@@ -197,11 +197,11 @@ const s = StyleSheet.create({
   optionText: {
     fontSize: 15,
     color: '#D1D5DB',
-    fontFamily: "OutfitMedium",
+    fontFamily: "PlusJakartaSansMedium",
   },
   optionTextSelected: {
     color: colors.primary,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
   },
   checkmark: {
     width: 24,
@@ -226,7 +226,7 @@ const s = StyleSheet.create({
   saveButtonText: {
     color: "#fff",
     fontSize: 15,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
   },
 });
 

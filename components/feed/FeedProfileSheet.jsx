@@ -268,7 +268,7 @@ const styles = StyleSheet.create({
   avatarInitial: {
     color: "#fff",
     fontSize: 28,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
   },
   cameraOverlay: {
     position: "absolute",
@@ -297,7 +297,7 @@ const styles = StyleSheet.create({
   profileInfo: { flex: 1 },
   realName: {
     fontSize: 17,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     color: '#E5E5E5',
     marginBottom: 8,
   },
@@ -305,12 +305,12 @@ const styles = StyleSheet.create({
   statItem: { alignItems: "center" },
   statNum: {
     fontSize: 16,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     color: '#E5E5E5',
   },
   statLabel: {
     fontSize: 11,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     color: "#888",
   },
   usernameRow: {
@@ -327,7 +327,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 10,
     fontSize: 14,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     color: '#E5E5E5',
   },
   saveBtn: {
@@ -340,7 +340,7 @@ const styles = StyleSheet.create({
   saveBtnText: {
     color: "#fff",
     fontSize: 14,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
   },
   tabRow: {
     flexDirection: "row",
@@ -353,11 +353,11 @@ const styles = StyleSheet.create({
   tabActive: { borderBottomWidth: 2, borderBottomColor: BRAND },
   tabText: {
     fontSize: 14,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     color: "#888",
   },
   tabTextActive: {
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     color: BRAND,
   },
   empty: {
@@ -373,13 +373,13 @@ const styles = StyleSheet.create({
   },
   miniPostText: {
     fontSize: 14,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     color: '#D1D5DB',
     lineHeight: 20,
   },
   miniPostMeta: {
     fontSize: 12,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     color: "#BBB",
     marginTop: 4,
   },

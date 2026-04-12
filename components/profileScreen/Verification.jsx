@@ -192,13 +192,13 @@ const s = StyleSheet.create({
   },
   cardTitle: {
     fontSize:     16,
-    fontFamily:   "OutfitBold",
+    fontFamily:   "PlusJakartaSansBold",
     color:        "#E5E5E5",
     marginBottom: 4,
   },
   cardSub: {
     fontSize:   13,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     color:      "#9CA3AF",
     lineHeight: 19,
   },
@@ -220,7 +220,7 @@ const s = StyleSheet.create({
   },
   ctaText: {
     fontSize:   13,
-    fontFamily: "OutfitSemiBold",
+    fontFamily: "PlusJakartaSansSemiBold",
     color:      colors.primary,
   },
 
@@ -263,19 +263,19 @@ const s = StyleSheet.create({
   },
   verifiedTitle: {
     fontSize:   18,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     color:      "#E5E5E5",
   },
   verifiedLabel: {
     fontSize:   12,
-    fontFamily: "OutfitMedium",
+    fontFamily: "PlusJakartaSansMedium",
     color:      "#34D399",
     marginTop:  2,
     letterSpacing: 0.3,
   },
   verifiedDesc: {
     fontSize:   13,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     color:      "#9CA3AF",
     lineHeight: 19,
     marginBottom: 14,
@@ -300,7 +300,7 @@ const s = StyleSheet.create({
   },
   perkText: {
     fontSize:   13,
-    fontFamily: "OutfitMedium",
+    fontFamily: "PlusJakartaSansMedium",
     color:      "#D1D5DB",
   },
 });

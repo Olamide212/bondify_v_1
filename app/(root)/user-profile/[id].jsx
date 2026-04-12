@@ -79,7 +79,7 @@ const ib = StyleSheet.create({
     elevation: 8,
   },
   emoji: { fontSize: 20 },
-  text:  { color: '#fff', fontFamily: 'OutfitBold', fontSize: 14, flex: 1 },
+  text:  { color: '#fff', fontFamily: 'PlusJakartaSansBold', fontSize: 14, flex: 1 },
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -362,10 +362,10 @@ const UserProfile = () => {
           <View style={styles.centerContent}>
             <View className="flex-row items-center gap-1">
               <View className="flex-row items-center">
-                <Text className="text-white text-2xl font-OutfitBold mr-2 capitalize" numberOfLines={1}>
+                <Text className="text-white text-2xl font-PlusJakartaSansBold mr-2 capitalize" numberOfLines={1}>
                   {currentProfile.name}
                 </Text>
-                <Text className="text-white text-2xl font-Outfit">
+                <Text className="text-white text-2xl font-PlusJakartaSans">
                   {currentProfile.age}
                 </Text>
               </View>

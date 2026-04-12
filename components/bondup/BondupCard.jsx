@@ -290,7 +290,7 @@ const s = StyleSheet.create({
   creatorInitial: {
     color: '#fff',
     fontSize: 20,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
   },
   creatorMeta: {
     flex: 1,
@@ -298,14 +298,14 @@ const s = StyleSheet.create({
   },
   creatorName: {
     fontSize: 16,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: colors.white,
     marginBottom: 2,
     textTransform: 'capitalize'
   },
   timeAgoText: {
     fontSize: 12,
-    fontFamily: 'Outfit',
+    fontFamily: 'PlusJakartaSans',
     color: '#6b7280',
   },
   categoryBadge: {
@@ -322,7 +322,7 @@ const s = StyleSheet.create({
   categoryText: {
     color: '#fff',
     fontSize: 10,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     letterSpacing: 0.5,
   },
 
@@ -336,7 +336,7 @@ const s = StyleSheet.create({
   },
   locationText: {
     fontSize: 13,
-    fontFamily: 'OutfitMedium',
+    fontFamily: 'PlusJakartaSansMedium',
     color: colors.white,
     flex: 1,
   },
@@ -363,7 +363,7 @@ const s = StyleSheet.create({
   },
   liveText: {
     fontSize: 11,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#fff',
     letterSpacing: 0.5,
   },
@@ -371,7 +371,7 @@ const s = StyleSheet.create({
   // Title + description
   title: {
     fontSize: 20,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: colors.white,
     lineHeight: 26,
     marginBottom: 6,
@@ -379,7 +379,7 @@ const s = StyleSheet.create({
   },
   description: {
     fontSize: 14,
-    fontFamily: 'Outfit',
+    fontFamily: 'PlusJakartaSans',
     color: colors.white,
     lineHeight: 20,
     marginBottom: 12,
@@ -408,7 +408,7 @@ const s = StyleSheet.create({
   infoChipRight: {},
   infoChipText: {
     fontSize: 12,
-    fontFamily: 'OutfitMedium',
+    fontFamily: 'PlusJakartaSansMedium',
     color: colors.white,
   },
 
@@ -429,7 +429,7 @@ const s = StyleSheet.create({
   joinBtnText: {
     color: '#fff',
     fontSize: 15,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
   },
   joinedBtn: {
     paddingVertical: 14,
@@ -444,7 +444,7 @@ const s = StyleSheet.create({
   joinedBtnText: {
     color: '#059669',
     fontSize: 15,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
   },
   fullBtn: {
     paddingVertical: 14,
@@ -457,7 +457,7 @@ const s = StyleSheet.create({
   fullBtnText: {
     color: '#9CA3AF',
     fontSize: 15,
-    fontFamily: 'OutfitMedium',
+    fontFamily: 'PlusJakartaSansMedium',
   },
   manageBtn: {
     paddingVertical: 14,
@@ -472,7 +472,7 @@ const s = StyleSheet.create({
   manageBtnText: {
     color: BRAND,
     fontSize: 15,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
   },
 
   // Joined buttons container
@@ -498,7 +498,7 @@ const s = StyleSheet.create({
   chatBtnText: {
     color: '#fff',
     fontSize: 14,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
   },
   exitBtn: {
     paddingVertical: 14,
@@ -512,6 +512,6 @@ const s = StyleSheet.create({
   exitBtnText: {
     color: '#EF4444',
     fontSize: 14,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
   },
 });

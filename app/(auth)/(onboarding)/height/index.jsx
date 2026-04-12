@@ -157,14 +157,14 @@ const styles = StyleSheet.create({
   // Heading
   title: {
     fontSize:    32,
-    fontFamily:  "OutfitBold",
+    fontFamily:  "PlusJakartaSansBold",
     color: '#E5E5E5',
     textAlign:   "center",
     marginBottom: 8,
   },
   subtitle: {
     fontSize:    15,
-    fontFamily:  "Outfit",
+    fontFamily:  "PlusJakartaSans",
     color:       "#888",
     textAlign:   "center",
     marginBottom: 24,
@@ -195,12 +195,12 @@ const styles = StyleSheet.create({
   },
   unitBtnText: {
     fontSize:   14,
-    fontFamily: "OutfitMedium",
+    fontFamily: "PlusJakartaSansMedium",
     color:      "#9CA3AF",
   },
   unitBtnTextActive: {
     color: '#E5E5E5',
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
   },
 
   // Wheel
@@ -230,12 +230,12 @@ const styles = StyleSheet.create({
   },
   toggleTitle: {
     fontSize:   14,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     color: '#E5E5E5',
   },
   toggleSub: {
     fontSize:   12,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     color:      "#999",
     marginTop:  2,
   },

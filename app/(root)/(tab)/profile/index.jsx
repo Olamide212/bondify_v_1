@@ -189,7 +189,7 @@ const tabStyles = StyleSheet.create({
   },
   tabLabel: {
     fontSize: 15,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
   },
   tabLabelActive: {
     color: '#E5E5E5',

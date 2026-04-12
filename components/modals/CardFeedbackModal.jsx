@@ -134,7 +134,7 @@ const styles = StyleSheet.create({
     justifyContent:   "center",
   },
   emoji: { fontSize: 22 },
-  label: { fontSize: 15, fontFamily: "OutfitBold" },
+  label: { fontSize: 15, fontFamily: "PlusJakartaSansBold" },
 });
 
 export default CardFeedbackModal;

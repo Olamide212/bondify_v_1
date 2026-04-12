@@ -136,7 +136,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 18,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     color: '#E5E5E5',
   },
   closeBtn: {
@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 14,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     color: '#9CA3AF',
     marginBottom: 24,
     textAlign: "center",
@@ -171,13 +171,13 @@ const styles = StyleSheet.create({
   },
   guidelineTitle: {
     fontSize: 14,
-    fontFamily: "OutfitSemiBold",
+    fontFamily: "PlusJakartaSansSemiBold",
     color: '#E5E5E5',
     marginBottom: 4,
   },
   guidelineDescription: {
     fontSize: 13,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     color: '#9CA3AF',
   },
   dosDonts: {
@@ -195,13 +195,13 @@ const styles = StyleSheet.create({
   },
   dosTitle: {
     fontSize: 14,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     color: "#10B981",
     marginBottom: 8,
   },
   dosText: {
     fontSize: 13,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     color: "#047857",
     lineHeight: 20,
   },
@@ -215,19 +215,19 @@ const styles = StyleSheet.create({
   },
   dontsTitle: {
     fontSize: 14,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     color: "#EF4444",
     marginBottom: 8,
   },
   dontsText: {
     fontSize: 13,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     color: "#DC2626",
     lineHeight: 20,
   },
   footer: {
     fontSize: 12,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     color: "#9CA3AF",
     textAlign: "center",
     marginBottom: 24,
@@ -243,7 +243,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     fontSize: 16,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     color: "#fff",
   },
 });

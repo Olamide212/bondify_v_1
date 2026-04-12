@@ -65,14 +65,14 @@ const s = StyleSheet.create({
   },
   name: {
     fontSize:     16,
-    fontFamily:   "OutfitBold",
+    fontFamily:   "PlusJakartaSansBold",
     color: '#E5E5E5',
     marginBottom: 3,
     textTransform: "capitalize",
   },
   subtitle: {
     fontSize:      13,
-    fontFamily:    "OutfitMedium",
+    fontFamily:    "PlusJakartaSansMedium",
     color:         "#9CA3AF",
     textTransform: "capitalize",
   },

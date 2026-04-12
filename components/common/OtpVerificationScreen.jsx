@@ -98,16 +98,16 @@ const OtpVerificationScreen = ({
 
 
 
-            <Text className="text-3xl font-OutfitBold text-white">
+            <Text className="text-3xl font-PlusJakartaSansBold text-white">
               {title}
             </Text>
 
-            <Text className="mb-7 text-white text-xl font-Outfit">
+            <Text className="mb-7 text-white text-xl font-PlusJakartaSans">
               {displaySubtitle}
               {email ? (
                 <>
                   {" "}
-                  <Text className="font-OutfitSemiBold text-white">{email}</Text>
+                  <Text className="font-PlusJakartaSansSemiBold text-white">{email}</Text>
                 </>
               ) : null}
             </Text>

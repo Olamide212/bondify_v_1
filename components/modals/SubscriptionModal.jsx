@@ -256,7 +256,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   headerTitle: {
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     fontSize: 18,
     color: colors.primary,
   },
@@ -281,7 +281,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   premiumBadgeText: {
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     fontSize: 11,
     color: "#7C3AED",
     letterSpacing: 1,
@@ -289,7 +289,7 @@ const styles = StyleSheet.create({
 
   // Hero
   heroTitle: {
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     fontSize: 34,
     color: '#E5E5E5',
     textAlign: "center",
@@ -300,7 +300,7 @@ const styles = StyleSheet.create({
     fontStyle: "italic",
   },
   heroSub: {
-    fontFamily: "OutfitMedium",
+    fontFamily: "PlusJakartaSansMedium",
     fontSize: 15,
     color: '#9CA3AF',
     textAlign: "center",
@@ -346,13 +346,13 @@ const styles = StyleSheet.create({
     flexShrink: 0,
   },
   featureTitle: {
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     fontSize: 15,
     color: '#E5E5E5',
     marginBottom: 4,
   },
   featureDesc: {
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     fontSize: 13,
     color: '#9CA3AF',
     lineHeight: 19,
@@ -382,12 +382,12 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   toggleBtnText: {
-    fontFamily: "OutfitMedium",
+    fontFamily: "PlusJakartaSansMedium",
     fontSize: 15,
     color: "#9CA3AF",
   },
   toggleBtnTextActive: {
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     color: colors.primary,
   },
 
@@ -416,7 +416,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   ribbonText: {
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     fontSize: 10,
     color: "#fff",
     letterSpacing: 0.8,
@@ -428,19 +428,19 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   priceAmount: {
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     fontSize: 40,
     color: '#E5E5E5',
     lineHeight: 46,
   },
   pricePeriod: {
-    fontFamily: "OutfitMedium",
+    fontFamily: "PlusJakartaSansMedium",
     fontSize: 18,
     color: '#9CA3AF',
     marginBottom: 4,
   },
   priceSub: {
-    fontFamily: "OutfitMedium",
+    fontFamily: "PlusJakartaSansMedium",
     fontSize: 13,
     color: colors.primary,
     marginBottom: 16,
@@ -454,7 +454,7 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   perkText: {
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     fontSize: 14,
     color: '#D1D5DB',
   },
@@ -476,12 +476,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   ctaBtnText: {
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     fontSize: 17,
     color: "#fff",
   },
   legalText: {
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     fontSize: 11,
     color: "#9CA3AF",
     textAlign: "center",
@@ -489,7 +489,7 @@ const styles = StyleSheet.create({
   },
   legalLink: {
     color: colors.primary,
-    fontFamily: "OutfitMedium",
+    fontFamily: "PlusJakartaSansMedium",
   },
 });
 

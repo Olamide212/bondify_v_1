@@ -93,18 +93,18 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize:   20,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#E5E5E5',
   },
   subtitle: {
     fontSize:   13,
-    fontFamily: 'Outfit',
+    fontFamily: 'PlusJakartaSans',
     color:      '#9CA3AF',
     marginTop:  2,
   },
   viewAll: {
     fontSize:   15,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color:      colors.primary,
   },
   chipsRow: {
@@ -123,7 +123,7 @@ const styles = StyleSheet.create({
   },
   chipSelectedText: {
     fontSize:   15,
-    fontFamily: 'OutfitSemiBold',
+    fontFamily: 'PlusJakartaSansSemiBold',
     color:      '#fff',
   },
   chipEmpty: {
@@ -139,7 +139,7 @@ const styles = StyleSheet.create({
   },
   chipEmptyText: {
     fontSize:   15,
-    fontFamily: 'OutfitMedium',
+    fontFamily: 'PlusJakartaSansMedium',
     color: '#D1D5DB',
   },
 });

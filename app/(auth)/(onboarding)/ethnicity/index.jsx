@@ -53,7 +53,7 @@ const Ethnicity = () => {
           <View style={{flex: 1, backgroundColor: '#121212'}} className="px-5">
             <ScrollView style={{flex: 1}} className=" bg-[#121212]" showsVerticalScrollIndicator={false}>
             <View style={{flex: 1}} className="mt-8">
-              <Text className="text-3xl text-white font-OutfitBold mb-2">
+              <Text className="text-3xl text-white font-PlusJakartaSansBold mb-2">
                 What’s Your Ethnicity?
               </Text>
              

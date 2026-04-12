@@ -1,12 +1,13 @@
 import { useFonts } from "expo-font";
-import { Stack } from "expo-router";
+import { Stack, useRouter } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { StatusBar, TextInput, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Provider, useSelector } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
 import MatchCelebrationModal from "../components/modals/MatchCelebrationModal";
+import { NotificationBanner } from "../components/ui/NotificationBanner";
 import { AlertProvider } from "../context/AlertContext";
 import { DiscoveryProfilesProvider } from "../context/DiscoveryProfilesContext";
 import { ProfileProvider, useProfile } from "../context/ProfileContext";
@@ -16,6 +17,7 @@ import { WalletProvider } from "../context/WalletContext";
 import "../global.css";
 import { messageService } from "../services/messageService";
 import { profileService } from "../services/profileService";
+import PushNotificationService from "../services/pushNotificationService";
 import { persistor, store } from "../store/store";
 
 // Force dark keyboard globally
@@ -27,8 +29,33 @@ SplashScreen.preventAutoHideAsync();
 
 // Inner component that uses the ProfileContext
 function RootLayoutInner() {
+  const router = useRouter();
   const currentUser = useSelector((state) => state.auth.user);
   const { matchCelebration, setMatchCelebration } = useProfile();
+  const [activeBanner, setActiveBanner] = useState(null);
+
+  useEffect(() => {
+    PushNotificationService.handleInitialNotificationResponse({ router });
+
+    const removeListeners = PushNotificationService.addNotificationListeners({
+      onNotificationReceived: (notification) => {
+        const content = notification?.request?.content ?? {};
+        const data = content?.data ?? {};
+        setActiveBanner({
+          title: content.title || "",
+          body: content.body || "",
+          type: data?.type || "notification",
+          image: data?.senderImage || null,
+          _raw: notification,
+        });
+      },
+      onNotificationResponse: (response) => {
+        PushNotificationService.handleNotificationResponse({ response, router });
+      },
+    });
+
+    return removeListeners;
+  }, [router]);
 
   // Initialize cache manager with current user
   useEffect(() => {
@@ -36,6 +63,13 @@ function RootLayoutInner() {
       const userId = currentUser.id || currentUser._id;
       profileService.onUserLogin(userId);
     }
+  }, [currentUser?.id, currentUser?._id]);
+
+  useEffect(() => {
+    const userId = currentUser?.id || currentUser?._id;
+    if (!userId) return;
+
+    PushNotificationService.registerForPushNotifications({ userId });
   }, [currentUser?.id, currentUser?._id]);
 
   return (
@@ -64,6 +98,18 @@ function RootLayoutInner() {
         />
       </Stack>
       {/* <OfflineBanner /> */}
+
+      {/* In-app foreground push notification banner */}
+      <NotificationBanner
+        notification={activeBanner}
+        onDismiss={() => setActiveBanner(null)}
+        onPress={(banner) => {
+          if (banner?._raw) {
+            const action = PushNotificationService.buildNavigationAction(banner._raw);
+            router.push(action);
+          }
+        }}
+      />
 
       {/* Global Match Celebration Modal — accessible from anywhere */}
       <MatchCelebrationModal
@@ -94,13 +140,20 @@ export default function RootLayout() {
   const splashHidden = useRef(false);
 
 const [fontsLoaded, fontError] = useFonts({
-  Outfit: require("../assets/fonts/Outfit_400Regular.ttf"),
-  OutfitExtraLight: require("../assets/fonts/Outfit_200ExtraLight.ttf"),
-  OutfitLight: require("../assets/fonts/Outfit_300Light.ttf"),
-  OutfitMedium: require("../assets/fonts/Outfit_500Medium.ttf"),
-  OutfitSemiBold: require("../assets/fonts/Outfit_600SemiBold.ttf"),
-  OutfitBold: require("../assets/fonts/Outfit_700Bold.ttf"),
-  OutfitExtraBold: require("../assets/fonts/Outfit_800ExtraBold.ttf"),
+  PlusJakartaSans: require("../assets/fonts/PlusJakartaSans_400Regular.ttf"),
+  PlusJakartaSansExtraLight: require("../assets/fonts/PlusJakartaSans_200ExtraLight.ttf"),
+  PlusJakartaSansLight: require("../assets/fonts/PlusJakartaSans_300Light.ttf"),
+  PlusJakartaSansMedium: require("../assets/fonts/PlusJakartaSans_500Medium.ttf"),
+  PlusJakartaSansSemiBold: require("../assets/fonts/PlusJakartaSans_600SemiBold.ttf"),
+  PlusJakartaSansBold: require("../assets/fonts/PlusJakartaSans_700Bold.ttf"),
+  PlusJakartaSansExtraBold: require("../assets/fonts/PlusJakartaSans_800ExtraBold.ttf"),
+  Outfit: require("../assets/fonts/PlusJakartaSans_400Regular.ttf"),
+  OutfitExtraLight: require("../assets/fonts/PlusJakartaSans_200ExtraLight.ttf"),
+  OutfitLight: require("../assets/fonts/PlusJakartaSans_300Light.ttf"),
+  OutfitMedium: require("../assets/fonts/PlusJakartaSans_500Medium.ttf"),
+  OutfitSemiBold: require("../assets/fonts/PlusJakartaSans_600SemiBold.ttf"),
+  OutfitBold: require("../assets/fonts/PlusJakartaSans_700Bold.ttf"),
+  OutfitExtraBold: require("../assets/fonts/PlusJakartaSans_800ExtraBold.ttf"),
 });
 
   const hideSplash = useCallback(async () => {

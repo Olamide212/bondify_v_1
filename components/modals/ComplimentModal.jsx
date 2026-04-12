@@ -295,7 +295,7 @@ const ComplimentModal = ({
         >
           {/* Card header */}
           <View style={styles.cardHeader}>
-            <Text style={styles.cardTitle} className="font-OutfitBold">
+            <Text style={styles.cardTitle} className="font-PlusJakartaSansBold">
               Send Compliment
             </Text>
             <TouchableOpacity
@@ -322,13 +322,13 @@ const ComplimentModal = ({
               </Animated.Text>
               <Text
                 style={styles.successTitle}
-                className="font-OutfitBold"
+                className="font-PlusJakartaSansBold"
               >
                 {matched ? "It's a match!" : "Compliment sent!"}
               </Text>
               <Text
                 style={styles.successSub}
-                className="font-Outfit"
+                className="font-PlusJakartaSans"
               >
                 {matched
                   ? `You and ${firstName} both showed interest — you're now matched! 🔥`
@@ -342,7 +342,7 @@ const ComplimentModal = ({
               >
                 <Text
                   style={styles.viewNextBtnText}
-                  className="font-OutfitBold"
+                  className="font-PlusJakartaSansBold"
                 >
                   View Other Profiles
                 </Text>
@@ -354,7 +354,7 @@ const ComplimentModal = ({
               {/* Name label */}
               <Text
                 style={styles.composeLabel}
-                className="font-OutfitBold"
+                className="font-PlusJakartaSansBold"
               >
                 Send a compliment to {firstName}
               </Text>
@@ -372,7 +372,7 @@ const ComplimentModal = ({
                     >
                       <Text
                         style={styles.suggestionText}
-                        className="font-Outfit"
+                        className="font-PlusJakartaSans"
                       >
                         {s}
                       </Text>
@@ -386,7 +386,7 @@ const ComplimentModal = ({
                 <View style={styles.errorContainer}>
                   <Text
                     style={styles.errorText}
-                    className="font-Outfit"
+                    className="font-PlusJakartaSans"
                   >
                     {error}
                   </Text>
@@ -440,7 +440,7 @@ const ComplimentModal = ({
                 </TouchableOpacity>
               </View>
 
-              <Text style={styles.charCount} className="font-Outfit">
+              <Text style={styles.charCount} className="font-PlusJakartaSans">
                 {text.length}/300
               </Text>
             </View>
@@ -521,7 +521,7 @@ const styles = StyleSheet.create({
     minHeight: 40,
     maxHeight: 100,
     fontSize: 15,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     color: "#fff",
     paddingVertical: 8,
     textAlignVertical: "top",

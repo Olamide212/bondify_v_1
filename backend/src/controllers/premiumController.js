@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const Notification = require('../models/Notification');
+const { sendPushToUser } = require('../utils/pushDispatchService');
 
 // Premium plan definitions
 const PREMIUM_PLANS = {
@@ -146,6 +147,14 @@ const activatePremium = async (req, res, next) => {
       body: `Your ${planConfig.name} subscription is now active. Enjoy your premium features!`,
       data: { plan, expiresAt },
     });
+
+    sendPushToUser({
+      userId: req.user._id,
+      title: `🎉 Welcome to ${planConfig.name}!`,
+      body: `Your ${planConfig.name} subscription is now active. Enjoy your premium features!`,
+      data: { type: 'system', plan },
+      onlyWhenOffline: false,
+    }).catch(() => {});
 
     res.json({
       success: true,

@@ -11,20 +11,21 @@
  * ─────────────────────────────────────────────────────────────
  */
 
-export { default as AuthService }         from "./authService";
-export { default as SettingsService }     from "./settingsService";
-export { default as PremiumService }      from "./premiumService";
-export { default as VerificationService } from "./verificationService";
-export { default as EventService }        from "./eventService";
+export { default as AIService } from "./aiService";
+export { default as AuthService } from "./authService";
+export { default as EventService } from "./eventService";
 export { default as NotificationService } from "./notificationService";
-export { default as AIService }           from "./aiService";
+export { default as PremiumService } from "./premiumService";
+export { default as PushNotificationService } from "./pushNotificationService";
+export { default as SettingsService } from "./settingsService";
+export { default as VerificationService } from "./verificationService";
 
 // Enums / constants (so screens never need to import from individual files)
-export { PLAN_DETAILS }                   from "./premiumService";
-export { VERIFICATION_STATUS, ID_TYPES }  from "./verificationService";
-export { EVENT_CATEGORIES, RSVP_STATUS }  from "./eventService";
-export { NOTIFICATION_META }              from "./notificationService";
-export { BIO_TONES }                      from "./aiService";
+export { BIO_TONES } from "./aiService";
+export { EVENT_CATEGORIES, RSVP_STATUS } from "./eventService";
+export { NOTIFICATION_META } from "./notificationService";
+export { PLAN_DETAILS } from "./premiumService";
+export { ID_TYPES, VERIFICATION_STATUS } from "./verificationService";
 
 // ─────────────────────────────────────────────────────────────
 // Error helper

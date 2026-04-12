@@ -4,6 +4,7 @@ const Match = require('../models/Match');
 const User = require('../models/User');
 const { getIO } = require('../socket');
 const { sendMessageNotification } = require('../utils/whatsappService');
+const { sendPushToUser } = require('../utils/pushDispatchService');
 
 const encodeCursor = (message) => {
   if (!message?._id || !message?.createdAt) return null;
@@ -234,6 +235,26 @@ const sendMessage = async (req, res, next) => {
       createdAt: new Date().toISOString(),
       senderId:  String(userId),
     });
+
+    sendPushToUser({
+      userId: receiverId,
+      title: senderName,
+      body: notificationBody,
+      data: {
+        type: 'message',
+        matchId: String(matchId),
+        senderId: String(userId),
+        senderName,
+        senderImage:
+          messagePayload?.sender?.images?.[0]?.url ||
+          messagePayload?.sender?.images?.[0] ||
+          '',
+      },
+      settingKey: 'newMessage',
+      onlyWhenOffline: true,
+    }).catch((err) => {
+      console.error('[expo-push] message notification error:', err?.message || err);
+    });
     io.to(`user:${String(userId)}`).emit('message:delivered', {
       matchId,
       messageId:   String(message._id),
@@ -243,12 +264,10 @@ const sendMessage = async (req, res, next) => {
     // ── WhatsApp offline notification (fire-and-forget) ───────────────────────
     // Only fires if receiver is offline AND has opted in to WhatsApp notifications
     User.findById(receiverId)
-      .select('online lastActive phoneNumber countryCode whatsappOptIn firstName')
+      .select('online lastActive phoneNumber countryCode whatsappOptIn firstName pushToken notificationSettings')
       .lean()
       .then((receiver) => {
         if (!receiver) return;
-        if (!receiver.whatsappOptIn) return;
-        if (!receiver.phoneNumber) return;
 
         // Treat user as offline if online flag is false OR last active > 3 mins ago
         const threeMinutesAgo  = new Date(Date.now() - 3 * 60 * 1000);
@@ -258,6 +277,9 @@ const sendMessage = async (req, res, next) => {
           new Date(receiver.lastActive) > threeMinutesAgo;
 
         if (effectivelyOnline) return;
+
+        if (!receiver.whatsappOptIn) return;
+        if (!receiver.phoneNumber) return;
 
         const countryCode = (receiver.countryCode || '').replace('+', '');
         const phone       = receiver.phoneNumber.replace(/\D/g, '');
@@ -470,6 +492,26 @@ const sendDirectMessage = async (req, res, next) => {
       body:      normalizedContent,
       createdAt: new Date().toISOString(),
       cta:       'view_profile',
+    });
+
+    sendPushToUser({
+      userId: receiverId,
+      title: senderName,
+      body: normalizedContent,
+      data: {
+        type: 'direct_message',
+        matchId: String(match._id),
+        senderId: String(senderId),
+        senderName,
+        senderImage:
+          messagePayload?.sender?.images?.[0]?.url ||
+          messagePayload?.sender?.images?.[0] ||
+          '',
+      },
+      settingKey: 'newMessage',
+      onlyWhenOffline: true,
+    }).catch((err) => {
+      console.error('[expo-push] direct message notification error:', err?.message || err);
     });
 
     return res.status(201).json({

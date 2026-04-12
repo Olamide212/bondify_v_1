@@ -206,7 +206,7 @@ const styles = StyleSheet.create({
   percentBadgeText: {
     color:      "#fff",
     fontSize:   11,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
   },
 
   // Name
@@ -219,7 +219,7 @@ const styles = StyleSheet.create({
   },
   nameText: {
     fontSize:      28,
-    fontFamily:    "OutfitBold",
+    fontFamily:    "PlusJakartaSansBold",
     color:         "#FFFFFF",
     textTransform: "capitalize",
     flexShrink:    1,
@@ -228,7 +228,7 @@ const styles = StyleSheet.create({
   // Completion hint
   completionSub: {
     fontSize:     12,
-    fontFamily:   "Outfit",
+    fontFamily:   "PlusJakartaSans",
     color:        "#9CA3AF",
     marginTop:    10,
     marginBottom: 4,
@@ -257,13 +257,13 @@ const styles = StyleSheet.create({
   statChipBorder: { marginLeft: 10 },
   statValue: {
     fontSize:     20,
-    fontFamily:   "OutfitBold",
+    fontFamily:   "PlusJakartaSansBold",
     color:        "#FFFFFF",
     marginBottom: 2,
   },
   statLabel: {
     fontSize:      9,
-    fontFamily:    "OutfitMedium",
+    fontFamily:    "PlusJakartaSansMedium",
     color:         "#9CA3AF",
     letterSpacing: 0.8,
   },

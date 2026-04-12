@@ -383,7 +383,7 @@ const styles = StyleSheet.create({
   },
   brandName: {
     fontSize:    20,
-    fontFamily:  "OutfitBold",
+    fontFamily:  "PlusJakartaSansBold",
     color:       "#fff",
     marginBottom: 28,
   },
@@ -398,14 +398,14 @@ const styles = StyleSheet.create({
   // ── Title ────────────────────────────────────────────────────────────────────
   matchTitle: {
     fontSize:    42,
-    fontFamily:  "OutfitBold",
+    fontFamily:  "PlusJakartaSansBold",
     color:       "#fff",  // white
     textAlign:   "center",
     marginBottom: 8,
   },
   matchSubtitle: {
     fontSize:    16,
-    fontFamily:  "OutfitMedium",
+    fontFamily:  "PlusJakartaSansMedium",
     color:       "#fff",
     textAlign:   "center",
     marginBottom: 24,
@@ -469,7 +469,7 @@ const styles = StyleSheet.create({
   avatarInitial: {
     color:      "#fff",
     fontSize:   28,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
   },
 
   // Sparkle badge — sits between the two avatars
@@ -492,7 +492,7 @@ const styles = StyleSheet.create({
   // ── Body text ─────────────────────────────────────────────────────────────────
   bodyText: {
     fontSize:    16,
-    fontFamily:  "OutfitMedium",
+    fontFamily:  "PlusJakartaSansMedium",
     color:       "#fff",
     textAlign:   "center",
     lineHeight:  24,
@@ -500,12 +500,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   bodyNameBold: {
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     color:      colors.white,
   },
   ctaLine: {
     fontSize:    14,
-    fontFamily:  "OutfitBold",
+    fontFamily:  "PlusJakartaSansBold",
     color:       colors.white,
     letterSpacing: 1.5,
     textTransform: "uppercase",
@@ -515,7 +515,7 @@ const styles = StyleSheet.create({
   // ── Icebreakers ───────────────────────────────────────────────────────────────
   iceBreakerTitle: {
     fontSize:    11,
-    fontFamily:  "OutfitBold",
+    fontFamily:  "PlusJakartaSansBold",
     color:       "#fff",
     letterSpacing: 1.4,
     marginBottom: 12,
@@ -547,7 +547,7 @@ const styles = StyleSheet.create({
   },
   chipText: {
     fontSize:   14,
-    fontFamily: "OutfitMedium",
+    fontFamily: "PlusJakartaSansMedium",
     lineHeight: 20,
     color: '#fff'
   },
@@ -561,7 +561,7 @@ const styles = StyleSheet.create({
   // ── Custom input ──────────────────────────────────────────────────────────────
   orDividerText: {
     fontSize:       11,
-    fontFamily:     "OutfitBold",
+    fontFamily:     "PlusJakartaSansBold",
     color:          "rgba(255,255,255,0.6)",
     letterSpacing:  1.4,
     marginBottom:   10,
@@ -584,7 +584,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18,
     paddingVertical:   13,
     fontSize:          15,
-    fontFamily:        "Outfit",
+    fontFamily:        "PlusJakartaSans",
     color:             "#fff",
   },
   customSendBtn: {
@@ -626,7 +626,7 @@ const styles = StyleSheet.create({
   sendBtnText: {
     color:      colors.primary,
     fontSize:   17,
-    fontFamily: "OutfitSemiBold",
+    fontFamily: "PlusJakartaSansSemiBold",
   },
   keepSwipingBtn: {
     alignItems:      "center",
@@ -640,7 +640,7 @@ const styles = StyleSheet.create({
   keepSwipingText: {
     color:      colors.white,
     fontSize:   17,
-    fontFamily: "OutfitMedium",
+    fontFamily: "PlusJakartaSansMedium",
   },
 });
 

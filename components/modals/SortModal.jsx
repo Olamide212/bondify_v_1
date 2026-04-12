@@ -165,12 +165,12 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     color: "#fff",
   },
   resetText: {
     fontSize: 14,
-    fontFamily: "OutfitMedium",
+    fontFamily: "PlusJakartaSansMedium",
     color: colors.primary,
   },
   optionsContainer: {
@@ -209,12 +209,12 @@ const styles = StyleSheet.create({
   },
   optionLabel: {
     fontSize: 15,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     color: "#fff",
   },
   optionLabelSelected: {
     color: colors.primary,
-    fontFamily: "Outfit-SemiBold",
+    fontFamily: "PlusJakartaSans-SemiBold",
   },
   checkIcon: {
     marginRight: 4,
@@ -228,7 +228,7 @@ const styles = StyleSheet.create({
   },
   confirmButtonText: {
     fontSize: 16,
-    fontFamily: "Outfit-Bold",
+    fontFamily: "PlusJakartaSans-Bold",
     color: "#fff",
   },
 });

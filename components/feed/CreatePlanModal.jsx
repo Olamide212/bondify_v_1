@@ -239,7 +239,7 @@ const s = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 17,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     color: '#E5E5E5',
   },
   body: {
@@ -248,7 +248,7 @@ const s = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 15,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     color: '#E5E5E5',
     marginBottom: 10,
     marginTop: 8,
@@ -272,7 +272,7 @@ const s = StyleSheet.create({
   statusEmoji: { fontSize: 32 },
   statusLabel: {
     fontSize: 13,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     color: '#D1D5DB',
     textAlign: "center",
   },
@@ -282,7 +282,7 @@ const s = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 12,
     fontSize: 14,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     color: '#E5E5E5',
     marginBottom: 12,
     borderWidth: 1,
@@ -309,12 +309,12 @@ const s = StyleSheet.create({
   },
   chipText: {
     fontSize: 13,
-    fontFamily: "OutfitMedium",
+    fontFamily: "PlusJakartaSansMedium",
     color: '#9CA3AF',
   },
   chipTextActive: {
     color: BRAND,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
   },
   daysRow: {
     flexDirection: "row",
@@ -336,7 +336,7 @@ const s = StyleSheet.create({
   },
   dayText: {
     fontSize: 13,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     color: '#9CA3AF',
   },
   dayTextActive: {
@@ -359,6 +359,6 @@ const s = StyleSheet.create({
   postBtnText: {
     color: "#fff",
     fontSize: 15,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
   },
 });

@@ -270,7 +270,7 @@ const styles = StyleSheet.create({
   avatarInitial: {
     color: "#fff",
     fontSize: 28,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
   },
   content: {
     flex: 1,
@@ -278,12 +278,12 @@ const styles = StyleSheet.create({
   },
   authorName: {
     fontSize: 16,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     color: '#E5E5E5',
   },
   timeAgoText: {
     fontSize: 12,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     color: "#BBB",
     marginBottom: 6,
   },
@@ -298,11 +298,11 @@ const styles = StyleSheet.create({
   },
   statusText: {
     fontSize: 12,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
   },
   note: {
     fontSize: 14,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     color: '#D1D5DB',
     lineHeight: 19,
     marginBottom: 6,
@@ -317,7 +317,7 @@ const styles = StyleSheet.create({
   },
   activityText: {
     fontSize: 12,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     color: BRAND,
   },
   daysRow: {
@@ -334,7 +334,7 @@ const styles = StyleSheet.create({
   },
   dayTagText: {
     fontSize: 11,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     color: '#9CA3AF',
   },
   metaRow: {
@@ -345,7 +345,7 @@ const styles = StyleSheet.create({
   },
   metaText: {
     fontSize: 12,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     color: "#888",
     flex: 1,
   },
@@ -377,7 +377,7 @@ const styles = StyleSheet.create({
   participantInitial: {
     color: "#fff",
     fontSize: 10,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
   },
   countBadge: {
     flexDirection: "row",
@@ -387,7 +387,7 @@ const styles = StyleSheet.create({
   },
   countText: {
     fontSize: 11,
-    fontFamily: "OutfitMedium",
+    fontFamily: "PlusJakartaSansMedium",
     color: '#9CA3AF',
   },
   actionBtn: {
@@ -403,7 +403,7 @@ const styles = StyleSheet.create({
   },
   actionBtnText: {
     fontSize: 12,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
   },
   joinBtnText: {
     color: "#fff",

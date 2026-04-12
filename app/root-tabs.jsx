@@ -336,6 +336,7 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { useEffect, useState } from "react";
 import { Image, Platform, StyleSheet, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useSelector } from "react-redux";
 
 import IceBreakerModal from "../components/modals/IceBreakerModal";
@@ -370,12 +371,16 @@ const TabIcon = ({ focused, customImage, badge }) => {
 };
 
 const RootTabs = () => {
+  const insets = useSafeAreaInsets();
   const [showIceBreakerModal, setShowIceBreakerModal] = useState(false);
   const [unreadMessages, setUnreadMessages] = useState(0);
   const [newLikes, setNewLikes] = useState(0);
   
   // Get current user from Redux auth
   const currentUserId = useSelector((state) => state.auth?.user?.id || state.auth?.user?._id);
+  
+  // Calculate tab bar height including safe area inset
+  const tabBarHeight = 70 + (Platform.OS === 'android' ? Math.max(insets.bottom, 10) : insets.bottom);
   
   // Listen for socket events to update badge counts
   useEffect(() => {
@@ -427,7 +432,11 @@ const RootTabs = () => {
         screenOptions={{
           headerShown: false,
           tabBarShowLabel: false,
-          tabBarStyle: styles.tabBar,
+          tabBarStyle: {
+            ...styles.tabBar,
+            height: tabBarHeight,
+            paddingBottom: Platform.OS === 'android' ? Math.max(insets.bottom, 10) : insets.bottom,
+          },
         }}
       >
         <Tab.Screen
@@ -498,24 +507,11 @@ const styles = StyleSheet.create({
     backgroundColor: "#121212",
   },
   tabBar: {
-    height: 80,
     backgroundColor: "#121212",
     paddingTop: 10,
     borderTopWidth: 1,
     borderColor: "#121212",
-    paddingBottom: Platform.OS === "ios" ? 6 : 4,
-    // elevation: 8,
-    // ...Platform.select({
-    //   ios: {
-    //     shadowColor: "#000",
-    //     shadowOffset: { width: 0, height: -2 },
-    //     shadowOpacity: 0.1,
-    //     shadowRadius: 4,
-    //   },
-    //   android: {
-    //     elevation: 8,
-    //   },
-    // }),
+    // height and paddingBottom are set dynamically in screenOptions
   },
   tabIconContainer: {
     alignItems: "center",

@@ -77,7 +77,7 @@ const DiscoverProfilesScreen = () => {
         </View>
       ) : filteredProfiles.length === 0 ? (
         <View style={styles.emptyContainer}>
-          <Text className="text-3xl font-OutfitBold">No Profile </Text>
+          <Text className="text-3xl font-PlusJakartaSansBold">No Profile </Text>
           <Text style={styles.emptyText}>
             No profiles found for this category.
           </Text>

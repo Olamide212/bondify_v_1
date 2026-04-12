@@ -127,16 +127,16 @@ const s = StyleSheet.create({
     flexDirection: "row", alignItems: "center", justifyContent: "space-between",
     paddingHorizontal: 16, paddingVertical: 14, borderBottomWidth: StyleSheet.hairlineWidth,
   },
-  headerTitle: { fontSize: 18, fontFamily: "OutfitBold" },
+  headerTitle: { fontSize: 18, fontFamily: "PlusJakartaSansBold" },
   body: { paddingHorizontal: 20, paddingTop: 28, paddingBottom: 60 },
   iconBubble: {
     width: 60, height: 60, borderRadius: 16,
     alignItems: "center", justifyContent: "center", marginBottom: 20,
   },
-  pageTitle: { fontSize: 26, fontFamily: "OutfitBold", letterSpacing: -0.5, marginBottom: 12 },
-  pageIntro: { fontSize: 14, fontFamily: "Outfit", lineHeight: 21, marginBottom: 28 },
-  sectionTitle: { fontSize: 18, fontFamily: "OutfitBold", marginBottom: 10, marginTop: 4 },
-  bodyText: { fontSize: 14, fontFamily: "Outfit", lineHeight: 21, marginBottom: 24 },
+  pageTitle: { fontSize: 26, fontFamily: "PlusJakartaSansBold", letterSpacing: -0.5, marginBottom: 12 },
+  pageIntro: { fontSize: 14, fontFamily: "PlusJakartaSans", lineHeight: 21, marginBottom: 28 },
+  sectionTitle: { fontSize: 18, fontFamily: "PlusJakartaSansBold", marginBottom: 10, marginTop: 4 },
+  bodyText: { fontSize: 14, fontFamily: "PlusJakartaSans", lineHeight: 21, marginBottom: 24 },
   cookieCard: {
     borderRadius: 14, borderWidth: StyleSheet.hairlineWidth,
     padding: 14, marginBottom: 10,
@@ -150,9 +150,9 @@ const s = StyleSheet.create({
     width: 34, height: 34, borderRadius: 9,
     alignItems: "center", justifyContent: "center",
   },
-  cookieTitle: { fontSize: 15, fontFamily: "OutfitBold" },
-  cookieDesc: { fontSize: 13, fontFamily: "Outfit", lineHeight: 19 },
-  lastUpdated: { fontSize: 11, fontFamily: "OutfitBold", letterSpacing: 0.6, marginTop: 8 },
+  cookieTitle: { fontSize: 15, fontFamily: "PlusJakartaSansBold" },
+  cookieDesc: { fontSize: 13, fontFamily: "PlusJakartaSans", lineHeight: 19 },
+  lastUpdated: { fontSize: 11, fontFamily: "PlusJakartaSansBold", letterSpacing: 0.6, marginTop: 8 },
 });
 
 export default CookiePolicy;

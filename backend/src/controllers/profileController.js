@@ -9,6 +9,7 @@ const ProfileView = require('../models/ProfileView');
 const Notification = require('../models/Notification');
 const { getIO } = require('../socket');
 const { mapImagesWithAccessUrls } = require('../utils/imageHelper');
+const { sendPushToUser } = require('../utils/pushDispatchService');
 
 const PROFILE_CACHE_TTL_MS = Number(process.env.PROFILE_CACHE_TTL_MS || 30000);
 const profileCache = new Map();
@@ -448,6 +449,17 @@ const recordProfileVisit = async (viewerId, viewedId, viewerInfo = {}) => {
       body:      `${viewerName} just viewed your profile`,
       data:      { viewerId: String(viewerId) },
     });
+
+    sendPushToUser({
+      userId: viewedId,
+      title: `${viewerName} visited you`,
+      body: `${viewerName} just viewed your profile`,
+      data: {
+        type: 'profile_visit',
+        userId: String(viewerId),
+      },
+      onlyWhenOffline: true,
+    }).catch(() => {});
   } catch (err) {
     // Fire-and-forget — don't let tracking errors affect the main response
     console.error('recordProfileVisit error:', err?.message);

@@ -288,10 +288,10 @@ const ProfileScreen = () => {
           {/* Center: Name & Age */}
           <View style={styles.centerContent}>
             <View style={styles.nameContainer}>
-              <Text className="text-white text-xl font-OutfitBold mr-2">
+              <Text className="text-white text-xl font-PlusJakartaSansBold mr-2">
                 {currentProfile.name}
               </Text>
-              <Text className="text-white text-xl font-Outfit">
+              <Text className="text-white text-xl font-PlusJakartaSans">
                 {currentProfile.age}
               </Text>
               {currentProfile.verified && (

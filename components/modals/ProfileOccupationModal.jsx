@@ -43,7 +43,7 @@ const OccupationModal = ({ visible, onClose, onSelect, initialSelected }) => {
             <View style={{flex: 1}} className="px-4">
               {/* Header */}
               <View className="mt-6 mb-6">
-                <Text className="text-3xl font-OutfitBold text-white">
+                <Text className="text-3xl font-PlusJakartaSansBold text-white">
                   What&apos;s your occupation?
                 </Text>
               </View>
@@ -73,7 +73,7 @@ const OccupationModal = ({ visible, onClose, onSelect, initialSelected }) => {
                         selectedOccupation === item.value
                           ? "text-white"
                           : "text-white"
-                      } font-OutfitMedium`}
+                      } font-PlusJakartaSansMedium`}
                     >
                       {item.label}
                     </Text>

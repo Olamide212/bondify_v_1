@@ -2,6 +2,7 @@ const Comment  = require('../models/Comment');
 const Match    = require('../models/Match');
 const User     = require('../models/User');
 const { getIO } = require('../socket');
+const { sendPushToUser } = require('../utils/pushDispatchService');
 
 // Helper — send in-app socket notification to the target user if they're online.
 const emitNotification = (userId, payload) => {
@@ -57,6 +58,22 @@ const sendComment = async (req, res, next) => {
       createdAt: comment.createdAt,
     });
 
+    sendPushToUser({
+      userId: targetUserId,
+      title: `${populated.fromUser.firstName || 'Someone'} commented on your photo`,
+      body: content.trim(),
+      data: {
+        type: 'photo_comment',
+        commentId: String(comment._id),
+        senderId: String(fromUserId),
+        imageIndex,
+      },
+      settingKey: 'newLike',
+      onlyWhenOffline: true,
+    }).catch((err) => {
+      console.error('[expo-push] comment push error:', err?.message || err);
+    });
+
     // ── Auto-match on mutual compliment ───────────────────────
     // If targetUser had already sent a compliment to fromUser → they both showed
     // interest → automatically create a match between them.
@@ -89,6 +106,32 @@ const sendComment = async (req, res, next) => {
           // Notify both parties in real time
           emitNotification(String(fromUserId),   { type: 'new_match', userId: String(targetUserId) });
           emitNotification(String(targetUserId), { type: 'new_match', userId: String(fromUserId)   });
+
+          sendPushToUser({
+            userId: fromUserId,
+            title: "It's a match!",
+            body: `You and ${populated.fromUser.firstName || 'someone'} liked each other.`,
+            data: {
+              type: 'new_match',
+              matchId: String(autoMatch._id),
+              userId: String(targetUserId),
+            },
+            settingKey: 'newMatch',
+            onlyWhenOffline: true,
+          }).catch(() => {});
+
+          sendPushToUser({
+            userId: targetUserId,
+            title: "It's a match!",
+            body: 'You got a new match.',
+            data: {
+              type: 'new_match',
+              matchId: String(autoMatch._id),
+              userId: String(fromUserId),
+            },
+            settingKey: 'newMatch',
+            onlyWhenOffline: true,
+          }).catch(() => {});
         }
       }
     } catch (matchErr) {

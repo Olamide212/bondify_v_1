@@ -41,7 +41,7 @@ const Meet = () => {
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View style={{flex: 1}} className="px-5">
             <View style={{flex: 1}} className="mt-8">
-              <Text className="text-3xl text-white font-OutfitBold mb-2">
+              <Text className="text-3xl text-white font-PlusJakartaSansBold mb-2">
                 I would like to meet...
               </Text>
 

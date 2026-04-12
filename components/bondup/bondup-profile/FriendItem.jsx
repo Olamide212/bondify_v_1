@@ -56,17 +56,17 @@ const s = StyleSheet.create({
   friendAvatarInitial: {
     color: '#fff',
     fontSize: 20,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
   },
   friendName: {
     fontSize: 15,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#E5E5E5',
     textAlign: 'center',
   },
   friendUsername: {
     fontSize: 13,
-    fontFamily: 'OutfitMedium',
+    fontFamily: 'PlusJakartaSansMedium',
     color: '#9CA3AF',
     textAlign: 'center',
   },

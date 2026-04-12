@@ -2,6 +2,9 @@ import * as SecureStore from "expo-secure-store";
 
 const AUTH_TOKEN_KEY = "token"; 
 const ONBOARDING_TOKEN_KEY = "onboardingToken";
+const PENDING_EMAIL_KEY = "pendingVerificationEmail";
+const PENDING_PHONE_KEY = "pendingVerificationPhone";
+const PENDING_COUNTRY_CODE_KEY = "pendingCountryCode";
 
 export const tokenManager = {
   // -----------------------------------
@@ -90,6 +93,51 @@ export const tokenManager = {
   },
 
   // -----------------------------------
+  // Pending verification email persistence
+  // -----------------------------------
+  setPendingVerification: async ({ email, phoneNumber, countryCode }) => {
+    try {
+      console.log("📝 Saving pending verification:", { email, phoneNumber });
+      if (email) {
+        await SecureStore.setItemAsync(PENDING_EMAIL_KEY, email);
+      }
+      if (phoneNumber) {
+        await SecureStore.setItemAsync(PENDING_PHONE_KEY, phoneNumber);
+      }
+      if (countryCode) {
+        await SecureStore.setItemAsync(PENDING_COUNTRY_CODE_KEY, countryCode);
+      }
+      console.log("✅ Pending verification info saved");
+    } catch (error) {
+      console.error("❌ Error saving pending verification:", error);
+    }
+  },
+
+  getPendingVerification: async () => {
+    try {
+      const email = await SecureStore.getItemAsync(PENDING_EMAIL_KEY);
+      const phoneNumber = await SecureStore.getItemAsync(PENDING_PHONE_KEY);
+      const countryCode = await SecureStore.getItemAsync(PENDING_COUNTRY_CODE_KEY);
+      console.log("📧 Retrieved pending verification:", { email: !!email, phone: !!phoneNumber });
+      return { email, phoneNumber, countryCode };
+    } catch (error) {
+      console.error("Error getting pending verification:", error);
+      return { email: null, phoneNumber: null, countryCode: null };
+    }
+  },
+
+  clearPendingVerification: async () => {
+    try {
+      await SecureStore.deleteItemAsync(PENDING_EMAIL_KEY);
+      await SecureStore.deleteItemAsync(PENDING_PHONE_KEY);
+      await SecureStore.deleteItemAsync(PENDING_COUNTRY_CODE_KEY);
+      console.log("🗑️ Pending verification info cleared");
+    } catch (error) {
+      console.error("Error clearing pending verification:", error);
+    }
+  },
+
+  // -----------------------------------
   // Remove all tokens (logout)
   // -----------------------------------
   removeTokens: async () => {
@@ -99,6 +147,9 @@ export const tokenManager = {
       await SecureStore.deleteItemAsync(ONBOARDING_TOKEN_KEY);
       await SecureStore.deleteItemAsync("onboardingStep");
       await SecureStore.deleteItemAsync("onboardingComplete");
+      await SecureStore.deleteItemAsync(PENDING_EMAIL_KEY);
+      await SecureStore.deleteItemAsync(PENDING_PHONE_KEY);
+      await SecureStore.deleteItemAsync(PENDING_COUNTRY_CODE_KEY);
       console.log("✅ All tokens removed");
     } catch (error) {
       console.error("Error removing tokens:", error);

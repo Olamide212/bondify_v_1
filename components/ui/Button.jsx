@@ -22,7 +22,7 @@ const Button = ({
       <ActivityIndicator color={colors.primary} />
     ) : (
       <Text
-        className={`text-xl font-OutfitMedium text-white ${textClassName}`}
+        className={`text-xl font-PlusJakartaSansMedium text-white ${textClassName}`}
       >
         {title}
       </Text>
@@ -63,14 +63,14 @@ const Button = ({
 
   const textStyle =
     variant === "primary"
-      ? "text-white font-OutfitSemiBold"
+      ? "text-white font-PlusJakartaSansSemiBold"
       : variant === "white"
-        ? "text-black font-OutfitSemiBold"
+        ? "text-black font-PlusJakartaSansSemiBold"
         : variant === "secondary"
-          ? "text-primary font-OutfitSemiBold"
+          ? "text-primary font-PlusJakartaSansSemiBold"
           : variant === "neutral"
-            ? "text-[#1E4234] font-OutfitSemiBold"
-            : "text-white font-OutfitSemiBold";
+            ? "text-[#1E4234] font-PlusJakartaSansSemiBold"
+            : "text-white font-PlusJakartaSansSemiBold";
 
   return (
     <TouchableOpacity
@@ -83,12 +83,12 @@ const Button = ({
       {loading ? (
         <View className="flex-row items-center gap-2">
  <ActivityIndicator color={"#fff"} />
-        {/* <Text className='text-xl font-OutfitSemiBold text-white'>Loading...</Text> */}
+        {/* <Text className='text-xl font-PlusJakartaSansSemiBold text-white'>Loading...</Text> */}
         </View>
        
       ) : (
         <Text
-          className={`text-xl font-OutfitSemiBold ${textStyle} ${textClassName}`}
+          className={`text-xl font-PlusJakartaSansSemiBold ${textStyle} ${textClassName}`}
         >
           {title}
         </Text>

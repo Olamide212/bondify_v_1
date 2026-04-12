@@ -236,7 +236,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 20,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     color: "#fff",
   },
 
@@ -250,14 +250,14 @@ const styles = StyleSheet.create({
   },
   loadingTitle: {
     fontSize: 18,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     color: "#fff",
     textAlign: "center",
     marginTop: 8,
   },
   loadingSubtitle: {
     fontSize: 14,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     color: "#fff",
     textAlign: "center",
     lineHeight: 20,
@@ -276,13 +276,13 @@ const styles = StyleSheet.create({
   bannerTitle: {
     color: "white",
     fontSize: 16,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     marginBottom: 4,
   },
   bannerSubtitle: {
     color: "white",
     fontSize: 14,
-    fontFamily: "OutfitMedium",
+    fontFamily: "PlusJakartaSansMedium",
   },
   listContent: {
     alignItems: "center",
@@ -365,7 +365,7 @@ const styles = StyleSheet.create({
   },
   scoreText: {
     fontSize: 11,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     color: "#fff",
   },
 
@@ -377,14 +377,14 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     fontSize: 18,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     color: "#fff",
     textAlign: "center",
     marginBottom: 8,
   },
   emptySubtitle: {
     fontSize: 14,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     color: "#fff",
     textAlign: "center",
     lineHeight: 20,

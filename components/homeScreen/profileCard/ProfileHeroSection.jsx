@@ -125,7 +125,7 @@ const ProfileHeroSection = ({
                   {compatibilityScore !== null && !loadingScore && (
                     <View className="flex-row items-center bg-pinkColor px-3 py-1 rounded-full">
                       <Heart size={14} color="#fff" fill="#fff" />
-                      <Text className="text-white text-sm font-OutfitBold ml-1">
+                      <Text className="text-white text-sm font-PlusJakartaSansBold ml-1">
                         {compatibilityScore}%
                       </Text>
                     </View>
@@ -133,7 +133,7 @@ const ProfileHeroSection = ({
                   {likesYou && (
                     <View className="flex-row items-center bg-rose-500 px-3 py-1 rounded-full">
                       <Heart size={14} color="#fff" fill="#fff" />
-                      <Text className="text-white text-sm font-OutfitBold ml-1">
+                      <Text className="text-white text-sm font-PlusJakartaSansBold ml-1">
                         Likes You
                       </Text>
                     </View>
@@ -144,11 +144,11 @@ const ProfileHeroSection = ({
 
               {/* Name + age + compatibility score */}
               <View className="flex-row items-center mb-3">
-                <Text className="text-white text-4xl font-OutfitBold mr-2 capitalize" numberOfLines={1}>
+                <Text className="text-white text-4xl font-PlusJakartaSansBold mr-2 capitalize" numberOfLines={1}>
                   {displayName}
                 </Text>
                 <View className="flex-row items-center gap-2">
-                  <Text className="text-white text-4xl font-OutfitLight">{profile.age}</Text>
+                  <Text className="text-white text-4xl font-PlusJakartaSansLight">{profile.age}</Text>
                 {verified &&
                                  <View ><VerifiedIcon /></View>
                                }
@@ -170,7 +170,7 @@ const ProfileHeroSection = ({
               {occupationText ? (
                 <View className='px-6 py-2 flex-row items-center justify-center gap-1 bg-black/40 rounded-lg' >
                   <Briefcase size={16} color={colors.white} />
-                  <Text className='capitalize text-white font-OutfitMedium'> {occupationText}</Text>
+                  <Text className='capitalize text-white font-PlusJakartaSansMedium'> {occupationText}</Text>
                 </View>
               ) : null}
 
@@ -178,7 +178,7 @@ const ProfileHeroSection = ({
               {nationalityText ? (
                 <View className='px-6 py-2 flex-row items-center justify-center gap-1 bg-black/40 rounded-lg' >
                   <Globe size={16} color={colors.white} />
-                  <Text className='capitalize text-white font-OutfitMedium'> {nationalityText}</Text>
+                  <Text className='capitalize text-white font-PlusJakartaSansMedium'> {nationalityText}</Text>
                 </View>
               ) : null}
 
@@ -186,7 +186,7 @@ const ProfileHeroSection = ({
               {ethnicityText ? (
                 <View className='px-6 py-2 flex-row items-center justify-center gap-1 bg-black/40 rounded-lg' >
                   <Users size={16} color={colors.white} />
-                  <Text className='capitalize text-white font-OutfitMedium'> {ethnicityText}</Text>
+                  <Text className='capitalize text-white font-PlusJakartaSansMedium'> {ethnicityText}</Text>
                 </View>
               ) : null}
 
@@ -194,7 +194,7 @@ const ProfileHeroSection = ({
               {religionText ? (
                 <View className='px-6 py-2 flex-row items-center justify-center gap-1 bg-black/40 rounded-lg' >
                   <MaterialCommunityIcons name="hands-pray" size={20} color={colors.white} />
-                  <Text className='capitalize text-white font-OutfitMedium'> {religionText}</Text>
+                  <Text className='capitalize text-white font-PlusJakartaSansMedium'> {religionText}</Text>
                 </View>
               ) : null}
             </View>
@@ -223,7 +223,7 @@ const heroStyles = StyleSheet.create({
   blurBadgeText: {
     color: '#fff',
     fontSize: 14,
-    fontFamily: 'OutfitSemiBold',
+    fontFamily: 'PlusJakartaSansSemiBold',
   },
 });
 

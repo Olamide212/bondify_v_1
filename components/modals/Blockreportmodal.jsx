@@ -350,14 +350,14 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     color: "#fff",
     textAlign: "center",
     marginBottom: 10,
   },
   subtitle: {
     fontSize: 14,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     color: '#9CA3AF',
     textAlign: "center",
     lineHeight: 22,
@@ -373,7 +373,7 @@ const styles = StyleSheet.create({
   },
   bullet:     { flexDirection: "row", gap: 10, alignItems: "flex-start" },
   bulletDot:  { color: "#EF4444", fontSize: 16, lineHeight: 22 },
-  bulletText: { flex: 1, fontSize: 14, fontFamily: "Outfit", color: '#D1D5DB', lineHeight: 22 },
+  bulletText: { flex: 1, fontSize: 14, fontFamily: "PlusJakartaSans", color: '#D1D5DB', lineHeight: 22 },
 
   // Reason list
   reasonList: { alignSelf: "stretch", gap: 8, marginBottom: 24 },
@@ -389,7 +389,7 @@ const styles = StyleSheet.create({
   },
   reasonRowActive:  { borderColor: colors.primary, backgroundColor: `${colors.primary}08` },
   reasonEmoji:      { fontSize: 20 },
-  reasonLabel:      { flex: 1, fontSize: 15, fontFamily: "OutfitMedium", color: '#D1D5DB' },
+  reasonLabel:      { flex: 1, fontSize: 15, fontFamily: "PlusJakartaSansMedium", color: '#D1D5DB' },
   reasonLabelActive:{ color: colors.primary },
   radioOuter: {
     width: 20,
@@ -411,7 +411,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     padding: 14,
     fontSize: 14,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     color: "#fff",
     minHeight: 110,
     maxHeight: 180,
@@ -422,7 +422,7 @@ const styles = StyleSheet.create({
     alignSelf: "flex-end",
     fontSize: 12,
     color: "#9CA3AF",
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     marginBottom: 20,
   },
 
@@ -440,9 +440,9 @@ const styles = StyleSheet.create({
   blockBtn:       { backgroundColor: "#EF4444" },
   reportBtn:      { backgroundColor: colors.primary },
   btnDisabled:    { opacity: 0.45 },
-  actionBtnText:  { color: "#fff", fontSize: 16, fontFamily: "OutfitBold" },
+  actionBtnText:  { color: "#fff", fontSize: 16, fontFamily: "PlusJakartaSansBold" },
   cancelBtn:      { paddingVertical: 10 },
-  cancelText:     { fontSize: 15, fontFamily: "OutfitMedium", color: '#9CA3AF' },
+  cancelText:     { fontSize: 15, fontFamily: "PlusJakartaSansMedium", color: '#9CA3AF' },
 });
 
 export default BlockReportModal;

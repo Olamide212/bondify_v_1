@@ -22,6 +22,7 @@ const BlockedUser = require('../models/BlockedUser');
 const { getIO } = require('../socket');
 const { mapImagesWithAccessUrls } = require('../utils/imageHelper');
 const { sendMatchNotification }   = require('../utils/whatsappService');
+const { sendPushToUser } = require('../utils/pushDispatchService');
 const { getRedisClient, isRedisEnabled } = require('../config/redis');
 
 // Cache TTL for discovery results (seconds)
@@ -466,6 +467,36 @@ const performAction = async (req, res, next) => {
           userId: String(userId),
           title:  "It's a match!",
           body:   `You and ${currentUserName} liked each other.`,
+        });
+
+        sendPushToUser({
+          userId,
+          title: "It's a match!",
+          body: `You and ${likedUserName} liked each other.`,
+          data: {
+            type: 'match',
+            matchId: String(match._id),
+            userId: String(likedUserId),
+          },
+          settingKey: 'newMatch',
+          onlyWhenOffline: true,
+        }).catch((err) => {
+          console.error('[expo-push] discover match push error (user):', err?.message || err);
+        });
+
+        sendPushToUser({
+          userId: likedUserId,
+          title: "It's a match!",
+          body: `You and ${currentUserName} liked each other.`,
+          data: {
+            type: 'match',
+            matchId: String(match._id),
+            userId: String(userId),
+          },
+          settingKey: 'newMatch',
+          onlyWhenOffline: true,
+        }).catch((err) => {
+          console.error('[expo-push] discover match push error (liked user):', err?.message || err);
         });
 
         // WhatsApp offline notification (fire-and-forget)

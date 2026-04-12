@@ -309,7 +309,7 @@ const NotificationSettings = ({ onBack }) => {
               <View style={styles.whatsappNote}>
                 <Text style={styles.whatsappNoteText}>
                   🔒 We only send notifications when you&apos;re offline. Reply{" "}
-                  <Text style={{ fontFamily: fonts.OutfitBold }}>STOP</Text>{" "}
+                  <Text style={{ fontFamily: fonts.PlusJakartaSansBold }}>STOP</Text>{" "}
                   to any message to unsubscribe at any time.
                 </Text>
               </View>
@@ -362,7 +362,7 @@ const styles = StyleSheet.create({
   masterTextBlock: { flex: 1 },
   masterLabel: {
     fontSize: 15,
-    fontFamily: fonts.OutfitBold,
+    fontFamily: fonts.PlusJakartaSansBold,
     color: colors.white,
     marginBottom: 2,
   },
@@ -375,7 +375,7 @@ const styles = StyleSheet.create({
   // Section label
   sectionLabel: {
     fontSize: 20,
-    fontFamily: fonts.OutfitBold,
+    fontFamily: fonts.PlusJakartaSansBold,
     color: '#E5E5E5',
     marginBottom: 8,
     marginLeft: 4,
@@ -412,13 +412,13 @@ const styles = StyleSheet.create({
   toggleTextBlock: { flex: 1 },
   toggleLabel: {
     fontSize: 15,
-    fontFamily: fonts.OutfitBold,
+    fontFamily: fonts.PlusJakartaSansBold,
     color: "#E5E5E5",
     marginBottom: 2,
   },
   toggleDescription: {
     fontSize: 13,
-    fontFamily: fonts.OutfitMedium,
+    fontFamily: fonts.PlusJakartaSansMedium,
     color: "#9CA3AF",
     lineHeight: 18,
   },
@@ -441,7 +441,7 @@ const styles = StyleSheet.create({
   },
   whatsappNoteText: {
     fontSize: 12,
-    fontFamily: fonts.OutfitMedium,
+    fontFamily: fonts.PlusJakartaSansMedium,
     color: "#4ADE80",
     lineHeight: 18,
   },
@@ -449,7 +449,7 @@ const styles = StyleSheet.create({
   // Footer
   footerNote: {
     fontSize: 12,
-    fontFamily: fonts.OutfitMedium,
+    fontFamily: fonts.PlusJakartaSansMedium,
     color: "#9CA3AF",
     textAlign: "center",
     lineHeight: 18,

@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize:    30,
-    fontFamily:  "OutfitBold",
+    fontFamily:  "PlusJakartaSansBold",
     color: '#E5E5E5',
     textAlign:   "center",
     lineHeight:  40,
@@ -156,7 +156,7 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize:    15,
-    fontFamily:  "Outfit",
+    fontFamily:  "PlusJakartaSans",
     color:       "#888",
     textAlign:   "center",
     marginBottom: 32,
@@ -181,7 +181,7 @@ const styles = StyleSheet.create({
   ageText: {
     marginTop:   28,
     fontSize:    18,
-    fontFamily:  "OutfitBold",
+    fontFamily:  "PlusJakartaSansBold",
     color:       '#fff',
   },
 
@@ -194,7 +194,7 @@ const styles = StyleSheet.create({
   },
   disclaimer: {
     fontSize:   12,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     color:      "#aaa",
     textAlign:  "center",
   },

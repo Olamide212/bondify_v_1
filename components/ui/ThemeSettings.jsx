@@ -253,7 +253,7 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: "700",
     letterSpacing: -0.3,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
   },
   headerRight: {
     width: 36,
@@ -319,12 +319,12 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: "700",
     marginBottom: 3,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
   },
   heroDescription: {
     fontSize: 13,
     lineHeight: 18,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
   },
 
   // Section label
@@ -334,7 +334,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.8,
     marginBottom: 8,
     marginLeft: 4,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
   },
 
   // Card
@@ -378,12 +378,12 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: "600",
     marginBottom: 2,
-    fontFamily: "OutfitMedium",
+    fontFamily: "PlusJakartaSansMedium",
   },
   optionDescription: {
     fontSize: 13,
     lineHeight: 18,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
   },
 
   // Radio button
@@ -409,7 +409,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     lineHeight: 18,
     paddingHorizontal: 8,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
   },
 });
 

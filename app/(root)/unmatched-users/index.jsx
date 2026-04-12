@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 17,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     color: '#E5E5E5',
   },
   center: {
@@ -161,7 +161,7 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 15,
     color: "#9CA3AF",
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
   },
   row: {
     flexDirection: "row",
@@ -187,12 +187,12 @@ const styles = StyleSheet.create({
   info: { flex: 1 },
   name: {
     fontSize: 15,
-    fontFamily: "OutfitMedium",
+    fontFamily: "PlusJakartaSansMedium",
     color: '#E5E5E5',
   },
   date: {
     fontSize: 12,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     color: "#9CA3AF",
     marginTop: 2,
   },
@@ -204,7 +204,7 @@ const styles = StyleSheet.create({
   },
   rematchBadgeText: {
     fontSize: 12,
-    fontFamily: "OutfitMedium",
+    fontFamily: "PlusJakartaSansMedium",
     color: colors.primary,
   },
   chevron: {

@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import {
     ActivityIndicator,
     Keyboard,
+    Platform,
     StyleSheet,
     Text,
     TextInput,
@@ -14,6 +15,10 @@ import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import { colors } from "../../constant/colors";
 import { useAlert } from "../../context/AlertContext";
 import BaseModal from "../modals/BaseModal";
+
+// Only use PROVIDER_GOOGLE on iOS - Android uses Google Maps by default and may crash
+// with PROVIDER_GOOGLE if Google Play Services isn't properly configured
+const MAP_PROVIDER = Platform.OS === "ios" ? PROVIDER_GOOGLE : undefined;
 
 const DEFAULT_REGION = {
   latitude:      6.5244,   // Lagos fallback
@@ -222,7 +227,7 @@ const Location = ({ profile, onUpdateField }) => {
             <MapView
               ref={mapRef}
               style={StyleSheet.absoluteFill}
-              provider={PROVIDER_GOOGLE}
+              provider={MAP_PROVIDER}
               region={region}
               onRegionChangeComplete={setRegion}
               onPress={handleMapPress}
@@ -326,13 +331,13 @@ const s = StyleSheet.create({
   },
   cardLocation: {
     fontSize:   16,
-    fontFamily: 'OutfitSemiBold',
+    fontFamily: 'PlusJakartaSansSemiBold',
     color: '#E5E5E5',
     marginBottom: 2,
   },
   cardCta: {
     fontSize:   13,
-    fontFamily: 'OutfitMedium',
+    fontFamily: 'PlusJakartaSansMedium',
     color:      colors.primary,
   },
 
@@ -351,7 +356,7 @@ const s = StyleSheet.create({
   },
   modalTitle: {
     fontSize:   18,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#E5E5E5',
   },
 
@@ -384,7 +389,7 @@ const s = StyleSheet.create({
   searchInput: {
     flex:       1,
     fontSize:   15,
-    fontFamily: 'OutfitMedium',
+    fontFamily: 'PlusJakartaSansMedium',
     color: '#121212',
     padding:    0,
   },
@@ -418,7 +423,7 @@ const s = StyleSheet.create({
   },
   geocodingText: {
     fontSize:   12,
-    fontFamily: 'OutfitMedium',
+    fontFamily: 'PlusJakartaSansMedium',
     color:      '#fff',
   },
   mapHint: {
@@ -432,7 +437,7 @@ const s = StyleSheet.create({
   },
   mapHintText: {
     fontSize:   12,
-    fontFamily: 'OutfitMedium',
+    fontFamily: 'PlusJakartaSansMedium',
     color:      '#fff',
   },
 
@@ -454,7 +459,7 @@ const s = StyleSheet.create({
   },
   saveBtnText: {
     fontSize:   16,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color:      '#fff',
   },
 });

@@ -116,10 +116,10 @@ const InfoSection = () => {
               <View className="flex-row items-center gap-3 flex-1">
               
                 <View style={{flex: 1}}>
-                  <Text className="text-[17px] text-white font-OutfitBold">
+                  <Text className="text-[17px] text-white font-PlusJakartaSansBold">
                     {title}
                   </Text>
-                  <Text className="text-base text-white font-OutfitMedium">
+                  <Text className="text-base text-white font-PlusJakartaSansMedium">
                     {description}
                   </Text>
                 </View>

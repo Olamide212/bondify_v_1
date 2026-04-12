@@ -210,6 +210,28 @@ const AIService = {
     return response.data?.data ?? response.data;
   },
 
+  /**
+   * Get AI-generated reply suggestions based on the last message received.
+   * Perfect for quick, contextual responses in chat.
+   *
+   * @param {string} matchId – The match ID for the conversation
+   * @param {string} lastMessage – The text of the last received message
+   * @param {Array<{ sender: 'me'|'them', text: string }>} [conversationContext] – Recent messages for context
+   * @returns {{ suggestions: string[] }}
+   *
+   * @example
+   *   const { suggestions } = await AIService.suggestReplies('matchId123', 'What do you do for fun?', []);
+   *   // suggestions = ["I love hiking on weekends! What about you?", "Usually catching up on good music 🎵", ...]
+   */
+  suggestReplies: async (matchId, lastMessage, conversationContext = []) => {
+    const response = await apiClient.post('/ai/suggest-replies', {
+      matchId,
+      lastMessage,
+      conversationContext,
+    });
+    return response.data?.data ?? response.data;
+  },
+
 };
 
 export default AIService;

@@ -36,7 +36,7 @@ const FamilyPlanModal = ({
               }`}
             >
               <Text
-                className={`text-[16px] font-OutfitMedium ${
+                className={`text-[16px] font-PlusJakartaSansMedium ${
                   isSelected ? "text-primary" : "text-white"
                 }`}
               >

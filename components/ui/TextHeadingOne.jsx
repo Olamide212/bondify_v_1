@@ -9,7 +9,7 @@ const TextHeadingOne = ({ name, icon: Icon }) => {
           <Icon size={20} color={colors.primary} className="text-gray-400" />
         </View>
       ) : null} */}
-      <Text className="text-[16px] font-OutfitBold text-white ">
+      <Text className="text-[16px] font-PlusJakartaSansBold text-white ">
         {name}
       </Text>
     </View>

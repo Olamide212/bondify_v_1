@@ -461,7 +461,7 @@ const s = StyleSheet.create({
   // Section title above each card
   sectionTitle: {
     fontSize:   13,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color:      '#9CA3AF',
     textTransform: 'uppercase',
     letterSpacing: 0.8,
@@ -499,7 +499,7 @@ const s = StyleSheet.create({
   },
   rowTitle: {
     fontSize:   16,
-    fontFamily: 'OutfitSemiBold',
+    fontFamily: 'PlusJakartaSansSemiBold',
     color: '#E5E5E5',
     flexShrink: 1,
   },
@@ -511,14 +511,14 @@ const s = StyleSheet.create({
   },
   rowValue: {
     fontSize:   13,
-    fontFamily: 'OutfitMedium',
+    fontFamily: 'PlusJakartaSansMedium',
     color:      '#9CA3AF',
     flexShrink: 1,
     textTransform: 'capitalize'
   },
   rowAdd: {
     fontSize:   13,
-    fontFamily: 'OutfitMedium',
+    fontFamily: 'PlusJakartaSansMedium',
     color:      colors.primary,
   },
 
@@ -531,12 +531,12 @@ const s = StyleSheet.create({
   },
   interestsSub: {
     fontSize:   13,
-    fontFamily: 'Outfit',
+    fontFamily: 'PlusJakartaSans',
     color:      '#9CA3AF',
   },
   viewAll: {
     fontSize:   14,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color:      '#E8651A',
   },
   chipsRow: {
@@ -556,7 +556,7 @@ const s = StyleSheet.create({
   },
   chipSelectedText: {
     fontSize:   14,
-    fontFamily: 'OutfitSemiBold',
+    fontFamily: 'PlusJakartaSansSemiBold',
     color:      '#fff',
   },
   chipEmpty: {
@@ -572,7 +572,7 @@ const s = StyleSheet.create({
   },
   chipEmptyText: {
     fontSize:   14,
-    fontFamily: 'OutfitMedium',
+    fontFamily: 'PlusJakartaSansMedium',
     color: '#D1D5DB',
   },
 
@@ -596,7 +596,7 @@ const s = StyleSheet.create({
   },
   lifestyleChipText: {
     fontSize:   13,
-    fontFamily: 'OutfitMedium',
+    fontFamily: 'PlusJakartaSansMedium',
     color: '#D1D5DB',
     flexShrink: 1,
   },
@@ -607,7 +607,7 @@ const s = StyleSheet.create({
   },
   emptyText: {
     fontSize:   13,
-    fontFamily: 'Outfit',
+    fontFamily: 'PlusJakartaSans',
     color:      '#9CA3AF',
   },
 
@@ -620,7 +620,7 @@ const s = StyleSheet.create({
   },
   modalTitle: {
     fontSize:   17,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#E5E5E5',
   },
   optionBtn: {
@@ -638,7 +638,7 @@ const s = StyleSheet.create({
   },
   optionText: {
     fontSize:   16,
-    fontFamily: 'OutfitMedium',
+    fontFamily: 'PlusJakartaSansMedium',
     color: '#E5E5E5',
     textAlign:  'center',
     textTransform: 'capitalize',

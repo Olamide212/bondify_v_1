@@ -61,7 +61,7 @@ export default function DirectMessageBox({ profile }) {
 
   return (
     <View>
-      <Text className="text-lg text-white font-Outfit mb-4">
+      <Text className="text-lg text-white font-PlusJakartaSans mb-4">
         Ready to Bond? Send {profile?.name || profile?.firstName || "them"} a
         direct message now. Starting a conversation boosts your chances of
         matching — type your own or let AI suggest one.
@@ -73,7 +73,7 @@ export default function DirectMessageBox({ profile }) {
           placeholder="Type a message…"
           placeholderTextColor="#9CA3AF"
           style={styles.input}
-          className="font-OutfitMedium text-white"
+          className="font-PlusJakartaSansMedium text-white"
           multiline
           value={message}
           onChangeText={setMessage}
@@ -174,6 +174,6 @@ const styles = StyleSheet.create({
   sendBtnText: {
     color: "#fff",
     fontSize: 15,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
   },
 });

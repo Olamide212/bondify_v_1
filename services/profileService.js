@@ -241,9 +241,11 @@ const uploadPhotos = async (photoUris) => {
     const payload = response.data?.data ?? response.data;
     return payload?.images ?? [];
   } catch (err) {
-    throw (
-      err.response?.data?.message || err.message || "Profile media upload failed"
-    );
+    const message = err.response?.data?.message || err.message || "Profile media upload failed";
+    const code = err.response?.data?.code || null;
+    const uploadError = new Error(message);
+    uploadError.code = code;
+    throw uploadError;
   }
 };
 

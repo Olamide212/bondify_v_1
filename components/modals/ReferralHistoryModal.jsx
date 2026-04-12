@@ -202,7 +202,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 18,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     color: '#E5E5E5',
   },
   closeBtn: {
@@ -234,13 +234,13 @@ const styles = StyleSheet.create({
   },
   summaryValue: {
     fontSize: 22,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     color: '#E5E5E5',
     marginBottom: 2,
   },
   summaryLabel: {
     fontSize: 12,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     color: "#999",
   },
   summaryDivider: {
@@ -289,7 +289,7 @@ const styles = StyleSheet.create({
   },
   avatarInitials: {
     fontSize: 16,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     color: PRIMARY,
   },
   itemInfo: {
@@ -297,13 +297,13 @@ const styles = StyleSheet.create({
   },
   itemName: {
     fontSize: 15,
-    fontFamily: "OutfitSemiBold",
+    fontFamily: "PlusJakartaSansSemiBold",
     color: '#E5E5E5',
     marginBottom: 3,
   },
   itemDate: {
     fontSize: 12,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     color: "#999",
   },
   itemRight: {
@@ -320,7 +320,7 @@ const styles = StyleSheet.create({
   },
   statusText: {
     fontSize: 11,
-    fontFamily: "OutfitSemiBold",
+    fontFamily: "PlusJakartaSansSemiBold",
   },
   rewardRow: {
     flexDirection: "row",
@@ -329,7 +329,7 @@ const styles = StyleSheet.create({
   },
   rewardText: {
     fontSize: 11,
-    fontFamily: "OutfitMedium",
+    fontFamily: "PlusJakartaSansMedium",
     color: PRIMARY,
   },
 
@@ -351,14 +351,14 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     fontSize: 18,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     color: '#E5E5E5',
     marginBottom: 8,
     textAlign: "center",
   },
   emptySubtitle: {
     fontSize: 14,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     color: "#999",
     textAlign: "center",
     lineHeight: 22,
@@ -373,7 +373,7 @@ const styles = StyleSheet.create({
   },
   loaderText: {
     fontSize: 14,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     color: "#999",
   },
 });

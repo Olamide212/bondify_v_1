@@ -147,10 +147,10 @@ const om = StyleSheet.create({
   group:      { backgroundColor: '#1E1E1E', borderRadius: 16, overflow: 'hidden' },
   row:        { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingVertical: 18, gap: 16 },
   iconWrap:   { width: 28, alignItems: 'center' },
-  rowText:    { fontSize: 17, fontFamily: 'OutfitSemiBold', color: '#E5E5E5' },
+  rowText:    { fontSize: 17, fontFamily: 'PlusJakartaSansSemiBold', color: '#E5E5E5' },
   divider:    { height: 1, backgroundColor: '#E5E7EB', marginHorizontal: 16 },
   cancelBtn:  { backgroundColor: '#1E1E1E', borderRadius: 16, alignItems: 'center', paddingVertical: 18 },
-  cancelText: { fontSize: 17, fontFamily: 'OutfitSemiBold', color: '#E5E5E5' },
+  cancelText: { fontSize: 17, fontFamily: 'PlusJakartaSansSemiBold', color: '#E5E5E5' },
 });
 
 // ─── Main Component ───────────────────────────────────────────────────────────
@@ -346,7 +346,7 @@ const s = StyleSheet.create({
     marginHorizontal:  16,
     backgroundColor: '#121212',
   },
-  emptyLabel: { fontSize: 16, fontFamily: 'OutfitSemiBold' },
+  emptyLabel: { fontSize: 16, fontFamily: 'PlusJakartaSansSemiBold' },
 
   // Player card
   playerCard: {

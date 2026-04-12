@@ -116,7 +116,7 @@ const UploadPhoto = () => {
             {/* Title + Subtitle */}
             <View className="mb-6 mt-8">
               <View className="flex-row items-center justify-between">
-                <Text className="text-3xl font-OutfitBold text-white  mb-2">
+                <Text className="text-3xl font-PlusJakartaSansBold text-white  mb-2">
                   Add your best photos and videos
                 </Text>
                 {/* <TouchableOpacity
@@ -131,7 +131,7 @@ const UploadPhoto = () => {
             
                 {/* <Lightbulb size={20} color={colors.primary} style={{ marginTop: 2 }} /> */}
               </View>
-                <Text className='text-white font-OutfitMedium text-base' numberOfLines={5}>Choose clear photos and short videos where your face is visible. Keep your main slot as a photo, and avoid blurry or poor-quality uploads for better matches.</Text>
+                <Text className='text-white font-PlusJakartaSansMedium text-base' numberOfLines={5}>Choose clear photos and short videos where your face is visible. Keep your main slot as a photo, and avoid blurry or poor-quality uploads for better matches.</Text>
               </View>
              
             </View>
@@ -162,7 +162,7 @@ const UploadPhoto = () => {
 
                   {isMain && (
                     <View className="absolute top-2 left-2 bg-primary/90 px-2 py-1 rounded-full">
-                      <Text className="text-white text-[10px] font-OutfitBold tracking-wide uppercase">Main photo</Text>
+                      <Text className="text-white text-[10px] font-PlusJakartaSansBold tracking-wide uppercase">Main photo</Text>
                     </View>
                   )}
 
@@ -188,7 +188,7 @@ const UploadPhoto = () => {
                   color="gray"
                   style={{ marginTop: 2 }}
                 />
-                <Text className="ml-2 font-Outfit text-gray-400 text-sm">
+                <Text className="ml-2 font-PlusJakartaSans text-gray-400 text-sm">
                   Add photos of you where you can clearly see your face.
                 </Text>
               </View>
@@ -199,7 +199,7 @@ const UploadPhoto = () => {
                   color="gray"
                   style={{ marginTop: 2 }}
                 />
-                <Text className="ml-2 font-Outfit text-gray-400 text-sm">
+                <Text className="ml-2 font-PlusJakartaSans text-gray-400 text-sm">
                   Photos that don’t clearly show you will be removed.
                 </Text>
               </View>

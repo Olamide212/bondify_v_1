@@ -16,14 +16,14 @@ const AccountSetupHeader = ({ title, rightText, showBack = true, onSkip }) => {
         <View style={{ width: 24 }} />
       )}
 
-      <Text className="text-white font-OutfitBold text-[20px]">{title}</Text>
+      <Text className="text-white font-PlusJakartaSansBold text-[20px]">{title}</Text>
 
       {onSkip ? (
         <Pressable onPress={onSkip} hitSlop={8}>
-          <Text className="text-white font-OutfitMedium text-[15px]">Skip</Text>
+          <Text className="text-white font-PlusJakartaSansMedium text-[15px]">Skip</Text>
         </Pressable>
       ) : rightText ? (
-        <Text className="text-white font-OutfitMedium">{rightText}</Text>
+        <Text className="text-white font-PlusJakartaSansMedium">{rightText}</Text>
       ) : (
         <View style={{ width: 24 }} />
       )}

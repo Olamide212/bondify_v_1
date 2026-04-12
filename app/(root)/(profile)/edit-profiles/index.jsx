@@ -80,7 +80,7 @@ const tb = StyleSheet.create({
     borderBottomWidth: 2,
     borderBottomColor: '#111',
   },
-  label: { fontFamily: 'OutfitBold', fontSize: 15 },
+  label: { fontFamily: 'PlusJakartaSansBold', fontSize: 15 },
   labelActive: { color: '#E5E5E5' },
   labelInactive: { color: '#9CA3AF' },
 });
@@ -250,10 +250,11 @@ export default function ProfileDetails() {
       await loadProfile();
     } catch (error) {
       console.error('Failed to add photo:', error);
+      const isPhotoRejected = error?.code === 'INVALID_PHOTO';
       showAlert({
         icon: 'error',
-        title: 'Upload Failed',
-        message: String(error || 'Failed to upload media.'),
+        title: isPhotoRejected ? 'Photo Rejected' : 'Upload Failed',
+        message: error?.message || String(error || 'Failed to upload media.'),
         actions: [{ label: 'OK', style: 'primary' }],
       });
     }

@@ -76,13 +76,13 @@ const s = StyleSheet.create({
   },
   cardValue: {
     fontSize:     16,
-    fontFamily:   "OutfitSemiBold",
+    fontFamily:   "PlusJakartaSansSemiBold",
     color: '#E5E5E5',
     marginBottom: 2,
   },
   cardCta: {
     fontSize:   13,
-    fontFamily: "OutfitMedium",
+    fontFamily: "PlusJakartaSansMedium",
     color:      colors.primary,
   },
 });

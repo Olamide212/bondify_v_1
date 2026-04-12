@@ -92,7 +92,7 @@ const styles = StyleSheet.create({
     padding: 15,
     borderBottomWidth: 1,
     borderBottomColor: colors.whiteLight,
-    fontFamily: "OutfitMedium",
+    fontFamily: "PlusJakartaSansMedium",
   },
   itemText: { fontSize: 16, color: '#fff' },
 });

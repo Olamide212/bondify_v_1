@@ -10,13 +10,20 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        Outfit: ["Outfit", "sans-serif"],
-        OutfitExtraLight: ["OutfitExtraLight", "sans-serif"],
-        OutfitLight: ["OutfitLight", "sans-serif"],
-        OutfitMedium: ["OutfitMedium", "sans-serif"],
-        OutfitSemiBold: ["OutfitSemiBold", "sans-serif"],
-        OutfitBold: ["OutfitBold", "sans-serif"],
-        OutfitExtraBold: ["OutfitExtraBold", "sans-serif"],
+        PlusJakartaSans: ["PlusJakartaSans", "sans-serif"],
+        PlusJakartaSansExtraLight: ["PlusJakartaSansExtraLight", "sans-serif"],
+        PlusJakartaSansLight: ["PlusJakartaSansLight", "sans-serif"],
+        PlusJakartaSansMedium: ["PlusJakartaSansMedium", "sans-serif"],
+        PlusJakartaSansSemiBold: ["PlusJakartaSansSemiBold", "sans-serif"],
+        PlusJakartaSansBold: ["PlusJakartaSansBold", "sans-serif"],
+        PlusJakartaSansExtraBold: ["PlusJakartaSansExtraBold", "sans-serif"],
+        Outfit: ["PlusJakartaSans", "sans-serif"],
+        OutfitExtraLight: ["PlusJakartaSansExtraLight", "sans-serif"],
+        OutfitLight: ["PlusJakartaSansLight", "sans-serif"],
+        OutfitMedium: ["PlusJakartaSansMedium", "sans-serif"],
+        OutfitSemiBold: ["PlusJakartaSansSemiBold", "sans-serif"],
+        OutfitBold: ["PlusJakartaSansBold", "sans-serif"],
+        OutfitExtraBold: ["PlusJakartaSansExtraBold", "sans-serif"],
       },
       colors: {
         primary: "#FE01AA",

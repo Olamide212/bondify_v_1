@@ -253,7 +253,7 @@ const s = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 18,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     color: '#E5E5E5',
   },
   statusBadge: {
@@ -265,7 +265,7 @@ const s = StyleSheet.create({
   },
   statusText: {
     fontSize: 14,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
   },
   authorRow: {
     flexDirection: "row",
@@ -281,21 +281,21 @@ const s = StyleSheet.create({
   avatarInitial: {
     color: "#fff",
     fontSize: 16,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
   },
   authorName: {
     fontSize: 15,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     color: '#E5E5E5',
   },
   authorSub: {
     fontSize: 12,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     color: "#999",
   },
   note: {
     fontSize: 15,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     color: "#222",
     lineHeight: 22,
     marginBottom: 12,
@@ -308,24 +308,24 @@ const s = StyleSheet.create({
   },
   metaLabel: {
     fontSize: 13,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     color: '#9CA3AF',
   },
   metaValue: {
     fontSize: 13,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     color: '#9CA3AF',
   },
   sectionTitle: {
     fontSize: 15,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     color: '#E5E5E5',
     marginTop: 18,
     marginBottom: 10,
   },
   emptyParticipants: {
     fontSize: 13,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     color: "#BBB",
     fontStyle: "italic",
   },
@@ -340,11 +340,11 @@ const s = StyleSheet.create({
   participantInitial: {
     color: "#fff",
     fontSize: 13,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
   },
   participantName: {
     fontSize: 14,
-    fontFamily: "OutfitMedium",
+    fontFamily: "PlusJakartaSansMedium",
     color: "#222",
     marginLeft: 10,
   },
@@ -363,7 +363,7 @@ const s = StyleSheet.create({
   deleteBtn: { backgroundColor: '#2A1A1A' },
   actionBtnText: {
     fontSize: 14,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
   },
   joinBtnText: { color: "#fff" },
   leaveBtnText: { color: '#9CA3AF' },

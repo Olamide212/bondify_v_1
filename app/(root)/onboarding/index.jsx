@@ -155,14 +155,14 @@ const Onboarding = () => {
                 title="Continue with Phone Number"
                 onPress={() => router.push("/login")}
                 className="mb-3"
-                textClassName="font-OutfitSemiBold"
+                textClassName="font-PlusJakartaSansSemiBold"
                 variant="white"
               />
               <Button
                 title="Create an Account"
                 onPress={() => router.push("/register")}
                 style={styles.outlineBtn}
-                textClassName="font-OutfitMedium text-white"
+                textClassName="font-PlusJakartaSansMedium text-white"
                 variant="primary"
               />
             </View>
@@ -211,7 +211,7 @@ const styles = StyleSheet.create({
   },
   tagline: {
     fontSize: 35,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     color: "#fff",
     textAlign: "center",
     lineHeight: 38,
@@ -236,7 +236,7 @@ const styles = StyleSheet.create({
   },
   identityText: {
     fontSize: 15,
-    fontFamily: "OutfitSemiBold",
+    fontFamily: "PlusJakartaSansSemiBold",
     color: "rgba(255,255,255,0.9)",
   },
 
@@ -252,7 +252,7 @@ const styles = StyleSheet.create({
 
   terms: {
     fontSize: 12,
-    fontFamily: "OutfitSemiBold",
+    fontFamily: "PlusJakartaSansSemiBold",
     color: "rgba(255,255,255,0.75)",
     textAlign: "center",
     lineHeight: 18,
@@ -263,7 +263,7 @@ const styles = StyleSheet.create({
   },
   termsLink: {
     color: "#fff",
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
   },
 });
 

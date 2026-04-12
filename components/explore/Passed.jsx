@@ -67,13 +67,13 @@ const styles = StyleSheet.create({
   bannerTitle: {
     color: "white",
     fontSize: 16,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     marginBottom: 4,
   },
   bannerSubtitle: {
     color: "white",
     fontSize: 14,
-    fontFamily: "OutfitMedium",
+    fontFamily: "PlusJakartaSansMedium",
   },
   listContent: {
     flexGrow: 1,

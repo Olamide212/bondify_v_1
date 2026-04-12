@@ -112,10 +112,10 @@ const EmailLogin = () => {
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View style={{flex: 1}} className="px-5">
             <View style={{flex: 1}} className="mt-8">
-              <Text className="text-4xl font-OutfitBold text-white">
+              <Text className="text-4xl font-PlusJakartaSansBold text-white">
                 Welcome back!
               </Text>
-              <Text className="mb-5 text-white text-lg font-Outfit">
+              <Text className="mb-5 text-white text-lg font-PlusJakartaSans">
                 Login into your Bondies account
               </Text>
 
@@ -138,7 +138,7 @@ const EmailLogin = () => {
                 onPress={() => router.push("/forgot-password")}
                 className="self-end mt-1 mb-2"
               >
-                <Text className="text-base font-OutfitMedium text-primary">
+                <Text className="text-base font-PlusJakartaSansMedium text-primary">
                   Forgot password?
                 </Text>
               </Pressable>
@@ -153,11 +153,11 @@ const EmailLogin = () => {
               />
 
               <View className="flex-row justify-center items-center gap-1 mt-4 w-full">
-                <Text className="text-lg text-white font-OutfitMedium">
+                <Text className="text-lg text-white font-PlusJakartaSansMedium">
                   Don&apos;t have an account?
                 </Text>
                 <Pressable onPress={() => router.push("/register")}>
-                  <Text className="text-lg font-OutfitMedium text-primary">
+                  <Text className="text-lg font-PlusJakartaSansMedium text-primary">
                     Sign up
                   </Text>
                 </Pressable>

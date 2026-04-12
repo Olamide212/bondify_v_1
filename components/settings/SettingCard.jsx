@@ -89,7 +89,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     marginBottom: 8,
   },
   row: {
@@ -106,11 +106,11 @@ const styles = StyleSheet.create({
   },
   rowTitle: {
     fontSize: 17,
-    fontFamily: "OutfitSemiBold",
+    fontFamily: "PlusJakartaSansSemiBold",
   },
   rowDescription: {
     fontSize: 14,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     marginTop: 2,
     lineHeight: 19,
   },
@@ -122,7 +122,7 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 14,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
   },
 });
 

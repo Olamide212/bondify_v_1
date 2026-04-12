@@ -48,6 +48,13 @@ export const signup = createAsyncThunk(
         onboardingToken: data.onboardingToken,
       });
 
+      // Persist pending verification email so user can return after checking email
+      await tokenManager.setPendingVerification({
+        email: userData.email || data.email,
+        phoneNumber: userData.phoneNumber || userData.phone,
+        countryCode: userData.countryCode,
+      });
+
       return {
         ...data,
         message: response.data?.message,
@@ -90,6 +97,9 @@ export const verifyOtp = createAsyncThunk(
 
       // Debug after setting
       await tokenManager.debugAllStoredValues();
+
+      // Clear pending verification since OTP is now verified
+      await tokenManager.clearPendingVerification();
 
       return { ...data, message: response.data?.message };
     } catch (error) {
@@ -134,10 +144,15 @@ export const login = createAsyncThunk(
     } catch (error) {
       const payload = error.response?.data;
       if (payload?.requiresVerification) {
+        // Persist email for users who need to verify but close the app
+        const email = payload?.email || credentials?.email;
+        if (email) {
+          await tokenManager.setPendingVerification({ email });
+        }
         return rejectWithValue({
           message: payload.message,
           requiresVerification: true,
-          email: payload?.email || credentials?.email,
+          email,
         });
       }
 
@@ -222,12 +237,18 @@ export const restoreAuth = createAsyncThunk(
         onboardingToken = null;
       }
 
+      // Restore pending verification email if exists
+      const pendingVerification = await tokenManager.getPendingVerification();
+
       return {
         token,
         onboardingToken,
         user: currentUser,
         isAuthenticated: Boolean(token),
         hasOnboardingSession: Boolean(onboardingToken),
+        pendingEmail: pendingVerification.email,
+        pendingPhoneNumber: pendingVerification.phoneNumber,
+        pendingCountryCode: pendingVerification.countryCode,
       };
     } catch (error) {
       console.error("❌ restoreAuth error:", error);
@@ -381,6 +402,11 @@ const authSlice = createSlice({
 
         state.isAuthenticated = action.payload.isAuthenticated;
         state.hasOnboardingSession = action.payload.hasOnboardingSession;
+
+        // Restore pending verification info for users who closed app during OTP verification
+        state.pendingEmail = action.payload.pendingEmail || null;
+        state.pendingPhoneNumber = action.payload.pendingPhoneNumber || null;
+        state.pendingCountryCode = action.payload.pendingCountryCode || null;
 
         state.authRestored = true;
         state.authLoading = false;

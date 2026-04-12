@@ -18,10 +18,10 @@ const Bio = ({ profile }) => {
           {/* Bio with toggle */}
           {profile.bio && (
             <View className="mb-4">
-              <Text className="text-lg font-OutfitBold text-white mb-3">
+              <Text className="text-lg font-PlusJakartaSansBold text-white mb-3">
                 About me
               </Text>
-              <Text className="text-white font-Outfit text-base">
+              <Text className="text-white font-PlusJakartaSans text-base">
                 {displayedBio}
               </Text>
               {isBioLong && (

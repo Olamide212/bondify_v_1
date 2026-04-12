@@ -154,10 +154,10 @@ const RizzModal = ({ visible, onClose, onSend, matchId }) => {
         </View>
 
         {/* Title */}
-        <Text style={styles.title} className="font-OutfitBold">
+        <Text style={styles.title} className="font-PlusJakartaSansBold">
        BonSpark
         </Text>
-        <Text style={styles.subtitle} className="font-Outfit">
+        <Text style={styles.subtitle} className="font-PlusJakartaSans">
           {matchId
             ? "Personalised just for your match ✨"
             : "Great conversation starters"}
@@ -168,14 +168,14 @@ const RizzModal = ({ visible, onClose, onSend, matchId }) => {
           {loading ? (
             <View style={styles.loadingContainer}>
               <ActivityIndicator size="small" color={colors.white} />
-              <Text style={styles.loadingText} className="font-Outfit">
+              <Text style={styles.loadingText} className="font-PlusJakartaSans">
                 Crafting the perfect line...
               </Text>
             </View>
           ) : (
             <Text
               style={styles.rizzText}
-              className="font-OutfitSemiBold"
+              className="font-PlusJakartaSansSemiBold"
             >
               {currentSuggestion}
             </Text>
@@ -184,14 +184,14 @@ const RizzModal = ({ visible, onClose, onSend, matchId }) => {
 
         {/* Soft error notice (non-blocking) */}
         {error && !loading && (
-          <Text style={styles.errorHint} className="font-Outfit">
+          <Text style={styles.errorHint} className="font-PlusJakartaSans">
             {error}
           </Text>
         )}
 
         {/* Suggestion counter e.g. "1 / 3" */}
         {/* {!loading && (
-          <Text style={styles.counter} className="font-Outfit">
+          <Text style={styles.counter} className="font-PlusJakartaSans">
             {currentIdx + 1} / {suggestions.length}
           </Text>
         )} */}
@@ -224,7 +224,7 @@ const RizzModal = ({ visible, onClose, onSend, matchId }) => {
           >
             <Text
               style={styles.primaryBtnText}
-              className="font-OutfitBold"
+              className="font-PlusJakartaSansBold"
             >
               Use This
             </Text>

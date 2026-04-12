@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
   },
   tabLabel: {
     fontSize: 13,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     whiteSpace: "nowrap",
   },
   tabLabelActive: {

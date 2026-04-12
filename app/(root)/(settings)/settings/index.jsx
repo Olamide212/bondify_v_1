@@ -62,7 +62,7 @@ const styles = StyleSheet.create({
   },
   versionText: {
     fontSize: 13,
-    fontFamily: 'Outfit',
+    fontFamily: 'PlusJakartaSans',
     letterSpacing: 0.3,
   },
 })

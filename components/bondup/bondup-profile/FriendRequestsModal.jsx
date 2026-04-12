@@ -164,7 +164,7 @@ const s = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 18,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#D1D5DB',
   },
   closeBtn: {
@@ -182,7 +182,7 @@ const s = StyleSheet.create({
   loadingText: {
     marginTop: 12,
     fontSize: 16,
-    fontFamily: 'Outfit',
+    fontFamily: 'PlusJakartaSans',
     color: '#9CA3AF',
   },
   emptyContainer: {
@@ -194,14 +194,14 @@ const s = StyleSheet.create({
   emptyText: {
     marginTop: 16,
     fontSize: 18,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#9CA3AF',
     textAlign: 'center',
   },
   emptySubtext: {
     marginTop: 8,
     fontSize: 14,
-    fontFamily: 'Outfit',
+    fontFamily: 'PlusJakartaSans',
     color: '#999',
     textAlign: 'center',
     lineHeight: 20,
@@ -236,7 +236,7 @@ const s = StyleSheet.create({
   },
   avatarInitial: {
     fontSize: 20,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#fff',
   },
   userDetails: {
@@ -244,13 +244,13 @@ const s = StyleSheet.create({
   },
   userName: {
     fontSize: 16,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#D1D5DB',
     marginBottom: 2,
   },
   requestTime: {
     fontSize: 12,
-    fontFamily: 'Outfit',
+    fontFamily: 'PlusJakartaSans',
     color: '#999',
   },
   actionButtons: {
@@ -277,7 +277,7 @@ const s = StyleSheet.create({
   },
   actionBtnText: {
     fontSize: 14,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#fff',
   },
   declineBtnText: {

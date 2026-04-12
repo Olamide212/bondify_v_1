@@ -143,7 +143,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     color: '#FFFFFF',
   },
   closeButton: {
@@ -158,7 +158,7 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 15,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     color: '#9CA3AF',
     marginBottom: 24,
     lineHeight: 22,
@@ -174,7 +174,7 @@ const styles = StyleSheet.create({
   },
   sectionLabel: {
     fontSize: 16,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     color: '#FFFFFF',
   },
   shuffleButton: {
@@ -188,7 +188,7 @@ const styles = StyleSheet.create({
   },
   shuffleText: {
     fontSize: 14,
-    fontFamily: "OutfitMedium",
+    fontFamily: "PlusJakartaSansMedium",
     color: colors.primary,
   },
   suggestionItem: {
@@ -205,7 +205,7 @@ const styles = StyleSheet.create({
   },
   suggestionText: {
     fontSize: 15,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     color: '#D1D5DB',
     lineHeight: 22,
   },
@@ -223,7 +223,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
     minHeight: 80,
     fontSize: 15,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     textAlignVertical: "top",
     color: '#FFFFFF',
   },
@@ -248,7 +248,7 @@ const styles = StyleSheet.create({
   sendButtonText: {
     color: "#fff",
     fontSize: 18,
-    fontFamily: "OutfitSemiBold",
+    fontFamily: "PlusJakartaSansSemiBold",
   },
 });
 

@@ -23,6 +23,7 @@ const { PutObjectCommand, DeleteObjectCommand } = require('@aws-sdk/client-s3');
 const s3      = require('../config/s3');
 const User    = require('../models/User');
 const OpenAI  = require('openai');
+const { checkProfilePhotoWithAI } = require('../utils/aiPhotoCheck');
 
 const openai  = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
@@ -229,6 +230,21 @@ const submitVerification = async (req, res) => {
       });
     }
 
+    // ── AI profile photo authenticity check ──────────────────────────────────
+    // Ensure the profile photo is a genuine personal photo, not a screenshot,
+    // AI-generated image, cartoon, or a photo scraped from the internet.
+    if (stagedMainPhoto) {
+      const photoCheck = await checkProfilePhotoWithAI(stagedMainPhoto.buffer, stagedMainPhoto.mimetype);
+      console.log('[verification] Profile photo check:', photoCheck);
+      if (!photoCheck.valid) {
+        return res.status(422).json({
+          success: false,
+          message: `Your profile photo was rejected: ${photoCheck.reason}. Please upload a clear, genuine photo of yourself.`,
+          code: 'INVALID_PROFILE_PHOTO',
+        });
+      }
+    }
+
     const faceMatch = await compareFacesWithAI(
       selfieFile.buffer,
       stagedMainPhoto ? { buffer: stagedMainPhoto.buffer, mimetype: stagedMainPhoto.mimetype } : { url: existingProfilePhoto.url },
@@ -236,12 +252,27 @@ const submitVerification = async (req, res) => {
     );
     console.log('[verification] Face comparison result:', faceMatch);
 
-    // Only reject on clear, high-confidence mismatches.
-    if (!faceMatch.match && faceMatch.confidence === 'high') {
+    // Reject on high-confidence mismatches.
+    // Medium-confidence mismatches are also rejected to prevent fake accounts.
+    if (!faceMatch.match && (faceMatch.confidence === 'high' || faceMatch.confidence === 'medium')) {
       return res.status(422).json({
         success: false,
         message: `Verification failed: The selfie does not match your profile photo. ${faceMatch.reason || 'Please ensure you are taking a clear selfie of yourself.'}`,
         code: 'FACE_MISMATCH',
+        comparison: {
+          match:      faceMatch.match,
+          confidence: faceMatch.confidence,
+          reason:     faceMatch.reason,
+        },
+      });
+    }
+
+    // Low-confidence matches are queued for manual review rather than auto-approved.
+    if (!faceMatch.match && faceMatch.confidence === 'low') {
+      return res.status(422).json({
+        success: false,
+        message: `We could not confidently verify your identity. ${faceMatch.reason || 'Please retake your selfie in good lighting, facing the camera directly.'}`,
+        code: 'LOW_CONFIDENCE',
         comparison: {
           match:      faceMatch.match,
           confidence: faceMatch.confidence,

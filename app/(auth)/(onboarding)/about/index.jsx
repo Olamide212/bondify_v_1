@@ -38,7 +38,7 @@ const PromptSuggestions = ({ onSelectPrompt }) => {
   return (
     <View style={{ marginBottom: 20 }}>
       <Text style={{
-        fontFamily: fonts.OutfitBold,
+        fontFamily: fonts.PlusJakartaSansBold,
         fontSize: 16,
         color: colors.white,
         marginBottom: 12,
@@ -61,7 +61,7 @@ const PromptSuggestions = ({ onSelectPrompt }) => {
             }}
           >
             <Text style={{
-              fontFamily: fonts.OutfitMedium,
+              fontFamily: fonts.PlusJakartaSansMedium,
               fontSize: 13,
               color: colors.white,
             }}>
@@ -114,7 +114,7 @@ const PromptSuggestions = ({ onSelectPrompt }) => {
 //         ) : (
 //           <Sparkles size={16} color="#fff" strokeWidth={2} />
 //         )}
-//         <Text style={{ color: "#fff", fontFamily: fonts.OutfitBold, fontSize: 14 }}>
+//         <Text style={{ color: "#fff", fontFamily: fonts.PlusJakartaSansBold, fontSize: 14 }}>
 //           {loading ? "Generating..." : "Generate prompts with AI"}
 //         </Text>
 //       </TouchableOpacity>
@@ -129,7 +129,7 @@ const PromptSuggestions = ({ onSelectPrompt }) => {
 //             marginTop: 8,
 //           }}
 //         >
-//           <Text style={{ fontFamily: fonts.Outfit, fontSize: 14, color: '#E5E5E5' }}>
+//           <Text style={{ fontFamily: fonts.PlusJakartaSans, fontSize: 14, color: '#E5E5E5' }}>
 //             {prompt}
 //           </Text>
 //         </TouchableOpacity>
@@ -234,10 +234,10 @@ const About = () => {
             >
               {/* Title */}
               <View className="mt-8 mb-6">
-                <Text className="text-3xl text-white font-OutfitBold mb-2">
+                <Text className="text-3xl text-white font-PlusJakartaSansBold mb-2">
                   Create your bio
                 </Text>
-                <Text className="text-base text-white font-Outfit">
+                <Text className="text-base text-white font-PlusJakartaSans">
                   Describe yourself in 3 words, then let AI craft your perfect bio.
                 </Text>
               </View>
@@ -245,7 +245,7 @@ const About = () => {
               {/* Prompt Input */}
               <View className="mb-6">
                 {/* <Text style={{
-                  fontFamily: fonts.OutfitBold,
+                  fontFamily: fonts.PlusJakartaSansBold,
                   fontSize: 16,
                   color: '#E5E5E5',
                   marginBottom: 8
@@ -263,7 +263,7 @@ const About = () => {
                     padding: 16,
                     borderRadius: 12,
                     fontSize: 16,
-                    fontFamily: fonts.OutfitMedium,
+                    fontFamily: fonts.PlusJakartaSansMedium,
                   }}
                 />
                  {/* Generated Bio */}
@@ -271,7 +271,7 @@ const About = () => {
                 <View className="">
                   <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginVertical: 12 }}>
                     <Text style={{
-                      fontFamily: fonts.OutfitBold,
+                      fontFamily: fonts.PlusJakartaSansBold,
                       fontSize: 16,
                       color: colors.white,
                     }}>
@@ -292,7 +292,7 @@ const About = () => {
                       }}
                     >
                       <RefreshCw size={14} color={colors.white} strokeWidth={2} />
-                      <Text style={{ fontFamily: fonts.OutfitBold, fontSize: 12, color: colors.white }}>
+                      <Text style={{ fontFamily: fonts.PlusJakartaSansBold, fontSize: 12, color: colors.white }}>
                         Regenerate
                       </Text>
                     </TouchableOpacity>
@@ -310,11 +310,11 @@ const About = () => {
                       borderRadius: 12,
                       textAlignVertical: "top",
                       fontSize: 16,
-                      fontFamily: fonts.OutfitMedium,
+                      fontFamily: fonts.PlusJakartaSansMedium,
                     }}
                   />
                   <Text style={{
-                    fontFamily: fonts.Outfit,
+                    fontFamily: fonts.PlusJakartaSans,
                     fontSize: 12,
                     color: colors.white,
                     textAlign: 'right',
@@ -350,7 +350,7 @@ const About = () => {
                 ) : (
                   <Sparkles size={16} color={colors.primary} strokeWidth={2} />
                 )}
-                <Text style={{ color: colors.primary, fontFamily: fonts.OutfitBold, fontSize: 14 }}>
+                <Text style={{ color: colors.primary, fontFamily: fonts.PlusJakartaSansBold, fontSize: 14 }}>
                   {loading ? "Generating bio..." : "Click to Generate bio"}
                 </Text>
               </TouchableOpacity>

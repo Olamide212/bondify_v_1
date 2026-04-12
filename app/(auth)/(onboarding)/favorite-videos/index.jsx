@@ -84,7 +84,7 @@ const FavoriteVideos = () => {
               {/* Title */}
               <View style={{ paddingHorizontal: 16, marginTop: 32, marginBottom: 24 }}>
                 <Text style={{
-                  fontFamily: fonts.OutfitBold,
+                  fontFamily: fonts.PlusJakartaSansBold,
                   fontSize: 28,
                   color: '#FFFFFF',
                   marginBottom: 8
@@ -92,7 +92,7 @@ const FavoriteVideos = () => {
                   What videos do you enjoy?
                 </Text>
                 <Text style={{
-                  fontFamily: fonts.Outfit,
+                  fontFamily: fonts.PlusJakartaSans,
                   fontSize: 16,
                   color: '#6b7280',
                   textAlign: 'center',
@@ -106,7 +106,7 @@ const FavoriteVideos = () => {
               {selectedVideos.length > 0 && (
                 <View style={{ paddingHorizontal: 16, marginBottom: 20 }}>
                   <Text style={{
-                    fontFamily: fonts.OutfitBold,
+                    fontFamily: fonts.PlusJakartaSansBold,
                     fontSize: 16,
                     color: colors.primary,
                     marginBottom: 12,
@@ -132,7 +132,7 @@ const FavoriteVideos = () => {
                       >
                         <Play size={14} color={colors.primary} />
                         <Text style={{
-                          fontFamily: fonts.OutfitMedium,
+                          fontFamily: fonts.PlusJakartaSansMedium,
                           fontSize: 13,
                           color: '#E5E5E5',
                         }}>
@@ -175,7 +175,7 @@ const FavoriteVideos = () => {
                   }}
                 >
                   <Text style={{
-                    fontFamily: fonts.OutfitMedium,
+                    fontFamily: fonts.PlusJakartaSansMedium,
                     fontSize: 16,
                     color: '#6b7280',
                   }}>

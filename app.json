@@ -24,7 +24,8 @@
       "edgeToEdgeEnabled": true,
       "permissions": [
         "android.permission.ACCESS_COARSE_LOCATION",
-        "android.permission.ACCESS_FINE_LOCATION"
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.POST_NOTIFICATIONS"
       ],
       "package": "com.olabid212.bondify"
     },
@@ -45,6 +46,7 @@
         }
       ],
       "expo-font",
+      "expo-notifications",
       [
         "expo-maps",
         {

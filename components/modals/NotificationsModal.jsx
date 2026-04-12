@@ -81,7 +81,7 @@ const MatchAvatar = ({ notification, onPress }) => {
             <Image source={{ uri: avatarUrl }} className="w-full h-full" contentFit="cover" cachePolicy="memory-disk" transition={150} />
           ) : (
             <View className="w-full h-full items-center justify-center bg-gray-300">
-              <Text className="text-gray-400 text-2xl font-OutfitBold">
+              <Text className="text-gray-400 text-2xl font-PlusJakartaSansBold">
                 {name?.[0] || "?"}
               </Text>
             </View>
@@ -92,7 +92,7 @@ const MatchAvatar = ({ notification, onPress }) => {
           <Text className="text-white text-xs">💞</Text>
         </View>
       </View>
-      <Text className="mt-2 text-xs text-gray-300 font-OutfitMedium" numberOfLines={1}>
+      <Text className="mt-2 text-xs text-gray-300 font-PlusJakartaSansMedium" numberOfLines={1}>
         {name || "Match"}
       </Text>
     </Pressable>
@@ -105,7 +105,7 @@ const BoostButton = ({ onPress }) => (
     <View className="w-16 h-16 rounded-full border-2 border-dashed border-gray-600 items-center justify-center bg-gray-900">
       <Plus size={24} color={colors.gray500} />
     </View>
-    <Text className="mt-2 text-xs text-gray-400 font-OutfitMedium">Boost</Text>
+    <Text className="mt-2 text-xs text-gray-400 font-PlusJakartaSansMedium">Boost</Text>
   </Pressable>
 );
 
@@ -127,7 +127,7 @@ const PhotoLikeCard = ({ notification, onPress }) => {
               <Image source={{ uri: avatarUrl }} className="w-full h-full" contentFit="cover" cachePolicy="memory-disk" transition={150} />
             ) : (
               <View className="w-full h-full items-center justify-center bg-gray-300">
-                <Text className="text-gray-400 text-lg font-OutfitBold">
+                <Text className="text-gray-400 text-lg font-PlusJakartaSansBold">
                   {name?.[0] || "?"}
                 </Text>
               </View>
@@ -141,12 +141,12 @@ const PhotoLikeCard = ({ notification, onPress }) => {
         
         <View style={{flex: 1}} className="ml-3">
           <View className="flex-row items-center justify-between">
-            <Text className="text-white font-OutfitBold">
+            <Text className="text-white font-PlusJakartaSansBold">
               <Text className="text-white">{name}</Text>
-              <Text className="text-gray-400 font-Outfit"> liked your photo</Text>
+              <Text className="text-gray-400 font-PlusJakartaSans"> liked your photo</Text>
             </Text>
             <View className="flex-row items-center">
-              <Text className="text-xs text-gray-400 font-Outfit mr-1">
+              <Text className="text-xs text-gray-400 font-PlusJakartaSans mr-1">
                 {formatRelativeTime(notification.createdAt)}
               </Text>
               {!notification.read && (
@@ -184,7 +184,7 @@ const EventInviteCard = ({ notification, onPress, onJoin, onDecline }) => {
               <Image source={{ uri: avatarUrl }} className="w-full h-full" contentFit="cover" cachePolicy="memory-disk" transition={150} />
             ) : (
               <View className="w-full h-full items-center justify-center bg-gray-300">
-                <Text className="text-gray-400 text-lg font-OutfitBold">
+                <Text className="text-gray-400 text-lg font-PlusJakartaSansBold">
                   {name?.[0] || "?"}
                 </Text>
               </View>
@@ -199,18 +199,18 @@ const EventInviteCard = ({ notification, onPress, onJoin, onDecline }) => {
         <View style={{flex: 1}} className="ml-3">
           <View className="flex-row items-start justify-between">
             <View style={{flex: 1}}>
-              <Text className="text-white font-OutfitBold">
+              <Text className="text-white font-PlusJakartaSansBold">
                 {name}
-                <Text className="text-gray-400 font-Outfit"> invited you to</Text>
+                <Text className="text-gray-400 font-PlusJakartaSans"> invited you to</Text>
               </Text>
               {eventTitle && (
-                <Text className="text-primary font-OutfitMedium mt-1">
+                <Text className="text-primary font-PlusJakartaSansMedium mt-1">
                   "{eventTitle}"
                 </Text>
               )}
             </View>
             <View className="flex-row items-center">
-              <Text className="text-xs text-gray-400 font-Outfit mr-1">
+              <Text className="text-xs text-gray-400 font-PlusJakartaSans mr-1">
                 {formatRelativeTime(notification.createdAt)}
               </Text>
             </View>
@@ -221,13 +221,13 @@ const EventInviteCard = ({ notification, onPress, onJoin, onDecline }) => {
               onPress={() => onJoin?.(notification)}
               className="bg-primary px-5 py-2 rounded-full"
             >
-              <Text className="text-white font-OutfitMedium text-sm">Join</Text>
+              <Text className="text-white font-PlusJakartaSansMedium text-sm">Join</Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => onDecline?.(notification)}
               className="bg-gray-800 px-5 py-2 rounded-full"
             >
-              <Text className="text-gray-300 font-OutfitMedium text-sm">Decline</Text>
+              <Text className="text-gray-300 font-PlusJakartaSansMedium text-sm">Decline</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -250,11 +250,11 @@ const AITipCard = ({ notification, onPress, onViewTip }) => {
         
         <View style={{flex: 1}} className="ml-3">
           <View className="flex-row items-center justify-between">
-            <Text className="text-white font-OutfitBold">
+            <Text className="text-white font-PlusJakartaSansBold">
               AI Assistant:
-              <Text className="text-gray-400 font-Outfit"> {notification.body}</Text>
+              <Text className="text-gray-400 font-PlusJakartaSans"> {notification.body}</Text>
             </Text>
-            <Text className="text-xs text-gray-400 font-Outfit">
+            <Text className="text-xs text-gray-400 font-PlusJakartaSans">
               {formatRelativeTime(notification.createdAt)}
             </Text>
           </View>
@@ -263,7 +263,7 @@ const AITipCard = ({ notification, onPress, onViewTip }) => {
             onPress={() => onViewTip?.(notification)}
             className="mt-3 border border-primary rounded-full py-2 px-4 self-start"
           >
-            <Text className="text-primary font-OutfitMedium text-sm">View Tip</Text>
+            <Text className="text-primary font-PlusJakartaSansMedium text-sm">View Tip</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -287,7 +287,7 @@ const MessageCard = ({ notification, onPress }) => {
             <Image source={{ uri: avatarUrl }} className="w-full h-full" contentFit="cover" cachePolicy="memory-disk" transition={150} />
           ) : (
             <View className="w-full h-full items-center justify-center bg-gray-300">
-              <Text className="text-gray-400 text-lg font-OutfitBold">
+              <Text className="text-gray-400 text-lg font-PlusJakartaSansBold">
                 {name?.[0] || "?"}
               </Text>
             </View>
@@ -296,9 +296,9 @@ const MessageCard = ({ notification, onPress }) => {
         
         <View style={{flex: 1}} className="ml-3">
           <View className="flex-row items-center justify-between">
-            <Text className="text-white font-OutfitBold">{name || "Someone"}</Text>
+            <Text className="text-white font-PlusJakartaSansBold">{name || "Someone"}</Text>
             <View className="flex-row items-center">
-              <Text className="text-xs text-gray-400 font-Outfit mr-1">
+              <Text className="text-xs text-gray-400 font-PlusJakartaSans mr-1">
                 {formatRelativeTime(notification.createdAt)}
               </Text>
               {!notification.read && (
@@ -306,7 +306,7 @@ const MessageCard = ({ notification, onPress }) => {
               )}
             </View>
           </View>
-          <Text className="text-gray-400 font-Outfit mt-1" numberOfLines={1}>
+          <Text className="text-gray-400 font-PlusJakartaSans mt-1" numberOfLines={1}>
             "{notification.body}"
           </Text>
         </View>
@@ -329,10 +329,10 @@ const SimpleNotificationCard = ({ notification, onPress }) => {
       </View>
       
       <View style={{flex: 1}} className="ml-3">
-        <Text className="text-gray-300 font-Outfit leading-5">
+        <Text className="text-gray-300 font-PlusJakartaSans leading-5">
           {notification.body}
         </Text>
-        <Text className="text-xs text-gray-400 font-Outfit mt-1">
+        <Text className="text-xs text-gray-400 font-PlusJakartaSans mt-1">
           {formatRelativeTime(notification.createdAt)}
         </Text>
       </View>
@@ -366,11 +366,11 @@ const GenericActivityCard = ({ notification, onPress }) => {
         
         <View style={{flex: 1}} className="ml-3">
           <View className="flex-row items-center justify-between">
-            <Text className="text-white font-OutfitBold flex-1 mr-2" numberOfLines={1}>
+            <Text className="text-white font-PlusJakartaSansBold flex-1 mr-2" numberOfLines={1}>
               {notification.title || meta.label}
             </Text>
             <View className="flex-row items-center">
-              <Text className="text-xs text-gray-400 font-Outfit mr-1">
+              <Text className="text-xs text-gray-400 font-PlusJakartaSans mr-1">
                 {formatRelativeTime(notification.createdAt)}
               </Text>
               {!notification.read && (
@@ -378,7 +378,7 @@ const GenericActivityCard = ({ notification, onPress }) => {
               )}
             </View>
           </View>
-          <Text className="text-gray-400 font-Outfit mt-1" numberOfLines={2}>
+          <Text className="text-gray-400 font-PlusJakartaSans mt-1" numberOfLines={2}>
             {notification.body}
           </Text>
         </View>
@@ -512,7 +512,7 @@ const NotificationsModal = ({
              
                  {/* Title */}
             <View className=" py-4">
-              <Text className="text-3xl font-OutfitBold text-white">Notifications</Text>
+              <Text className="text-3xl font-PlusJakartaSansBold text-white">Notifications</Text>
             </View>
             </View>
             <View className="flex-row items-center gap-3">
@@ -536,11 +536,11 @@ const NotificationsModal = ({
             {newMatches.length > 0 && (
               <View className="mb-6">
                 <View className="px-5 flex-row items-center justify-between mb-3">
-                  <Text className="text-xs font-OutfitBold text-gray-400 tracking-wider">
+                  <Text className="text-xs font-PlusJakartaSansBold text-gray-400 tracking-wider">
                     NEW MATCHES
                   </Text>
                   <View className="bg-primary px-2 py-1 rounded-full">
-                    <Text className="text-white text-xs font-OutfitBold">
+                    <Text className="text-white text-xs font-PlusJakartaSansBold">
                       {newMatches.length} NEW
                     </Text>
                   </View>
@@ -567,7 +567,7 @@ const NotificationsModal = ({
             {recentActivity.length > 0 && (
               <View className="mb-6">
                 <View className="px-5 mb-3">
-                  <Text className="text-xs font-OutfitBold text-gray-400 tracking-wider">
+                  <Text className="text-xs font-PlusJakartaSansBold text-gray-400 tracking-wider">
                     RECENT ACTIVITY
                   </Text>
                 </View>
@@ -582,7 +582,7 @@ const NotificationsModal = ({
             {olderNotifications.length > 0 && (
               <View className="mb-6">
                 <View className="px-5 mb-3">
-                  <Text className="text-xs font-OutfitBold text-gray-400 tracking-wider">
+                  <Text className="text-xs font-PlusJakartaSansBold text-gray-400 tracking-wider">
                     OLDER NOTIFICATIONS
                   </Text>
                 </View>
@@ -605,10 +605,10 @@ const NotificationsModal = ({
                 <View className="w-20 h-20 rounded-full bg-primary/10 items-center justify-center mb-4">
                   <Bell color={colors.primary} size={32} />
                 </View>
-                <Text className="text-xl text-white font-OutfitBold text-center">
+                <Text className="text-xl text-white font-PlusJakartaSansBold text-center">
                   No notifications yet
                 </Text>
-                <Text className="mt-2 text-center text-gray-400 font-Outfit leading-5">
+                <Text className="mt-2 text-center text-gray-400 font-PlusJakartaSans leading-5">
                   New messages, matches, and activity will appear here in real time.
                 </Text>
               </View>
@@ -619,12 +619,12 @@ const NotificationsModal = ({
           {notifications.length > 0 && (
             <View className="px-5 py-4 border-t border-gray-700 bg-[#121212] flex-row items-center justify-between">
               <TouchableOpacity onPress={onMarkAllRead}>
-                <Text className="text-primary font-OutfitMedium">
+                <Text className="text-primary font-PlusJakartaSansMedium">
                   {newCount > 0 ? "Mark all as read" : "All read ✓"}
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={onClearAll}>
-                <Text className="text-gray-400 font-OutfitMedium">Clear all</Text>
+                <Text className="text-gray-400 font-PlusJakartaSansMedium">Clear all</Text>
               </TouchableOpacity>
             </View>
           )}

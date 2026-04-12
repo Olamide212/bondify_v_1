@@ -7,6 +7,7 @@ const Like    = require('../models/Like');
 const Match   = require('../models/Match');
 const { getIO } = require('../socket');
 const { mapImagesWithAccessUrls } = require('../utils/imageHelper');
+const { sendPushToUser } = require('../utils/pushDispatchService');
 
 // ─── Discovery ────────────────────────────────────────────────────────────────
 const getDiscoveryProfiles = async (req, res, next) => {
@@ -255,6 +256,36 @@ const performAction = async (req, res, next) => {
           userId: String(userId),
           title:  "It's a match!",
           body:   `You and ${currentUserName} liked each other.`,
+        });
+
+        sendPushToUser({
+          userId,
+          title: "It's a match!",
+          body: `You and ${likedUserName} liked each other.`,
+          data: {
+            type: 'match',
+            matchId: String(match._id),
+            userId: String(likedUserId),
+          },
+          settingKey: 'newMatch',
+          onlyWhenOffline: true,
+        }).catch((err) => {
+          console.error('[expo-push] match push error (user):', err?.message || err);
+        });
+
+        sendPushToUser({
+          userId: likedUserId,
+          title: "It's a match!",
+          body: `You and ${currentUserName} liked each other.`,
+          data: {
+            type: 'match',
+            matchId: String(match._id),
+            userId: String(userId),
+          },
+          settingKey: 'newMatch',
+          onlyWhenOffline: true,
+        }).catch((err) => {
+          console.error('[expo-push] match push error (liked user):', err?.message || err);
         });
 
         return res.json({

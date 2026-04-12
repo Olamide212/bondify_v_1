@@ -267,7 +267,7 @@ const s = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 18,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: BRAND,
   },
 
@@ -308,14 +308,14 @@ const s = StyleSheet.create({
 
   mainTitle: {
     fontSize: 28,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#E5E5E5',
     marginBottom: 10,
     textAlign: 'center',
   },
   subtitle: {
     fontSize: 16,
-    fontFamily: 'Outfit',
+    fontFamily: 'PlusJakartaSans',
     color: '#9CA3AF',
     textAlign: 'center',
     lineHeight: 24,
@@ -323,7 +323,7 @@ const s = StyleSheet.create({
   },
   subtitleHighlight: {
     color: BRAND,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
   },
 
   // Squad card
@@ -347,7 +347,7 @@ const s = StyleSheet.create({
   },
   squadLabel: {
     fontSize: 12,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#D1D5DB',
     letterSpacing: 1,
   },
@@ -361,7 +361,7 @@ const s = StyleSheet.create({
   },
   squadBadgeText: {
     fontSize: 12,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: colors.white,
   },
   avatarGrid: {
@@ -389,7 +389,7 @@ const s = StyleSheet.create({
   squadAvatarInitial: {
     color: '#fff',
     fontSize: 18,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
   },
   extraAvatar: {
     backgroundColor: '#E5E7EB',
@@ -398,12 +398,12 @@ const s = StyleSheet.create({
   },
   extraAvatarText: {
     fontSize: 14,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#9CA3AF',
   },
   avatarName: {
     fontSize: 11,
-    fontFamily: 'OutfitMedium',
+    fontFamily: 'PlusJakartaSansMedium',
     color: '#9CA3AF',
     textAlign: 'center',
   },
@@ -427,7 +427,7 @@ const s = StyleSheet.create({
   },
   openChatBtnText: {
     fontSize: 16,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#fff',
   },
   calendarBtn: {
@@ -444,7 +444,7 @@ const s = StyleSheet.create({
   },
   calendarBtnText: {
     fontSize: 16,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: colors.white,
   },
 
@@ -458,7 +458,7 @@ const s = StyleSheet.create({
   },
   locationPillText: {
     fontSize: 13,
-    fontFamily: 'OutfitMedium',
+    fontFamily: 'PlusJakartaSansMedium',
     color: '#9CA3AF',
     textAlign: 'center',
   },

@@ -27,14 +27,14 @@ const styles = StyleSheet.create({
   title: {
     color: colors.white,
     fontSize: 20,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     textAlign: "center",
     marginBottom: 8,
   },
   subtitle: {
     color: colors.textSecondary,
     fontSize: 14,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     textAlign: "center",
     lineHeight: 20,
     maxWidth: 280,

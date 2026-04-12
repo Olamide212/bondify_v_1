@@ -1,12 +1,11 @@
-import React, { useState } from "react";
-import {
-  View,
-  TextInput as RNTextInput,
-  Text,
-  TouchableOpacity,
-  Image,
-} from "react-native";
 import Feather from "@expo/vector-icons/Feather";
+import { useState } from "react";
+import {
+    TextInput as RNTextInput,
+    Text,
+    TouchableOpacity,
+    View
+} from "react-native";
 
 const TextInput = ({
   label,
@@ -28,14 +27,14 @@ const TextInput = ({
   return (
     <View className="mb-2 w-full">
       {label && (
-        <Text className="text-lg text-white font-OutfitMedium mb-2">{label}</Text>
+        <Text className="text-lg text-white font-PlusJakartaSansMedium mb-2">{label}</Text>
       )}
       <View
-        className={`flex-row items-center  px-4 border bg-[#121212] border-whiteLight ${className} `}
+        className={`flex-row items-center  px-4 border bg-[#121212] ${error ? 'border-red-500' : 'border-whiteLight'} ${className} `}
         style={{ height: 55, borderRadius: 10,  marginBottom: 10 }}
       >
         <RNTextInput
-          style={{flex: 1, fontSize: 16}} className="text-white   bg-[#121212] font-OutfitMedium text-[18px] "
+          style={{flex: 1, fontSize: 16}} className="text-white   bg-[#121212] font-PlusJakartaSansMedium text-[18px] "
           placeholder={placeholder}
           placeholderTextColor="#929292"
           autoCapitalize="none"

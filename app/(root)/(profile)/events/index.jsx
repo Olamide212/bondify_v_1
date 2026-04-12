@@ -18,19 +18,19 @@ const Events = () => {
           <CalendarX size={64} color="#fff" strokeWidth={1.5} />
 
           {/* Title */}
-          <Text className="text-2xl font-OutfitBold text-white mt-6">
+          <Text className="text-2xl font-PlusJakartaSansBold text-white mt-6">
             No Events Yet
           </Text>
 
           {/* Description */}
-          <Text className="text-center text-gray-400 font-Outfit text-lg mt-2 text-white px-4">
+          <Text className="text-center text-gray-400 font-PlusJakartaSans text-lg mt-2 text-white px-4">
             Stay tuned! Bondify events and communities will appear here soon.
             Connect, share, and meet amazing people once we go live.
           </Text>
 
           {/* Placeholder action */}
           {/* <TouchableOpacity className="mt-6 bg-primary px-6 py-3 rounded-full">
-            <Text className="text-white font-OutfitMedium text-lg">
+            <Text className="text-white font-PlusJakartaSansMedium text-lg">
               Explore Bondies
             </Text>
           </TouchableOpacity> */}

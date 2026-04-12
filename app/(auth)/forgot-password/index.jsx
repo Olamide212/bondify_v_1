@@ -72,10 +72,10 @@ const ForgotPassword = () => {
          
 
             <View style={{flex: 1}} className="mt-4">
-              <Text className="text-3xl font-OutfitSemiBold text-white">
+              <Text className="text-3xl font-PlusJakartaSansSemiBold text-white">
                 Forgot password?
               </Text>
-              <Text className="mb-5 text-white text-lg font-Outfit">
+              <Text className="mb-5 text-white text-lg font-PlusJakartaSans">
                 Enter the email address associated with your account and
                 we&apos;ll send you a verification code to reset your password.
               </Text>
@@ -99,11 +99,11 @@ const ForgotPassword = () => {
               />
 
               <View className="flex-row justify-center items-center gap-1 mt-4 w-full">
-                <Text className="text-lg font-OutfitMedium text-white">
+                <Text className="text-lg font-PlusJakartaSansMedium text-white">
                   Remember your password?
                 </Text>
                 <Pressable onPress={() => router.back()}>
-                  <Text className="text-lg font-OutfitMedium text-primary">
+                  <Text className="text-lg font-PlusJakartaSansMedium text-primary">
                     Login
                   </Text>
                 </Pressable>

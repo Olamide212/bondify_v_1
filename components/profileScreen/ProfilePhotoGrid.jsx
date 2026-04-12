@@ -179,12 +179,12 @@ const s = StyleSheet.create({
   },
   title: {
     fontSize:   18,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#E5E5E5',
   },
   countText: {
     fontSize:   13,
-    fontFamily: 'OutfitMedium',
+    fontFamily: 'PlusJakartaSansMedium',
     color:      '#9CA3AF',
   },
 
@@ -270,7 +270,7 @@ const s = StyleSheet.create({
   },
   mainBadgeText: {
     fontSize:   11,
-    fontFamily: 'OutfitSemiBold',
+    fontFamily: 'PlusJakartaSansSemiBold',
     color:      '#fff',
   },
   removeBtn: {

@@ -248,7 +248,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 18,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     letterSpacing: -0.2,
   },
 
@@ -263,13 +263,13 @@ const styles = StyleSheet.create({
   hero: { marginBottom: 20 },
   heroTitle: {
     fontSize: 26,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     letterSpacing: -0.5,
     marginBottom: 6,
   },
   heroSubtitle: {
     fontSize: 14,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     lineHeight: 20,
   },
 
@@ -287,14 +287,14 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontSize: 15,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     padding: 0,
   },
 
   // Section label
   sectionLabel: {
     fontSize: 11,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     letterSpacing: 1,
     marginBottom: 12,
     marginLeft: 2,
@@ -325,7 +325,7 @@ const styles = StyleSheet.create({
   categoryLabel: {
     flex: 1,
     fontSize: 17,
-    fontFamily: "OutfitSemiBold",
+    fontFamily: "PlusJakartaSansSemiBold",
   },
 
   // FAQ items
@@ -341,7 +341,7 @@ const styles = StyleSheet.create({
   },
   faqQuestion: {
     fontSize: 16,
-    fontFamily: "OutfitMedium",
+    fontFamily: "PlusJakartaSansMedium",
     lineHeight: 20,
   },
   faqAnswer: {
@@ -351,7 +351,7 @@ const styles = StyleSheet.create({
   },
   faqAnswerText: {
     fontSize: 14,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     lineHeight: 19,
   },
   faqDivider: {
@@ -361,7 +361,7 @@ const styles = StyleSheet.create({
   // Empty state
   emptyText: {
     fontSize: 14,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     textAlign: "center",
     marginTop: 24,
     marginBottom: 8,
@@ -377,13 +377,13 @@ const styles = StyleSheet.create({
   },
   ctaTitle: {
     fontSize: 18,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     color: "#FFFFFF",
     marginBottom: 8,
   },
   ctaSubtitle: {
     fontSize: 13,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     color: "rgba(255,255,255,0.85)",
     textAlign: "center",
     lineHeight: 19,
@@ -400,7 +400,7 @@ const styles = StyleSheet.create({
   },
   ctaButtonText: {
     fontSize: 15,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     color: '#000',
   },
 });

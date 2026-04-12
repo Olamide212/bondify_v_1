@@ -165,9 +165,9 @@ const FilterModal = ({ visible, onClose, initialFilters, onApply }) => {
             {/* ── Maximum Distance ── */}
             <View className="pb-10 ">
               <View className="flex-row items-center justify-between mb-2">
-                <Text className="text-xl font-OutfitBold text-white">Maximum Distance</Text>
+                <Text className="text-xl font-PlusJakartaSansBold text-white">Maximum Distance</Text>
                 <View className="flex-row items-center gap-1 bg-primary/5 px-3 py-2 rounded-full">
-                  <Text className="text-lg text-primary font-OutfitBold">
+                  <Text className="text-lg text-primary font-PlusJakartaSansBold">
                     {maxDistance} km
                   </Text>
                 </View>
@@ -186,8 +186,8 @@ const FilterModal = ({ visible, onClose, initialFilters, onApply }) => {
               />
 
               <View className="flex-row justify-between px-1 -mt-1 mb-3">
-                <Text className="text-xs text-white text-gray-400 font-Outfit">2 km</Text>
-                <Text className="text-xs text-white text-gray-400 font-Outfit">1,000 km</Text>
+                <Text className="text-xs text-white text-gray-400 font-PlusJakartaSans">2 km</Text>
+                <Text className="text-xs text-white text-gray-400 font-PlusJakartaSans">1,000 km</Text>
               </View>
 
               <View className="flex-row items-center gap-2">
@@ -202,7 +202,7 @@ const FilterModal = ({ visible, onClose, initialFilters, onApply }) => {
                     color={allowExtendedDistance ? colors.primary : "#9ca3af"}
                   />
                 </TouchableOpacity>
-                <Text className="text-base font-OutfitMedium text-white">
+                <Text className="text-base font-PlusJakartaSansMedium text-white">
                   Show people further away if I run out
                 </Text>
               </View>
@@ -210,7 +210,7 @@ const FilterModal = ({ visible, onClose, initialFilters, onApply }) => {
 
             {/* ── Location ── */}
             <View className="pb-10  mb-4" style={styles.boxContainer}>
-              <Text className="text-xl font-OutfitBold text-white mb-3">Location</Text>
+              <Text className="text-xl font-PlusJakartaSansBold text-white mb-3">Location</Text>
 
               <View
                 style={{
@@ -234,7 +234,7 @@ const FilterModal = ({ visible, onClose, initialFilters, onApply }) => {
                   style={{
                     flex:       1,
                     fontSize:   15,
-                    fontFamily: "Outfit",
+                    fontFamily: "PlusJakartaSans",
                     color: '#E5E5E5',
                     paddingVertical: 14,
                   }}
@@ -253,7 +253,7 @@ const FilterModal = ({ visible, onClose, initialFilters, onApply }) => {
                 )}
               </View>
 
-              <Text className="text-xs text-white font-Outfit mt-2 ml-1">
+              <Text className="text-xs text-white font-PlusJakartaSans mt-2 ml-1">
                 Leave blank to use your current location
               </Text>
             </View>
@@ -261,9 +261,9 @@ const FilterModal = ({ visible, onClose, initialFilters, onApply }) => {
             {/* ── Age Range ── */}
             <View className="pb-10" >
               <View className="flex-row items-center justify-between mt-6 mb-2">
-                <Text className="text-xl font-OutfitBold text-white">Age Range</Text>
+                <Text className="text-xl font-PlusJakartaSansBold text-white">Age Range</Text>
                 <View className="flex-row items-center gap-1 bg-primary/5 px-3 rounded-full">
-                  <Text className="text-lg text-primary font-OutfitBold">
+                  <Text className="text-lg text-primary font-PlusJakartaSansBold">
                     {ageRange[0]} – {ageRange[1]}
                   </Text>
                 </View>
@@ -289,7 +289,7 @@ const FilterModal = ({ visible, onClose, initialFilters, onApply }) => {
 
             {/* ── Show Me ── */}
             <View className="flex-col w-full" style={styles.boxContainer}>
-              <Text className="text-xl font-OutfitBold text-white  mb-2">Show Me</Text>
+              <Text className="text-xl font-PlusJakartaSansBold text-white  mb-2">Show Me</Text>
               <View className="w-full flex-col items-center mb-2 bg-[#1E1E1E] px-2 py-2 rounded-xl">
                 <View className="flex-row flex-wrap justify-between gap-5">
                   {[
@@ -305,7 +305,7 @@ const FilterModal = ({ visible, onClose, initialFilters, onApply }) => {
                         className={`px-4 py-2 rounded-xl ${isSelected ? "bg-[#121212]" : ""}`}
                       >
                         <Text
-                          className={`font-OutfitBold text-lg ${
+                          className={`font-PlusJakartaSansBold text-lg ${
                             isSelected ? "text-primary" : "text-white"
                           }`}
                         >
@@ -325,8 +325,8 @@ const FilterModal = ({ visible, onClose, initialFilters, onApply }) => {
               style={styles.boxContainer}
             >
               <View className="flex-row items-center justify-between">
-                <Text className="text-xl font-OutfitBold text-white">Interests</Text>
-                <Text className="text-base font-OutfitMedium text-primary">Edit All</Text>
+                <Text className="text-xl font-PlusJakartaSansBold text-white">Interests</Text>
+                <Text className="text-base font-PlusJakartaSansMedium text-primary">Edit All</Text>
               </View>
 
               {(() => {
@@ -350,7 +350,7 @@ const FilterModal = ({ visible, onClose, initialFilters, onApply }) => {
                           }`}
                         >
                           <Text
-                            className={`text-lg font-OutfitMedium ${
+                            className={`text-lg font-PlusJakartaSansMedium ${
                               isShared ? "text-primary" : "text-white"
                             }`}
                           >
@@ -365,14 +365,14 @@ const FilterModal = ({ visible, onClose, initialFilters, onApply }) => {
             </TouchableOpacity>
 
             {/* ── Advanced Filters ── */}
-            <Text className="text-xl text-white font-OutfitBold mt-8 mb-4">Advanced filter</Text>
+            <Text className="text-xl text-white font-PlusJakartaSansBold mt-8 mb-4">Advanced filter</Text>
 
             <View className="flex-row justify-between items-center py-4">
               <View className="flex-row items-center gap-3">
                 <View className="p-3 rounded-full bg-blue-100 items-center justify-center">
                   <Ionicons name="shield-checkmark" size={20} color="#2563EB" />
                 </View>
-                <Text className="text-[16px] font-OutfitMedium text-white">Verified user only</Text>
+                <Text className="text-[16px] font-PlusJakartaSansMedium text-white">Verified user only</Text>
               </View>
               <Switch
                 value={verifiedOnly}
@@ -387,7 +387,7 @@ const FilterModal = ({ visible, onClose, initialFilters, onApply }) => {
                 <View className="p-3 rounded-full bg-green-100 items-center justify-center">
                   <Ionicons name="flash" size={20} color="#16A34A" />
                 </View>
-                <Text className="text-[16px] font-OutfitMedium text-white">Active today</Text>
+                <Text className="text-[16px] font-PlusJakartaSansMedium text-white">Active today</Text>
               </View>
               <Switch
                 value={activeToday}
@@ -409,7 +409,7 @@ const FilterModal = ({ visible, onClose, initialFilters, onApply }) => {
       
               <View className="flex-row items-center gap-2">
                 <Ionicons name="sparkles" size={18} color="#fff" />
-                <Text className="text-white text-xl font-OutfitMedium">
+                <Text className="text-white text-xl font-PlusJakartaSansMedium">
                   Apply filters
                 </Text>
               </View>

@@ -671,7 +671,7 @@ const Home = () => {
 
             <View className="flex-row items-center rounded-full px-3 py-2 gap-1">
               <Rocket size={15} fill={"#fff"} color={isBoosting ? '#ccc' : '#fff'} />
-              <Text className="text-sm font-OutfitBold text-white">
+              <Text className="text-sm font-PlusJakartaSansBold text-white">
                 {currentUser?.boostsToday || 0}/3
               </Text>
             </View>

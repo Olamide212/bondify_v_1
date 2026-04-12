@@ -266,20 +266,20 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 18,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     color: '#E5E5E5',
   },
 
   // Loaders / errors
   centeredLoader:   { flex: 1, alignItems: "center", justifyContent: "center" },
   errorContainer:   { flex: 1, alignItems: "center", justifyContent: "center", gap: 10, paddingHorizontal: 32 },
-  errorText:        { fontSize: 14, fontFamily: "Outfit", color: '#9CA3AF', textAlign: "center" },
-  retryText:        { fontSize: 13, fontFamily: "OutfitMedium", color: PRIMARY },
+  errorText:        { fontSize: 14, fontFamily: "PlusJakartaSans", color: '#9CA3AF', textAlign: "center" },
+  retryText:        { fontSize: 13, fontFamily: "PlusJakartaSansMedium", color: PRIMARY },
 
   // List
   listContent:      { paddingBottom: 32 },
   listContentEmpty: { flex: 1 },
-  listHeader:       { fontSize: 12, fontFamily: "OutfitMedium", color: "#aaa", paddingHorizontal: 20, paddingVertical: 12, letterSpacing: 0.4 },
+  listHeader:       { fontSize: 12, fontFamily: "PlusJakartaSansMedium", color: "#aaa", paddingHorizontal: 20, paddingVertical: 12, letterSpacing: 0.4 },
   separator:        { height: 1, backgroundColor: "#2A2A2A", marginLeft: 84 },
   loadMoreIndicator:{ paddingVertical: 16, alignItems: "center" },
 
@@ -310,7 +310,7 @@ const styles = StyleSheet.create({
   },
   avatarInitials: {
     fontSize: 16,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     color: PRIMARY,
   },
 
@@ -318,13 +318,13 @@ const styles = StyleSheet.create({
   rowInfo: { flex: 1 },
   rowName: {
     fontSize: 15,
-    fontFamily: "OutfitSemiBold",
+    fontFamily: "PlusJakartaSansSemiBold",
     color: '#E5E5E5',
     marginBottom: 3,
   },
   rowMeta: {
     fontSize: 12,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     color: "#aaa",
   },
 
@@ -344,7 +344,7 @@ const styles = StyleSheet.create({
   unblockBtnDisabled: { borderColor: "#333" },
   unblockBtnText: {
     fontSize: 13,
-    fontFamily: "OutfitSemiBold",
+    fontFamily: "PlusJakartaSansSemiBold",
     color: PRIMARY,
   },
 
@@ -367,12 +367,12 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     fontSize: 18,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     color: '#E5E5E5',
   },
   emptySubtitle: {
     fontSize: 14,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     color: "#888",
     textAlign: "center",
     lineHeight: 22,

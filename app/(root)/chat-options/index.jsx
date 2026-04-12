@@ -315,7 +315,7 @@ const s = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 17,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     color: '#E5E5E5',
   },
 
@@ -339,14 +339,14 @@ const s = StyleSheet.create({
   },
   profileName: {
     fontSize: 20,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     textTransform: "capitalize",
     color: '#E5E5E5',
     marginTop: 12,
   },
   verifiedTag: {
     fontSize: 13,
-    fontFamily: "OutfitMedium",
+    fontFamily: "PlusJakartaSansMedium",
     color: "#1D9BF0",
     marginTop: 4,
   },
@@ -354,7 +354,7 @@ const s = StyleSheet.create({
   // Sections
   sectionLabel: {
     fontSize: 13,
-    fontFamily: "OutfitSemiBold",
+    fontFamily: "PlusJakartaSansSemiBold",
     color: "#9CA3AF",
     textTransform: "uppercase",
     letterSpacing: 0.6,
@@ -384,7 +384,7 @@ const s = StyleSheet.create({
   },
   optionLabel: {
     fontSize: 15,
-    fontFamily: "OutfitMedium",
+    fontFamily: "PlusJakartaSansMedium",
     color: '#E5E7EB',
     flex: 1,
   },
@@ -407,7 +407,7 @@ const s = StyleSheet.create({
   },
   exportingText: {
     fontSize: 13,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     color: '#9CA3AF',
   },
 });

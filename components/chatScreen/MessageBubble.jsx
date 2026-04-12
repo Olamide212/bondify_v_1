@@ -394,17 +394,17 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: 15,
-    fontFamily: fonts.Outfit,
+    fontFamily: fonts.PlusJakartaSans,
     lineHeight: 20,
   },
   myText: {
     color: "#fff",
-    fontFamily: fonts.Outfit,
+    fontFamily: fonts.PlusJakartaSans,
     lineHeight: 20,
   },
   theirText: {
     color: '#E5E7EB',
-        fontFamily: fonts.Outfit,
+        fontFamily: fonts.PlusJakartaSans,
         lineHeight: 20,
   },
   image: {
@@ -519,7 +519,7 @@ const styles = StyleSheet.create({
   menuItemText: {
     fontSize: 16,
     color: '#E5E5E5',
-    fontFamily: fonts.Outfit,
+    fontFamily: fonts.PlusJakartaSans,
   },
   reactionBadge: {
     position: "absolute",

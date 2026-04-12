@@ -120,11 +120,11 @@ const ProfileImageModal = ({
                   const mediaType = getProfileMediaType(mediaItem);
 
                   return (
-                    <View style={{ width, height: "100%" }}>
+                    <View style={{ width, height }}>
                       <ProfileMediaView
                         media={mediaItem}
-                        containerStyle={{ width: "100%", height: "100%" }}
-                        style={{ width: "100%", height: "100%" }}
+                        containerStyle={{ width, height }}
+                        style={{ width, height }}
                         contentFit="cover"
                         blurRadius={mediaType === 'image' ? blurPhotos ? 25 : 0 : 0}
                         shouldPlayVideo={visible && index === modalImageIndex}

@@ -109,30 +109,30 @@ const s = StyleSheet.create({
   },
   title: {
     fontSize: 16,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     color: '#E5E5E5',
   },
   subtitle: {
     fontSize: 12,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     color: "#9CA3AF",
     marginTop: 2,
   },
   taglineText: {
     fontSize: 18,
-    fontFamily: "OutfitSemiBold",
+    fontFamily: "PlusJakartaSansSemiBold",
     color: '#E5E5E5',
     fontStyle: "italic",
     lineHeight: 26,
   },
   placeholder: {
     fontSize: 15,
-    fontFamily: "OutfitMedium",
+    fontFamily: "PlusJakartaSansMedium",
     color: "#9CA3AF",
   },
   editHint: {
     fontSize: 12,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     color: "#D1D5DB",
     marginTop: 4,
   },
@@ -143,13 +143,13 @@ const s = StyleSheet.create({
     borderBottomWidth: 1.5,
     borderBottomColor: colors.primary,
     fontSize: 16,
-    fontFamily: "OutfitMedium",
+    fontFamily: "PlusJakartaSansMedium",
     color: '#E5E5E5',
     paddingVertical: 10,
   },
   charCount: {
     fontSize: 12,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     color: "#9CA3AF",
     textAlign: "right",
     marginTop: 4,
@@ -168,7 +168,7 @@ const s = StyleSheet.create({
   },
   cancelText: {
     fontSize: 14,
-    fontFamily: "OutfitSemiBold",
+    fontFamily: "PlusJakartaSansSemiBold",
     color: '#9CA3AF',
   },
   saveBtn: {
@@ -179,7 +179,7 @@ const s = StyleSheet.create({
   },
   saveText: {
     fontSize: 14,
-    fontFamily: "OutfitSemiBold",
+    fontFamily: "PlusJakartaSansSemiBold",
     color: "#fff",
   },
 });

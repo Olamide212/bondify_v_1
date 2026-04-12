@@ -7,8 +7,9 @@ import { ActivityIndicator, Image as RNImage, StyleSheet, Text, TouchableOpacity
 import { colors } from "../../constant/colors";
 import { fonts } from "../../constant/fonts";
 import { images } from "../../constant/images";
+import CommunicationBadge from "../ui/CommunicationBadge";
 
-const ChatHeader = ({ matchedUser, onBack, onOpenProfile, onOpenActions, onUnmatch }) => {
+const ChatHeader = ({ matchedUser, onBack, onOpenProfile, onOpenActions, onUnmatch, communicationScore, onShowFeedback }) => {
   const [isImageLoading, setIsImageLoading] = React.useState(Boolean(matchedUser?.profileImage));
   const [imageFailed, setImageFailed] = React.useState(!matchedUser?.profileImage);
   const lastProfileTapAtRef = React.useRef(0);
@@ -113,6 +114,16 @@ const ChatHeader = ({ matchedUser, onBack, onOpenProfile, onOpenActions, onUnmat
                 <Text style={styles.onlineText} className='uppercase text-primary text-sm'>Active Now</Text>
               </>
             )}
+            {/* Communication Score Badge */}
+            {communicationScore && communicationScore.level !== 'new' && !matchedUser.isSystem && (
+              <CommunicationBadge
+                level={communicationScore.level}
+                score={communicationScore.score}
+                size="small"
+                onPress={onShowFeedback}
+                style={{ marginLeft: matchedUser.isOnline ? 8 : 0 }}
+              />
+            )}
             {/* {matchedUser.isSystem && (
               <Text style={styles.systemText}>Bondify Team</Text>
             )} */}
@@ -198,7 +209,7 @@ const styles = StyleSheet.create({
   },
   userName: {
     fontSize: 19,
-fontFamily: fonts.OutfitBold,
+fontFamily: fonts.PlusJakartaSansBold,
     color: '#fff',
   },
   statusContainer: {
@@ -208,18 +219,18 @@ fontFamily: fonts.OutfitBold,
   },
   onlineText: {
     fontSize: 12,
-    fontFamily: fonts.OutfitSemiBold,
+    fontFamily: fonts.PlusJakartaSansSemiBold,
     marginLeft: 4,
   },
   offlineText: {
     color: "#9CA3AF",
     fontSize: 12,
-    fontFamily: fonts.OutfitSemiBold,
+    fontFamily: fonts.PlusJakartaSansSemiBold,
   },
   systemText: {
     color: "#1D9BF0",
     fontSize: 12,
-    fontFamily: fonts.OutfitMedium,
+    fontFamily: fonts.PlusJakartaSansMedium,
   },
 });
 

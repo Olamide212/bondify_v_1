@@ -131,7 +131,7 @@ const PromptModal = ({ visible, onClose, onSaveAnswer, showAlert }) => {
             marginBottom: 20,
           }}>
             <Text style={{
-              fontFamily: fonts.OutfitBold,
+              fontFamily: fonts.PlusJakartaSansBold,
               fontSize: 20,
               color: colors.primary,
             }}>
@@ -150,7 +150,7 @@ const PromptModal = ({ visible, onClose, onSaveAnswer, showAlert }) => {
             {/* Prompt Selection */}
             <View style={{ paddingHorizontal: 20, marginBottom: 20 }}>
               <Text style={{
-                fontFamily: fonts.OutfitBold,
+                fontFamily: fonts.PlusJakartaSansBold,
                 fontSize: 16,
                 color: '#D1D5DB',
                 marginBottom: 12,
@@ -176,7 +176,7 @@ const PromptModal = ({ visible, onClose, onSaveAnswer, showAlert }) => {
                     }}
                   >
                     <Text style={{
-                      fontFamily: fonts.OutfitMedium,
+                      fontFamily: fonts.PlusJakartaSansMedium,
                       fontSize: 14,
                       color: selectedPrompt === prompt ? 'white' : '#333',
                     }}>
@@ -191,7 +191,7 @@ const PromptModal = ({ visible, onClose, onSaveAnswer, showAlert }) => {
             {selectedPrompt && (
               <View style={{ paddingHorizontal: 20, marginBottom: 20 }}>
                 <Text style={{
-                  fontFamily: fonts.OutfitBold,
+                  fontFamily: fonts.PlusJakartaSansBold,
                   fontSize: 16,
                   color: '#D1D5DB',
                   marginBottom: 8,
@@ -199,7 +199,7 @@ const PromptModal = ({ visible, onClose, onSaveAnswer, showAlert }) => {
                   Your answer
                 </Text>
                 <Text style={{
-                  fontFamily: fonts.OutfitMedium,
+                  fontFamily: fonts.PlusJakartaSansMedium,
                   fontSize: 14,
                   color: colors.primary,
                   marginBottom: 12,
@@ -218,7 +218,7 @@ const PromptModal = ({ visible, onClose, onSaveAnswer, showAlert }) => {
                     borderRadius: 12,
                     paddingVertical: 12,
                     paddingHorizontal: 16,
-                    fontFamily: fonts.Outfit,
+                    fontFamily: fonts.PlusJakartaSans,
                     fontSize: 15,
                     minHeight: 80,
                     textAlignVertical: 'top',
@@ -235,7 +235,7 @@ const PromptModal = ({ visible, onClose, onSaveAnswer, showAlert }) => {
                   }}>
                     <ActivityIndicator size="small" color={colors.primary} />
                     <Text style={{
-                      fontFamily: fonts.OutfitMedium,
+                      fontFamily: fonts.PlusJakartaSansMedium,
                       fontSize: 14,
                       color: '#9CA3AF',
                     }}>
@@ -247,7 +247,7 @@ const PromptModal = ({ visible, onClose, onSaveAnswer, showAlert }) => {
                 {aiSuggestions.length > 0 && (
                   <View style={{ marginTop: 12 }}>
                     <Text style={{
-                      fontFamily: fonts.OutfitBold,
+                      fontFamily: fonts.PlusJakartaSansBold,
                       fontSize: 14,
                       color: colors.primary,
                       marginBottom: 8,
@@ -269,7 +269,7 @@ const PromptModal = ({ visible, onClose, onSaveAnswer, showAlert }) => {
                         }}
                       >
                         <Text style={{
-                          fontFamily: fonts.Outfit,
+                          fontFamily: fonts.PlusJakartaSans,
                           fontSize: 13,
                           color: '#0369a1',
                           lineHeight: 18,
@@ -303,7 +303,7 @@ const PromptModal = ({ visible, onClose, onSaveAnswer, showAlert }) => {
               }}
             >
               <Text style={{
-                fontFamily: fonts.OutfitBold,
+                fontFamily: fonts.PlusJakartaSansBold,
                 fontSize: 16,
                 color: (selectedPrompt && answer.trim()) ? 'white' : '#9ca3af',
               }}>
@@ -365,7 +365,7 @@ export default function ProfilePromptsScreen() {
             {/* Header */}
             <View style={{ marginBottom: 30 }}>
               <Text style={{
-                fontFamily: fonts.OutfitBold,
+                fontFamily: fonts.PlusJakartaSansBold,
                 fontSize: 28,
                 color: '#E5E5E5',
                 textAlign: 'center',
@@ -374,7 +374,7 @@ export default function ProfilePromptsScreen() {
                 Share your story
               </Text>
               <Text style={{
-                fontFamily: fonts.Outfit,
+                fontFamily: fonts.PlusJakartaSans,
                 fontSize: 16,
                 color: '#9CA3AF',
                 textAlign: 'center',
@@ -401,7 +401,7 @@ export default function ProfilePromptsScreen() {
             >
               <Plus size={20} color="white" />
               <Text style={{
-                fontFamily: fonts.OutfitBold,
+                fontFamily: fonts.PlusJakartaSansBold,
                 fontSize: 16,
                 color: 'white',
               }}>
@@ -413,7 +413,7 @@ export default function ProfilePromptsScreen() {
             {savedAnswers.length > 0 && (
               <View style={{ marginBottom: 24 }}>
                 <Text style={{
-                  fontFamily: fonts.OutfitBold,
+                  fontFamily: fonts.PlusJakartaSansBold,
                   fontSize: 18,
                   color: colors.primary,
                   marginBottom: 16,
@@ -441,7 +441,7 @@ export default function ProfilePromptsScreen() {
                         marginBottom: 8,
                       }}>
                         <Text style={{
-                          fontFamily: fonts.OutfitBold,
+                          fontFamily: fonts.PlusJakartaSansBold,
                           fontSize: 15,
                           color: colors.primary,
                           flex: 1,
@@ -459,7 +459,7 @@ export default function ProfilePromptsScreen() {
                         </TouchableOpacity>
                       </View>
                       <Text style={{
-                        fontFamily: fonts.Outfit,
+                        fontFamily: fonts.PlusJakartaSans,
                         fontSize: 15,
                         color: '#D1D5DB',
                         lineHeight: 22,
@@ -480,7 +480,7 @@ export default function ProfilePromptsScreen() {
                 paddingHorizontal: 20,
               }}>
                 <Text style={{
-                  fontFamily: fonts.OutfitMedium,
+                  fontFamily: fonts.PlusJakartaSansMedium,
                   fontSize: 16,
                   color: '#9CA3AF',
                   textAlign: 'center',

@@ -26,7 +26,7 @@ export const styles = StyleSheet.create({
     },
     text: {
         color: colors.white,
-        fontFamily: 'Outfit',
+        fontFamily: 'PlusJakartaSans',
     },
     boxContainer: {
           backgroundColor: 'rgba(255,255,255,0.02)',

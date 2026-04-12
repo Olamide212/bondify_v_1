@@ -405,7 +405,7 @@ const s = StyleSheet.create({
   },
   errorText: {
     fontSize: 16,
-    fontFamily: 'OutfitMedium',
+    fontFamily: 'PlusJakartaSansMedium',
     color: '#888',
     textAlign: 'center',
   },
@@ -418,7 +418,7 @@ const s = StyleSheet.create({
   },
   retryBtnText: {
     color: '#fff',
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     fontSize: 14,
   },
 
@@ -441,7 +441,7 @@ const s = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 17,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#E5E5E5',
   },
 
@@ -486,12 +486,12 @@ const s = StyleSheet.create({
   },
   friendBtnText: {
     fontSize: 15,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#fff',
   },
   friendsBtnText: {
     fontSize: 15,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: BRAND,
   },
 
@@ -501,7 +501,7 @@ const s = StyleSheet.create({
   },
   dayLabel: {
     fontSize: 16,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#E5E5E5',
     marginHorizontal: 16,
     marginBottom: 8,
@@ -518,7 +518,7 @@ const s = StyleSheet.create({
   },
   emptyText: {
     fontSize: 14,
-    fontFamily: 'Outfit',
+    fontFamily: 'PlusJakartaSans',
     color: '#888',
   },
 
@@ -543,7 +543,7 @@ const s = StyleSheet.create({
   avatarInitial: {
     color: '#fff',
     fontSize: 34,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
   },
 
   // Name + Location
@@ -554,7 +554,7 @@ const s = StyleSheet.create({
   },
   fullName: {
     fontSize: 22,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#E5E5E5',
     marginBottom: 6,
     textTransform: 'capitalize',
@@ -567,12 +567,12 @@ const s = StyleSheet.create({
   },
   locationText: {
     fontSize: 14,
-    fontFamily: 'OutfitMedium',
+    fontFamily: 'PlusJakartaSansMedium',
     color: '#888',
   },
   bio: {
     fontSize: 14,
-    fontFamily: 'Outfit',
+    fontFamily: 'PlusJakartaSans',
     color: '#9CA3AF',
     textAlign: 'center',
     lineHeight: 20,
@@ -589,7 +589,7 @@ const s = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 16,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#E5E5E5',
   },
 
@@ -611,7 +611,7 @@ const s = StyleSheet.create({
   },
   bondupTitle: {
     fontSize: 15,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#E5E5E5',
     marginBottom: 3,
   },
@@ -627,7 +627,7 @@ const s = StyleSheet.create({
   },
   bondupMetaText: {
     fontSize: 12,
-    fontFamily: 'Outfit',
+    fontFamily: 'PlusJakartaSans',
     color: '#888',
   },
   bondupParticipants: {
@@ -641,7 +641,7 @@ const s = StyleSheet.create({
   },
   bondupParticipantCount: {
     fontSize: 12,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#9CA3AF',
   },
 

@@ -4,6 +4,7 @@ const {
 } = require('@aws-sdk/client-s3');
 const s3 = require('../config/s3');
 const User = require('../models/User');
+const { checkProfilePhotoWithAI } = require('../utils/aiPhotoCheck');
 
 const getContentType = (file) => file?.mimetype || 'image/jpeg';
 
@@ -141,6 +142,24 @@ const uploadPhotos = async (req, res, next) => {
         success: false,
         message: 'Profile videos must be 5 seconds or less.',
       });
+    }
+
+    // ── AI authenticity check for incoming image files ───────────────────────
+    // Ensure uploaded photos are genuine personal photos, not screenshots,
+    // AI-generated images, cartoons, or internet-scraped photos.
+    const imageFiles = req.files.filter((f) => getProfileMediaType(f) === 'image');
+    if (imageFiles.length > 0) {
+      const photoCheckResults = await Promise.all(
+        imageFiles.map((f) => checkProfilePhotoWithAI(f.buffer, f.mimetype))
+      );
+      const firstInvalid = photoCheckResults.findIndex((r) => !r.valid);
+      if (firstInvalid !== -1) {
+        return res.status(422).json({
+          success: false,
+          message: `Photo ${firstInvalid + 1} was rejected: ${photoCheckResults[firstInvalid].reason}. Please upload a clear, genuine photo of yourself.`,
+          code: 'INVALID_PHOTO',
+        });
+      }
     }
 
     const uploadPromises = req.files.map(async (file, index) => {

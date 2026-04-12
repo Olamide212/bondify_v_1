@@ -11,21 +11,21 @@
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { useRouter } from "expo-router";
 import {
-  Camera,
-  CheckCircle,
-  ChevronLeft,
-  RefreshCw,
-  ShieldCheck,
+    Camera,
+    CheckCircle,
+    ChevronLeft,
+    RefreshCw,
+    ShieldCheck,
 } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
 import {
-  ActivityIndicator,
-  Image,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Image,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import VerifiedIcon from "../../../../components/ui/VerifiedIcon";
@@ -33,12 +33,12 @@ import { colors } from "../../../../constant/colors";
 import { useAlert } from "../../../../context/AlertContext";
 import { useVerificationStep } from "../../../../context/VerificationStepContext";
 import { profileService } from "../../../../services/profileService";
-import {
-  clearOnboardingProfileMediaDraft,
-  getOnboardingProfileMediaDraft,
-  getOnboardingDraftMainPhotoUrl,
-} from "../../../../utils/onboardingProfileMediaDraft";
 import apiClient from "../../../../utils/axiosInstance";
+import {
+    clearOnboardingProfileMediaDraft,
+    getOnboardingDraftMainPhotoUrl,
+    getOnboardingProfileMediaDraft,
+} from "../../../../utils/onboardingProfileMediaDraft";
 import { tokenManager } from "../../../../utils/tokenManager";
 
 const PRIMARY = colors.primary;
@@ -101,21 +101,21 @@ const IntroStep = ({ onStart, onSkip, profilePhotoUrl }) => (
 const is = StyleSheet.create({
   container:   { paddingHorizontal: 20, paddingTop: 10, paddingBottom: 40, marginTop: 30 },
   iconWrap:    { width: 88, height: 88, borderRadius: 99, backgroundColor: "#EDE8F5", alignItems: "center", justifyContent: "center", alignSelf: "center", marginBottom: 20 },
-  title:       { fontSize: 24, fontFamily: "OutfitBold", color: '#E5E5E5', textAlign: "center", marginBottom: 10 },
-  body:        { fontSize: 14, fontFamily: "Outfit", color: '#9CA3AF', textAlign: "center", lineHeight: 22, marginBottom: 28 },
+  title:       { fontSize: 24, fontFamily: "PlusJakartaSansBold", color: '#E5E5E5', textAlign: "center", marginBottom: 10 },
+  body:        { fontSize: 14, fontFamily: "PlusJakartaSans", color: '#9CA3AF', textAlign: "center", lineHeight: 22, marginBottom: 28 },
   photoWrap:   { width: 150, height: 150, borderRadius: 75, alignSelf: "center", marginBottom: 20, position: "relative" },
   profilePhoto:{ width: 150, height: 150, borderRadius: 75, borderWidth: 3, borderColor: PRIMARY },
   photoBadge:  { position: "absolute", bottom: 5, right: 15, width: 28, height: 28,   alignItems: "center", justifyContent: "center",  },
   steps:       { gap: 20, marginBottom: 32 },
   stepRow:     { flexDirection: "row", alignItems: "flex-start", gap: 14 },
   stepNum:     { width: 32, height: 32, borderRadius: 99, backgroundColor: "#EDE8F5", alignItems: "center", justifyContent: "center", flexShrink: 0 },
-  stepNumText: { fontSize: 15, fontFamily: "OutfitBold", color: PRIMARY },
-  stepTitle:   { fontSize: 15, fontFamily: "OutfitSemiBold", color: '#E5E5E5', marginBottom: 2 },
-  stepDesc:    { fontSize: 13, fontFamily: "Outfit", color: "#9CA3AF" },
+  stepNumText: { fontSize: 15, fontFamily: "PlusJakartaSansBold", color: PRIMARY },
+  stepTitle:   { fontSize: 15, fontFamily: "PlusJakartaSansSemiBold", color: '#E5E5E5', marginBottom: 2 },
+  stepDesc:    { fontSize: 13, fontFamily: "PlusJakartaSans", color: "#9CA3AF" },
   btn:         { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, backgroundColor: PRIMARY, borderRadius: 99, paddingVertical: 16, marginBottom: 12 },
-  btnText:     { fontSize: 16, fontFamily: "OutfitBold", color: "#fff" },
+  btnText:     { fontSize: 16, fontFamily: "PlusJakartaSansBold", color: "#fff" },
   skipBtn:     { alignItems: "center", paddingVertical: 12 },
-  skipText:    { fontSize: 14, fontFamily: "OutfitMedium", color: "#9CA3AF" },
+  skipText:    { fontSize: 14, fontFamily: "PlusJakartaSansMedium", color: "#9CA3AF" },
 });
 
 // ─── Camera Step ──────────────────────────────────────────────────────────────
@@ -212,7 +212,7 @@ const cs = StyleSheet.create({
   ovalHole:     { width: OVAL_WIDTH, height: OVAL_HEIGHT, alignItems: "center", justifyContent: "center", backgroundColor: "transparent", overflow: "hidden", borderRadius: OVAL_HEIGHT / 2 },
   ovalBorder:   { width: OVAL_WIDTH, height: OVAL_HEIGHT, borderRadius: OVAL_HEIGHT / 2, borderWidth: 2.5, borderColor: "rgba(255,255,255,0.75)", borderStyle: "dashed" },
   hintRow:      {  alignItems: "center", paddingVertical: 12 },
-  hint:         { fontSize: 13, fontFamily: "OutfitMedium", color: "rgba(255,255,255,0.85)" },
+  hint:         { fontSize: 13, fontFamily: "PlusJakartaSansMedium", color: "rgba(255,255,255,0.85)" },
   overlayBottom:{ flex: 1,  },
   shutterRow:   { position: "absolute", bottom: 48, width: "100%", alignItems: "center" },
   shutter:      { width: 72, height: 72, borderRadius: 99, backgroundColor: "#121212", alignItems: "center", justifyContent: "center", borderWidth: 4, borderColor: "rgba(255,255,255,0.4)" },
@@ -260,12 +260,12 @@ const ps = StyleSheet.create({
   container:  { flex: 1, backgroundColor: "#000" },
   image:      { flex: 1 },
   actions:    { backgroundColor: "#121212", paddingHorizontal: 24, paddingTop: 20, paddingBottom: 36 },
-  label:      { fontSize: 17, fontFamily: "OutfitBold", color: '#E5E5E5', textAlign: "center", marginBottom: 4 },
-  sublabel:   { fontSize: 13, fontFamily: "Outfit", color: "#9CA3AF", textAlign: "center", marginBottom: 20 },
+  label:      { fontSize: 17, fontFamily: "PlusJakartaSansBold", color: '#E5E5E5', textAlign: "center", marginBottom: 4 },
+  sublabel:   { fontSize: 13, fontFamily: "PlusJakartaSans", color: "#9CA3AF", textAlign: "center", marginBottom: 20 },
   submitBtn:  { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, backgroundColor: PRIMARY, borderRadius: 99, paddingVertical: 16, marginBottom: 12 },
-  submitText: { fontSize: 16, fontFamily: "OutfitBold", color: "#fff" },
+  submitText: { fontSize: 16, fontFamily: "PlusJakartaSansBold", color: "#fff" },
   retakeBtn:  { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6, paddingVertical: 12 },
-  retakeText: { fontSize: 15, fontFamily: "OutfitSemiBold", color: PRIMARY },
+  retakeText: { fontSize: 15, fontFamily: "PlusJakartaSansSemiBold", color: PRIMARY },
 });
 
 // ─── Done Step ────────────────────────────────────────────────────────────────
@@ -288,10 +288,10 @@ const DoneStep = ({ onContinue }) => (
 const ds = StyleSheet.create({
   container: { flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 32, backgroundColor: "#121212" },
   iconWrap:  { width: 96, height: 96, borderRadius: 99, backgroundColor: "#D1FAE5", alignItems: "center", justifyContent: "center", marginBottom: 24 },
-  title:     { fontSize: 24, fontFamily: "OutfitBold", color: '#E5E5E5', marginBottom: 10, textAlign: "center" },
-  body:      { fontSize: 16, fontFamily: "Outfit", color: '#9CA3AF', textAlign: "center", lineHeight: 22, marginBottom: 36 },
+  title:     { fontSize: 24, fontFamily: "PlusJakartaSansBold", color: '#E5E5E5', marginBottom: 10, textAlign: "center" },
+  body:      { fontSize: 16, fontFamily: "PlusJakartaSans", color: '#9CA3AF', textAlign: "center", lineHeight: 22, marginBottom: 36 },
   btn:       { backgroundColor: PRIMARY, borderRadius: 99, paddingVertical: 16, paddingHorizontal: 48 },
-  btnText:   { fontSize: 16, fontFamily: "OutfitBold", color: "#fff" },
+  btnText:   { fontSize: 16, fontFamily: "PlusJakartaSansBold", color: "#fff" },
 });
 
 // ─── Main Screen ──────────────────────────────────────────────────────────────
@@ -415,6 +415,16 @@ export default function VerificationScreen() {
           actions: [
             { label: 'Retake Selfie', style: 'primary', onPress: () => setStep(STEP.CAMERA) },
             { label: 'Change Main Photo', style: 'secondary', onPress: () => router.push('/upload-photo') },
+          ],
+        });
+      } else if (code === 'INVALID_PROFILE_PHOTO') {
+        // Profile photo was rejected by AI
+        showAlert({
+          icon: 'error',
+          title: 'Profile Photo Rejected',
+          message: message,
+          actions: [
+            { label: 'Change My Photo', style: 'primary', onPress: () => router.push('/upload-photo') },
           ],
         });
       } else if (code === 'NO_PROFILE_PHOTO') {

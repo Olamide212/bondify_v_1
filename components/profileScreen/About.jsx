@@ -136,14 +136,14 @@ const s = StyleSheet.create({
   },
   cardValue: {
     fontSize:     15,
-    fontFamily:   "OutfitMedium",
+    fontFamily:   "PlusJakartaSansMedium",
     color: '#D1D5DB',
     lineHeight:   22,
     marginBottom: 4,
   },
   cardCta: {
     fontSize:   13,
-    fontFamily: "OutfitMedium",
+    fontFamily: "PlusJakartaSansMedium",
     color:      colors.primary,
   },
 
@@ -162,7 +162,7 @@ const s = StyleSheet.create({
   },
   modalTitle: {
     fontSize:   18,
-    fontFamily: "OutfitBold",
+    fontFamily: "PlusJakartaSansBold",
     color: '#E5E5E5',
   },
   inputWrap: {
@@ -174,14 +174,14 @@ const s = StyleSheet.create({
   },
   input: {
     fontSize:   15,
-    fontFamily: "OutfitMedium",
+    fontFamily: "PlusJakartaSansMedium",
     color: '#E5E5E5',
     minHeight:  140,
     lineHeight: 24,
   },
   charCount: {
     fontSize:   12,
-    fontFamily: "Outfit",
+    fontFamily: "PlusJakartaSans",
     color:      "#9CA3AF",
     textAlign:  "right",
     marginTop:  8,

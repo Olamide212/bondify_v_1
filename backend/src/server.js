@@ -33,6 +33,7 @@ const planChatRoutes = require('./routes/planChatRoutes');
 const bondupRoutes   = require('./routes/bondupRoutes');
 const bondupChatRoutes = require('./routes/bondupChatRoutes');
 const webhookRoutes = require('./routes/webhookRoutes');
+const communicationRoutes = require('./routes/communicationRoutes');
 
 // Initialize express app
 const app = express();
@@ -97,6 +98,7 @@ app.use('/api/plan-chats', planChatRoutes);
 app.use('/api/bondup',   bondupRoutes);
 app.use('/api/bondup-chats', bondupChatRoutes);
 app.use('/api/webhooks', webhookRoutes);
+app.use('/api/communication', communicationRoutes);
 // 404 handler
 app.use('*', (req, res) => {
   res.status(404).json({

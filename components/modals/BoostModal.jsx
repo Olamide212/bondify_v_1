@@ -152,14 +152,14 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#FFFFFF',
     marginBottom: 12,
     textAlign: 'center',
   },
   description: {
     fontSize: 16,
-    fontFamily: 'Outfit',
+    fontFamily: 'PlusJakartaSans',
     color: '#fff',
     textAlign: 'center',
     lineHeight: 22,
@@ -171,13 +171,13 @@ const styles = StyleSheet.create({
   },
   benefitsTitle: {
     fontSize: 18,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#FFFFFF',
     marginBottom: 8,
   },
   benefit: {
     fontSize: 14,
-    fontFamily: 'Outfit',
+    fontFamily: 'PlusJakartaSans',
     color: '#fff',
     marginBottom: 4,
   },
@@ -202,7 +202,7 @@ const styles = StyleSheet.create({
   },
   cancelButtonText: {
     fontSize: 16,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#fff',
     textAlign: 'center',
   },
@@ -217,7 +217,7 @@ const styles = StyleSheet.create({
   },
   boostButtonText: {
     fontSize: 16,
-    fontFamily: 'OutfitBold',
+    fontFamily: 'PlusJakartaSansBold',
     color: '#fff',
   },
   disabledButton: {

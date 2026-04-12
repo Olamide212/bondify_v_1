@@ -80,16 +80,16 @@ const IntroStep = ({ onStart }) => (
 const is = StyleSheet.create({
   container:   { paddingHorizontal: 24, paddingTop: 16, paddingBottom: 40 },
   iconWrap:    { width: 88, height: 88, borderRadius: 99, backgroundColor: colors.background, alignItems: "center", justifyContent: "center", alignSelf: "center", marginBottom: 20 },
-  title:       { fontSize: 22, fontFamily: "OutfitBold", color: '#E5E5E5', textAlign: "center", marginBottom: 10 },
-  body:        { fontSize: 14, fontFamily: "Outfit", color: '#9CA3AF', textAlign: "center", lineHeight: 22, marginBottom: 28 },
+  title:       { fontSize: 22, fontFamily: "PlusJakartaSansBold", color: '#E5E5E5', textAlign: "center", marginBottom: 10 },
+  body:        { fontSize: 14, fontFamily: "PlusJakartaSans", color: '#9CA3AF', textAlign: "center", lineHeight: 22, marginBottom: 28 },
   steps:       { gap: 16, marginBottom: 32 },
   stepRow:     { flexDirection: "row", alignItems: "flex-start", gap: 14 },
   stepNum:     { width: 32, height: 32, borderRadius: 99, backgroundColor: colors.background, alignItems: "center", justifyContent: "center", flexShrink: 0 },
-  stepNumText: { fontSize: 14, fontFamily: "OutfitBold", color: PRIMARY },
-  stepTitle:   { fontSize: 15, fontFamily: "OutfitSemiBold", color: '#E5E5E5', marginBottom: 2 },
-  stepDesc:    { fontSize: 13, fontFamily: "Outfit", color: "#9CA3AF" },
+  stepNumText: { fontSize: 14, fontFamily: "PlusJakartaSansBold", color: PRIMARY },
+  stepTitle:   { fontSize: 15, fontFamily: "PlusJakartaSansSemiBold", color: '#E5E5E5', marginBottom: 2 },
+  stepDesc:    { fontSize: 13, fontFamily: "PlusJakartaSans", color: "#9CA3AF" },
   btn:         { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, backgroundColor: PRIMARY, borderRadius: 99, paddingVertical: 16 },
-  btnText:     { fontSize: 16, fontFamily: "OutfitBold", color: "#fff" },
+  btnText:     { fontSize: 16, fontFamily: "PlusJakartaSansBold", color: "#fff" },
 });
 
 // ─── Camera Step ──────────────────────────────────────────────────────────────
@@ -157,7 +157,7 @@ const cs = StyleSheet.create({
   container:    { flex: 1, backgroundColor: "#000" },
   overlay:      { ...StyleSheet.absoluteFillObject, alignItems: "center", justifyContent: "center" },
   oval:         { width: 230, height: 290, borderRadius: 999, borderWidth: 2.5, borderColor: "rgba(255,255,255,0.7)", borderStyle: "dashed" },
-  hint:         { marginTop: 16, fontSize: 13, fontFamily: "OutfitMedium", color: "rgba(255,255,255,0.8)" },
+  hint:         { marginTop: 16, fontSize: 13, fontFamily: "PlusJakartaSansMedium", color: "rgba(255,255,255,0.8)" },
   shutterRow:   { position: "absolute", bottom: 48, width: "100%", alignItems: "center" },
   shutter:      { width: 72, height: 72, borderRadius: 99, backgroundColor: "#121212", alignItems: "center", justifyContent: "center", borderWidth: 4, borderColor: "rgba(255,255,255,0.4)" },
   shutterInner: { width: 54, height: 54, borderRadius: 99, backgroundColor: PRIMARY },
@@ -204,12 +204,12 @@ const ps = StyleSheet.create({
   container:  { flex: 1, backgroundColor: "#000" },
   image:      { flex: 1 },
   actions:    { backgroundColor: "#121212", paddingHorizontal: 24, paddingTop: 20, paddingBottom: 36 },
-  label:      { fontSize: 17, fontFamily: "OutfitBold", color: '#E5E5E5', textAlign: "center", marginBottom: 4 },
-  sublabel:   { fontSize: 13, fontFamily: "Outfit", color: "#9CA3AF", textAlign: "center", marginBottom: 20 },
+  label:      { fontSize: 17, fontFamily: "PlusJakartaSansBold", color: '#E5E5E5', textAlign: "center", marginBottom: 4 },
+  sublabel:   { fontSize: 13, fontFamily: "PlusJakartaSans", color: "#9CA3AF", textAlign: "center", marginBottom: 20 },
   submitBtn:  { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, backgroundColor: PRIMARY, borderRadius: 99, paddingVertical: 16, marginBottom: 12 },
-  submitText: { fontSize: 16, fontFamily: "OutfitBold", color: "#fff" },
+  submitText: { fontSize: 16, fontFamily: "PlusJakartaSansBold", color: "#fff" },
   retakeBtn:  { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6, paddingVertical: 12 },
-  retakeText: { fontSize: 15, fontFamily: "OutfitSemiBold", color: PRIMARY },
+  retakeText: { fontSize: 15, fontFamily: "PlusJakartaSansSemiBold", color: PRIMARY },
 });
 
 // ─── Done Step ────────────────────────────────────────────────────────────────
@@ -232,10 +232,10 @@ const DoneStep = ({ onBack }) => (
 const ds = StyleSheet.create({
   container: { flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 32, backgroundColor: "#121212" },
   iconWrap:  { width: 96, height: 96, borderRadius: 99, backgroundColor: "#D1FAE5", alignItems: "center", justifyContent: "center", marginBottom: 24 },
-  title:     { fontSize: 22, fontFamily: "OutfitBold", color: '#E5E5E5', marginBottom: 10, textAlign: "center" },
-  body:      { fontSize: 14, fontFamily: "Outfit", color: '#9CA3AF', textAlign: "center", lineHeight: 22, marginBottom: 32 },
+  title:     { fontSize: 22, fontFamily: "PlusJakartaSansBold", color: '#E5E5E5', marginBottom: 10, textAlign: "center" },
+  body:      { fontSize: 14, fontFamily: "PlusJakartaSans", color: '#9CA3AF', textAlign: "center", lineHeight: 22, marginBottom: 32 },
   btn:       { backgroundColor: "#111", borderRadius: 99, paddingVertical: 16, paddingHorizontal: 40 },
-  btnText:   { fontSize: 16, fontFamily: "OutfitBold", color: "#fff" },
+  btnText:   { fontSize: 16, fontFamily: "PlusJakartaSansBold", color: "#fff" },
 });
 
 // ─── Main Screen ──────────────────────────────────────────────────────────────
@@ -323,6 +323,16 @@ export default function VerificationScreen() {
             { label: 'Retake Selfie', style: 'primary', onPress: () => setStep(STEP.CAMERA) },
           ],
         });
+      } else if (code === 'INVALID_PROFILE_PHOTO') {
+        // Profile photo was rejected by AI
+        showAlert({
+          icon: 'error',
+          title: 'Profile Photo Rejected',
+          message: message,
+          actions: [
+            { label: 'Update My Photos', style: 'primary', onPress: () => router.back() },
+          ],
+        });
       } else if (code === 'NO_PROFILE_PHOTO') {
         showAlert({
           icon: 'error',
@@ -395,6 +405,6 @@ export default function VerificationScreen() {
 const sc = StyleSheet.create({
   safe:        { flex: 1, backgroundColor: "#121212" },
   header:      { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 20, paddingVertical: 14, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.whiteLight },
-  headerTitle: { fontSize: 16, fontFamily: "OutfitBold", color: '#E5E5E5' },
+  headerTitle: { fontSize: 16, fontFamily: "PlusJakartaSansBold", color: '#E5E5E5' },
   cameraBack:  { position: "absolute", top: 52, left: 16, zIndex: 10, padding: 8, backgroundColor: "rgba(0,0,0,0.35)", borderRadius: 99 },
 });

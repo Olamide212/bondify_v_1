@@ -142,14 +142,14 @@ const InterestsScreen = () => {
           contentContainerStyle={{ paddingBottom: 120, paddingTop: 16 }}
           showsVerticalScrollIndicator={false}
         >
-          <Text className="text-2xl text-white font-OutfitBold mb-6">
+          <Text className="text-2xl text-white font-PlusJakartaSansBold mb-6">
             What are your interests?
           </Text>
 
           {/* ── Grouped categories ── */}
           {INTEREST_CATEGORIES.map((category) => (
             <View key={category.title} className="mb-6">
-              <Text className="font-OutfitBold text-lg mb-3" style={{ color: colors.primary }}>
+              <Text className="font-PlusJakartaSansBold text-lg mb-3" style={{ color: colors.primary }}>
                 {category.title}
               </Text>
               <View className="flex-row flex-wrap gap-2">
@@ -166,7 +166,7 @@ const InterestsScreen = () => {
                       }`}
                     >
                       <Text
-                        className={`font-OutfitMedium ${
+                        className={`font-PlusJakartaSansMedium ${
                           selected ? "text-white" : "text-white"
                         }`}
                       >
@@ -182,7 +182,7 @@ const InterestsScreen = () => {
           {/* ── Extra interests saved from API that don't appear in categories ── */}
           {extraInterests.length > 0 && (
             <View className="mb-6">
-              <Text className="font-OutfitBold text-lg mb-3" style={{ color: colors.primary }}>
+              <Text className="font-PlusJakartaSansBold text-lg mb-3" style={{ color: colors.primary }}>
                 ✨ Other
               </Text>
               <View className="flex-row flex-wrap gap-2">
@@ -199,7 +199,7 @@ const InterestsScreen = () => {
                       }`}
                     >
                       <Text
-                        className={`font-OutfitMedium ${
+                        className={`font-PlusJakartaSansMedium ${
                           selected ? "text-white" : "text-white"
                         }`}
                       >
@@ -217,7 +217,7 @@ const InterestsScreen = () => {
 
           {/* Selection count */}
           {selectedInterests.length > 0 && (
-            <Text className="text-center font-Outfit text-sm mt-2" style={{ color: colors.primary }}>
+            <Text className="text-center font-PlusJakartaSans text-sm mt-2" style={{ color: colors.primary }}>
               {selectedInterests.length} selected
             </Text>
           )}
