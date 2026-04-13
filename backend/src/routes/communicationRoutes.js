@@ -12,7 +12,7 @@ const {
   getMyFeedback,
   shouldPromptFeedback,
 } = require('../controllers/communicationController');
-const { protect } = require('../middleware/authMiddleware');
+const { protect } = require('../middleware/auth');
 
 // All routes require authentication
 router.use(protect);

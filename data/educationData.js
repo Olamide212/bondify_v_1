@@ -1,18 +1,9 @@
+// Values must match seeded database lookup values
 export const EDUCATION_OPTIONS = [
-  { label: "Bachelor degree", value: "Bachelor degree" },
-  { label: "On a graduate programme", value: "On a graduate programme" },
-  { label: "Master degree", value: "Master degree" },
-  {
-    label: "At uni",
-    value: "At uni",
-  },
-  {
-    label: "High school",
-    value: "High school",
-  },
-  {
-    label: "PhD",
-    value: "PhD",
-  },
-
+  { label: "High school", value: "High school" },
+  { label: "Some college", value: "Some college" },
+  { label: "Bachelors Degree", value: "Bachelors Degree" },
+  { label: "Masters Degree", value: "Masters Degree" },
+  { label: "PhD/Doctorate", value: "PhD/Doctorate" },
+  { label: "Trade/Technical School", value: "Trade/Technical School" },
 ];

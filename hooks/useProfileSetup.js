@@ -1,6 +1,7 @@
 import * as SecureStore from "expo-secure-store";
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { getLookupOptions } from "../data/lookupData";
 import { profileService } from "../services/profileService";
 import { clearOnboardingToken } from "../slices/authSlice";
 import { clearOnboardingStep, getStoredOnboardingStep, saveOnboardingStep } from "../utils/onboardingProgress";
@@ -113,17 +114,12 @@ export const useProfileSetup = ({ isOnboarding = true, trackStep = false } = {})
   };
 
   // -----------------------------------
-  // Fetch lookup values
+  // Get lookup values (now uses local data)
   // -----------------------------------
-  const fetchLookups = async (type) => {
-    try {
-      const data = await profileService.getLookups(type);
-      setLookups((prev) => ({ ...prev, [type]: data }));
-      return data;
-    } catch (err) {
-      console.error("Fetch lookups error:", err);
-      return [];
-    }
+  const fetchLookups = (type) => {
+    const data = getLookupOptions(type);
+    setLookups((prev) => ({ ...prev, [type]: data }));
+    return data;
   };
 
   // -----------------------------------

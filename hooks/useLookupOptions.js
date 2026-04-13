@@ -1,61 +1,31 @@
-import { useCallback, useEffect, useState } from "react";
-import { profileService } from "../services/profileService";
+import { useMemo } from "react";
+import { getLookupOptions, hasLocalLookup } from "../data/lookupData";
 
-const NEXT_LOOKUP_TYPE_MAP = {
-  ethnicity: ["genders"],
-  genders: ["relationship-status"],
-  "relationship-status": ["gender-preferences"],
-  "gender-preferences": ["looking-for"],
-  "looking-for": ["religions"],
-  religions: ["same-beliefs"],
-  "same-beliefs": ["religion-practice"],
-  "religion-practice": ["relocation-preference"],
-  "relocation-preference": ["family-plans"],
-  education: ["occupations"],
-  occupations: ["smoking-habits"],
-  "smoking-habits": ["drinking-habits"],
-  "drinking-habits": ["interests"],
-};
-
+/**
+ * Hook to get lookup options for a given type.
+ * Uses local data for instant loading - no network calls needed.
+ * 
+ * @param {string} type - The lookup type (e.g., 'education', 'religions', etc.)
+ * @returns {{ options: Array, loading: boolean, error: string|null, refresh: Function }}
+ */
 export const useLookupOptions = (type) => {
-  const [options, setOptions] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-
-  const fetchOptions = useCallback(async () => {
-    if (!type) return;
-
-    setLoading(true);
-    setError(null);
-
-    try {
-      const lookups = await profileService.getLookups(type);
-      const normalized = (lookups || []).map((item) => ({
-        label: item.label,
-        value: item.value,
-        description: item.description || "",
-      }));
-      setOptions(normalized);
-      const nextTypes = NEXT_LOOKUP_TYPE_MAP[type] || [];
-      if (nextTypes.length > 0) {
-        profileService.preloadLookups(nextTypes).catch(() => {});
-      }
-    } catch (err) {
-      console.error(`Failed to fetch ${type} lookups:`, err);
-      setError("Failed to load options");
-    } finally {
-      setLoading(false);
+  const options = useMemo(() => {
+    if (!type) return [];
+    
+    const data = getLookupOptions(type);
+    
+    // Log warning in dev if lookup type is not found
+    if (__DEV__ && data.length === 0 && type) {
+      console.warn(`[useLookupOptions] No local data found for lookup type: "${type}"`);
     }
+    
+    return data;
   }, [type]);
-
-  useEffect(() => {
-    fetchOptions();
-  }, [fetchOptions]);
 
   return {
     options,
-    loading,
-    error,
-    refresh: fetchOptions,
+    loading: false, // Always false since data is local
+    error: hasLocalLookup(type) ? null : `Unknown lookup type: ${type}`,
+    refresh: () => {}, // No-op since data is local
   };
 };

@@ -4,7 +4,7 @@
  * Frontend service for communication score and feedback API.
  */
 
-import api from './apiClient';
+import api from '../utils/axiosInstance';
 
 /**
  * Submit feedback about a user's communication

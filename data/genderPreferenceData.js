@@ -1,22 +1,18 @@
+// Values must match seeded database lookup values
 export const GENDER_PREFERENCE_OPTIONS = [
   {
-    label: "Men",
-    value: "male",
-    description: "Interested in men",
-  },
-  {
     label: "Women",
-    value: "female",
+    value: "Female",
     description: "Interested in women",
   },
   {
-    label: "Non-binary",
-    value: "non-binary",
-    description: "Interested in non-binary individuals",
+    label: "Men",
+    value: "Male",
+    description: "Interested in men",
   },
   {
     label: "Everyone",
-    value: "everyone",
+    value: "Everyone",
     description: "Open to all genders",
   },
 ];
