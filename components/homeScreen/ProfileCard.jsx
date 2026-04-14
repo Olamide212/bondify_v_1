@@ -1,17 +1,17 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
-    Ban,
-    Flag,
-    Share2,
+  Ban,
+  Flag,
+  Share2,
 } from "lucide-react-native";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
-    Animated,
-    Dimensions,
-    findNodeHandle, Share, Text,
-    TouchableOpacity,
-    UIManager,
-    View
+  Animated,
+  Dimensions,
+  findNodeHandle, Share, Text,
+  TouchableOpacity,
+  UIManager,
+  View
 } from "react-native";
 import { useSelector } from "react-redux";
 import { styles } from "../../constant/colors";
@@ -254,6 +254,7 @@ const ProfileCard = ({ profile, hideAiSuggestion = false }) => {
           showVideoBadge
           shouldPlayVideo
           maxPreviewMs={5000}
+          blurRadius={profile?.blurPhotos ? 25 : 0}
         />
       </TouchableOpacity>
     );

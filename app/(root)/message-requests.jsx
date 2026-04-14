@@ -9,15 +9,15 @@
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import { ArrowLeft, Clock, Inbox, User } from "lucide-react-native";
-import React, { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
-  ActivityIndicator,
-  FlatList,
-  RefreshControl,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    FlatList,
+    RefreshControl,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import VerifiedIcon from "../../components/ui/VerifiedIcon";
@@ -153,9 +153,8 @@ export default function MessageRequestsScreen() {
       }
       
       const response = await MessageRequestService.getReceivedRequests();
-      if (response.success) {
-        setRequests(response.data || []);
-      }
+      // The service returns { requests: [...], pagination: {...} }
+      setRequests(response?.requests || []);
     } catch (error) {
       console.warn("Failed to fetch message requests:", error);
     } finally {

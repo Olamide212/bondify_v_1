@@ -175,6 +175,9 @@ const UserProfile = () => {
       bio:                profile?.bio ?? "",
       questions:          profile?.questions ?? [],
       images:             normalizedImages.length > 0 ? normalizedImages : [],
+      // Privacy settings
+      blurPhotos:         profile?.blurPhotos ?? false,
+      allowMessageFromNonMatches: profile?.allowMessageFromNonMatches ?? true,
     };
   };
 

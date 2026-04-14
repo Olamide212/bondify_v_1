@@ -517,7 +517,7 @@ const NotificationsModal = ({
             </View>
             <View className="flex-row items-center gap-3">
               <TouchableOpacity onPress={onOpenSettings}>
-                <Settings size={22} color={colors.gray500} />
+                <Settings size={22} color={colors.white} />
               </TouchableOpacity>
               <TouchableOpacity onPress={onClose}>
                 <X color={colors.primary} size={24} />
@@ -608,7 +608,7 @@ const NotificationsModal = ({
                 <Text className="text-xl text-white font-PlusJakartaSansBold text-center">
                   No notifications yet
                 </Text>
-                <Text className="mt-2 text-center text-gray-400 font-PlusJakartaSans leading-5">
+                <Text className="mt-2 text-center text-white font-PlusJakartaSans leading-5">
                   New messages, matches, and activity will appear here in real time.
                 </Text>
               </View>

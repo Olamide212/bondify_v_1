@@ -1,13 +1,13 @@
 import { X } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
 import {
-    ActivityIndicator,
-    Animated,
-    Dimensions,
-    FlatList,
-    Modal,
-    Pressable,
-    View,
+  ActivityIndicator,
+  Animated,
+  Dimensions,
+  FlatList,
+  Modal,
+  Pressable,
+  View,
 } from "react-native";
 import { colors } from "../../../constant/colors";
 import { getProfileMediaType } from "../../../utils/profileMedia";
@@ -126,7 +126,7 @@ const ProfileImageModal = ({
                         containerStyle={{ width, height }}
                         style={{ width, height }}
                         contentFit="cover"
-                        blurRadius={mediaType === 'image' ? blurPhotos ? 25 : 0 : 0}
+                        blurRadius={blurPhotos ? 25 : 0}
                         shouldPlayVideo={visible && index === modalImageIndex}
                         isMuted={false}
                         maxPreviewMs={mediaType === 'video' ? 5000 : undefined}

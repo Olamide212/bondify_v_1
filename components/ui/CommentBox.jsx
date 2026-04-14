@@ -1,5 +1,5 @@
 import { Image } from "expo-image";
-import { MessageCircleHeart, SendHorizonal as PaperPlane, Sparkles, X } from "lucide-react-native";
+import { Lock, MessageCircleHeart, SendHorizonal as PaperPlane, Sparkles, X } from "lucide-react-native";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
     ActivityIndicator,
@@ -7,7 +7,7 @@ import {
     Easing,
     Pressable,
     StyleSheet,
-  Text,
+    Text,
     TextInput,
     TouchableOpacity,
     View
@@ -28,6 +28,9 @@ export default function CommentBox({
   blurPhotos = false,
 }) {
   const { showAlert } = useAlert();
+  
+  // Check if the profile allows message requests from non-matches
+  const allowsRequests = profile?.allowMessageFromNonMatches !== false;
   const { showToast } = useToast();
   const [text, setText]                   = useState("");
   const [showComposer, setShowComposer]   = useState(false);
@@ -185,21 +188,36 @@ export default function CommentBox({
             <View style={styles.collapsedPrompt}>
               <View style={styles.promptCopy}>
                 <View style={styles.promptIconWrap}>
-                  <MessageCircleHeart size={18} color={colors.primary} />
+                  {allowsRequests ? (
+                    <MessageCircleHeart size={18} color={colors.primary} />
+                  ) : (
+                    <Lock size={18} color="#9CA3AF" />
+                  )}
                 </View>
                 <View style={styles.promptTextWrap}>
-                  <Text style={styles.promptEyebrow}>Photo comment</Text>
-                  <Text style={styles.promptTitle}>Send a thoughtful opener</Text>
+                  {allowsRequests ? (
+                    <>
+                      <Text style={styles.promptEyebrow}>Photo comment</Text>
+                      <Text style={styles.promptTitle}>Send a thoughtful opener</Text>
+                    </>
+                  ) : (
+                    <>
+                      <Text style={styles.promptEyebrow}>Requests disabled</Text>
+                      <Text style={[styles.promptTitle, { color: '#9CA3AF' }]}>Match first to message</Text>
+                    </>
+                  )}
                 </View>
               </View>
 
-              <TouchableOpacity
-                style={styles.sparkBtn}
-                onPress={() => setShowComposer(true)}
-                activeOpacity={0.9}
-              >
-                <Sparkles size={20} color="#fff" fill="#fff" />
-              </TouchableOpacity>
+              {allowsRequests && (
+                <TouchableOpacity
+                  style={styles.sparkBtn}
+                  onPress={() => setShowComposer(true)}
+                  activeOpacity={0.9}
+                >
+                  <Sparkles size={20} color="#fff" fill="#fff" />
+                </TouchableOpacity>
+              )}
             </View>
           ) : (
             <Animated.View

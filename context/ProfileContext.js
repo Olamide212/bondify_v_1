@@ -131,6 +131,7 @@ export const ProfileProvider = ({ children }) => {
       images: normalizedImages,
       likesYou: profile?.likesYou ?? false,
       blurPhotos: profile?.blurPhotos ?? profile?.privacySettings?.blurPhotos ?? false,
+      allowMessageFromNonMatches: profile?.allowMessageFromNonMatches ?? profile?.privacySettings?.allowMessageFromNonMatches ?? true,
       verificationStatus: profile?.verificationStatus ?? "unverified",
       chatSlotsAvailable: profile?.chatSlotsAvailable ?? 0,
       createdAt: profile?.createdAt ?? null,

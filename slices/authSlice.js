@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { authAPI } from "../services/authService";
+import { socketService } from "../services/socketService";
 import { clearOnboardingStep } from "../utils/onboardingProgress";
 import { tokenManager } from "../utils/tokenManager";
 
@@ -300,7 +301,9 @@ const authSlice = createSlice({
       state.isAuthenticated = false;
       state.hasOnboardingSession = false;
 
-      tokenManager.removeTokens(); // updated
+      // Reset socket connection to clear user room subscriptions
+      socketService.reset();
+      tokenManager.removeTokens();
       authAPI.clearCachedMe();
     },
 

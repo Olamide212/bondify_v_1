@@ -87,7 +87,6 @@ function RootLayoutInner() {
           name="(auth)"
           options={{
             gestureEnabled: false,
-            animation: "none",
           }}
         />
         <Stack.Screen

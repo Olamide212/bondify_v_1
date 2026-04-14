@@ -65,11 +65,20 @@ const createMessageRequest = async (req, res, next) => {
     }
 
     // Check if target user exists
-    const targetUser = await User.findById(targetUserId).select('firstName images');
+    const targetUser = await User.findById(targetUserId).select('firstName images privacySettings');
     if (!targetUser) {
       return res.status(404).json({ 
         success: false, 
         message: 'User not found.' 
+      });
+    }
+
+    // Check if target user allows message requests from non-matches
+    if (!targetUser.privacySettings?.allowMessageFromNonMatches) {
+      return res.status(403).json({ 
+        success: false, 
+        message: 'This user does not accept messages from non-matches.',
+        code: 'REQUESTS_NOT_ALLOWED'
       });
     }
 

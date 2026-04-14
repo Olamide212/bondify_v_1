@@ -98,6 +98,23 @@ const disconnect = () => {
   if (!socketInstance) return;
   socketInstance.disconnect();
 };
+
+/**
+ * Fully reset the socket connection.
+ * Should be called on logout to ensure fresh connection for next user.
+ */
+const reset = () => {
+  if (socketInstance) {
+    try {
+      socketInstance.removeAllListeners();
+      socketInstance.disconnect();
+    } catch (e) {
+      // Ignore errors during cleanup
+    }
+    socketInstance = null;
+  }
+};
+
 const emit = (eventName, payload) => {
   if (!socketInstance || !eventName) return;
   socketInstance.emit(eventName, payload);
@@ -111,4 +128,5 @@ export const socketService = {
   leaveMatch,
   emit,
   disconnect,
+  reset,
 };

@@ -238,6 +238,9 @@ const getDiscoveryProfiles = async (req, res, next) => {
         // Expose blur preference so the client can render blurred photos
         profile.blurPhotos = Boolean(profile.privacySettings?.blurPhotos);
 
+        // Expose whether user allows message requests from non-matches
+        profile.allowMessageFromNonMatches = Boolean(profile.privacySettings?.allowMessageFromNonMatches);
+
         // Compute distance from current user's location to this profile
         if (
           currentUser.location?.coordinates?.length === 2 &&
