@@ -15,7 +15,7 @@
  */
 
 import { useCallback, useEffect, useRef } from "react";
-import { Animated, StyleSheet, Text, View } from "react-native";
+import { Animated, Platform, StyleSheet, Text, View } from "react-native";
 import { colors } from "../../constant/colors";
 
 const PRIMARY   = colors.primary;
@@ -140,7 +140,10 @@ const WheelPicker = ({
         renderItem={renderItem}
         showsVerticalScrollIndicator={false}
         snapToInterval={itemHeight}
-        decelerationRate="fast"
+        snapToAlignment="start"
+        decelerationRate={Platform.OS === "android" ? 0.95 : "fast"}
+        disableIntervalMomentum={true}
+        scrollEventThrottle={16}
         onMomentumScrollEnd={handleMomentumEnd}
         onScrollEndDrag={handleScroll}
         getItemLayout={(_, index) => ({
@@ -151,6 +154,8 @@ const WheelPicker = ({
         initialScrollIndex={Math.max(0, selectedIndex)}
         contentContainerStyle={{ paddingVertical: 0 }}
         style={{ overflow: "hidden" }}
+        overScrollMode="never"
+        bounces={false}
       />
     </View>
   );

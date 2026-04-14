@@ -39,7 +39,8 @@ module.exports = {
     pinkColor: "#ff4365",
     surface: "#1E1E1E",
     surfaceLight: "#2A2A2A",
-        whiteLight: 'rgba(255,255,255,0.1)'
+        whiteLight: 'rgba(255,255,255,0.1)',
+            textSecondary: "#9CA3AF",
       },
     },
   },

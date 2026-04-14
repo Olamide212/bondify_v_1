@@ -141,7 +141,7 @@ const Onboarding = () => {
           <View style={styles.bottomSection}>
 
             <Text style={styles.tagline}>
-              Find meaningful connections
+             Real connections made for you
             </Text>
 
             <View style={styles.identityRow}>
@@ -170,8 +170,6 @@ const Onboarding = () => {
 
             <Text style={styles.terms}>
               Powered by AI
-
-
             </Text>
 
 

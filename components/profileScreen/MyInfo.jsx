@@ -1,15 +1,17 @@
 import { useRouter } from "expo-router";
 import {
-    Baby, BookOpen, ChevronRight, Cigarette, Dumbbell,
-    Flag,
-    Globe, Heart, HeartHandshake, MessageCircleHeart,
-    PawPrint,
-    Ruler, Sparkles, Users, Wallet, Wine, X
+  Baby, BookOpen, ChevronRight, Cigarette, Dumbbell,
+  Flag,
+  Globe, Heart, HeartHandshake, MessageCircleHeart,
+  PawPrint,
+  Ruler,
+  Sparkle,
+  Sparkles, Users, Wallet, Wine, X
 } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import {
-    ActivityIndicator, ScrollView, StyleSheet,
-    Text, TouchableOpacity, View,
+  ScrollView, StyleSheet,
+  Text, TouchableOpacity, View
 } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import NationalityModal from "../../components/modals/NationalityModal";
@@ -161,7 +163,29 @@ const MyInfo = ({ profile, onUpdateField }) => {
       )} */}
 
       {/* ── INTERESTS ───────────────────────────────────────────────────── */}
-     
+      {/* <SectionTitle label="Interests" />
+      <Card>
+        <TouchableOpacity
+          style={s.row}
+          onPress={() => router.push('/InterestsScreen')}
+          activeOpacity={0.7}
+        >
+          <View style={s.rowLeft}>
+            <Sparkle size={18} color="#fff" />
+            <Text style={s.rowTitle}>Select Interests</Text>
+          </View>
+          <View style={s.rowRight}>
+            {interests.length > 0 ? (
+              <Text style={s.rowValue} numberOfLines={1}>
+                {interests.slice(0, 3).join(', ')}{interests.length > 3 ? ` +${interests.length - 3}` : ''}
+              </Text>
+            ) : (
+              <Text style={s.rowAdd}>Add</Text>
+            )}
+            <ChevronRight size={15} color="#fff" />
+          </View>
+        </TouchableOpacity>
+      </Card> */}
 
       {/* ── LIFESTYLE ───────────────────────────────────────────────────── */}
       <SectionTitle label="Lifestyle" />

@@ -164,6 +164,62 @@ const verifyEmailUpdate = async (req, res, next) => {
 // ─────────────────────────────────────────────
 //  CHANGE PASSWORD
 // ─────────────────────────────────────────────
+
+// ─────────────────────────────────────────────
+//  UPDATE BIRTHDAY / DATE OF BIRTH
+// ─────────────────────────────────────────────
+const updateBirthday = async (req, res, next) => {
+  try {
+    const { dateOfBirth } = req.body;
+
+    if (!dateOfBirth) {
+      return res.status(400).json({ success: false, message: 'Date of birth is required' });
+    }
+
+    // Parse and validate the date
+    const dob = new Date(dateOfBirth);
+    if (isNaN(dob.getTime())) {
+      return res.status(400).json({ success: false, message: 'Invalid date format. Use YYYY-MM-DD' });
+    }
+
+    // Calculate age
+    const today = new Date();
+    let age = today.getFullYear() - dob.getFullYear();
+    const monthDiff = today.getMonth() - dob.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+      age -= 1;
+    }
+
+    // Validate age (must be 18+)
+    if (age < 18) {
+      return res.status(400).json({ success: false, message: 'You must be at least 18 years old' });
+    }
+
+    if (age > 120) {
+      return res.status(400).json({ success: false, message: 'Please enter a valid date of birth' });
+    }
+
+    // Update user
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      { dateOfBirth: dob, age },
+      { new: true, runValidators: true }
+    ).select('dateOfBirth age');
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    res.json({
+      success: true,
+      message: 'Birthday updated successfully',
+      data: { dateOfBirth: user.dateOfBirth, age: user.age },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 const changePassword = async (req, res, next) => {
   try {
     const { currentPassword, newPassword, confirmPassword } = req.body;
@@ -593,6 +649,7 @@ module.exports = {
   verifyPhoneUpdate,
   updateEmail,
   verifyEmailUpdate,
+  updateBirthday,
   changePassword,
   getNotificationSettings,
   updateNotificationSettings,

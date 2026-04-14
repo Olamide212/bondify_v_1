@@ -119,7 +119,7 @@ const InfoSection = () => {
                   <Text className="text-[17px] text-white font-PlusJakartaSansBold">
                     {title}
                   </Text>
-                  <Text className="text-base text-white font-PlusJakartaSansMedium">
+                  <Text className="text-base text-textSecondary font-PlusJakartaSansMedium">
                     {description}
                   </Text>
                 </View>

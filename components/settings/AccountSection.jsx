@@ -3,11 +3,11 @@
  * Updated to navigate to the dedicated update screens.
  */
 
-import React, { useState }  from "react";
 import { useRouter } from "expo-router";
+import { useState } from "react";
 import { useSelector } from "react-redux";
+import SubscriptionModal from "../../components/modals/SubscriptionModal";
 import SettingCard from "./SettingCard";
-import SubscriptionModal from "../../components/modals/SubscriptionModal"
 
 
 const AccountSettings = () => {
@@ -17,6 +17,20 @@ const AccountSettings = () => {
   // Pull live values from Redux store so the descriptions stay in sync
   // after a successful update. Adjust the selector path to match your slice.
   const user = useSelector((state) => state.auth?.user);
+
+  // Calculate age from dateOfBirth
+  const calculateAge = (dateOfBirth) => {
+    if (!dateOfBirth) return null;
+    const dob = new Date(dateOfBirth);
+    if (isNaN(dob.getTime())) return null;
+    const today = new Date();
+    let age = today.getFullYear() - dob.getFullYear();
+    const m = today.getMonth() - dob.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) age--;
+    return age;
+  };
+
+  const userAge = calculateAge(user?.dateOfBirth);
 
   const items = [
     {
@@ -28,6 +42,11 @@ const AccountSettings = () => {
       title: "Email address",
       description: user?.email ?? "olabid212@gmail.com",
       onPress: () => router.push("/update-email"),
+    },
+    {
+      title: "Birthday",
+      description: userAge ? `${userAge} years old` : "Set your birthday",
+      onPress: () => router.push("/edit-birthday"),
     },
     {
       title: "Change Password",

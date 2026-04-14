@@ -14,7 +14,7 @@ const Agreement = () => {
     <View className="bg-[#121212] flex-1 px-5 pt-8">
       <Text className="text-3xl font-PlusJakartaSansBold text-white">Welcome to Bondies!</Text>
 
-      <Text className="mt-3 font-PlusJakartaSans text-lg text-gray-300 text-white">
+      <Text className="mt-3 font-PlusJakartaSans text-lg text-gray-300 text-textSecondary">
         To ensure the best experience, please follow our community guidelines:
       </Text>
 
@@ -24,7 +24,7 @@ const Agreement = () => {
             <View className="mt-1">{item.icon}</View>
             <View>
               <Text className="text-xl text-white font-PlusJakartaSansBold">{item.title}</Text>
-              <Text className="text-lg  font-PlusJakartaSans text-white pr-6">
+              <Text className="text-lg  font-PlusJakartaSans text-textSecondary pr-6">
                 {item.description}
               </Text>
             </View>

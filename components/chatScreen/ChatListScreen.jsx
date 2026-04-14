@@ -1,24 +1,23 @@
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Image } from "expo-image";
-import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import { User, UserX } from "lucide-react-native";
-import React, { useEffect, useRef } from "react";
+import { Bot, Inbox, User, UserX } from "lucide-react-native";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
-  Animated,
   FlatList,
+  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { colors } from "../../constant/colors";
 import { images } from "../../constant/images";
+import MessageRequestService from "../../services/messageRequestService";
 import { formatRelativeDate } from "../../utils/helper";
-import GeneralHeader from "../headers/GeneralHeader";
 import VerifiedIcon from "../ui/VerifiedIcon";
 
 // ─── Avatar URI cache (unchanged) ─────────────────────────────────────────────
@@ -53,218 +52,6 @@ const persistLoadedAvatarUris = async () => {
   }
 };
 
-// ─── Bon Bot Card ─────────────────────────────────────────────────────────────
-
-const BonBotCard = ({ onPress }) => {
-  // Gentle pulse on the glow ring
-  const pulseAnim = useRef(new Animated.Value(1)).current;
-  const shimmerAnim = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    // Slow breathing pulse
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(pulseAnim, { toValue: 1.12, duration: 1800, useNativeDriver: true }),
-        Animated.timing(pulseAnim, { toValue: 1,    duration: 1800, useNativeDriver: true }),
-      ])
-    ).start();
-
-    // Shimmer sweep on the label
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(shimmerAnim, { toValue: 1, duration: 2200, useNativeDriver: true }),
-        Animated.delay(1400),
-        Animated.timing(shimmerAnim, { toValue: 0, duration: 0,    useNativeDriver: true }),
-      ])
-    ).start();
-  }, []);
-
-  const shimmerTranslate = shimmerAnim.interpolate({
-    inputRange:  [0, 1],
-    outputRange: [-60, 120],
-  });
-
-  return (
-    <TouchableOpacity
-      onPress={onPress}
-      activeOpacity={0.92}
-      style={bb.wrapper}
-    >
-      {/* Gradient background — deep indigo to purple */}
-      <LinearGradient
-        colors={[colors.primary, colors.secondary]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={bb.card}
-      >
-
-        {/* Decorative blobs */}
-        <View style={bb.blobTL} />
-        <View style={bb.blobBR} />
-
-        <View style={bb.inner}>
-          {/* ── Avatar with pulse ring ── */}
-          <View style={bb.avatarContainer}>
-            {/* Outer animated glow ring */}
-            <Animated.View style={[bb.glowRing, { transform: [{ scale: pulseAnim }] }]} />
-            {/* Avatar */}
-            <View style={bb.avatarBorder}>
-              <Image
-                source={images.BOT_AVARTAR}
-                style={bb.avatar}
-                resizeMode="cover"
-              />
-            </View>
-            {/* Live indicator */}
-            <View style={bb.liveDot}>
-              <View style={bb.liveDotInner} />
-            </View>
-          </View>
-
-          {/* ── Text block ── */}
-          <View style={bb.textBlock}>
-            <View style={bb.nameRow}>
-              <Text style={bb.name}>Bon Bot</Text>
-              {/* AI badge */}
-              <View style={bb.aiBadge}>
-                <Text style={bb.aiBadgeText}>AI</Text>
-              </View>
-            </View>
-            <Text style={bb.tagline} numberOfLines={2}>
-              Your dating coach — ask me anything 💬
-            </Text>
-          </View>
-
-          {/* ── CTA chip ── */}
-          <View style={bb.ctaChip}>
-            <Text style={bb.ctaText}>Chat</Text>
-          </View>
-        </View>
-
-        {/* Shimmer overlay on the entire card */}
-        <Animated.View
-          pointerEvents="none"
-          style={[bb.shimmer, { transform: [{ translateX: shimmerTranslate }] }]}
-        />
-      </LinearGradient>
-    </TouchableOpacity>
-  );
-};
-
-const bb = StyleSheet.create({
-  wrapper: {
-    marginHorizontal: 16,
-    marginBottom: 16,
-    marginTop: 4,
-    borderRadius: 22,
-    // Card shadow
-    // shadowColor: '#6366F1',
-    // shadowOffset: { width: 0, height: 6 },
-    // shadowOpacity: 0.28,
-    // shadowRadius: 16,
-    // elevation: 10,
-  },
-  card: {
-    borderRadius: 22,
-    overflow: 'hidden',
-    backgroundColor: '#1E1B4B',      // deep indigo base
-    padding: 18,
-  },
-
-  // Decorative blobs
-  blobTL: {
-    position: 'absolute', top: -30, left: -30,
-    width: 120, height: 120, borderRadius: 60,
-    backgroundColor: colors.primaryLight,
-    opacity: 0.25,
-  },
-  blobBR: {
-    position: 'absolute', bottom: -20, right: -10,
-    width: 100, height: 100, borderRadius: 50,
-    backgroundColor: colors.primaryLight,
-    opacity: 0.22,
-  },
-
-  inner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 14,
-  },
-
-  // Avatar
-  avatarContainer: { position: 'relative', width: 60, height: 60 },
-  glowRing: {
-    position: 'absolute',
-    top: -6, left: -6,
-    width: 72, height: 72, borderRadius: 36,
-    borderWidth: 1.5,
-    borderColor: '#818CF8',
-    opacity: 0.6,
-  },
-  avatarBorder: {
-    width: 60, height: 60, borderRadius: 30,
-    borderWidth: 2, borderColor: '#818CF8',
-    overflow: 'hidden',
-    backgroundColor: '#312E81',
-  },
-  avatar: { width: 56, height: 56, borderRadius: 28 },
-  liveDot: {
-    position: 'absolute', bottom: 1, right: 1,
-    width: 14, height: 14, borderRadius: 7,
-    backgroundColor: '#1E1B4B',
-    alignItems: 'center', justifyContent: 'center',
-  },
-  liveDotInner: {
-    width: 9, height: 9, borderRadius: 5,
-    backgroundColor: '#34D399',
-  },
-
-  // Text
-  textBlock: { flex: 1 },
-  nameRow: { flexDirection: 'row', alignItems: 'center', gap: 7, marginBottom: 4 },
-  name: {
-    fontFamily: 'PlusJakartaSansBold',
-    fontSize: 17,
-    color: '#fff',
-    letterSpacing: -0.2,
-  },
-  aiBadge: {
-    backgroundColor: colors.secondary,
-    paddingHorizontal: 7, paddingVertical: 2,
-    borderRadius: 6,
-  },
-  aiBadgeText: {
-    fontSize: 10, fontFamily: 'PlusJakartaSansBold',
-    color: '#fff', letterSpacing: 0.5,
-  },
-  tagline: {
-    fontFamily: 'PlusJakartaSans',
-    fontSize: 12,
-    color: '#fff',
-    lineHeight: 17,
-  },
-
-  // CTA
-  ctaChip: {
-    backgroundColor: colors.white,
-    paddingHorizontal: 16, paddingVertical: 8,
-    borderRadius: 20,
-  },
-  ctaText: {
-    fontFamily: 'PlusJakartaSansBold',
-    fontSize: 13, color: colors.secondary,
-  },
-
-  // Shimmer
-  shimmer: {
-    position: 'absolute',
-    top: 0, bottom: 0,
-    width: 50,
-    backgroundColor: 'rgba(255,255,255,0.07)',
-    transform: [{ skewX: '-18deg' }],
-  },
-});
-
 // ─── ChatListScreen ───────────────────────────────────────────────────────────
 
 const ChatListScreen = ({
@@ -279,12 +66,35 @@ const ChatListScreen = ({
   const router = useRouter();
   const isSocial = chatType === "social";
 
+  // Message requests count for badge
+  const [requestsCount, setRequestsCount] = useState(0);
+
   const [isAvatarCacheHydrated, setIsAvatarCacheHydrated] = React.useState(
     loadedAvatarUris.size > 0
   );
 
   const newMatches = isSocial ? [] : users.filter((user) => !user.hasChatted);
   const placeholderSlots = Array.from({ length: 5 }, (_, i) => ({ id: `placeholder-${i}` }));
+
+  // Fetch message requests count (dating only)
+  const fetchRequestsCount = useCallback(async () => {
+    if (isSocial) return;
+    try {
+      const response = await MessageRequestService.getPendingCount();
+      if (response.success) {
+        setRequestsCount(response.data?.count || 0);
+      }
+    } catch (error) {
+      console.warn('Failed to fetch requests count:', error);
+    }
+  }, [isSocial]);
+
+  // Load requests count on mount
+  useEffect(() => {
+    if (!isSocial) {
+      fetchRequestsCount();
+    }
+  }, [isSocial, fetchRequestsCount]);
 
   React.useEffect(() => {
     let isMounted = true;
@@ -345,9 +155,49 @@ const ChatListScreen = ({
 
   return (
     <SafeAreaView style={styles.listContainer} edges={['top']}>
-      <GeneralHeader title="Chats" className="text-white" icon={<UserX size={20} color="#fff" />} onPress={() => router.push('/unmatched-users')} />
+      {/* ── Custom Header ── */}
+      <View style={styles.header}>
+        {/* Left: AI Bot icon */}
+        <TouchableOpacity
+          style={styles.headerIconBtn}
+          onPress={() => router.push('/bon-bot')}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+        >
+          <Bot size={22} color={colors.primary} />
+        </TouchableOpacity>
 
-      {/* ── Tabs ── */}
+        {/* Center: Title */}
+        <Text style={styles.headerTitle}>Chats</Text>
+
+        {/* Right: Requests + Unmatched icons */}
+        <View style={styles.headerRightIcons}>
+          {!isSocial && (
+            <TouchableOpacity
+              style={styles.headerIconBtn}
+              onPress={() => router.push('/message-requests')}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            >
+              <Inbox size={20} color="#fff" />
+              {requestsCount > 0 && (
+                <View style={styles.headerBadge}>
+                  <Text style={styles.headerBadgeText}>
+                    {requestsCount > 9 ? '9+' : requestsCount}
+                  </Text>
+                </View>
+              )}
+            </TouchableOpacity>
+          )}
+          <TouchableOpacity
+            style={styles.headerIconBtn}
+            onPress={() => router.push('/unmatched-users')}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          >
+            <UserX size={20} color="#fff" />
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      {/* ── Tabs (Dating / Social) ── */}
       <View style={styles.tabBar}>
         {tabs.map((t, i) => (
           <TouchableOpacity
@@ -370,57 +220,60 @@ const ChatListScreen = ({
         ))}
       </View>
 
-      {/* ── New Matches (dating only) ── */}
-      {!isSocial && (
-        <>
-          <Text style={styles.sectionLabel}>New Matches</Text>
-          <View style={styles.newMatchesWrapper}>
-            <FlatList
-              data={placeholderSlots}
-              horizontal
-              keyExtractor={(item) => item.id}
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{ paddingLeft: 16, paddingRight: 8 }}
-              renderItem={({ index }) => {
-                const match = newMatches[index];
-                if (match) {
-                  return (
-                    <TouchableOpacity style={styles.newMatchItem} onPress={() => onSelectUser(match)}>
-                      <View>
-                        <AvatarImage uri={match.profileImage} style={styles.newMatchImage} iconSize={22} isCacheReady={isAvatarCacheHydrated} />
-                        {match.verified && (
-                          <View style={styles.newMatchVerified}>
-                            <VerifiedIcon style={{ width: 16, height: 16 }} />
-                          </View>
-                        )}
+      {/* ── Scrollable Content ── */}
+      <ScrollView 
+        style={styles.scrollContent}
+        contentContainerStyle={styles.scrollContentContainer}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* ── New Matches (dating only) ── */}
+        {!isSocial && (
+          <>
+            <Text style={styles.sectionLabel}>New Matches</Text>
+            <View style={styles.newMatchesWrapper}>
+              <FlatList
+                data={placeholderSlots}
+                horizontal
+                keyExtractor={(item) => item.id}
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ paddingLeft: 16, paddingRight: 8 }}
+                scrollEnabled={true}
+                renderItem={({ index }) => {
+                  const match = newMatches[index];
+                  if (match) {
+                    return (
+                      <TouchableOpacity style={styles.newMatchItem} onPress={() => onSelectUser(match)}>
+                        <View>
+                          <AvatarImage uri={match.profileImage} style={styles.newMatchImage} iconSize={22} isCacheReady={isAvatarCacheHydrated} />
+                          {match.verified && (
+                            <View style={styles.newMatchVerified}>
+                              <VerifiedIcon style={{ width: 16, height: 16 }} />
+                            </View>
+                          )}
                           {(match.isSystem) && (
-              <MaterialIcons name="verified" size={20} color={"#F6CE71"} style={{ marginLeft: 4 }} />
-            )}
-                      </View>
-                      <Text style={styles.newMatchName} numberOfLines={1}>{getFirstName(match.name)}</Text>
-                    </TouchableOpacity>
+                            <MaterialIcons name="verified" size={20} color={"#F6CE71"} style={{ marginLeft: 4 }} />
+                          )}
+                        </View>
+                        <Text style={styles.newMatchName} numberOfLines={1}>{getFirstName(match.name)}</Text>
+                      </TouchableOpacity>
+                    );
+                  }
+                  return (
+                    <View style={styles.newMatchItem}>
+                      <View style={styles.placeholderCircle} />
+                      <Text style={styles.placeholderLabel}>Waiting</Text>
+                    </View>
                   );
-                }
-                return (
-                  <View style={styles.newMatchItem}>
-                    <View style={styles.placeholderCircle} />
-                    <Text style={styles.placeholderLabel}>Waiting</Text>
-                  </View>
-                );
-              }}
-            />
-          </View>
-        </>
-      )}
+                }}
+              />
+            </View>
+          </>
+        )}
 
-      {/* ── Active Chats panel ── */}
-      <View style={styles.chatsPanel}>
+        {/* ── Chats Section Label ── */}
         <Text style={styles.sectionLabelDark}>
           {isSocial ? "Plan Chats" : "Active chats"}
         </Text>
-
-        {/* ── Bon Bot Card (dating only) ── */}
-        {!isSocial && <BonBotCard onPress={() => router.push('/bon-bot')} />}
 
         {/* ── Conversation list ── */}
         {isLoading && users.length === 0 ? (
@@ -442,54 +295,47 @@ const ChatListScreen = ({
             </Text>
           </View>
         ) : (
-          <FlatList
-            data={[
-              ...users.filter((u) => u.isSystem),
-              ...users.filter((u) => !u.isSystem),
-            ]}
-            keyExtractor={(item) => item.id}
-            renderItem={({ item }) => (
-              <TouchableOpacity style={styles.matchItem} onPress={() => onSelectUser(item)}>
-                <View style={styles.profileContainer}>
-                  {item.isSystem ? (
-                    <View style={[styles.profileImage, styles.avatarFallback, styles.systemAvatar]}>
-                      <Image
-                        source={images.bondiesMainicon}
-                        style={{ width: 36, height: 36 }}
-                        resizeMode="contain"
-                      />
-                    </View>
-                  ) : (
-                    <AvatarImage uri={item.profileImage} style={styles.profileImage} iconSize={20} isCacheReady={isAvatarCacheHydrated} />
-                  )}
-                  {item.isOnline && !item.isSystem && <View style={styles.onlineIndicator} />}
-                </View>
-                <View style={styles.matchInfo}>
-                  <View style={styles.nameRow}>
-                    <Text style={styles.matchName}>
-                      {item.isSystem ? item.name : getFirstName(item.name)}
-                    </Text>
-                    {item.isVerified && (
-                      <VerifiedIcon style={styles.verifiedBadge} />
-                    )}
+          [...users.filter((u) => u.isSystem), ...users.filter((u) => !u.isSystem)].map((item) => (
+            <TouchableOpacity key={item.id} style={styles.matchItem} onPress={() => onSelectUser(item)}>
+              <View style={styles.profileContainer}>
+                {item.isSystem ? (
+                  <View style={[styles.profileImage, styles.avatarFallback, styles.systemAvatar]}>
+                    <Image
+                      source={images.bondiesMainicon}
+                      style={{ width: 36, height: 36 }}
+                      resizeMode="contain"
+                    />
                   </View>
-                  <Text style={styles.matchMessage} numberOfLines={1}>
-                    {item.lastMessage || 'No messages yet'}
+                ) : (
+                  <AvatarImage uri={item.profileImage} style={styles.profileImage} iconSize={20} isCacheReady={isAvatarCacheHydrated} />
+                )}
+                {item.isOnline && !item.isSystem && <View style={styles.onlineIndicator} />}
+              </View>
+              <View style={styles.matchInfo}>
+                <View style={styles.nameRow}>
+                  <Text style={styles.matchName}>
+                    {item.isSystem ? item.name : getFirstName(item.name)}
                   </Text>
-                </View>
-                <View style={styles.matchMeta}>
-                  <Text style={styles.matchTime}>{formatRelativeDate(item.matchedDate)}</Text>
-                  {item.unread > 0 && (
-                    <View style={styles.unreadBadge}>
-                      <Text style={styles.unreadText}>{item.unread}</Text>
-                    </View>
+                  {item.isVerified && (
+                    <VerifiedIcon style={styles.verifiedBadge} />
                   )}
                 </View>
-              </TouchableOpacity>
-            )}
-          />
+                <Text style={styles.matchMessage} numberOfLines={1}>
+                  {item.lastMessage || 'No messages yet'}
+                </Text>
+              </View>
+              <View style={styles.matchMeta}>
+                <Text style={styles.matchTime}>{formatRelativeDate(item.matchedDate)}</Text>
+                {item.unread > 0 && (
+                  <View style={styles.unreadBadge}>
+                    <Text style={styles.unreadText}>{item.unread}</Text>
+                  </View>
+                )}
+              </View>
+            </TouchableOpacity>
+          ))
         )}
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 };
@@ -499,11 +345,51 @@ const ChatListScreen = ({
 const styles = StyleSheet.create({
   listContainer: { flex: 1, backgroundColor: '#121212' },
 
+  // Custom Header
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    backgroundColor: colors.background,
+  },
+  headerIconBtn: {
+    position: 'relative',
+    padding: 4,
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontFamily: 'PlusJakartaSansBold',
+    color: '#fff',
+  },
+  headerRightIcons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  headerBadge: {
+    position: 'absolute',
+    top: -2,
+    right: -4,
+    backgroundColor: '#EF4444',
+    borderRadius: 8,
+    minWidth: 16,
+    height: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 4,
+  },
+  headerBadgeText: {
+    fontSize: 10,
+    fontFamily: 'PlusJakartaSansBold',
+    color: '#fff',
+  },
+
+  // Tabs
   tabBar: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    // borderBottomWidth: 1,
-    // borderBottomColor: '#333333',
   },
   tabItem: {
     flex: 1,
@@ -512,7 +398,7 @@ const styles = StyleSheet.create({
   },
   tabItemActive: {
     borderBottomWidth: 2,
-    borderBottomColor: '#111',
+    borderBottomColor: colors.primary,
   },
   tabLabel: {
     fontSize: 15,
@@ -523,6 +409,15 @@ const styles = StyleSheet.create({
   },
   tabLabelInactive: {
     color: '#9CA3AF',
+  },
+
+  // Scrollable content
+  scrollContent: {
+    flex: 1,
+  },
+  scrollContentContainer: {
+    flexGrow: 1,
+    paddingBottom: 20,
   },
 
   sectionLabel: {
@@ -569,9 +464,6 @@ const styles = StyleSheet.create({
     textTransform: 'capitalize',
   },
 
-  // Chats panel
-  chatsPanel: { flex: 1, backgroundColor: '#121212', borderTopLeftRadius: 28, borderTopRightRadius: 28 },
-
   // Chat row
   matchItem: {
     flexDirection: 'row', alignItems: 'center',
@@ -610,8 +502,14 @@ const styles = StyleSheet.create({
   unreadText: { color: '#fff', fontSize: 11, fontFamily: 'PlusJakartaSansBold' },
 
   // Empty / loading states
-  emptyStateContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 24 },
-  emptyStateTitle: { fontSize: 18, fontFamily: 'PlusJakartaSansBold', color: '#E5E5E5', marginBottom: 6 },
+  emptyStateContainer: { 
+    flex: 1, 
+    justifyContent: 'center', 
+    alignItems: 'center', 
+    paddingHorizontal: 24,
+    paddingVertical: 40,
+  },
+  emptyStateTitle: { fontSize: 18, fontFamily: 'PlusJakartaSansBold', color: '#E5E5E5', marginBottom: 6, marginTop: 12 },
   emptyStateSubtitle: { fontSize: 14, color: '#9CA3AF', textAlign: 'center', fontFamily: 'PlusJakartaSans' },
   loadingLabel: { fontSize: 14, color: '#9CA3AF', marginTop: 10, textAlign: 'center', fontFamily: 'PlusJakartaSans' },
 });

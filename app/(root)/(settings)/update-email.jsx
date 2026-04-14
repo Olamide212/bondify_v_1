@@ -39,8 +39,8 @@ const UpdateEmailScreen = () => {
       actions: [{ label: 'OK', style: 'primary' }],
     });
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(cleaned))
+    const emailRegex = (!/\S+@\S+\.\S+/.test(email));
+    if (emailRegex)
       return showAlert({
         icon: 'warning',
         title: 'Invalid',
@@ -149,12 +149,12 @@ const UpdateEmailScreen = () => {
           ) : (
             <>
               {/* ── OTP verification step ── */}
-              <Text className="text-2xl font-PlusJakartaSansBold text-gray-100 mb-2">
+              <Text className="text-2xl font-PlusJakartaSansBold text-white mb-2">
                 Check your inbox
               </Text>
-              <Text className="text-base font-PlusJakartaSans text-gray-400 mb-8 leading-6">
+              <Text className="text-base font-PlusJakartaSans text-white mb-8 leading-6">
                 We sent a code to{" "}
-                <Text className="font-PlusJakartaSansMedium text-gray-200">
+                <Text className="font-PlusJakartaSansMedium text-white">
                   {email}
                 </Text>
               </Text>
@@ -203,7 +203,7 @@ const UpdateEmailScreen = () => {
                 onPress={handleSendCode}
                 disabled={loading}
               >
-                <Text className="text-base font-PlusJakartaSans text-gray-400">
+                <Text className="text-base font-PlusJakartaSans text-white">
                   Didn&apos;t receive it?{" "}
                   <Text
                     className="font-PlusJakartaSansMedium"

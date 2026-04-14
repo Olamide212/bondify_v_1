@@ -6,6 +6,7 @@ const {
   verifyPhoneUpdate,
   updateEmail,
   verifyEmailUpdate,
+  updateBirthday,
   changePassword,
   getNotificationSettings,
   updateNotificationSettings,
@@ -28,6 +29,7 @@ router.patch('/phone',        protect, updatePhoneNumber);    // PATCH  /api/set
 router.post('/phone/verify',  protect, verifyPhoneUpdate);    // POST   /api/settings/phone/verify
 router.patch('/email',        protect, updateEmail);           // PATCH  /api/settings/email
 router.post('/email/verify',  protect, verifyEmailUpdate);    // POST   /api/settings/email/verify
+router.patch('/birthday',     protect, updateBirthday);        // PATCH  /api/settings/birthday
 router.patch('/password',     protect, changePassword);        // PATCH  /api/settings/password
 router.delete('/account',     protect, deleteAccount);         // DELETE /api/settings/account
 

@@ -6,12 +6,17 @@ import { colors } from '../../constant/colors';
 /**
  * LoadingImage — wraps expo-image's <Image> with a centered ActivityIndicator
  * that shows while the image is loading. Accepts all standard <Image> props.
+ *
+ * Props:
+ *   opaqueLoader - if true, shows a fully opaque dark overlay while loading
+ *                  (useful to prevent showing previous cached image)
  */
 const LoadingImage = ({
   style,
   indicatorColor = colors.primary,
   indicatorSize = 'small',
   containerStyle,
+  opaqueLoader = false,
   ...imageProps
 }) => {
   const [isLoading, setIsLoading] = useState(true);
@@ -26,7 +31,10 @@ const LoadingImage = ({
         onError={() => setIsLoading(false)}
       />
       {isLoading && (
-        <View style={styles.loaderOverlay}>
+        <View style={[
+          styles.loaderOverlay,
+          opaqueLoader && styles.opaqueOverlay
+        ]}>
           <ActivityIndicator size={indicatorSize} color={indicatorColor} />
         </View>
       )}
@@ -48,6 +56,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'rgba(240, 240, 240, 0.6)',
+  },
+  opaqueOverlay: {
+    backgroundColor: '#121212',
   },
 });
 

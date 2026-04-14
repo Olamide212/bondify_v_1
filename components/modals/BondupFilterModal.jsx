@@ -458,7 +458,7 @@ const styles = StyleSheet.create({
   sortOptionLabel: {
     fontSize: 14,
     fontFamily: "PlusJakartaSansMedium",
-    color: '#D1D5DB',
+    color: colors.background,
   },
   sortOptionLabelActive: {
     color: colors.primary,

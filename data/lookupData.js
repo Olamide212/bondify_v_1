@@ -209,8 +209,6 @@ export const LOOKUP_DATA = {
   'blood-group': BLOOD_GROUP_OPTIONS,
   'genotype': GENOTYPE_OPTIONS,
   'interests': INTEREST_OPTIONS,
-  
-  // New options defined in this file
   'genders': GENDER_OPTIONS,
   'religions': RELIGION_OPTIONS,
   'same-beliefs': SAME_BELIEFS_OPTIONS,

@@ -2,9 +2,10 @@
  * AroundYouTab.jsx
  */
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import { Briefcase, Eye, Globe, Heart, Info, MapPin, Users } from 'lucide-react-native';
+import { Briefcase, Eye, Globe, Heart, Info, MapPin, RotateCcw, Users } from 'lucide-react-native';
 import React, { useEffect, useRef, useState } from 'react';
 import {
   Animated,
@@ -56,7 +57,7 @@ const extractVoicePromptUri = (voicePrompt) => {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-const AroundYouTab = ({ profile, onViewProfile, actionMessage }) => {
+const AroundYouTab = ({ profile, onViewProfile, actionMessage, onRewind, rewindAvailable }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [compatibilityScore, setCompatibilityScore] = useState(null);
   const [loadingScore, setLoadingScore] = useState(false);
@@ -220,6 +221,7 @@ const AroundYouTab = ({ profile, onViewProfile, actionMessage }) => {
         >
           <Animated.View style={[styles.imageContainer, { opacity: fadeAnim, transform: [{ scale: scaleAnim }] }]}>
             <LoadingImage
+              key={`${profile._id || profile.id}-${currentUri}`}
               source={{ uri: currentUri }}
               style={styles.image}
               containerStyle={StyleSheet.absoluteFillObject}
@@ -229,6 +231,7 @@ const AroundYouTab = ({ profile, onViewProfile, actionMessage }) => {
               blurRadius={profile.blurPhotos ? 25 : 0}
               indicatorColor="#fff"
               indicatorSize="large"
+              opaqueLoader={true}
             />
             <View style={styles.overlay} />
             <LinearGradient colors={['transparent', 'rgba(0,0,0,0.88)']} style={styles.bottomGradient} />
@@ -239,6 +242,19 @@ const AroundYouTab = ({ profile, onViewProfile, actionMessage }) => {
                 <Eye size={16} color="#fff" />
                 <Text style={styles.blurBadgeText}>Photos are blurred</Text>
               </View>
+            )}
+
+            {/* Rewind button - top right corner */}
+            {rewindAvailable && onRewind && (
+              <TouchableOpacity
+                style={styles.rewindButton}
+                onPress={onRewind}
+                activeOpacity={0.8}
+              >
+                <BlurView intensity={30} tint="dark" style={styles.rewindBlur}>
+                  <RotateCcw size={18} color="#FCD34D" strokeWidth={2.5} />
+                </BlurView>
+              </TouchableOpacity>
             )}
 
             <View style={styles.profileInfo}>
@@ -423,6 +439,25 @@ const styles = StyleSheet.create({
     fontFamily: 'PlusJakartaSansSemiBold',
   },
 
+  rewindButton: {
+    position: 'absolute',
+    top: 16,
+    right: 16,
+    zIndex: 30,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    overflow: 'hidden',
+    borderWidth: 1.5,
+    borderColor: 'rgba(252, 211, 77, 0.4)',
+  },
+  rewindBlur: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(0,0,0,0.4)',
+  },
+
   compatibilityScore: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -447,6 +482,7 @@ export default React.memo(AroundYouTab, (prevProps, nextProps) => {
   return (
     prevId === nextId &&
     prevProps.profile?.blurPhotos === nextProps.profile?.blurPhotos &&
-    prevProps.profile?.distance === nextProps.profile?.distance
+    prevProps.profile?.distance === nextProps.profile?.distance &&
+    prevProps.rewindAvailable === nextProps.rewindAvailable
   );
 });

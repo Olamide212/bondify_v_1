@@ -46,6 +46,17 @@ const SettingsService = {
     return response.data;
   },
 
+  // ─── Birthday / Date of Birth ────────────────────────────────
+
+  /**
+   * Update the user's date of birth.
+   * @param {{ dateOfBirth: string }} data - Date in YYYY-MM-DD format
+   */
+  updateBirthday: async (data) => {
+    const response = await apiClient.patch("/settings/birthday", data);
+    return response.data;
+  },
+
   // ─── Notification Settings ───────────────────────────────────
 
   /**

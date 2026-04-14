@@ -18,7 +18,7 @@ export default function SettingsLayout() {
       <Stack.Screen name="theme-settings" />
       <Stack.Screen name="update-email" />
       <Stack.Screen name="update-phone" />
-     
+      <Stack.Screen name="edit-birthday" />
     </Stack>
   )
 }

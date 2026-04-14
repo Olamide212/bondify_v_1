@@ -7,27 +7,32 @@
  *          Correct route is /profile/verify (profileRoutes.js is mounted at /api/profile).
  *
  * Flow: INTRO → CAMERA → PREVIEW → DONE
+ * 
+ * Uses expo-face-detector for liveness detection and auto-capture.
  */
 
 import { CameraView, useCameraPermissions } from "expo-camera";
+import * as FaceDetector from 'expo-face-detector';
 import { useRouter } from "expo-router";
 import {
-    Camera,
-    CheckCircle,
-    ChevronLeft,
-    RefreshCw,
-    ShieldCheck,
+  Camera,
+  CheckCircle,
+  ChevronLeft,
+  RefreshCw,
+  Scan,
+  ShieldCheck,
 } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
 import {
-    ActivityIndicator,
-    Image,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
+import * as Progress from 'react-native-progress';
 import { SafeAreaView } from "react-native-safe-area-context";
 import { colors } from "../../../constant/colors";
 import { useAlert } from "../../../context/AlertContext";
@@ -92,25 +97,139 @@ const is = StyleSheet.create({
   btnText:     { fontSize: 16, fontFamily: "PlusJakartaSansBold", color: "#fff" },
 });
 
-// ─── Camera Step ──────────────────────────────────────────────────────────────
-const CameraStep = ({ onCapture, showAlert }) => {
-  const cameraRef           = useRef(null);
-  const [ready, setReady]   = useState(false);
-  const [taking, setTaking] = useState(false);
+// ─── Face Detection Constants ─────────────────────────────────────────────────
+const FACE_STABLE_THRESHOLD = 2000; // ms face must be stable before auto-capture
+const FACE_CHECK_INTERVAL = 100; // ms between face stability checks
+const OVAL_WIDTH = 230;
+const OVAL_HEIGHT = 290;
 
-  const handleCapture = async () => {
-    if (!ready || taking || !cameraRef.current) return;
+// ─── Camera Step with Face Detection ──────────────────────────────────────────
+const CameraStep = ({ onCapture, showAlert }) => {
+  const cameraRef = useRef(null);
+  const [ready, setReady] = useState(false);
+  const [taking, setTaking] = useState(false);
+  
+  // Face detection state
+  const [faceDetected, setFaceDetected] = useState(false);
+  const [faceInPosition, setFaceInPosition] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [statusMessage, setStatusMessage] = useState('Position your face in the oval');
+  
+  // Refs for tracking face stability
+  const faceStableStartRef = useRef(null);
+  const progressIntervalRef = useRef(null);
+  const hasCapuredRef = useRef(false);
+
+  // Clean up interval on unmount
+  useEffect(() => {
+    return () => {
+      if (progressIntervalRef.current) {
+        clearInterval(progressIntervalRef.current);
+      }
+    };
+  }, []);
+
+  const handleFacesDetected = ({ faces }) => {
+    if (hasCapuredRef.current || taking) return;
+    
+    if (faces.length === 0) {
+      setFaceDetected(false);
+      setFaceInPosition(false);
+      setProgress(0);
+      setStatusMessage('Position your face in the oval');
+      faceStableStartRef.current = null;
+      if (progressIntervalRef.current) {
+        clearInterval(progressIntervalRef.current);
+        progressIntervalRef.current = null;
+      }
+      return;
+    }
+
+    const face = faces[0];
+    setFaceDetected(true);
+    
+    // Check if face is properly positioned (centered and appropriately sized)
+    const { bounds, yawAngle, rollAngle } = face;
+    const faceWidth = bounds.size.width;
+    const faceCenterX = bounds.origin.x + faceWidth / 2;
+    const faceCenterY = bounds.origin.y + bounds.size.height / 2;
+    
+    // Screen dimensions (approximate center)
+    const screenCenterX = 200; // Approximate center for front camera
+    const screenCenterY = 350;
+    
+    // Check positioning criteria:
+    // 1. Face is roughly centered
+    // 2. Face is facing forward (not turned too much)
+    // 3. Face is appropriately sized (not too far/close)
+    const isCentered = Math.abs(faceCenterX - screenCenterX) < 80 && 
+                       Math.abs(faceCenterY - screenCenterY) < 100;
+    const isFacingForward = Math.abs(yawAngle || 0) < 15 && Math.abs(rollAngle || 0) < 15;
+    const isProperSize = faceWidth > 100 && faceWidth < 300;
+    
+    const isInPosition = isCentered && isFacingForward && isProperSize;
+    setFaceInPosition(isInPosition);
+
+    if (!isInPosition) {
+      // Provide guidance
+      if (!isCentered) {
+        setStatusMessage('Move your face to the center');
+      } else if (!isFacingForward) {
+        setStatusMessage('Look straight at the camera');
+      } else if (faceWidth <= 100) {
+        setStatusMessage('Move closer to the camera');
+      } else if (faceWidth >= 300) {
+        setStatusMessage('Move back a little');
+      }
+      setProgress(0);
+      faceStableStartRef.current = null;
+      if (progressIntervalRef.current) {
+        clearInterval(progressIntervalRef.current);
+        progressIntervalRef.current = null;
+      }
+      return;
+    }
+
+    // Face is in position - start/continue stability timer
+    setStatusMessage('Hold still...');
+    
+    if (!faceStableStartRef.current) {
+      faceStableStartRef.current = Date.now();
+      
+      // Start progress animation
+      progressIntervalRef.current = setInterval(() => {
+        if (!faceStableStartRef.current) return;
+        
+        const elapsed = Date.now() - faceStableStartRef.current;
+        const newProgress = Math.min(elapsed / FACE_STABLE_THRESHOLD, 1);
+        setProgress(newProgress);
+        
+        if (newProgress >= 1 && !hasCapuredRef.current) {
+          // Auto-capture!
+          hasCapuredRef.current = true;
+          clearInterval(progressIntervalRef.current);
+          progressIntervalRef.current = null;
+          setStatusMessage('Capturing...');
+          handleAutoCapture();
+        }
+      }, FACE_CHECK_INTERVAL);
+    }
+  };
+
+  const handleAutoCapture = async () => {
+    if (!ready || !cameraRef.current) return;
     setTaking(true);
     try {
       const photo = await cameraRef.current.takePictureAsync({
         quality: 0.8,
-        base64:  false,
-        exif:    false,
+        base64: false,
+        exif: false,
       });
       onCapture(photo.uri);
     } catch {
+      hasCapuredRef.current = false;
       showAlert({
-        icon: 'error',
+        icon: 'camera',
         title: 'Error',
         message: 'Could not take photo. Please try again.',
         actions: [{ label: 'OK', style: 'primary' }],
@@ -120,6 +239,39 @@ const CameraStep = ({ onCapture, showAlert }) => {
     }
   };
 
+  // Manual capture fallback
+  const handleManualCapture = async () => {
+    if (!ready || taking || !cameraRef.current) return;
+    hasCapuredRef.current = true;
+    setTaking(true);
+    try {
+      const photo = await cameraRef.current.takePictureAsync({
+        quality: 0.8,
+        base64: false,
+        exif: false,
+      });
+      onCapture(photo.uri);
+    } catch {
+      hasCapuredRef.current = false;
+      showAlert({
+        icon: 'camera',
+        title: 'Error',
+        message: 'Could not take photo. Please try again.',
+        actions: [{ label: 'OK', style: 'primary' }],
+      });
+    } finally {
+      setTaking(false);
+    }
+  };
+
+  // Determine oval border color based on state
+  const getOvalBorderColor = () => {
+    if (taking) return '#10B981'; // Green when capturing
+    if (faceInPosition) return '#10B981'; // Green when in position
+    if (faceDetected) return '#F59E0B'; // Yellow when face detected but not positioned
+    return 'rgba(255,255,255,0.75)'; // White default
+  };
+
   return (
     <View style={cs.container}>
       <CameraView
@@ -127,19 +279,61 @@ const CameraStep = ({ onCapture, showAlert }) => {
         style={StyleSheet.absoluteFill}
         facing="front"
         onCameraReady={() => setReady(true)}
+        onFacesDetected={handleFacesDetected}
+        faceDetectorSettings={{
+          mode: FaceDetector.FaceDetectorMode.fast,
+          detectLandmarks: FaceDetector.FaceDetectorLandmarks.none,
+          runClassifications: FaceDetector.FaceDetectorClassifications.none,
+          minDetectionInterval: 100,
+          tracking: true,
+        }}
       />
 
-      {/* Oval face guide */}
-      <View style={cs.overlay}>
-        <View style={cs.oval} />
-        <Text style={cs.hint}>Position your face inside the oval</Text>
+      {/* Dark overlay with oval cutout */}
+      <View style={cs.overlayWrap} pointerEvents="none">
+        <View style={cs.overlayTop} />
+        <View style={cs.overlayMiddle}>
+          <View style={cs.overlaySide} />
+          <View style={cs.ovalHole}>
+            <View style={[cs.ovalBorder, { borderColor: getOvalBorderColor() }]} />
+          </View>
+          <View style={cs.overlaySide} />
+        </View>
+        {/* Hint text row with status */}
+        <View style={cs.hintRow}>
+          <View style={cs.statusContainer}>
+            {faceInPosition && !taking && (
+              <View style={cs.progressContainer}>
+                <Progress.Circle
+                  size={24}
+                  progress={progress}
+                  color="#10B981"
+                  unfilledColor="rgba(255,255,255,0.2)"
+                  borderWidth={0}
+                  thickness={3}
+                />
+              </View>
+            )}
+            {faceDetected && !faceInPosition && (
+              <Scan size={20} color="#F59E0B" style={{ marginRight: 8 }} />
+            )}
+            <Text style={[
+              cs.hint, 
+              faceInPosition && { color: '#10B981' },
+              faceDetected && !faceInPosition && { color: '#F59E0B' }
+            ]}>
+              {statusMessage}
+            </Text>
+          </View>
+        </View>
+        <View style={cs.overlayBottom} />
       </View>
 
-      {/* Shutter */}
+      {/* Manual Shutter (fallback) */}
       <View style={cs.shutterRow}>
         <TouchableOpacity
           style={[cs.shutter, (!ready || taking) && { opacity: 0.5 }]}
-          onPress={handleCapture}
+          onPress={handleManualCapture}
           disabled={!ready || taking}
           activeOpacity={0.85}
         >
@@ -148,6 +342,7 @@ const CameraStep = ({ onCapture, showAlert }) => {
             : <View style={cs.shutterInner} />
           }
         </TouchableOpacity>
+        <Text style={cs.tapHint}>or tap to capture manually</Text>
       </View>
     </View>
   );
@@ -155,12 +350,21 @@ const CameraStep = ({ onCapture, showAlert }) => {
 
 const cs = StyleSheet.create({
   container:    { flex: 1, backgroundColor: "#000" },
-  overlay:      { ...StyleSheet.absoluteFillObject, alignItems: "center", justifyContent: "center" },
-  oval:         { width: 230, height: 290, borderRadius: 999, borderWidth: 2.5, borderColor: "rgba(255,255,255,0.7)", borderStyle: "dashed" },
-  hint:         { marginTop: 16, fontSize: 13, fontFamily: "PlusJakartaSansMedium", color: "rgba(255,255,255,0.8)" },
+  overlayWrap:  { ...StyleSheet.absoluteFillObject },
+  overlayTop:   { flex: 1 },
+  overlayMiddle: { flexDirection: "row", height: OVAL_HEIGHT },
+  overlaySide:  { flex: 1 },
+  ovalHole:     { width: OVAL_WIDTH, height: OVAL_HEIGHT, alignItems: "center", justifyContent: "center", backgroundColor: "transparent", overflow: "hidden", borderRadius: OVAL_HEIGHT / 2 },
+  ovalBorder:   { width: OVAL_WIDTH, height: OVAL_HEIGHT, borderRadius: OVAL_HEIGHT / 2, borderWidth: 3, borderStyle: "solid" },
+  hintRow:      { alignItems: "center", paddingVertical: 12 },
+  hint:         { fontSize: 14, fontFamily: "PlusJakartaSansMedium", color: "rgba(255,255,255,0.85)" },
+  statusContainer: { flexDirection: "row", alignItems: "center", justifyContent: "center" },
+  progressContainer: { marginRight: 10 },
+  overlayBottom: { flex: 1 },
   shutterRow:   { position: "absolute", bottom: 48, width: "100%", alignItems: "center" },
   shutter:      { width: 72, height: 72, borderRadius: 99, backgroundColor: "#121212", alignItems: "center", justifyContent: "center", borderWidth: 4, borderColor: "rgba(255,255,255,0.4)" },
   shutterInner: { width: 54, height: 54, borderRadius: 99, backgroundColor: PRIMARY },
+  tapHint:      { marginTop: 12, fontSize: 12, fontFamily: "PlusJakartaSans", color: "rgba(255,255,255,0.5)" },
 });
 
 // ─── Preview Step ─────────────────────────────────────────────────────────────

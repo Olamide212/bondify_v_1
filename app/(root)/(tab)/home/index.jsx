@@ -760,6 +760,8 @@ const Home = () => {
             <AroundYou
               profile={currentProfile}
               onViewProfile={handleViewProfile}
+              onRewind={handleRewind}
+              rewindAvailable={rewindAvailable}
             />
           </Animated.View>
         ) : showEmptyDeck ? (

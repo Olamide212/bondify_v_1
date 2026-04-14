@@ -53,7 +53,7 @@ const TextInput = ({
             <Feather
               name={isPasswordVisible ? "eye-off" : "eye"}
               size={22}
-              color="#555"
+              color="#fff"
             />
           </TouchableOpacity>
         )}
