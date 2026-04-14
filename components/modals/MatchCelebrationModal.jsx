@@ -175,7 +175,7 @@ const MatchCelebrationModal = ({
   const matchedName      = matchedUser?.name || matchedUser?.firstName || "someone special";
 
   return (
-    <BaseModal visible={visible} onClose={onClose} fullScreen noPadding >
+    <BaseModal visible={visible} onClose={onClose} fullScreen noPadding contentBackground={{ backgroundColor: colors.primary }} >
       <View style={styles.container}>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
           <ScrollView

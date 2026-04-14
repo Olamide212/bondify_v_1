@@ -210,7 +210,7 @@ const performAction = async (req, res, next) => {
 
         const io = getIO();
 
-        const currentUser = await User.findById(userId).select('firstName lastName name').lean();
+        const currentUser = await User.findById(userId).select('firstName lastName name images age').lean();
         const currentUserName =
           currentUser?.name ||
           [currentUser?.firstName, currentUser?.lastName].filter(Boolean).join(' ') ||
@@ -232,6 +232,14 @@ const performAction = async (req, res, next) => {
           userId: String(likedUserId),
           title:  "It's a match!",
           body:   `You and ${likedUserName} liked each other.`,
+          matchedUser: {
+            _id:       likedUser._id,
+            firstName: likedUser.firstName,
+            lastName:  likedUser.lastName,
+            name:      likedUserName,
+            images:    likedUser.images || [],
+            age:       likedUser.age,
+          },
         });
 
         io.to(`user:${String(likedUserId)}`).emit('match:new', {
@@ -240,6 +248,14 @@ const performAction = async (req, res, next) => {
           userId: String(userId),
           title:  "It's a match!",
           body:   `You and ${currentUserName} liked each other.`,
+          matchedUser: {
+            _id:       currentUser._id,
+            firstName: currentUser.firstName,
+            lastName:  currentUser.lastName,
+            name:      currentUserName,
+            images:    currentUser.images || [],
+            age:       currentUser.age,
+          },
         });
 
         // Emit notification:new for both users as well

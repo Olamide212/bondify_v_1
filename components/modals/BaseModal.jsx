@@ -79,7 +79,7 @@ const BaseModal = ({ visible, onClose, children, fullScreen = false, contentBack
 
       {fullScreen ? (
         // Full screen content
-        <View style={[styles.fullScreenContent, noPadding && { paddingHorizontal: 0 }]}>{children}</View>
+        <View style={[styles.fullScreenContent, noPadding && { paddingHorizontal: 0 }, contentBackground]}>{children}</View>
       ) : (
         // Bottom sheet content
         <Animated.View

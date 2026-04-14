@@ -423,7 +423,7 @@ const performAction = async (req, res, next) => {
         const io = getIO();
 
         const currentUser = await User.findById(userId)
-          .select('firstName lastName name')
+          .select('firstName lastName name images age')
           .lean();
 
         const currentUserName =
@@ -442,13 +442,21 @@ const performAction = async (req, res, next) => {
           createdAt: new Date().toISOString(),
         };
 
-        // Emit match events to both users
+        // Emit match events to both users with matched user profile data
         io.to(`user:${String(userId)}`).emit('match:new', {
           ...basePayload,
           id:     `match-${match._id}-${userId}`,
           userId: String(likedUserId),
           title:  "It's a match!",
           body:   `You and ${likedUserName} liked each other.`,
+          matchedUser: {
+            _id:       likedUser._id,
+            firstName: likedUser.firstName,
+            lastName:  likedUser.lastName,
+            name:      likedUserName,
+            images:    likedUser.images || [],
+            age:       likedUser.age,
+          },
         });
         io.to(`user:${String(likedUserId)}`).emit('match:new', {
           ...basePayload,
@@ -456,6 +464,14 @@ const performAction = async (req, res, next) => {
           userId: String(userId),
           title:  "It's a match!",
           body:   `You and ${currentUserName} liked each other.`,
+          matchedUser: {
+            _id:       currentUser._id,
+            firstName: currentUser.firstName,
+            lastName:  currentUser.lastName,
+            name:      currentUserName,
+            images:    currentUser.images || [],
+            age:       currentUser.age,
+          },
         });
         io.to(`user:${String(userId)}`).emit('notification:new', {
           ...basePayload,
