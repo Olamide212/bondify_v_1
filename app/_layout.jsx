@@ -1,3 +1,4 @@
+import { DarkTheme, ThemeProvider as NavigationThemeProvider } from "@react-navigation/native";
 import { useFonts } from "expo-font";
 import { Stack, useRouter } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
@@ -79,22 +80,18 @@ function RootLayoutInner() {
         <Stack.Screen name="index" />
         <Stack.Screen
           name="(root)"
-          options={{
-            gestureEnabled: false,
-          }}
+          // options={{
+          //   gestureEnabled: false,
+          // }}
         />
         <Stack.Screen
           name="(auth)"
-          options={{
-            gestureEnabled: false,
-          }}
+          // options={{
+          //   gestureEnabled: false,
+          // }}
         />
-        <Stack.Screen
-          name="root-tabs"
-          options={{
-            gestureEnabled: false,
-          }}
-        />
+        <Stack.Screen name="(tabs)" />
+
       </Stack>
       {/* <OfflineBanner /> */}
 
@@ -186,23 +183,25 @@ const [fontsLoaded, fontError] = useFonts({
   return (
     <GestureHandlerRootView style={{ flex: 1, backgroundColor: '#121212' }}>
       <StatusBar barStyle="light-content" backgroundColor="#121212" />
-      <Provider store={store}>
-        <PersistGate loading={null} persistor={persistor}>
-          <ThemeProvider>
-          <WalletProvider>
-            <ProfileProvider>
-              <DiscoveryProfilesProvider>
-                <ToastProvider>
-                  <AlertProvider>
-                    <RootLayoutInner />
-                  </AlertProvider>
-                </ToastProvider>
-              </DiscoveryProfilesProvider>
-            </ProfileProvider>
-          </WalletProvider>
-          </ThemeProvider>
-        </PersistGate>
-      </Provider>
+      <NavigationThemeProvider value={DarkTheme}>
+        <Provider store={store}>
+          <PersistGate loading={null} persistor={persistor}>
+            <ThemeProvider>
+            <WalletProvider>
+              <ProfileProvider>
+                <DiscoveryProfilesProvider>
+                  <ToastProvider>
+                    <AlertProvider>
+                      <RootLayoutInner />
+                    </AlertProvider>
+                  </ToastProvider>
+                </DiscoveryProfilesProvider>
+              </ProfileProvider>
+            </WalletProvider>
+            </ThemeProvider>
+          </PersistGate>
+        </Provider>
+      </NavigationThemeProvider>
     </GestureHandlerRootView>
   );
 }

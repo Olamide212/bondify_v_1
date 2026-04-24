@@ -25,7 +25,7 @@
 //           </Text>
 //           <TouchableOpacity
 //             style={[styles.button, { backgroundColor: colors.primary || '#E8651A' }] }
-//             onPress={() => router.push('/(root)/(tab)/discover')}
+//             onPress={() => router.push('/(root)/(discover)/profiles')}
 //           >
 //             <Text style={styles.buttonText}>Go back to Discover</Text>
 //           </TouchableOpacity>

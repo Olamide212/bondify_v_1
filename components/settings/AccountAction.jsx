@@ -13,6 +13,15 @@ const AccountAction = () => {
   const currentUser = useSelector((state) => state.auth.user);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
+  const dismissAndGoToLogin = () => {
+    try {
+      router.dismissAll();
+    } catch (_error) {
+      // ignore when there is no dismissible stack
+    }
+    router.replace("/login");
+  };
+
   const handleLogout = async () => {
     // Clear user cache before logging out
     if (currentUser?.id || currentUser?._id) {
@@ -20,7 +29,7 @@ const AccountAction = () => {
       await profileService.onUserLogout(userId);
     }
     dispatch(logout());
-    router.replace("/login");
+    dismissAndGoToLogin();
   };
 
   const handleDeleted = async () => {
@@ -31,7 +40,7 @@ const AccountAction = () => {
     }
     setShowDeleteModal(false);
     dispatch(logout());
-    router.replace("/login");
+    dismissAndGoToLogin();
   };
 
   const items = [

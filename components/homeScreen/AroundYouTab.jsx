@@ -47,14 +47,6 @@ const extractImageUri = (item) => {
   return null;
 };
 
-const extractVoicePromptUri = (voicePrompt) => {
-  if (!voicePrompt) return null;
-  if (typeof voicePrompt === 'string' && voicePrompt.trim()) return voicePrompt.trim();
-  if (typeof voicePrompt === 'object')
-    return voicePrompt.url || voicePrompt.uri || voicePrompt.secure_url || null;
-  return null;
-};
-
 // ─── Component ────────────────────────────────────────────────────────────────
 
 const AroundYouTab = ({ profile, onViewProfile, actionMessage, onRewind, rewindAvailable }) => {
@@ -71,7 +63,7 @@ const AroundYouTab = ({ profile, onViewProfile, actionMessage, onRewind, rewindA
   const pinchRef = useRef(null);
 
   const router = useRouter();
-  const { width: screenWidth, height: screenHeight } = useWindowDimensions();
+  const { height: screenHeight } = useWindowDimensions();
   const verified = profile?.verificationStatus === "approved";
 
   useEffect(() => {
@@ -128,7 +120,6 @@ const AroundYouTab = ({ profile, onViewProfile, actionMessage, onRewind, rewindA
   const totalImages = imageUris.length || 1;
   const safeIndex = Math.min(currentImageIndex, totalImages - 1);
   const currentUri = imageUris[safeIndex] || FALLBACK_IMAGE;
-  const voicePromptUri = extractVoicePromptUri(profile.voicePrompt);
   const locationText = formatLocation(profile.location);
   const nationalityText = profile.nationality ? String(profile.nationality).trim() : null;
   const occupationText = profile.occupation ? String(profile.occupation).trim() : null;
@@ -164,13 +155,6 @@ const AroundYouTab = ({ profile, onViewProfile, actionMessage, onRewind, rewindA
     const parts = String(profile.name || '').trim().split(/\s+/).filter(Boolean);
     return parts.length === 0 ? 'Unknown' : parts[0];
   })();
-
-  const fadeTransition = (cb) => {
-    Animated.timing(fadeAnim, { toValue: 0, duration: 120, useNativeDriver: true }).start(() => {
-      cb();
-      Animated.timing(fadeAnim, { toValue: 1, duration: 250, useNativeDriver: true }).start();
-    });
-  };
 
   // Pinch gesture handler for zoom
   const onPinchGestureEvent = (event) => {
@@ -257,7 +241,7 @@ const AroundYouTab = ({ profile, onViewProfile, actionMessage, onRewind, rewindA
               </TouchableOpacity>
             )}
 
-            <View style={styles.profileInfo}>
+            <View style={[styles.profileInfo, { bottom: screenHeight < 760 ? 205 : 180 }]}>
             <View className="flex-row items-center gap-2 mb-3">
               {/* Compatibility Score */}
               {compatibilityScore !== null && !loadingScore && (
@@ -396,7 +380,7 @@ const styles = StyleSheet.create({
   },
   actionText: { color: '#D1D5DB', fontSize: 16, fontWeight: '600' },
 
-  profileInfo: { position: 'absolute', bottom: 120, left: 20, right: 20, zIndex: 10 },
+  profileInfo: { position: 'absolute', left: 20, right: 20, zIndex: 10 },
 
   nameRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 },
   nameLeft: { flexDirection: 'row', alignItems: 'center', flex: 1 },

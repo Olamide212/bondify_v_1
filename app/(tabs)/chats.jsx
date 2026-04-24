@@ -4,11 +4,11 @@ import { useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { useSelector } from "react-redux";
-import ChatListScreen from "../../../../components/chatScreen/ChatListScreen";
-import bondupService from "../../../../services/bondupService";
-import { matchService } from "../../../../services/matchService";
-import NotificationService, { NOTIFICATION_META } from "../../../../services/notificationService";
-import { socketService } from "../../../../services/socketService";
+import ChatListScreen from "../../components/chatScreen/ChatListScreen";
+import bondupService from "../../services/bondupService";
+import { matchService } from "../../services/matchService";
+import NotificationService, { NOTIFICATION_META } from "../../services/notificationService";
+import { socketService } from "../../services/socketService";
 
 const CHAT_TABS = ["Dating", "Plans"];
 
@@ -118,6 +118,22 @@ const normalizeBondupChats = (bondups, currentUserId) =>
 // ─────────────────────────────────────────────────────────────────────────────
 
 export default function Chat() {
+  const [hasActivated, setHasActivated] = useState(false);
+
+  useFocusEffect(
+    useCallback(() => {
+      setHasActivated(true);
+    }, [])
+  );
+
+  if (!hasActivated) {
+    return <View style={{ flex: 1, backgroundColor: "#121212" }} />;
+  }
+
+  return <ChatContent />;
+}
+
+function ChatContent() {
   const router         = useRouter();
   const [activeTab, setActiveTab] = useState(0);
   const [matchUsers, setMatchUsers]       = useState([]);
@@ -314,7 +330,7 @@ export default function Chat() {
     if (user.isBondiesTeam) {
       // Navigate to home tab which has the notifications modal
       router.push({
-        pathname: "/(root)/(tab)/home",
+        pathname: "/(tabs)/home",
         params: { openNotifications: "true" },
       });
       return;

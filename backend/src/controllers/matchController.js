@@ -365,7 +365,11 @@ const getLikedYou = async (req, res, next) => {
         type:      { $in: ['like', 'superlike'] },
         user:      { $nin: matchedUsers },
       })
-        .populate('user', '-password -otp -otpExpiry -verificationSelfieUrl')
+        .populate({
+          path: 'user',
+          select: '-password -otp -otpExpiry -verificationSelfieUrl',
+          match: { isDeleted: { $ne: true }, isActive: true },
+        })
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(sanitizedLimit),
@@ -413,7 +417,11 @@ const getYouLiked = async (req, res, next) => {
         type:      { $in: ['like', 'superlike'] },
         likedUser: { $nin: matchedUsers },
       })
-        .populate('likedUser', '-password -otp -otpExpiry -verificationSelfieUrl')
+        .populate({
+          path: 'likedUser',
+          select: '-password -otp -otpExpiry -verificationSelfieUrl',
+          match: { isDeleted: { $ne: true }, isActive: true },
+        })
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(sanitizedLimit),
@@ -455,7 +463,11 @@ const getPassed = async (req, res, next) => {
 
     const [likes, total] = await Promise.all([
       Like.find({ user: userId, type: 'pass' })
-        .populate('likedUser', '-password -otp -otpExpiry -verificationSelfieUrl')
+        .populate({
+          path: 'likedUser',
+          select: '-password -otp -otpExpiry -verificationSelfieUrl',
+          match: { isDeleted: { $ne: true }, isActive: true },
+        })
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(sanitizedLimit),
@@ -508,8 +520,16 @@ const getMatches = async (req, res, next) => {
         $or: [{ user1: userId }, { user2: userId }],
         status: 'matched',
       })
-        .populate('user1', 'firstName lastName name age images bio location lastActive online verified isSystem')
-        .populate('user2', 'firstName lastName name age images bio location lastActive online verified isSystem')
+        .populate({
+          path: 'user1',
+          select: 'firstName lastName name age images bio location lastActive online verified isSystem isDeleted isActive',
+          match: { isDeleted: { $ne: true }, isActive: true },
+        })
+        .populate({
+          path: 'user2',
+          select: 'firstName lastName name age images bio location lastActive online verified isSystem isDeleted isActive',
+          match: { isDeleted: { $ne: true }, isActive: true },
+        })
         .sort({ lastMessageAt: -1, matchedAt: -1 })
         .skip(skip)
         .limit(sanitizedLimit),
@@ -523,15 +543,25 @@ const getMatches = async (req, res, next) => {
         status: 'unmatched',
         rematchRequestedBy: { $exists: true, $ne: null, $ne: userId },
       })
-        .populate('user1', 'firstName lastName name age images bio location lastActive online verified isSystem')
-        .populate('user2', 'firstName lastName name age images bio location lastActive online verified isSystem')
+        .populate({
+          path: 'user1',
+          select: 'firstName lastName name age images bio location lastActive online verified isSystem isDeleted isActive',
+          match: { isDeleted: { $ne: true }, isActive: true },
+        })
+        .populate({
+          path: 'user2',
+          select: 'firstName lastName name age images bio location lastActive online verified isSystem isDeleted isActive',
+          match: { isDeleted: { $ne: true }, isActive: true },
+        })
         .sort({ rematchRequestedAt: -1 })
         .limit(10),
     ]);
 
     const Message = require('../models/Message');
 
-    const formattedMatches = await Promise.all(matches.map(async (match) => {
+    const visibleMatches = matches.filter((match) => match.user1 && match.user2);
+
+    const formattedMatches = await Promise.all(visibleMatches.map(async (match) => {
       const isUser1    = match.user1._id.toString() === userId.toString();
       const otherUser  = isUser1 ? match.user2 : match.user1;
       const otherUserObj = otherUser.toObject();
@@ -559,7 +589,9 @@ const getMatches = async (req, res, next) => {
     }));
 
     // Format pending rematch requests
-    const formattedRematchRequests = await Promise.all(rematchMatches.map(async (match) => {
+    const visibleRematchMatches = rematchMatches.filter((match) => match.user1 && match.user2);
+
+    const formattedRematchRequests = await Promise.all(visibleRematchMatches.map(async (match) => {
       const isUser1   = match.user1._id.toString() === userId.toString();
       const otherUser = isUser1 ? match.user2 : match.user1;
       const otherUserObj = otherUser.toObject();
@@ -601,7 +633,7 @@ const getMatch = async (req, res, next) => {
       .populate('user1', 'name firstName lastName age images bio location interests verified')
       .populate('user2', 'name firstName lastName age images bio location interests verified');
 
-    if (!match) {
+    if (!match || !match.user1 || !match.user2) {
       return res.status(404).json({ success: false, message: 'Match not found.' });
     }
 
@@ -710,12 +742,22 @@ const getUnmatchedUsers = async (req, res, next) => {
       $or: [{ user1: userId }, { user2: userId }],
       status: 'unmatched',
     })
-      .populate('user1', 'firstName lastName name images verified')
-      .populate('user2', 'firstName lastName name images verified')
+      .populate({
+        path: 'user1',
+        select: 'firstName lastName name images verified isDeleted isActive',
+        match: { isDeleted: { $ne: true }, isActive: true },
+      })
+      .populate({
+        path: 'user2',
+        select: 'firstName lastName name images verified isDeleted isActive',
+        match: { isDeleted: { $ne: true }, isActive: true },
+      })
       .sort({ updatedAt: -1 })
       .lean();
 
-    const formatted = await Promise.all(unmatches.map(async (match) => {
+    const visibleUnmatches = unmatches.filter((match) => match.user1 && match.user2);
+
+    const formatted = await Promise.all(visibleUnmatches.map(async (match) => {
       const isUser1 = match.user1._id.toString() === userId.toString();
       const other   = isUser1 ? match.user2 : match.user1;
       const signedImages = await mapImagesWithAccessUrls(other.images || []);

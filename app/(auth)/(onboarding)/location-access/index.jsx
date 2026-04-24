@@ -49,7 +49,7 @@ const LocationAccess = () => {
               style: 'primary',
               onPress: async () => {
                 await finalizeOnboardingSafely();
-                router.replace("/root-tabs");
+                router.replace("/(tabs)/home");
               },
             },
           ],
@@ -106,7 +106,7 @@ const LocationAccess = () => {
               style: 'primary',
               onPress: async () => {
                 await finalizeOnboardingSafely();
-                router.replace("/root-tabs");
+                router.replace("/(tabs)/home");
               },
             },
           ],
@@ -135,10 +135,10 @@ const LocationAccess = () => {
 
       await finalizeOnboardingSafely();
 
-      router.replace("/root-tabs");
+      router.replace("/(tabs)/home");
     } catch (err) {
       if (isOnboardingAlreadyCompletedError(err)) {
-        router.replace("/root-tabs");
+        router.replace("/(tabs)/home");
         return;
       }
 
@@ -157,7 +157,7 @@ const LocationAccess = () => {
               } catch (error) {
                 console.error("Finalize onboarding error:", error);
               } finally {
-                router.replace("/root-tabs");
+                router.replace("/(tabs)/home");
               }
             },
           },

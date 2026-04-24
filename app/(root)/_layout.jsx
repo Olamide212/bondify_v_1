@@ -85,31 +85,30 @@ export default function RootLayout() {
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="(tab)" />
-      <Stack.Screen name="splash-screen" />
-      <Stack.Screen name="onboarding" />
-      <Stack.Screen name="welcome" />
+      <Stack.Screen name="splash-screen/index" />
+      <Stack.Screen name="onboarding/index" />
+      <Stack.Screen name="welcome/index" />
       <Stack.Screen name="(profile)" />
       <Stack.Screen name="(discover)" />
       <Stack.Screen name="(community)" />
       <Stack.Screen name="(settings)" />
-      <Stack.Screen name="user-profile" options={{    presentation: "modal", 
+      <Stack.Screen name="user-profile/[id]" options={{    presentation: "modal", 
           animation: "slide_from_bottom", 
           gestureDirection: "vertical", }} />
-      <Stack.Screen name="feed-profile" />
-      <Stack.Screen name="user-feed-profile" />
-      <Stack.Screen name="edit-user-feed-profile" />
-      <Stack.Screen name="unmatched-users" />
-      <Stack.Screen name="bondup-chat" />
-      <Stack.Screen name="bondup-profile" />
-      <Stack.Screen name="social-profile" />
-      <Stack.Screen name="chat-screen" />
-      <Stack.Screen name="chat-options" />
-      <Stack.Screen name="bon-bot" />
-      <Stack.Screen name="verification" />
+      <Stack.Screen name="feed-profile/index" />
+      <Stack.Screen name="user-feed-profile/[id]" />
+      <Stack.Screen name="edit-user-feed-profile/index" />
+      <Stack.Screen name="unmatched-users/index" />
+      <Stack.Screen name="bondup-chat/index" />
+      <Stack.Screen name="bondup-profile/[id]" />
+      <Stack.Screen name="social-profile/[id]" />
+      <Stack.Screen name="chat-screen/index" />
+      <Stack.Screen name="chat-options/index" />
+      <Stack.Screen name="bon-bot/index" />
+      <Stack.Screen name="verification/index" />
 
       <Stack.Screen
-        name="filter"
+        name="filter/index"
         options={{
           presentation: "modal", 
           animation: "slide_from_bottom", 

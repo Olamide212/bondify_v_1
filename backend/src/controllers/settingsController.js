@@ -1,6 +1,14 @@
 const User = require('../models/User');
 const BlockedUser = require('../models/BlockedUser');
 const Report = require('../models/Report');
+const Like = require('../models/Like');
+const Match = require('../models/Match');
+const Message = require('../models/Message');
+const ProfileView = require('../models/ProfileView');
+const Notification = require('../models/Notification');
+const MessageRequest = require('../models/MessageRequest');
+const Follow = require('../models/Follow');
+const FriendRequest = require('../models/FriendRequest');
 const { generateOTP, calculateOTPExpiry } = require('../config/otp');
 const { sendOtpEmail } = require('../utils/termiiService');
 const { getRedisClient, isRedisEnabled } = require('../config/redis');
@@ -500,8 +508,9 @@ const reportUser = async (req, res, next) => {
 const deleteAccount = async (req, res, next) => {
   try {
     const { password, reason } = req.body;
+    const userId = req.user._id;
 
-    const user = await User.findById(req.user._id).select('+password');
+    const user = await User.findById(userId).select('+password');
     if (!user) return res.status(404).json({ success: false, message: 'User not found' });
 
     const isMatch = await user.comparePassword(password);
@@ -509,19 +518,29 @@ const deleteAccount = async (req, res, next) => {
       return res.status(401).json({ success: false, message: 'Incorrect password' });
     }
 
-    // Soft delete — anonymise PII
-    await User.findByIdAndUpdate(req.user._id, {
-      isActive: false,
-      isDeleted: true,
-      deletedAt: new Date(),
-      email: `deleted_${req.user._id}@deleted.com`,
-      phoneNumber: null,
-      firstName: 'Deleted',
-      lastName: 'User',
-      bio: null,
-      images: [],
-      pushToken: null,
-    });
+    const matchIds = await Match.find({
+      $or: [{ user1: userId }, { user2: userId }],
+    }).distinct('_id');
+
+    await Promise.all([
+      Like.deleteMany({ $or: [{ user: userId }, { likedUser: userId }] }),
+      BlockedUser.deleteMany({ $or: [{ blocker: userId }, { blocked: userId }] }),
+      Report.deleteMany({ $or: [{ reporter: userId }, { reported: userId }] }),
+      ProfileView.deleteMany({ $or: [{ viewer: userId }, { viewed: userId }] }),
+      Notification.deleteMany({ $or: [{ recipient: userId }, { sender: userId }] }),
+      MessageRequest.deleteMany({ $or: [{ fromUser: userId }, { toUser: userId }] }),
+      Follow.deleteMany({ $or: [{ follower: userId }, { following: userId }] }),
+      FriendRequest.deleteMany({ $or: [{ sender: userId }, { receiver: userId }] }),
+      Match.deleteMany({ $or: [{ user1: userId }, { user2: userId }] }),
+      Message.deleteMany({
+        $or: [
+          { sender: userId },
+          { receiver: userId },
+          { match: { $in: matchIds } },
+        ],
+      }),
+      User.findByIdAndDelete(userId),
+    ]);
 
     res.json({ success: true, message: 'Account deleted successfully' });
   } catch (error) {

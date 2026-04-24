@@ -481,7 +481,11 @@ const getProfileVisitors = async (req, res, next) => {
         .sort({ updatedAt: -1 })
         .skip(skip)
         .limit(sanitizedLimit)
-        .populate('viewer', '-password -otp -otpExpiry')
+        .populate({
+          path: 'viewer',
+          select: '-password -otp -otpExpiry',
+          match: { isDeleted: { $ne: true }, isActive: true },
+        })
         .lean(),
       ProfileView.countDocuments({ viewed: userId }),
     ]);

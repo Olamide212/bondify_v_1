@@ -37,7 +37,8 @@ import {
     ScrollView,
     StyleSheet,
     Text,
-    View
+    View,
+    Platform
 } from "react-native";
 import Animated, {
     interpolate,
@@ -47,33 +48,33 @@ import Animated, {
     withTiming,
 } from "react-native-reanimated";
 import { useDispatch, useSelector } from "react-redux";
-import ActionButtons from "../../../../components/homeScreen/ActionButtons";
-import ActionTipsOverlay from "../../../../components/homeScreen/ActionTipsOverlay";
-import AroundYou from "../../../../components/homeScreen/AroundYouTab";
-import EmptyDeckSlider from "../../../../components/homeScreen/EmptyDeckSlider";
-import AIAssistantModal from "../../../../components/modals/AIAssistantModal";
-import AIMatchResultsModal from "../../../../components/modals/AIMatchResultsModal";
-import BoostModal from "../../../../components/modals/BoostModal";
-import CardFeedbackModal from "../../../../components/modals/CardFeedbackModal";
-import ComplimentModal from "../../../../components/modals/ComplimentModal";
-import FilterModal from "../../../../components/modals/FilterModal";
-import NotificationsModal from "../../../../components/modals/NotificationsModal";
-import SortModal from "../../../../components/modals/SortModal";
-import UserProfileModal from "../../../../components/modals/UserProfileModal";
-import LogoLoader from "../../../../components/ui/LogoLoader";
-import { NotificationBanner } from "../../../../components/ui/NotificationBanner";
-import { colors } from "../../../../constant/colors";
-import { useProfile } from "../../../../context/ProfileContext";
-import AIService from "../../../../services/aiService";
-import { profileService } from "../../../../services/profileService";
-import SettingsService from "../../../../services/settingsService";
-import { socketService } from "../../../../services/socketService";
-import { updateCurrentUser } from "../../../../slices/authSlice";
+import ActionButtons from "../../components/homeScreen/ActionButtons";
+import ActionTipsOverlay from "../../components/homeScreen/ActionTipsOverlay";
+import AroundYou from "../../components/homeScreen/AroundYouTab";
+import EmptyDeckSlider from "../../components/homeScreen/EmptyDeckSlider";
+import AIAssistantModal from "../../components/modals/AIAssistantModal";
+import AIMatchResultsModal from "../../components/modals/AIMatchResultsModal";
+import BoostModal from "../../components/modals/BoostModal";
+import CardFeedbackModal from "../../components/modals/CardFeedbackModal";
+import ComplimentModal from "../../components/modals/ComplimentModal";
+import FilterModal from "../../components/modals/FilterModal";
+import NotificationsModal from "../../components/modals/NotificationsModal";
+import SortModal from "../../components/modals/SortModal";
+import UserProfileModal from "../../components/modals/UserProfileModal";
+import LogoLoader from "../../components/ui/LogoLoader";
+import { NotificationBanner } from "../../components/ui/NotificationBanner";
+import { colors } from "../../constant/colors";
+import { useProfile } from "../../context/ProfileContext";
+import AIService from "../../services/aiService";
+import { profileService } from "../../services/profileService";
+import SettingsService from "../../services/settingsService";
+import { socketService } from "../../services/socketService";
+import { updateCurrentUser } from "../../slices/authSlice";
 import { LinearGradient } from "expo-linear-gradient";
 
 // ─── Swipe badge assets ───────────────────────────────────────────────────────
-const BOND_BADGE = require("../../../../assets/images/Bond_Badge_Right.png");
-const NOPE_BADGE = require("../../../../assets/images/Nope_Badge_Left.png");
+const BOND_BADGE = require("../../assets/images/Bond_Badge_Right.png");
+const NOPE_BADGE = require("../../assets/images/Nope_Badge_Left.png");
 
 const NOTIFICATIONS_STORAGE_KEY  = "@bondify/cache/home/notifications";
 const NOTIF_SETTINGS_STORAGE_KEY = "@bondify/cache/notificationSettings";
@@ -131,9 +132,9 @@ const Home = () => {
   // Placeholder nearby-user avatars for the radar dots
   const NEARBY_PLACEHOLDERS = useMemo(
     () => [
-      require("../../../../assets/images/BOT_AVATAR.png"),
-      require("../../../../assets/images/user.png"),
-      require("../../../../assets/images/bondify-icon.png"),
+      require("../../assets/images/BOT_AVATAR.png"),
+      require("../../assets/images/user.png"),
+      require("../../assets/images/bondify-icon.png"),
     ],
     []
   );
@@ -894,7 +895,7 @@ const styles = StyleSheet.create({
   },
   actionButtonWrapper: {
     position: "absolute",
-    bottom:   5,
+    bottom:   Platform.OS === 'ios' ? 80 : 90,
     left:     0,
     right:    0,
     zIndex:   10,

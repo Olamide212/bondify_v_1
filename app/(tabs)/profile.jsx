@@ -13,18 +13,17 @@ import {
 } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-import GeneralHeader from "../../../../components/headers/GeneralHeader";
-import InfoSection from "../../../../components/profileScreen/InfoSection";
-import ProfileSection from "../../../../components/profileScreen/ProfileSection";
-import SocialProfileTab from "../../../../components/profileScreen/SocialProfileTab";
-import SubscriptionBannerSlider from "../../../../components/profileScreen/SubscriptionBannerSlider";
-import { colors } from "../../../../constant/colors";
-import { profileService } from "../../../../services/profileService";
+import GeneralHeader from "../../components/headers/GeneralHeader";
+import InfoSection from "../../components/profileScreen/InfoSection";
+import ProfileSection from "../../components/profileScreen/ProfileSection";
+import SocialProfileTab from "../../components/profileScreen/SocialProfileTab";
+import { colors } from "../../constant/colors";
+import { profileService } from "../../services/profileService";
 
 const PROFILE_TABS = ["Dating Profile", "Social Profile"];
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
-const ProfileScreen = () => {
+const ProfileScreenContent = () => {
   const router = useRouter();
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -168,6 +167,22 @@ const ProfileScreen = () => {
     </SafeAreaProvider>
   );
 }
+
+const ProfileScreen = () => {
+  const [hasActivated, setHasActivated] = useState(false);
+
+  useFocusEffect(
+    useCallback(() => {
+      setHasActivated(true);
+    }, [])
+  );
+
+  if (!hasActivated) {
+    return <View style={{ flex: 1, backgroundColor: "#121212" }} />;
+  }
+
+  return <ProfileScreenContent />;
+};
 
 export default ProfileScreen
 

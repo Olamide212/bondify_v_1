@@ -70,6 +70,16 @@ const SplashScreen = () => {
     router.replace(route);
   };
 
+  const dismissAllAndReplace = (route) => {
+    try {
+      router.dismissAll();
+    } catch (_error) {
+      // ignore when there is no dismissible stack
+    }
+    hasNavigated.current = true;
+    router.replace(route);
+  };
+
   useEffect(() => {
     const id = setTimeout(async () => {
       if (!hasNavigated.current) {
@@ -80,8 +90,8 @@ const SplashScreen = () => {
           console.warn("[SplashScreen] Hard timeout — onboarding session pending, going to /onboarding");
           navigate("/onboarding");
         } else if (persistedToken) {
-          console.warn("[SplashScreen] Hard timeout — token exists, going to /root-tabs");
-          navigate("/root-tabs");
+          console.warn("[SplashScreen] Hard timeout — token exists, going to /(tabs)/home");
+          navigate("/(tabs)/home");
         } else {
           console.warn("[SplashScreen] Hard timeout — no token, forcing /onboarding");
           navigate("/onboarding");
@@ -117,9 +127,9 @@ const SplashScreen = () => {
       if (resetKeys.length > 0) await AsyncStorage.multiRemove(resetKeys);
       await persistor.purge();
       dispatch(logout());
-      navigate("/onboarding");
+      dismissAllAndReplace("/onboarding");
     } catch {
-      navigate("/onboarding");
+      dismissAllAndReplace("/onboarding");
     } finally {
       resetInProgressRef.current = false;
     }

@@ -177,7 +177,7 @@ const buildNavigationAction = (notification) => {
   }
 
   return {
-    pathname: "/(root)/(tab)/home",
+    pathname: "/(tabs)/home",
     params: { openNotifications: "true" },
   };
 };

@@ -61,6 +61,13 @@ const ForgotPasswordOtp = () => {
     }
   };
 
+  const handleBack = () => {
+    router.replace({
+      pathname: "/forgot-password",
+      params: email ? { email } : undefined,
+    });
+  };
+
   return (
     <OtpVerificationScreen
       title="Reset password"
@@ -69,6 +76,8 @@ const ForgotPasswordOtp = () => {
       loading={loading}
       onSubmit={handleSubmit}
       onResend={handleResend}
+      onBack={handleBack}
+      backButton
       submitLabel="Verify Code"
     />
   );

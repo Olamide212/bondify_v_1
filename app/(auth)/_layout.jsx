@@ -2,9 +2,10 @@ import { Stack, useRouter, useSegments } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import HeaderWithLogo from "../../components/headers/HeaderWithLogo";
 import { useAuthRestore } from "../../hooks/useAuthRestore";
+import { clearPendingEmail } from "../../slices/authSlice";
 import { getOnboardingResumeRoute } from "../../utils/onboardingProgress";
 
 const ONBOARDING_STEPS = [
@@ -34,6 +35,7 @@ const ONBOARDING_STEPS = [
 
 export default function AuthLayout() {
   const router = useRouter();
+    const dispatch = useDispatch();
   const segments = useSegments(); // returns an array like ['auth', '(onboarding)', 'birthday']
   const { restored, isAuthenticated, onboardingToken } = useAuthRestore();
   const { pendingEmail } = useSelector((state) => state.auth);
@@ -42,12 +44,15 @@ export default function AuthLayout() {
   const isOnboarding = segments.includes("(onboarding)");
   const isLogin = segments.includes("login");
   const isRegister = segments.includes("register");
+    const isValidation = segments.includes("validation");
   const isForgotPassword = segments.includes("forgot-password");
   const isResetPassword = segments.includes("reset-password");
 
   // Pre-auth screens that users explicitly navigate to  these should
   // never be interrupted by the onboarding-token redirect.
-  const isPreAuthScreen = isLogin || isRegister || isForgotPassword || isResetPassword;
+  // validation is also a pre-auth screen — user may intentionally be there;
+  // do NOT redirect them away while they sit on it.
+  const isPreAuthScreen = isLogin || isRegister || isForgotPassword || isResetPassword || isValidation;
 
   useEffect(() => {
     if (!restored) return;
@@ -72,7 +77,7 @@ export default function AuthLayout() {
     }
 
     if (isAuthenticated && !onboardingToken && !isOnboarding) {
-      router.replace("/root-tabs");
+      router.replace("/(tabs)/home");
     }
   }, [
     restored,
@@ -86,7 +91,19 @@ export default function AuthLayout() {
 
   return (
     <SafeAreaView className="flex-1" style={{backgroundColor: '#121212'}}>
-      {!isOnboarding && <HeaderWithLogo showBackButton={!isLogin} />}
+      {!isOnboarding && (
+        <HeaderWithLogo
+          showBackButton={!isLogin}
+          onBack={
+            isValidation
+              ? () => {
+                  dispatch(clearPendingEmail());
+                  router.replace("/register");
+                }
+              : undefined
+          }
+        />
+      )}
       <StatusBar style="light" />
       <Stack screenOptions={{
     headerShown: false,

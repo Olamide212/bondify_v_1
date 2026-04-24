@@ -1,5 +1,5 @@
 /**
- * Bondup Feed Screen  —  app/(root)/(tab)/feed/index.jsx
+ * Bondup Feed Screen  —  app/(tabs)/feed/index.jsx
  *
  * Persistence fix: Uses AsyncStorage to cache Bondups locally so they persist
  * across navigation and app restarts. Implements stale-while-revalidate pattern.
@@ -8,7 +8,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useRouter } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { ArrowUpDown, Building2, Plus, User } from 'lucide-react-native';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
@@ -23,17 +23,17 @@ import {
 } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useSelector } from 'react-redux';
-import BondupCard from '../../../../components/bondup/BondupCard';
-import BondupDetailModal from '../../../../components/bondup/BondupDetailModal';
-import BondupJoinedModal from '../../../../components/bondup/BondupJoinedModal';
-import CreateBondupModal from '../../../../components/bondup/CreateBondupModal';
-import BondupFilterModal from '../../../../components/modals/BondupFilterModal';
-import { colors } from '../../../../constant/colors';
-import { images } from '../../../../constant/images';
-import { useAlert } from '../../../../context/AlertContext';
-import bondupChatService from '../../../../services/bondupChatService';
-import bondupService from '../../../../services/bondupService';
-import { socketService } from '../../../../services/socketService';
+import BondupCard from '../../components/bondup/BondupCard';
+import BondupDetailModal from '../../components/bondup/BondupDetailModal';
+import BondupJoinedModal from '../../components/bondup/BondupJoinedModal';
+import CreateBondupModal from '../../components/bondup/CreateBondupModal';
+import BondupFilterModal from '../../components/modals/BondupFilterModal';
+import { colors } from '../../constant/colors';
+import { images } from '../../constant/images';
+import { useAlert } from '../../context/AlertContext';
+import bondupChatService from '../../services/bondupChatService';
+import bondupService from '../../services/bondupService';
+import { socketService } from '../../services/socketService';
 
 // ─── Cache keys for persistence ──────────────────────────────────────────────
 const BONDUPS_CACHE_KEY = '@bondify/cache/bondups';
@@ -119,6 +119,22 @@ const avatar = (user) =>
 
 // ─── BondupFeedScreen ────────────────────────────────────────────────────────
 export default function BondupFeedScreen() {
+  const [hasActivated, setHasActivated] = useState(false);
+
+  useFocusEffect(
+    useCallback(() => {
+      setHasActivated(true);
+    }, [])
+  );
+
+  if (!hasActivated) {
+    return <View style={{ flex: 1, backgroundColor: '#121212' }} />;
+  }
+
+  return <BondupFeedScreenContent />;
+}
+
+function BondupFeedScreenContent() {
   const router = useRouter();
   const { showAlert } = useAlert();
   const { user: currentUser } = useSelector((s) => s.auth);

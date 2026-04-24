@@ -307,6 +307,9 @@ const authSlice = createSlice({
       authAPI.clearCachedMe();
     },
 
+    clearPendingEmail: (state) => {
+      state.pendingEmail = null;
+    },
     clearError: (state) => {
       state.error = null;
     },
@@ -427,6 +430,6 @@ const authSlice = createSlice({
   },
 });
 
-export const { logout, clearError, setAuthLoading, clearOnboardingToken, updateCurrentUser } =
+export const { logout, clearError, clearPendingEmail, setAuthLoading, clearOnboardingToken, updateCurrentUser } =
   authSlice.actions;
 export default authSlice.reducer;

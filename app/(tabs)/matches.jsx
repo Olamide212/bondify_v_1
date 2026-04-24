@@ -1,15 +1,15 @@
-import { useRouter } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-import TabNavigation from "../../../../components/explore/exploreScreenTab";
-import LikedYou from "../../../../components/explore/LikedYou";
-import Passed from "../../../../components/explore/Passed";
-import VisitedYou from "../../../../components/explore/visitedYou";
-import YouLiked from "../../../../components/explore/YouLiked";
-import GeneralHeader from "../../../../components/headers/GeneralHeader";
-import { colors } from "../../../../constant/colors";
-import { profileService } from "../../../../services/profileService";
+import TabNavigation from "../../components/explore/exploreScreenTab";
+import LikedYou from "../../components/explore/LikedYou";
+import Passed from "../../components/explore/Passed";
+import VisitedYou from "../../components/explore/visitedYou";
+import YouLiked from "../../components/explore/YouLiked";
+import GeneralHeader from "../../components/headers/GeneralHeader";
+import { colors } from "../../constant/colors";
+import { profileService } from "../../services/profileService";
 
 const normalizeProfile = (profile) => {
   const normalizeImages = (images) => {
@@ -48,6 +48,22 @@ const normalizeProfile = (profile) => {
 };
 
 export default function ExploreTabComponents() {
+  const [hasActivated, setHasActivated] = useState(false);
+
+  useFocusEffect(
+    useCallback(() => {
+      setHasActivated(true);
+    }, [])
+  );
+
+  if (!hasActivated) {
+    return <View style={{ flex: 1, backgroundColor: "#121212" }} />;
+  }
+
+  return <ExploreTabComponentsContent />;
+}
+
+function ExploreTabComponentsContent() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("likedYou");
   const [loading, setLoading] = useState(true);
@@ -55,18 +71,21 @@ export default function ExploreTabComponents() {
   const [likedYouData, setLikedYouData] = useState([]);
   const [youLikedData, setYouLikedData] = useState([]);
   const [passedData, setPassedData] = useState([]);
+  const [visitedYouData, setVisitedYouData] = useState([]);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const [likedYou, youLiked, passed] = await Promise.all([
+      const [likedYou, youLiked, passed, visitors] = await Promise.all([
         profileService.getLikedYou().catch((err) => { console.warn('Failed to fetch liked-you:', err?.message); return []; }),
         profileService.getYouLiked().catch((err) => { console.warn('Failed to fetch you-liked:', err?.message); return []; }),
         profileService.getPassed().catch((err) => { console.warn('Failed to fetch passed:', err?.message); return []; }),
+        profileService.getProfileVisitors().catch((err) => { console.warn('Failed to fetch visitors:', err?.message); return []; }),
       ]);
       setLikedYouData(likedYou.map(normalizeProfile));
       setYouLikedData(youLiked.map(normalizeProfile));
       setPassedData(passed.map(normalizeProfile));
+      setVisitedYouData(visitors.map(normalizeProfile));
     } catch (_error) {
       // Keep existing data on error
     } finally {
@@ -100,7 +119,7 @@ export default function ExploreTabComponents() {
     switch (activeTab) {
       case "visitedYou":
         return (
-          <VisitedYou data={[]} onUserPress={handleUserPress} />
+          <VisitedYou data={visitedYouData} onUserPress={handleUserPress} />
         );
       case "likedYou":
         return (
@@ -129,12 +148,11 @@ export default function ExploreTabComponents() {
       <SafeAreaView style={{ flex: 1 }} className="bg-[#121212]">
              <GeneralHeader title="Discover" />
     
-        <View className='bg-background
-    '>
+        <View>
           <TabNavigation
             activeTab={activeTab}
             setActiveTab={setActiveTab}
-            visitedCount={0}
+            visitedCount={visitedYouData.length}
             likedCount={likedYouData.length}
             youLikedCount={youLikedData.length}
             passedCount={passedData.length}

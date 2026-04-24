@@ -241,7 +241,11 @@ const getReceivedRequests = async (req, res, next) => {
     }
 
     const requests = await MessageRequest.find(query)
-      .populate('fromUser', 'firstName lastName images age occupation location isVerified')
+      .populate({
+        path: 'fromUser',
+        select: 'firstName lastName images age occupation location isVerified isDeleted isActive',
+        match: { isDeleted: { $ne: true }, isActive: true },
+      })
       .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
       .limit(Number(limit))
@@ -251,7 +255,9 @@ const getReceivedRequests = async (req, res, next) => {
 
     // Add time remaining to each request
     const now = new Date();
-    const requestsWithMeta = requests.map(r => ({
+    const requestsWithMeta = requests
+      .filter((r) => r.fromUser)
+      .map(r => ({
       ...r,
       timeRemaining: r.status === 'pending' ? Math.max(0, r.expiresAt.getTime() - now.getTime()) : 0,
       isExpired: r.status === 'pending' && now > r.expiresAt,
@@ -294,7 +300,11 @@ const getSentRequests = async (req, res, next) => {
     }
 
     const requests = await MessageRequest.find(query)
-      .populate('toUser', 'firstName lastName images')
+      .populate({
+        path: 'toUser',
+        select: 'firstName lastName images isDeleted isActive',
+        match: { isDeleted: { $ne: true }, isActive: true },
+      })
       .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
       .limit(Number(limit))
@@ -302,10 +312,12 @@ const getSentRequests = async (req, res, next) => {
 
     const total = await MessageRequest.countDocuments(query);
 
+    const visibleRequests = requests.filter((r) => r.toUser);
+
     res.json({
       success: true,
       data: {
-        requests,
+        requests: visibleRequests,
         pagination: {
           page: Number(page),
           limit: Number(limit),
@@ -334,12 +346,26 @@ const acceptRequest = async (req, res, next) => {
     const { id } = req.params;
 
     const request = await MessageRequest.findById(id)
-      .populate('fromUser', 'firstName lastName images');
+      .populate({
+        path: 'fromUser',
+        select: 'firstName lastName images isDeleted isActive',
+        match: { isDeleted: { $ne: true }, isActive: true },
+      });
 
     if (!request) {
       return res.status(404).json({ 
         success: false, 
         message: 'Request not found.' 
+      });
+    }
+
+    if (!request.fromUser) {
+      request.status = 'declined';
+      request.respondedAt = new Date();
+      await request.save();
+      return res.status(404).json({
+        success: false,
+        message: 'Request sender is no longer available.',
       });
     }
 

@@ -65,8 +65,8 @@ export const determineNextRoute = async ({
 
   // 3️⃣ Fully authenticated user with completed onboarding
   if (token) {
-    console.log("Returning /root-tabs due to token (onboarding complete)");
-    return "/root-tabs";
+    console.log("Returning /(tabs)/home due to token (onboarding complete)");
+    return "/(tabs)/home";
   }
 
   // 4️⃣ No active auth/onboarding session — new user
