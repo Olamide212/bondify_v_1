@@ -48,6 +48,7 @@ const path = require('path');
 config.resolver.extraNodeModules = {
   ...(config.resolver.extraNodeModules || {}),
   'react-async-hook': path.resolve(__dirname, 'node_modules/react-async-hook/dist/index.js'),
+  'buffer': require.resolve('buffer'),
 };
 
 // override resolveRequest to bypass the broken "module" field
