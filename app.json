@@ -2,7 +2,7 @@
   "expo": {
     "name": "bondies",
     "slug": "bondies",
-    "version": "1.1.0",
+    "version": "1.2.0",
     "orientation": "portrait",
     "owner": "bondify-team",
     "icon": "./assets/images/Bondies-main-icon.png",
@@ -12,11 +12,13 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.olabid212.bondify",
+      "buildNumber": "2",
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "This app needs access to your location to show nearby users."
       }
     },
     "android": {
+      "versionCode": 2,
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/Bondies-main-icon.png",
         "backgroundColor": "#121212"
@@ -54,12 +56,30 @@
           "locationPermission": "Allow $(PRODUCT_NAME) to use your location"
         }
       ],
-      ["expo-audio", {
-"microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone.",
+      [
+        "expo-audio",
+        {
+          "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone.",
           "enableBackgroundPlayback": true,
           "enableBackgroundRecording": false
-}],
-      "expo-secure-store"
+        }
+      ],
+      "expo-secure-store",
+      [
+        "expo-video",
+        {
+          "supportsBackgroundPlayback": true,
+          "supportsPictureInPicture": true
+        }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera",
+          "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone",
+          "recordAudioAndroid": false
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true
@@ -70,7 +90,7 @@
         "projectId": "3dc78aca-e1f1-45b2-8fca-97d2c9d44859"
       }
     },
-    "runtimeVersion": "1.1.0",
+    "runtimeVersion": "1.2.0",
     "updates": {
       "url": "https://u.expo.dev/3dc78aca-e1f1-45b2-8fca-97d2c9d44859"
     }

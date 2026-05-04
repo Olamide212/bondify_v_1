@@ -5,7 +5,7 @@
  * After sending, plays a sound and shows a "View Other Profiles" button.
  */
 
-import { Audio } from "expo-av";
+import { Audio } from "expo-audio";
 import { Send, Sparkles, X } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
 import {

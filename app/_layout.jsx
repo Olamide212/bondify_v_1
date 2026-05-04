@@ -16,24 +16,26 @@ import { ThemeProvider } from "../context/ThemeContext";
 import { ToastProvider } from "../context/ToastContext";
 import { WalletProvider } from "../context/WalletContext";
 import "../global.css";
+import { useAuthRestore } from "../hooks/useAuthRestore"; // ✅ Import here
 import { messageService } from "../services/messageService";
 import { profileService } from "../services/profileService";
 import PushNotificationService from "../services/pushNotificationService";
 import { persistor, store } from "../store/store";
 
-// Force dark keyboard globally
 if (TextInput.defaultProps == null) TextInput.defaultProps = {};
 TextInput.defaultProps.keyboardAppearance = "dark";
 
-
 SplashScreen.preventAutoHideAsync();
 
-// Inner component that uses the ProfileContext
+// ✅ This component is inside <Provider>, so useAuthRestore works safely here
 function RootLayoutInner() {
   const router = useRouter();
   const currentUser = useSelector((state) => state.auth.user);
   const { matchCelebration, setMatchCelebration } = useProfile();
   const [activeBanner, setActiveBanner] = useState(null);
+
+  // ✅ Moved from (root)/_layout.jsx — safe here because we're inside <Provider>
+  useAuthRestore();
 
   useEffect(() => {
     PushNotificationService.handleInitialNotificationResponse({ router });
@@ -58,7 +60,6 @@ function RootLayoutInner() {
     return removeListeners;
   }, [router]);
 
-  // Initialize cache manager with current user
   useEffect(() => {
     if (currentUser?.id || currentUser?._id) {
       const userId = currentUser.id || currentUser._id;
@@ -69,33 +70,18 @@ function RootLayoutInner() {
   useEffect(() => {
     const userId = currentUser?.id || currentUser?._id;
     if (!userId) return;
-
     PushNotificationService.registerForPushNotifications({ userId });
   }, [currentUser?.id, currentUser?._id]);
 
   return (
     <View style={{ flex: 1 }}>
       <Stack screenOptions={{ headerShown: false }} className="bg-[#121212]">
-        {/* Only keep these if you're customizing screen options */}
         <Stack.Screen name="index" />
-        <Stack.Screen
-          name="(root)"
-          // options={{
-          //   gestureEnabled: false,
-          // }}
-        />
-        <Stack.Screen
-          name="(auth)"
-          // options={{
-          //   gestureEnabled: false,
-          // }}
-        />
+        <Stack.Screen name="(root)" />
+        <Stack.Screen name="(auth)" />
         <Stack.Screen name="(tabs)" />
-
       </Stack>
-      {/* <OfflineBanner /> */}
 
-      {/* In-app foreground push notification banner */}
       <NotificationBanner
         notification={activeBanner}
         onDismiss={() => setActiveBanner(null)}
@@ -107,7 +93,6 @@ function RootLayoutInner() {
         }}
       />
 
-      {/* Global Match Celebration Modal — accessible from anywhere */}
       <MatchCelebrationModal
         visible={!!matchCelebration}
         onClose={() => setMatchCelebration(null)}
@@ -135,22 +120,22 @@ function RootLayoutInner() {
 export default function RootLayout() {
   const splashHidden = useRef(false);
 
-const [fontsLoaded, fontError] = useFonts({
-  PlusJakartaSans: require("../assets/fonts/PlusJakartaSans_400Regular.ttf"),
-  PlusJakartaSansExtraLight: require("../assets/fonts/PlusJakartaSans_200ExtraLight.ttf"),
-  PlusJakartaSansLight: require("../assets/fonts/PlusJakartaSans_300Light.ttf"),
-  PlusJakartaSansMedium: require("../assets/fonts/PlusJakartaSans_500Medium.ttf"),
-  PlusJakartaSansSemiBold: require("../assets/fonts/PlusJakartaSans_600SemiBold.ttf"),
-  PlusJakartaSansBold: require("../assets/fonts/PlusJakartaSans_700Bold.ttf"),
-  PlusJakartaSansExtraBold: require("../assets/fonts/PlusJakartaSans_800ExtraBold.ttf"),
-  Outfit: require("../assets/fonts/PlusJakartaSans_400Regular.ttf"),
-  OutfitExtraLight: require("../assets/fonts/PlusJakartaSans_200ExtraLight.ttf"),
-  OutfitLight: require("../assets/fonts/PlusJakartaSans_300Light.ttf"),
-  OutfitMedium: require("../assets/fonts/PlusJakartaSans_500Medium.ttf"),
-  OutfitSemiBold: require("../assets/fonts/PlusJakartaSans_600SemiBold.ttf"),
-  OutfitBold: require("../assets/fonts/PlusJakartaSans_700Bold.ttf"),
-  OutfitExtraBold: require("../assets/fonts/PlusJakartaSans_800ExtraBold.ttf"),
-});
+  const [fontsLoaded, fontError] = useFonts({
+    PlusJakartaSans: require("../assets/fonts/PlusJakartaSans_400Regular.ttf"),
+    PlusJakartaSansExtraLight: require("../assets/fonts/PlusJakartaSans_200ExtraLight.ttf"),
+    PlusJakartaSansLight: require("../assets/fonts/PlusJakartaSans_300Light.ttf"),
+    PlusJakartaSansMedium: require("../assets/fonts/PlusJakartaSans_500Medium.ttf"),
+    PlusJakartaSansSemiBold: require("../assets/fonts/PlusJakartaSans_600SemiBold.ttf"),
+    PlusJakartaSansBold: require("../assets/fonts/PlusJakartaSans_700Bold.ttf"),
+    PlusJakartaSansExtraBold: require("../assets/fonts/PlusJakartaSans_800ExtraBold.ttf"),
+    Outfit: require("../assets/fonts/PlusJakartaSans_400Regular.ttf"),
+    OutfitExtraLight: require("../assets/fonts/PlusJakartaSans_200ExtraLight.ttf"),
+    OutfitLight: require("../assets/fonts/PlusJakartaSans_300Light.ttf"),
+    OutfitMedium: require("../assets/fonts/PlusJakartaSans_500Medium.ttf"),
+    OutfitSemiBold: require("../assets/fonts/PlusJakartaSans_600SemiBold.ttf"),
+    OutfitBold: require("../assets/fonts/PlusJakartaSans_700Bold.ttf"),
+    OutfitExtraBold: require("../assets/fonts/PlusJakartaSans_800ExtraBold.ttf"),
+  });
 
   const hideSplash = useCallback(async () => {
     if (splashHidden.current) return;
@@ -162,15 +147,12 @@ const [fontsLoaded, fontError] = useFonts({
     }
   }, []);
 
-  // Hide splash when fonts are ready (or failed)
   useEffect(() => {
     if (fontsLoaded || fontError) {
       hideSplash();
     }
   }, [fontsLoaded, fontError, hideSplash]);
 
-  // Safety net: force-hide splash after 5 seconds no matter what
-  // This prevents the app from being stuck on the native splash forever
   useEffect(() => {
     const timer = setTimeout(() => {
       hideSplash();
@@ -181,23 +163,24 @@ const [fontsLoaded, fontError] = useFonts({
   if (!fontsLoaded && !fontError) return null;
 
   return (
-    <GestureHandlerRootView style={{ flex: 1, backgroundColor: '#121212' }}>
+    <GestureHandlerRootView style={{ flex: 1, backgroundColor: "#121212" }}>
       <StatusBar barStyle="light-content" backgroundColor="#121212" />
       <NavigationThemeProvider value={DarkTheme}>
         <Provider store={store}>
           <PersistGate loading={null} persistor={persistor}>
             <ThemeProvider>
-            <WalletProvider>
-              <ProfileProvider>
-                <DiscoveryProfilesProvider>
-                  <ToastProvider>
-                    <AlertProvider>
-                      <RootLayoutInner />
-                    </AlertProvider>
-                  </ToastProvider>
-                </DiscoveryProfilesProvider>
-              </ProfileProvider>
-            </WalletProvider>
+              <WalletProvider>
+                <ProfileProvider>
+                  <DiscoveryProfilesProvider>
+                    <ToastProvider>
+                      <AlertProvider>
+                        {/* ✅ RootLayoutInner is inside Provider — useAuthRestore is safe */}
+                        <RootLayoutInner />
+                      </AlertProvider>
+                    </ToastProvider>
+                  </DiscoveryProfilesProvider>
+                </ProfileProvider>
+              </WalletProvider>
             </ThemeProvider>
           </PersistGate>
         </Provider>

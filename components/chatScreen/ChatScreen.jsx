@@ -1,6 +1,6 @@
 // components/ChatScreen.js
 
-import { Audio } from "expo-av";
+import { Audio } from "expo-audio";
 import { useRouter } from "expo-router";
 import { Copy, Edit2, Mail, MessageCircle, RefreshCw, Search, X } from "lucide-react-native";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";

@@ -12,7 +12,7 @@
  * Used by app/(root)/bondup-chat/index.jsx
  */
 
-import { Audio } from 'expo-av';
+import { Audio } from 'expo-audio';
 import { useRouter } from 'expo-router';
 import {
     AlertTriangle,

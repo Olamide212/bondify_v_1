@@ -24,7 +24,7 @@ function analyzeBundle() {
       'react-native-ble-plx',
       'react-native-video',
       'react-native-pdf',
-      'expo-av',
+      'expo-audio',
       'expo-camera',
       'expo-location',
       'expo-notifications'

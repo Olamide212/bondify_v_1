@@ -12,7 +12,14 @@ import PrivacySection from '../../../../components/settings/PrivacySection'
 import SupportSection from '../../../../components/settings/SupportSection'
 import { useTheme } from '../../../../context/ThemeContext'
 
-const appVersion = Constants.expoConfig?.version ?? Constants.manifest?.version ?? '1.0.0'
+// Reads directly from app.json "version" field — update that, this updates automatically.
+// expoConfig is available in both dev and production builds.
+// manifest2 covers EAS builds specifically (SDK 46+).
+const appVersion =
+  Constants.expoConfig?.version ??
+  Constants.manifest2?.runtimeVersion ??
+  Constants.manifest?.version ??
+  '1.0.0'
 
 const SettingScreen = () => {
   const { colors } = useTheme()

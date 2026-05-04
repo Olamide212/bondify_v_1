@@ -449,7 +449,7 @@ const getProfileVisitors = async (params = {}) => {
 
   /**
    * Upload a voice prompt audio file.
-   * @param {string} localUri — local file URI from expo-av recording
+   * @param {string} localUri — local file URI from expo-audio recording
    * @returns {{ voicePrompt: string, voicePromptPublicId: string }}
    */
   const uploadVoicePrompt = async (localUri) => {
@@ -507,7 +507,7 @@ const getProfileVisitors = async (params = {}) => {
 //  INSTALL (if not already present)
 // ─────────────────────────────────────────────────────────────────────────────
 
-// npx expo install expo-av expo-file-system
+// npx expo install expo-audio expo-file-system
 
 /**
  * Called when user logs in to initialize cache for that user

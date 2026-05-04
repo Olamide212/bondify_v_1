@@ -1,7 +1,6 @@
 import { Stack, useRouter, useSegments } from "expo-router";
 import { useEffect } from "react";
 import { useSelector } from "react-redux";
-import { useAuthRestore } from "../../hooks/useAuthRestore";
 import { getOnboardingResumeRoute } from "../../utils/onboardingProgress";
 
 const ONBOARDING_STEPS = [
@@ -32,14 +31,19 @@ const ONBOARDING_STEPS = [
 export default function RootLayout() {
   const router = useRouter();
   const segments = useSegments();
-  const { restored, isAuthenticated, onboardingToken } = useAuthRestore();
-  const { pendingEmail } = useSelector((state) => state.auth);
+
+  const {
+    authRestored: restored,
+    isAuthenticated,
+    onboardingToken,
+    pendingEmail,
+  } = useSelector((state) => state.auth);
+
   const currentRoute = segments[segments.length - 1];
 
   useEffect(() => {
     if (!restored) return;
 
-    // Only apply guard when the user is actually inside the (root) group
     const isInsideRootGroup = segments[0] === "(root)";
     if (!isInsideRootGroup) return;
 
@@ -51,9 +55,6 @@ export default function RootLayout() {
       return;
     }
 
-    // If user has an onboarding token, they haven't completed onboarding.
-    // Redirect them back to their last onboarding step — even if they
-    // also have an auth token (verifyOtp gives both tokens).
     if (onboardingToken && isAuthenticated && currentRoute !== "splash-screen") {
       const redirectToOnboarding = async () => {
         const route = await getOnboardingResumeRoute({
@@ -92,9 +93,14 @@ export default function RootLayout() {
       <Stack.Screen name="(discover)" />
       <Stack.Screen name="(community)" />
       <Stack.Screen name="(settings)" />
-      <Stack.Screen name="user-profile/[id]" options={{    presentation: "modal", 
-          animation: "slide_from_bottom", 
-          gestureDirection: "vertical", }} />
+      <Stack.Screen
+        name="user-profile/[id]"
+        options={{
+          presentation: "modal",
+          animation: "slide_from_bottom",
+          gestureDirection: "vertical",
+        }}
+      />
       <Stack.Screen name="feed-profile/index" />
       <Stack.Screen name="user-feed-profile/[id]" />
       <Stack.Screen name="edit-user-feed-profile/index" />
@@ -106,13 +112,12 @@ export default function RootLayout() {
       <Stack.Screen name="chat-options/index" />
       <Stack.Screen name="bon-bot/index" />
       <Stack.Screen name="verification/index" />
-
       <Stack.Screen
         name="filter/index"
         options={{
-          presentation: "modal", 
-          animation: "slide_from_bottom", 
-          gestureDirection: "vertical", 
+          presentation: "modal",
+          animation: "slide_from_bottom",
+          gestureDirection: "vertical",
           headerShown: false,
         }}
       />

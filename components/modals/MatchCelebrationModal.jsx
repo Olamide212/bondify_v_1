@@ -1,18 +1,18 @@
-import { Audio } from "expo-av";
+import { Audio } from "expo-audio";
 import { MessageCircle, Send, Sparkles, X } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
 import {
-  Animated,
-  Dimensions,
-  Keyboard,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableWithoutFeedback,
-  View,
+    Animated,
+    Dimensions,
+    Keyboard,
+    Platform,
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableWithoutFeedback,
+    View,
 } from "react-native";
 import { colors } from "../../constant/colors";
 import { ICE_BREAKERS } from "../../constant/iceBreakers";

@@ -1,16 +1,16 @@
-import { ResizeMode, Video } from "expo-av";
 import { BlurView } from "expo-blur";
 import { Image } from "expo-image";
-import { Eye, Play } from "lucide-react-native";
+import { VideoView } from "expo-video";
+import { Eye } from "lucide-react-native";
 import { useCallback, useEffect, useRef } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { colors } from "../../constant/colors";
 import { getProfileMediaType, getProfileMediaUrl } from "../../utils/profileMedia";
 
-const fitToResizeMode = (contentFit) => {
-  if (contentFit === "contain") return ResizeMode.CONTAIN;
-  if (contentFit === "fill") return ResizeMode.STRETCH;
-  return ResizeMode.COVER;
+const fitToScaleType = (contentFit) => {
+  if (contentFit === "contain") return "contain";
+  if (contentFit === "fill") return "stretch";
+  return "cover";
 };
 
 const ProfileMediaView = ({
@@ -19,13 +19,11 @@ const ProfileMediaView = ({
   containerStyle,
   contentFit = "cover",
   blurRadius = 0,
-  showVideoBadge = false,
   showBlurBadge = true,
   shouldPlayVideo = true,
   isMuted = true,
   isLooping = true,
   maxPreviewMs,
-  useNativeControls = false,
   onLoadStart,
   onLoad,
   onError,
@@ -79,15 +77,15 @@ const ProfileMediaView = ({
   return (
     <View style={[styles.container, containerStyle]}>
       {mediaType === "video" ? (
-        <Video
+        <VideoView
           ref={videoRef}
           source={{ uri }}
           style={[StyleSheet.absoluteFillObject, style]}
-          resizeMode={fitToResizeMode(contentFit)}
+          scaleType={fitToScaleType(contentFit)}
           shouldPlay={shouldPlayVideo}
           isLooping={maxPreviewMs ? false : isLooping}
           isMuted={isMuted}
-          useNativeControls={useNativeControls}
+          controls={false}
           progressUpdateIntervalMillis={250}
           onLoadStart={onLoadStart}
           onLoad={onLoad}
@@ -124,12 +122,6 @@ const ProfileMediaView = ({
           <Text style={styles.blurBadgeText}>
             {mediaType === "video" ? "Video blurred" : "Photos are blurred"}
           </Text>
-        </View>
-      )}
-
-      {showVideoBadge && mediaType === "video" && (
-        <View style={styles.videoBadge} pointerEvents="none">
-          <Play size={14} color="#fff" fill="#fff" />
         </View>
       )}
     </View>

@@ -1,5 +1,5 @@
 // // components/InputToolbar.js
-// import { Audio } from "expo-av";
+// import { Audio } from "expo-audio";
 // import * as ImagePicker from "expo-image-picker";
 // import { Edit2, Mic, Reply, Send, X } from "lucide-react-native";
 // import { useEffect, useRef, useState } from "react";
@@ -268,16 +268,16 @@
 
 
 // components/InputToolbar.js
-import { Audio } from "expo-av";
+import { Audio } from "expo-audio";
 import * as ImagePicker from "expo-image-picker";
 import { Edit2, Reply, Send, Sparkles, X } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
 import {
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { colors } from "../../constant/colors";

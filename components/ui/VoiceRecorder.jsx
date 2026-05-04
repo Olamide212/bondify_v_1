@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useRef } from "react";
-import { View, TouchableOpacity, StyleSheet, Text } from "react-native";
-import { Audio } from "expo-av";
-import { Mic, ChevronLeft, ArrowUp } from "lucide-react-native";
+import { Audio } from "expo-audio";
+import { ArrowUp, ChevronLeft, Mic } from "lucide-react-native";
+import { useEffect, useRef, useState } from "react";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Waveform from "./Waveform";
 
 export default function VoiceRecorder({ onSendAudio, onCancel }) {

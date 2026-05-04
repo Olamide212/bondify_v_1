@@ -80,7 +80,7 @@ const VerifiedContent = () => (
     </View>
 
     <Text style={s.verifiedDesc}>
-      Your profile carries the verified badge — others can trust it's really you.
+      Your profile carries the verified badge — others can trust it&apos;s really you.
     </Text>
 
     <View style={s.verifiedPerks}>
@@ -105,7 +105,7 @@ const PendingContent = () => (
     <View style={{ flex: 1 }}>
       <Text style={s.cardTitle}>Verification Pending</Text>
       <Text style={s.cardSub}>
-        We're reviewing your selfie. This usually takes a few minutes.
+        We&apos;re reviewing your selfie. This usually takes a few minutes.
       </Text>
     </View>
   </View>
